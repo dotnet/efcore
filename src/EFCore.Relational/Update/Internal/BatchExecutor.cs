@@ -66,12 +66,14 @@ public class BatchExecutor : IBatchExecutor
         try
         {
             var transactionEnlistManager = connection as ITransactionEnlistmentManager;
+            var autoTransactionBehavior = CurrentContext.Context.Database.AutoTransactionBehavior;
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled
                 // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
-                && (batch.AreMoreBatchesExpected || batch.RequiresTransaction))
+                && ((autoTransactionBehavior == AutoTransactionBehavior.WhenNeeded
+                        && (batch.AreMoreBatchesExpected || batch.RequiresTransaction))
+                    || autoTransactionBehavior == AutoTransactionBehavior.Always))
             {
                 transaction = connection.BeginTransaction();
                 beganTransaction = true;
@@ -174,12 +176,14 @@ public class BatchExecutor : IBatchExecutor
         try
         {
             var transactionEnlistManager = connection as ITransactionEnlistmentManager;
+            var autoTransactionBehavior = CurrentContext.Context.Database.AutoTransactionBehavior;
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled
                 // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
-                && (batch.AreMoreBatchesExpected || batch.RequiresTransaction))
+                && ((autoTransactionBehavior == AutoTransactionBehavior.WhenNeeded
+                        && (batch.AreMoreBatchesExpected || batch.RequiresTransaction))
+                    || autoTransactionBehavior == AutoTransactionBehavior.Always))
             {
                 transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
                 beganTransaction = true;

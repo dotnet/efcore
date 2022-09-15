@@ -9299,10 +9299,12 @@ ORDER BY [g].[Nickname], [g].[SquadId], [t].[IsAutomatic]");
     }
 
     public override async Task
-        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(bool async)
+        Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+            bool async)
     {
         await base
-            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async);
+            .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                async);
 
         AssertSql(
             @"SELECT [g].[Nickname], [g].[SquadId], [t0].[Key], [t0].[Count]
@@ -9799,7 +9801,14 @@ ORDER BY [g].[Nickname], [g].[SquadId]");
     {
         await base.Join_with_complex_key_selector(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [s].[Id], [t0].[Id] AS [TagId]
+FROM [Squads] AS [s]
+CROSS JOIN (
+    SELECT [t].[Id]
+    FROM [Tags] AS [t]
+    WHERE [t].[Note] = N'Marcus'' Tag'
+) AS [t0]");
     }
 
     public override async Task Streaming_correlated_collection_issue_11403_returning_ordered_enumerable_throws(bool async)

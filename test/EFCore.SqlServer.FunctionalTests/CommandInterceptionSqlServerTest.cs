@@ -98,7 +98,6 @@ public abstract class CommandInterceptionSqlServerTestBase : CommandInterception
         return interceptor.CommandText;
     }
 
-
     protected class StatisticsCommandInterceptor : CommandInterceptorBase
     {
         public StatisticsCommandInterceptor()

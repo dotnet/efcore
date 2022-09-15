@@ -27,5 +27,24 @@ public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsiste
             typeof(SqliteDbContextOptionsBuilder),
             typeof(SqlitePropertyBuilderExtensions)
         };
+
+        public override
+            List<(Type Type,
+                Type ReadonlyExtensions,
+                Type MutableExtensions,
+                Type ConventionExtensions,
+                Type ConventionBuilderExtensions,
+                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
+            = new()
+            {
+                (
+                    typeof(IReadOnlyProperty),
+                    typeof(SqlitePropertyExtensions),
+                    typeof(SqlitePropertyExtensions),
+                    typeof(SqlitePropertyExtensions),
+                    typeof(SqlitePropertyBuilderExtensions),
+                    null
+                )
+            };
     }
 }

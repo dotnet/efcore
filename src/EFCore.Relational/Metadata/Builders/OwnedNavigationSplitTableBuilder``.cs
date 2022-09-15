@@ -31,7 +31,7 @@ public class OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
 
     private OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnedNavigationBuilder
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((IInfrastructure<OwnedNavigationBuilder>)this)
-        .GetInfrastructure();
+            .GetInfrastructure();
 
     /// <summary>
     ///     Configures the table to be ignored by migrations.
@@ -63,7 +63,8 @@ public class OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
-        string annotation, object? value)
+        string annotation,
+        object? value)
         => (OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
     OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>.Instance

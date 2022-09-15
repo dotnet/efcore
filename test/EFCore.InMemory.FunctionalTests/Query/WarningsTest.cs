@@ -10,9 +10,8 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
-#pragma warning disable xUnit1000 // Test classes must be public
-internal class WarningsTest
-#pragma warning restore xUnit1000 // Test classes must be public
+
+public class WarningsTest
 {
     [ConditionalFact]
     public void Should_throw_by_default_when_transaction()

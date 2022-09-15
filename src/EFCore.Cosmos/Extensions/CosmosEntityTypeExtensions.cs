@@ -48,14 +48,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to set the container name for.</param>
     /// <param name="name">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetContainer(
+    public static string? SetContainer(
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ContainerName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the container to which the entity type is mapped.
@@ -96,14 +96,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to set the containing property name for.</param>
     /// <param name="name">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetContainingPropertyName(
+    public static string? SetContainingPropertyName(
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the parent property to which the entity type is mapped.
@@ -138,14 +138,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to set the partition key property name for.</param>
     /// <param name="name">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetPartitionKeyPropertyName(
+    public static string? SetPartitionKeyPropertyName(
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PartitionKeyName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the partition key.
@@ -232,14 +232,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type to set the ETag property name for.</param>
     /// <param name="name">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetETagPropertyName(
+    public static string? SetETagPropertyName(
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (string?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.ETagName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the property that is used to store the etag.
@@ -251,7 +251,7 @@ public static class CosmosEntityTypeExtensions
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Gets the property on this entity that is mapped to cosmos ETag, if it exists.
+    ///     Gets the property on this entity that is mapped to Cosmos ETag, if it exists.
     /// </summary>
     /// <param name="entityType">The entity type to get the ETag property for.</param>
     /// <returns>The property mapped to ETag, or <see langword="null" /> if no property is mapped to ETag.</returns>
@@ -263,7 +263,23 @@ public static class CosmosEntityTypeExtensions
     }
 
     /// <summary>
-    ///     Gets the property on this entity that is mapped to cosmos ETag, if it exists.
+    ///     Gets the property on this entity that is mapped to Cosmos ETag, if it exists.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the ETag property for.</param>
+    /// <returns>The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag.</returns>
+    public static IMutableProperty? GetETagProperty(this IMutableEntityType entityType)
+        => (IMutableProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
+
+    /// <summary>
+    ///     Gets the property on this entity that is mapped to Cosmos ETag, if it exists.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the ETag property for.</param>
+    /// <returns>The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag.</returns>
+    public static IConventionProperty? GetETagProperty(this IConventionEntityType entityType)
+        => (IConventionProperty?)((IReadOnlyEntityType)entityType).GetETagProperty();
+
+    /// <summary>
+    ///     Gets the property on this entity that is mapped to Cosmos ETag, if it exists.
     /// </summary>
     /// <param name="entityType">The entity type to get the ETag property for.</param>
     /// <returns>The property mapped to etag, or <see langword="null" /> if no property is mapped to ETag.</returns>
@@ -296,14 +312,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <param name="seconds">The time to live to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetAnalyticalStoreTimeToLive(
+    public static int? SetAnalyticalStoreTimeToLive(
         this IConventionEntityType entityType,
         int? seconds,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (int?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.AnalyticalStoreTimeToLive,
             seconds,
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the time to live for analytical store in seconds at container scope.
@@ -340,14 +356,14 @@ public static class CosmosEntityTypeExtensions
     /// <param name="entityType">The entity type.</param>
     /// <param name="seconds">The time to live to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetDefaultTimeToLive(
+    public static int? SetDefaultTimeToLive(
         this IConventionEntityType entityType,
         int? seconds,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (int?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.DefaultTimeToLive,
             seconds,
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the default time to live in seconds at container scope.
@@ -390,19 +406,19 @@ public static class CosmosEntityTypeExtensions
     /// <param name="throughput">The throughput to set.</param>
     /// <param name="autoscale">Whether autoscale is enabled.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetThroughput(
+    public static int? SetThroughput(
         this IConventionEntityType entityType,
         int? throughput,
         bool? autoscale,
         bool fromDataAnnotation = false)
-        => entityType.SetOrRemoveAnnotation(
+        => (int?)entityType.SetOrRemoveAnnotation(
             CosmosAnnotationNames.Throughput,
             throughput == null || autoscale == null
                 ? null
                 : autoscale.Value
                     ? ThroughputProperties.CreateAutoscaleThroughput(throughput.Value)
                     : ThroughputProperties.CreateManualThroughput(throughput.Value),
-            fromDataAnnotation);
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the provisioned throughput at container scope.

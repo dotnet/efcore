@@ -324,27 +324,23 @@ public static class SqlServerModelBuilderExtensions
             {
                 modelBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
                 modelBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
-                RemoveKeySequenceAnnotations();
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.SequenceHiLo)
             {
                 modelBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
-                RemoveKeySequenceAnnotations();
             }
 
             if (valueGenerationStrategy != SqlServerValueGenerationStrategy.Sequence)
             {
-                modelBuilder.HasIdentityColumnSeed(null, fromDataAnnotation);
-                modelBuilder.HasIdentityColumnIncrement(null, fromDataAnnotation);
-                modelBuilder.HasHiLoSequence(null, null, fromDataAnnotation);
+                RemoveKeySequenceAnnotations();
             }
 
             return modelBuilder;
         }
 
         return null;
-        
+
         void RemoveKeySequenceAnnotations()
         {
             if (modelBuilder.CanSetAnnotation(SqlServerAnnotationNames.SequenceNameSuffix, null)

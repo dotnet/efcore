@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -96,6 +97,16 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
+        // TODO: move to relational?
+        if (property.DeclaringEntityType.IsMappedToJson()
+            && !property.DeclaringEntityType.FindOwnership()!.IsUnique
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            && property.IsOrdinalKeyProperty())
+#pragma warning restore EF1001 // Internal EF Core API usage.
+        {
+            return ValueGenerated.OnAdd;
+        }
+
         var declaringTable = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
         if (declaringTable.Name == null)
         {

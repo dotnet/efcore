@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -11,6 +12,13 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 ///     Entity Framework LINQ related extension methods.
 /// </summary>
+[UnconditionalSuppressMessage(
+    "ReflectionAnalysis",
+    "IL2060",
+    Justification =
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called " +
+        "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no " +
+        "longer be necessary.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
@@ -393,7 +401,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the first
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the first
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -539,7 +547,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the last
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the last
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -2687,20 +2695,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Tagging
 
     internal static readonly MethodInfo TagWithMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(TagWith), new[]
-        {
-            typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-            typeof(string)
-        })!;
+        = typeof(EntityFrameworkQueryableExtensions).GetMethod(
+            nameof(TagWith), new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string) })!;
 
     internal static readonly MethodInfo TagWithCallSiteMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetMethod(nameof(TagWithCallSite), new[]
-            {
-                typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-                typeof(string),
-                typeof(int)
-            })!;
+            .GetMethod(
+                nameof(TagWithCallSite),
+                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int) })!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations

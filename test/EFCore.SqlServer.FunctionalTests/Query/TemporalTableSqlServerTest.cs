@@ -9,18 +9,20 @@ namespace Microsoft.EntityFrameworkCore.Query;
 [SqlServerCondition(SqlServerCondition.SupportsTemporalTablesCascadeDelete)]
 public class TemporalTableSqlServerTest : NonSharedModelTestBase
 {
-    protected override string StoreName => "TemporalTableSqlServerTest";
+    protected override string StoreName
+        => "TemporalTableSqlServerTest";
 
     protected TestSqlLoggerFactory TestSqlLoggerFactory
         => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    protected override ITestStoreFactory TestStoreFactory => SqlServerTestStoreFactory.Instance;
+    protected override ITestStoreFactory TestStoreFactory
+        => SqlServerTestStoreFactory.Instance;
 
-    protected void AssertSql(params string[] expected) => TestSqlLoggerFactory.AssertBaseline(expected);
+    protected void AssertSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected);
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_basic(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -39,8 +41,7 @@ LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_join(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -64,8 +65,7 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o0] ON [m0].[Id] = [o0].[MainEntityDif
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_set_operation(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -93,8 +93,7 @@ LEFT JOIN [OwnedEntityDifferentTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_FromSql(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -121,8 +120,7 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [m].[Id] = [o].[MainEntityDiffer
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_subquery(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -131,10 +129,10 @@ LEFT JOIN [OwnedEntityDifferentTable] AS [o] ON [m].[Id] = [o].[MainEntityDiffer
             var date = new DateTime(2000, 1, 1);
 
             var query = context.MainEntitiesDifferentTable
-            .TemporalAsOf(date)
-            .Distinct()
-            .OrderByDescending(x => x.Id)
-            .Take(3);
+                .TemporalAsOf(date)
+                .Distinct()
+                .OrderByDescending(x => x.Id)
+                .Take(3);
 
             var _ = async ? await query.ToListAsync() : query.ToList();
         }
@@ -156,8 +154,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_complex(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -194,8 +191,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_complex_with_nontrivial_alias(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -232,8 +228,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_range_operation_negative(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -251,8 +246,7 @@ ORDER BY [t0].[Id] DESC");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_mapped_to_same_table(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -270,8 +264,7 @@ FROM [MainEntitiesSameTable] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000'
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_many(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -291,8 +284,7 @@ ORDER BY [m].[Id], [o].[MainEntityManyId]");
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(false)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Temporal_owned_with_union(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext26451>();
@@ -378,57 +370,72 @@ ORDER BY [t].[Id], [o].[MainEntityManyId]");
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<MainEntityDifferentTable>().ToTable("MainEntityDifferentTable", tb => tb.IsTemporal(ttb =>
-            {
-                ttb.HasPeriodStart("StartTime");
-                ttb.HasPeriodEnd("EndTime");
-                ttb.UseHistoryTable("ConfHistory");
-            }));
+            modelBuilder.Entity<MainEntityDifferentTable>().ToTable(
+                "MainEntityDifferentTable", tb => tb.IsTemporal(
+                    ttb =>
+                    {
+                        ttb.HasPeriodStart("StartTime");
+                        ttb.HasPeriodEnd("EndTime");
+                        ttb.UseHistoryTable("ConfHistory");
+                    }));
             modelBuilder.Entity<MainEntityDifferentTable>().Property(me => me.Id).UseIdentityColumn();
             modelBuilder.Entity<MainEntityDifferentTable>().OwnsOne(me => me.OwnedEntity).WithOwner();
-            modelBuilder.Entity<MainEntityDifferentTable>().OwnsOne(me => me.OwnedEntity, oe =>
-            {
-                oe.ToTable("OwnedEntityDifferentTable", tb => tb.IsTemporal(ttb =>
+            modelBuilder.Entity<MainEntityDifferentTable>().OwnsOne(
+                me => me.OwnedEntity, oe =>
                 {
-                    ttb.HasPeriodStart("StartTime");
-                    ttb.HasPeriodEnd("EndTime");
-                    ttb.UseHistoryTable("OwnedEntityHistory");
-                }));
-            });
-
-            modelBuilder.Entity<MainEntitySameTable>(eb =>
-            {
-                eb.ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.HasPeriodStart("StartTime").HasColumnName("StartTime");
-                    ttb.HasPeriodEnd("EndTime").HasColumnName("EndTime");
-                }));
-
-                eb.OwnsOne(x => x.OwnedEntity, oeb =>
-                {
-                    oeb.WithOwner();
-                    oeb.ToTable(tb => tb.IsTemporal(ttb =>
-                    {
-                        ttb.HasPeriodStart("StartTime").HasColumnName("StartTime");
-                        ttb.HasPeriodEnd("EndTime").HasColumnName("EndTime");
-                    }));
-                    oeb.OwnsOne(x => x.Nested, neb =>
-                    {
-                        neb.WithOwner();
-                        neb.ToTable(tb => tb.IsTemporal(ttb =>
-                        {
-                            ttb.HasPeriodStart("StartTime").HasColumnName("StartTime");
-                            ttb.HasPeriodEnd("EndTime").HasColumnName("EndTime");
-                        }));
-                    });
+                    oe.ToTable(
+                        "OwnedEntityDifferentTable", tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.HasPeriodStart("StartTime");
+                                ttb.HasPeriodEnd("EndTime");
+                                ttb.UseHistoryTable("OwnedEntityHistory");
+                            }));
                 });
-            });
 
-            modelBuilder.Entity<MainEntityMany>(eb =>
-            {
-                eb.ToTable(tb => tb.IsTemporal());
-                eb.OwnsMany(x => x.OwnedCollection, oeb => oeb.ToTable(tb => tb.IsTemporal()));
-            });
+            modelBuilder.Entity<MainEntitySameTable>(
+                eb =>
+                {
+                    eb.ToTable(
+                        tb => tb.IsTemporal(
+                            ttb =>
+                            {
+                                ttb.HasPeriodStart("StartTime").HasColumnName("StartTime");
+                                ttb.HasPeriodEnd("EndTime").HasColumnName("EndTime");
+                            }));
+
+                    eb.OwnsOne(
+                        x => x.OwnedEntity, oeb =>
+                        {
+                            oeb.WithOwner();
+                            oeb.ToTable(
+                                tb => tb.IsTemporal(
+                                    ttb =>
+                                    {
+                                        ttb.HasPeriodStart("StartTime").HasColumnName("StartTime");
+                                        ttb.HasPeriodEnd("EndTime").HasColumnName("EndTime");
+                                    }));
+                            oeb.OwnsOne(
+                                x => x.Nested, neb =>
+                                {
+                                    neb.WithOwner();
+                                    neb.ToTable(
+                                        tb => tb.IsTemporal(
+                                            ttb =>
+                                            {
+                                                ttb.HasPeriodStart("StartTime").HasColumnName("StartTime");
+                                                ttb.HasPeriodEnd("EndTime").HasColumnName("EndTime");
+                                            }));
+                                });
+                        });
+                });
+
+            modelBuilder.Entity<MainEntityMany>(
+                eb =>
+                {
+                    eb.ToTable(tb => tb.IsTemporal());
+                    eb.OwnsMany(x => x.OwnedCollection, oeb => oeb.ToTable(tb => tb.IsTemporal()));
+                });
         }
     }
 
@@ -449,22 +456,23 @@ WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL");
     }
 
     protected Task<ContextFactory<TransportationContext>> InitializeAsync(
-        Action<ModelBuilder> onModelCreating, bool seed = true)
-    {
-        return InitializeAsync<TransportationContext>(
+        Action<ModelBuilder> onModelCreating,
+        bool seed = true)
+        => InitializeAsync<TransportationContext>(
             onModelCreating, shouldLogCategory: _ => true, seed: seed ? c => c.Seed() : null);
-    }
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Vehicle>(
             eb =>
             {
-                eb.ToTable(tb => tb.IsTemporal(ttb =>
-                {
-                    ttb.HasPeriodStart("Start").HasColumnName("Start");
-                    ttb.HasPeriodEnd("End").HasColumnName("End");
-                }));
+                eb.ToTable(
+                    tb => tb.IsTemporal(
+                        ttb =>
+                        {
+                            ttb.HasPeriodStart("Start").HasColumnName("Start");
+                            ttb.HasPeriodEnd("End").HasColumnName("End");
+                        }));
                 eb.HasDiscriminator<string>("Discriminator");
                 eb.Property<string>("Discriminator").HasColumnName("Discriminator");
                 eb.ToTable("Vehicles");
@@ -473,28 +481,36 @@ WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL");
         modelBuilder.Entity<CompositeVehicle>();
 
         modelBuilder.Entity<Engine>()
-            .ToTable("Vehicles", tb => tb.IsTemporal(ttb =>
-            {
-                ttb.HasPeriodStart("Start").HasColumnName("Start");
-                ttb.HasPeriodEnd("End").HasColumnName("End");
-            }));
+            .ToTable(
+                "Vehicles", tb => tb.IsTemporal(
+                    ttb =>
+                    {
+                        ttb.HasPeriodStart("Start").HasColumnName("Start");
+                        ttb.HasPeriodEnd("End").HasColumnName("End");
+                    }));
 
-        modelBuilder.Entity<Operator>().ToTable("Vehicles", tb => tb.IsTemporal(ttb =>
-        {
-            ttb.HasPeriodStart("Start").HasColumnName("Start");
-            ttb.HasPeriodEnd("End").HasColumnName("End");
-        }));
+        modelBuilder.Entity<Operator>().ToTable(
+            "Vehicles", tb => tb.IsTemporal(
+                ttb =>
+                {
+                    ttb.HasPeriodStart("Start").HasColumnName("Start");
+                    ttb.HasPeriodEnd("End").HasColumnName("End");
+                }));
 
-        modelBuilder.Entity<OperatorDetails>().ToTable("Vehicles", tb => tb.IsTemporal(ttb =>
-        {
-            ttb.HasPeriodStart("Start").HasColumnName("Start");
-            ttb.HasPeriodEnd("End").HasColumnName("End");
-        }));
+        modelBuilder.Entity<OperatorDetails>().ToTable(
+            "Vehicles", tb => tb.IsTemporal(
+                ttb =>
+                {
+                    ttb.HasPeriodStart("Start").HasColumnName("Start");
+                    ttb.HasPeriodEnd("End").HasColumnName("End");
+                }));
 
-        modelBuilder.Entity<FuelTank>().ToTable("Vehicles", tb => tb.IsTemporal(ttb =>
-        {
-            ttb.HasPeriodStart("Start").HasColumnName("Start");
-            ttb.HasPeriodEnd("End").HasColumnName("End");
-        }));
+        modelBuilder.Entity<FuelTank>().ToTable(
+            "Vehicles", tb => tb.IsTemporal(
+                ttb =>
+                {
+                    ttb.HasPeriodStart("Start").HasColumnName("Start");
+                    ttb.HasPeriodEnd("End").HasColumnName("End");
+                }));
     }
 }

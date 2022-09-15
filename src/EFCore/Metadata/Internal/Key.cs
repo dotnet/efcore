@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -75,7 +76,8 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsInModel
-        => _builder is not null;
+        => _builder is not null
+            && DeclaringEntityType.IsInModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -156,20 +158,16 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
                 return new IdentityMapFactoryFactory().Create(key);
             });
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IPrincipalKeyValueFactory<TKey> GetPrincipalKeyValueFactory<TKey>()
+    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
+        .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
+
+    [UsedImplicitly]
+    private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
         where TKey : notnull
-        => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, this, static key =>
-            {
-                key.EnsureReadOnly();
-                return new KeyValueFactoryFactory().Create<TKey>(key);
-            });
+    {
+        EnsureReadOnly();
+        return new KeyValueFactoryFactory().Create<TKey>(this);
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -338,4 +336,14 @@ public class Key : ConventionAnnotatable, IMutableKey, IConventionKey, IRuntimeK
     [DebuggerStepThrough]
     Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
         => IdentityMapFactory;
+
+    IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
+        => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
+            ref _principalKeyValueFactory, this, static key => key.CreatePrincipalKeyValueFactory<TKey>());
+
+    IPrincipalKeyValueFactory IKey.GetPrincipalKeyValueFactory()
+        => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
+            ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
+                .MakeGenericMethod(key.GetKeyType())
+                .Invoke(key, new object[0])!);
 }

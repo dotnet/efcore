@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.NetworkInformation;
 
@@ -559,6 +560,8 @@ public class ValueConverterSelector : IValueConverterSelector
         }
     }
 
-    private static ValueConverterInfo GetDefaultValueConverterInfo(Type converterTypeInfo)
+    private static ValueConverterInfo GetDefaultValueConverterInfo(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.NonPublicProperties)]
+        Type converterTypeInfo)
         => (ValueConverterInfo)converterTypeInfo.GetAnyProperty("DefaultInfo")!.GetValue(null)!;
 }

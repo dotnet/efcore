@@ -12,7 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 public class ProxiesConventionSetPlugin : IConventionSetPlugin
 {
     private readonly IDbContextOptions _options;
-    private readonly IProxyFactory _proxyFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,12 +20,10 @@ public class ProxiesConventionSetPlugin : IConventionSetPlugin
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public ProxiesConventionSetPlugin(
-        IProxyFactory proxyFactory,
         IDbContextOptions options,
         LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
         ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
     {
-        _proxyFactory = proxyFactory;
         _options = options;
         LazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
         ConventionSetBuilderDependencies = conventionSetBuilderDependencies;
@@ -63,7 +60,7 @@ public class ProxiesConventionSetPlugin : IConventionSetPlugin
             new ProxyChangeTrackingConvention(extension),
             typeof(DbSetFindingConvention));
 
-        conventionSet.ModelFinalizingConventions.Add(
+        conventionSet.Add(
             new ProxyBindingRewriter(
                 extension,
                 LazyLoaderParameterBindingFactoryDependencies,

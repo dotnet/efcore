@@ -89,7 +89,8 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
         if (containsDiscriminatorProperty
             || entityType.FindPrimaryKey() == null
             || entityType.GetRootType() != entityType
-            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+            || entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+            || entityType.IsMappedToJson())
         {
             return baseCondition;
         }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -76,82 +78,75 @@ public class RelationalValueGenerationConvention :
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == RelationalAnnotationNames.ViewName
-            || name == RelationalAnnotationNames.FunctionName
-            || name == RelationalAnnotationNames.SqlQuery)
+        var entityType = entityTypeBuilder.Metadata;
+        switch (name)
         {
-            if (annotation?.Value != null
-                && oldAnnotation?.Value == null
-                && entityTypeBuilder.Metadata.GetTableName() == null)
-            {
+            case RelationalAnnotationNames.ViewName:
+            case RelationalAnnotationNames.FunctionName:
+            case RelationalAnnotationNames.SqlQuery:
+            case RelationalAnnotationNames.InsertStoredProcedure:
+                if (annotation?.Value != null
+                    && oldAnnotation?.Value == null
+                    && entityType.GetTableName() == null)
+                {
+                    ProcessTableChanged(
+                        entityTypeBuilder,
+                        entityType.GetDefaultTableName(),
+                        entityType.GetDefaultSchema(),
+                        null,
+                        null);
+                }
+
+                break;
+
+            case RelationalAnnotationNames.TableName:
+                var schema = entityType.GetSchema();
                 ProcessTableChanged(
                     entityTypeBuilder,
-                    entityTypeBuilder.Metadata.GetDefaultTableName(),
-                    entityTypeBuilder.Metadata.GetDefaultSchema(),
-                    null,
-                    null);
-            }
-        }
-        else if (name == RelationalAnnotationNames.TableName)
-        {
-            var schema = entityTypeBuilder.Metadata.GetSchema();
-            ProcessTableChanged(
-                entityTypeBuilder,
-                (string?)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultTableName(),
-                schema,
-                entityTypeBuilder.Metadata.GetTableName(),
-                schema);
-        }
-        else if (name == RelationalAnnotationNames.Schema)
-        {
-            var tableName = entityTypeBuilder.Metadata.GetTableName();
-            ProcessTableChanged(
-                entityTypeBuilder,
-                tableName,
-                (string?)oldAnnotation?.Value ?? entityTypeBuilder.Metadata.GetDefaultSchema(),
-                tableName,
-                entityTypeBuilder.Metadata.GetSchema());
-        }
-        else if (name == RelationalAnnotationNames.MappingStrategy)
-        {
-            var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
-            if (primaryKey == null)
-            {
-                return;
-            }
+                    (string?)oldAnnotation?.Value ?? entityType.GetDefaultTableName(),
+                    schema,
+                    entityType.GetTableName(),
+                    schema);
+                break;
 
-            foreach (var property in primaryKey.Properties)
-            {
-                property.Builder.ValueGenerated(GetValueGenerated(property));
-            }
+            case RelationalAnnotationNames.Schema:
+                var tableName = entityType.GetTableName();
+                ProcessTableChanged(
+                    entityTypeBuilder,
+                    tableName,
+                    (string?)oldAnnotation?.Value ?? entityType.GetDefaultSchema(),
+                    tableName,
+                    entityTypeBuilder.Metadata.GetSchema());
+                break;
+
+            case RelationalAnnotationNames.MappingStrategy:
+                var primaryKey = entityTypeBuilder.Metadata.FindPrimaryKey();
+                if (primaryKey == null)
+                {
+                    return;
+                }
+
+                foreach (var property in primaryKey.Properties)
+                {
+                    property.Builder.ValueGenerated(GetValueGenerated(property));
+                }
+
+                break;
         }
     }
 
-    private static void ProcessTableChanged(
+    private void ProcessTableChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string? oldTable,
         string? oldSchema,
         string? newTable,
         string? newSchema)
     {
-        if (newTable == null)
+        if (newTable == null || oldTable == null)
         {
-            if (entityTypeBuilder.Metadata.GetDerivedTypes().All(e => e.GetTableName() == null))
+            foreach (var property in entityTypeBuilder.Metadata.GetDeclaredProperties())
             {
-                foreach (var property in entityTypeBuilder.Metadata.GetProperties())
-                {
-                    property.Builder.ValueGenerated(null);
-                }
-            }
-
-            return;
-        }
-
-        if (oldTable == null)
-        {
-            foreach (var property in entityTypeBuilder.Metadata.GetProperties())
-            {
-                property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
+                property.Builder.ValueGenerated(GetValueGenerated(property));
             }
 
             return;
@@ -174,7 +169,7 @@ public class RelationalValueGenerationConvention :
 
         foreach (var property in primaryKey.Properties)
         {
-            property.Builder.ValueGenerated(GetValueGenerated(property, StoreObjectIdentifier.Table(newTable, newSchema)));
+            property.Builder.ValueGenerated(GetValueGenerated(property));
         }
     }
 
@@ -185,13 +180,18 @@ public class RelationalValueGenerationConvention :
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var tableName = property.DeclaringEntityType.GetTableName();
-
-        return tableName == null
+        var table = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
+        return !MappingStrategyAllowsValueGeneration(property, property.DeclaringEntityType.GetMappingStrategy())
             ? null
-            : !MappingStrategyAllowsValueGeneration(property, property.DeclaringEntityType.GetMappingStrategy())
-                ? null
-                : GetValueGenerated(property, StoreObjectIdentifier.Table(tableName, property.DeclaringEntityType.GetSchema()));
+            : table.Name != null
+                ? GetValueGenerated(property, table)
+                : property.DeclaringEntityType.IsMappedToJson()
+                    && !property.DeclaringEntityType.FindOwnership()!.IsUnique
+                    && property.IsOrdinalKeyProperty()
+                    ? ValueGenerated.OnAddOrUpdate
+                    : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
+                        ? GetValueGenerated((IReadOnlyProperty)property)
+                        : null;
     }
 
     /// <summary>

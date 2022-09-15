@@ -1,14 +1,24 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
+[Collection(nameof(ModelCodeGeneratorTestCollection))]
 public abstract class ModelCodeGeneratorTestBase
 {
-    protected void Test(
+    private readonly ModelCodeGeneratorTestFixture _fixture;
+    private readonly ITestOutputHelper _output;
+
+    protected ModelCodeGeneratorTestBase(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
+    {
+        _fixture = fixture;
+        _output = output;
+    }
+
+    protected async Task TestAsync(
         Action<ModelBuilder> buildModel,
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
@@ -19,7 +29,6 @@ public abstract class ModelCodeGeneratorTestBase
         AddModelServices(designServices);
 
         var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(customServices: designServices);
-        modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         buildModel(modelBuilder);
 
         var model = modelBuilder.FinalizeModel(designTime: true, skipValidation: true);
@@ -27,13 +36,18 @@ public abstract class ModelCodeGeneratorTestBase
         var services = CreateServices();
         AddScaffoldingServices(services);
 
-        var generator = services.BuildServiceProvider(validateScopes: true)
-            .GetServices<IModelCodeGenerator>()
-            .Last(g => g is CSharpModelGenerator);
+        var generators = services.BuildServiceProvider(validateScopes: true)
+            .GetServices<IModelCodeGenerator>();
+        var generator = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+            || Random.Shared.Next() % 12 != 0
+                ? generators.Last(g => g is CSharpModelGenerator)
+                : generators.Last(g => g is TextTemplatingModelGenerator);
 
         options.ModelNamespace ??= "TestNamespace";
         options.ContextName = "TestDbContext";
         options.ConnectionString = "Initial Catalog=TestDatabase";
+        options.ProjectDir = _fixture.ProjectDir;
 
         var scaffoldedModel = generator.GenerateModel(
             model,
@@ -56,7 +70,7 @@ public abstract class ModelCodeGeneratorTestBase
 
         if (!skipBuild)
         {
-            var assembly = build.BuildInMemory();
+            var assembly = await build.BuildInMemoryWithWithAnalyzersAsync();
 
             if (assertModel != null)
             {
@@ -72,10 +86,10 @@ public abstract class ModelCodeGeneratorTestBase
         }
     }
 
-    protected static IServiceCollection CreateServices()
+    protected IServiceCollection CreateServices()
     {
-        var testAssembly = typeof(ModelCodeGeneratorTestBase).Assembly;
-        var reporter = new TestOperationReporter();
+        var testAssembly = MockAssembly.Create();
+        var reporter = new TestOperationReporter(_output);
         var services = new DesignTimeServicesBuilder(testAssembly, testAssembly, reporter, new string[0])
             .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer");
         return services;

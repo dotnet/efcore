@@ -1,8 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -22,11 +24,104 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies,
+    public SqlServerQuerySqlGenerator(
+        QuerySqlGeneratorDependencies dependencies,
         IRelationalTypeMappingSource typeMappingSource)
         : base(dependencies)
     {
         _typeMappingSource = typeMappingSource;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitDelete(DeleteExpression deleteExpression)
+    {
+        var selectExpression = deleteExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Projection.Count == 0)
+        {
+            Sql.Append("DELETE ");
+            GenerateTop(selectExpression);
+
+            Sql.AppendLine($"FROM {Dependencies.SqlGenerationHelper.DelimitIdentifier(deleteExpression.Table.Alias)}");
+
+            Sql.Append("FROM ");
+            GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+
+            if (selectExpression.Predicate != null)
+            {
+                Sql.AppendLine().Append("WHERE ");
+
+                Visit(selectExpression.Predicate);
+            }
+
+            GenerateLimitOffset(selectExpression);
+
+            return deleteExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitUpdate(UpdateExpression updateExpression)
+    {
+        var selectExpression = updateExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Projection.Count == 0)
+        {
+            Sql.Append("UPDATE ");
+            GenerateTop(selectExpression);
+
+            Sql.AppendLine($"{Dependencies.SqlGenerationHelper.DelimitIdentifier(updateExpression.Table.Alias)}");
+            Sql.Append("SET ");
+            Visit(updateExpression.ColumnValueSetters[0].Column);
+            Sql.Append(" = ");
+            Visit(updateExpression.ColumnValueSetters[0].Value);
+
+            using (Sql.Indent())
+            {
+                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                {
+                    Sql.AppendLine(",");
+                    Visit(columnValueSetter.Column);
+                    Sql.Append(" = ");
+                    Visit(columnValueSetter.Value);
+                }
+            }
+
+            Sql.AppendLine().Append("FROM ");
+            GenerateList(selectExpression.Tables, e => Visit(e), sql => sql.AppendLine());
+
+            if (selectExpression.Predicate != null)
+            {
+                Sql.AppendLine().Append("WHERE ");
+                Visit(selectExpression.Predicate);
+            }
+
+            return updateExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
     }
 
     /// <summary>
@@ -135,7 +230,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 Sql.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(tableExpression.Name, tableExpression.Schema))
                     .Append(" FOR SYSTEM_TIME ");
 
-                var temporalOperationType = (TemporalOperationType)tableExpression[SqlServerAnnotationNames.TemporalOperationType]!;
+                var temporalOperationType = (TemporalOperationType)tableExpression
+                    .FindAnnotation(SqlServerAnnotationNames.TemporalOperationType)!.Value!;
 
                 switch (temporalOperationType)
                 {
@@ -144,7 +240,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                         break;
 
                     case TemporalOperationType.AsOf:
-                        var pointInTime = (DateTime)tableExpression[SqlServerAnnotationNames.TemporalAsOfPointInTime]!;
+                        var pointInTime =
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalAsOfPointInTime)!.Value!;
 
                         Sql.Append("AS OF ")
                             .Append(_typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(pointInTime));
@@ -154,10 +251,10 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     case TemporalOperationType.ContainedIn:
                     case TemporalOperationType.FromTo:
                         var from = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
-                            (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationFrom]!);
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalRangeOperationFrom)!.Value!);
 
                         var to = _typeMappingSource.GetMapping(typeof(DateTime)).GenerateSqlLiteral(
-                            (DateTime)tableExpression[SqlServerAnnotationNames.TemporalRangeOperationTo]!);
+                            (DateTime)tableExpression.FindAnnotation(SqlServerAnnotationNames.TemporalRangeOperationTo)!.Value!);
 
                         switch (temporalOperationType)
                         {
@@ -197,6 +294,32 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
 
         return base.VisitExtension(extensionExpression);
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
+    {
+        if (jsonScalarExpression.TypeMapping is SqlServerJsonTypeMapping)
+        {
+            Sql.Append("JSON_QUERY(");
+        }
+        else
+        {
+            Sql.Append("CAST(JSON_VALUE(");
+        }
+
+        Visit(jsonScalarExpression.JsonColumn);
+
+        Sql.Append($",'{string.Join("", jsonScalarExpression.Path.Select(e => e.ToString()))}')");
+
+        if (jsonScalarExpression.Type != typeof(JsonElement))
+        {
+            Sql.Append(" AS ");
+            Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
+            Sql.Append(")");
+        }
+
+        return jsonScalarExpression;
     }
 
     /// <inheritdoc />

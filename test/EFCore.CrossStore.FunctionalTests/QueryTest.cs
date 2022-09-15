@@ -74,6 +74,20 @@ public class QueryTest
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public async Task FromSql_throws_for_InMemory(bool async)
+    {
+        using var context = new InMemoryQueryContext();
+        var query = context.Blogs.FromSql($"Select 1");
+
+        var message = async
+            ? (await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())).Message
+            : Assert.Throws<InvalidOperationException>(() => query.ToList()).Message;
+
+        Assert.Equal(CoreStrings.QueryUnhandledQueryRootExpression(nameof(FromSqlQueryRootExpression)), message);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public async Task TemporalAsOf_throws_for_InMemory(bool async)
     {
         using var context = new InMemoryQueryContext();

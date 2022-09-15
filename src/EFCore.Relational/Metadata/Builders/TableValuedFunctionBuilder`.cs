@@ -46,7 +46,7 @@ public class TableValuedFunctionBuilder<TEntity> : TableValuedFunctionBuilder, I
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual TableValuedFunctionBuilder<TEntity> HasSchema(string? schema)
         => (TableValuedFunctionBuilder<TEntity>)base.HasSchema(schema);
-    
+
     /// <summary>
     ///     Marks whether the database function is built-in.
     /// </summary>
@@ -82,5 +82,6 @@ public class TableValuedFunctionBuilder<TEntity> : TableValuedFunctionBuilder, I
     public new virtual TableValuedFunctionBuilder<TEntity> HasAnnotation(string annotation, object? value)
         => (TableValuedFunctionBuilder<TEntity>)base.HasAnnotation(annotation, value);
 
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

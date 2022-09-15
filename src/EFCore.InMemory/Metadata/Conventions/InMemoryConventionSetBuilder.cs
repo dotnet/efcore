@@ -36,7 +36,7 @@ public class InMemoryConventionSetBuilder : ProviderConventionSetBuilder
     {
         var conventionSet = base.CreateConventionSet();
 
-        conventionSet.ModelFinalizingConventions.Add(new DefiningQueryRewritingConvention(Dependencies));
+        conventionSet.Add(new DefiningQueryRewritingConvention(Dependencies));
 
         return conventionSet;
     }

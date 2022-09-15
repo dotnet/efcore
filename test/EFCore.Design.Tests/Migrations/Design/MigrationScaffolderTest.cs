@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -93,7 +92,7 @@ public class MigrationsScaffolderTest
                 new FakeDiagnosticsLogger<DbLoggerCategory.Migrations>());
         var historyRepository = new MockHistoryRepository();
 
-        var services = RelationalTestHelpers.Instance.CreateContextServices();
+        var services = FakeRelationalTestHelpers.Instance.CreateContextServices();
         var model = new Model().FinalizeModel();
         model.AddRuntimeAnnotation(RelationalAnnotationNames.RelationalModel, new RelationalModel(model));
 

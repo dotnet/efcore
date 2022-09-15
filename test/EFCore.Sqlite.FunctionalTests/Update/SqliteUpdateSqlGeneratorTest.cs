@@ -125,7 +125,8 @@ RETURNING 1;
 ",
             stringBuilder.ToString());
 
-    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(StringBuilder stringBuilder)
+    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(
+        StringBuilder stringBuilder)
         => AssertBaseline(
             @"DELETE FROM ""Ducks""
 WHERE ""Id"" = @p0 AND ""ConcurrencyToken"" IS NULL

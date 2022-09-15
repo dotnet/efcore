@@ -60,7 +60,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             {
                 continue;
             }
-            
+
             if (type.IsGenericType
                 && type.BaseType != typeof(object)
                 && !type.BaseType.IsGenericType)
@@ -70,7 +70,8 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                     if (method.ReturnType == type.BaseType
                         && !Fixture.UnmatchedMetadataMethods.Contains(method))
                     {
-                        var parameters = method.GetParameters().Select(p => GetEquivalentGenericType(p.ParameterType, type.GetGenericArguments())).ToArray();
+                        var parameters = method.GetParameters()
+                            .Select(p => GetEquivalentGenericType(p.ParameterType, type.GetGenericArguments())).ToArray();
                         var hidingMethod = type.GetMethod(
                             method.Name,
                             method.GetGenericArguments().Length,
@@ -85,7 +86,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                     }
                 }
             }
-            
+
             if (!type.IsGenericType
                 && type.BaseType == typeof(object))
             {
@@ -106,10 +107,13 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                             || hidingMethod.GetGenericArguments().Length != genericType.GetGenericArguments().Length
                             || hidingMethod.ReturnType.GetGenericTypeDefinition() != genericType
                             || !hidingMethod.GetParameters().Skip(1).Select(p => p.ParameterType)
-                                .SequenceEqual(method.GetParameters().Skip(1).Select(p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
+                                .SequenceEqual(
+                                    method.GetParameters().Skip(1).Select(
+                                        p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
                         {
                             continue;
                         }
+
                         methodFound = true;
                         break;
                     }
@@ -143,7 +147,6 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         return parameterType;
     }
 
-
     [ConditionalFact]
     public void Builders_have_matching_methods()
     {
@@ -162,16 +165,19 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         if (targetMethod.Name == method.Name
                             && targetMethod.GetGenericArguments().Length == method.GetGenericArguments().Length
                             && method.GetParameters().Select(p => p.ParameterType)
-                                .SequenceEqual(targetMethod.GetParameters().Select(p => p.ParameterType),
+                                .SequenceEqual(
+                                    targetMethod.GetParameters().Select(p => p.ParameterType),
                                     new ParameterTypeEqualityComparer(method, targetMethod, this)))
                         {
-                            Check.DebugAssert(hidingMethod == null,
-                                "There should only be one method with the expected signature. Found: " + Environment.NewLine
-                                + Format(hidingMethod ?? targetMethod, tuple.Value) + Environment.NewLine
+                            Check.DebugAssert(
+                                hidingMethod == null,
+                                "There should only be one method with the expected signature. Found: "
+                                + Environment.NewLine
+                                + Format(hidingMethod ?? targetMethod, tuple.Value)
+                                + Environment.NewLine
                                 + Format(targetMethod, tuple.Value));
 
                             hidingMethod = targetMethod;
-                            continue;
                         }
                     }
 
@@ -180,7 +186,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         unmatchedMethods.Add((tuple.Key, method));
                     }
                     else if (method.ReturnType == tuple.Key
-                        && hidingMethod.ReturnType != tuple.Value)
+                             && hidingMethod.ReturnType != tuple.Value)
                     {
                         wrongReturnMethods.Add((tuple.Value, method));
                     }
@@ -216,25 +222,25 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
     private string ValidateMetadata(KeyValuePair<Type, (Type, Type, Type, Type)> types)
     {
-        var readonlyType = types.Key;
+        var readOnlyType = types.Key;
         var (mutableType, conventionType, conventionBuilderType, runtimeType) = types.Value;
 
-        if (!readonlyType.IsAssignableFrom(mutableType))
+        if (!readOnlyType.IsAssignableFrom(mutableType))
         {
-            return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            return $"{mutableType.Name} should derive from {readOnlyType.Name}";
         }
 
-        if (!readonlyType.IsAssignableFrom(conventionType))
+        if (!readOnlyType.IsAssignableFrom(conventionType))
         {
-            return $"{mutableType.Name} should derive from {readonlyType.Name}";
+            return $"{mutableType.Name} should derive from {readOnlyType.Name}";
         }
 
-        if (typeof(IAnnotation) != readonlyType
-            && typeof(IReadOnlyAnnotatable) != readonlyType)
+        if (readOnlyType != typeof(IAnnotation)
+            && readOnlyType != typeof(IReadOnlyAnnotatable))
         {
-            if (!typeof(IReadOnlyAnnotatable).IsAssignableFrom(readonlyType))
+            if (!typeof(IReadOnlyAnnotatable).IsAssignableFrom(readOnlyType))
             {
-                return $"{readonlyType.Name} should derive from IAnnotatable";
+                return $"{readOnlyType.Name} should derive from IReadOnlyAnnotatable";
             }
 
             if (!typeof(IMutableAnnotatable).IsAssignableFrom(mutableType))
@@ -247,15 +253,20 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 return $"{conventionType.Name} should derive from IConventionAnnotatable";
             }
 
+            if (!typeof(IAnnotatable).IsAssignableFrom(runtimeType))
+            {
+                return $"{runtimeType.Name} should derive from IAnnotatable";
+            }
+
             if (conventionBuilderType != null
                 && !typeof(IConventionAnnotatableBuilder).IsAssignableFrom(conventionBuilderType))
             {
                 return $"{conventionBuilderType.Name} should derive from IConventionAnnotatableBuilder";
             }
 
-            if (readonlyType.Namespace != MetadataNamespace)
+            if (readOnlyType.Namespace != MetadataNamespace)
             {
-                return $"{readonlyType.Name} is expected to be in the {MetadataNamespace} namespace";
+                return $"{readOnlyType.Name} is expected to be in the {MetadataNamespace} namespace";
             }
 
             if (mutableType.Namespace != MetadataNamespace)
@@ -266,6 +277,11 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             if (conventionType.Namespace != MetadataNamespace)
             {
                 return $"{conventionType.Name} is expected to be in the {MetadataNamespace} namespace";
+            }
+
+            if (runtimeType.Namespace != MetadataNamespace)
+            {
+                return $"{runtimeType.Name} is expected to be in the {MetadataNamespace} namespace";
             }
 
             if (conventionBuilderType != null
@@ -995,7 +1011,8 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             var sourceType = _sourceMethod.DeclaringType;
             var targetType = _targetMethod.DeclaringType;
             if (_targetMethod.DeclaringType.IsGenericType
-                && sourceParameterType == _tests.GetEquivalentGenericType(
+                && sourceParameterType
+                == _tests.GetEquivalentGenericType(
                     sourceParameterType, _targetMethod.DeclaringType.GetGenericArguments()))
             {
                 return true;
@@ -1132,6 +1149,12 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         typeof(IIndex))
                 },
                 {
+                    typeof(IReadOnlyTrigger), (typeof(IMutableTrigger),
+                        typeof(IConventionTrigger),
+                        typeof(IConventionTriggerBuilder),
+                        typeof(ITrigger))
+                },
+                {
                     typeof(IReadOnlyProperty), (typeof(IMutableProperty),
                         typeof(IConventionProperty),
                         typeof(IConventionPropertyBuilder),
@@ -1188,7 +1211,10 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 IReadOnlyList<MethodInfo> Runtime)>
             MetadataMethods { get; } = new();
 
-        protected static MethodInfo GetMethod(Type type, string name, int genericParameterCount,
+        protected static MethodInfo GetMethod(
+            Type type,
+            string name,
+            int genericParameterCount,
             Func<Type[], Type[], Type[]> parameterGenerator)
             => type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)
                 .Single(
@@ -1199,7 +1225,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                             parameterGenerator(
                                 type.IsGenericType ? type.GenericTypeArguments : Array.Empty<Type>(),
                                 mi.IsGenericMethod ? mi.GetGenericArguments() : Array.Empty<Type>())));
-        
+
         protected virtual void Initialize()
         {
             foreach (var typeTuple in MetadataTypes.Values)

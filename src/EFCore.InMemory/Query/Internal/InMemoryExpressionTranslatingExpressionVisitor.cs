@@ -64,7 +64,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
     private static readonly MethodInfo InMemoryLikeMethodInfo =
         typeof(InMemoryExpressionTranslatingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InMemoryLike))!;
 
-    private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(object.GetType))!;
+    private static readonly MethodInfo GetTypeMethodInfo = typeof(object).GetTypeInfo().GetDeclaredMethod(nameof(GetType))!;
 
     // Regex special chars defined here:
     // https://msdn.microsoft.com/en-us/library/4edbef7e(v=vs.110).aspx
@@ -207,7 +207,8 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             }
         }
 
-        if (binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual
+        if (binaryExpression.NodeType == ExpressionType.Equal
+            || binaryExpression.NodeType == ExpressionType.NotEqual
             && binaryExpression.Left.Type == typeof(Type))
         {
             if (IsGetTypeMethodCall(binaryExpression.Left, out var entityReference1)
@@ -346,6 +347,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 // No hierarchy
                 return Expression.Constant((entityType.ClrType == comparisonType) == match);
             }
+
             if (entityType.GetAllBaseTypes().Any(e => e.ClrType == comparisonType))
             {
                 // EntitySet will never contain a type of base type
@@ -533,6 +535,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             updatedMemberExpression = ConvertToNullable(updatedMemberExpression);
 
             return Expression.Condition(
+                // Since inner is nullable type this is fine.
                 Expression.Equal(innerExpression, Expression.Default(innerExpression.Type)),
                 Expression.Default(updatedMemberExpression.Type),
                 updatedMemberExpression);
@@ -1502,7 +1505,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                         l = l.Type.IsNullableType() ? l : Expression.Convert(l, r.Type);
                     }
 
-                    return Expression.Equal(l, r);
+                    return ExpressionExtensions.CreateEqualsExpression(l, r);
                 })
             .Aggregate((a, b) => Expression.AndAlso(a, b));
 

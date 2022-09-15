@@ -5,17 +5,15 @@ using Microsoft.EntityFrameworkCore.TestModels.ManyToManyModel;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class ManyToManyTrackingSqliteTest : ManyToManyTrackingTestBase<ManyToManyTrackingSqliteTest.ManyToManyTrackingSqliteFixture>
+public class ManyToManyTrackingSqliteTest
+    : ManyToManyTrackingRelationalTestBase<ManyToManyTrackingSqliteTest.ManyToManyTrackingSqliteFixture>
 {
     public ManyToManyTrackingSqliteTest(ManyToManyTrackingSqliteFixture fixture)
         : base(fixture)
     {
     }
 
-    protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-        => facade.UseTransaction(transaction.GetDbTransaction());
-
-    public class ManyToManyTrackingSqliteFixture : ManyToManyTrackingFixtureBase
+    public class ManyToManyTrackingSqliteFixture : ManyToManyTrackingRelationalFixture
     {
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
@@ -53,7 +51,6 @@ public class ManyToManyTrackingSqliteTest : ManyToManyTrackingTestBase<ManyToMan
                 .Entity<UnidirectionalJoinOneToThreePayloadFull>()
                 .Property(e => e.Payload)
                 .HasDefaultValue("Generated");
-
         }
     }
 }

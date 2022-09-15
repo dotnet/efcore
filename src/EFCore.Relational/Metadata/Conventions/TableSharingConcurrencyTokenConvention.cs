@@ -99,12 +99,15 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
                     continue;
                 }
 
-                RemoveDerivedEntityTypes(entityTypesMissingConcurrencyColumn);
+                RemoveDerivedEntityTypes(entityTypesMissingConcurrencyColumn, mappedTypes);
 
                 foreach (var (conventionEntityType, exampleProperty) in entityTypesMissingConcurrencyColumn)
                 {
+                    var providerType = exampleProperty.GetProviderClrType()
+                        ?? (exampleProperty.GetValueConverter() ?? exampleProperty.FindTypeMapping()?.Converter)?.ProviderClrType
+                        ?? exampleProperty.ClrType;
                     conventionEntityType.Builder.CreateUniqueProperty(
-                            exampleProperty.ClrType,
+                            providerType,
                             ConcurrencyPropertyPrefix + exampleProperty.Name,
                             !exampleProperty.IsNullable)!
                         .HasColumnName(concurrencyColumnName)!
@@ -194,10 +197,11 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
         {
             var declaringEntityType = mappedProperty.DeclaringEntityType;
             if (declaringEntityType.IsAssignableFrom(entityType)
+                || entityType.IsAssignableFrom(declaringEntityType)
                 || declaringEntityType.IsInOwnershipPath(entityType)
                 || entityType.IsInOwnershipPath(declaringEntityType))
             {
-                // The concurrency token is on the base type or in the same aggregate
+                // The concurrency token is on the base type, derived type or in the same aggregate
                 propertyMissing = false;
                 continue;
             }
@@ -220,20 +224,30 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
         return propertyMissing;
     }
 
-    private static void RemoveDerivedEntityTypes<T>(Dictionary<IConventionEntityType, T> entityTypeDictionary)
+    private static void RemoveDerivedEntityTypes(
+        Dictionary<IConventionEntityType, IReadOnlyProperty> entityTypeDictionary,
+        List<IConventionEntityType> mappedTypes)
     {
-        foreach (var entityType in entityTypeDictionary.Keys)
+        foreach (var (entityType, property) in entityTypeDictionary)
         {
+            var removed = false;
             var baseType = entityType.BaseType;
             while (baseType != null)
             {
                 if (entityTypeDictionary.ContainsKey(baseType))
                 {
                     entityTypeDictionary.Remove(entityType);
+                    removed = true;
                     break;
                 }
 
                 baseType = baseType.BaseType;
+            }
+
+            if (!removed
+                && entityType.IsAssignableFrom(property.DeclaringEntityType))
+            {
+                entityTypeDictionary.Remove(entityType);
             }
         }
     }

@@ -82,7 +82,7 @@ public class BackingFieldConvention :
                         throw new InvalidOperationException((string?)ambiguousField.Value);
                     }
 
-                    property.RemoveAnnotation(CoreAnnotationNames.AmbiguousField);
+                    property.Builder.HasNoAnnotation(CoreAnnotationNames.AmbiguousField);
                 }
             }
         }

@@ -245,6 +245,14 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     /// <summary>
     ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.
     /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the index.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given properties can be set as the primary key.</returns>
+    bool CanSetPrimaryKey(IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given properties can be set as the primary key for this entity type.
+    /// </summary>
     /// <param name="properties">The properties that make up the primary key.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given properties can be set as the primary key.</returns>
@@ -369,6 +377,14 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
         IReadOnlyList<IConventionProperty> properties,
         string name,
         bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether and index on the given properties can be added to this entity type.
+    /// </summary>
+    /// <param name="propertyNames">The names of the properties that make up the index.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the index can be added.</returns>
+    bool CanHaveIndex(IReadOnlyList<string> propertyNames, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Removes an index from this entity type.
@@ -835,6 +851,32 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
         bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Configures a database trigger when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the check constraint was configured, <see langword="null" /> otherwise.</returns>
+    IConventionTriggerBuilder? HasTrigger(
+        string modelName,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the trigger can be configured.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
+    /// </remarks>
+    /// <param name="modelName">The name of the trigger.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the configuration can be applied.</returns>
+    bool CanHaveTrigger(
+        string modelName,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Specifies a LINQ predicate expression that will automatically be applied to any queries targeting
     ///     this entity type.
     /// </summary>
@@ -1026,4 +1068,20 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the discriminator property can be removed.</returns>
     bool CanRemoveDiscriminator(bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Gets or creates a builder for the target of a potential navigation.
+    /// </summary>
+    /// <param name="targetClrType">The CLR type of the target.</param>
+    /// <param name="navigationInfo">The navigation property.</param>
+    /// <param name="createIfMissing">Whether the entity type should be created if currently not in the model.</param>
+    /// <param name="targetShouldBeOwned">Whether the target should be owned. <see langword="null" /> if it can be either.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The entity type builder or <see langword="null" /> if not found and can't be created.</returns>
+    IConventionEntityTypeBuilder? GetTargetEntityTypeBuilder(
+        Type targetClrType,
+        MemberInfo navigationInfo,
+        bool createIfMissing = true,
+        bool? targetShouldBeOwned = null,
+        bool fromDataAnnotation = false);
 }

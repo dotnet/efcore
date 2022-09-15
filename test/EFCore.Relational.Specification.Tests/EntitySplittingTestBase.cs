@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class EntitySplittingTestBase : NonSharedModelTestBase
@@ -38,6 +39,67 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         }
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task ExecuteDelete_throws_for_entity_splitting(bool async)
+    {
+        await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
+
+        if (async)
+        {
+            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+                CreateContext,
+                UseTransaction,
+                async context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(() => context.MeterReadings.ExecuteDeleteAsync())).Message));
+        }
+        else
+        {
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext,
+                UseTransaction,
+                context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteDelete", "MeterReading"))[21..],
+                    Assert.Throws<InvalidOperationException>(() => context.MeterReadings.ExecuteDelete()).Message));
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task ExecuteUpdate_throws_for_entity_splitting(bool async)
+    {
+        await InitializeAsync(OnModelCreating, sensitiveLogEnabled: true);
+
+        if (async)
+        {
+            await TestHelpers.ExecuteWithStrategyInTransactionAsync(
+                CreateContext,
+                UseTransaction,
+                async context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteUpdate", "MeterReading"))[21..],
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        () => context.MeterReadings.ExecuteUpdateAsync(s => s.SetProperty(m => m.CurrentRead, m => "Value")))).Message));
+        }
+        else
+        {
+            TestHelpers.ExecuteWithStrategyInTransaction(
+                CreateContext,
+                UseTransaction,
+                context => Assert.Contains(
+                    RelationalStrings.NonQueryTranslationFailedWithDetails(
+                        "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteUpdate", "MeterReading"))[21..],
+                    Assert.Throws<InvalidOperationException>(
+                        () => context.MeterReadings.ExecuteUpdate(s => s.SetProperty(m => m.CurrentRead, m => "Value"))).Message));
+        }
+    }
+
+    public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
+
     protected override string StoreName
         => "EntitySplittingTest";
 
@@ -50,8 +112,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected virtual void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<MeterReading>(
+        => modelBuilder.Entity<MeterReading>(
             ob =>
             {
                 ob.ToTable("MeterReadings");
@@ -62,7 +123,6 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
                         t.Property(o => o.CurrentRead);
                     });
             });
-    }
 
     protected async Task InitializeAsync(
         Action<ModelBuilder> onModelCreating,

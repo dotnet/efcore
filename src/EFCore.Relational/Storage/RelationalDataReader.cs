@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data.Common;
-
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -30,6 +28,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
 
     private int _readCount;
 
+    private bool _closed;
     private bool _disposed;
 
     /// <summary>
@@ -53,6 +52,7 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
         _commandId = commandId;
         _logger = logger;
         _readCount = 0;
+        _closed = false;
         _disposed = false;
         _startTime = DateTimeOffset.UtcNow;
         _stopwatch.Restart();
@@ -106,55 +106,75 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     }
 
     /// <summary>
+    ///     Closes the reader.
+    /// </summary>
+    public virtual void Close()
+    {
+        if (_closed)
+        {
+            return;
+        }
+
+        var closeInterceptionResult = default(InterceptionResult);
+        try
+        {
+            if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
+            {
+                closeInterceptionResult = _logger.DataReaderClosing(
+                    _relationalConnection,
+                    _command,
+                    _reader,
+                    _commandId,
+                    _reader.RecordsAffected,
+                    _readCount,
+                    _startTime); // can throw
+            }
+        }
+        finally
+        {
+            _closed = true;
+
+            if (!closeInterceptionResult.IsSuppressed)
+            {
+                _reader.Close(); // can throw
+            }
+        }
+    }
+
+    /// <summary>
     ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
     public virtual void Dispose()
     {
-        if (!_disposed)
+        if (_disposed)
         {
-            var interceptionResult = default(InterceptionResult);
+            return;
+        }
+
+        var interceptionResult = default(InterceptionResult);
+        try
+        {
+            Close();
+
+            if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
+            {
+                interceptionResult = _logger.DataReaderDisposing(
+                    _relationalConnection,
+                    _command,
+                    _reader,
+                    _commandId,
+                    _reader.RecordsAffected,
+                    _readCount,
+                    _startTime,
+                    _stopwatch.Elapsed); // can throw
+            }
+        }
+        finally
+        {
+            _disposed = true;
+
             try
             {
-                var closeInterceptionResult = default(InterceptionResult);
-                try
-                {
-                    if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
-                    {
-                        closeInterceptionResult = _logger.DataReaderClosing(
-                            _relationalConnection,
-                            _command,
-                            _reader,
-                            _commandId,
-                            _reader.RecordsAffected,
-                            _readCount,
-                            _startTime); // can throw
-                    }
-                }
-                finally
-                {
-                    if (!closeInterceptionResult.IsSuppressed)
-                    {
-                        _reader.Close(); // can throw
-                    }
-                }
-
-                if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
-                {
-                    interceptionResult = _logger.DataReaderDisposing(
-                        _relationalConnection,
-                        _command,
-                        _reader,
-                        _commandId,
-                        _reader.RecordsAffected,
-                        _readCount,
-                        _startTime,
-                        _stopwatch.Elapsed); // can throw
-                }
-            }
-            finally
-            {
-                _disposed = true;
-
                 if (!interceptionResult.IsSuppressed)
                 {
                     _reader.Dispose();
@@ -162,6 +182,49 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
                     _command.Dispose();
                     _relationalConnection.Close();
                 }
+            }
+            finally
+            {
+                _reader = null!;
+                _command = null!;
+                _relationalConnection = null!;
+                _logger = null;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Closes the reader.
+    /// </summary>
+    public virtual async ValueTask CloseAsync()
+    {
+        if (_closed)
+        {
+            return;
+        }
+
+        var closeInterceptionResult = default(InterceptionResult);
+        try
+        {
+            if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
+            {
+                closeInterceptionResult = await _logger.DataReaderClosingAsync(
+                    _relationalConnection,
+                    _command,
+                    _reader,
+                    _commandId,
+                    _reader.RecordsAffected,
+                    _readCount,
+                    _startTime).ConfigureAwait(false); // can throw
+            }
+        }
+        finally
+        {
+            _closed = true;
+
+            if (!closeInterceptionResult.IsSuppressed)
+            {
+                await _reader.CloseAsync().ConfigureAwait(false); // can throw
             }
         }
     }
@@ -171,51 +234,43 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
     /// </summary>
     public virtual async ValueTask DisposeAsync()
     {
-        if (!_disposed)
+        if (_disposed)
         {
-            var interceptionResult = default(InterceptionResult);
+            return;
+        }
+
+        var interceptionResult = default(InterceptionResult);
+        try
+        {
+            // Skip extra async call for most cases
+            if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
+            {
+                await CloseAsync().ConfigureAwait(false);
+            }
+            else
+            {
+                await _reader.CloseAsync().ConfigureAwait(false); // can throw
+            }
+
+            if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
+            {
+                interceptionResult = _logger.DataReaderDisposing(
+                    _relationalConnection,
+                    _command,
+                    _reader,
+                    _commandId,
+                    _reader.RecordsAffected,
+                    _readCount,
+                    _startTime,
+                    _stopwatch.Elapsed); // can throw
+            }
+        }
+        finally
+        {
+            _disposed = true;
+
             try
             {
-                var closeInterceptionResult = default(InterceptionResult);
-                try
-                {
-                    if (_logger?.ShouldLogDataReaderClose(DateTimeOffset.UtcNow) == true)
-                    {
-                        closeInterceptionResult = await _logger.DataReaderClosingAsync(
-                            _relationalConnection,
-                            _command,
-                            _reader,
-                            _commandId,
-                            _reader.RecordsAffected,
-                            _readCount,
-                            _startTime).ConfigureAwait(false); // can throw
-                    }
-                }
-                finally
-                {
-                    if (!closeInterceptionResult.IsSuppressed)
-                    {
-                        await _reader.CloseAsync().ConfigureAwait(false); // can throw
-                    }
-                }
-
-                if (_logger?.ShouldLogDataReaderDispose(DateTimeOffset.UtcNow) == true)
-                {
-                    interceptionResult = _logger.DataReaderDisposing(
-                        _relationalConnection,
-                        _command,
-                        _reader,
-                        _commandId,
-                        _reader.RecordsAffected,
-                        _readCount,
-                        _startTime,
-                        _stopwatch.Elapsed); // can throw
-                }
-            }
-            finally
-            {
-                _disposed = true;
-
                 if (!interceptionResult.IsSuppressed)
                 {
                     await _reader.DisposeAsync().ConfigureAwait(false);
@@ -223,6 +278,13 @@ public class RelationalDataReader : IDisposable, IAsyncDisposable
                     await _command.DisposeAsync().ConfigureAwait(false);
                     await _relationalConnection.CloseAsync().ConfigureAwait(false);
                 }
+            }
+            finally
+            {
+                _reader = null!;
+                _command = null!;
+                _relationalConnection = null!;
+                _logger = null;
             }
         }
     }

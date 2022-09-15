@@ -154,9 +154,9 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
-    
+
     /// <summary>
-    ///     Called immediately before EF is going to throw a <see cref="DbUpdateConcurrencyException"/>.
+    ///     Called immediately before EF is going to throw a <see cref="DbUpdateConcurrencyException" />.
     /// </summary>
     /// <param name="eventData">Contextual information about the concurrency conflict.</param>
     /// <param name="result">
@@ -173,9 +173,9 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// </returns>
     InterceptionResult ThrowingConcurrencyException(ConcurrencyExceptionEventData eventData, InterceptionResult result)
         => result;
-    
+
     /// <summary>
-    ///     Called immediately before EF is going to throw a <see cref="DbUpdateConcurrencyException"/>.
+    ///     Called immediately before EF is going to throw a <see cref="DbUpdateConcurrencyException" />.
     /// </summary>
     /// <param name="eventData">Contextual information about the concurrency conflict.</param>
     /// <param name="result">
@@ -193,8 +193,8 @@ public interface ISaveChangesInterceptor : IInterceptor
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
-        ConcurrencyExceptionEventData eventData, 
-        InterceptionResult result, 
+        ConcurrencyExceptionEventData eventData,
+        InterceptionResult result,
         CancellationToken cancellationToken = default)
         => new(result);
 }

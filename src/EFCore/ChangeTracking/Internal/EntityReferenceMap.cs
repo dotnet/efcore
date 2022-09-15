@@ -228,29 +228,11 @@ public class EntityReferenceMap
     {
         // Perf sensitive
 
-        var returnAdded
-            = added
-            && _addedReferenceMap != null
-            && _addedReferenceMap.Count > 0;
-
-        var returnModified
-            = modified
-            && _modifiedReferenceMap != null
-            && _modifiedReferenceMap.Count > 0;
-
-        var returnDeleted
-            = deleted
-            && _deletedReferenceMap != null
-            && _deletedReferenceMap.Count > 0;
-
-        var returnUnchanged
-            = unchanged
-            && _unchangedReferenceMap != null
-            && _unchangedReferenceMap.Count > 0;
-
-        var hasSharedTypes
-            = _sharedTypeReferenceMap != null
-            && _sharedTypeReferenceMap.Count > 0;
+        var returnAdded = added && _addedReferenceMap is { Count: > 0 };
+        var returnModified = modified && _modifiedReferenceMap is { Count: > 0 };
+        var returnDeleted = deleted && _deletedReferenceMap is { Count: > 0 };
+        var returnUnchanged = unchanged && _unchangedReferenceMap is { Count: > 0 };
+        var hasSharedTypes = _sharedTypeReferenceMap is { Count: > 0 };
 
         if (!hasSharedTypes)
         {

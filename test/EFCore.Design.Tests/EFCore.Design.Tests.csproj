@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="..\..\src\EFCore.Design\Scaffolding\Internal\CSharpDbContextGenerator.tt" Link="Resources\CSharpDbContextGenerator.tt" />
+    <EmbeddedResource Include="..\..\src\EFCore.Design\Scaffolding\Internal\CSharpEntityTypeGenerator.tt" Link="Resources\CSharpEntityTypeGenerator.tt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="System.Diagnostics" />
     <Using Include="System.Linq.Expressions" />
     <Using Include="System.Reflection" />
@@ -52,6 +57,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(MicrosoftCodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.2-pre20220913165057" />
   </ItemGroup>
 
 </Project>

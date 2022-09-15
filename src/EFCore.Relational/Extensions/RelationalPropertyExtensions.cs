@@ -4,7 +4,6 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -79,6 +78,7 @@ public static class RelationalPropertyExtensions
                         }
                     }
                 }
+
                 if (!tableFound)
                 {
                     return null;
@@ -125,7 +125,6 @@ public static class RelationalPropertyExtensions
                             && (declaringStoreObject != storeObject
                                 || fragments.Any(f => property.FindOverrides(f.StoreObject) != null)))
                         {
-
                             return null;
                         }
                     }
@@ -161,7 +160,30 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The default base column name to which the property would be mapped.</returns>
     public static string GetDefaultColumnName(this IReadOnlyProperty property)
-        => Uniquifier.Truncate(property.Name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    {
+        var name = property.Name;
+        if (property.IsShadowProperty()
+            && property.GetContainingForeignKeys().Count() == 1)
+        {
+            var foreignKey = property.GetContainingForeignKeys().First();
+            var principalEntityType = foreignKey.PrincipalEntityType;
+            if (!principalEntityType.HasSharedClrType
+                && principalEntityType.ClrType.IsConstructedGenericType
+                && foreignKey.DependentToPrincipal == null)
+            {
+                var principalProperty = property.FindFirstPrincipal()!;
+                var principalName = principalEntityType.ShortName();
+                if (property.Name.Length == (principalName.Length + principalProperty.Name.Length)
+                    && property.Name.StartsWith(principalName, StringComparison.Ordinal)
+                    && property.Name.EndsWith(principalProperty.Name, StringComparison.Ordinal))
+                {
+                    name = principalEntityType.ClrType.ShortDisplayName() + principalProperty.Name;
+                }
+            }
+        }
+
+        return Uniquifier.Truncate(name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+    }
 
     /// <summary>
     ///     Returns the default column name to which the property would be mapped.
@@ -169,8 +191,13 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <param name="storeObject">The identifier of the table-like store object containing the column.</param>
     /// <returns>The default column name to which the property would be mapped.</returns>
-    public static string GetDefaultColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
+    public static string? GetDefaultColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
+        if (property.DeclaringEntityType.IsMappedToJson())
+        {
+            return null;
+        }
+
         var sharedTablePrincipalPrimaryKeyProperty = FindSharedObjectRootPrimaryKeyProperty(property, storeObject);
         if (sharedTablePrincipalPrimaryKeyProperty != null)
         {
@@ -209,7 +236,7 @@ public static class RelationalPropertyExtensions
             entityType = ownerType;
         }
 
-        var baseName = property.GetDefaultColumnName();
+        var baseName = storeObject.StoreObjectType == StoreObjectType.Table ? property.GetDefaultColumnName() : property.Name;
         if (builder == null)
         {
             return baseName;
@@ -242,14 +269,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Sets the column to which the property is mapped for a particular table-like store object.
@@ -348,11 +371,10 @@ public static class RelationalPropertyExtensions
     /// <param name="fromDataAnnotation">A value indicating whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static int? SetColumnOrder(this IConventionProperty property, int? order, bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.ColumnOrder, order, fromDataAnnotation);
-
-        return order;
-    }
+        => (int?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.ColumnOrder,
+            order,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> of the column order.
@@ -442,14 +464,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ColumnType,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column name.
@@ -683,14 +701,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.DefaultValueSql,
             value,
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the default value SQL expression.
@@ -749,14 +763,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             RelationalAnnotationNames.ComputedColumnSql,
             value,
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
@@ -823,11 +833,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         bool? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsStored, value, fromDataAnnotation);
-
-        return value;
-    }
+        => (bool?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.IsStored,
+            value,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the computed value SQL expression.
@@ -928,12 +937,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         object? value,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
-            RelationalAnnotationNames.DefaultValue, ConvertDefaultValue(property, value), fromDataAnnotation);
-
-        return value;
-    }
+        => property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.DefaultValue,
+            ConvertDefaultValue(property, value),
+            fromDataAnnotation)?.Value;
 
     private static object? ConvertDefaultValue(IReadOnlyProperty property, object? value)
     {
@@ -1091,11 +1098,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         bool? fixedLength,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
-
-        return fixedLength;
-    }
+        => (bool?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.IsFixedLength,
+            fixedLength,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsFixedLength(IReadOnlyProperty)" />.
@@ -1172,53 +1178,6 @@ public static class RelationalPropertyExtensions
     }
 
     /// <summary>
-    ///     Gets the direction of the corresponding stored procedure parameter.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
-    /// <returns>
-    ///     The direction of the corresponding stored procedure parameter.
-    /// </returns>
-    public static System.Data.ParameterDirection GetDirection(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
-        => property.FindOverrides(storeObject)?.Direction ?? System.Data.ParameterDirection.Input;
-
-    /// <summary>
-    ///     Sets the direction of the corresponding stored procedure parameter.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="direction">The direction to set.</param>
-    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
-    public static void SetDirection(
-        this IMutableProperty property,
-        System.Data.ParameterDirection? direction,
-        in StoreObjectIdentifier storeObject)
-        => property.GetOrCreateOverrides(storeObject).Direction = direction;
-
-    /// <summary>
-    ///     Sets the direction of the corresponding stored procedure parameter.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="direction">The direction to set.</param>
-    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The configured value.</returns>
-    public static System.Data.ParameterDirection? SetDirection(
-        this IConventionProperty property,
-        System.Data.ParameterDirection? direction,
-        in StoreObjectIdentifier storeObject,
-        bool fromDataAnnotation = false)
-        => property.GetOrCreateOverrides(storeObject, fromDataAnnotation).SetDirection(direction, fromDataAnnotation);
-
-    /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for the stored procedure parameter direction.
-    /// </summary>
-    /// <param name="property">The property.</param>
-    /// <param name="storeObject">The identifier of the stored procedure containing the parameter.</param>
-    /// <returns>The <see cref="ConfigurationSource" /> for the stored procedure parameter direction.</returns>
-    public static ConfigurationSource? GetDirectionConfigurationSource(this IConventionProperty property, in StoreObjectIdentifier storeObject)
-        => property.FindOverrides(storeObject)?.GetDirectionConfigurationSource();
-    
-    /// <summary>
     ///     Returns the comment for the column this property is mapped to.
     /// </summary>
     /// <param name="property">The property.</param>
@@ -1272,11 +1231,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? comment,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
-
-        return comment;
-    }
+        => (string?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Comment,
+            comment,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column comment.
@@ -1334,10 +1292,10 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         string? collation,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
-        return collation;
-    }
+        => (string?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Collation,
+            collation,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column collation.
@@ -1446,6 +1404,13 @@ public static class RelationalPropertyExtensions
 
     private static IReadOnlyProperty? FindSharedObjectRootProperty(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
+        if (property.DeclaringEntityType.IsMappedToJson())
+        {
+            //JSON-splitting is not supported
+            //issue #28574
+            return null;
+        }
+
         var column = property.GetColumnName(storeObject);
         if (column == null)
         {
@@ -1500,6 +1465,7 @@ public static class RelationalPropertyExtensions
         {
             var linkingRelationship = principalProperty.DeclaringEntityType
                 .FindRowInternalForeignKeys(storeObject).FirstOrDefault();
+
             if (linkingRelationship == null)
             {
                 break;
@@ -1570,7 +1536,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IMutableRelationalPropertyOverrides> GetOverrides(this IMutableProperty property)
         => RelationalPropertyOverrides.Get(property)?.Cast<IMutableRelationalPropertyOverrides>()
-        ?? Enumerable.Empty<IMutableRelationalPropertyOverrides>();
+            ?? Enumerable.Empty<IMutableRelationalPropertyOverrides>();
 
     /// <summary>
     ///     <para>
@@ -1585,7 +1551,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IConventionRelationalPropertyOverrides> GetOverrides(this IConventionProperty property)
         => RelationalPropertyOverrides.Get(property)?.Cast<IConventionRelationalPropertyOverrides>()
-        ?? Enumerable.Empty<IConventionRelationalPropertyOverrides>();
+            ?? Enumerable.Empty<IConventionRelationalPropertyOverrides>();
 
     /// <summary>
     ///     <para>
@@ -1600,7 +1566,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The property facet overrides.</returns>
     public static IEnumerable<IRelationalPropertyOverrides> GetOverrides(this IProperty property)
         => RelationalPropertyOverrides.Get(property)?.Cast<IRelationalPropertyOverrides>()
-        ?? Enumerable.Empty<IRelationalPropertyOverrides>();
+            ?? Enumerable.Empty<IRelationalPropertyOverrides>();
 
     /// <summary>
     ///     <para>
@@ -1704,7 +1670,8 @@ public static class RelationalPropertyExtensions
         this IConventionProperty property,
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
-        => RelationalPropertyOverrides.GetOrCreate((IMutableProperty)property, storeObject,
+        => RelationalPropertyOverrides.GetOrCreate(
+            (IMutableProperty)property, storeObject,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1770,7 +1737,7 @@ public static class RelationalPropertyExtensions
         {
             yield return declaringStoreObject.Value;
         }
-        
+
         if (storeObjectType == StoreObjectType.Function
             || storeObjectType == StoreObjectType.SqlQuery)
         {
@@ -1789,7 +1756,7 @@ public static class RelationalPropertyExtensions
         {
             yield break;
         }
-        
+
         foreach (var derivedType in declaringType.GetDerivedTypes())
         {
             var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
@@ -1809,7 +1776,10 @@ public static class RelationalPropertyExtensions
     /// <param name="ordinal">The ordinal to read in the <paramref name="relationalReader" />.</param>
     /// <param name="detailedErrorsEnabled">Whether detailed errors should be logged.</param>
     public static object? GetReaderFieldValue(
-        this IProperty property, RelationalDataReader relationalReader, int ordinal, bool detailedErrorsEnabled)
+        this IProperty property,
+        RelationalDataReader relationalReader,
+        int ordinal,
+        bool detailedErrorsEnabled)
     {
 #if DEBUG
         // DetailedErrorsEnabled is a singleton option, meaning that we should never get differing values for the same model.
@@ -1958,4 +1928,53 @@ public static class RelationalPropertyExtensions
 
         throw new InvalidOperationException(message, exception);
     }
+
+    /// <summary>
+    ///     Gets the value of JSON property name used for the given property of an entity mapped to a JSON column.
+    /// </summary>
+    /// <remarks>
+    ///     Unless configured explicitly, entity property name is used.
+    /// </remarks>
+    /// <param name="property">The property.</param>
+    /// <returns>
+    ///     The value for the JSON property used to store the value of this entity property.
+    ///     <see langword="null" /> is returned for key properties and for properties of entities that are not mapped to a JSON column.
+    /// </returns>
+    public static string? GetJsonPropertyName(this IReadOnlyProperty property)
+        => (string?)property.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
+            ?? (property.IsKey() || !property.DeclaringEntityType.IsMappedToJson() ? null : property.Name);
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given property of an entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="name">The name to be used.</param>
+    public static void SetJsonPropertyName(this IMutableProperty property, string? name)
+        => property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name, nameof(name)));
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given property of an entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <param name="name">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetJsonPropertyName(
+        this IConventionProperty property,
+        string? name,
+        bool fromDataAnnotation = false)
+        => (string?)property.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name, nameof(name)),
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity property.
+    /// </summary>
+    /// <param name="property">The property.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given entity property.</returns>
+    public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionProperty property)
+        => property.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 }

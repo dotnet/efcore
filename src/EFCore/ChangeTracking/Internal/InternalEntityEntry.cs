@@ -3,6 +3,7 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -146,19 +147,28 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         EntityState entityState,
         bool acceptChanges = false,
         bool modifyProperties = true,
-        EntityState? forceStateWhenUnknownKey = null)
+        EntityState? forceStateWhenUnknownKey = null,
+        EntityState? fallbackState = null)
     {
         var oldState = _stateData.EntityState;
-        var adding = PrepareForAdd(entityState);
+        bool adding;
+        Setup();
 
-        entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
-
-        if (adding || oldState is EntityState.Detached)
+        if ((adding || oldState is EntityState.Detached)
+            && StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: adding)
+            && fallbackState.HasValue)
         {
-            StateManager.ValueGenerationManager.Generate(this, includePrimaryKey: adding);
+            entityState = fallbackState.Value;
+            Setup();
         }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
+
+        void Setup()
+        {
+            adding = PrepareForAdd(entityState);
+            entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
+        }
     }
 
     /// <summary>
@@ -172,20 +182,30 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         bool acceptChanges = false,
         bool modifyProperties = true,
         EntityState? forceStateWhenUnknownKey = null,
+        EntityState? fallbackState = null,
         CancellationToken cancellationToken = default)
     {
         var oldState = _stateData.EntityState;
-        var adding = PrepareForAdd(entityState);
+        bool adding;
+        await SetupAsync().ConfigureAwait(false);
 
-        entityState = PropagateToUnknownKey(oldState, entityState, adding, forceStateWhenUnknownKey);
-
-        if (adding || oldState is EntityState.Detached)
+        if ((adding || oldState is EntityState.Detached)
+            && await StateManager.ValueGenerationManager
+                .GenerateAsync(this, includePrimaryKey: adding, cancellationToken).ConfigureAwait(false)
+            && fallbackState.HasValue)
         {
-            await StateManager.ValueGenerationManager.GenerateAsync(this, includePrimaryKey: adding, cancellationToken)
-                .ConfigureAwait(false);
+            entityState = fallbackState.Value;
+            await SetupAsync().ConfigureAwait(false);
         }
 
         SetEntityState(oldState, entityState, acceptChanges, modifyProperties);
+
+        async Task SetupAsync()
+        {
+            adding = PrepareForAdd(entityState);
+            entityState = await PropagateToUnknownKeyAsync(
+                oldState, entityState, adding, forceStateWhenUnknownKey, cancellationToken).ConfigureAwait(false);
+        }
     }
 
     private EntityState PropagateToUnknownKey(
@@ -196,26 +216,49 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         var keyUnknown = IsKeyUnknown;
 
-        if (adding
-            || (oldState == EntityState.Detached
-                && keyUnknown))
+        if (adding || (oldState == EntityState.Detached && keyUnknown))
         {
             var principalEntry = StateManager.ValueGenerationManager.Propagate(this);
 
-            if (forceStateWhenUnknownKey.HasValue
-                && keyUnknown
-                && principalEntry != null
-                && principalEntry.EntityState != EntityState.Detached
-                && principalEntry.EntityState != EntityState.Deleted)
-            {
-                entityState = principalEntry.EntityState == EntityState.Added
-                    ? EntityState.Added
-                    : forceStateWhenUnknownKey.Value;
-            }
+            entityState = ForceState(entityState, forceStateWhenUnknownKey, keyUnknown, principalEntry);
         }
 
         return entityState;
     }
+
+    private async Task<EntityState> PropagateToUnknownKeyAsync(
+        EntityState oldState,
+        EntityState entityState,
+        bool adding,
+        EntityState? forceStateWhenUnknownKey,
+        CancellationToken cancellationToken)
+    {
+        var keyUnknown = IsKeyUnknown;
+
+        if (adding || (oldState == EntityState.Detached && keyUnknown))
+        {
+            var principalEntry = await StateManager.ValueGenerationManager.PropagateAsync(this, cancellationToken).ConfigureAwait(false);
+
+            entityState = ForceState(entityState, forceStateWhenUnknownKey, keyUnknown, principalEntry);
+        }
+
+        return entityState;
+    }
+
+    private static EntityState ForceState(
+        EntityState entityState,
+        EntityState? forceStateWhenUnknownKey,
+        bool keyUnknown,
+        InternalEntityEntry? principalEntry)
+        => forceStateWhenUnknownKey.HasValue
+            && keyUnknown
+            && principalEntry != null
+            && principalEntry.EntityState != EntityState.Detached
+            && principalEntry.EntityState != EntityState.Deleted
+                ? principalEntry.EntityState == EntityState.Added
+                    ? EntityState.Added
+                    : forceStateWhenUnknownKey.Value
+                : entityState;
 
     private bool PrepareForAdd(EntityState newState)
     {
@@ -407,7 +450,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         {
             StateManager.OnTracking(this, newState, fromQuery: false);
         }
-        
+
         StateManager.ChangingState(this, newState);
     }
 
@@ -523,8 +566,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         var currentState = _stateData.EntityState;
 
-        if (currentState == EntityState.Added
-            || currentState == EntityState.Detached
+        if (currentState is EntityState.Added or EntityState.Detached
             || !changeState)
         {
             var index = property.GetOriginalValueIndex();
@@ -573,8 +615,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         if (isModified
-            && (currentState == EntityState.Unchanged
-                || currentState == EntityState.Detached))
+            && currentState is EntityState.Unchanged or EntityState.Detached)
         {
             if (changeState)
             {
@@ -746,7 +787,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public void SetStoreGeneratedValue(IProperty property, object? value)
+    public void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true)
     {
         if (property.GetStoreGeneratedIndex() == -1)
         {
@@ -758,7 +799,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             property,
             value,
             isMaterialization: false,
-            setModified: true,
+            setModified,
             isCascadeDelete: false,
             CurrentValueType.StoreGenerated);
     }
@@ -789,8 +830,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     public void MarkUnknown(IProperty property)
         => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
 
-    internal static readonly MethodInfo ReadShadowValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue))!;
+    internal static MethodInfo MakeReadShadowValueMethod(Type type)
+        => typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue))!
+            .MakeGenericMethod(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -801,37 +843,62 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private T ReadShadowValue<T>(int shadowIndex)
         => _shadowValues.GetValue<T>(shadowIndex);
 
-    internal static readonly MethodInfo ReadOriginalValueMethod
+    private static readonly MethodInfo ReadOriginalValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadOriginalValueMethod(Type type)
+        => ReadOriginalValueMethod.MakeGenericMethod(type);
 
     [UsedImplicitly]
     private T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
         => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
-    internal static readonly MethodInfo ReadRelationshipSnapshotValueMethod
+    private static readonly MethodInfo ReadRelationshipSnapshotValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadRelationshipSnapshotValueMethod(Type type)
+        => ReadRelationshipSnapshotValueMethod.MakeGenericMethod(type);
 
     [UsedImplicitly]
     private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
         => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
 
-    internal static readonly MethodInfo ReadStoreGeneratedValueMethod
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadStoreGeneratedValueMethod(Type type)
+        => ReadStoreGeneratedValueMethod.MakeGenericMethod(type);
+
+    private static readonly MethodInfo ReadStoreGeneratedValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue))!;
 
     [UsedImplicitly]
     private T ReadStoreGeneratedValue<T>(int storeGeneratedIndex)
         => _storeGeneratedValues.GetValue<T>(storeGeneratedIndex);
 
-    internal static readonly MethodInfo ReadTemporaryValueMethod
+    private static readonly MethodInfo ReadTemporaryValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadTemporaryValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadTemporaryValueMethod(Type type)
+        => ReadTemporaryValueMethod.MakeGenericMethod(type);
 
     [UsedImplicitly]
     private T ReadTemporaryValue<T>(int storeGeneratedIndex)
         => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
-    internal static readonly MethodInfo GetCurrentValueMethod
+    private static readonly MethodInfo GetCurrentValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
             m => m.IsGenericMethod);
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeGetCurrentValueMethod(Type type)
+        => GetCurrentValueMethod.MakeGenericMethod(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -923,7 +990,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private object GetOrCreateShadowCollection(INavigationBase navigation)
     {
-        var collection = _shadowValues[navigation.GetShadowIndex()]; 
+        var collection = _shadowValues[navigation.GetShadowIndex()];
         if (collection == null)
         {
             collection = navigation.GetCollectionAccessor()!.Create();
@@ -965,13 +1032,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         var collection = GetOrCreateShadowCollection(navigationBase);
-        if (!collectionAccessor.ContainsStandalone(collection, value))
-        {
-            collectionAccessor.AddStandalone(collection, value);
-            return true;
-        }
-
-        return false;
+        return collectionAccessor.AddStandalone(collection, value);
     }
 
     /// <summary>
@@ -1251,7 +1312,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var asProperty = propertyBase as IProperty;
         int propertyIndex;
         CurrentValueType currentValueType;
-        
+
         var valuesEqual = false;
         if (asProperty != null)
         {
@@ -1266,7 +1327,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             currentValueType = CurrentValueType.Normal;
         }
 
-
         if (!valuesEqual
             || (propertyIndex != -1
                 && (_stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.Unknown)
@@ -1280,7 +1340,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 && (!asProperty.ClrType.IsNullableType()
                     || asProperty.GetContainingForeignKeys().Any(
                         fk => fk.IsRequired
-                                && (fk.DeleteBehavior == DeleteBehavior.Cascade
+                            && (fk.DeleteBehavior == DeleteBehavior.Cascade
                                 || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
                             && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
             {
@@ -1422,7 +1482,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private static bool AreEqual(object? value, object? otherValue, IProperty property)
         => property.GetValueComparer().Equals(value, otherValue);
-    
+
     private static bool AreEqual(object? value, object? otherValue, IProperty property, Func<object?, object?, bool>? equals)
         => equals != null
             ? equals(value, otherValue)
@@ -1693,7 +1753,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     || HasTemporaryValue(property)
                     || HasDefaultValue(property)))
             || (property.ValueGenerated.ForUpdate()
-                && (EntityState == EntityState.Modified || EntityState == EntityState.Deleted)
+                && (EntityState is EntityState.Modified or EntityState.Deleted)
                 && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
                     || !IsModified(property)));
 

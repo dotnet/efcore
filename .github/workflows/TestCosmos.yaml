@@ -33,3 +33,10 @@ jobs:
       - name: Test on Cosmos
         run: test.cmd /p:Projects=${{ github.workspace }}\test\EFCore.Cosmos.FunctionalTests\EFCore.Cosmos.FunctionalTests.csproj
         shell: cmd
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results
+          path: artifacts/TestResults/Debug/*

@@ -17,35 +17,6 @@ public static class InternalScaffoldingModelExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static ICollection<string> GetOrCreateReverseEngineeringErrors(this IMutableModel model)
-    {
-        var errors = (ICollection<string>?)model[ScaffoldingAnnotationNames.ReverseEngineeringErrors];
-        if (errors == null)
-        {
-            errors = new List<string>();
-            model.SetReverseEngineeringErrors(errors);
-        }
-
-        return errors;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public static void SetReverseEngineeringErrors(this IMutableModel model, ICollection<string> value)
-        => model.SetAnnotation(
-            ScaffoldingAnnotationNames.ReverseEngineeringErrors,
-            value);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public static string? GetDatabaseName(this IReadOnlyModel model)
         => (string?)model[ScaffoldingAnnotationNames.DatabaseName];
 

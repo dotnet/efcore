@@ -58,7 +58,7 @@ public class ProxyBindingInterceptor : IInstantiationBindingInterceptor
                 },
                 proxyType);
         }
-        
+
         if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
         {
             return new FactoryMethodBinding(

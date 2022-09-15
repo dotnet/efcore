@@ -2,7 +2,9 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -24,7 +26,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///     </para>
 /// </remarks>
 /// <typeparam name="T">The type.</typeparam>
-public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
+// PublicMethods is required to preserve e.g. GetHashCode
+public class ValueComparer
+    <[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.NonPublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)] T>
+    : ValueComparer, IEqualityComparer<T>
 {
     private Func<T?, T?, bool>? _equals;
     private Func<T, int>? _hashCode;
@@ -159,10 +166,7 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
 
         return Expression.Lambda<Func<T?, T?, bool>>(
             typedEquals == null
-                ? Expression.Call(
-                    ObjectEqualsMethod,
-                    Expression.Convert(param1, typeof(object)),
-                    Expression.Convert(param2, typeof(object)))
+                ? ExpressionExtensions.CreateEqualsExpression(param1, param2)
                 : Expression.Call(typedEquals, param1, param2),
             param1, param2);
     }
@@ -180,6 +184,7 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
             return v => v;
         }
 
+        // Comparer implementation for arrays
         var sourceParameter = Expression.Parameter(typeof(T), "source");
         var lengthVariable = Expression.Variable(typeof(int), "length");
         var destinationVariable = Expression.Variable(typeof(T), "destination");
@@ -197,7 +202,7 @@ public class ValueComparer<T> : ValueComparer, IEqualityComparer<T>
                     Expression.Property(sourceParameter, typeof(T).GetTypeInfo().GetProperty(nameof(Array.Length))!)),
                 Expression.Assign(
                     destinationVariable,
-                    Expression.NewArrayBounds(typeof(T).GetSequenceType(), lengthVariable)),
+                    Expression.NewArrayBounds(typeof(T).GetElementType()!, lengthVariable)),
                 Expression.Call(
                     ArrayCopyMethod,
                     sourceParameter,

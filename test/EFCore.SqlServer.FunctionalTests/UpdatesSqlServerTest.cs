@@ -1,110 +1,41 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class UpdatesSqlServerTest : UpdatesRelationalTestBase<UpdatesSqlServerFixture>
+public class UpdatesSqlServerTest : UpdatesSqlServerTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
 {
     // ReSharper disable once UnusedParameter.Local
     public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        Fixture.TestSqlLoggerFactory.Clear();
     }
 
-    [ConditionalFact]
-    public virtual void Save_with_shared_foreign_key()
+    public override void Save_with_shared_foreign_key()
     {
-        ExecuteWithStrategyInTransaction(
-            context =>
-            {
-                context.AddRange(
-                    new ProductWithBytes { ProductCategories = new List<ProductCategory> { new() { CategoryId = 77 } } },
-                    new Category { Id = 77, PrincipalId = 777 });
-
-                context.SaveChanges();
-            },
-            context =>
-            {
-                var product = context.Set<ProductBase>()
-                    .Include(p => ((ProductWithBytes)p).ProductCategories)
-                    .Include(p => ((Product)p).ProductCategories)
-                    .OfType<ProductWithBytes>()
-                    .Single();
-                var productCategory = product.ProductCategories.Single();
-                Assert.Equal(productCategory.CategoryId, context.Set<ProductCategory>().Single().CategoryId);
-                Assert.Equal(productCategory.CategoryId, context.Set<Category>().Single(c => c.PrincipalId == 777).Id);
-            });
+        base.Save_with_shared_foreign_key();
 
         AssertContainsSql(
-            @"@p0='77'
-@p1=NULL (Size = 4000)
-@p2='777'
-@p3=NULL (Size = 8000) (DbType = Binary)
-@p4='ProductWithBytes' (Nullable = false) (Size = 4000)
-@p5=NULL (Size = 4000)
+            @"@p0=NULL (Size = 8000) (DbType = Binary)
+@p1='ProductWithBytes' (Nullable = false) (Size = 4000)
+@p2=NULL (Size = 4000)
 
+SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [Categories] ([Id], [Name], [PrincipalId])
-VALUES (@p0, @p1, @p2);
 INSERT INTO [ProductBase] ([Bytes], [Discriminator], [ProductWithBytes_Name])
 OUTPUT INSERTED.[Id]
-VALUES (@p3, @p4, @p5);");
-    }
-
-    [ConditionalFact]
-    public override void Can_add_and_remove_self_refs()
-    {
-        base.Can_add_and_remove_self_refs();
-
-        AssertContainsSql(
-                @"@p0='1' (Size = 4000)
-@p1=NULL (DbType = Int32)
+VALUES (@p0, @p1, @p2);",
+            @"@p0='SpecialCategory' (Nullable = false) (Size = 4000)
+@p1=NULL (Size = 4000)
+@p2='777'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [Person] ([Name], [ParentId])
-OUTPUT INSERTED.[PersonId]
-VALUES (@p0, @p1);",
-                //
-                @"@p2='2' (Size = 4000)
-@p3='1' (Nullable = true)
-@p4='3' (Size = 4000)
-@p5='1' (Nullable = true)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-MERGE [Person] USING (
-VALUES (@p2, @p3, 0),
-(@p4, @p5, 1)) AS i ([Name], [ParentId], _Position) ON 1=0
-WHEN NOT MATCHED THEN
-INSERT ([Name], [ParentId])
-VALUES (i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;",
-                //
-                @"@p6='4' (Size = 4000)
-@p7='2' (Nullable = true)
-@p8='5' (Size = 4000)
-@p9='2' (Nullable = true)
-@p10='6' (Size = 4000)
-@p11='3' (Nullable = true)
-@p12='7' (Size = 4000)
-@p13='3' (Nullable = true)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-MERGE [Person] USING (
-VALUES (@p6, @p7, 0),
-(@p8, @p9, 1),
-(@p10, @p11, 2),
-(@p12, @p13, 3)) AS i ([Name], [ParentId], _Position) ON 1=0
-WHEN NOT MATCHED THEN
-INSERT ([Name], [ParentId])
-VALUES (i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;");
+INSERT INTO [Categories] ([Discriminator], [Name], [PrincipalId])
+OUTPUT INSERTED.[Id]
+VALUES (@p0, @p1, @p2);");
     }
 
     public override void Save_replaced_principal()
@@ -112,7 +43,7 @@ OUTPUT INSERTED.[PersonId], i._Position;");
         base.Save_replaced_principal();
 
         AssertSql(
-            @"SELECT TOP(2) [c].[Id], [c].[Name], [c].[PrincipalId]
+            @"SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
 FROM [Categories] AS [c]",
             //
             @"@__category_PrincipalId_0='778' (Nullable = true)
@@ -121,7 +52,7 @@ SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
 WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0",
             //
-            @"@p1='78'
+            @"@p1='1'
 @p0='New Category' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -130,7 +61,7 @@ UPDATE [Categories] SET [Name] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
             //
-            @"SELECT TOP(2) [c].[Id], [c].[Name], [c].[PrincipalId]
+            @"SELECT TOP(2) [c].[Id], [c].[Discriminator], [c].[Name], [c].[PrincipalId]
 FROM [Categories] AS [c]",
             //
             @"@__category_PrincipalId_0='778' (Nullable = true)
@@ -140,51 +71,9 @@ FROM [ProductBase] AS [p]
 WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0");
     }
 
-    public override void Identifiers_are_generated_correctly()
+    public class UpdatesSqlServerFixture : UpdatesSqlServerFixtureBase
     {
-        using var context = CreateContext();
-        var entityType = context.Model.FindEntityType(
-            typeof(
-                LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
-            ));
-        Assert.Equal(
-            "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorking~",
-            entityType.GetTableName());
-        Assert.Equal(
-            "PK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType.GetKeys().Single().GetName());
-        Assert.Equal(
-            "FK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType.GetForeignKeys().Single().GetConstraintName());
-        Assert.Equal(
-            "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType.GetIndexes().Single().GetDatabaseName());
-
-        var entityType2 = context.Model.FindEntityType(
-            typeof(
-                LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
-            ));
-
-        Assert.Equal(
-            "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkin~1",
-            entityType2.GetTableName());
-        Assert.Equal(
-            "PK_LoginDetails",
-            entityType2.GetKeys().Single().GetName());
-        Assert.Equal(
-            "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCo~",
-            entityType2.GetProperties().ElementAt(1).GetColumnName(StoreObjectIdentifier.Table(entityType2.GetTableName())));
-        Assert.Equal(
-            "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingC~1",
-            entityType2.GetProperties().ElementAt(2).GetColumnName(StoreObjectIdentifier.Table(entityType2.GetTableName())));
-        Assert.Equal(
-            "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWor~1",
-            entityType2.GetIndexes().Single().GetDatabaseName());
+        protected override string StoreName
+            => "UpdateTest";
     }
-
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    protected void AssertContainsSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
 }

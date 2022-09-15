@@ -138,6 +138,24 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual object CreatePrincipalEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
+        => throw new NotImplementedException();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object? CreateDependentEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
+        => throw new NotImplementedException();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected static IEqualityComparer<object[]> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
         => new CompositeCustomComparer(properties.Select(p => p.GetKeyValueComparer()).ToList());
 
@@ -187,16 +205,16 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
 
         public int GetHashCode(object[] obj)
         {
-            var hashCode = 0;
+            var hashCode = new HashCode();
 
             // ReSharper disable once ForCanBeConvertedToForeach
             // ReSharper disable once LoopCanBeConvertedToQuery
             for (var i = 0; i < obj.Length; i++)
             {
-                hashCode = (hashCode * 397) ^ _hashCodes[i](obj[i]);
+                hashCode.Add(_hashCodes[i](obj[i]));
             }
 
-            return hashCode;
+            return hashCode.ToHashCode();
         }
     }
 }

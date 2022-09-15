@@ -29,11 +29,11 @@ public class KeyValueFactoryFactory
         where TKey : notnull
     {
         var dependentFactory = new DependentKeyValueFactoryFactory();
-        var principalKeyValueFactory = new SimplePrincipalKeyValueFactory<TKey>(key.Properties.Single());
+        var principalKeyValueFactory = new SimplePrincipalKeyValueFactory<TKey>(key);
 
         foreach (var foreignKey in key.GetReferencingForeignKeys())
         {
-            var dependentKeyValueFactory = dependentFactory.CreateSimple<TKey>(foreignKey);
+            var dependentKeyValueFactory = dependentFactory.CreateSimple(foreignKey, principalKeyValueFactory);
 
             SetFactories(
                 foreignKey,
@@ -51,7 +51,7 @@ public class KeyValueFactoryFactory
 
         foreach (var foreignKey in key.GetReferencingForeignKeys())
         {
-            var dependentKeyValueFactory = dependentFactory.CreateComposite(foreignKey);
+            var dependentKeyValueFactory = dependentFactory.CreateComposite(foreignKey, principalKeyValueFactory);
 
             SetFactories(
                 foreignKey,
@@ -64,7 +64,7 @@ public class KeyValueFactoryFactory
 
     private static void SetFactories(
         IForeignKey foreignKey,
-        object dependentKeyValueFactory,
+        IDependentKeyValueFactory dependentKeyValueFactory,
         Func<IDependentsMap> dependentsMapFactory)
     {
         var concreteForeignKey = (IRuntimeForeignKey)foreignKey;

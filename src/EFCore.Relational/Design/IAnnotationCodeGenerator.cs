@@ -92,6 +92,26 @@ public interface IAnnotationCodeGenerator
     ///     Removes annotation whose configuration is already applied by convention, and do not need to be
     ///     specified explicitly.
     /// </summary>
+    /// <param name="navigation">The navigation to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(INavigation navigation, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
+    /// <param name="navigation">The navigation to which the annotations are applied.</param>
+    /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
+    void RemoveAnnotationsHandledByConventions(ISkipNavigation navigation, IDictionary<string, IAnnotation> annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
+    /// </summary>
     /// <param name="index">The index to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to remove the conventional ones.</param>
     void RemoveAnnotationsHandledByConventions(IIndex index, IDictionary<string, IAnnotation> annotations)
@@ -139,8 +159,8 @@ public interface IAnnotationCodeGenerator
     }
 
     /// <summary>
-    ///     For the given annotations which have corresponding fluent API calls, returns those fluent API calls
-    ///     and removes the annotations.
+    ///     Removes annotation whose configuration is already applied by convention, and do not need to be
+    ///     specified explicitly.
     /// </summary>
     /// <param name="annotatable">The annotatable to which the annotations are applied.</param>
     /// <param name="annotations">The set of annotations from which to generate fluent API calls.</param>
@@ -149,7 +169,8 @@ public interface IAnnotationCodeGenerator
 
     // Issue #28537.
     internal sealed void RemoveAnnotationsHandledByConventionsInternal(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
     {
         switch (annotatable)
         {
@@ -364,7 +385,8 @@ public interface IAnnotationCodeGenerator
 
     // Issue #28537.
     internal sealed IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCallsInternal(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
             IModel model => GenerateFluentApiCalls(model, annotations),
@@ -419,7 +441,8 @@ public interface IAnnotationCodeGenerator
 
     // Issue #28537.
     internal sealed IReadOnlyList<AttributeCodeFragment> GenerateDataAnnotationAttributesInternal(
-        IAnnotatable annotatable, IDictionary<string, IAnnotation> annotations)
+        IAnnotatable annotatable,
+        IDictionary<string, IAnnotation> annotations)
         => annotatable switch
         {
             IEntityType entityType => GenerateDataAnnotationAttributes(entityType, annotations),

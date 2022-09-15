@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -59,6 +60,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     /// <summary>
     ///     Gets the type of value that this property-like object holds.
     /// </summary>
+    [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)]
     protected abstract Type ClrType { get; }
 
     /// <inheritdoc />
@@ -117,6 +119,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     }
 
     /// <inheritdoc />
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     Type IReadOnlyPropertyBase.ClrType
     {
         [DebuggerStepThrough]

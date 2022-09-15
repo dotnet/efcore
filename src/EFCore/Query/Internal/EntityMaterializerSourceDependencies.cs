@@ -48,7 +48,7 @@ public sealed record EntityMaterializerSourceDependencies
     {
         SingletonInterceptors = singletonInterceptors;
     }
-    
+
     /// <summary>
     ///     Registered singleton interceptors.
     /// </summary>

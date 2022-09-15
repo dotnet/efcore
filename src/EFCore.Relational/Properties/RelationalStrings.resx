@@ -272,7 +272,7 @@
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different maximum lengths ('{maxLength1}' and '{maxLength2}').</value>
   </data>
   <data name="DuplicateColumnNameNullabilityMismatch" xml:space="preserve">
-    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different nullability settings.</value>
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different column nullability settings.</value>
   </data>
   <data name="DuplicateColumnNameOrderMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use different column orders ('{columnOrder1}' and '{columnOrder2}').</value>
@@ -282,6 +282,9 @@
   </data>
   <data name="DuplicateColumnNameProviderTypeMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured to use differing provider types ('{type1}' and '{type2}').</value>
+  </data>
+  <data name="DuplicateColumnNameSameHierarchy" xml:space="preserve">
+    <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but the properties are contained within the same hierarchy. All properties on an entity type must be mapped to unique different columns.</value>
   </data>
   <data name="DuplicateColumnNameScaleMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different scales ('{scale1}' and '{scale2}').</value>
@@ -334,9 +337,6 @@
   <data name="DuplicateSeedDataSensitive" xml:space="preserve">
     <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.</value>
   </data>
-  <data name="DuplicateTrigger" xml:space="preserve">
-    <value>The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.</value>
-  </data>
   <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
     <value>Either {param1} or {param2} must be null.</value>
   </data>
@@ -379,11 +379,32 @@
   <data name="ErrorMaterializingValueNullReference" xml:space="preserve">
     <value>An error occurred while reading a database value. The expected type was '{expectedType}' but the actual value was null.</value>
   </data>
+  <data name="ExecuteDeleteOnNonEntityType" xml:space="preserve">
+    <value>The operation 'ExecuteDelete' requires an entity type which corresponds to the database table to be modified. The current operation is being applied on a non-entity projection. Remove any projection to non-entity types.</value>
+  </data>
+  <data name="ExecuteDeleteOnTableSplitting" xml:space="preserve">
+    <value>The operation 'ExecuteDelete' is being applied on the table '{tableName}' which contains data for multiple entity types. Applying this delete operation will also delete data for other entity type(s), hence it is not supported.</value>
+  </data>
+  <data name="ExecuteOperationOnEntitySplitting" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which uses entity splitting. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types using entity splitting is not supported.</value>
+  </data>
+  <data name="ExecuteOperationOnKeylessEntityTypeWithUnsupportedOperator" xml:space="preserve">
+    <value>The operation '{operation}' cannot be performed on keyless entity type '{entityType}', since it contains an operator not natively supported by the database provider.</value>
+  </data>
+  <data name="ExecuteOperationOnTPC" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPC mapping strategy and is not a leaf type. 'ExecuteDelete'/'ExecuteUpdate' operations on entity types participating in TPC hierarchies is only supported for leaf types.</value>
+  </data>
+  <data name="ExecuteOperationOnTPT" xml:space="preserve">
+    <value>The operation '{operation}' is being applied on entity type '{entityType}', which is using the TPT mapping strategy. 'ExecuteDelete'/'ExecuteUpdate' operations on hierarchies mapped as TPT is not supported.</value>
+  </data>
+  <data name="ExecuteOperationWithUnsupportedOperatorInSqlGeneration" xml:space="preserve">
+    <value>The operation '{operation}' contains a select expression feature that isn't supported in the query SQL generator, but has been declared as supported by provider during translation phase. This is a bug in your EF Core provider, please file an issue.</value>
+  </data>
   <data name="FromSqlMissingColumn" xml:space="preserve">
     <value>The required column '{column}' was not present in the results of a 'FromSql' operation.</value>
   </data>
   <data name="FromSqlNonComposable" xml:space="preserve">
-    <value>'FromSqlRaw' or 'FromSqlInterpolated' was called with non-composable SQL and with a query composing over it. Consider calling 'AsEnumerable' after the method to perform the composition on the client side.</value>
+    <value>'FromSql' or 'SqlQuery' was called with non-composable SQL and with a query composing over it. Consider calling 'AsEnumerable' after the method to perform the composition on the client side.</value>
   </data>
   <data name="FunctionOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the function '{function}', but it isn't mapped to a column on that function return. Remove the specific configuration, or map an entity type that contains this property to '{function}'.</value>
@@ -424,6 +445,9 @@
   <data name="InsufficientInformationToIdentifyElementOfCollectionJoin" xml:space="preserve">
     <value>Unable to translate a collection subquery in a projection since either parent or the subquery doesn't project necessary information required to uniquely identify it and correctly generate results on the client side. This can happen when trying to correlate on keyless entity type. This can also happen for some cases of projection before 'Distinct' or some shapes of grouping key in case of 'GroupBy'. These should either contain all key properties of the entity that the operation is applied on, or only contain simple property access expressions.</value>
   </data>
+  <data name="InvalidArgumentToExecuteUpdate" xml:space="preserve">
+    <value>The 'setPropertyCalls' argument to 'ExecuteUpdate' may only contain a chain of 'SetProperty' expressing the properties to be updated.</value>
+  </data>
   <data name="InvalidCommandTimeout" xml:space="preserve">
     <value>The specified 'CommandTimeout' value '{value}' is not valid. It must be a positive number.</value>
   </data>
@@ -456,6 +480,60 @@
   </data>
   <data name="InvalidMinBatchSize" xml:space="preserve">
     <value>The specified 'MinBatchSize' value '{value}' is not valid. It must be a positive number.</value>
+  </data>
+  <data name="InvalidPropertyInSetProperty" xml:space="preserve">
+    <value>The following lambda argument to 'SetProperty' does not represent a valid property to be set: '{propertyExpression}'.</value>
+  </data>
+  <data name="JsonCantNavigateToParentEntity" xml:space="preserve">
+    <value>Can't navigate from JSON-mapped entity '{jsonEntity}' to its parent entity '{parentEntity}' using navigation '{navigation}'. Entities mapped to JSON can only navigate to their children.</value>
+  </data>
+  <data name="JsonEntityMappedToDifferentViewThanOwner" xml:space="preserve">
+    <value>Entity '{jsonType}' is mapped to JSON and also to a view '{viewName}', but its owner '{ownerType}' is mapped to a different view '{ownerViewName}'. Every entity mapped to JSON must also map to the same view as its owner.</value>
+  </data>
+  <data name="JsonEntityMultipleRootsMappedToTheSameJsonColumn" xml:space="preserve">
+    <value>Multiple owned root entities are mapped to the same JSON column '{column}' in table '{table}'. Each owned root entity must map to a different column.</value>
+  </data>
+  <data name="JsonEntityOwnedByNonJsonOwnedType" xml:space="preserve">
+    <value>Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.</value>
+  </data>
+  <data name="JsonEntityReferencingRegularEntity" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' is mapped to JSON and has a navigation to a regular entity which is not the owner.</value>
+  </data>
+  <data name="JsonEntityWithDefaultValueSetOnItsProperty" xml:space="preserve">
+    <value>Setting a default value on properties of an entity mapped to JSON is not supported. Entity: '{jsonEntity}', property: '{property}'.</value>
+  </data>
+  <data name="JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey" xml:space="preserve">
+    <value>Key property '{keyProperty}' on JSON-mapped entity '{jsonEntity}' should not have its JSON property name configured explicitly.</value>
+  </data>
+  <data name="JsonEntityWithExplicitlyConfiguredOrdinalKey" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' is part of a collection mapped to JSON and has its ordinal key defined explicitly. Only implicitly defined ordinal keys are supported.</value>
+  </data>
+  <data name="JsonEntityWithIncorrectNumberOfKeyProperties" xml:space="preserve">
+    <value>Entity type '{jsonEntity}' has an incorrect number of primary key properties. Expected number is: {expectedCount}, actual number is: {actualCount}.</value>
+  </data>
+  <data name="JsonEntityWithMultiplePropertiesMappedToSameJsonProperty" xml:space="preserve">
+    <value>Entity '{jsonEntity}' is mapped to JSON and contains multiple properties or navigations which are mapped to the same JSON property '{property}'. Each property should map to a unique JSON property.</value>
+  </data>
+  <data name="JsonEntityWithNonTphInheritanceOnOwner" xml:space="preserve">
+    <value>Entity type '{rootType}' references entities mapped to JSON. Only TPH inheritance is supported for those entities.</value>
+  </data>
+  <data name="JsonEntityWithOwnerNotMappedToTableOrView" xml:space="preserve">
+    <value>Entity type '{entity}' references entities mapped to JSON but is not itself mapped to a table or a view. This is not supported.</value>
+  </data>
+  <data name="JsonEntityWithTableSplittingIsNotSupported" xml:space="preserve">
+    <value>Table splitting is not supported for entities containing entities mapped to JSON.</value>
+  </data>
+  <data name="JsonErrorExtractingJsonProperty" xml:space="preserve">
+    <value>An error occurred while reading a JSON value for property '{entityType}.{propertyName}'. See the inner exception for more information.</value>
+  </data>
+  <data name="JsonNodeMustBeHandledByProviderSpecificVisitor" xml:space="preserve">
+    <value>This node should be handled by provider-specific sql generator.</value>
+  </data>
+  <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
+    <value>The JSON property name should only be configured on nested owned navigations.</value>
+  </data>
+  <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
+    <value>Entity {entity} is required but the JSON element containing it is null.</value>
   </data>
   <data name="KeylessMappingStrategy" xml:space="preserve">
     <value>The mapping strategy '{mappingStrategy}' used for '{entityType}' is not supported for keyless entity types.  See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
@@ -591,6 +669,18 @@
     <value>The configured column orders for the table '{table}' contains duplicates. Ensure the specified column order values are distinct. Conflicting columns: {columns}</value>
     <comment>Error RelationalEventId.DuplicateColumnOrders string string</comment>
   </data>
+  <data name="LogExceptionDuringExecuteDelete" xml:space="preserve">
+    <value>An exception occurred while executing an 'ExecuteDelete' operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.ExecuteDeleteFailed Type string Exception</comment>
+  </data>
+  <data name="LogExceptionDuringExecuteUpdate" xml:space="preserve">
+    <value>An exception occurred while executing an 'ExecuteUpdate' operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.ExecuteUpdateFailed Type string Exception</comment>
+  </data>
+  <data name="LogExceptionDuringNonQueryOperation" xml:space="preserve">
+    <value>An exception occurred while executing a non-query operation for context type '{contextType}'.{newline}{error}</value>
+    <comment>Error RelationalEventId.NonQueryOperationFailed Type string Exception</comment>
+  </data>
   <data name="LogExecutedCommand" xml:space="preserve">
     <value>Executed DbCommand ({elapsed}ms) [Parameters=[{parameters}], CommandType='{commandType}', CommandTimeout='{commandTimeout}']{newLine}{commandText}</value>
     <comment>Information RelationalEventId.CommandExecuted string string System.Data.CommandType int string string</comment>
@@ -719,6 +809,10 @@
     <value>An error occurred using a transaction.</value>
     <comment>Error RelationalEventId.TransactionError</comment>
   </data>
+  <data name="LogUnexpectedTrailingResultSetWhenSaving" xml:space="preserve">
+    <value>An unexpected trailing result set was found when reading the results of a SaveChanges operation; this may indicate that a stored procedure returned a result set without being configured for it in the EF model. Check your stored procedure definitions.</value>
+    <comment>Warning CoreEventId.UnexpectedTrailingResultSetWhenSaving</comment>
+  </data>
   <data name="LogUnnamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
     <comment>Warning RelationalEventId.AllIndexPropertiesNotToMappedToAnyTable string string</comment>
@@ -741,6 +835,9 @@
   <data name="MappingFragmentMissingName" xml:space="preserve">
     <value>Table name must be specified to configure a table-specific property mapping.</value>
   </data>
+  <data name="MethodNeedsToBeImplementedInTheProvider" xml:space="preserve">
+    <value>This method needs to be implemented in the provider.</value>
+  </data>
   <data name="MethodOnNonTphRootNotSupported" xml:space="preserve">
     <value>Using '{methodName}' on DbSet of '{entityType}' is not supported since '{entityType}' is part of hierarchy and does not contain a discriminator property.</value>
   </data>
@@ -762,6 +859,9 @@
   <data name="MissingParameterValue" xml:space="preserve">
     <value>No value was provided for the required parameter '{parameter}'.</value>
   </data>
+  <data name="MissingResultSetWhenSaving" xml:space="preserve">
+    <value>A result set was was missing when reading the results of a SaveChanges operation; this may indicate that a stored procedure was configured to return results in the EF model, but did not. Check your stored procedure definitions.</value>
+  </data>
   <data name="ModificationCommandBatchAlreadyComplete" xml:space="preserve">
     <value>Cannot add commands to a completed ModificationCommandBatch.</value>
   </data>
@@ -773,6 +873,9 @@
   </data>
   <data name="ModificationCommandInvalidEntityStateSensitive" xml:space="preserve">
     <value>Cannot save changes for an entity of type '{entityType}' with primary key values {keyValues} in state '{entityState}'. This may indicate a bug in Entity Framework, please open an issue at https://go.microsoft.com/fwlink/?linkid=2142044.</value>
+  </data>
+  <data name="MultipleEntityPropertiesInSetProperty" xml:space="preserve">
+    <value>Multiple 'SetProperty' invocations refer to properties on different entity types ('{entityType1}' and '{entityType2}'). A single 'ExecuteUpdate' call can only update the properties of a single entity type.</value>
   </data>
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Multiple relational database provider configurations found. A context can only be configured to use a single database provider.</value>
@@ -791,6 +894,9 @@
   </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
+  </data>
+  <data name="NonQueryTranslationFailedWithDetails" xml:space="preserve">
+    <value>The LINQ expression '{expression}' could not be translated. Additional information: {details} See https://go.microsoft.com/fwlink/?linkid=2101038 for more information.</value>
   </data>
   <data name="NonScalarFunctionCannotBeNullable" xml:space="preserve">
     <value>Cannot set 'IsNullable' on DbFunction '{functionName}' since the function does not represent a scalar function.</value>
@@ -815,6 +921,9 @@
   </data>
   <data name="NoProviderConfigured" xml:space="preserve">
     <value>No relational database providers are configured. Configure a database provider using 'OnConfiguring' or by creating an ImmutableDbContextOptions with a configured database provider and passing it to the context.</value>
+  </data>
+  <data name="NoSetPropertyInvocation" xml:space="preserve">
+    <value>An 'ExecuteUpdate' call must specify at least one 'SetProperty' invocation, to indicate the properties to be updated.</value>
   </data>
   <data name="NullKeyValue" xml:space="preserve">
     <value>Unable to modify a row in table '{table}' because its key column '{keyColumn}' is null.</value>
@@ -855,17 +964,56 @@
   <data name="SetOperationsOnDifferentStoreTypes" xml:space="preserve">
     <value>Unable to translate set operation when matching columns on both sides have different store types.</value>
   </data>
+  <data name="SetPropertyMethodInvoked" xml:space="preserve">
+    <value>The SetProperty&lt;TProperty&gt; method can only be used within 'ExecuteUpdate' method.</value>
+  </data>
   <data name="SplitQueryString" xml:space="preserve">
     <value>This LINQ query is being executed in split-query mode, and the SQL shown is for the first query to be executed. Additional queries may also be executed depending on the results of the first query.</value>
   </data>
   <data name="SqlQueryOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the SQL query '{query}', but isn't mapped to a column on that query. Remove the specific configuration, or map an entity type that contains this property to '{query}'.</value>
   </data>
+  <data name="SqlQueryUnmappedType" xml:space="preserve">
+    <value>The element type '{elementType}' used in 'SqlQuery' method is not natively supported by your database provider. Either use a supported element type, or use ModelConfigurationBuilder.DefaultTypeMapping to define a mapping for your type.</value>
+  </data>
+  <data name="StoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
+  </data>
+  <data name="StoredProcedureCurrentValueParameterOnDelete" xml:space="preserve">
+    <value>Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.</value>
+  </data>
   <data name="StoredProcedureDeleteNonKeyProperty" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a parameter of the stored procedure '{sproc}', but only concurrency token and key properties are supported for Delete stored procedures.</value>
   </data>
+  <data name="StoredProcedureDuplicateOriginalValueParameter" xml:space="preserve">
+    <value>The original value parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another original value parameter for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateParameter" xml:space="preserve">
+    <value>The parameter for the property '{property}' cannot be added to the stored procedure '{sproc}' because another parameter for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateParameterName" xml:space="preserve">
+    <value>The parameter '{parameter}' cannot be added to the stored procedure '{sproc}' because another parameter with this name already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateResultColumn" xml:space="preserve">
+    <value>The result column for the property '{property}' cannot be added to the stored procedure '{sproc}' because another result column for this property already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateResultColumnName" xml:space="preserve">
+    <value>The result column '{column}' cannot be added to the stored procedure '{sproc}' because another result column with this name already exists.</value>
+  </data>
+  <data name="StoredProcedureDuplicateRowsAffectedParameter" xml:space="preserve">
+    <value>The rows affected parameter cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another parameter, via the stored procedure return value or via a result column.</value>
+  </data>
+  <data name="StoredProcedureDuplicateRowsAffectedResultColumn" xml:space="preserve">
+    <value>The rows affected result column cannot be added to the stored procedure '{sproc}' because the rows affected are already returned via another column, via a parameter or via the stored procedure return value.</value>
+  </data>
   <data name="StoredProcedureGeneratedPropertiesNotMapped" xml:space="preserve">
     <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', however the store-generated properties {properties} are not mapped to any output parameter or result column.</value>
+  </data>
+  <data name="StoredProcedureInputParameterForInsertNonSaveProperty" xml:space="preserve">
+    <value>Input parameter '{parameter}' of insert stored procedure '{sproc}' is mapped to property '{property}' of entity type '{entityType}', but that property is configured with BeforeSaveBehavior '{behavior}', and so cannot be saved on insert.</value>
+  </data>
+  <data name="StoredProcedureInputParameterForUpdateNonSaveProperty" xml:space="preserve">
+    <value>Input parameter '{parameter}' of update stored procedure '{sproc}' is mapped to property '{property}' of entity type '{entityType}', but that property is configured with AfterSaveBehavior '{behavior}', and so cannot be saved on update. You may need to use HasOriginalValueParameter() instead of HasParameter().</value>
   </data>
   <data name="StoredProcedureKeyless" xml:space="preserve">
     <value>The keyless entity type '{entityType}' was configured to use '{sproc}'. An entity type requires a primary key to be able to be mapped to a stored procedure.</value>
@@ -873,11 +1021,23 @@
   <data name="StoredProcedureNoName" xml:space="preserve">
     <value>The entity type '{entityType}' was configured to use '{sproc}', but the store name was not specified. Configure the stored procedure name explicitly.</value>
   </data>
+  <data name="StoredProcedureOriginalValueParameterOnInsert" xml:space="preserve">
+    <value>Original value parameter '{parameter}' is not allowed on insert stored procedure '{sproc}'. Use HasParameter() instead.</value>
+  </data>
+  <data name="StoredProcedureOutputParameterConflict" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is also mapped to an output original value output parameter. A store-generated property can only be mapped to one output parameter.</value>
+  </data>
   <data name="StoredProcedureOutputParameterNotGenerated" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to an output parameter of the stored procedure '{sproc}', but it is not configured as store-generated. Either configure it as store-generated or don't configure the parameter as output.</value>
   </data>
   <data name="StoredProcedureOverrideMismatch" xml:space="preserve">
     <value>The property '{propertySpecification}' has specific configuration for the stored procedure '{sproc}', but it isn't mapped to a parameter or a result column on that stored procedure. Remove the specific configuration, or map an entity type that contains this property to '{sproc}'.</value>
+  </data>
+  <data name="StoredProcedureParameterInvalidConfiguration" xml:space="preserve">
+    <value>'{facet}' cannot be configured for the parameter '{parameter}' of the stored procedure '{sproc}'.</value>
+  </data>
+  <data name="StoredProcedureParameterInvalidDirection" xml:space="preserve">
+    <value>Unsupported direction '{direction}' was specified for the parameter '{parameter}' of the stored procedure '{sproc}'.</value>
   </data>
   <data name="StoredProcedureParameterNotFound" xml:space="preserve">
     <value>No property named '{property}' found on the entity type '{entityType}' corresponding to the parameter on the stored procedure '{sproc}'</value>
@@ -894,11 +1054,32 @@
   <data name="StoredProcedureResultColumnNotGenerated" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is not configured as store-generated.</value>
   </data>
+  <data name="StoredProcedureResultColumnParameterConflict" xml:space="preserve">
+    <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is also mapped to an output parameter. A store-generated property can only be mapped to one of these.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedNotPopulated" xml:space="preserve">
+    <value>Stored procedure '{sproc}' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedForInsert" xml:space="preserve">
+    <value>A rows affected parameter, result column or return value cannot be configured on stored procedure '{sproc}' because it is used for insertion. Rows affected values are only allowed on stored procedures performing updating or deletion.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
+    <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedWithResultColumns" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}' which returns both result columns and a rows affected value. If the stored procedure returns result columns, a rows affected value isn't needed and can be safely removed.</value>
+  </data>
   <data name="StoredProcedureTableSharing" xml:space="preserve">
     <value>Both entity type '{entityType1}' and '{entityType2}' were configured to use '{sproc}', stored procedure sharing is not supported. Specify different names for the corresponding stored procedures.</value>
   </data>
   <data name="StoredProcedureTphDuplicate" xml:space="preserve">
     <value>Both '{entityType}' and  '{otherEntityType}' are explicitly mapped to the stored procedure '{sproc}' using the 'TPH' mapping strategy. Configure the stored procedure mapping on the root entity type, including all parameters for the derived types. See https://go.microsoft.com/fwlink/?linkid=2130430 for more information.</value>
+  </data>
+  <data name="StoredProcedureUnmapped" xml:space="preserve">
+    <value>The entity type '{entityType}' was configured to use some stored procedures and is not mapped to any table. An entity type that isn't mapped to a table must be mapped to insert, update and delete stored procedures.</value>
+  </data>
+  <data name="StoredKeyTypesNotConvertable" xml:space="preserve">
+    <value>The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. To use 'SaveChanges` or 'SaveChangesAsync', foreign key column types must be comparable with principal key column types.</value>
   </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
@@ -945,14 +1126,14 @@
   <data name="TransactionSuppressedMigrationInUserTransaction" xml:space="preserve">
     <value>User transaction is not supported with a TransactionSuppressed migrations.</value>
   </data>
-  <data name="TriggerOnUnmappedEntityType" xml:space="preserve">
-    <value>Trigger '{trigger}' cannot be defined on entity type '{entityType}' since that entity type isn't mapped to a database table. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>
-  </data>
   <data name="TriggerWithMismatchedTable" xml:space="preserve">
     <value>Trigger '{trigger}' for table '{triggerTable}' is defined on entity type '{entityType}', which is mapped to table '{entityTable}'. See https://aka.ms/efcore-docs-triggers for more information on triggers.</value>
   </data>
   <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
     <value>Unable to bind '{memberType}.{member}' to an entity projection of '{entityType}'.</value>
+  </data>
+  <data name="UnableToTranslateSetProperty" xml:space="preserve">
+    <value>The following 'SetProperty' failed to translate: 'SetProperty({property}, {value})'. {details}</value>
   </data>
   <data name="UnhandledAnnotatableType" xml:space="preserve">
     <value>Unhandled annotatable type '{annotatableType}'.</value>

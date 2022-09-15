@@ -23,6 +23,11 @@ public interface IReadOnlyModificationCommand
     public ITable? Table { get; }
 
     /// <summary>
+    ///     The stored procedure to use for updating the data.
+    /// </summary>
+    public IStoreStoredProcedure? StoreStoredProcedure { get; }
+
+    /// <summary>
     ///     The name of the table containing the data to be modified.
     /// </summary>
     public string TableName { get; }
@@ -38,12 +43,6 @@ public interface IReadOnlyModificationCommand
     public IReadOnlyList<IColumnModification> ColumnModifications { get; }
 
     /// <summary>
-    ///     Indicates whether the database will return values for some mapped properties
-    ///     that will then need to be propagated back to the tracked entities.
-    /// </summary>
-    public bool RequiresResultPropagation { get; }
-
-    /// <summary>
     ///     The <see cref="IUpdateEntry" /> that represent the entities that are mapped to the row to update.
     /// </summary>
     public IReadOnlyList<IUpdateEntry> Entries { get; }
@@ -57,9 +56,24 @@ public interface IReadOnlyModificationCommand
     public EntityState EntityState { get; }
 
     /// <summary>
-    ///     Reads values returned from the database in the given <paramref name="relationalReader" /> and propagates them back to into the
-    ///     appropriate <see cref="IColumnModification" /> from which the values can be propagated on to tracked entities.
+    ///     When using a stored procedure, this optionally points to the output parameter or result column containing the rows affected.
+    /// </summary>
+    public IColumnBase? RowsAffectedColumn { get; }
+
+    /// <summary>
+    ///     Reads result set columns returned from the database in the given <paramref name="relationalReader" /> and propagates them back
+    ///     to into the appropriate <see cref="IColumnModification" /> from which the values can be propagated on to tracked entities.
     /// </summary>
     /// <param name="relationalReader">The relational reader containing the values read from the database.</param>
     public void PropagateResults(RelationalDataReader relationalReader);
+
+    /// <summary>
+    ///     Reads output parameters returned from the database in the given <paramref name="parameterCollection" /> and propagates them back
+    ///     to into the appropriate <see cref="IColumnModification" /> from which the values can be propagated on to tracked entities.
+    /// </summary>
+    /// <param name="parameterCollection">The parameter collection from which to propagate output values.</param>
+    /// <param name="baseParameterIndex">
+    ///     The index in <paramref name="parameterCollection" /> on which parameters for this <see cref="ModificationCommand" /> begin.
+    /// </param>
+    public void PropagateOutputParameters(DbParameterCollection parameterCollection, int baseParameterIndex);
 }

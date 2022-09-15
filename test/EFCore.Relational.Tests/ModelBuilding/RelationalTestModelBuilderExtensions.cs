@@ -127,6 +127,23 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
+    public static ModelBuilderTest.TestPropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this ModelBuilderTest.TestPropertyBuilder<TProperty> builder,
+        string? name)
+    {
+        switch (builder)
+        {
+            case IInfrastructure<PropertyBuilder<TProperty>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<PropertyBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+        }
+
+        return builder;
+    }
+
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UseTpcMappingStrategy<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder)
         where TEntity : class
@@ -781,9 +798,7 @@ public static class RelationalTestModelBuilderExtensions
         string name,
         Action<RelationalModelBuilderTest.TestTableValuedFunctionBuilder<TEntity>> buildAction)
         where TEntity : class
-    {
-        return builder;
-    }
+        => builder;
 
     public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> UpdateUsingStoredProcedure<TEntity>(
         this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
@@ -1241,90 +1256,57 @@ public static class RelationalTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
-        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        string name,
-        string? sql)
-        where TEntity : class
-    {
-        switch (builder)
-        {
-            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.HasCheckConstraint(name, sql);
-                break;
-            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.HasCheckConstraint(name, sql);
-                break;
-        }
-
-        return builder;
-    }
-
-    public static ModelBuilderTest.TestEntityTypeBuilder<TEntity> HasCheckConstraint<TEntity>(
-        this ModelBuilderTest.TestEntityTypeBuilder<TEntity> builder,
-        string name,
-        string sql,
-        Action<RelationalModelBuilderTest.TestCheckConstraintBuilder> buildAction)
-        where TEntity : class
-    {
-        switch (builder)
-        {
-            case IInfrastructure<EntityTypeBuilder<TEntity>> genericBuilder:
-                genericBuilder.Instance.HasCheckConstraint(
-                    name, sql,
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
-                break;
-            case IInfrastructure<EntityTypeBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.HasCheckConstraint(
-                    name, sql,
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
-                break;
-        }
-
-        return builder;
-    }
-
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint
-        <TOwnerEntity, TDependentEntity>(
-            this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
-            string name,
-            string? sql)
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder)
         where TOwnerEntity : class
         where TDependentEntity : class
     {
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.HasCheckConstraint(name, sql);
+                genericBuilder.Instance.ToJson();
                 break;
             case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.HasCheckConstraint(name, sql);
+                nonGenericBuilder.Instance.ToJson();
                 break;
         }
 
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasCheckConstraint
-        <TOwnerEntity, TDependentEntity>(
-            this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
-            string name,
-            string sql,
-            Action<RelationalModelBuilderTest.TestCheckConstraintBuilder> buildAction)
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> ToJson<TOwnerEntity, TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string? jsonColumnName)
         where TOwnerEntity : class
         where TDependentEntity : class
     {
         switch (builder)
         {
             case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
-                genericBuilder.Instance.HasCheckConstraint(
-                    name, sql,
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
+                genericBuilder.Instance.ToJson(jsonColumnName);
                 break;
             case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
-                nonGenericBuilder.Instance.HasCheckConstraint(
-                    name, sql,
-                    b => buildAction(new RelationalModelBuilderTest.NonGenericTestCheckConstraintBuilder(b)));
+                nonGenericBuilder.Instance.ToJson(jsonColumnName);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> HasJsonPropertyName<TOwnerEntity,
+        TDependentEntity>(
+        this ModelBuilderTest.TestOwnedNavigationBuilder<TOwnerEntity, TDependentEntity> builder,
+        string? name)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.HasJsonPropertyName(name);
+                break;
+            case IInfrastructure<OwnedNavigationBuilder> nonGenericBuilder:
+                nonGenericBuilder.Instance.HasJsonPropertyName(name);
                 break;
         }
 

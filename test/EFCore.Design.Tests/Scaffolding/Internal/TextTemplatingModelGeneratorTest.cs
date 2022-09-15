@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestPlatform.Linux, SkipReason = "CI time out")]
+[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "CI time out")]
 public class TextTemplatingModelGeneratorTest
 {
     [ConditionalFact]
@@ -81,7 +81,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -118,7 +118,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -132,7 +132,39 @@ public class TextTemplatingModelGeneratorTest
     }
 
     [ConditionalFact]
-    public void GenerateModel_throws_when_no_context_template()
+    public void GenerateModel_works_when_no_context_template_and_csharp()
+    {
+        using var projectDir = new TempDirectory();
+
+        var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        File.WriteAllText(
+            template,
+            "My entity type template");
+
+        var generator = CreateGenerator();
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .FinalizeModel();
+
+        var result = generator.GenerateModel(
+            model,
+            new ModelCodeGenerationOptions
+            {
+                ContextName = "Context",
+                ConnectionString = @"Name=DefaultConnection",
+                ProjectDir = projectDir,
+                Language = "C#"
+            });
+
+        Assert.NotEmpty(result.ContextFile.Code);
+
+        var entityType = Assert.Single(result.AdditionalFiles);
+        Assert.Equal("My entity type template", entityType.Code);
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_throws_when_no_context_template_and_not_csharp()
     {
         using var projectDir = new TempDirectory();
 
@@ -148,11 +180,12 @@ public class TextTemplatingModelGeneratorTest
         var ex = Assert.Throws<OperationException>(
             () => generator.GenerateModel(
                 model,
-                new()
+                new ModelCodeGenerationOptions
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",
-                    ProjectDir = projectDir
+                    ProjectDir = projectDir,
+                    Language = "VB"
                 }));
 
         Assert.Equal(DesignStrings.NoContextTemplate, ex.Message);
@@ -193,7 +226,7 @@ ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -251,7 +284,7 @@ ProjectDefaultNamespace: RootNamespace",
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -293,11 +326,12 @@ My entity type configuration template");
         var generator = CreateGenerator();
         var model = new ModelBuilder()
             .Entity("Entity1", b => { })
+            .Entity("Entity2", b => { })
             .FinalizeModel();
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -306,9 +340,11 @@ My entity type configuration template");
 
         Assert.Equal("Context.vb", result.ContextFile.Path);
 
-        Assert.Equal(2, result.AdditionalFiles.Count);
+        Assert.Equal(4, result.AdditionalFiles.Count);
         Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1.fs");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2.fs");
         Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1Configuration.py");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2Configuration.py");
     }
 
     [ConditionalFact]
@@ -329,7 +365,7 @@ My entity type configuration template");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -354,8 +390,7 @@ My entity type configuration template");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
-            @"<# Warning(""This is a warning"");
-Error(""This is an error""); #>");
+            @"<# Error(""This is an error""); #>");
 
         var reporter = new TestOperationReporter();
         var generator = CreateGenerator(reporter);
@@ -365,7 +400,7 @@ Error(""This is an error""); #>");
         var ex = Assert.Throws<OperationException>(
             () => generator.GenerateModel(
                 model,
-                new()
+                new ModelCodeGenerationOptions
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",
@@ -378,13 +413,60 @@ Error(""This is an error""); #>");
             reporter.Messages,
             x =>
             {
+                Assert.Equal(LogLevel.Error, x.Level);
+                Assert.Contains("This is an error", x.Message);
+            });
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_reports_warnings()
+    {
+        using var projectDir = new TempDirectory();
+
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        File.WriteAllText(
+            contextTemplate,
+            @"<# Warning(""Warning about DbContext""); #>");
+        var entityTypeTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        File.WriteAllText(
+            entityTypeTemplate,
+            @"<#@ assembly name=""Microsoft.EntityFrameworkCore"" #>
+<#@ parameter name=""EntityType"" type=""Microsoft.EntityFrameworkCore.Metadata.IEntityType"" #>
+<# Warning(""Warning about "" + EntityType.Name); #>");
+
+        var reporter = new TestOperationReporter();
+        var generator = CreateGenerator(reporter);
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .Entity("Entity2", b => { })
+            .FinalizeModel();
+
+        var result = generator.GenerateModel(
+            model,
+            new ModelCodeGenerationOptions
+            {
+                ContextName = "Context",
+                ConnectionString = @"Name=DefaultConnection",
+                ProjectDir = projectDir
+            });
+
+        Assert.Collection(
+            reporter.Messages,
+            x =>
+            {
                 Assert.Equal(LogLevel.Warning, x.Level);
-                Assert.Contains("This is a warning", x.Message);
+                Assert.Contains("Warning about DbContext", x.Message);
             },
             x =>
             {
-                Assert.Equal(LogLevel.Error, x.Level);
-                Assert.Contains("This is an error", x.Message);
+                Assert.Equal(LogLevel.Warning, x.Level);
+                Assert.Contains("Warning about Entity1", x.Message);
+            },
+            x =>
+            {
+                Assert.Equal(LogLevel.Warning, x.Level);
+                Assert.Contains("Warning about Entity2", x.Message);
             });
     }
 
@@ -399,7 +481,6 @@ Error(""This is an error""); #>");
             contextTemplate,
             "<# #error This is a compiler error #>");
 
-
         var reporter = new TestOperationReporter();
         var generator = CreateGenerator(reporter);
         var model = new ModelBuilder()
@@ -408,7 +489,7 @@ Error(""This is an error""); #>");
         var ex = Assert.Throws<OperationException>(
             () => generator.GenerateModel(
                 model,
-                new()
+                new ModelCodeGenerationOptions
                 {
                     ContextName = "Context",
                     ConnectionString = @"Name=DefaultConnection",

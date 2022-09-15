@@ -133,6 +133,7 @@ public class CSharpHelper : ICSharpHelper
             { typeof(int), (c, v) => c.Literal((int)v) },
             { typeof(long), (c, v) => c.Literal((long)v) },
             { typeof(NestedClosureCodeFragment), (c, v) => c.Fragment((NestedClosureCodeFragment)v) },
+            { typeof(PropertyAccessorCodeFragment), (c, v) => c.Fragment((PropertyAccessorCodeFragment)v) },
             { typeof(object[]), (c, v) => c.Literal((object[])v) },
             { typeof(object[,]), (c, v) => c.Literal((object[,])v) },
             { typeof(sbyte), (c, v) => c.Literal((sbyte)v) },
@@ -757,12 +758,60 @@ public class CSharpHelper : ICSharpHelper
             .Append(Reference(type))
             .Append(">");
 
+        return HandleEnumerable(
+            builder, vertical, values, value =>
+            {
+                builder.Append(UnknownLiteral(value));
+            });
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Literal<TKey, TValue>(Dictionary<TKey, TValue> dict, bool vertical = false)
+        where TKey : notnull
+        => Dictionary(typeof(TKey), typeof(TValue), dict, vertical);
+
+    private string Dictionary(Type keyType, Type valueType, IDictionary dict, bool vertical = false)
+    {
+        var builder = new IndentedStringBuilder();
+
+        builder.Append("new Dictionary<")
+            .Append(Reference(keyType))
+            .Append(", ")
+            .Append(Reference(valueType))
+            .Append(">");
+
+        return HandleEnumerable(
+            builder, vertical, dict.Keys, key =>
+            {
+                builder.Append("[")
+                    .Append(UnknownLiteral(key))
+                    .Append("] = ")
+                    .Append(UnknownLiteral(dict[key]));
+            });
+    }
+
+    private static string HandleEnumerable(IndentedStringBuilder builder, bool vertical, IEnumerable values, Action<object> handleValue)
+    {
         var first = true;
         foreach (var value in values)
         {
             if (first)
             {
-                builder.Append(" {");
+                if (vertical)
+                {
+                    builder.AppendLine();
+                }
+                else
+                {
+                    builder.Append(" ");
+                }
+
+                builder.Append("{");
                 if (vertical)
                 {
                     builder.AppendLine();
@@ -772,6 +821,7 @@ public class CSharpHelper : ICSharpHelper
                 {
                     builder.Append(" ");
                 }
+
                 first = false;
             }
             else
@@ -788,7 +838,7 @@ public class CSharpHelper : ICSharpHelper
                 }
             }
 
-            builder.Append(UnknownLiteral(value));
+            handleValue(value);
         }
 
         if (first)
@@ -920,9 +970,17 @@ public class CSharpHelper : ICSharpHelper
             return Array(literalType.GetElementType()!, array);
         }
 
-        if (value is IList list && value.GetType().IsGenericType && value.GetType().GetGenericTypeDefinition() == typeof(List<>))
+        var valueType = value.GetType();
+        if (valueType.IsGenericType && !valueType.IsGenericTypeDefinition)
         {
-            return List(value.GetType().GetGenericArguments()[0], list);
+            var genericArguments = valueType.GetGenericArguments();
+            switch (value)
+            {
+                case IList list when genericArguments.Length == 1 && valueType.GetGenericTypeDefinition() == typeof(List<>):
+                    return List(genericArguments[0], list);
+                case IDictionary dict when genericArguments.Length == 2 && valueType.GetGenericTypeDefinition() == typeof(Dictionary<,>):
+                    return Dictionary(genericArguments[0], genericArguments[1], dict);
+            }
         }
 
         var mapping = _typeMappingSource.FindMapping(literalType);
@@ -1087,35 +1145,35 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified)
+    public virtual string Fragment(IMethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified)
     {
         var builder = new StringBuilder();
 
         if (typeQualified)
         {
-            if (instanceIdentifier is null || fragment.MethodInfo is null || fragment.ChainedCall is not null)
+            if (instanceIdentifier is null || fragment.DeclaringType is null || fragment.ChainedCall is not null)
             {
                 throw new ArgumentException(DesignStrings.CannotGenerateTypeQualifiedMethodCall);
             }
 
             builder
-                .Append(fragment.DeclaringType!)
+                .Append(fragment.DeclaringType)
                 .Append('.')
                 .Append(fragment.Method)
                 .Append('(')
                 .Append(instanceIdentifier);
 
-            for (var i = 0; i < fragment.Arguments.Count; i++)
+            foreach (var argument in fragment.Arguments)
             {
                 builder.Append(", ");
 
-                if (fragment.Arguments[i] is NestedClosureCodeFragment nestedFragment)
+                if (argument is NestedClosureCodeFragment nestedFragment)
                 {
                     builder.Append(Fragment(nestedFragment, 1));
                 }
                 else
                 {
-                    builder.Append(UnknownLiteral(fragment.Arguments[i]));
+                    builder.Append(UnknownLiteral(argument));
                 }
             }
 
@@ -1140,7 +1198,7 @@ public class CSharpHelper : ICSharpHelper
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string Fragment(MethodCallCodeFragment? fragment, int indent = 0)
+    public virtual string Fragment(IMethodCallCodeFragment? fragment, int indent = 0)
     {
         if (fragment is null)
         {
@@ -1173,32 +1231,46 @@ public class CSharpHelper : ICSharpHelper
 
         return builder.ToString();
 
-        void AppendMethodCall(MethodCallCodeFragment current)
+        void AppendMethodCall(IMethodCallCodeFragment current)
         {
             builder
                 .Append('.')
-                .Append(current.Method)
+                .Append(current.Method);
+
+            if (current.TypeArguments.Any())
+            {
+                builder
+                    .Append("<")
+                    .Append(string.Join(", ", current.TypeArguments))
+                    .Append(">");
+            }
+
+            builder
                 .Append('(');
 
-            for (var i = 0; i < current.Arguments.Count; i++)
+            var first = true;
+            foreach (var argument in current.Arguments)
             {
-                if (i != 0)
+                if (first)
+                {
+                    first = false;
+                }
+                else
                 {
                     builder.Append(", ");
                 }
 
-                if (current.Arguments[i] is NestedClosureCodeFragment nestedFragment)
+                if (argument is NestedClosureCodeFragment nestedFragment)
                 {
                     builder.Append(Fragment(nestedFragment, indent + 1));
                 }
                 else
                 {
-                    builder.Append(UnknownLiteral(current.Arguments[i]));
+                    builder.Append(UnknownLiteral(argument));
                 }
             }
 
             builder.Append(')');
-
         }
     }
 
@@ -1238,6 +1310,15 @@ public class CSharpHelper : ICSharpHelper
 
         return builder.ToString();
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Fragment(PropertyAccessorCodeFragment fragment)
+        => Lambda(fragment.Properties, fragment.Parameter);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1335,12 +1416,31 @@ public class CSharpHelper : ICSharpHelper
         return builder.ToString();
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Arguments(IEnumerable<object> values)
+        => string.Join(", ", values.Select(UnknownLiteral));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<string> GetRequiredUsings(Type type)
+        => type.GetNamespaces();
+
     private static bool IsIdentifierStartCharacter(char ch)
     {
         if (ch < 'a')
         {
-            return ch >= 'A' && (ch <= 'Z'
-                || ch == '_');
+            return ch >= 'A'
+                && (ch <= 'Z'
+                    || ch == '_');
         }
 
         if (ch <= 'z')

@@ -116,8 +116,8 @@ SET NOCOUNT ON;
 UPDATE [Vehicles] SET [Operator_Discriminator] = @p0, [LicenseType] = @p1, [Operator_Name] = @p2
 OUTPUT 1
 WHERE [Name] = @p3;",
-                //
-                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
+            //
+            @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
 FROM [Vehicles] AS [v]
 LEFT JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
@@ -136,8 +136,8 @@ SET NOCOUNT ON;
 UPDATE [Vehicles] SET [SeatingCapacity] = @p0
 OUTPUT 1
 WHERE [Name] = @p1;",
-                //
-                @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
+            //
+            @"SELECT TOP(2) [v].[Name], [v].[Discriminator], [v].[SeatingCapacity], [v].[AttachedVehicleName], [v0].[Name], [v0].[Operator_Discriminator], [v0].[Operator_Name], [v0].[LicenseType]
 FROM [Vehicles] AS [v]
 LEFT JOIN [Vehicles] AS [v0] ON [v].[Name] = [v0].[Name]
 WHERE [v].[Name] = N'Trek Pro Fit Madone 6 Series'");
@@ -160,6 +160,24 @@ LEFT JOIN (
 END
 WHERE [v].[Name] = N'AIM-9M Sidewinder'
 ORDER BY [v].[Name]");
+    }
+
+    public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
+    {
+        await base.ExecuteUpdate_works_for_table_sharing(async);
+
+        AssertSql(
+            @"UPDATE [v]
+SET [v].[SeatingCapacity] = 1
+FROM [Vehicles] AS [v]",
+            //
+            @"SELECT CASE
+    WHEN NOT EXISTS (
+        SELECT 1
+        FROM [Vehicles] AS [v]
+        WHERE [v].[SeatingCapacity] <> 1) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

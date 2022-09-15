@@ -599,6 +599,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 message);
 
         /// <summary>
+        ///     The EF.Default&lt;T&gt; property may only be used within Entity Framework ExecuteUpdate method.
+        /// </summary>
+        public static string DefaultMethodInvoked
+            => GetString("DefaultMethodInvoked");
+
+        /// <summary>
         ///     The [DeleteBehavior] attribute may only be specified on navigation properties, and is not supported not on properties making up the foreign key.
         /// </summary>
         public static string DeleteBehaviorAttributeNotOnNavigationProperty
@@ -785,6 +791,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicatePropertyInKey", nameof(propertyList), nameof(property)),
                 propertyList, property);
+
+        /// <summary>
+        ///     The trigger '{trigger}' cannot be added to the entity type '{entityType}' because another trigger with the same name already exists on entity type '{conflictingEntityType}'.
+        /// </summary>
+        public static string DuplicateTrigger(object? trigger, object? entityType, object? conflictingEntityType)
+            => string.Format(
+                GetString("DuplicateTrigger", nameof(trigger), nameof(entityType), nameof(conflictingEntityType)),
+                trigger, entityType, conflictingEntityType);
 
         /// <summary>
         ///     Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.

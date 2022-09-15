@@ -425,7 +425,6 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                                 materializationContextExpression),
                         materializationContextExpression)
                     .Compile();
-
             },
             this);
 

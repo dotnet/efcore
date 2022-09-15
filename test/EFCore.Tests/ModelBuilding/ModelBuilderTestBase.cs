@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-
 #nullable enable
+
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -400,9 +400,12 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
         public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>();
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer);
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>();
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
@@ -420,7 +423,11 @@ public abstract partial class ModelBuilderTest
             ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter);
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter, ValueComparer? valueComparer);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer);
+
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             ValueConverter<TProperty, TProvider> converter,
             ValueComparer? valueComparer,
@@ -428,7 +435,11 @@ public abstract partial class ModelBuilderTest
 
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer);
-        public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer, ValueComparer? providerComparerType);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
             where TComparer : ValueComparer;

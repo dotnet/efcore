@@ -339,7 +339,7 @@ public class CommandBatchPreparerTest
     [ConditionalFact]
     public void BatchCommands_creates_batches_lazily()
     {
-        var configuration = RelationalTestHelpers.Instance.CreateContextServices(
+        var configuration = FakeRelationalTestHelpers.Instance.CreateContextServices(
             new ServiceCollection().AddScoped<IModificationCommandBatchFactory, TestModificationCommandBatchFactory>(),
             CreateFKOneToManyModelWithGeneratedIds());
 
@@ -438,11 +438,11 @@ public class CommandBatchPreparerTest
 
         var expectedCycle = sensitiveLogging
             ? @"FakeEntity { 'Id': 42 } [Added] <-
-ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
-ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
+ForeignKeyConstraint { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
+ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 42 } [Added]"
             : @"FakeEntity [Added] <-
-ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
-ForeignKey { 'RelatedId' } FakeEntity [Added]"
+ForeignKeyConstraint { 'RelatedId' } RelatedFakeEntity [Added] <-
+ForeignKeyConstraint { 'RelatedId' } FakeEntity [Added]"
             + CoreStrings.SensitiveDataDisabled;
 
         Assert.Equal(
@@ -482,12 +482,12 @@ ForeignKey { 'RelatedId' } FakeEntity [Added]"
 
         var expectedCycle = sensitiveLogging
             ? @"FakeEntity { 'Id': 42 } [Added] <-
-ForeignKey { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
-ForeignKey { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <-
+ForeignKeyConstraint { 'RelatedId': 42 } RelatedFakeEntity { 'Id': 1 } [Added] <-
+ForeignKeyConstraint { 'RelatedId': 1 } FakeEntity { 'Id': 2 } [Modified] <-
 Index { 'UniqueValue': Test } FakeEntity { 'Id': 42 } [Added]"
             : @"FakeEntity [Added] <-
-ForeignKey { 'RelatedId' } RelatedFakeEntity [Added] <-
-ForeignKey { 'RelatedId' } FakeEntity [Modified] <-
+ForeignKeyConstraint { 'RelatedId' } RelatedFakeEntity [Added] <-
+ForeignKeyConstraint { 'RelatedId' } FakeEntity [Modified] <-
 Index { 'UniqueValue' } FakeEntity [Added]"
             + CoreStrings.SensitiveDataDisabled;
 
@@ -521,11 +521,11 @@ Index { 'UniqueValue' } FakeEntity [Added]"
         var modelData = new UpdateAdapter(stateManager);
 
         var expectedCycle = sensitiveLogging
-            ? @"FakeEntity { 'Id': 1 } [Deleted] ForeignKey { 'RelatedId': 2 } <-
-RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKey { 'RelatedId': 1 } <-
+            ? @"FakeEntity { 'Id': 1 } [Deleted] ForeignKeyConstraint { 'RelatedId': 2 } <-
+RelatedFakeEntity { 'Id': 2 } [Deleted] ForeignKeyConstraint { 'RelatedId': 1 } <-
 FakeEntity { 'Id': 1 } [Deleted]"
-            : @"FakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
-RelatedFakeEntity [Deleted] ForeignKey { 'RelatedId' } <-
+            : @"FakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
+RelatedFakeEntity [Deleted] ForeignKeyConstraint { 'RelatedId' } <-
 FakeEntity [Deleted]"
             + CoreStrings.SensitiveDataDisabled;
 
@@ -996,7 +996,7 @@ FakeEntity [Deleted]"
     }
 
     private static IServiceProvider CreateContextServices(IModel model)
-        => RelationalTestHelpers.Instance.CreateContextServices(model);
+        => FakeRelationalTestHelpers.Instance.CreateContextServices(model);
 
     public List<ModificationCommandBatch> CreateBatches(
         IUpdateEntry[] entries,
@@ -1012,7 +1012,7 @@ FakeEntity [Deleted]"
         bool sensitiveLogging = false)
     {
         modificationCommandBatchFactory ??=
-            RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
+            FakeRelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<IModificationCommandBatchFactory>();
 
         var loggingOptions = new LoggingOptions();
         if (sensitiveLogging)
@@ -1033,7 +1033,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateSimpleFKModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1055,7 +1055,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateFKOneToManyModelWithGeneratedIds()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1077,7 +1077,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateCyclicFKModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1105,7 +1105,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateCyclicFkWithTailModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>
@@ -1141,7 +1141,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateTwoLevelFKModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>();
 
@@ -1166,7 +1166,7 @@ FakeEntity [Deleted]"
 
     private static IModel CreateSharedTableModel()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity<FakeEntity>(
             b =>

@@ -436,7 +436,6 @@ public class InMemoryTable<TKey> : IInMemoryTable
                         concurrencyConflicts.Keys.Format()),
                     entries);
 
-
         if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
         {
             throw exception;

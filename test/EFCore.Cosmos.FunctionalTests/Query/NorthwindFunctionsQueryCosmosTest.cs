@@ -1208,7 +1208,7 @@ WHERE ((c[""Discriminator""] = ""Order"") AND false)");
         await base.Regex_IsMatch_MethodCall(async);
 
         AssertSql(
-           @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T""))");
     }
@@ -1218,7 +1218,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
         await base.Regex_IsMatch_MethodCall_constant_input(async);
 
         AssertSql(
-           @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(""ALFKI"", c[""CustomerID""]))");
     }
@@ -1233,7 +1233,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(""ALFKI"", c[""Custo
             entryCount: 6);
 
         AssertSql(
-           @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T""))");
     }
@@ -1248,7 +1248,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
             entryCount: 6);
 
         AssertSql(
-         @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""i""))");
     }
@@ -1263,7 +1263,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
             entryCount: 6);
 
         AssertSql(
-         @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""m""))");
     }
@@ -1278,7 +1278,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
             entryCount: 6);
 
         AssertSql(
-          @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""s""))");
     }
@@ -1293,7 +1293,7 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
             entryCount: 6);
 
         AssertSql(
-           @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""x""))");
     }
@@ -1304,11 +1304,12 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
     {
         await AssertQuery(
             async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)),
+            ss => ss.Set<Customer>().Where(
+                o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace)),
             entryCount: 6);
 
         AssertSql(
-          @"SELECT c
+            @"SELECT c
 FROM root c
 WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], ""^T"", ""ix""))");
     }
@@ -1316,16 +1317,19 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND RegexMatch(c[""CustomerID""], "
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Regex_IsMatch_MethodCall_With_Unsupported_Option(bool async)
-        => AssertTranslationFailed(() => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.RightToLeft))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Regex_IsMatch_MethodCall_With_Any_Unsupported_Option(bool async)
-        => AssertTranslationFailed(() => AssertQuery(
-            async,
-            ss => ss.Set<Customer>().Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft))));
+        => AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<Customer>()
+                    .Where(o => Regex.IsMatch(o.CustomerID, "^T", RegexOptions.IgnoreCase | RegexOptions.RightToLeft))));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

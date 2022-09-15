@@ -58,79 +58,31 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
     {
         var conventionSet = base.CreateConventionSet();
 
-        var relationalColumnAttributeConvention = new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies);
-        var relationalCommentAttributeConvention = new RelationalColumnCommentAttributeConvention(Dependencies, RelationalDependencies);
+        conventionSet.Add(new RelationalColumnAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalColumnCommentAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalPropertyJsonPropertyNameAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalNavigationJsonPropertyNameAttributeConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new TableNameFromDbSetConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new PropertyOverridesConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new CheckConstraintConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new StoredProcedureConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new StoreGenerationConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new EntitySplittingConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new RelationalMapToJsonConvention(Dependencies, RelationalDependencies));
 
-        conventionSet.PropertyAddedConventions.Add(relationalColumnAttributeConvention);
-        conventionSet.PropertyAddedConventions.Add(relationalCommentAttributeConvention);
-
-        var tableNameFromDbSetConvention = new TableNameFromDbSetConvention(Dependencies, RelationalDependencies);
-        var entitySplittingConvention = new EntitySplittingConvention(Dependencies, RelationalDependencies);
-        var checkConstraintConvention = new CheckConstraintConvention(Dependencies, RelationalDependencies);
-        var triggerConvention = new TriggerConvention(Dependencies, RelationalDependencies);
-        conventionSet.EntityTypeAddedConventions.Add(new RelationalTableAttributeConvention(Dependencies, RelationalDependencies));
-        conventionSet.EntityTypeAddedConventions.Add(
-            new RelationalTableCommentAttributeConvention(Dependencies, RelationalDependencies));
-        conventionSet.EntityTypeAddedConventions.Add(tableNameFromDbSetConvention);
-        conventionSet.EntityTypeAddedConventions.Add(entitySplittingConvention);
-        conventionSet.EntityTypeAddedConventions.Add(checkConstraintConvention);
-        conventionSet.EntityTypeAddedConventions.Add(triggerConvention);
-        conventionSet.EntityTypeAddedConventions.Add(new StoredProcedureConvention(Dependencies, RelationalDependencies));
-
-        ValueGenerationConvention valueGenerationConvention =
-            new RelationalValueGenerationConvention(Dependencies, RelationalDependencies);
-        ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, valueGenerationConvention);
-        conventionSet.EntityTypeBaseTypeChangedConventions.Add(tableNameFromDbSetConvention);
-        conventionSet.EntityTypeBaseTypeChangedConventions.Add(checkConstraintConvention);
-        conventionSet.EntityTypeBaseTypeChangedConventions.Add(triggerConvention);
-
-        conventionSet.EntityTypeAnnotationChangedConventions.Add(tableNameFromDbSetConvention);
-
-        ReplaceConvention(conventionSet.ForeignKeyPropertiesChangedConventions, valueGenerationConvention);
-
-        ReplaceConvention(conventionSet.ForeignKeyOwnershipChangedConventions, valueGenerationConvention);
-
-        conventionSet.EntityTypeAnnotationChangedConventions.Add((RelationalValueGenerationConvention)valueGenerationConvention);
-
-        ReplaceConvention(conventionSet.EntityTypePrimaryKeyChangedConventions, valueGenerationConvention);
-
-        ReplaceConvention(conventionSet.ForeignKeyAddedConventions, valueGenerationConvention);
-
-        ReplaceConvention(conventionSet.ForeignKeyRemovedConventions, valueGenerationConvention);
-
-        conventionSet.PropertyAddedConventions.Add(new PropertyOverridesConvention(Dependencies, RelationalDependencies));
-
-        conventionSet.PropertyFieldChangedConventions.Add(relationalColumnAttributeConvention);
-        conventionSet.PropertyFieldChangedConventions.Add(relationalCommentAttributeConvention);
-
-        var storeGenerationConvention = new StoreGenerationConvention(Dependencies, RelationalDependencies);
-        conventionSet.PropertyAnnotationChangedConventions.Add(storeGenerationConvention);
-        conventionSet.PropertyAnnotationChangedConventions.Add((RelationalValueGenerationConvention)valueGenerationConvention);
-
-        var dbFunctionAttributeConvention = new RelationalDbFunctionAttributeConvention(Dependencies, RelationalDependencies);
-        conventionSet.ModelInitializedConventions.Add(dbFunctionAttributeConvention);
-
-        // ModelCleanupConvention would remove the entity types added by TableValuedDbFunctionConvention #15898
-        ConventionSet.AddAfter(
-            conventionSet.ModelFinalizingConventions,
-            new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies),
-            typeof(ModelCleanupConvention));
-        conventionSet.ModelFinalizingConventions.Add(new TableSharingConcurrencyTokenConvention(Dependencies, RelationalDependencies));
-        conventionSet.ModelFinalizingConventions.Add(dbFunctionAttributeConvention);
-        conventionSet.ModelFinalizingConventions.Add(tableNameFromDbSetConvention);
-        conventionSet.ModelFinalizingConventions.Add(storeGenerationConvention);
-        conventionSet.ModelFinalizingConventions.Add(entitySplittingConvention);
-        conventionSet.ModelFinalizingConventions.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
-        conventionSet.ModelFinalizingConventions.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
-        conventionSet.ModelFinalizingConventions.Add(new SharedTableConvention(Dependencies, RelationalDependencies));
-        ReplaceConvention(
-            conventionSet.ModelFinalizingConventions,
-            (QueryFilterRewritingConvention)new RelationalQueryFilterRewritingConvention(
-                Dependencies, RelationalDependencies));
-
-        ReplaceConvention(
-            conventionSet.ModelFinalizedConventions,
-            (RuntimeModelConvention)new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<ValueGenerationConvention>(
+            new RelationalValueGenerationConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<QueryFilterRewritingConvention>(
+            new RelationalQueryFilterRewritingConvention(Dependencies, RelationalDependencies));
+        conventionSet.Replace<RuntimeModelConvention>(new RelationalRuntimeModelConvention(Dependencies, RelationalDependencies));
 
         return conventionSet;
     }

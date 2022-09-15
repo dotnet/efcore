@@ -83,13 +83,16 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.IsFixedLength,
             RelationalAnnotationNames.Collation,
             RelationalAnnotationNames.IsStored,
-            RelationalAnnotationNames.ParameterDirection,
             RelationalAnnotationNames.TpcMappingStrategy,
             RelationalAnnotationNames.TphMappingStrategy,
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.FieldValueGetter
+            RelationalAnnotationNames.FieldValueGetter,
+            RelationalAnnotationNames.JsonPropertyName,
+            // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
+            RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnTypeMapping,
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -108,8 +111,7 @@ public class CSharpMigrationsGeneratorTest
                     + @"(""WithAnnotations"", ""MySchema"")")
             },
             {
-                RelationalAnnotationNames.MappingStrategy,
-                (RelationalAnnotationNames.TphMappingStrategy,
+                RelationalAnnotationNames.MappingStrategy, (RelationalAnnotationNames.TphMappingStrategy,
                     _toTable
                     + ";"
                     + _nl
@@ -138,11 +140,14 @@ public class CSharpMigrationsGeneratorTest
             },
             {
                 RelationalAnnotationNames.Comment, ("My Comment",
-                    _toTable
-                    + ";"
+                    _nl
+                    + @"entityTypeBuilder.ToTable(""WithAnnotations"", t =>"
                     + _nl
+                    + "    {"
                     + _nl
-                    + @"entityTypeBuilder.HasComment(""My Comment"")")
+                    + @"        t.HasComment(""My Comment"");"
+                    + _nl
+                    + "    })")
             },
             {
 #pragma warning disable CS0612 // Type or member is obsolete
@@ -151,19 +156,31 @@ public class CSharpMigrationsGeneratorTest
                 (Expression.Lambda(Expression.Constant(null)), _toNullTable)
             },
             {
-                RelationalAnnotationNames.ViewName,
-                ("MyView", _toNullTable + ";" + _nl + _nl
-                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToView) + @"(""MyView"")")
+                RelationalAnnotationNames.ViewName, ("MyView", _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToView)
+                    + @"(""MyView"")")
             },
             {
-                RelationalAnnotationNames.FunctionName,
-                (null, _toNullTable + ";" + _nl + _nl
-                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToFunction) + @"(null)")
+                RelationalAnnotationNames.FunctionName, (null, _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToFunction)
+                    + @"(null)")
             },
             {
-                RelationalAnnotationNames.SqlQuery,
-                (null, _toNullTable + ";" + _nl + _nl
-                    + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery) + @"(null)")
+                RelationalAnnotationNames.SqlQuery, (null, _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery)
+                    + @"(null)")
             }
         };
 
@@ -239,8 +256,10 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.Triggers,
-            RelationalAnnotationNames.FieldValueGetter
+            RelationalAnnotationNames.FieldValueGetter,
+            RelationalAnnotationNames.ContainerColumnName,
+            RelationalAnnotationNames.ContainerColumnTypeMapping,
+            RelationalAnnotationNames.JsonPropertyName,
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
@@ -344,10 +363,9 @@ public class CSharpMigrationsGeneratorTest
                      typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
         {
             var annotationName = (string)field.GetValue(null);
-
             if (!invalidAnnotations.Contains(annotationName))
             {
-                var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+                var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
                 var metadataItem = createMetadataItem(modelBuilder);
                 metadataItem.SetAnnotation(
                     annotationName, validAnnotations.ContainsKey(annotationName)
@@ -443,7 +461,7 @@ public class CSharpMigrationsGeneratorTest
                     new CSharpSnapshotGeneratorDependencies(
                         codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         modelBuilder.Entity<WithAnnotations>(
             eb =>
@@ -470,7 +488,7 @@ public class CSharpMigrationsGeneratorTest
 
     private static void AssertConverter(ValueConverter valueConverter, string expected)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
         property.SetMaxLength(1000);
         property.SetValueConverter(valueConverter);
@@ -577,7 +595,7 @@ namespace MyNamespace
             migrationCode,
             ignoreLineEndingDifferences: true);
 
-        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureModel: c => c.RemoveAllConventions());
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: c => c.RemoveAllConventions());
         modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
         modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, IDbFunction>());
         modelBuilder.Entity(
@@ -698,7 +716,7 @@ namespace MyNamespace
     {
         var generator = CreateMigrationsCodeGenerator();
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         modelBuilder.Entity<EntityWithConstructorBinding>(
             x =>
@@ -794,7 +812,7 @@ namespace MyNamespace
     {
         var generator = CreateMigrationsCodeGenerator();
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<EntityWithEveryPrimitive>(
             eb =>
             {

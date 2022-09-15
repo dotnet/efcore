@@ -118,7 +118,13 @@ public static class RelationalKeyExtensions
         in StoreObjectIdentifier storeObject,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? logger)
     {
-        if (storeObject.StoreObjectType != StoreObjectType.Table)
+        if (storeObject.StoreObjectType != StoreObjectType.Table
+            || key.DeclaringEntityType.IsMappedToJson())
+        {
+            return null;
+        }
+
+        if (key.DeclaringEntityType.IsMappedToJson())
         {
             return null;
         }

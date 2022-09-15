@@ -31,15 +31,15 @@ public abstract class RelationalTypeMappingTest
 
     public static ValueConverter CreateConverter(Type modelType)
         => (ValueConverter)Activator.CreateInstance(
-                typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
 
     public static ValueConverter CreateConverter(Type modelType, Type providerType)
         => (ValueConverter)Activator.CreateInstance(
-                typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
 
     public static ValueComparer CreateComparer(Type type)
         => (ValueComparer)Activator.CreateInstance(
-                typeof(FakeValueComparer<>).MakeGenericType(type));
+            typeof(FakeValueComparer<>).MakeGenericType(type));
 
     [ConditionalTheory]
     [InlineData(typeof(BoolTypeMapping), typeof(bool))]
@@ -69,6 +69,11 @@ public abstract class RelationalTypeMappingTest
             null,
             null);
 
+        AssertClone(type, mapping);
+    }
+
+    protected static RelationalTypeMapping AssertClone(Type type, RelationalTypeMapping mapping)
+    {
         var clone = mapping.Clone("<clone>", null);
 
         Assert.NotSame(mapping, clone);
@@ -97,6 +102,8 @@ public abstract class RelationalTypeMappingTest
         Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
         Assert.Same(typeof(object), clone.ClrType);
         Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
+
+        return clone;
     }
 
     [ConditionalFact]
@@ -230,7 +237,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
     }
 
-    private class FakeTypeMapping : RelationalTypeMapping
+    protected class FakeTypeMapping : RelationalTypeMapping
     {
         private FakeTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
@@ -321,6 +328,8 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(DbType.Int32, parameter.DbType);
         Assert.True(parameter.IsNullable);
     }
+
+    // TODO: Add tests for parameter directions
 
     [ConditionalFact]
     public void Can_create_required_string_parameter()

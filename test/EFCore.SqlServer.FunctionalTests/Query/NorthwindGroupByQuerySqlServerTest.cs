@@ -2464,21 +2464,34 @@ GROUP BY [c].[Country]");
     {
         await base.GroupBy_with_group_key_being_navigation(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]");
     }
 
     public override async Task GroupBy_with_group_key_being_nested_navigation(bool async)
     {
         await base.GroupBy_with_group_key_being_nested_navigation(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], COALESCE(SUM([o].[OrderID]), 0) AS [Aggregate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
+GROUP BY [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]");
     }
 
     public override async Task GroupBy_with_group_key_being_navigation_with_entity_key_projection(bool async)
     {
         await base.GroupBy_with_group_key_being_navigation_with_entity_key_projection(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
+FROM [Order Details] AS [o]
+INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
+GROUP BY [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]");
     }
 
     public override async Task GroupBy_with_group_key_being_navigation_with_complex_projection(bool async)
@@ -3119,11 +3132,134 @@ ORDER BY [c].[CustomerID]");
         AssertSql();
     }
 
-    public override async Task GroupBy_as_final_operator(bool async)
+    public override async Task Final_GroupBy_property_entity(bool async)
     {
-        await base.GroupBy_as_final_operator(async);
+        await base.Final_GroupBy_property_entity(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [c].[City], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]");
+    }
+
+    public override async Task Final_GroupBy_property_anonymous_type(bool async)
+    {
+        await base.Final_GroupBy_property_anonymous_type(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[ContactName], [c].[ContactTitle]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]");
+    }
+
+    public override async Task Final_GroupBy_multiple_properties_entity(bool async)
+    {
+        await base.Final_GroupBy_multiple_properties_entity(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[Region], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode]
+FROM [Customers] AS [c]
+ORDER BY [c].[City], [c].[Region]");
+    }
+
+    public override async Task Final_GroupBy_complex_key_entity(bool async)
+    {
+        await base.Final_GroupBy_complex_key_entity(async);
+
+        AssertSql(
+            @"SELECT [t].[City], [t].[Region], [t].[Constant], [t].[CustomerID], [t].[Address], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], 1 AS [Constant]
+    FROM [Customers] AS [c]
+) AS [t]
+ORDER BY [t].[City], [t].[Region], [t].[Constant]");
+    }
+
+    public override async Task Final_GroupBy_nominal_type_entity(bool async)
+    {
+        await base.Final_GroupBy_nominal_type_entity(async);
+
+        AssertSql(
+            @"SELECT [t].[City], [t].[Constant], [t].[CustomerID], [t].[Address], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], 1 AS [Constant]
+    FROM [Customers] AS [c]
+) AS [t]
+ORDER BY [t].[City], [t].[Constant]");
+    }
+
+    public override async Task Final_GroupBy_property_anonymous_type_element_selector(bool async)
+    {
+        await base.Final_GroupBy_property_anonymous_type_element_selector(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[ContactName], [c].[ContactTitle]
+FROM [Customers] AS [c]
+ORDER BY [c].[City]");
+    }
+
+    public override async Task Final_GroupBy_property_entity_Include_collection(bool async)
+    {
+        await base.Final_GroupBy_property_entity_Include_collection(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[CustomerID], [c].[Address], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[Country] = N'USA'
+ORDER BY [c].[City], [c].[CustomerID]");
+    }
+
+    public override async Task Final_GroupBy_property_entity_projecting_collection(bool async)
+    {
+        await base.Final_GroupBy_property_entity_projecting_collection(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[CustomerID], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
+WHERE [c].[Country] = N'USA'
+ORDER BY [c].[City], [c].[CustomerID]");
+    }
+
+    public override async Task Final_GroupBy_property_entity_projecting_collection_composed(bool async)
+    {
+        await base.Final_GroupBy_property_entity_projecting_collection_composed(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 11000
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+WHERE [c].[Country] = N'USA'
+ORDER BY [c].[City], [c].[CustomerID]");
+    }
+
+    public override async Task Final_GroupBy_property_entity_projecting_collection_and_single_result(bool async)
+    {
+        await base.Final_GroupBy_property_entity_projecting_collection_and_single_result(async);
+
+        AssertSql(
+            @"SELECT [c].[City], [c].[CustomerID], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate]
+FROM [Customers] AS [c]
+LEFT JOIN (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [o].[OrderID] < 11000
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+LEFT JOIN (
+    SELECT [t1].[OrderID], [t1].[CustomerID], [t1].[EmployeeID], [t1].[OrderDate]
+    FROM (
+        SELECT [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate], ROW_NUMBER() OVER(PARTITION BY [o0].[CustomerID] ORDER BY [o0].[OrderDate] DESC) AS [row]
+        FROM [Orders] AS [o0]
+    ) AS [t1]
+    WHERE [t1].[row] <= 1
+) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
+WHERE [c].[Country] = N'USA'
+ORDER BY [c].[City], [c].[CustomerID]");
     }
 
     public override async Task GroupBy_Where_with_grouping_result(bool async)

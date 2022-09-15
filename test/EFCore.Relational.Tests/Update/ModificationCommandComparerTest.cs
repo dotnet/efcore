@@ -12,7 +12,7 @@ public class ModificationCommandComparerTest
     [ConditionalFact]
     public void Compare_returns_0_only_for_commands_that_are_equal()
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var entityType = modelBuilder.Model.AddEntityType(typeof(object));
         var key = entityType.AddProperty("Id", typeof(int));
         entityType.SetPrimaryKey(key);
@@ -34,7 +34,6 @@ public class ModificationCommandComparerTest
         entry1.SetEntityState(EntityState.Added);
         var modificationCommandAdded = modificationCommandSource.CreateModificationCommand(
             new ModificationCommandParameters(table, false, false, null, new ParameterNameGenerator().GenerateNext));
-            // new ModificationCommandParameters("A", null, false, false, null, new ParameterNameGenerator().GenerateNext));
         modificationCommandAdded.AddEntry(entry1, true);
 
         var entry2 = stateManager.GetOrCreateEntry(new object());
@@ -163,7 +162,7 @@ public class ModificationCommandComparerTest
 
     private void Compare_returns_0_only_for_entries_that_have_same_key_values_generic<T>(T value1, T value2)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var entityType = modelBuilder.Model.AddEntityType(typeof(object));
 
         var keyProperty = entityType.AddProperty("Id", typeof(T));

@@ -20,11 +20,16 @@ public interface IStoreStoredProcedureParameter : IColumnBase
     ///     Gets the property mappings.
     /// </summary>
     new IReadOnlyList<IStoredProcedureParameterMapping> PropertyMappings { get; }
-    
+
     /// <summary>
     ///     Gets the direction of the parameter.
     /// </summary>
     ParameterDirection Direction { get; }
+
+    /// <summary>
+    ///     Gets the 0-based position of the parameter in the declaring stored procedure.
+    /// </summary>
+    int Position { get; }
 
     /// <summary>
     ///     Returns the property mapping for the given entity type.

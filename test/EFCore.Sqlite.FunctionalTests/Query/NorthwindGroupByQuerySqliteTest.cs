@@ -50,7 +50,8 @@ public class NorthwindGroupByQuerySqliteTest : NorthwindGroupByQueryRelationalTe
         => AssertApplyNotSupported(() => base.GroupBy_aggregate_from_multiple_query_in_same_projection(async));
 
     public override Task Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(bool async)
-        => AssertApplyNotSupported(() => base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async));
+        => AssertApplyNotSupported(
+            () => base.Select_correlated_collection_after_GroupBy_aggregate_when_identifier_changes_to_complex(async));
 
     public override Task GroupBy_aggregate_from_multiple_query_in_same_projection_3(bool async)
         => Assert.ThrowsAsync<SqliteException>(

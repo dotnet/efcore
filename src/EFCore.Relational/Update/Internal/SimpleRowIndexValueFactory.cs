@@ -79,7 +79,10 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues, [NotNullWhen(true)] out TKey? key)
+    public virtual bool TryCreateIndexValue(
+        IReadOnlyModificationCommand command,
+        bool fromOriginalValues,
+        [NotNullWhen(true)] out TKey? key)
     {
         (key, var present) = fromOriginalValues
             ? ((Func<IReadOnlyModificationCommand, (TKey, bool)>)_columnAccessors.OriginalValueGetter)(command)
@@ -93,9 +96,9 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object? CreateValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+    public virtual object? CreateEquatableIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
         => TryCreateIndexValue(command, fromOriginalValues, out var keyValue)
-            ? new ValueIndex<TKey>(_index, keyValue, EqualityComparer)
+            ? new EquatableKeyValue<TKey>(_index, keyValue, EqualityComparer)
             : null;
 
     /// <summary>
@@ -104,7 +107,7 @@ public class SimpleRowIndexValueFactory<TKey> : IRowIndexValueFactory<TKey>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object[]? CreateValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+    public virtual object[]? CreateIndexValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
         => TryCreateIndexValue(command, fromOriginalValues, out var value)
             ? (new object[] { value })
             : null;

@@ -28,12 +28,15 @@ public interface IColumnModification
     /// <summary>
     ///     The property that maps to the column.
     /// </summary>
+    /// <remarks>
+    ///     In case of JSON column single scalar property modification, the scalar property that is being modified.
+    /// </remarks>
     public IProperty? Property { get; }
 
     /// <summary>
     ///     The column.
     /// </summary>
-    public IColumn? Column { get; }
+    public IColumnBase? Column { get; }
 
     /// <summary>
     ///     The relational type mapping for the column.
@@ -121,6 +124,11 @@ public interface IColumnModification
     ///     Gets or sets the current value of the property mapped to this column.
     /// </summary>
     public object? Value { get; set; }
+
+    /// <summary>
+    ///     In case of JSON column modification, the JSON path leading to the JSON element that needs to be updated.
+    /// </summary>
+    public string? JsonPath { get; }
 
     /// <summary>
     ///     Adds a modification affecting the same database value.

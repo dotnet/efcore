@@ -704,12 +704,12 @@ public abstract class MigrationsSqlGeneratorTestBase
             .Join("");
 
         Generate(
-                new CreateTableOperation
+            new CreateTableOperation
+            {
+                Name = "TestLineBreaks",
+                Schema = "dbo",
+                Columns =
                 {
-                    Name = "TestLineBreaks",
-                    Schema = "dbo",
-                    Columns =
-                    {
                     new AddColumnOperation
                     {
                         Name = "TestDefaultValue",
@@ -719,8 +719,8 @@ public abstract class MigrationsSqlGeneratorTestBase
                         DefaultValue = defaultValue,
                         IsUnicode = isUnicode
                     }
-                    }
-                });
+                }
+            });
     }
 
     private static void CreateGotModel(ModelBuilder b)

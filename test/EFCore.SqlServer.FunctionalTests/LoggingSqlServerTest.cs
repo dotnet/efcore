@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -14,6 +15,9 @@ public class LoggingSqlServerTest : LoggingRelationalTestBase<SqlServerDbContext
         => new DbContextOptionsBuilder()
             .UseInternalServiceProvider(services.AddEntityFrameworkSqlServer().BuildServiceProvider(validateScopes: true))
             .UseSqlServer("Data Source=LoggingSqlServerTest.db", relationalAction);
+
+    protected override TestLogger CreateTestLogger()
+        => new TestLogger<SqlServerLoggingDefinitions>();
 
     protected override string ProviderName
         => "Microsoft.EntityFrameworkCore.SqlServer";

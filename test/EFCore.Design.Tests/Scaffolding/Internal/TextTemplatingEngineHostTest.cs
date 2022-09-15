@@ -9,10 +9,10 @@ using Engine = Mono.TextTemplating.TemplatingEngine;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestPlatform.Linux, SkipReason = "CI time out")]
+[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "CI time out")]
 public class TextTemplatingEngineHostTest
 {
-    public static readonly Engine _engine = new Engine();
+    public static readonly Engine _engine = new();
 
     [ConditionalFact]
     public void Service_works()
@@ -33,13 +33,7 @@ public class TextTemplatingEngineHostTest
     [ConditionalFact]
     public void Session_works()
     {
-        var host = new TextTemplatingEngineHost
-        {
-            Session = new TextTemplatingSession
-            {
-                ["Value"] = "Hello, Session!"
-            }
-        };
+        var host = new TextTemplatingEngineHost { Session = new TextTemplatingSession { ["Value"] = "Hello, Session!" } };
 
         var result = _engine.ProcessTemplate(
             @"<#= Session[""Value""] #>",
@@ -52,13 +46,7 @@ public class TextTemplatingEngineHostTest
     [ConditionalFact]
     public void Session_works_with_parameter()
     {
-        var host = new TextTemplatingEngineHost
-        {
-            Session = new TextTemplatingSession
-            {
-                ["Value"] = "Hello, Session!"
-            }
-        };
+        var host = new TextTemplatingEngineHost { Session = new TextTemplatingSession { ["Value"] = "Hello, Session!" } };
 
         var result = _engine.ProcessTemplate(
             @"<#@ parameter name=""Value"" type=""System.String"" #><#= Value #>",
@@ -76,10 +64,7 @@ public class TextTemplatingEngineHostTest
             Path.Combine(dir, "test.ttinclude"),
             "Hello, Include!");
 
-        var host = new TextTemplatingEngineHost
-        {
-            TemplateFile = Path.Combine(dir, "test.tt")
-        };
+        var host = new TextTemplatingEngineHost { TemplateFile = Path.Combine(dir, "test.tt") };
 
         var result = _engine.ProcessTemplate(
             @"<#@ include file=""test.ttinclude"" #>",
@@ -120,10 +105,7 @@ public class TextTemplatingEngineHostTest
     {
         using var dir = new TempDirectory();
 
-        var host = new TextTemplatingEngineHost
-        {
-            TemplateFile = Path.Combine(dir, "test.tt")
-        };
+        var host = new TextTemplatingEngineHost { TemplateFile = Path.Combine(dir, "test.tt") };
 
         var result = _engine.ProcessTemplate(
             @"<#@ template hostSpecific=""true"" #><#= Host.ResolvePath(""data.json"") #>",

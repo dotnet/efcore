@@ -20,7 +20,8 @@ public class MethodCallCodeFragmentTest
     }
 
     private static readonly MethodInfo _extensionFuncMethodInfo
-        = typeof(MethodCallCodeFragmentTestExtensions).GetRuntimeMethod(nameof(MethodCallCodeFragmentTestExtensions.ExtensionFunc), new[] { typeof(MethodCallCodeFragmentTest), typeof(int) })!;
+        = typeof(MethodCallCodeFragmentTestExtensions).GetRuntimeMethod(
+            nameof(MethodCallCodeFragmentTestExtensions.ExtensionFunc), new[] { typeof(MethodCallCodeFragmentTest), typeof(int) })!;
 
     private static readonly MethodInfo _instanceFuncMethodInfo
         = typeof(MethodCallCodeFragmentTest).GetRuntimeMethod(nameof(InstanceFunc), new[] { typeof(int) })!;

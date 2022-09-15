@@ -60,7 +60,8 @@ public class SqlServerModelValidator : RelationalModelValidator
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
                      .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                     .Where(
+                         p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                              && !p.IsForeignKey()))
         {
             var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -286,7 +287,14 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name, nameof(DateTime)));
         }
 
-        const string expectedPeriodColumnName = "datetime2";
+        const string expectedPeriodColumnNameWithoutPrecision = "datetime2";
+        const string expectedPeriodColumnNameWithPrecision = "datetime2({0})";
+
+        var precision = periodProperty.GetPrecision();
+        var expectedPeriodColumnName = precision != null
+            ? string.Format(expectedPeriodColumnNameWithPrecision, precision.Value)
+            : expectedPeriodColumnNameWithoutPrecision;
+
         if (periodProperty.GetColumnType() != expectedPeriodColumnName)
         {
             throw new InvalidOperationException(
@@ -301,29 +309,11 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name));
         }
 
-        if (temporalEntityType.GetTableName() is string tableName)
+        if (periodProperty.ValueGenerated != ValueGenerated.OnAddOrUpdate)
         {
-            var storeObjectIdentifier = StoreObjectIdentifier.Table(tableName, temporalEntityType.GetSchema());
-            var periodColumnName = periodProperty.GetColumnName(storeObjectIdentifier);
-
-            var propertiesMappedToPeriodColumn = temporalEntityType.GetProperties().Where(
-                p => p.Name != periodProperty.Name && p.GetColumnName(storeObjectIdentifier) == periodColumnName).ToList();
-            foreach (var propertyMappedToPeriodColumn in propertiesMappedToPeriodColumn)
-            {
-                if (propertyMappedToPeriodColumn.ValueGenerated != ValueGenerated.OnAddOrUpdate)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
-                            temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name, nameof(ValueGenerated.OnAddOrUpdate)));
-                }
-
-                if (propertyMappedToPeriodColumn.TryGetDefaultValue(out var _))
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
-                            temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name));
-                }
-            }
+            throw new InvalidOperationException(
+                SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
+                    temporalEntityType.DisplayName(), periodProperty.Name, nameof(ValueGenerated.OnAddOrUpdate)));
         }
 
         // TODO: check that period property is excluded from query (once the annotation is added)
@@ -376,7 +366,7 @@ public class SqlServerModelValidator : RelationalModelValidator
 
                 var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
                 var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
-                
+
                 var periodStartColumnName = periodStartProperty.GetColumnName(storeObject);
                 var periodEndColumnName = periodEndProperty.GetColumnName(storeObject);
 
@@ -437,7 +427,7 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 continue;
             }
-            
+
             if (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 identityColumns[columnName] = property;

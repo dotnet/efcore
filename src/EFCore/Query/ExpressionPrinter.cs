@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -321,6 +320,10 @@ public class ExpressionPrinter : ExpressionVisitor
                 VisitSwitch((SwitchExpression)expression);
                 break;
 
+            case ExpressionType.Invoke:
+                VisitInvocation((InvocationExpression)expression);
+                break;
+
             case ExpressionType.Extension:
                 VisitExtension(expression);
                 break;
@@ -395,7 +398,11 @@ public class ExpressionPrinter : ExpressionVisitor
 
             if (blockExpression.Result != null)
             {
-                Append("return ");
+                if (blockExpression.Result.Type != typeof(void))
+                {
+                    Append("return ");
+                }
+
                 Visit(blockExpression.Result);
                 AppendLine(";");
             }
@@ -605,15 +612,17 @@ public class ExpressionPrinter : ExpressionVisitor
     {
         if (methodCallExpression.Object != null)
         {
-            if (methodCallExpression.Object is BinaryExpression)
+            switch (methodCallExpression.Object)
             {
-                _stringBuilder.Append("(");
-                Visit(methodCallExpression.Object);
-                _stringBuilder.Append(")");
-            }
-            else
-            {
-                Visit(methodCallExpression.Object);
+                case BinaryExpression:
+                case UnaryExpression:
+                    _stringBuilder.Append("(");
+                    Visit(methodCallExpression.Object);
+                    _stringBuilder.Append(")");
+                    break;
+                default:
+                    Visit(methodCallExpression.Object);
+                    break;
             }
 
             _stringBuilder.Append(".");
@@ -999,6 +1008,23 @@ public class ExpressionPrinter : ExpressionVisitor
         _stringBuilder.AppendLine("}");
 
         return switchExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    {
+        _stringBuilder.Append("Invoke(");
+        Visit(invocationExpression.Expression);
+
+        foreach (var argument in invocationExpression.Arguments)
+        {
+            _stringBuilder.Append(", ");
+            Visit(argument);
+        }
+
+        _stringBuilder.Append(")");
+
+        return invocationExpression;
     }
 
     /// <inheritdoc />

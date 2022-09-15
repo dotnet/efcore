@@ -61,6 +61,7 @@ public class RelationalModelValidator : ModelValidator
         ValidateBoolsWithDefaults(model, logger);
         ValidateIndexProperties(model, logger);
         ValidateTriggers(model, logger);
+        ValidateJsonEntities(model, logger);
     }
 
     /// <summary>
@@ -214,11 +215,14 @@ public class RelationalModelValidator : ModelValidator
         foreach (var entityType in model.GetEntityTypes())
         {
             var mappingStrategy = entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy;
+
+            var sprocCount = 0;
             var deleteStoredProcedure = entityType.GetDeleteStoredProcedure();
             if (deleteStoredProcedure != null)
             {
                 AddSproc(StoreObjectType.DeleteStoredProcedure, entityType, storedProcedures);
                 ValidateSproc(deleteStoredProcedure, mappingStrategy);
+                sprocCount++;
             }
 
             var insertStoredProcedure = entityType.GetInsertStoredProcedure();
@@ -226,6 +230,7 @@ public class RelationalModelValidator : ModelValidator
             {
                 AddSproc(StoreObjectType.InsertStoredProcedure, entityType, storedProcedures);
                 ValidateSproc(insertStoredProcedure, mappingStrategy);
+                sprocCount++;
             }
 
             var updateStoredProcedure = entityType.GetUpdateStoredProcedure();
@@ -233,6 +238,15 @@ public class RelationalModelValidator : ModelValidator
             {
                 AddSproc(StoreObjectType.UpdateStoredProcedure, entityType, storedProcedures);
                 ValidateSproc(updateStoredProcedure, mappingStrategy);
+                sprocCount++;
+            }
+
+            if (sprocCount > 0
+                // TODO: Support this with #28703
+                //&& sprocCount < 3
+                && entityType.GetTableName() == null)
+            {
+                throw new InvalidOperationException(RelationalStrings.StoredProcedureUnmapped(entityType.DisplayName()));
             }
         }
 
@@ -286,7 +300,7 @@ public class RelationalModelValidator : ModelValidator
                 RelationalStrings.StoredProcedureKeyless(
                     entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
         }
-        
+
         var properties = entityType.GetDeclaredProperties().ToDictionary(p => p.Name);
         if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
         {
@@ -326,12 +340,17 @@ public class RelationalModelValidator : ModelValidator
                     {
                         break;
                     }
-                    
+
                     foreach (var property in baseType.GetDeclaredProperties())
                     {
+                        if (property.IsPrimaryKey())
+                        {
+                            continue;
+                        }
+
                         properties.Add(property.Name, property);
                     }
-                    
+
                     baseType = baseType.BaseType;
                 }
             }
@@ -340,62 +359,182 @@ public class RelationalModelValidator : ModelValidator
         var storeGeneratedProperties = storeObjectIdentifier.StoreObjectType switch
         {
             StoreObjectType.InsertStoredProcedure
-                => properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnAdd) != 0).ToDictionary(p => p.Key, p => p.Value),
+                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnAdd)).ToDictionary(p => p.Key, p => p.Value),
             StoreObjectType.UpdateStoredProcedure
-                => properties.Where(p => (p.Value.ValueGenerated & ValueGenerated.OnUpdate) != 0).ToDictionary(p => p.Key, p => p.Value),
+                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnUpdate)).ToDictionary(p => p.Key, p => p.Value),
             _ => new Dictionary<string, IProperty>()
         };
 
+        if (mappingStrategy == RelationalAnnotationNames.TptMappingStrategy
+            && storeObjectIdentifier.StoreObjectType == StoreObjectType.InsertStoredProcedure
+            && entityType.BaseType?.GetInsertStoredProcedure() != null)
+        {
+            foreach (var property in primaryKey.Properties)
+            {
+                storeGeneratedProperties.Remove(property.Name);
+            }
+        }
+
+        var resultColumnNames = new HashSet<string>();
         foreach (var resultColumn in sproc.ResultColumns)
         {
-            if (!properties.TryGetValue(resultColumn, out var property))
+            IProperty? property = null!;
+            if (resultColumn.PropertyName != null
+                && !properties.TryGetValue(resultColumn.PropertyName, out property))
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedureResultColumnNotFound(
-                        resultColumn, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                        resultColumn.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+            }
+
+            if (!resultColumnNames.Add(resultColumn.Name))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureDuplicateResultColumnName(
+                        resultColumn.Name, storeObjectIdentifier.DisplayName()));
+            }
+
+            if (resultColumn.PropertyName == null)
+            {
+                continue;
             }
 
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
                 case StoreObjectType.UpdateStoredProcedure:
-                    if (!storeGeneratedProperties.Remove(property.Name))
+                    if (!storeGeneratedProperties.ContainsKey(property.Name))
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureResultColumnNotGenerated(
-                                entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
 
                     break;
                 case StoreObjectType.DeleteStoredProcedure:
                     throw new InvalidOperationException(
                         RelationalStrings.StoredProcedureResultColumnDelete(
-                            entityType.DisplayName(), resultColumn, storeObjectIdentifier.DisplayName()));
+                            entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;
             }
         }
 
+        var originalValueProperties = new Dictionary<string, IProperty>(properties);
+        var parameterNames = new HashSet<string>();
         foreach (var parameter in sproc.Parameters)
         {
-            if (!properties.TryGetAndRemove(parameter, out IProperty property))
+            IProperty property = null!;
+            if (parameter.PropertyName != null)
+            {
+                if (parameter.ForOriginalValue == true)
+                {
+                    if (!originalValueProperties.TryGetAndRemove(parameter.PropertyName, out property))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureParameterNotFound(
+                                parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    }
+
+                    if (storeObjectIdentifier.StoreObjectType == StoreObjectType.InsertStoredProcedure)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureOriginalValueParameterOnInsert(
+                                parameter.Name, storeObjectIdentifier.DisplayName()));
+                    }
+                }
+                else
+                {
+                    if (!properties.TryGetAndRemove(parameter.PropertyName, out property))
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureParameterNotFound(
+                                parameter.PropertyName, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    }
+
+                    if (storeObjectIdentifier.StoreObjectType == StoreObjectType.DeleteStoredProcedure)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureCurrentValueParameterOnDelete(
+                                parameter.Name, storeObjectIdentifier.DisplayName()));
+                    }
+
+                    if (parameter.Direction.HasFlag(ParameterDirection.Input))
+                    {
+                        switch (storeObjectIdentifier.StoreObjectType)
+                        {
+                            case StoreObjectType.InsertStoredProcedure:
+                                if (property.GetBeforeSaveBehavior() != PropertySaveBehavior.Save)
+                                {
+                                    throw new InvalidOperationException(
+                                        RelationalStrings.StoredProcedureInputParameterForInsertNonSaveProperty(
+                                            parameter.Name,
+                                            storeObjectIdentifier.DisplayName(),
+                                            parameter.PropertyName,
+                                            entityType.DisplayName(),
+                                            property.GetBeforeSaveBehavior()));
+                                }
+
+                                break;
+
+                            case StoreObjectType.UpdateStoredProcedure:
+                                if (property.GetAfterSaveBehavior() != PropertySaveBehavior.Save)
+                                {
+                                    throw new InvalidOperationException(
+                                        RelationalStrings.StoredProcedureInputParameterForUpdateNonSaveProperty(
+                                            parameter.Name,
+                                            storeObjectIdentifier.DisplayName(),
+                                            parameter.PropertyName,
+                                            entityType.DisplayName(),
+                                            property.GetAfterSaveBehavior()));
+                                }
+
+                                break;
+
+                            case StoreObjectType.DeleteStoredProcedure:
+                                break;
+
+                            default:
+                                Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (!parameterNames.Add(parameter.Name))
             {
                 throw new InvalidOperationException(
-                    RelationalStrings.StoredProcedureParameterNotFound(
-                        parameter, entityType.DisplayName(), storeObjectIdentifier.DisplayName()));
+                    RelationalStrings.StoredProcedureDuplicateParameterName(
+                        parameter.Name, storeObjectIdentifier.DisplayName()));
+            }
+
+            if (parameter.PropertyName == null)
+            {
+                continue;
             }
 
             switch (storeObjectIdentifier.StoreObjectType)
             {
                 case StoreObjectType.InsertStoredProcedure:
                 case StoreObjectType.UpdateStoredProcedure:
-                    if (property.GetDirection(storeObjectIdentifier) != ParameterDirection.Input
+                    if (parameter.Direction != ParameterDirection.Input
                         && !storeGeneratedProperties.Remove(property.Name))
                     {
+                        if (sproc.Parameters.Any(
+                                p => p.PropertyName == property.Name
+                                    && p.ForOriginalValue != parameter.ForOriginalValue
+                                    && p.Direction != ParameterDirection.Input))
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.StoredProcedureOutputParameterConflict(
+                                    entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
+                        }
+
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureOutputParameterNotGenerated(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
 
                     break;
@@ -405,16 +544,33 @@ public class RelationalModelValidator : ModelValidator
                     {
                         throw new InvalidOperationException(
                             RelationalStrings.StoredProcedureDeleteNonKeyProperty(
-                                entityType.DisplayName(), parameter, storeObjectIdentifier.DisplayName()));
+                                entityType.DisplayName(), parameter.PropertyName, storeObjectIdentifier.DisplayName()));
                     }
-                    
+
                     break;
                 default:
                     Check.DebugFail("Unexpected stored procedure type: " + storeObjectIdentifier.StoreObjectType);
                     break;
             }
         }
-        
+
+        foreach (var resultColumn in sproc.ResultColumns)
+        {
+            if (resultColumn.PropertyName == null)
+            {
+                continue;
+            }
+
+            properties.Remove(resultColumn.PropertyName);
+
+            if (!storeGeneratedProperties.Remove(resultColumn.PropertyName))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureResultColumnParameterConflict(
+                        entityType.DisplayName(), resultColumn.PropertyName, storeObjectIdentifier.DisplayName()));
+            }
+        }
+
         if (storeGeneratedProperties.Count > 0)
         {
             throw new InvalidOperationException(
@@ -422,11 +578,6 @@ public class RelationalModelValidator : ModelValidator
                     entityType.DisplayName(),
                     storeObjectIdentifier.DisplayName(),
                     storeGeneratedProperties.Values.Format()));
-        }
-
-        foreach (var resultColumn in sproc.ResultColumns)
-        {
-            properties.Remove(resultColumn);
         }
 
         if (properties.Count > 0)
@@ -464,13 +615,50 @@ public class RelationalModelValidator : ModelValidator
                 }
             }
 
+            foreach (var property in properties.Keys.ToList())
+            {
+                if (!originalValueProperties.ContainsKey(property))
+                {
+                    properties.Remove(property);
+                }
+            }
+
             if (properties.Count > 0)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.StoredProcedurePropertiesNotMapped(
                         entityType.DisplayName(),
                         storeObjectIdentifier.DisplayName(),
-                        properties.Values.Format(false)));
+                        properties.Values.Format()));
+            }
+        }
+
+        if (sproc.IsRowsAffectedReturned
+            || sproc.FindRowsAffectedParameter() != null
+            || sproc.FindRowsAffectedResultColumn() != null)
+        {
+            if (storeObjectIdentifier.StoreObjectType == StoreObjectType.InsertStoredProcedure)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureRowsAffectedForInsert(
+                        storeObjectIdentifier.DisplayName()));
+            }
+
+            if (originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken) is { } missedConcurrencyToken)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(
+                        entityType.DisplayName(),
+                        storeObjectIdentifier.DisplayName(),
+                        missedConcurrencyToken.Name));
+            }
+
+            if (sproc.ResultColumns.Any(c => c != sproc.FindRowsAffectedResultColumn()))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.StoredProcedureRowsAffectedWithResultColumns(
+                        entityType.DisplayName(),
+                        storeObjectIdentifier.DisplayName()));
             }
         }
     }
@@ -505,7 +693,7 @@ public class RelationalModelValidator : ModelValidator
 
         static bool IsNotNullAndFalse(object? value)
             => value != null
-                && (!(value is bool asBool) || asBool);
+                && (value is not bool asBool || asBool);
     }
 
     /// <summary>
@@ -521,14 +709,49 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var key in entityType.GetDeclaredKeys())
             {
+                IProperty? propertyWithDefault = null;
                 foreach (var property in key.Properties)
                 {
                     var defaultValue = (IConventionAnnotation?)property.FindAnnotation(RelationalAnnotationNames.DefaultValue);
-                    if (defaultValue?.Value != null
+                    if (!property.IsForeignKey()
+                        && defaultValue?.Value != null
                         && defaultValue.GetConfigurationSource().Overrides(ConfigurationSource.DataAnnotation))
                     {
-                        logger.ModelValidationKeyDefaultValueWarning(property);
+                        propertyWithDefault ??= property;
                     }
+                    else
+                    {
+                        propertyWithDefault = null;
+                        break;
+                    }
+                }
+
+                if (propertyWithDefault != null)
+                {
+                    logger.ModelValidationKeyDefaultValueWarning(propertyWithDefault);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the mapping/configuration of mutable in the model.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected override void ValidateNoMutableKeys(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        foreach (var entityType in model.GetEntityTypes())
+        {
+            foreach (var key in entityType.GetDeclaredKeys())
+            {
+                var mutableProperty = key.Properties.FirstOrDefault(p => p.ValueGenerated.HasFlag(ValueGenerated.OnUpdate));
+                if (mutableProperty != null
+                    && !mutableProperty.IsOrdinalKeyProperty())
+                {
+                    throw new InvalidOperationException(CoreStrings.MutableKeyProperty(mutableProperty.Name));
                 }
             }
         }
@@ -543,25 +766,7 @@ public class RelationalModelValidator : ModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        var tables = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
-        foreach (var entityType in model.GetEntityTypes())
-        {
-            var tableId = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
-            if (tableId == null)
-            {
-                continue;
-            }
-
-            var table = tableId.Value;
-            if (!tables.TryGetValue(table, out var mappedTypes))
-            {
-                mappedTypes = new List<IEntityType>();
-                tables[table] = mappedTypes;
-            }
-
-            mappedTypes.Add(entityType);
-        }
-
+        var tables = BuildSharedTableEntityMap(model.GetEntityTypes().Where(e => !e.IsMappedToJson()));
         foreach (var (table, mappedTypes) in tables)
         {
             ValidateSharedTableCompatibility(mappedTypes, table, logger);
@@ -658,6 +863,30 @@ public class RelationalModelValidator : ModelValidator
                 return tuple;
             }
         }
+    }
+
+    private Dictionary<StoreObjectIdentifier, List<IEntityType>> BuildSharedTableEntityMap(IEnumerable<IEntityType> entityTypes)
+    {
+        var result = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
+        foreach (var entityType in entityTypes)
+        {
+            var tableId = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
+            if (tableId == null)
+            {
+                continue;
+            }
+
+            var table = tableId.Value;
+            if (!result.TryGetValue(table, out var mappedTypes))
+            {
+                mappedTypes = new List<IEntityType>();
+                result[table] = mappedTypes;
+            }
+
+            mappedTypes.Add(entityType);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -817,7 +1046,7 @@ public class RelationalModelValidator : ModelValidator
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var views = new Dictionary<StoreObjectIdentifier, List<IEntityType>>();
-        foreach (var entityType in model.GetEntityTypes())
+        foreach (var entityType in model.GetEntityTypes().Where(e => !e.IsMappedToJson()))
         {
             var viewsName = entityType.GetViewName();
             if (viewsName == null)
@@ -993,12 +1222,25 @@ public class RelationalModelValidator : ModelValidator
                 {
                     continue;
                 }
-                
+
                 missingConcurrencyTokens?.Remove(columnName);
                 if (!propertyMappings.TryGetValue(columnName, out var duplicateProperty))
                 {
                     propertyMappings[columnName] = property;
                     continue;
+                }
+
+                if (property.DeclaringEntityType.IsAssignableFrom(duplicateProperty.DeclaringEntityType)
+                    || duplicateProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.DuplicateColumnNameSameHierarchy(
+                            duplicateProperty.DeclaringEntityType.DisplayName(),
+                            duplicateProperty.Name,
+                            property.DeclaringEntityType.DisplayName(),
+                            property.Name,
+                            columnName,
+                            storeObject.DisplayName()));
                 }
 
                 ValidateCompatible(property, duplicateProperty, columnName, storeObject, logger);
@@ -1532,7 +1774,7 @@ public class RelationalModelValidator : ModelValidator
         var triggerMappings = new Dictionary<string, ITrigger>();
         foreach (var trigger in mappedTypes.SelectMany(et => et.GetDeclaredTriggers()))
         {
-            var triggerName = trigger.GetName(storeObject);
+            var triggerName = trigger.GetDatabaseName(storeObject);
             if (triggerName == null)
             {
                 continue;
@@ -1592,10 +1834,10 @@ public class RelationalModelValidator : ModelValidator
                     && storeObject != null)
                 {
                     throw new InvalidOperationException(
-                       RelationalStrings.AbstractTpc(entityType.DisplayName(), storeObject));
+                        RelationalStrings.AbstractTpc(entityType.DisplayName(), storeObject));
                 }
             }
-            
+
             foreach (var key in entityType.GetKeys())
             {
                 ValidateValueGeneration(entityType, key, logger);
@@ -1607,7 +1849,7 @@ public class RelationalModelValidator : ModelValidator
                     && mappingStrategy != (string?)entityType.BaseType[RelationalAnnotationNames.MappingStrategy])
                 {
                     throw new InvalidOperationException(
-                       RelationalStrings.DerivedStrategy(entityType.DisplayName(), mappingStrategy));
+                        RelationalStrings.DerivedStrategy(entityType.DisplayName(), mappingStrategy));
                 }
 
                 continue;
@@ -1625,7 +1867,7 @@ public class RelationalModelValidator : ModelValidator
                     && mappingStrategy != RelationalAnnotationNames.TphMappingStrategy)
                 {
                     throw new InvalidOperationException(
-                       RelationalStrings.NonTphMappingStrategy(mappingStrategy, entityType.DisplayName()));
+                        RelationalStrings.NonTphMappingStrategy(mappingStrategy, entityType.DisplayName()));
                 }
 
                 ValidateTphMapping(entityType, StoreObjectType.Table);
@@ -1634,16 +1876,17 @@ public class RelationalModelValidator : ModelValidator
                 ValidateTphMapping(entityType, StoreObjectType.InsertStoredProcedure);
                 ValidateTphMapping(entityType, StoreObjectType.DeleteStoredProcedure);
                 ValidateTphMapping(entityType, StoreObjectType.UpdateStoredProcedure);
-                
+
                 ValidateDiscriminatorValues(entityType);
             }
             else
             {
-                if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy 
+                if (mappingStrategy != RelationalAnnotationNames.TpcMappingStrategy
                     && entityType.FindPrimaryKey() == null)
                 {
                     throw new InvalidOperationException(
-                       RelationalStrings.KeylessMappingStrategy(mappingStrategy ?? RelationalAnnotationNames.TptMappingStrategy, entityType.DisplayName()));
+                        RelationalStrings.KeylessMappingStrategy(
+                            mappingStrategy ?? RelationalAnnotationNames.TptMappingStrategy, entityType.DisplayName()));
                 }
 
                 ValidateNonTphMapping(entityType, StoreObjectType.Table);
@@ -1670,8 +1913,9 @@ public class RelationalModelValidator : ModelValidator
 
                     if (discriminatorValues.TryGetValue(valueString, out var duplicateEntityType))
                     {
-                        throw new InvalidOperationException(RelationalStrings.EntityShortNameNotUnique(
-                            derivedType.Name, discriminatorValue, duplicateEntityType.Name));
+                        throw new InvalidOperationException(
+                            RelationalStrings.EntityShortNameNotUnique(
+                                derivedType.Name, discriminatorValue, duplicateEntityType.Name));
                     }
 
                     discriminatorValues[valueString] = derivedType;
@@ -1715,9 +1959,10 @@ public class RelationalModelValidator : ModelValidator
             case RelationalAnnotationNames.TptMappingStrategy:
                 break;
             default:
-                throw new InvalidOperationException(RelationalStrings.InvalidMappingStrategy(
-                    mappingStrategy, entityType.DisplayName()));
-        };
+                throw new InvalidOperationException(
+                    RelationalStrings.InvalidMappingStrategy(
+                        mappingStrategy, entityType.DisplayName()));
+        }
     }
 
     private static void ValidateNonTphMapping(IEntityType rootEntityType, StoreObjectType storeObjectType)
@@ -1760,10 +2005,11 @@ public class RelationalModelValidator : ModelValidator
                 if (rowInternalFk != null
                     && entityType.GetDirectlyDerivedTypes().Any())
                 {
-                    throw new InvalidOperationException(RelationalStrings.TpcTableSharing(
-                        rowInternalFk.DeclaringEntityType.DisplayName(),
-                        storeObject.Value.DisplayName(),
-                        rowInternalFk.PrincipalEntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.TpcTableSharing(
+                            rowInternalFk.DeclaringEntityType.DisplayName(),
+                            storeObject.Value.DisplayName(),
+                            rowInternalFk.PrincipalEntityType.DisplayName()));
                 }
             }
 
@@ -1781,11 +2027,12 @@ public class RelationalModelValidator : ModelValidator
             && rootEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
         {
             var derivedTypePair = derivedTypes.First(kv => kv.Value != rootEntityType);
-            throw new InvalidOperationException(RelationalStrings.TpcTableSharingDependent(
-                rootEntityType.DisplayName(),
-                rootStoreObject.Value.DisplayName(),
-                derivedTypePair.Value.DisplayName(),
-                derivedTypePair.Key.DisplayName()));
+            throw new InvalidOperationException(
+                RelationalStrings.TpcTableSharingDependent(
+                    rootEntityType.DisplayName(),
+                    rootStoreObject.Value.DisplayName(),
+                    derivedTypePair.Value.DisplayName(),
+                    derivedTypePair.Key.DisplayName()));
         }
     }
 
@@ -1812,8 +2059,9 @@ public class RelationalModelValidator : ModelValidator
                     if (sproc != null
                         && sproc != rootSproc)
                     {
-                        throw new InvalidOperationException(RelationalStrings.StoredProcedureTphDuplicate(
-                            entityType.DisplayName(), rootEntityType.DisplayName(), rootId?.DisplayName()));
+                        throw new InvalidOperationException(
+                            RelationalStrings.StoredProcedureTphDuplicate(
+                                entityType.DisplayName(), rootEntityType.DisplayName(), rootId?.DisplayName()));
                     }
                 }
 
@@ -1852,7 +2100,7 @@ public class RelationalModelValidator : ModelValidator
     protected override bool IsRedundant(IForeignKey foreignKey)
         => base.IsRedundant(foreignKey)
             && !foreignKey.DeclaringEntityType.GetMappingFragments().Any();
-    
+
     /// <summary>
     ///     Validates the entity type mapping fragments.
     /// </summary>
@@ -1903,8 +2151,10 @@ public class RelationalModelValidator : ModelValidator
                             .All(mainFk => mainFk.PrincipalEntityType != fk.PrincipalEntityType));
                 if (unmatchedLeafRowInternalFk != null)
                 {
-                    throw new InvalidOperationException(RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(
-                        entityType.DisplayName(), fragment.StoreObject.DisplayName(), unmatchedLeafRowInternalFk.PrincipalEntityType.DisplayName()));
+                    throw new InvalidOperationException(
+                        RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(
+                            entityType.DisplayName(), fragment.StoreObject.DisplayName(),
+                            unmatchedLeafRowInternalFk.PrincipalEntityType.DisplayName()));
                 }
 
                 var propertiesFound = false;
@@ -1922,7 +2172,7 @@ public class RelationalModelValidator : ModelValidator
 
                         continue;
                     }
-                    
+
                     if (!property.IsPrimaryKey())
                     {
                         propertiesFound = true;
@@ -2054,7 +2304,8 @@ public class RelationalModelValidator : ModelValidator
     }
 
     private static IEnumerable<StoreObjectIdentifier> GetAllMappedStoreObjects(
-        IReadOnlyProperty property, StoreObjectType storeObjectType)
+        IReadOnlyProperty property,
+        StoreObjectType storeObjectType)
     {
         var mappingStrategy = property.DeclaringEntityType.GetMappingStrategy();
         if (property.IsPrimaryKey())
@@ -2100,6 +2351,7 @@ public class RelationalModelValidator : ModelValidator
                 {
                     yield return declaringStoreObject.Value;
                 }
+
                 yield break;
             }
 
@@ -2113,7 +2365,7 @@ public class RelationalModelValidator : ModelValidator
                     {
                         yield return declaringStoreObject.Value;
                     }
-                    
+
                     foreach (var fragment in fragments)
                     {
                         overrides = RelationalPropertyOverrides.Find(property, fragment.StoreObject);
@@ -2122,6 +2374,7 @@ public class RelationalModelValidator : ModelValidator
                             yield return fragment.StoreObject;
                         }
                     }
+
                     yield break;
                 }
 
@@ -2156,7 +2409,7 @@ public class RelationalModelValidator : ModelValidator
                         queue.Enqueue(containingType);
                     }
                 }
-            }            
+            }
         }
     }
 
@@ -2191,7 +2444,7 @@ public class RelationalModelValidator : ModelValidator
     /// </summary>
     /// <param name="model">The model to validate.</param>
     /// <param name="logger">The logger to use.</param>
-    protected virtual void ValidateTriggers(
+    protected override void ValidateTriggers(
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
@@ -2202,25 +2455,277 @@ public class RelationalModelValidator : ModelValidator
 
             foreach (var trigger in entityType.GetDeclaredTriggers())
             {
-                if (tableName is null)
-                {
-                    throw new InvalidOperationException(
-                        RelationalStrings.TriggerOnUnmappedEntityType(trigger.ModelName, entityType.DisplayName()));
-                }
-
-                if ((trigger.TableName != tableName
-                    || trigger.TableSchema != tableSchema)
+                if ((trigger.GetTableName() != tableName
+                        || trigger.GetTableSchema() != tableSchema)
                     && entityType.GetMappingFragments(StoreObjectType.Table)
-                        .All(f => trigger.TableName != f.StoreObject.Name || trigger.TableSchema != f.StoreObject.Schema))
+                        .All(f => trigger.GetTableName() != f.StoreObject.Name || trigger.GetTableSchema() != f.StoreObject.Schema))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.TriggerWithMismatchedTable(
                             trigger.ModelName,
-                            (trigger.TableName, trigger.TableSchema).FormatTable(),
+                            (trigger.GetTableName()!, trigger.GetTableSchema()).FormatTable(),
                             entityType.DisplayName(),
                             entityType.GetSchemaQualifiedTableName())
                     );
                 }
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the JSON entities.
+    /// </summary>
+    /// <param name="model">The model to validate.</param>
+    /// <param name="logger">The logger to use.</param>
+    protected virtual void ValidateJsonEntities(
+        IModel model,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        var tables = BuildSharedTableEntityMap(model.GetEntityTypes());
+        foreach (var (table, mappedTypes) in tables)
+        {
+            if (mappedTypes.All(x => !x.IsMappedToJson()))
+            {
+                continue;
+            }
+
+            var nonOwnedTypes = mappedTypes.Where(x => !x.IsOwned());
+            var nonOwnedTypesCount = nonOwnedTypes.Count();
+            if (nonOwnedTypesCount == 0)
+            {
+                var nonJsonType = mappedTypes.Where(x => !x.IsMappedToJson()).First();
+
+                // must be owned collection (mapped to a separate table) that owns a JSON type
+                // issue #28441
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityOwnedByNonJsonOwnedType(
+                        nonJsonType.DisplayName(), table.DisplayName()));
+            }
+
+            var distinctRootTypes = nonOwnedTypes.Select(x => x.GetRootType()).Distinct().ToList();
+            if (distinctRootTypes.Count > 1)
+            {
+                // issue #28442
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithTableSplittingIsNotSupported);
+            }
+
+            var rootType = distinctRootTypes[0];
+            var jsonEntitiesMappedToSameJsonColumn = mappedTypes
+                .Where(x => x.FindOwnership() is IForeignKey ownership && !ownership.PrincipalEntityType.IsOwned())
+                .GroupBy(x => x.GetContainerColumnName())
+                .Where(x => x.Key is not null)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .Where(x => x.Count > 1)
+                .Select(x => x.Key);
+
+            if (jsonEntitiesMappedToSameJsonColumn.FirstOrDefault() is string jsonEntityMappedToSameJsonColumn)
+            {
+                // issue #28584
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityMultipleRootsMappedToTheSameJsonColumn(
+                        jsonEntityMappedToSameJsonColumn, table.Name));
+            }
+
+            ValidateJsonEntityRoot(table, rootType);
+
+            foreach (var jsonEntityType in mappedTypes.Where(x => x.IsMappedToJson()))
+            {
+                ValidateJsonEntityNavigations(table, jsonEntityType);
+                ValidateJsonEntityKey(table, jsonEntityType);
+                ValidateJsonEntityProperties(table, jsonEntityType);
+            }
+        }
+
+        // TODO: support this for raw SQL and function mappings in #19970 and #21627 and remove the check
+        ValidateJsonEntitiesNotMappedToTableOrView(model.GetEntityTypes());
+        ValidateJsonViews(model.GetEntityTypes().Where(t => t.IsMappedToJson()));
+    }
+
+    private void ValidateJsonEntitiesNotMappedToTableOrView(IEnumerable<IEntityType> entityTypes)
+    {
+        var entitiesNotMappedToTableOrView = entityTypes.Where(
+            x => !x.IsMappedToJson()
+                && x.GetSchemaQualifiedTableName() == null
+                && x.GetSchemaQualifiedViewName() == null);
+
+        foreach (var entityNotMappedToTableOrView in entitiesNotMappedToTableOrView)
+        {
+            if (entityNotMappedToTableOrView.GetDeclaredNavigations()
+                .Any(x => x.ForeignKey.IsOwnership && x.TargetEntityType.IsMappedToJson()))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithOwnerNotMappedToTableOrView(
+                        entityNotMappedToTableOrView.DisplayName()));
+            }
+        }
+    }
+
+    private void ValidateJsonViews(IEnumerable<IEntityType> entityTypes)
+    {
+        foreach (var jsonEntityType in entityTypes)
+        {
+            var viewName = jsonEntityType.GetViewName();
+            if (viewName == null)
+            {
+                continue;
+            }
+
+            var ownership = jsonEntityType.FindOwnership()!;
+            var ownerViewName = ownership.PrincipalEntityType.GetViewName();
+            if (viewName != ownerViewName)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityMappedToDifferentViewThanOwner(
+                        jsonEntityType.DisplayName(), viewName, ownership.PrincipalEntityType.DisplayName(), ownerViewName));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validates the root entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="storeObject">The store object.</param>
+    /// <param name="rootType">The entity type to validate.</param>
+    protected virtual void ValidateJsonEntityRoot(
+        in StoreObjectIdentifier storeObject,
+        IEntityType rootType)
+    {
+        var mappingStrategy = rootType.GetMappingStrategy();
+        if (mappingStrategy != null && mappingStrategy != RelationalAnnotationNames.TphMappingStrategy)
+        {
+            // issue #28443
+            throw new InvalidOperationException(
+                RelationalStrings.JsonEntityWithNonTphInheritanceOnOwner(rootType.DisplayName()));
+        }
+    }
+
+    /// <summary>
+    ///     Validates navigations of the entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="storeObject">The store object.</param>
+    /// <param name="jsonEntityType">The entity type to validate.</param>
+    protected virtual void ValidateJsonEntityNavigations(
+        in StoreObjectIdentifier storeObject,
+        IEntityType jsonEntityType)
+    {
+        var ownership = jsonEntityType.FindOwnership()!;
+
+        if (ownership.PrincipalEntityType.IsOwned()
+            && !ownership.PrincipalEntityType.IsMappedToJson())
+        {
+            // issue #28441
+            throw new InvalidOperationException(
+                RelationalStrings.JsonEntityOwnedByNonJsonOwnedType(
+                    ownership.PrincipalEntityType.DisplayName(),
+                    storeObject.DisplayName()));
+        }
+
+        foreach (var navigation in jsonEntityType.GetDeclaredNavigations())
+        {
+            if (!navigation.ForeignKey.IsOwnership)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityReferencingRegularEntity(
+                        jsonEntityType.DisplayName()));
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Validate the key of entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="storeObject">The store object.</param>
+    /// <param name="jsonEntityType">The entity type containing the key to validate.</param>
+    protected virtual void ValidateJsonEntityKey(
+        in StoreObjectIdentifier storeObject,
+        IEntityType jsonEntityType)
+    {
+        var primaryKeyProperties = jsonEntityType.FindPrimaryKey()!.Properties;
+        var ownership = jsonEntityType.FindOwnership()!;
+
+        foreach (var primaryKeyProperty in primaryKeyProperties)
+        {
+            if (primaryKeyProperty.GetJsonPropertyName() != null)
+            {
+                // issue #28594
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithExplicitlyConfiguredJsonPropertyNameOnKey(
+                        primaryKeyProperty.Name, jsonEntityType.DisplayName()));
+            }
+        }
+
+        if (!ownership.IsUnique)
+        {
+            // for collection entities, make sure that ordinal key is not explicitly defined
+            var ordinalKeyProperty = primaryKeyProperties.Last();
+            if (!ordinalKeyProperty.IsOrdinalKeyProperty())
+            {
+                // issue #28594
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithExplicitlyConfiguredOrdinalKey(
+                        jsonEntityType.DisplayName()));
+            }
+        }
+
+        var ownerEntityTypeKeyPropertiesCount = ownership.PrincipalEntityType.FindPrimaryKey()!.Properties.Count;
+        var expectedKeyCount = ownership.IsUnique
+            ? ownerEntityTypeKeyPropertiesCount
+            : ownerEntityTypeKeyPropertiesCount + 1;
+
+        if (primaryKeyProperties.Count != expectedKeyCount)
+        {
+            // issue #28594
+            throw new InvalidOperationException(
+                RelationalStrings.JsonEntityWithIncorrectNumberOfKeyProperties(
+                    jsonEntityType.DisplayName(), expectedKeyCount, primaryKeyProperties.Count));
+        }
+    }
+
+    /// <summary>
+    ///     Validate the properties of entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="storeObject">The store object.</param>
+    /// <param name="jsonEntityType">The entity type containing the properties to validate.</param>
+    protected virtual void ValidateJsonEntityProperties(
+        in StoreObjectIdentifier storeObject,
+        IEntityType jsonEntityType)
+    {
+        var jsonPropertyNames = new List<string>();
+        foreach (var property in jsonEntityType.GetDeclaredProperties().Where(p => !string.IsNullOrEmpty(p.GetJsonPropertyName())))
+        {
+            if (property.TryGetDefaultValue(out var _))
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithDefaultValueSetOnItsProperty(
+                        jsonEntityType.DisplayName(), property.Name));
+            }
+
+            var jsonPropertyName = property.GetJsonPropertyName()!;
+            if (!jsonPropertyNames.Contains(jsonPropertyName))
+            {
+                jsonPropertyNames.Add(jsonPropertyName);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(
+                        jsonEntityType.DisplayName(), jsonPropertyName));
+            }
+        }
+
+        foreach (var navigation in jsonEntityType.GetDeclaredNavigations())
+        {
+            var jsonPropertyName = navigation.TargetEntityType.GetJsonPropertyName()!;
+            if (!jsonPropertyNames.Contains(jsonPropertyName))
+            {
+                jsonPropertyNames.Add(jsonPropertyName);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonEntityWithMultiplePropertiesMappedToSameJsonProperty(
+                        jsonEntityType.DisplayName(), jsonPropertyName));
             }
         }
     }

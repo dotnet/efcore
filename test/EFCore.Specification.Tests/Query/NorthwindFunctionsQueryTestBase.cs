@@ -168,11 +168,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>()
                 .GroupBy(c => c.City)
-                .Select(g => new
-                {
-                    City = g.Key,
-                    Customers = string.Join("|", g.Select(e => e.CustomerID))
-                }),
+                .Select(g => new { City = g.Key, Customers = string.Join("|", g.Select(e => e.CustomerID)) }),
             elementSorter: x => x.City,
             elementAsserter: (e, a) =>
             {
@@ -191,11 +187,11 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>()
                 .GroupBy(c => c.City)
-                .Select(g => new
-                {
-                    City = g.Key,
-                    Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
-                }),
+                .Select(
+                    g => new
+                    {
+                        City = g.Key, Customers = string.Join("|", g.Where(e => e.ContactName.Length > 10).Select(e => e.CustomerID))
+                    }),
             elementSorter: x => x.City,
             elementAsserter: (e, a) =>
             {
@@ -214,11 +210,11 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>()
                 .GroupBy(c => c.City)
-                .Select(g => new
-                {
-                    City = g.Key,
-                    Customers = string.Join("|", g.OrderByDescending(e => e.CustomerID).Select(e => e.CustomerID))
-                }),
+                .Select(
+                    g => new
+                    {
+                        City = g.Key, Customers = string.Join("|", g.OrderByDescending(e => e.CustomerID).Select(e => e.CustomerID))
+                    }),
             elementSorter: x => x.City);
 
     [ConditionalTheory]
@@ -228,11 +224,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>()
                 .GroupBy(c => c.City)
-                .Select(g => new
-                {
-                    City = g.Key,
-                    Regions = string.Join("|", g.Select(e => e.Region))
-                }),
+                .Select(g => new { City = g.Key, Regions = string.Join("|", g.Select(e => e.Region)) }),
             elementSorter: x => x.City,
             elementAsserter: (e, a) =>
             {
@@ -251,11 +243,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Customer>()
                 .GroupBy(c => c.City)
-                .Select(g => new
-                {
-                    City = g.Key,
-                    Customers = string.Concat(g.Select(e => e.CustomerID))
-                }),
+                .Select(g => new { City = g.Key, Customers = string.Concat(g.Select(e => e.CustomerID)) }),
             elementSorter: x => x.City,
             elementAsserter: (e, a) =>
             {
@@ -913,11 +901,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Order>()
                 .Where(o => o.OrderID < 10300)
-                .Select(o => new
-                {
-                    o.OrderID,
-                    Sum = o.OrderDetails.Sum(i => Math.Round(i.UnitPrice, 2))
-                }),
+                .Select(o => new { o.OrderID, Sum = o.OrderDetails.Sum(i => Math.Round(i.UnitPrice, 2)) }),
             elementSorter: e => e.OrderID,
             elementAsserter: (e, a) =>
             {
@@ -932,11 +916,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Order>()
                 .Where(o => o.OrderID < 10300)
-                .Select(o => new
-                {
-                    o.OrderID,
-                    Sum = o.OrderDetails.Select(i => i.UnitPrice * i.UnitPrice).Sum(i => Math.Round(i, 2))
-                }),
+                .Select(o => new { o.OrderID, Sum = o.OrderDetails.Select(i => i.UnitPrice * i.UnitPrice).Sum(i => Math.Round(i, 2)) }),
             elementSorter: e => e.OrderID,
             elementAsserter: (e, a) =>
             {
@@ -951,11 +931,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Order>()
                 .Where(o => o.OrderID < 10300)
-                .Select(o => new
-                {
-                    o.OrderID,
-                    Sum = o.OrderDetails.Sum(i => Math.Truncate(i.UnitPrice))
-                }),
+                .Select(o => new { o.OrderID, Sum = o.OrderDetails.Sum(i => Math.Truncate(i.UnitPrice)) }),
             elementSorter: e => e.OrderID,
             elementAsserter: (e, a) =>
             {
@@ -970,11 +946,7 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
             async,
             ss => ss.Set<Order>()
                 .Where(o => o.OrderID < 10300)
-                .Select(o => new
-                {
-                    o.OrderID,
-                    Sum = o.OrderDetails.Select(i => i.UnitPrice * i.UnitPrice).Sum(i => Math.Truncate(i))
-                }),
+                .Select(o => new { o.OrderID, Sum = o.OrderDetails.Select(i => i.UnitPrice * i.UnitPrice).Sum(i => Math.Truncate(i)) }),
             elementSorter: e => e.OrderID,
             elementAsserter: (e, a) =>
             {

@@ -47,16 +47,24 @@ public class SharedTableConvention : IModelFinalizingConvention
         TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
 
         var columns = new Dictionary<string, IConventionProperty>();
-        var keys = new Dictionary<string, IConventionKey>();
-        var foreignKeys = new Dictionary<string, IConventionForeignKey>();
-        var indexes = new Dictionary<string, IConventionIndex>();
-        var checkConstraints = new Dictionary<(string, string?), IConventionCheckConstraint>();
-        var triggers = new Dictionary<string, IConventionTrigger>();
+        var keys = new Dictionary<string, (IConventionKey, StoreObjectIdentifier)>();
+        var foreignKeys = new Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)>();
+        var indexes = new Dictionary<string, (IConventionIndex, StoreObjectIdentifier)>();
+        var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
+        var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
         foreach (var ((tableName, schema), conventionEntityTypes) in tables)
         {
             columns.Clear();
-            keys.Clear();
-            foreignKeys.Clear();
+
+            if (!KeysUniqueAcrossTables)
+            {
+                keys.Clear();
+            }
+
+            if (!ForeignKeysUniqueAcrossTables)
+            {
+                foreignKeys.Clear();
+            }
 
             if (!IndexesUniqueAcrossTables)
             {
@@ -85,6 +93,18 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
         }
     }
+
+    /// <summary>
+    ///     Gets a value indicating whether key names should be unique across tables.
+    /// </summary>
+    protected virtual bool KeysUniqueAcrossTables
+        => false;
+
+    /// <summary>
+    ///     Gets a value indicating whether foreign key names should be unique across tables.
+    /// </summary>
+    protected virtual bool ForeignKeysUniqueAcrossTables
+        => false;
 
     /// <summary>
     ///     Gets a value indicating whether index names should be unique across tables.
@@ -149,8 +169,7 @@ public class SharedTableConvention : IModelFinalizingConvention
                 }
 
                 clashingTables ??=
-                    new Dictionary<(string Name, string? Schema),
-                        Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
+                    new Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
 
                 if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                 {
@@ -297,7 +316,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void TryUniquifyKeyNames(
         IConventionEntityType entityType,
-        Dictionary<string, IConventionKey> keys,
+        Dictionary<string, (IConventionKey, StoreObjectIdentifier)> keys,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -309,15 +328,17 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            if (!keys.TryGetValue(keyName, out var otherKey))
+            if (!keys.TryGetValue(keyName, out var otherKeyPair))
             {
-                keys[keyName] = key;
+                keys[keyName] = (key, storeObject);
                 continue;
             }
 
-            if ((key.IsPrimaryKey()
-                    && otherKey.IsPrimaryKey())
-                || AreCompatible(key, otherKey, storeObject))
+            var (otherKey, otherStoreObject) = otherKeyPair;
+            if (storeObject == otherStoreObject
+                && ((key.IsPrimaryKey()
+                        && otherKey.IsPrimaryKey())
+                    || AreCompatible(key, otherKey, storeObject)))
             {
                 continue;
             }
@@ -325,15 +346,15 @@ public class SharedTableConvention : IModelFinalizingConvention
             var newKeyName = TryUniquify(key, keyName, keys, maxLength);
             if (newKeyName != null)
             {
-                keys[newKeyName] = key;
+                keys[newKeyName] = (key, storeObject);
                 continue;
             }
 
             var newOtherKeyName = TryUniquify(otherKey, keyName, keys, maxLength);
             if (newOtherKeyName != null)
             {
-                keys[keyName] = key;
-                keys[newOtherKeyName] = otherKey;
+                keys[keyName] = (key, storeObject);
+                keys[newOtherKeyName] = otherKeyPair;
             }
         }
     }
@@ -351,10 +372,10 @@ public class SharedTableConvention : IModelFinalizingConvention
         in StoreObjectIdentifier storeObject)
         => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
 
-    private static string? TryUniquify<T>(
+    private static string? TryUniquify(
         IConventionKey key,
         string keyName,
-        Dictionary<string, T> keys,
+        Dictionary<string, (IConventionKey, StoreObjectIdentifier)> keys,
         int maxLength)
     {
         if (key.Builder.CanSetName(null))
@@ -369,7 +390,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void TryUniquifyIndexNames(
         IConventionEntityType entityType,
-        Dictionary<string, IConventionIndex> indexes,
+        Dictionary<string, (IConventionIndex, StoreObjectIdentifier)> indexes,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -381,13 +402,15 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            if (!indexes.TryGetValue(indexName, out var otherIndex))
+            if (!indexes.TryGetValue(indexName, out var otherIndexPair))
             {
-                indexes[indexName] = index;
+                indexes[indexName] = (index, storeObject);
                 continue;
             }
 
-            if (AreCompatible(index, otherIndex, storeObject))
+            var (otherIndex, otherStoreObject) = otherIndexPair;
+            if (storeObject == otherStoreObject
+                && AreCompatible(index, otherIndex, storeObject))
             {
                 continue;
             }
@@ -395,15 +418,15 @@ public class SharedTableConvention : IModelFinalizingConvention
             var newIndexName = TryUniquify(index, indexName, indexes, maxLength);
             if (newIndexName != null)
             {
-                indexes[newIndexName] = index;
+                indexes[newIndexName] = (index, storeObject);
                 continue;
             }
 
             var newOtherIndexName = TryUniquify(otherIndex, indexName, indexes, maxLength);
             if (newOtherIndexName != null)
             {
-                indexes[indexName] = index;
-                indexes[newOtherIndexName] = otherIndex;
+                indexes[indexName] = (index, storeObject);
+                indexes[newOtherIndexName] = otherIndexPair;
             }
         }
     }
@@ -421,10 +444,10 @@ public class SharedTableConvention : IModelFinalizingConvention
         in StoreObjectIdentifier storeObject)
         => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
 
-    private static string? TryUniquify<T>(
+    private static string? TryUniquify(
         IConventionIndex index,
         string indexName,
-        Dictionary<string, T> indexes,
+        Dictionary<string, (IConventionIndex, StoreObjectIdentifier)> indexes,
         int maxLength)
     {
         if (index.Builder.CanSetDatabaseName(null))
@@ -439,7 +462,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void TryUniquifyForeignKeyNames(
         IConventionEntityType entityType,
-        Dictionary<string, IConventionForeignKey> foreignKeys,
+        Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)> foreignKeys,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -466,13 +489,15 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
+            if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKeyPair))
             {
-                foreignKeys[foreignKeyName] = foreignKey;
+                foreignKeys[foreignKeyName] = (foreignKey, storeObject);
                 continue;
             }
 
-            if (AreCompatible(foreignKey, otherForeignKey, storeObject))
+            var (otherForeignKey, otherStoreObject) = otherForeignKeyPair;
+            if (storeObject == otherStoreObject
+                && AreCompatible(foreignKey, otherForeignKey, storeObject))
             {
                 continue;
             }
@@ -480,7 +505,7 @@ public class SharedTableConvention : IModelFinalizingConvention
             var newForeignKeyName = TryUniquify(foreignKey, foreignKeyName, foreignKeys, maxLength);
             if (newForeignKeyName != null)
             {
-                foreignKeys[newForeignKeyName] = foreignKey;
+                foreignKeys[newForeignKeyName] = (foreignKey, storeObject);
                 continue;
             }
 
@@ -493,8 +518,8 @@ public class SharedTableConvention : IModelFinalizingConvention
             var newOtherForeignKeyName = TryUniquify(otherForeignKey, foreignKeyName, foreignKeys, maxLength);
             if (newOtherForeignKeyName != null)
             {
-                foreignKeys[foreignKeyName] = foreignKey;
-                foreignKeys[newOtherForeignKeyName] = otherForeignKey;
+                foreignKeys[foreignKeyName] = (foreignKey, storeObject);
+                foreignKeys[newOtherForeignKeyName] = otherForeignKeyPair;
             }
         }
     }
@@ -512,10 +537,10 @@ public class SharedTableConvention : IModelFinalizingConvention
         in StoreObjectIdentifier storeObject)
         => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
 
-    private static string? TryUniquify<T>(
+    private static string? TryUniquify(
         IConventionForeignKey foreignKey,
         string foreignKeyName,
-        Dictionary<string, T> foreignKeys,
+        Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)> foreignKeys,
         int maxLength)
     {
         if (foreignKey.Builder.CanSetConstraintName(null))
@@ -530,7 +555,7 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void TryUniquifyCheckConstraintNames(
         IConventionEntityType entityType,
-        Dictionary<(string, string?), IConventionCheckConstraint> checkConstraints,
+        Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)> checkConstraints,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
@@ -542,13 +567,15 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            if (!checkConstraints.TryGetValue((constraintName, storeObject.Schema), out var otherCheckConstraint))
+            if (!checkConstraints.TryGetValue((constraintName, storeObject.Schema), out var otherCheckConstraintPair))
             {
-                checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;
+                checkConstraints[(constraintName, storeObject.Schema)] = (checkConstraint, storeObject);
                 continue;
             }
 
-            if (AreCompatible(checkConstraint, otherCheckConstraint, storeObject))
+            var (otherCheckConstraint, otherStoreObject) = otherCheckConstraintPair;
+            if (storeObject == otherStoreObject
+                && AreCompatible(checkConstraint, otherCheckConstraint, storeObject))
             {
                 continue;
             }
@@ -556,15 +583,15 @@ public class SharedTableConvention : IModelFinalizingConvention
             var newConstraintName = TryUniquify(checkConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
             if (newConstraintName != null)
             {
-                checkConstraints[(newConstraintName, storeObject.Schema)] = checkConstraint;
+                checkConstraints[(newConstraintName, storeObject.Schema)] = (checkConstraint, storeObject);
                 continue;
             }
 
             var newOtherConstraintName = TryUniquify(otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
             if (newOtherConstraintName != null)
             {
-                checkConstraints[(constraintName, storeObject.Schema)] = checkConstraint;
-                checkConstraints[(newOtherConstraintName, storeObject.Schema)] = otherCheckConstraint;
+                checkConstraints[(constraintName, storeObject.Schema)] = (checkConstraint, storeObject);
+                checkConstraints[(newOtherConstraintName, otherStoreObject.Schema)] = otherCheckConstraintPair;
             }
         }
     }
@@ -582,11 +609,11 @@ public class SharedTableConvention : IModelFinalizingConvention
         in StoreObjectIdentifier storeObject)
         => CheckConstraint.AreCompatible(checkConstraint, duplicateCheckConstraint, storeObject, shouldThrow: false);
 
-    private static string? TryUniquify<T>(
+    private static string? TryUniquify(
         IConventionCheckConstraint checkConstraint,
         string checkConstraintName,
         string? schema,
-        Dictionary<(string, string?), T> checkConstraints,
+        Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)> checkConstraints,
         int maxLength)
     {
         if (checkConstraint.Builder.CanSetName(null))
@@ -601,25 +628,27 @@ public class SharedTableConvention : IModelFinalizingConvention
 
     private void TryUniquifyTriggerNames(
         IConventionEntityType entityType,
-        Dictionary<string, IConventionTrigger> triggers,
+        Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)> triggers,
         in StoreObjectIdentifier storeObject,
         int maxLength)
     {
         foreach (var trigger in entityType.GetDeclaredTriggers())
         {
-            var triggerName = trigger.GetName(storeObject);
+            var triggerName = trigger.GetDatabaseName(storeObject);
             if (triggerName == null)
             {
                 continue;
             }
 
-            if (!triggers.TryGetValue(triggerName, out var otherTrigger))
+            if (!triggers.TryGetValue(triggerName, out var otherTriggerPair))
             {
-                triggers[triggerName] = trigger;
+                triggers[triggerName] = (trigger, storeObject);
                 continue;
             }
 
-            if (AreCompatible(trigger, otherTrigger, storeObject))
+            var (otherTrigger, otherStoreObject) = otherTriggerPair;
+            if (otherStoreObject == storeObject
+                && AreCompatible(trigger, otherTrigger, storeObject))
             {
                 continue;
             }
@@ -627,15 +656,15 @@ public class SharedTableConvention : IModelFinalizingConvention
             var newTriggerName = TryUniquify(trigger, triggerName, triggers, maxLength);
             if (newTriggerName != null)
             {
-                triggers[newTriggerName] = trigger;
+                triggers[newTriggerName] = (trigger, storeObject);
                 continue;
             }
 
             var newOtherTrigger = TryUniquify(otherTrigger, triggerName, triggers, maxLength);
             if (newOtherTrigger != null)
             {
-                triggers[triggerName] = trigger;
-                triggers[newOtherTrigger] = otherTrigger;
+                triggers[triggerName] = (trigger, storeObject);
+                triggers[newOtherTrigger] = otherTriggerPair;
             }
         }
     }
@@ -653,16 +682,16 @@ public class SharedTableConvention : IModelFinalizingConvention
         in StoreObjectIdentifier storeObject)
         => true;
 
-    private static string? TryUniquify<T>(
+    private static string? TryUniquify(
         IConventionTrigger trigger,
         string triggerName,
-        Dictionary<string, T> triggers,
+        Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)> triggers,
         int maxLength)
     {
-        if (trigger.Builder.CanSetName(null))
+        if (trigger.Builder.CanSetDatabaseName(null))
         {
             triggerName = Uniquifier.Uniquify(triggerName, triggers, n => n, maxLength);
-            trigger.Builder.HasName(triggerName);
+            trigger.Builder.HasDatabaseName(triggerName);
             return triggerName;
         }
 

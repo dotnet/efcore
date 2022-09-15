@@ -4112,14 +4112,18 @@ public abstract partial class ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
 
+            modelBuilder.Ignore<ValueCategory>();
             modelBuilder.Ignore<Value>();
-            modelBuilder.Entity<QueryResult>();
+            modelBuilder.Entity<QueryResult>()
+                .Property(x => x.Id)
+                .HasConversion(x => x.Id, x => new CustomId { Id = x });
             modelBuilder.Entity<Value>();
 
             var model = modelBuilder.FinalizeModel();
 
             var queryResult = model.FindEntityType(typeof(QueryResult));
             Assert.NotNull(queryResult.FindNavigation(nameof(QueryResult.Value)));
+            Assert.Null(queryResult.FindProperty("TempId"));
         }
     }
 }

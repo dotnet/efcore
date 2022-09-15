@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TPCInheritanceQuerySqlServerTest : TPCInheritanceQuerySqlServerTestBase<TPCInheritanceQuerySqlServerFixture>

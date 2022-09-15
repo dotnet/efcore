@@ -199,7 +199,7 @@ public class ExceptionTest
         public TProperty GetOriginalValue<TProperty>(IProperty property)
             => throw new NotImplementedException();
 
-        public void SetStoreGeneratedValue(IProperty property, object value)
+        public void SetStoreGeneratedValue(IProperty property, object value, bool setModified = true)
             => throw new NotImplementedException();
 
         public EntityEntry ToEntityEntry()

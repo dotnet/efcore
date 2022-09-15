@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
@@ -472,21 +470,6 @@ ORDER BY [i].[_Position];");
                     .Property(w => w.Id)
                     .HasDefaultValueSql("NEXT VALUE FOR [Ids]");
             }
-        }
-
-        public override void Reseed()
-        {
-            using var context = CreateContext();
-            Clean(context);
-            Seed(context);
-        }
-
-        protected override void Clean(DbContext context)
-        {
-            base.Clean(context);
-
-            // Reset the sequence values since we assert on them
-            context.Database.ExecuteSqlRaw("ALTER SEQUENCE [Ids] RESTART WITH 1");
         }
     }
 }

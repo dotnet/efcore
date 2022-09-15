@@ -12,7 +12,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SimpleNonNullableDependentKeyValueFactory<TKey> : IDependentKeyValueFactory<TKey>
+public class SimpleNonNullableDependentKeyValueFactory<TKey> : DependentKeyValueFactory<TKey>, IDependentKeyValueFactory<TKey>
+    where TKey : notnull
 {
     private readonly PropertyAccessors _propertyAccessors;
 
@@ -23,10 +24,12 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : IDependentKeyValu
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SimpleNonNullableDependentKeyValueFactory(
-        IProperty property,
-        PropertyAccessors propertyAccessors)
+        IForeignKey foreignKey,
+        IPrincipalKeyValueFactory<TKey> principalKeyValueFactory)
+        : base(foreignKey, principalKeyValueFactory)
     {
-        _propertyAccessors = propertyAccessors;
+        var property = foreignKey.Properties.Single();
+        _propertyAccessors = property.GetPropertyAccessors();
         EqualityComparer = property.CreateKeyEqualityComparer<TKey>();
     }
 
@@ -36,7 +39,7 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : IDependentKeyValu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEqualityComparer<TKey> EqualityComparer { get; }
+    public override IEqualityComparer<TKey> EqualityComparer { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +66,7 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : IDependentKeyValu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
+    public override bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
         key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.CurrentValueGetter)(entry)!;
         return true;
@@ -87,7 +90,7 @@ public class SimpleNonNullableDependentKeyValueFactory<TKey> : IDependentKeyValu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
+    public override bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out TKey? key)
     {
         key = ((Func<IUpdateEntry, TKey>)_propertyAccessors.OriginalValueGetter!)(entry)!;
         return true;

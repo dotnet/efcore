@@ -60,32 +60,60 @@ public abstract class StoreValueGenerationFixtureBase : SharedStoreFixtureBase<S
 
     protected override void Seed(StoreValueGenerationContext context)
     {
-        context.WithSomeDatabaseGenerated.AddRange(new() { Data2 = 1 }, new() { Data2 = 2 });
-        context.WithSomeDatabaseGenerated2.AddRange(new() { Data2 = 1 }, new() { Data2 = 2 });
+        context.WithSomeDatabaseGenerated.AddRange(new StoreValueGenerationData { Data2 = 1 }, new StoreValueGenerationData { Data2 = 2 });
+        context.WithSomeDatabaseGenerated2.AddRange(new StoreValueGenerationData { Data2 = 1 }, new StoreValueGenerationData { Data2 = 2 });
 
-        context.WithNoDatabaseGenerated.AddRange(new() { Id = 1, Data1 = 10, Data2 = 20 }, new() { Id = 2, Data1 = 11, Data2 = 21 });
-        context.WithNoDatabaseGenerated2.AddRange(new() { Id = 1, Data1 = 10, Data2 = 20 }, new() { Id = 2, Data1 = 11, Data2 = 21 });
+        context.WithNoDatabaseGenerated.AddRange(
+            new StoreValueGenerationData
+            {
+                Id = 1,
+                Data1 = 10,
+                Data2 = 20
+            }, new StoreValueGenerationData
+            {
+                Id = 2,
+                Data1 = 11,
+                Data2 = 21
+            });
+        context.WithNoDatabaseGenerated2.AddRange(
+            new StoreValueGenerationData
+            {
+                Id = 1,
+                Data1 = 10,
+                Data2 = 20
+            }, new StoreValueGenerationData
+            {
+                Id = 2,
+                Data1 = 11,
+                Data2 = 21
+            });
 
-        context.WithAllDatabaseGenerated.AddRange(new(), new());
-        context.WithAllDatabaseGenerated2.AddRange(new(), new());
+        context.WithAllDatabaseGenerated.AddRange(new StoreValueGenerationData(), new StoreValueGenerationData());
+        context.WithAllDatabaseGenerated2.AddRange(new StoreValueGenerationData(), new StoreValueGenerationData());
 
         context.SaveChanges();
     }
 
-    protected override void Clean(DbContext context)
+    public void Seed()
     {
-        var storeValueGenerationContext = CreateContext();
+        using var context = CreateContext();
+        Seed(context);
+    }
 
-        storeValueGenerationContext.WithSomeDatabaseGenerated.RemoveRange(storeValueGenerationContext.WithSomeDatabaseGenerated);
-        storeValueGenerationContext.WithSomeDatabaseGenerated2.RemoveRange(storeValueGenerationContext.WithSomeDatabaseGenerated2);
+    public virtual void CleanData()
+    {
+        using var context = CreateContext();
 
-        storeValueGenerationContext.WithNoDatabaseGenerated.RemoveRange(storeValueGenerationContext.WithNoDatabaseGenerated);
-        storeValueGenerationContext.WithNoDatabaseGenerated2.RemoveRange(storeValueGenerationContext.WithNoDatabaseGenerated2);
+        context.WithSomeDatabaseGenerated.RemoveRange(context.WithSomeDatabaseGenerated);
+        context.WithSomeDatabaseGenerated2.RemoveRange(context.WithSomeDatabaseGenerated2);
 
-        storeValueGenerationContext.WithAllDatabaseGenerated.RemoveRange(storeValueGenerationContext.WithAllDatabaseGenerated);
-        storeValueGenerationContext.WithAllDatabaseGenerated2.RemoveRange(storeValueGenerationContext.WithAllDatabaseGenerated2);
+        context.WithNoDatabaseGenerated.RemoveRange(context.WithNoDatabaseGenerated);
+        context.WithNoDatabaseGenerated2.RemoveRange(context.WithNoDatabaseGenerated2);
 
-        storeValueGenerationContext.SaveChanges();
+        context.WithAllDatabaseGenerated.RemoveRange(context.WithAllDatabaseGenerated);
+        context.WithAllDatabaseGenerated2.RemoveRange(context.WithAllDatabaseGenerated2);
+
+        context.SaveChanges();
     }
 
     protected override bool ShouldLogCategory(string logCategory)

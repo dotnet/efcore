@@ -140,10 +140,42 @@ public class CSharpHelperTest
             @"new List<object> { 1, ""two"" }");
 
     [ConditionalFact]
-    public void Literal_works_when_list_with_ctor_arguments()
+    public void Literal_works_when_list_vertical()
+        => Assert.Equal(
+            @"new List<object>
+{
+    1,
+    ""two""
+}".ReplaceLineEndings(), new CSharpHelper(TypeMappingSource).Literal(
+                new List<object> { 1, "two" }, true));
+
+    [ConditionalFact]
+    public void Literal_works_when_empty_dictionary()
         => Literal_works(
-            new List<string>(new [] { "one" }) { "two", "three" },
-            @"new List<string> { ""one"", ""two"", ""three"" }");
+            new Dictionary<string, int>(),
+            @"new Dictionary<string, int>()");
+
+    [ConditionalFact]
+    public void Literal_works_when_dictionary_with_single_element()
+        => Literal_works(
+            new Dictionary<string, string> { ["one"] = "value" },
+            @"new Dictionary<string, string> { [""one""] = ""value"" }");
+
+    [ConditionalFact]
+    public void Literal_works_when_dictionary_of_mixed_objects()
+        => Literal_works(
+            new Dictionary<string, object> { ["one"] = 1, ["two"] = "Two" },
+            @"new Dictionary<string, object> { [""one""] = 1, [""two""] = ""Two"" }");
+
+    [ConditionalFact]
+    public void Literal_works_when_dictionary_vertical()
+        => Assert.Equal(
+            @"new Dictionary<int, object>
+{
+    [1] = 1,
+    [2] = ""Two""
+}".ReplaceLineEndings(), new CSharpHelper(TypeMappingSource).Literal(
+                new Dictionary<int, object> { [1] = 1, [2] = "Two" }, true));
 
     [ConditionalFact]
     public void Literal_works_when_multiline_string()
@@ -428,11 +460,11 @@ public class CSharpHelperTest
         var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
             .Chain(
                 new MethodCallCodeFragment(
-                _testFuncMethodInfo,
-                new NestedClosureCodeFragment(
-                    "x",
-                    new MethodCallCodeFragment(_testFuncMethodInfo, "Two")
-                        .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Three")))));
+                    _testFuncMethodInfo,
+                    new NestedClosureCodeFragment(
+                        "x",
+                        new MethodCallCodeFragment(_testFuncMethodInfo, "Two")
+                            .Chain(new MethodCallCodeFragment(_testFuncMethodInfo, "Three")))));
 
         var result = new CSharpHelper(TypeMappingSource).Fragment(method, indent: 1);
 
@@ -453,11 +485,7 @@ public class CSharpHelperTest
             _testFuncMethodInfo,
             new NestedClosureCodeFragment(
                 "x",
-                new[]
-                {
-                    new MethodCallCodeFragment(_testFuncMethodInfo, "One"),
-                    new MethodCallCodeFragment(_testFuncMethodInfo, "Two")
-                }));
+                new[] { new MethodCallCodeFragment(_testFuncMethodInfo, "One"), new MethodCallCodeFragment(_testFuncMethodInfo, "Two") }));
 
         var result = new CSharpHelper(TypeMappingSource).Fragment(method);
 
@@ -476,8 +504,8 @@ public class CSharpHelperTest
     {
         var method = new MethodCallCodeFragment(_testFuncMethodInfo, "One")
             .Chain(
-                 new MethodCallCodeFragment(
-                     _testFuncMethodInfo,
+                new MethodCallCodeFragment(
+                    _testFuncMethodInfo,
                     new NestedClosureCodeFragment(
                         "x",
                         new[]

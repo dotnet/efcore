@@ -116,7 +116,7 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             annotations.Remove(SqlServerAnnotationNames.IdentityIncrement);
             annotations.Remove(SqlServerAnnotationNames.IdentitySeed);
         }
-        
+
         base.Generate(overrides, parameters);
     }
 }

@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -243,9 +244,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
 
             var anyLambdaParameter = Expression.Parameter(typeArgument, "p");
             var anyLambda = Expression.Lambda(
-                Expression.Equal(
-                    anyLambdaParameter,
-                    methodCallExpression.Arguments[1]),
+                ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, methodCallExpression.Arguments[1]),
                 anyLambdaParameter);
 
             return Expression.Call(null, anyMethod, new[] { Visit(methodCallExpression.Arguments[0]), anyLambda });

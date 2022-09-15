@@ -163,15 +163,15 @@ public class SqlServerAggregateFunctionExpression : SqlExpression
         IReadOnlyList<OrderingExpression> orderings)
         => (ReferenceEquals(arguments, Arguments) || arguments.SequenceEqual(Arguments))
             && (ReferenceEquals(orderings, Orderings) || orderings.SequenceEqual(Orderings))
-            ? this
-            : new SqlServerAggregateFunctionExpression(
-                Name,
-                arguments,
-                orderings,
-                IsNullable,
-                ArgumentsPropagateNullability,
-                Type,
-                TypeMapping);
+                ? this
+                : new SqlServerAggregateFunctionExpression(
+                    Name,
+                    arguments,
+                    orderings,
+                    IsNullable,
+                    ArgumentsPropagateNullability,
+                    Type,
+                    TypeMapping);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

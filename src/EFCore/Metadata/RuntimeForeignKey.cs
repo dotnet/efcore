@@ -22,7 +22,7 @@ public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
     private readonly bool _isRequiredDependent;
     private readonly bool _isOwnership;
 
-    private object? _dependentKeyValueFactory;
+    private IDependentKeyValueFactory? _dependentKeyValueFactory;
     private Func<IDependentsMap>? _dependentsMapFactory;
 
     /// <summary>
@@ -259,12 +259,17 @@ public class RuntimeForeignKey : AnnotatableBase, IRuntimeForeignKey
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IDependentKeyValueFactory<TKey>? IForeignKey.GetDependentKeyValueFactory<TKey>()
-        => (IDependentKeyValueFactory<TKey>?)((IRuntimeForeignKey)this).DependentKeyValueFactory;
+    IDependentKeyValueFactory<TKey> IForeignKey.GetDependentKeyValueFactory<TKey>()
+        => (IDependentKeyValueFactory<TKey>)_dependentKeyValueFactory!;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
+        => _dependentKeyValueFactory!;
 
     // Note: This is set and used only by IdentityMapFactoryFactory, which ensures thread-safety
     /// <inheritdoc />
-    object IRuntimeForeignKey.DependentKeyValueFactory
+    IDependentKeyValueFactory IRuntimeForeignKey.DependentKeyValueFactory
     {
         [DebuggerStepThrough]
         get => _dependentKeyValueFactory!;

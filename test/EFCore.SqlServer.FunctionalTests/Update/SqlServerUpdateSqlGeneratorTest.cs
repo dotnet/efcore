@@ -92,7 +92,7 @@ VALUES (i.[Name], i.[Quacks], i.[ConcurrencyToken])
 OUTPUT INSERTED.[Id], INSERTED.[Computed], i._Position;
 ",
             stringBuilder.ToString());
-        Assert.Equal(ResultSetMapping.NotLastInResultSet, grouping);
+        Assert.Equal(ResultSetMapping.NotLastInResultSet | ResultSetMapping.IsPositionalResultMappingEnabled, grouping);
     }
 
     [ConditionalFact]
@@ -110,7 +110,7 @@ VALUES (@p0, @p1, @p2, @p3),
 (@p0, @p1, @p2, @p3);
 ",
             stringBuilder.ToString());
-        Assert.Equal(ResultSetMapping.NoResultSet, grouping);
+        Assert.Equal(ResultSetMapping.NoResults, grouping);
     }
 
     [ConditionalFact]
@@ -151,7 +151,7 @@ VALUES (DEFAULT),
 (DEFAULT);
 ";
         AssertBaseline(expectedText, stringBuilder.ToString());
-        Assert.Equal(ResultSetMapping.NoResultSet, grouping);
+        Assert.Equal(ResultSetMapping.NoResults, grouping);
     }
 
     protected override void AppendUpdateOperation_for_computed_property_verification(StringBuilder stringBuilder)
@@ -196,7 +196,8 @@ WHERE [Id] = @p0;
 ",
             stringBuilder.ToString());
 
-    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(StringBuilder stringBuilder)
+    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(
+        StringBuilder stringBuilder)
         => AssertBaseline(
             @"DELETE FROM [dbo].[Ducks]
 OUTPUT 1

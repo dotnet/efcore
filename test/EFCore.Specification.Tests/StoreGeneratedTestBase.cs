@@ -1682,7 +1682,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
                 v => v != null ? v.Value : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedIntClass { Value = v.Value })
         {
         }
     }
@@ -1765,7 +1765,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
                 v => v != null ? v.Value : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedIntKeyClass { Value = v.Value })
         {
         }
     }
@@ -1935,25 +1935,25 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new WrappedIntClassPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedIntClassDependentShadow(), new WrappedIntClassDependentShadow() },
+                        OptionalDependents = { new WrappedIntClassDependentOptional(), new WrappedIntClassDependentOptional() },
+                        RequiredDependents = { new WrappedIntClassDependentRequired(), new WrappedIntClassDependentRequired() }
                     }).Entity;
 
                 var principal2 = context.Add(
                     new WrappedIntStructPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedIntStructDependentShadow(), new WrappedIntStructDependentShadow() },
+                        OptionalDependents = { new WrappedIntStructDependentOptional(), new WrappedIntStructDependentOptional() },
+                        RequiredDependents = { new WrappedIntStructDependentRequired(), new WrappedIntStructDependentRequired() }
                     }).Entity;
 
                 var principal3 = context.Add(
                     new WrappedIntRecordPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedIntRecordDependentShadow(), new WrappedIntRecordDependentShadow() },
+                        OptionalDependents = { new WrappedIntRecordDependentOptional(), new WrappedIntRecordDependentOptional() },
+                        RequiredDependents = { new WrappedIntRecordDependentRequired(), new WrappedIntRecordDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -1966,12 +1966,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedIntKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
@@ -1989,12 +1991,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedIntKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
@@ -2012,12 +2016,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedIntKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.NotEqual(0, dependent.Id.Value);
@@ -2041,11 +2047,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedIntKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
@@ -2064,11 +2072,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedIntKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
@@ -2087,11 +2097,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedIntKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
@@ -2207,7 +2219,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
                 v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedStringClass { Value = v.Value })
         {
         }
     }
@@ -2290,7 +2302,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
                 v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedStringKeyClass { Value = v.Value })
         {
         }
     }
@@ -2344,8 +2356,12 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
 
         public WrappedStringClass? NonKey { get; set; }
         public ICollection<WrappedStringClassDependentShadow> Dependents { get; } = new List<WrappedStringClassDependentShadow>();
-        public ICollection<WrappedStringClassDependentRequired> RequiredDependents { get; } = new List<WrappedStringClassDependentRequired>();
-        public ICollection<WrappedStringClassDependentOptional> OptionalDependents { get; } = new List<WrappedStringClassDependentOptional>();
+
+        public ICollection<WrappedStringClassDependentRequired> RequiredDependents { get; } =
+            new List<WrappedStringClassDependentRequired>();
+
+        public ICollection<WrappedStringClassDependentOptional> OptionalDependents { get; } =
+            new List<WrappedStringClassDependentOptional>();
     }
 
     protected class WrappedStringClassDependentShadow
@@ -2381,8 +2397,12 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
 
         public WrappedStringStruct NonKey { get; set; }
         public ICollection<WrappedStringStructDependentShadow> Dependents { get; } = new List<WrappedStringStructDependentShadow>();
-        public ICollection<WrappedStringStructDependentOptional> OptionalDependents { get; } = new List<WrappedStringStructDependentOptional>();
-        public ICollection<WrappedStringStructDependentRequired> RequiredDependents { get; } = new List<WrappedStringStructDependentRequired>();
+
+        public ICollection<WrappedStringStructDependentOptional> OptionalDependents { get; } =
+            new List<WrappedStringStructDependentOptional>();
+
+        public ICollection<WrappedStringStructDependentRequired> RequiredDependents { get; } =
+            new List<WrappedStringStructDependentRequired>();
     }
 
     protected class WrappedStringStructDependentShadow
@@ -2418,8 +2438,12 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
 
         public WrappedStringRecord? NonKey { get; set; }
         public ICollection<WrappedStringRecordDependentShadow> Dependents { get; } = new List<WrappedStringRecordDependentShadow>();
-        public ICollection<WrappedStringRecordDependentOptional> OptionalDependents { get; } = new List<WrappedStringRecordDependentOptional>();
-        public ICollection<WrappedStringRecordDependentRequired> RequiredDependents { get; } = new List<WrappedStringRecordDependentRequired>();
+
+        public ICollection<WrappedStringRecordDependentOptional> OptionalDependents { get; } =
+            new List<WrappedStringRecordDependentOptional>();
+
+        public ICollection<WrappedStringRecordDependentRequired> RequiredDependents { get; } =
+            new List<WrappedStringRecordDependentRequired>();
     }
 
     protected class WrappedStringRecordDependentShadow
@@ -2460,25 +2484,25 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new WrappedStringClassPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedStringClassDependentShadow(), new WrappedStringClassDependentShadow() },
+                        OptionalDependents = { new WrappedStringClassDependentOptional(), new WrappedStringClassDependentOptional() },
+                        RequiredDependents = { new WrappedStringClassDependentRequired(), new WrappedStringClassDependentRequired() }
                     }).Entity;
 
                 var principal2 = context.Add(
                     new WrappedStringStructPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedStringStructDependentShadow(), new WrappedStringStructDependentShadow() },
+                        OptionalDependents = { new WrappedStringStructDependentOptional(), new WrappedStringStructDependentOptional() },
+                        RequiredDependents = { new WrappedStringStructDependentRequired(), new WrappedStringStructDependentRequired() }
                     }).Entity;
 
                 var principal3 = context.Add(
                     new WrappedStringRecordPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedStringRecordDependentShadow(), new WrappedStringRecordDependentShadow() },
+                        OptionalDependents = { new WrappedStringRecordDependentOptional(), new WrappedStringRecordDependentOptional() },
+                        RequiredDependents = { new WrappedStringRecordDependentRequired(), new WrappedStringRecordDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -2491,12 +2515,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedStringKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
@@ -2514,12 +2540,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedStringKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
@@ -2537,12 +2565,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedStringKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
@@ -2566,11 +2596,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedStringKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
@@ -2589,11 +2621,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedStringKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
@@ -2612,11 +2646,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedStringKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
@@ -2735,7 +2771,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
                 v => v != null ? v.Value.GetHashCode() : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedGuidClass { Value = v.Value })
         {
         }
     }
@@ -2818,7 +2854,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value.Equals(v2.Value)),
                 v => v != null ? v.Value.GetHashCode() : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedGuidKeyClass { Value = v.Value })
         {
         }
     }
@@ -2988,25 +3024,25 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new WrappedGuidClassPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedGuidClassDependentShadow(), new WrappedGuidClassDependentShadow() },
+                        OptionalDependents = { new WrappedGuidClassDependentOptional(), new WrappedGuidClassDependentOptional() },
+                        RequiredDependents = { new WrappedGuidClassDependentRequired(), new WrappedGuidClassDependentRequired() }
                     }).Entity;
 
                 var principal2 = context.Add(
                     new WrappedGuidStructPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedGuidStructDependentShadow(), new WrappedGuidStructDependentShadow() },
+                        OptionalDependents = { new WrappedGuidStructDependentOptional(), new WrappedGuidStructDependentOptional() },
+                        RequiredDependents = { new WrappedGuidStructDependentRequired(), new WrappedGuidStructDependentRequired() }
                     }).Entity;
 
                 var principal3 = context.Add(
                     new WrappedGuidRecordPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedGuidRecordDependentShadow(), new WrappedGuidRecordDependentShadow() },
+                        OptionalDependents = { new WrappedGuidRecordDependentOptional(), new WrappedGuidRecordDependentOptional() },
+                        RequiredDependents = { new WrappedGuidRecordDependentRequired(), new WrappedGuidRecordDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -3019,12 +3055,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedGuidKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.NotEqual(Guid.Empty, dependent.Id.Value);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.NotEqual(Guid.Empty, dependent.Id.Value);
@@ -3042,12 +3080,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedGuidKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.NotEqual(Guid.Empty, dependent.Id.Value);
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.NotEqual(Guid.Empty, dependent.Id.Value);
@@ -3065,12 +3105,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedGuidKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.NotEqual(Guid.Empty, dependent.Id.Value);
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.NotEqual(Guid.Empty, dependent.Id.Value);
@@ -3094,11 +3136,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedGuidKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
@@ -3117,11 +3161,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedGuidKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
@@ -3140,11 +3186,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedGuidKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
@@ -3260,7 +3308,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
                 v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedUriClass { Value = v.Value })
         {
         }
     }
@@ -3343,7 +3391,7 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             : base(
                 (v1, v2) => (v1 == null && v2 == null) || (v1 != null && v2 != null && v1.Value!.Equals(v2.Value)),
                 v => v != null ? v.Value!.GetHashCode() : 0,
-                v => v == null ? null : new() { Value = v.Value })
+                v => v == null ? null : new WrappedUriKeyClass { Value = v.Value })
         {
         }
     }
@@ -3516,25 +3564,25 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new WrappedUriClassPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedUriClassDependentShadow(), new WrappedUriClassDependentShadow() },
+                        OptionalDependents = { new WrappedUriClassDependentOptional(), new WrappedUriClassDependentOptional() },
+                        RequiredDependents = { new WrappedUriClassDependentRequired(), new WrappedUriClassDependentRequired() }
                     }).Entity;
 
                 var principal2 = context.Add(
                     new WrappedUriStructPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedUriStructDependentShadow(), new WrappedUriStructDependentShadow() },
+                        OptionalDependents = { new WrappedUriStructDependentOptional(), new WrappedUriStructDependentOptional() },
+                        RequiredDependents = { new WrappedUriStructDependentRequired(), new WrappedUriStructDependentRequired() }
                     }).Entity;
 
                 var principal3 = context.Add(
                     new WrappedUriRecordPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new WrappedUriRecordDependentShadow(), new WrappedUriRecordDependentShadow() },
+                        OptionalDependents = { new WrappedUriRecordDependentOptional(), new WrappedUriRecordDependentOptional() },
+                        RequiredDependents = { new WrappedUriRecordDependentRequired(), new WrappedUriRecordDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -3547,12 +3595,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedUriKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
@@ -3570,12 +3620,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedUriKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
@@ -3593,12 +3645,14 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedUriKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.NotNull(dependent.Id.Value);
@@ -3622,11 +3676,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, context.Entry(dependent).Property<WrappedUriKeyClass?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal1.OptionalDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
                     Assert.Equal(id1, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal1.RequiredDependents)
                 {
                     Assert.Same(principal1, dependent.Principal);
@@ -3645,11 +3701,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, context.Entry(dependent).Property<WrappedUriKeyStruct?>("PrincipalId").CurrentValue!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.OptionalDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
                     Assert.Equal(id2, dependent.PrincipalId!.Value.Value);
                 }
+
                 foreach (var dependent in principal2.RequiredDependents)
                 {
                     Assert.Same(principal2, dependent.Principal);
@@ -3668,11 +3726,13 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, context.Entry(dependent).Property<WrappedUriKeyRecord?>("PrincipalId").CurrentValue!.Value);
                 }
+
                 foreach (var dependent in principal3.OptionalDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
                     Assert.Equal(id3, dependent.PrincipalId!.Value);
                 }
+
                 foreach (var dependent in principal3.RequiredDependents)
                 {
                     Assert.Same(principal3, dependent.Principal);
@@ -3813,9 +3873,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new UriPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new UriDependentShadow(), new UriDependentShadow() },
+                        OptionalDependents = { new UriDependentOptional(), new UriDependentOptional() },
+                        RequiredDependents = { new UriDependentRequired(), new UriDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -3932,9 +3992,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new EnumPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new EnumDependentShadow(), new EnumDependentShadow() },
+                        OptionalDependents = { new EnumDependentOptional(), new EnumDependentOptional() },
+                        RequiredDependents = { new EnumDependentRequired(), new EnumDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -4041,9 +4101,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new GuidAsStringPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new GuidAsStringDependentShadow(), new GuidAsStringDependentShadow() },
+                        OptionalDependents = { new GuidAsStringDependentOptional(), new GuidAsStringDependentOptional() },
+                        RequiredDependents = { new GuidAsStringDependentRequired(), new GuidAsStringDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();
@@ -4150,9 +4210,9 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 var principal1 = context.Add(
                     new StringAsGuidPrincipal
                     {
-                        Dependents = { new(), new() },
-                        OptionalDependents = { new(), new() },
-                        RequiredDependents = { new(), new() }
+                        Dependents = { new StringAsGuidDependentShadow(), new StringAsGuidDependentShadow() },
+                        OptionalDependents = { new StringAsGuidDependentOptional(), new StringAsGuidDependentOptional() },
+                        RequiredDependents = { new StringAsGuidDependentRequired(), new StringAsGuidDependentRequired() }
                     }).Entity;
 
                 context.SaveChanges();

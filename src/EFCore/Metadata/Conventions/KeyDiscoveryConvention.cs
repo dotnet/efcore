@@ -59,7 +59,7 @@ public class KeyDiscoveryConvention :
         var entityType = entityTypeBuilder.Metadata;
         if (entityType.BaseType != null
             || (entityType.IsKeyless && entityType.GetIsKeylessConfigurationSource() != ConfigurationSource.Convention)
-            || !entityTypeBuilder.CanSetPrimaryKey(null))
+            || !entityTypeBuilder.CanSetPrimaryKey((IReadOnlyList<IConventionProperty>?)null))
         {
             return;
         }
@@ -230,7 +230,13 @@ public class KeyDiscoveryConvention :
     public virtual void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         IConventionContext<IConventionPropertyBuilder> context)
-        => TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
+    {
+        TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
+        if (!propertyBuilder.Metadata.IsInModel)
+        {
+            context.StopProcessing();
+        }
+    }
 
     /// <inheritdoc />
     public virtual void ProcessKeyRemoved(
@@ -238,6 +244,11 @@ public class KeyDiscoveryConvention :
         IConventionKey key,
         IConventionContext<IConventionKey> context)
     {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
         if (entityTypeBuilder.Metadata.FindPrimaryKey() == null)
         {
             TryConfigurePrimaryKey(entityTypeBuilder);
@@ -283,7 +294,8 @@ public class KeyDiscoveryConvention :
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey.IsOwnership)
+        if (entityTypeBuilder.Metadata.IsInModel
+            && foreignKey.IsOwnership)
         {
             TryConfigurePrimaryKey(entityTypeBuilder);
         }

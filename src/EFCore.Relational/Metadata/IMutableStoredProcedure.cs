@@ -27,22 +27,87 @@ public interface IMutableStoredProcedure : IReadOnlyStoredProcedure, IMutableAnn
     new IMutableEntityType EntityType { get; }
 
     /// <summary>
-    ///     Returns a value indicating whether automatic creation of transactions is disabled when executing this stored procedure.
+    ///     Gets or sets a value indicating whether this stored procedure returns the number of rows affected.
     /// </summary>
-    /// <returns>The configured value.</returns>
-    new bool AreTransactionsSuppressed { get; set; }
+    new bool IsRowsAffectedReturned { get; set; }
+
+    /// <summary>
+    ///     Gets the parameters for this stored procedure.
+    /// </summary>
+    new IReadOnlyList<IMutableStoredProcedureParameter> Parameters { get; }
+
+    /// <summary>
+    ///     Returns the parameter corresponding to the given property.
+    /// </summary>
+    /// <param name="propertyName">The name of a property.</param>
+    /// <returns>The parameter corresponding to the given property if found; <see langword="null" /> otherwise.</returns>
+    new IMutableStoredProcedureParameter? FindParameter(string propertyName);
 
     /// <summary>
     ///     Adds a new parameter mapped to the property with the given name.
     /// </summary>
     /// <param name="propertyName">The name of the corresponding property.</param>
-    /// <returns><see langword="true"/> if a parameter was added.</returns>
-    bool AddParameter(string propertyName);
+    /// <returns>The added parameter.</returns>
+    IMutableStoredProcedureParameter AddParameter(string propertyName);
+
+    /// <summary>
+    ///     Returns the original value parameter corresponding to the given property.
+    /// </summary>
+    /// <param name="propertyName">The name of a property.</param>
+    /// <returns>
+    ///     The original value parameter corresponding to the given property if found; <see langword="null" /> otherwise.
+    /// </returns>
+    new IMutableStoredProcedureParameter? FindOriginalValueParameter(string propertyName);
+
+    /// <summary>
+    ///     Adds a new parameter that holds the original value of the property with the given name.
+    /// </summary>
+    /// <param name="propertyName">The name of the corresponding property.</param>
+    /// <returns>The added parameter.</returns>
+    IMutableStoredProcedureParameter AddOriginalValueParameter(string propertyName);
+
+    /// <summary>
+    ///     Returns the rows affected parameter.
+    /// </summary>
+    /// <returns>
+    ///     The rows affected parameter if found; <see langword="null" /> otherwise.
+    /// </returns>
+    new IMutableStoredProcedureParameter? FindRowsAffectedParameter();
+
+    /// <summary>
+    ///     Adds an output parameter that returns the rows affected by this stored procedure.
+    /// </summary>
+    /// <returns>The added parameter.</returns>
+    IMutableStoredProcedureParameter AddRowsAffectedParameter();
+
+    /// <summary>
+    ///     Gets the columns of the result for this stored procedure.
+    /// </summary>
+    new IReadOnlyList<IMutableStoredProcedureResultColumn> ResultColumns { get; }
+
+    /// <summary>
+    ///     Returns the result column corresponding to the given property.
+    /// </summary>
+    /// <param name="propertyName">The name of a property.</param>
+    /// <returns>The result column corresponding to the given property if found; <see langword="null" /> otherwise.</returns>
+    new IMutableStoredProcedureResultColumn? FindResultColumn(string propertyName);
 
     /// <summary>
     ///     Adds a new column of the result for this stored procedure mapped to the property with the given name
     /// </summary>
     /// <param name="propertyName">The name of the corresponding property.</param>
-    /// <returns><see langword="true"/> if a column was added.</returns>
-    bool AddResultColumn(string propertyName);
+    /// <returns>The added column.</returns>
+    IMutableStoredProcedureResultColumn AddResultColumn(string propertyName);
+
+    /// <summary>
+    ///     Returns the rows affected result column.
+    /// </summary>
+    /// <returns>The rows affected result column if found; <see langword="null" /> otherwise.</returns>
+    new IMutableStoredProcedureResultColumn? FindRowsAffectedResultColumn();
+
+    /// <summary>
+    ///     Adds a new column of the result that contains the rows affected by this stored procedure.
+    /// </summary>
+    /// <returns>The added column.</returns>
+    IMutableStoredProcedureResultColumn AddRowsAffectedResultColumn();
 }

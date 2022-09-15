@@ -90,7 +90,7 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
             .Actual);
 
     public override Task Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(
-        bool async)
+            bool async)
         // Null protection. Issue #13721.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(async));

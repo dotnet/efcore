@@ -318,8 +318,8 @@ WHERE [Id] = @p3;");
     public override async Task Modify_Modify_with_different_entity_types_and_no_generated_values(bool async)
     {
         await base.Modify_Modify_with_different_entity_types_and_no_generated_values(async);
-AssertSql(
-    @"@p2='1'
+        AssertSql(
+            @"@p2='1'
 @p0='1000'
 @p1='1000'
 @p5='2'
@@ -369,7 +369,7 @@ WHERE [Id] = @p1;");
         }
     }
 
-    public class StoreValueGenerationSequenceSqlServerFixture : StoreValueGenerationFixtureBase
+    public class StoreValueGenerationSequenceSqlServerFixture : StoreValueGenerationSqlServerFixtureBase
     {
         protected override string StoreName
             => "StoreValueGenerationSequenceTest";
@@ -396,21 +396,6 @@ WHERE [Id] = @p1;");
                     .Property(w => w.Id)
                     .HasDefaultValueSql("NEXT VALUE FOR [Ids]");
             }
-        }
-
-        public override void Reseed()
-        {
-            using var context = CreateContext();
-            Clean(context);
-            Seed(context);
-        }
-
-        protected override void Clean(DbContext context)
-        {
-            base.Clean(context);
-
-            // Reset the sequence values since we assert on them
-            context.Database.ExecuteSqlRaw("ALTER SEQUENCE [Ids] RESTART WITH 1");
         }
     }
 }

@@ -31,7 +31,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     private ConfigurationSource? _isOwnershipConfigurationSource;
     private ConfigurationSource? _dependentToPrincipalConfigurationSource;
     private ConfigurationSource? _principalToDependentConfigurationSource;
-    private object? _dependentKeyValueFactory;
+    private IDependentKeyValueFactory? _dependentKeyValueFactory;
     private Func<IDependentsMap>? _dependentsMapFactory;
 
     /// <summary>
@@ -118,7 +118,8 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsInModel
-        => _builder is not null;
+        => _builder is not null
+            && DeclaringEntityType.IsInModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -931,7 +932,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object DependentKeyValueFactory
+    public virtual IDependentKeyValueFactory DependentKeyValueFactory
     {
         get
         {
@@ -1597,6 +1598,11 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IDependentKeyValueFactory<TKey>? IForeignKey.GetDependentKeyValueFactory<TKey>()
-        => (IDependentKeyValueFactory<TKey>?)DependentKeyValueFactory;
+    IDependentKeyValueFactory<TKey> IForeignKey.GetDependentKeyValueFactory<TKey>()
+        => (IDependentKeyValueFactory<TKey>)DependentKeyValueFactory;
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IDependentKeyValueFactory IForeignKey.GetDependentKeyValueFactory()
+        => DependentKeyValueFactory;
 }

@@ -36,7 +36,7 @@ public enum SqlServerValueGenerationStrategy
     IdentityColumn,
 
     /// <summary>
-    ///     A pattern that uses a database sequence to generate values for the key.
+    ///     A pattern that uses a database sequence to generate values for the column.
     /// </summary>
     Sequence
 }

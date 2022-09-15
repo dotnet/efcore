@@ -45,7 +45,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore\EFCore.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Proxies\EFCore.Proxies.csproj" />
-    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
   </ItemGroup>
 
   <ItemGroup>

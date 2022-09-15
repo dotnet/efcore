@@ -113,9 +113,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         => collateExpression.Update(ApplyTypeMapping(collateExpression.Operand, typeMapping));
 
     private SqlExpression ApplyTypeMappingOnDistinct(
-       DistinctExpression distinctExpression,
-       RelationalTypeMapping? typeMapping)
-       => distinctExpression.Update(ApplyTypeMapping(distinctExpression.Operand, typeMapping));
+        DistinctExpression distinctExpression,
+        RelationalTypeMapping? typeMapping)
+        => distinctExpression.Update(ApplyTypeMapping(distinctExpression.Operand, typeMapping));
 
     private SqlExpression ApplyTypeMappingOnSqlUnary(
         SqlUnaryExpression sqlUnaryExpression,
@@ -641,7 +641,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return;
         }
 
-        var table = ((ITableBasedExpression)selectExpression.Tables[0]).Table;
+        var firstTable = selectExpression.Tables[0];
+        var table = (firstTable as FromSqlExpression)?.Table ?? ((ITableBasedExpression)firstTable).Table;
         if (table.IsOptional(entityType))
         {
             var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);

@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-
 #nullable enable
+
+using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -78,7 +78,7 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
         bool runtime)
     {
         base.ProcessPropertyOverridesAnnotations(annotations, propertyOverrides, runtimePropertyOverrides, runtime);
-        
+
         if (!runtime)
         {
             annotations.Remove(SqlServerAnnotationNames.IdentityIncrement);
@@ -106,7 +106,7 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
 
     /// <inheritdoc />
     protected override void ProcessKeyAnnotations(
-        IDictionary<string, object?> annotations,
+        Dictionary<string, object?> annotations,
         IKey key,
         RuntimeKey runtimeKey,
         bool runtime)
@@ -121,7 +121,7 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
 
     /// <inheritdoc />
     protected override void ProcessEntityTypeAnnotations(
-        IDictionary<string, object?> annotations,
+        Dictionary<string, object?> annotations,
         IEntityType entityType,
         RuntimeEntityType runtimeEntityType,
         bool runtime)

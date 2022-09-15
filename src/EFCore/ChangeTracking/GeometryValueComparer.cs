@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
@@ -9,7 +11,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-value-comparers">EF Core value comparers</see> for more information and examples.
 /// </remarks>
-public class GeometryValueComparer<TGeometry> : ValueComparer<TGeometry>
+public class GeometryValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] TGeometry>
+    : ValueComparer<TGeometry>
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="GeometryValueComparer{TGeometry}" /> class.

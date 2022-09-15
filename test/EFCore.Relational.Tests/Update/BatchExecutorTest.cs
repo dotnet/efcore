@@ -78,7 +78,7 @@ public class BatchExecutorTest
                 .BuildServiceProvider(validateScopes: true);
 
         public TestContext()
-            : base(RelationalTestHelpers.Instance.CreateOptions(_serviceProvider))
+            : base(FakeRelationalTestHelpers.Instance.CreateOptions(_serviceProvider))
         {
         }
 

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///     </para>
 /// </remarks>
 /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
-public class LocalView<TEntity> :
+public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity> :
     ICollection<TEntity>,
     INotifyCollectionChanged,
     INotifyPropertyChanged,
@@ -273,7 +274,9 @@ public class LocalView<TEntity> :
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
 
-        return entry != null && entry.EntityState != EntityState.Deleted;
+        return entry != null
+            && entry.EntityState != EntityState.Deleted
+            && entry.EntityState != EntityState.Detached;
     }
 
     /// <summary>
@@ -471,6 +474,8 @@ public class LocalView<TEntity> :
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
+    [RequiresUnreferencedCode(
+        "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
 

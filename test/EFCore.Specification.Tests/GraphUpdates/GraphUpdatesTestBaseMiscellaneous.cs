@@ -11,6 +11,48 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract partial class GraphUpdatesTestBase<TFixture>
     where TFixture : GraphUpdatesTestBase<TFixture>.GraphUpdatesFixtureBase, new()
 {
+    [ConditionalTheory] // Issue #27299
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var newSomething = new Something { CategoryId = 2, Name = "S" };
+
+                if (async)
+                {
+                    await context.AddAsync(newSomething);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(newSomething);
+                    context.SaveChanges();
+                }
+
+                var somethingOfCategoryB = new SomethingOfCategoryB { SomethingId = newSomething.Id, Name = "B" };
+
+                if (async)
+                {
+                    await context.AddAsync(somethingOfCategoryB);
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(somethingOfCategoryB);
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var queryable = context.Set<Something>().Include(e => e.SomethingOfCategoryB);
+                var something = async ? (await queryable.SingleAsync()) : queryable.Single();
+
+                Assert.Equal("S", something.Name);
+                Assert.Equal("B", something.SomethingOfCategoryB.Name);
+            });
+
     [ConditionalTheory] // Issue #23974
     [InlineData(false)]
     [InlineData(true)]

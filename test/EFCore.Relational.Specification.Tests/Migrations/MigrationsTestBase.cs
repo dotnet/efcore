@@ -62,7 +62,12 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             builder => builder.Entity(
                 "People", e =>
                 {
-                    e.ToTable("People", "dbo2");
+                    e.ToTable(
+                        "People", "dbo2", tb =>
+                        {
+                            tb.HasCheckConstraint("CK_People_EmployerId", $"{DelimitIdentifier("EmployerId")} > 0");
+                            tb.HasComment("Table comment");
+                        });
 
                     e.Property<int>("CustomId");
                     e.Property<int>("EmployerId")
@@ -74,10 +79,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
                     e.HasKey("CustomId");
                     e.HasAlternateKey("SSN");
-                        e.HasCheckConstraint("CK_People_EmployerId", $"{DelimitIdentifier("EmployerId")} > 0");
                     e.HasOne("Employers").WithMany("People").HasForeignKey("EmployerId");
-
-                    e.HasComment("Table comment");
                 }),
             model =>
             {
@@ -158,7 +160,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     e.Property<int>("Id");
                     e.Property<string>("Name").HasComment("Column comment");
-                    e.HasComment("Table comment");
+                    e.ToTable(tb => tb.HasComment("Table comment"));
                 }),
             model =>
             {
@@ -184,7 +186,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     e.Property<int>("Id");
                     e.Property<string>("Name").HasComment(columnComment);
-                    e.HasComment(tableComment);
+                    e.ToTable(tb => tb.HasComment(tableComment));
                 }),
             model =>
             {
@@ -235,7 +237,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
         => Test(
             builder => builder.Entity("People").Property<int>("Id"),
             builder => { },
-            builder => builder.Entity("People").HasComment("Table comment"),
+            builder => builder.Entity("People").ToTable(tb => tb.HasComment("Table comment")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -253,8 +255,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 .Property<int>("Id"),
             builder => { },
             builder => builder.Entity("People")
-                .ToTable("People", "SomeOtherSchema")
-                .HasComment("Table comment"),
+                .ToTable("People", "SomeOtherSchema", tb => tb.HasComment("Table comment")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -268,8 +269,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual Task Alter_table_change_comment()
         => Test(
             builder => builder.Entity("People").Property<int>("Id"),
-            builder => builder.Entity("People").HasComment("Table comment1"),
-            builder => builder.Entity("People").HasComment("Table comment2"),
+            builder => builder.Entity("People").ToTable(tb => tb.HasComment("Table comment1")),
+            builder => builder.Entity("People").ToTable(tb => tb.HasComment("Table comment2")),
             model =>
             {
                 var table = Assert.Single(model.Tables);
@@ -283,7 +284,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
     public virtual Task Alter_table_remove_comment()
         => Test(
             builder => builder.Entity("People").Property<int>("Id"),
-            builder => builder.Entity("People").HasComment("Table comment1"),
+            builder => builder.Entity("People").ToTable(tb => tb.HasComment("Table comment1")),
             builder => { },
             model => Assert.Null(Assert.Single(model.Tables).Comment));
 
@@ -652,7 +653,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 "People", e =>
                 {
                     e.Property<int>("DriverLicense");
-                        e.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0");
+                    e.ToTable(tb => tb.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"));
                 }),
             model =>
             {
@@ -680,6 +681,25 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     e.Property<int>("Id");
                     e.Property<string>("SomeColumn");
+                }),
+            builder => { },
+            builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name != "Id");
+                Assert.False(column.IsNullable);
+            });
+
+    [ConditionalFact]
+    public virtual Task Alter_column_make_required_with_null_data()
+        => Test(
+            builder => builder.Entity(
+                "People", e =>
+                {
+                    e.Property<int>("Id");
+                    e.Property<string>("SomeColumn");
+                    e.HasData(new Dictionary<string, object> { { "Id", 1 }, { "SomeColumn", null } });
                 }),
             builder => { },
             builder => builder.Entity("People").Property<string>("SomeColumn").IsRequired(),
@@ -1498,7 +1518,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("DriverLicense");
                 }),
             builder => { },
-                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+            builder => builder.Entity("People")
+                .ToTable(tb => tb.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0")),
             model =>
             {
                 // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
@@ -1513,8 +1534,10 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("Id");
                     e.Property<int>("DriverLicense");
                 }),
-                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
-                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 1"),
+            builder => builder.Entity("People")
+                .ToTable(tb => tb.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0")),
+            builder => builder.Entity("People")
+                .ToTable(tb => tb.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 1")),
             model =>
             {
                 // TODO: no scaffolding support for check constraints, https://github.com/aspnet/EntityFrameworkCore/issues/15408
@@ -1529,7 +1552,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     e.Property<int>("Id");
                     e.Property<int>("DriverLicense");
                 }),
-                builder => builder.Entity("People").HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0"),
+            builder => builder.Entity("People")
+                .ToTable(tb => tb.HasCheckConstraint("CK_People_Foo", $"{DelimitIdentifier("DriverLicense")} > 0")),
             builder => { },
             model =>
             {
@@ -2008,7 +2032,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
 
     public abstract class MigrationsFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        public abstract TestHelpers TestHelpers { get; }
+        public abstract RelationalTestHelpers TestHelpers { get; }
 
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

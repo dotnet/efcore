@@ -44,6 +44,12 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
                 derivedType, entityType);
 
         /// <summary>
+        ///     A 'GroupBy' operation which is not composed into aggregate or projection of elements is not supported.
+        /// </summary>
+        public static string NonComposedGroupByNotSupported
+            => GetString("NonComposedGroupByNotSupported");
+
+        /// <summary>
         ///     There is no query string because the in-memory provider does not use a string-based query language.
         /// </summary>
         public static string NoQueryStrings

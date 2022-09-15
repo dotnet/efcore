@@ -300,7 +300,7 @@ public abstract class InheritanceQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<Animal>().OfType<Kiwi>().Select(k => k.FoundOn));
 
     [ConditionalFact]
-    public virtual void  Can_insert_update_delete()
+    public virtual void Can_insert_update_delete()
     {
         int? eagleId = null;
         TestHelpers.ExecuteWithStrategyInTransaction(

@@ -1990,5 +1990,4 @@ ORDER BY [c].[CustomerID], [t].[OrderDate] DESC");
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
 }

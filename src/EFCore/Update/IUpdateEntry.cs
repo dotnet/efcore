@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public interface IUpdateEntry
 {
     /// <summary>
-    ///     The current <see cref="DbContext"/> being used.
+    ///     The current <see cref="DbContext" /> being used.
     /// </summary>
     DbContext Context { get; }
 
@@ -108,7 +108,8 @@ public interface IUpdateEntry
     /// </summary>
     /// <param name="property">The property to set the value for.</param>
     /// <param name="value">The value to set.</param>
-    void SetStoreGeneratedValue(IProperty property, object? value);
+    /// <param name="setModified">Whether to set the store-generated property's state to Modified.</param>
+    void SetStoreGeneratedValue(IProperty property, object? value, bool setModified = true);
 
     /// <summary>
     ///     Gets an <see cref="EntityEntry" /> for the entity being saved. <see cref="EntityEntry" /> is an API optimized for

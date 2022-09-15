@@ -94,7 +94,7 @@ public class SqlServerModificationCommandBatchFactoryTest
     {
         var modificationCommand = new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(
-            name, schema, sensitiveLoggingEnabled));
+                name, schema, sensitiveLoggingEnabled));
 
         return modificationCommand;
     }

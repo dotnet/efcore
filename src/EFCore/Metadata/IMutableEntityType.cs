@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
@@ -677,7 +678,10 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     ///     </para>
     /// </param>
     /// <returns>The newly created property.</returns>
-    IMutableProperty AddProperty(string name, Type propertyType, MemberInfo? memberInfo);
+    IMutableProperty AddProperty(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo? memberInfo);
 
     /// <summary>
     ///     Gets a property on the given entity type. Returns <see langword="null" /> if no property is found.
@@ -740,6 +744,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// </summary>
     /// <param name="memberInfo">The corresponding member on the entity class.</param>
     /// <returns>The newly created property.</returns>
+    [RequiresUnreferencedCode("Currently used only in tests")]
     IMutableProperty AddProperty(MemberInfo memberInfo)
         => AddProperty(memberInfo.GetSimpleMemberName(), memberInfo.GetMemberType(), memberInfo);
 
@@ -756,7 +761,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="name">The name of the property to add.</param>
     /// <param name="propertyType">The type of value the property will hold.</param>
     /// <returns>The newly created property.</returns>
-    IMutableProperty AddProperty(string name, Type propertyType);
+    IMutableProperty AddProperty(string name, [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType);
 
     /// <summary>
     ///     Adds a property backed up by an indexer to this entity type.
@@ -766,7 +771,7 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <returns>The newly created property.</returns>
     IMutableProperty AddIndexerProperty(
         string name,
-        Type propertyType)
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType)
     {
         var indexerPropertyInfo = FindIndexerPropertyInfo();
         if (indexerPropertyInfo == null)
@@ -891,4 +896,33 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     /// <param name="property">The property to remove.</param>
     /// <returns>The removed property, or <see langword="null" /> if the property was not found.</returns>
     IMutableServiceProperty? RemoveServiceProperty(IReadOnlyServiceProperty property);
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    new IMutableTrigger? FindDeclaredTrigger(string name);
+
+    /// <summary>
+    ///     Returns the declared triggers on the entity type.
+    /// </summary>
+    new IEnumerable<IMutableTrigger> GetDeclaredTriggers();
+
+    /// <summary>
+    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
+    ///     entity type.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger.</returns>
+    IMutableTrigger AddTrigger(string name);
+
+    /// <summary>
+    ///     Removes the trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>
+    ///     The removed trigger or <see langword="null" /> if no trigger with the given name was found.
+    /// </returns>
+    IMutableTrigger? RemoveTrigger(string name);
 }

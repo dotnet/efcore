@@ -49,7 +49,11 @@ public class CoreEventIdTest : EventIdTestBase
             { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
             { typeof(IReadOnlyList<IPropertyBase>), () => new[] { property } },
             { typeof(IReadOnlyList<IUpdateEntry>), () => Array.Empty<IUpdateEntry>() },
-            { typeof(Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>, ConcurrencyExceptionEventData>), () => null },
+            {
+                typeof(Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
+                    ConcurrencyExceptionEventData>),
+                () => null
+            },
             { typeof(IReadOnlyList<IReadOnlyPropertyBase>), () => new[] { property } },
             { typeof(IEnumerable<Tuple<MemberInfo, Type>>), () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) } },
             { typeof(MemberInfo), () => propertyInfo },

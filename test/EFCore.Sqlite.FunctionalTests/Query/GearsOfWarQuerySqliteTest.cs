@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -559,6 +560,36 @@ FROM ""Missions"" AS ""m""
 WHERE date(""m"".""Date"", CAST(3 AS TEXT) || ' years') = '1993-11-10'");
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_DateOnly_AddYears_Year(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).Year == 1993).AsTracking(),
+            entryCount: 1);
+
+        AssertSql(
+            @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Date"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Time"", ""m"".""Timeline""
+FROM ""Missions"" AS ""m""
+WHERE CAST(strftime('%Y', ""m"".""Date"", CAST(3 AS TEXT) || ' years') AS INTEGER) = 1993");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_DateOnly_AddYears_AddMonths(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Mission>().Where(m => m.Date.AddYears(3).AddMonths(3) == new DateOnly(1994, 2, 10)).AsTracking(),
+            entryCount: 1);
+
+        AssertSql(
+            @"SELECT ""m"".""Id"", ""m"".""CodeName"", ""m"".""Date"", ""m"".""Duration"", ""m"".""Rating"", ""m"".""Time"", ""m"".""Timeline""
+FROM ""Missions"" AS ""m""
+WHERE date(""m"".""Date"", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months') = '1994-02-10'");
+    }
+
     public override async Task Where_DateOnly_AddMonths(bool async)
     {
         await base.Where_DateOnly_AddMonths(async);
@@ -646,7 +677,7 @@ WHERE date(""m"".""Date"", CAST(3 AS TEXT) || ' days') = '1990-11-13'");
     public override async Task Where_TimeOnly_subtract_TimeOnly(bool async)
     {
         // TimeSpan. Issue #18844.
-        await Assert.ThrowsAsync<InvalidCastException>(() => base.Where_TimeOnly_subtract_TimeOnly(async));
+        await AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
         AssertSql();
     }
@@ -7692,7 +7723,9 @@ LIMIT 1");
         Assert.Equal(
             SqliteStrings.ApplyNotSupported,
             (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(async))).Message);
+                () => base
+                    .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
+                        async))).Message);
 
         AssertSql();
     }
@@ -7971,7 +8004,14 @@ LEFT JOIN (
     {
         await base.Join_with_complex_key_selector(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT ""s"".""Id"", ""t0"".""Id"" AS ""TagId""
+FROM ""Squads"" AS ""s""
+CROSS JOIN (
+    SELECT ""t"".""Id""
+    FROM ""Tags"" AS ""t""
+    WHERE ""t"".""Note"" = 'Marcus'' Tag'
+) AS ""t0""");
     }
 
     public override async Task Streaming_correlated_collection_issue_11403_returning_ordered_enumerable_throws(bool async)

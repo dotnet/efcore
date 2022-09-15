@@ -887,13 +887,18 @@ public abstract partial class ModelBuilderTest
                     lb.WithOwner()
                         .HasForeignKey("BookLabelId")
                         .HasAnnotation("Foo", "Bar");
+                    lb.Ignore(l => l.Book);
                 });
-            modelBuilder.Entity<Book>()
-                .OwnsOne(b => b.AlternateLabel)
-                .WithOwner()
-                .HasForeignKey("BookLabelId");
+            modelBuilder.Entity<Book>().OwnsOne(
+                b => b.AlternateLabel, lb =>
+                {
+                    lb.WithOwner()
+                        .HasForeignKey("BookLabelId");
 
-            IReadOnlyModel model = modelBuilder.Model;
+                    lb.Ignore(l => l.Book);
+                });
+
+            var model = modelBuilder.FinalizeModel();
 
             var bookOwnership1 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.Label)).ForeignKey;
             var bookOwnership2 = model.FindEntityType(typeof(Book)).FindNavigation(nameof(Book.AlternateLabel)).ForeignKey;
@@ -904,11 +909,6 @@ public abstract partial class ModelBuilderTest
 
             Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
             Assert.Equal(3, model.GetEntityTypes().Count());
-
-            modelBuilder.Entity<Book>().OwnsOne(b => b.Label).Ignore(l => l.Book);
-            modelBuilder.Entity<Book>().OwnsOne(b => b.AlternateLabel).Ignore(l => l.Book);
-
-            modelBuilder.FinalizeModel();
         }
 
         [ConditionalFact]
@@ -918,17 +918,21 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Ignore<BookLabel>();
             modelBuilder.Ignore<Product>();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<Order>();
             modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
-            modelBuilder.Entity<BookDetails>();
-            modelBuilder.Entity<BookDetailsBase>();
+            modelBuilder.Entity<DetailsBase>();
             modelBuilder.Ignore<SpecialBookLabel>();
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.NotNull(model.FindEntityType(typeof(BookDetailsBase)));
+            Assert.Null(model.FindEntityType(typeof(BookDetails)));
+            Assert.Null(model.FindEntityType(typeof(BookDetailsBase)));
+            var baseType = model.FindEntityType(typeof(DetailsBase));
             var owner = model.FindEntityType(typeof(Customer));
             var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
             Assert.Null(owned.BaseType);
+            Assert.Null(owned.GetDiscriminatorPropertyName());
             Assert.NotNull(model.FindEntityType(typeof(CustomerDetails)));
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
             Assert.Single(owned.GetForeignKeys());
@@ -941,17 +945,21 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Ignore<BookLabel>();
             modelBuilder.Ignore<Product>();
-            modelBuilder.Entity<BookDetails>();
-            modelBuilder.Entity<BookDetailsBase>();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<Order>();
+            modelBuilder.Entity<DetailsBase>();
             modelBuilder.Entity<Customer>().OwnsOne(c => c.Details);
             modelBuilder.Ignore<SpecialBookLabel>();
 
             var model = modelBuilder.FinalizeModel();
 
-            Assert.NotNull(model.FindEntityType(typeof(BookDetailsBase)));
+            Assert.Null(model.FindEntityType(typeof(BookDetails)));
+            Assert.Null(model.FindEntityType(typeof(BookDetailsBase)));
+            var baseType = model.FindEntityType(typeof(DetailsBase));
             var owner = model.FindEntityType(typeof(Customer));
             var owned = owner.FindNavigation(nameof(Customer.Details)).ForeignKey.DeclaringEntityType;
             Assert.Null(owned.BaseType);
+            Assert.Null(owned.GetDiscriminatorPropertyName());
             Assert.NotNull(model.FindEntityType(typeof(CustomerDetails)));
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(CustomerDetails)));
             Assert.Single(owned.GetForeignKeys());
@@ -964,6 +972,8 @@ public abstract partial class ModelBuilderTest
 
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Product>();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<Order>();
             modelBuilder.Ignore<SpecialOrder>();
             modelBuilder.Entity<OrderCombination>().OwnsOne(c => c.Details);
             modelBuilder.Entity<Customer>();
@@ -973,16 +983,19 @@ public abstract partial class ModelBuilderTest
             var owner = model.FindEntityType(typeof(OrderCombination));
             var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
             Assert.Empty(owned.GetDirectlyDerivedTypes());
-            Assert.NotEmpty(
-                model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
-                    n =>
-                    {
-                        var targetType = n.TargetEntityType.ClrType;
-                        return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
-                    }));
+            Assert.Null(owned.GetDiscriminatorPropertyName());
+            var navToCustomerDetails = model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
+                n =>
+                {
+                    var targetType = n.TargetEntityType.ClrType;
+                    return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
+                }).Single();
             Assert.Single(owned.GetForeignKeys());
             Assert.Equal(1, model.GetEntityTypes().Count(e => e.ClrType == typeof(DetailsBase)));
-            Assert.Null(model.FindEntityType(typeof(CustomerDetails)).BaseType);
+            var derivedType = model.FindEntityType(typeof(CustomerDetails));
+            Assert.Same(derivedType, navToCustomerDetails.TargetEntityType);
+            Assert.Null(derivedType.BaseType);
+            Assert.Null(derivedType.GetDiscriminatorPropertyName());
 
             modelBuilder.Entity<Customer>().Ignore(c => c.Details);
             modelBuilder.Entity<Order>().Ignore(c => c.Details);
@@ -996,31 +1009,73 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Ignore<Product>();
+            modelBuilder.Ignore<OrderDetails>();
+            modelBuilder.Ignore<Order>();
             modelBuilder.Ignore<SpecialOrder>();
+            modelBuilder.Entity<Customer>();
             modelBuilder.Entity<OrderCombination>().OwnsOne(c => c.Details);
 
             IReadOnlyModel model = modelBuilder.Model;
 
-            modelBuilder.Entity<CustomerDetails>();
-
             var owner = model.FindEntityType(typeof(OrderCombination));
             var owned = owner.FindNavigation(nameof(OrderCombination.Details)).ForeignKey.DeclaringEntityType;
             Assert.Empty(owned.GetDirectlyDerivedTypes());
-            Assert.NotEmpty(
-                model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
-                    n =>
-                    {
-                        var targetType = n.TargetEntityType.ClrType;
-                        return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
-                    }));
+            Assert.Null(owned.GetDiscriminatorPropertyName());
+            var navToCustomerDetails = model.GetEntityTypes().SelectMany(e => e.GetDeclaredNavigations()).Where(
+                n =>
+                {
+                    var targetType = n.TargetEntityType.ClrType;
+                    return targetType != typeof(DetailsBase) && typeof(DetailsBase).IsAssignableFrom(targetType);
+                }).Single();
             Assert.Single(owned.GetForeignKeys());
             Assert.Single(model.FindEntityTypes(typeof(DetailsBase)));
-            Assert.Null(model.FindEntityType(typeof(CustomerDetails)).BaseType);
+            var derivedType = model.FindEntityType(typeof(CustomerDetails));
+            Assert.Null(derivedType.BaseType);
+            Assert.Null(derivedType.GetDiscriminatorPropertyName());
 
             modelBuilder.Entity<Customer>().Ignore(c => c.Details);
             modelBuilder.Entity<Order>().Ignore(c => c.Details);
 
             modelBuilder.FinalizeModel();
+        }
+
+        [ConditionalFact]
+        public virtual void Can_configure_relationship_with_PK_ValueConverter()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<QueryResult>().Property(x => x.Id)
+                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+
+            modelBuilder.Entity<ValueCategory>()
+                .Property(x => x.Id)
+                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+
+            modelBuilder.Entity<QueryResult>()
+                .OwnsOne(q => q.Value)
+                .Property(x => x.CategoryId)
+                .HasConversion(x => x.Id, x => new CustomId { Id = x });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var result = model.FindEntityType(typeof(QueryResult));
+            Assert.Null(result.FindProperty("TempId"));
+
+            var owned = result.GetDeclaredNavigations().Single().TargetEntityType;
+            Assert.Null(owned.FindProperty("TempId"));
+
+            var ownedPkProperty = owned.FindPrimaryKey().Properties.Single();
+            Assert.NotNull(ownedPkProperty.GetValueConverter());
+
+            var category = model.FindEntityType(typeof(ValueCategory));
+            Assert.Null(category.FindProperty("TempId"));
+
+            var barNavigation = owned.GetDeclaredNavigations().Single(n => !n.ForeignKey.IsOwnership);
+            Assert.Same(category, barNavigation.TargetEntityType);
+            var fkProperty = barNavigation.ForeignKey.Properties.Single();
+            Assert.Equal("CategoryId", fkProperty.Name);
+
+            Assert.Equal(3, model.GetEntityTypes().Count());
         }
 
         [ConditionalFact]

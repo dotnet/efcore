@@ -14,10 +14,8 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase, ITableBasedExpression
+public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase
 {
-    private readonly ITableBase _table;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
     /// </summary>
@@ -39,15 +37,26 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     //{
     //}
 
+    /// <summary>
+    ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.
+    /// </summary>
+    /// <param name="alias">An alias to use for this table source.</param>
+    /// <param name="sql">A user-provided custom SQL for the table source.</param>
+    /// <param name="arguments">A user-provided parameters to pass to the custom SQL.</param>
+    public FromSqlExpression(string alias, string sql, Expression arguments)
+        : this(alias, null, sql, arguments, annotations: null)
+    {
+    }
+
     private FromSqlExpression(
         string alias,
-        ITableBase tableBase,
+        ITableBase? tableBase,
         string sql,
         Expression arguments,
         IEnumerable<IAnnotation>? annotations)
         : base(alias, annotations)
     {
-        _table = tableBase;
+        Table = tableBase;
         Sql = sql;
         Arguments = arguments;
     }
@@ -73,6 +82,11 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     public virtual Expression Arguments { get; }
 
     /// <summary>
+    ///     The <see cref="ITableBase" /> associated with given table source if any, <see langword="null" /> otherwise.
+    /// </summary>
+    public virtual ITableBase? Table { get; }
+
+    /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>
@@ -80,11 +94,12 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual FromSqlExpression Update(Expression arguments)
         => arguments != Arguments
-            ? new FromSqlExpression(Alias, _table, Sql, arguments, GetAnnotations())
+            ? new FromSqlExpression(Alias, Table, Sql, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table => _table;
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new FromSqlExpression(Alias, Table, Sql, Arguments, annotations);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -92,7 +107,7 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     /// <inheritdoc />
     public virtual TableExpressionBase Clone()
-        => new FromSqlExpression(Alias, _table, Sql, Arguments, GetAnnotations());
+        => new FromSqlExpression(Alias, Table, Sql, Arguments, GetAnnotations());
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
@@ -110,11 +125,11 @@ public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBa
 
     private bool Equals(FromSqlExpression fromSqlExpression)
         => base.Equals(fromSqlExpression)
-            && _table == fromSqlExpression._table
+            && Table == fromSqlExpression.Table
             && Sql == fromSqlExpression.Sql
             && ExpressionEqualityComparer.Instance.Equals(Arguments, fromSqlExpression.Arguments);
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Sql);
+        => HashCode.Combine(base.GetHashCode(), Table, Sql, Arguments);
 }

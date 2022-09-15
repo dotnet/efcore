@@ -47,7 +47,7 @@ public abstract class ModificationCommandBatch
     ///     Indicates whether more batches are expected after this one.
     /// </summary>
     public abstract bool AreMoreBatchesExpected { get; }
-    
+
     /// <summary>
     ///     Sends insert/update/delete commands to the database.
     /// </summary>

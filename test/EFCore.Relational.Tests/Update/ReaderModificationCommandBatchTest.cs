@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public class ReaderModificationCommandBatchTest
 {
     [ConditionalFact]
-    public void AddCommand_adds_command_if_batch_is_valid()
+    public void TryAddCommand_adds_command_if_batch_is_valid()
     {
         var parameterNameGenerator = new ParameterNameGenerator();
 
@@ -59,11 +59,13 @@ public class ReaderModificationCommandBatchTest
         Assert.True(batch.TryAddCommand(command2));
         batch.Complete(moreBatchesExpected: false);
 
-        Assert.Collection(batch.ModificationCommands,
+        Assert.Collection(
+            batch.ModificationCommands,
             m => Assert.Same(command1, m),
             m => Assert.Same(command2, m));
 
-        Assert.Equal(@"UPDATE ""T1"" SET ""Col2"" = @p0
+        Assert.Equal(
+            @"UPDATE ""T1"" SET ""Col2"" = @p0
 RETURNING 1;
 UPDATE ""T2"" SET ""Col2"" = @p1
 RETURNING 1;
@@ -73,7 +75,7 @@ RETURNING 1;
     }
 
     [ConditionalFact]
-    public void AddCommand_does_not_add_command_batch_is_invalid()
+    public void TryAddCommand_does_not_add_command_batch_is_invalid()
     {
         var parameterNameGenerator = new ParameterNameGenerator();
 
@@ -120,7 +122,8 @@ RETURNING 1;
 
         Assert.Same(command1, Assert.Single(batch.ModificationCommands));
 
-        Assert.Equal(@"UPDATE ""T1"" SET ""Col2"" = @p0
+        Assert.Equal(
+            @"UPDATE ""T1"" SET ""Col2"" = @p0
 RETURNING 1;
 ",
             batch.CommandText,
@@ -131,7 +134,42 @@ RETURNING 1;
     }
 
     [ConditionalFact]
-    public void UpdateCommandText_compiles_inserts()
+    public void Parameters_are_properly_managed_when_command_adding_fails()
+    {
+        var entry1 = CreateEntry(EntityState.Added);
+        var command1 = CreateModificationCommand(entry1, new ParameterNameGenerator().GenerateNext, true, null);
+        command1.AddEntry(entry1, true);
+
+        var entry2 = CreateEntry(EntityState.Added);
+        var command2 = CreateModificationCommand(entry2, new ParameterNameGenerator().GenerateNext, true, null);
+        command2.AddEntry(entry2, true);
+
+        var batch1 = new ModificationCommandBatchFake(maxBatchSize: 1);
+        Assert.True(batch1.TryAddCommand(command1));
+        Assert.False(batch1.TryAddCommand(command2));
+        batch1.Complete(moreBatchesExpected: false);
+
+        var batch2 = new ModificationCommandBatchFake(maxBatchSize: 1);
+        Assert.True(batch2.TryAddCommand(command1));
+        batch2.Complete(moreBatchesExpected: false);
+
+        Assert.Equal(2, batch1.StoreCommand.RelationalCommand.Parameters.Count);
+        Assert.Equal("p0", batch1.StoreCommand.RelationalCommand.Parameters[0].InvariantName);
+        Assert.Equal("p1", batch1.StoreCommand.RelationalCommand.Parameters[1].InvariantName);
+
+        Assert.Equal(2, batch2.StoreCommand.RelationalCommand.Parameters.Count);
+        Assert.Equal("p0", batch2.StoreCommand.RelationalCommand.Parameters[0].InvariantName);
+        Assert.Equal("p1", batch2.StoreCommand.RelationalCommand.Parameters[1].InvariantName);
+
+        Assert.Equal(1, batch1.FakeSqlGenerator.AppendBatchHeaderCalls);
+        Assert.Equal(1, batch1.FakeSqlGenerator.AppendInsertOperationCalls);
+
+        Assert.Equal(1, batch2.FakeSqlGenerator.AppendBatchHeaderCalls);
+        Assert.Equal(1, batch2.FakeSqlGenerator.AppendInsertOperationCalls);
+    }
+
+    [ConditionalFact]
+    public void TryAddCommand_with_insert()
     {
         var entry = CreateEntry(EntityState.Added);
 
@@ -147,7 +185,7 @@ RETURNING 1;
     }
 
     [ConditionalFact]
-    public void UpdateCommandText_compiles_updates()
+    public void TryAddCommand_with_update()
     {
         var entry = CreateEntry(EntityState.Modified, generateKeyValues: true);
 
@@ -163,7 +201,7 @@ RETURNING 1;
     }
 
     [ConditionalFact]
-    public void UpdateCommandText_compiles_deletes()
+    public void TryAddCommand_with_delete()
     {
         var entry = CreateEntry(EntityState.Deleted);
 
@@ -179,7 +217,7 @@ RETURNING 1;
     }
 
     [ConditionalFact]
-    public void UpdateCommandText_compiles_multiple_commands()
+    public void TryAddCommand_twice()
     {
         var entry = CreateEntry(EntityState.Added);
 
@@ -628,7 +666,7 @@ RETURNING 1;
 
     private static IModel BuildModel(bool generateKeyValues, bool computeNonKeyValue)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var entityType = modelBuilder.Entity<T1>();
 
         entityType.Property(t => t.Id).HasColumnName("Col1");
@@ -654,12 +692,8 @@ RETURNING 1;
     {
         var model = BuildModel(generateKeyValues, computeNonKeyValue);
 
-        return RelationalTestHelpers.Instance.CreateInternalEntry(
-            model, entityState, new T1
-            {
-                Id = overrideKeyValues ? 1 : default,
-                Name = computeNonKeyValue ? null : "Test"
-            });
+        return FakeRelationalTestHelpers.Instance.CreateInternalEntry(
+            model, entityState, new T1 { Id = overrideKeyValues ? 1 : default, Name = computeNonKeyValue ? null : "Test" });
     }
 
     private static FakeDbDataReader CreateFakeDataReader(string[] columnNames = null, IList<object[]> results = null)
@@ -674,8 +708,8 @@ RETURNING 1;
     {
         private readonly FakeSqlGenerator _fakeSqlGenerator;
 
-        public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null)
-            : base(CreateDependencies(sqlGenerator))
+        public ModificationCommandBatchFake(IUpdateSqlGenerator sqlGenerator = null, int? maxBatchSize = null)
+            : base(CreateDependencies(sqlGenerator), maxBatchSize)
         {
             ShouldBeValid = true;
 
@@ -692,7 +726,7 @@ RETURNING 1;
             var logger = new FakeRelationalCommandDiagnosticsLogger();
 
             sqlGenerator ??= new FakeSqlGenerator(
-                RelationalTestHelpers.Instance.CreateContextServices()
+                FakeRelationalTestHelpers.Instance.CreateContextServices()
                     .GetRequiredService<UpdateSqlGeneratorDependencies>());
 
             return new ModificationCommandBatchFactoryDependencies(
@@ -707,7 +741,6 @@ RETURNING 1;
                 logger,
                 new FakeDiagnosticsLogger<DbLoggerCategory.Update>());
         }
-
 
         public string CommandText
             => SqlBuilder.ToString();

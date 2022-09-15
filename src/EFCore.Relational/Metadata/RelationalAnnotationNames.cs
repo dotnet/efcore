@@ -86,16 +86,11 @@ public static class RelationalAnnotationNames
     ///     The name for mapped insert stored procedure annotations.
     /// </summary>
     public const string InsertStoredProcedure = Prefix + "InsertStoredProcedure";
-    
+
     /// <summary>
     ///     The name for mapped update stored procedure annotations.
     /// </summary>
     public const string UpdateStoredProcedure = Prefix + "UpdateStoredProcedure";
-
-    /// <summary>
-    ///     The name for mapped function name annotations.
-    /// </summary>
-    public const string ParameterDirection = Prefix + "ParameterDirection";
 
     /// <summary>
     ///     The name for mapped sql query annotations.
@@ -148,11 +143,6 @@ public static class RelationalAnnotationNames
     ///     The name for functions annotation.
     /// </summary>
     public const string DbFunctions = Prefix + "DbFunctions";
-
-    /// <summary>
-    ///     The name for trigger annotation.
-    /// </summary>
-    public const string Triggers = Prefix + "Triggers";
 
     /// <summary>
     ///     The name for the annotation containing the maximum length for database identifiers.
@@ -308,7 +298,7 @@ public static class RelationalAnnotationNames
     ///     The name for the annotation that contains entity type mapping fragments.
     /// </summary>
     public const string MappingFragments = Prefix + "MappingFragments";
-    
+
     /// <summary>
     ///     The name for the annotation that contains table-specific facet overrides.
     /// </summary>
@@ -323,4 +313,19 @@ public static class RelationalAnnotationNames
     ///     The name for the reader field value getter delegate annotation.
     /// </summary>
     public const string FieldValueGetter = Prefix + "FieldValueGetter";
+
+    /// <summary>
+    ///     The name for the annotation specifying container column name to which the object is mapped.
+    /// </summary>
+    public const string ContainerColumnName = Prefix + "ContainerColumnName";
+
+    /// <summary>
+    ///     The name for the annotation specifying container column type mapping.
+    /// </summary>
+    public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
+
+    /// <summary>
+    ///     The JSON property name for the element that the property/navigation maps to.
+    /// </summary>
+    public const string JsonPropertyName = Prefix + "JsonPropertyName";
 }

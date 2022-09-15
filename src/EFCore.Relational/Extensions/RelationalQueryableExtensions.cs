@@ -48,6 +48,8 @@ public static class RelationalQueryableExtensions
         throw new NotSupportedException(RelationalStrings.NoDbCommand);
     }
 
+    #region FromSql
+
     /// <summary>
     ///     Creates a LINQ query based on a raw SQL query.
     /// </summary>
@@ -64,7 +66,7 @@ public static class RelationalQueryableExtensions
     ///     <para>
     ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
     ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="FromSqlInterpolated{TEntity}" /> to create parameters.
+    ///         consider using <see cref="FromSql{TEntity}" /> to create parameters.
     ///     </para>
     ///     <para>
     ///         This overload also accepts <see cref="DbParameter" /> instances as parameter values. In addition to using positional
@@ -140,6 +142,46 @@ public static class RelationalQueryableExtensions
                 sql.GetArguments()));
     }
 
+    /// <summary>
+    ///     Creates a LINQ query based on an interpolated string representing a SQL query.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
+    ///         LINQ operators.
+    ///     </para>
+    ///     <para>
+    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
+    ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
+    ///         you supply will automatically be converted to a <see cref="DbParameter" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <param name="source">
+    ///     An <see cref="IQueryable{T}" /> to use as the base of the interpolated string SQL query (typically a <see cref="DbSet{TEntity}" />).
+    /// </param>
+    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
+    public static IQueryable<TEntity> FromSql<TEntity>(
+        this DbSet<TEntity> source,
+        [NotParameterized] FormattableString sql)
+        where TEntity : class
+    {
+        Check.NotNull(sql, nameof(sql));
+        Check.NotEmpty(sql.Format, nameof(source));
+
+        var queryableSource = (IQueryable)source;
+        return queryableSource.Provider.CreateQuery<TEntity>(
+            GenerateFromSqlQueryRoot(
+                queryableSource,
+                sql.Format,
+                sql.GetArguments()));
+    }
+
     private static FromSqlQueryRootExpression GenerateFromSqlQueryRoot(
         IQueryable source,
         string sql,
@@ -161,6 +203,10 @@ public static class RelationalQueryableExtensions
             sql,
             Expression.Constant(arguments));
     }
+
+    #endregion
+
+    #region SplitQuery
 
     /// <summary>
     ///     Returns a new query which is configured to load the collections in the query results in a single database query.
@@ -224,4 +270,117 @@ public static class RelationalQueryableExtensions
 
     internal static readonly MethodInfo AsSplitQueryMethodInfo
         = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(AsSplitQuery))!;
+
+    #endregion
+
+    #region ExecuteDelete
+
+    /// <summary>
+    ///     Deletes all database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <returns>The total number of rows deleted in the database.</returns>
+    public static int ExecuteDelete<TSource>(this IQueryable<TSource> source)
+        => source.Provider.Execute<int>(Expression.Call(ExecuteDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression));
+
+    /// <summary>
+    ///     Asynchronously deletes database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The total number of rows deleted in the database.</returns>
+    public static Task<int> ExecuteDeleteAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default)
+        => source.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<Task<int>>(
+                Expression.Call(ExecuteDeleteMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression), cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+
+    internal static readonly MethodInfo ExecuteDeleteMethodInfo
+        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ExecuteDelete))!;
+
+    #endregion
+
+    #region ExecuteUpdate
+
+    /// <summary>
+    ///     Updates all database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
+    /// <returns>The total number of rows updated in the database.</returns>
+    public static int ExecuteUpdate<TSource>(
+        this IQueryable<TSource> source,
+        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls)
+        => source.Provider.Execute<int>(
+            Expression.Call(ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls));
+
+    /// <summary>
+    ///     Asynchronously updates database rows for the entity instances which match the LINQ query from the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This operation executes immediately against the database, rather than being deferred until
+    ///         <see cref="DbContext.SaveChanges()" /> is called. It also does not interact with the EF change tracker in any way:
+    ///         entity instances which happen to be tracked when this operation is invoked aren't taken into account, and aren't updated
+    ///         to reflect the changes.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-bulk-operations">Executing bulk operations with EF Core</see>
+    ///         for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="source">The source query.</param>
+    /// <param name="setPropertyCalls">A collection of set property statements specifying properties to update.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>The total number of rows updated in the database.</returns>
+    public static Task<int> ExecuteUpdateAsync<TSource>(
+        this IQueryable<TSource> source,
+        Expression<Func<SetPropertyCalls<TSource>, SetPropertyCalls<TSource>>> setPropertyCalls,
+        CancellationToken cancellationToken = default)
+        => source.Provider is IAsyncQueryProvider provider
+            ? provider.ExecuteAsync<Task<int>>(
+                Expression.Call(
+                    ExecuteUpdateMethodInfo.MakeGenericMethod(typeof(TSource)), source.Expression, setPropertyCalls), cancellationToken)
+            : throw new InvalidOperationException(CoreStrings.IQueryableProviderNotAsync);
+
+    internal static readonly MethodInfo ExecuteUpdateMethodInfo
+        = typeof(RelationalQueryableExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ExecuteUpdate))!;
+
+    #endregion
 }

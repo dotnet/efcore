@@ -24,6 +24,21 @@ public interface ITableMapping : ITableMappingBase
     new IEnumerable<IColumnMapping> ColumnMappings { get; }
 
     /// <summary>
+    ///     Gets the corresponding insert stored procedure mapping if it exists.
+    /// </summary>
+    IStoredProcedureMapping? InsertStoredProcedureMapping { get; }
+
+    /// <summary>
+    ///     Gets the corresponding insert stored procedure mapping if it exists.
+    /// </summary>
+    IStoredProcedureMapping? DeleteStoredProcedureMapping { get; }
+
+    /// <summary>
+    ///     Gets the corresponding insert stored procedure mapping if it exists.
+    /// </summary>
+    IStoredProcedureMapping? UpdateStoredProcedureMapping { get; }
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
@@ -60,6 +75,7 @@ public interface ITableMapping : ITableMappingBase
             {
                 builder.Append("!");
             }
+
             builder.Append("IncludesDerivedTypes");
 
             if (IsSharedTablePrincipal != null)
@@ -69,6 +85,7 @@ public interface ITableMapping : ITableMappingBase
                 {
                     builder.Append("!");
                 }
+
                 builder.Append("IsSharedTablePrincipal");
             }
 
@@ -79,6 +96,7 @@ public interface ITableMapping : ITableMappingBase
                 {
                     builder.Append("!");
                 }
+
                 builder.Append("IsSplitEntityTypePrincipal");
             }
 

@@ -56,7 +56,7 @@ public interface IEntityMaterializerSource
     /// <param name="entityType">The entity type being materialized.</param>
     /// <returns>A delegate to create instances.</returns>
     Func<MaterializationContext, object> GetMaterializer(IEntityType entityType);
-    
+
     /// <summary>
     ///     <para>
     ///         Returns a cached delegate that creates empty instances of the given entity type.

@@ -14,7 +14,8 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
     {
         Fixture = fixture;
 
-        fixture.Reseed();
+        fixture.CleanData();
+        fixture.Seed();
 
         ClearLog();
     }
@@ -173,7 +174,12 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                         firstDbSet.Add(first);
                         break;
                     case GeneratedValues.None:
-                        first = new StoreValueGenerationData { Id = 100, Data1 = 1000, Data2 = 1000 };
+                        first = new StoreValueGenerationData
+                        {
+                            Id = 100,
+                            Data1 = 1000,
+                            Data2 = 1000
+                        };
                         firstDbSet.Add(first);
                         break;
                     case GeneratedValues.All:
@@ -183,6 +189,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                     default:
                         throw new ArgumentOutOfRangeException(nameof(generatedValues));
                 }
+
                 break;
 
             case EntityState.Modified:
@@ -199,6 +206,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                     default:
                         throw new ArgumentOutOfRangeException(nameof(generatedValues));
                 }
+
                 break;
 
             case EntityState.Deleted:
@@ -215,6 +223,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                     default:
                         throw new ArgumentOutOfRangeException(nameof(generatedValues));
                 }
+
                 break;
 
             default:
@@ -231,7 +240,12 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                         secondDbSet!.Add(second);
                         break;
                     case GeneratedValues.None:
-                        second = new StoreValueGenerationData { Id = 101, Data1 = 1001, Data2 = 1001 };
+                        second = new StoreValueGenerationData
+                        {
+                            Id = 101,
+                            Data1 = 1001,
+                            Data2 = 1001
+                        };
                         secondDbSet!.Add(second);
                         break;
                     case GeneratedValues.All:
@@ -241,6 +255,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                     default:
                         throw new ArgumentOutOfRangeException(nameof(generatedValues));
                 }
+
                 break;
 
             case EntityState.Modified:
@@ -257,6 +272,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                     default:
                         throw new ArgumentOutOfRangeException(nameof(generatedValues));
                 }
+
                 break;
 
             case EntityState.Deleted:
@@ -273,6 +289,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
                     default:
                         throw new ArgumentOutOfRangeException(nameof(generatedValues));
                 }
+
                 break;
 
             case null:
@@ -330,7 +347,7 @@ public abstract class StoreValueGenerationTestBase<TFixture> : IClassFixture<TFi
     }
 
     /// <summary>
-    ///     Providers can override this to specify when <see cref="DbContext.SaveChanges()"/> should create a transaction, and when not.
+    ///     Providers can override this to specify when <see cref="DbContext.SaveChanges()" /> should create a transaction, and when not.
     ///     By default, it's assumed that multiple updates always require a transaction, whereas a single update never does.
     /// </summary>
     protected virtual bool ShouldCreateImplicitTransaction(

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -671,6 +670,11 @@ public class StateManager : IStateManager
         _needsUnsubscribe = false;
 
         SavingChanges = false;
+
+        foreach (IResettableService set in ((IDbSetCache)Context).GetSets())
+        {
+            set.ResetState();
+        }
     }
 
     /// <summary>
@@ -800,7 +804,7 @@ public class StateManager : IStateManager
                             existingEntry.Entity,
                             navigation,
                             referencedFromEntry!);
-                        
+
                         var navigationValue = referencedFromEntry![navigation];
                         if (navigationValue != null && navigation.IsCollection)
                         {
@@ -1235,7 +1239,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual int SaveChanges(bool acceptAllChangesOnSuccess)
-        => !Context.Database.AutoTransactionsEnabled
+        => Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never
             ? SaveChanges(this, acceptAllChangesOnSuccess)
             : Dependencies.ExecutionStrategy.Execute(
                 (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
@@ -1291,7 +1295,7 @@ public class StateManager : IStateManager
     public virtual Task<int> SaveChangesAsync(
         bool acceptAllChangesOnSuccess,
         CancellationToken cancellationToken = default)
-        => !Context.Database.AutoTransactionsEnabled
+        => Context.Database.AutoTransactionBehavior == AutoTransactionBehavior.Never
             ? SaveChangesAsync(this, acceptAllChangesOnSuccess, cancellationToken)
             : Dependencies.ExecutionStrategy.ExecuteAsync(
                 (StateManager: this, AcceptAllChangesOnSuccess: acceptAllChangesOnSuccess),
@@ -1381,7 +1385,7 @@ public class StateManager : IStateManager
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void SetEvents(
-        EventHandler<EntityTrackingEventArgs>? tracking, 
+        EventHandler<EntityTrackingEventArgs>? tracking,
         EventHandler<EntityTrackedEventArgs>? tracked,
         EventHandler<EntityStateChangingEventArgs>? stateChanging,
         EventHandler<EntityStateChangedEventArgs>? stateChanged)

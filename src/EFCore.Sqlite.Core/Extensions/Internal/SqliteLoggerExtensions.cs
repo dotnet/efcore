@@ -374,7 +374,7 @@ public static class SqliteLoggerExtensions
         var p = (TableRebuildEventData)payload;
         return d.GenerateMessage(p.OperationType.ShortDisplayName(), p.TableName);
     }
-    
+
     /// <summary>
     ///     Logs the <see cref="SqliteEventId.CompositeKeyWithValueGeneration" /> event.
     /// </summary>

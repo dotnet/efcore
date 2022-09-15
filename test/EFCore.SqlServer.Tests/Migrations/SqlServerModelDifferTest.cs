@@ -57,7 +57,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 "Person",
                 x =>
                 {
-                    x.IsMemoryOptimized();
+                    x.ToTable(tb => tb.IsMemoryOptimized());
                 }),
             upOps =>
             {
@@ -107,7 +107,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 "Person",
                 x =>
                 {
-                    x.IsMemoryOptimized();
+                    x.ToTable(tb => tb.IsMemoryOptimized());
                 }),
             upOps =>
             {
@@ -1024,7 +1024,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                         b.HasOne("Animal", null)
                             .WithOne()
                             .HasForeignKey("Cat", "Id")
-                            .OnDelete(DeleteBehavior.ClientCascade)
+                            .OnDelete(DeleteBehavior.Cascade)
                             .IsRequired();
 
                         b.HasOne("Animal", null)
@@ -1038,7 +1038,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                         b.HasOne("Animal", null)
                             .WithOne()
                             .HasForeignKey("Dog", "Id")
-                            .OnDelete(DeleteBehavior.ClientCascade)
+                            .OnDelete(DeleteBehavior.Cascade)
                             .IsRequired();
 
                         b.HasOne("Animal", null)
@@ -1052,7 +1052,7 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                         b.HasOne("Animal", null)
                             .WithOne()
                             .HasForeignKey("Mouse", "Id")
-                            .OnDelete(DeleteBehavior.ClientCascade)
+                            .OnDelete(DeleteBehavior.Cascade)
                             .IsRequired();
                     });
             },

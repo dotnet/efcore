@@ -13,7 +13,12 @@ public interface IStoredProcedureParameterMapping : IColumnMappingBase
     /// <summary>
     ///     Gets the target parameter.
     /// </summary>
-    IStoreStoredProcedureParameter Parameter { get; }
+    IStoreStoredProcedureParameter StoreParameter { get; }
+
+    /// <summary>
+    ///     Gets the associated stored procedure parameter.
+    /// </summary>
+    IStoredProcedureParameter Parameter { get; }
 
     /// <summary>
     ///     Gets the containing stored procedure mapping.

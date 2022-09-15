@@ -24,19 +24,37 @@ public static class SqlServerTestModelBuilderExtensions
         return builder;
     }
 
-    public static ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> IsMemoryOptimized<TEntity,
-        TDependentEntity>(
-        this ModelBuilderTest.TestOwnedNavigationBuilder<TEntity, TDependentEntity> builder,
+    public static RelationalModelBuilderTest.TestTableBuilder<TEntity> IsMemoryOptimized<TEntity>(
+        this RelationalModelBuilderTest.TestTableBuilder<TEntity> builder,
         bool memoryOptimized = true)
         where TEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<TableBuilder<TEntity>> genericBuilder:
+                genericBuilder.Instance.IsMemoryOptimized(memoryOptimized);
+                break;
+            case IInfrastructure<TableBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.IsMemoryOptimized(memoryOptimized);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsMemoryOptimized<
+        TOwnerEntity, TDependentEntity>(
+        this RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> builder,
+        bool memoryOptimized = true)
+        where TOwnerEntity : class
         where TDependentEntity : class
     {
         switch (builder)
         {
-            case IInfrastructure<OwnedNavigationBuilder<TEntity, TDependentEntity>> genericBuilder:
+            case IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
                 genericBuilder.Instance.IsMemoryOptimized(memoryOptimized);
                 break;
-            case IInfrastructure<OwnedNavigationBuilder> nongenericBuilder:
+            case IInfrastructure<OwnedNavigationTableBuilder> nongenericBuilder:
                 nongenericBuilder.Instance.IsMemoryOptimized(memoryOptimized);
                 break;
         }
@@ -76,6 +94,52 @@ public static class SqlServerTestModelBuilderExtensions
             case IInfrastructure<TableBuilder> nongenericBuilder:
                 nongenericBuilder.Instance.IsTemporal(
                     b => buildAction(new SqlServerModelBuilderTestBase.NonGenericTestTemporalTableBuilder<TEntity>(b)));
+                break;
+        }
+
+        return builder;
+    }
+
+    public static RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal
+        <TOwnerEntity, TDependentEntity>(
+            this RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> builder,
+            bool temporal = true)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.IsTemporal(temporal);
+                break;
+            case IInfrastructure<OwnedNavigationTableBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.IsTemporal(temporal);
+                break;
+        }
+
+        return builder;
+    }
+
+    public static RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IsTemporal<
+        TOwnerEntity, TDependentEntity>(
+        this RelationalModelBuilderTest.TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> builder,
+        Action<SqlServerModelBuilderTestBase.TestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>> buildAction)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        switch (builder)
+        {
+            case IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>> genericBuilder:
+                genericBuilder.Instance.IsTemporal(
+                    b => buildAction(
+                        new SqlServerModelBuilderTestBase.GenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                            b)));
+                break;
+            case IInfrastructure<OwnedNavigationTableBuilder> nongenericBuilder:
+                nongenericBuilder.Instance.IsTemporal(
+                    b => buildAction(
+                        new SqlServerModelBuilderTestBase.NonGenericTestOwnedNavigationTemporalTableBuilder<TOwnerEntity, TDependentEntity>(
+                            b)));
                 break;
         }
 

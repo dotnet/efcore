@@ -13,15 +13,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
 /// <typeparam name="TAttribute">The attribute type to look for.</typeparam>
-public abstract class NavigationAttributeConventionBase<TAttribute> :
-    IEntityTypeAddedConvention,
-    IEntityTypeIgnoredConvention,
-    IEntityTypeRemovedConvention,
-    IEntityTypeBaseTypeChangedConvention,
-    IEntityTypeMemberIgnoredConvention,
-    INavigationAddedConvention,
-    ISkipNavigationAddedConvention,
-    IForeignKeyPrincipalEndChangedConvention
+public abstract class NavigationAttributeConventionBase<TAttribute>
     where TAttribute : Attribute
 {
     /// <summary>
@@ -38,7 +30,11 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an entity type is added to the model.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionContext<IConventionEntityTypeBuilder> context)
@@ -64,7 +60,13 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an entity type is ignored.
+    /// </summary>
+    /// <param name="modelBuilder">The builder for the model.</param>
+    /// <param name="name">The name of the ignored entity type.</param>
+    /// <param name="type">The ignored entity type.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessEntityTypeIgnored(
         IConventionModelBuilder modelBuilder,
         string name,
@@ -110,7 +112,12 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an entity type is removed from the model.
+    /// </summary>
+    /// <param name="modelBuilder">The builder for the model.</param>
+    /// <param name="entityType">The removed entity type.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessEntityTypeRemoved(
         IConventionModelBuilder modelBuilder,
         IConventionEntityType entityType,
@@ -137,7 +144,13 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after the base type of an entity type changes.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="newBaseType">The new base entity type.</param>
+    /// <param name="oldBaseType">The old base entity type.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessEntityTypeBaseTypeChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionEntityType? newBaseType,
@@ -199,7 +212,11 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
     private static void Sort(List<(PropertyInfo, Type)> navigations)
         => navigations.Sort((x, y) => StringComparer.Ordinal.Compare(x.Item1.Name, y.Item1.Name));
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after a navigation is added to the entity type.
+    /// </summary>
+    /// <param name="navigationBuilder">The builder for the navigation.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessNavigationAdded(
         IConventionNavigationBuilder navigationBuilder,
         IConventionContext<IConventionNavigationBuilder> context)
@@ -216,7 +233,11 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after a skip navigation is added to the entity type.
+    /// </summary>
+    /// <param name="skipNavigationBuilder">The builder for the skip navigation.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessSkipNavigationAdded(
         IConventionSkipNavigationBuilder skipNavigationBuilder,
         IConventionContext<IConventionSkipNavigationBuilder> context)
@@ -233,7 +254,11 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
         }
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after the principal end of a foreign key is changed.
+    /// </summary>
+    /// <param name="relationshipBuilder">The builder for the foreign key.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessForeignKeyPrincipalEndChanged(
         IConventionForeignKeyBuilder relationshipBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
@@ -249,7 +274,12 @@ public abstract class NavigationAttributeConventionBase<TAttribute> :
             relationshipBuilder, dependentToPrincipalAttributes, principalToDependentAttributes, context);
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     Called after an entity type member is ignored.
+    /// </summary>
+    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
+    /// <param name="name">The name of the ignored member.</param>
+    /// <param name="context">Additional information associated with convention execution.</param>
     public virtual void ProcessEntityTypeMemberIgnored(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string name,

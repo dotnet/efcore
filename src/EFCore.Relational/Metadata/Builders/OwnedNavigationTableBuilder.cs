@@ -28,12 +28,14 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <summary>
     ///     The specified table name.
     /// </summary>
-    public virtual string? Name => StoreObject?.Name;
+    public virtual string? Name
+        => StoreObject?.Name;
 
     /// <summary>
     ///     The specified table schema.
     /// </summary>
-    public virtual string? Schema => StoreObject?.Schema;
+    public virtual string? Schema
+        => StoreObject?.Schema;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,7 +49,8 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <summary>
     ///     The entity type being configured.
     /// </summary>
-    public virtual IMutableEntityType Metadata => OwnedNavigationBuilder.OwnedEntityType;
+    public virtual IMutableEntityType Metadata
+        => OwnedNavigationBuilder.OwnedEntityType;
 
     private OwnedNavigationBuilder OwnedNavigationBuilder { get; }
 
@@ -74,13 +77,56 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-triggers">Database triggers</see> for more information and examples.
     /// </remarks>
-    public virtual TriggerBuilder HasTrigger(string modelName)
-        => new((Trigger)InternalTriggerBuilder.HasTrigger(
+    public virtual TableTriggerBuilder HasTrigger(string modelName)
+    {
+        var trigger = EntityTypeBuilder.HasTrigger(Metadata, modelName).Metadata;
+        if (Name != null)
+        {
+            trigger.SetTableName(Name);
+            trigger.SetTableSchema(Schema);
+        }
+
+        return new TableTriggerBuilder(trigger);
+    }
+
+    /// <summary>
+    ///     Configures a database check constraint when targeting a relational database.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-check-constraints">Database check constraints</see> for more information and examples.
+    /// </remarks>
+    /// <param name="name">The name of the check constraint.</param>
+    /// <param name="sql">The logical constraint sql used in the check constraint.</param>
+    /// <returns>A builder to configure the check constraint.</returns>
+    public virtual CheckConstraintBuilder HasCheckConstraint(
+        string name,
+        string? sql)
+    {
+        Check.NotEmpty(name, nameof(name));
+        Check.NullButNotEmpty(sql, nameof(sql));
+
+        var checkConstraint = InternalCheckConstraintBuilder.HasCheckConstraint(
             (IConventionEntityType)Metadata,
-            modelName,
-            Name,
-            Schema,
-            ConfigurationSource.Explicit)!);
+            name,
+            sql,
+            ConfigurationSource.Explicit)!;
+
+        return new CheckConstraintBuilder((IMutableCheckConstraint)checkConstraint);
+    }
+
+    /// <summary>
+    ///     Configures a comment to be applied to the table
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="comment">The comment for the table.</param>
+    /// <returns>A builder to further configure the table.</returns>
+    public virtual OwnedNavigationTableBuilder HasComment(string? comment)
+    {
+        Metadata.SetComment(comment);
+        return this;
+    }
 
     /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used
@@ -111,7 +157,8 @@ public class OwnedNavigationTableBuilder : IInfrastructure<OwnedNavigationBuilde
     protected virtual StoreObjectIdentifier GetStoreObjectIdentifier()
         => StoreObject ?? throw new InvalidOperationException(RelationalStrings.MappingFragmentMissingName);
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 
     #region Hidden System.Object members
 

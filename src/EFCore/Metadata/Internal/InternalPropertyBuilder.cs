@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -340,7 +342,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? HasValueGenerator(
-        Type? valueGeneratorType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? valueGeneratorType,
         ConfigurationSource configurationSource)
     {
         if (valueGeneratorType == null)
@@ -398,7 +400,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? HasValueGeneratorFactory(
-        Type? factory,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]  Type? factory,
         ConfigurationSource configurationSource)
     {
         if (CanSetValueGeneratorFactory(factory, configurationSource))
@@ -431,7 +433,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanSetValueGeneratorFactory(
-        Type? factory,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? factory,
         ConfigurationSource? configurationSource)
         => configurationSource.Overrides(Metadata.GetValueGeneratorFactoryConfigurationSource())
             || (Metadata[CoreAnnotationNames.ValueGeneratorFactory] == null
@@ -508,7 +510,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalPropertyBuilder? HasConverter(Type? converterType, ConfigurationSource configurationSource)
+    public virtual InternalPropertyBuilder? HasConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        ConfigurationSource configurationSource)
     {
         if (CanSetConverter(converterType, configurationSource))
         {
@@ -527,7 +531,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetConverter(Type? converterType, ConfigurationSource? configurationSource)
+    public virtual bool CanSetConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        ConfigurationSource? configurationSource)
         => configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource())
             || (Metadata[CoreAnnotationNames.ValueConverter] == null
                 && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType);
@@ -617,7 +623,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? HasValueComparer(
-        Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
         ConfigurationSource configurationSource)
     {
         if (CanSetValueComparer(comparerType, configurationSource))
@@ -685,7 +691,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? HasProviderValueComparer(
-        Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
         ConfigurationSource configurationSource)
     {
         if (CanSetProviderValueComparer(comparerType, configurationSource))
@@ -704,7 +710,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSetProviderValueComparer(Type? comparerType, ConfigurationSource? configurationSource)
+    public virtual bool CanSetProviderValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        ConfigurationSource? configurationSource)
         => configurationSource.Overrides(Metadata.GetProviderValueComparerConfigurationSource())
             || (Metadata[CoreAnnotationNames.ProviderValueComparer] == null
                 && (Type?)Metadata[CoreAnnotationNames.ProviderValueComparerType] == comparerType);
@@ -1101,7 +1109,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueGenerator(Type? valueGeneratorType, bool fromDataAnnotation)
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueGenerator(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? valueGeneratorType,
+        bool fromDataAnnotation)
         => HasValueGenerator(
             valueGeneratorType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
@@ -1132,7 +1142,7 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueGeneratorFactory(
-        Type? valueGeneratorFactoryType,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType,
         bool fromDataAnnotation)
         => HasValueGeneratorFactory(
             valueGeneratorFactoryType,
@@ -1144,7 +1154,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionPropertyBuilder.CanSetValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation)
+    bool IConventionPropertyBuilder.CanSetValueGeneratorFactory(
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType,
+        bool fromDataAnnotation)
         => CanSetValueGeneratorFactory(
             valueGeneratorFactoryType,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -1173,7 +1185,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionPropertyBuilder? IConventionPropertyBuilder.HasConverter(Type? converterType, bool fromDataAnnotation)
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        bool fromDataAnnotation)
         => HasConverter(converterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1182,7 +1196,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionPropertyBuilder.CanSetConverter(Type? converterType, bool fromDataAnnotation)
+    bool IConventionPropertyBuilder.CanSetConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        bool fromDataAnnotation)
         => CanSetConverter(converterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1235,7 +1251,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueComparer(Type? comparerType, bool fromDataAnnotation)
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation)
         => HasValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1244,7 +1262,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionPropertyBuilder.CanSetValueComparer(Type? comparerType, bool fromDataAnnotation)
+    bool IConventionPropertyBuilder.CanSetValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation)
         => CanSetValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1271,7 +1291,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    IConventionPropertyBuilder? IConventionPropertyBuilder.HasProviderValueComparer(Type? comparerType, bool fromDataAnnotation)
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasProviderValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation)
         => HasProviderValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1280,6 +1302,9 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool IConventionPropertyBuilder.CanSetProviderValueComparer(Type? comparerType, bool fromDataAnnotation)
-        => CanSetProviderValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    bool IConventionPropertyBuilder.CanSetProviderValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation)
+        => CanSetProviderValueComparer(
+            comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

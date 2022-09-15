@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Net.Sockets;
+using Azure.Core;
 using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Newtonsoft.Json;
@@ -42,6 +43,7 @@ public class CosmosTestStore : TestStore
         ConnectionUri = TestEnvironment.DefaultConnection;
         AuthToken = TestEnvironment.AuthToken;
         ConnectionString = TestEnvironment.ConnectionString;
+        TokenCredential = TestEnvironment.TokenCredential;
         _configureCosmos = extensionConfiguration == null
             ? b => b.ApplyConfiguration()
             : b =>
@@ -67,6 +69,7 @@ public class CosmosTestStore : TestStore
 
     public string ConnectionUri { get; }
     public string AuthToken { get; }
+    public TokenCredential TokenCredential { get; }
     public string ConnectionString { get; }
 
     protected override DbContext CreateDefaultContext()
@@ -359,7 +362,7 @@ public class CosmosTestStore : TestStore
         public void SetPropertyModified(IProperty property)
             => throw new NotImplementedException();
 
-        public void SetStoreGeneratedValue(IProperty property, object value)
+        public void SetStoreGeneratedValue(IProperty property, object value, bool setModified = true)
             => throw new NotImplementedException();
 
         public EntityEntry ToEntityEntry()
@@ -654,6 +657,18 @@ public class CosmosTestStore : TestStore
             => throw new NotImplementedException();
 
         IEnumerable<IReadOnlySkipNavigation> IReadOnlyEntityType.GetSkipNavigations()
+            => throw new NotImplementedException();
+
+        IReadOnlyTrigger IReadOnlyEntityType.FindDeclaredTrigger(string name)
+            => throw new NotImplementedException();
+
+        ITrigger IEntityType.FindDeclaredTrigger(string name)
+            => throw new NotImplementedException();
+
+        IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
+            => throw new NotImplementedException();
+
+        IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
             => throw new NotImplementedException();
     }
 }

@@ -97,6 +97,18 @@ public abstract class ModelValidatorTestBase
     {
     }
 
+    protected class G
+    {
+        public int Id { get; set; }
+
+        public int? P0 { get; set; }
+        public int? P1 { get; set; }
+        public int? P2 { get; set; }
+        public int? P3 { get; set; }
+
+        public A A { get; set; }
+    }
+
     protected abstract class Abstract : A
     {
     }
@@ -310,6 +322,44 @@ public abstract class ModelValidatorTestBase
         public string PrincipalFourId1 { get; set; }
         public string PrincipalFourId { get; set; }
         public PrincipalFour PrincipalFour { get; set; }
+    }
+
+    public class Blog
+    {
+        public int BlogId { get; set; }
+        public bool IsDeleted { get; set; }
+        public ICollection<PicturePost> PicturePosts { get; set; }
+        public List<BlogOwnedEntity> BlogOwnedEntities { get; set; }
+    }
+
+    public class BlogOwnedEntity
+    {
+        public int BlogOwnedEntityId { get; set; }
+        public int BlogId { get; set; }
+        public Blog Blog { get; set; }
+    }
+
+    public class Post
+    {
+        public int PostId { get; set; }
+        public int BlogId { get; set; }
+        public string Content { get; set; }
+        public bool IsDeleted { get; set; }
+        public Blog Blog { get; set; }
+    }
+
+    public class PicturePost : Post
+    {
+        public string PictureUrl { get; set; }
+        public List<Picture> Pictures { get; set; }
+    }
+
+    public class Picture
+    {
+        public int PictureId { get; set; }
+        public bool IsDeleted { get; set; }
+        public int PicturePostId { get; set; }
+        public PicturePost PicturePost { get; set; }
     }
 
     protected ModelValidatorTestBase()

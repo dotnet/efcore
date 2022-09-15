@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IReadOnlyDbFunctionParameter : IReadOnlyAnnotatable
 {
     /// <summary>
-    ///     Gets the <see cref="IReadOnlyDbFunction" /> to which this parameter belongs.
+    ///     Gets the function to which this parameter belongs.
     /// </summary>
     IReadOnlyDbFunction Function { get; }
 

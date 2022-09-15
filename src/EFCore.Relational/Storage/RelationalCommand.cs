@@ -817,20 +817,9 @@ public class RelationalCommand : IRelationalCommand
             command.CommandTimeout = (int)connection.CommandTimeout;
         }
 
-        if (Parameters.Count > 0)
+        for (var i = 0; i < Parameters.Count; i++)
         {
-            var parameterValues = parameterObject.ParameterValues;
-            if (parameterValues == null)
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.MissingParameterValue(
-                        Parameters[0].InvariantName));
-            }
-
-            for (var i = 0; i < Parameters.Count; i++)
-            {
-                Parameters[i].AddDbParameter(command, parameterValues);
-            }
+            Parameters[i].AddDbParameter(command, parameterObject.ParameterValues);
         }
 
         if (logCommandCreate)

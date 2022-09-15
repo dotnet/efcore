@@ -22,7 +22,7 @@ public class Table : TableBase, ITable
     public Table(string name, string? schema, RelationalModel model)
         : base(name, schema, model)
     {
-        Columns = new(new ColumnNameComparer(this));
+        Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
     }
 
     /// <summary>

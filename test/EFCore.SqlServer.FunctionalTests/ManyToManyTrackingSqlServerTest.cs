@@ -13,5 +13,7 @@ public class ManyToManyTrackingSqlServerTest
 
     public class ManyToManyTrackingSqlServerFixture : ManyToManyTrackingSqlServerFixtureBase
     {
+        protected override string StoreName
+            => "ManyToManyTrackingSqlServerTest";
     }
 }

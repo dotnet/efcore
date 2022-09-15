@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -40,12 +39,11 @@ public class CosmosInversePropertyAttributeConvention : InversePropertyAttribute
         Type targetClrType,
         MemberInfo navigationMemberInfo,
         bool shouldCreate = true)
-        => ((InternalEntityTypeBuilder)entityTypeBuilder)
-#pragma warning disable EF1001 // Internal EF Core API usage.
+        => entityTypeBuilder
             .GetTargetEntityTypeBuilder(
                 targetClrType,
                 navigationMemberInfo,
-                shouldCreate ? ConfigurationSource.DataAnnotation : null,
-                CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model));
-#pragma warning restore EF1001 // Internal EF Core API usage.
+                shouldCreate,
+                CosmosRelationshipDiscoveryConvention.ShouldBeOwnedType(targetClrType, entityTypeBuilder.Metadata.Model),
+                fromDataAnnotation: true);
 }

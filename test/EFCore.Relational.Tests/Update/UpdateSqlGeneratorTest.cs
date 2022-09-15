@@ -24,7 +24,8 @@ RETURNING 1;
 ",
             stringBuilder.ToString());
 
-    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(StringBuilder stringBuilder)
+    protected override void AppendDeleteOperation_creates_full_delete_command_text_with_concurrency_check_verification(
+        StringBuilder stringBuilder)
         => AssertBaseline(
             @"DELETE FROM ""dbo"".""Ducks""
 WHERE ""Id"" = @p0 AND ""ConcurrencyToken"" IS NULL
@@ -107,7 +108,7 @@ RETURNING ""Computed"";
             stringBuilder.ToString());
 
     protected override TestHelpers TestHelpers
-        => RelationalTestHelpers.Instance;
+        => FakeRelationalTestHelpers.Instance;
 
     protected override string RowsAffected
         => "provider_specific_rowcount()";

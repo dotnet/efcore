@@ -49,7 +49,7 @@ public class RelationalParameterBuilderTest
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
         modelBuilder.Entity("MyType").Property<string>("MyProp").IsRequired(!nullable);
 

@@ -12,9 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public abstract class TableExpressionBase : Expression, IPrintableExpression, IMutableAnnotatable
+public abstract class TableExpressionBase : Expression, IPrintableExpression
 {
-    private SortedDictionary<string, Annotation>? _annotations;
+    private readonly IReadOnlyDictionary<string, IAnnotation>? _annotations;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="TableExpressionBase" /> class.
@@ -37,10 +37,13 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression, IM
 
         if (annotations != null)
         {
+            var dictionary = new SortedDictionary<string, IAnnotation>();
             foreach (var annotation in annotations)
             {
-                SetAnnotation(annotation.Name, annotation.Value);
+                dictionary[annotation.Name] = annotation;
             }
+
+            _annotations = dictionary;
         }
     }
 
@@ -60,33 +63,6 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression, IM
     /// <inheritdoc />
     public sealed override ExpressionType NodeType
         => ExpressionType.Extension;
-
-    /// <summary>
-    ///     Gets the value annotation with the given name, returning <see langword="null" /> if it does not exist.
-    /// </summary>
-    /// <param name="name">The key of the annotation to find.</param>
-    /// <returns>
-    ///     The value of the existing annotation if an annotation with the specified name already exists.
-    ///     Otherwise, <see langword="null" />.
-    /// </returns>
-    public virtual object? this[string name]
-    {
-        get => FindAnnotation(name)?.Value;
-
-        set
-        {
-            Check.NotEmpty(name, nameof(name));
-
-            if (value == null)
-            {
-                RemoveAnnotation(name);
-            }
-            else
-            {
-                SetAnnotation(name, value);
-            }
-        }
-    }
 
     /// <summary>
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
@@ -132,87 +108,28 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression, IM
     /// </summary>
     /// <param name="name">The key of the annotation to be added.</param>
     /// <param name="value">The value to be stored in the annotation.</param>
-    /// <returns>The newly added annotation.</returns>
-    public virtual Annotation AddAnnotation(string name, object? value)
-        => AddAnnotation(name, new(name, value));
-
-    /// <summary>
-    ///     Adds an annotation to this object. Throws if an annotation with the specified name already exists.
-    /// </summary>
-    /// <param name="name">The key of the annotation to be added.</param>
-    /// <param name="annotation">The annotation to be added.</param>
-    /// <returns>The added annotation.</returns>
-    protected virtual Annotation AddAnnotation(string name, Annotation annotation)
-    {
-        if (FindAnnotation(name) != null)
-        {
-            throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name, ToString()));
-        }
-
-        SetAnnotation(name, annotation, oldAnnotation: null);
-
-        return annotation;
-    }
-
-    /// <summary>
-    ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
-    ///     annotation with the specified name already exists.
-    /// </summary>
-    /// <param name="name">The key of the annotation to be added.</param>
-    /// <param name="value">The value to be stored in the annotation.</param>
-    public virtual void SetAnnotation(string name, object? value)
+    /// <returns>The new expression with annotation applied to it.</returns>
+    public virtual TableExpressionBase AddAnnotation(string name, object? value)
     {
         var oldAnnotation = FindAnnotation(name);
-        if (oldAnnotation != null
-            && Equals(oldAnnotation.Value, value))
+        if (oldAnnotation != null)
         {
-            return;
+            return Equals(oldAnnotation.Value, value)
+                ? this
+                : throw new InvalidOperationException(CoreStrings.DuplicateAnnotation(name, this.Print()));
         }
 
-        SetAnnotation(name, new(name, value), oldAnnotation);
+        var annotation = new Annotation(name, value);
+
+        return CreateWithAnnotations(new[] { annotation }.Concat(GetAnnotations()));
     }
 
     /// <summary>
-    ///     Sets the annotation stored under the given key. Overwrites the existing annotation if an
-    ///     annotation with the specified name already exists.
+    ///     Creates an object like this with specified annotations.
     /// </summary>
-    /// <param name="name">The key of the annotation to be added.</param>
-    /// <param name="annotation">The annotation to be set.</param>
-    /// <param name="oldAnnotation">The annotation being replaced.</param>
-    /// <returns>The annotation that was set.</returns>
-    protected virtual Annotation? SetAnnotation(
-        string name,
-        Annotation annotation,
-        Annotation? oldAnnotation)
-    {
-        _annotations ??= new SortedDictionary<string, Annotation>(StringComparer.Ordinal);
-        _annotations[name] = annotation;
-
-        return annotation;
-    }
-
-    /// <summary>
-    ///     Removes the given annotation from this object.
-    /// </summary>
-    /// <param name="name">The annotation to remove.</param>
-    /// <returns>The annotation that was removed.</returns>
-    public virtual Annotation? RemoveAnnotation(string name)
-    {
-        var annotation = FindAnnotation(name);
-        if (annotation == null)
-        {
-            return null;
-        }
-
-        _annotations!.Remove(name);
-
-        if (_annotations.Count == 0)
-        {
-            _annotations = null;
-        }
-
-        return annotation;
-    }
+    /// <param name="annotations">The annotations to be applied.</param>
+    /// <returns>The new expression with given annotations.</returns>
+    protected abstract TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations);
 
     /// <summary>
     ///     Gets the annotation with the given name, returning <see langword="null" /> if it does not exist.
@@ -221,40 +138,16 @@ public abstract class TableExpressionBase : Expression, IPrintableExpression, IM
     /// <returns>
     ///     The existing annotation if an annotation with the specified name already exists. Otherwise, <see langword="null" />.
     /// </returns>
-    public virtual Annotation? FindAnnotation(string name)
-    {
-        Check.NotEmpty(name, nameof(name));
-
-        return _annotations == null
+    public virtual IAnnotation? FindAnnotation(string name)
+        => _annotations == null
             ? null
             : _annotations.TryGetValue(name, out var annotation)
                 ? annotation
                 : null;
-    }
 
     /// <summary>
     ///     Gets all annotations on the current object.
     /// </summary>
     public virtual IEnumerable<IAnnotation> GetAnnotations()
-        => _annotations?.Values ?? Enumerable.Empty<Annotation>();
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IAnnotation IMutableAnnotatable.AddAnnotation(string name, object? value)
-        => AddAnnotation(name, value);
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IAnnotation? IMutableAnnotatable.RemoveAnnotation(string name)
-        => RemoveAnnotation(name);
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    void IMutableAnnotatable.SetOrRemoveAnnotation(string name, object? value)
-        => this[name] = value;
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IAnnotation? IReadOnlyAnnotatable.FindAnnotation(string name)
-        => FindAnnotation(name);
+        => _annotations?.Values ?? Enumerable.Empty<IAnnotation>();
 }

@@ -328,7 +328,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder,
                     methodBuilder,
                     namespaces,
-                    variables);
+                    variables,
+                    nullable);
 
                 foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
                 {
@@ -471,7 +472,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces, className, nullable);
             }
 
-            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className);
+            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className, nullable);
         }
 
         mainBuilder.AppendLine("}");
@@ -522,7 +523,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             Create(entityType, parameters);
 
@@ -545,6 +547,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             foreach (var index in entityType.GetDeclaredIndexes())
             {
                 Create(index, propertyVariables, parameters, nullable);
+            }
+
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                Create(trigger, parameters);
             }
 
             mainBuilder
@@ -687,7 +694,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
-        var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType];
+        var valueConverterType = GetValueConverterType(property);
         if (valueConverterType == null
             && property.GetValueConverter() != null)
         {
@@ -838,6 +845,45 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             parameters with { TargetName = variableName });
 
         mainBuilder.AppendLine();
+    }
+
+    private static Type? GetValueConverterType(IProperty property)
+    {
+        var type = (Type?)property[CoreAnnotationNames.ValueConverterType];
+        if (type != null)
+        {
+            return type;
+        }
+
+        var principalProperty = property;
+        for (var i = 0; i < 10000; i++)
+        {
+            foreach (var foreignKey in principalProperty.GetContainingForeignKeys())
+            {
+                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                {
+                    if (principalProperty == foreignKey.Properties[propertyIndex])
+                    {
+                        var newPrincipalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                        if (property == principalProperty
+                            || newPrincipalProperty == principalProperty)
+                        {
+                            break;
+                        }
+
+                        principalProperty = newPrincipalProperty;
+
+                        type = (Type?)principalProperty[CoreAnnotationNames.ValueConverterType];
+                        if (type != null)
+                        {
+                            return type;
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     private void PropertyBaseParameters(
@@ -1145,7 +1191,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             var navigation = foreignKey.DependentToPrincipal;
             if (navigation != null)
@@ -1244,7 +1291,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             mainBuilder
                 .Append("var ").Append(navigationVariable).Append(" = ")
@@ -1322,12 +1370,33 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("}");
     }
 
+    private void Create(ITrigger trigger, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var triggerVariable = _code.Identifier(trigger.ModelName, parameters.ScopeVariables, capitalize: false);
+
+        var mainBuilder = parameters.MainBuilder;
+        mainBuilder
+            .Append("var ").Append(triggerVariable).Append(" = ").Append(parameters.TargetName).AppendLine(".AddTrigger(")
+            .IncrementIndent()
+            .Append(_code.Literal(trigger.ModelName))
+            .AppendLine(");")
+            .DecrementIndent();
+
+        CreateAnnotations(
+            trigger,
+            _annotationCodeGenerator.Generate,
+            parameters with { TargetName = triggerVariable });
+
+        mainBuilder.AppendLine();
+    }
+
     private void CreateAnnotations(
         IEntityType entityType,
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
-        string className)
+        string className,
+        bool nullable)
     {
         mainBuilder.AppendLine()
             .Append("public static void CreateAnnotations")
@@ -1348,7 +1417,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder,
                     methodBuilder,
                     namespaces,
-                    variables));
+                    variables,
+                    nullable));
 
             mainBuilder
                 .AppendLine()

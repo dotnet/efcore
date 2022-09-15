@@ -26,10 +26,7 @@ public class SplitEntityData : ISetSource
     }
 
     private static SplitEntityOne[] CreateSplitEntityOnes()
-        => new SplitEntityOne[]
-        {
-
-        };
+        => new SplitEntityOne[] { };
 
     public void Seed(EntitySplittingContext context)
     {

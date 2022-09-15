@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
@@ -344,6 +343,6 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
         IProperty property)
         => typeMappingSource.FindMapping(property);
 
-    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-        => RelationalTestHelpers.Instance.CreateConventionBuilder(configureModel: configure);
+    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);
 }

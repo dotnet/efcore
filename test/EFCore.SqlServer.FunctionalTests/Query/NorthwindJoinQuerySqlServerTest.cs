@@ -267,6 +267,59 @@ INNER JOIN (
 ) AS [t] ON [c].[CustomerID] = [t].[CustomerID]");
     }
 
+    public override async Task GroupJoin_as_final_operator(bool async)
+    {
+        await base.GroupJoin_as_final_operator(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID]");
+    }
+
+    public override async Task Unflattened_GroupJoin_composed(bool async)
+    {
+        await base.Unflattened_GroupJoin_composed(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t]
+WHERE ([c].[CustomerID] LIKE N'F%') AND [c].[City] = N'Lisboa'
+ORDER BY [c].[CustomerID]");
+    }
+
+    public override async Task Unflattened_GroupJoin_composed_2(bool async)
+    {
+        await base.Unflattened_GroupJoin_composed_2(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [t].[CustomerID], [t0].[OrderID], [t0].[CustomerID], [t0].[EmployeeID], [t0].[OrderDate], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
+FROM [Customers] AS [c]
+INNER JOIN (
+    SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
+    FROM [Customers] AS [c0]
+    WHERE [c0].[City] = N'Lisboa'
+) AS [t] ON [c].[CustomerID] = [t].[CustomerID]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+) AS [t0]
+WHERE [c].[CustomerID] LIKE N'F%'
+ORDER BY [c].[CustomerID], [t].[CustomerID]");
+    }
+
     public override async Task GroupJoin_DefaultIfEmpty(bool async)
     {
         await base.GroupJoin_DefaultIfEmpty(async);
@@ -395,7 +448,14 @@ INNER JOIN (
     {
         await base.GroupJoin_SelectMany_subquery_with_filter_orderby(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [c].[ContactName], [t].[OrderID]
+FROM [Customers] AS [c]
+CROSS APPLY (
+    SELECT [o].[OrderID]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] > 5
+) AS [t]");
     }
 
     public override async Task GroupJoin_SelectMany_subquery_with_filter_and_DefaultIfEmpty(bool async)
@@ -417,7 +477,15 @@ WHERE [c].[CustomerID] LIKE N'F%'");
     {
         await base.GroupJoin_SelectMany_subquery_with_filter_orderby_and_DefaultIfEmpty(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [c].[ContactName], [t].[OrderID], [t].[CustomerID], [t].[EmployeeID], [t].[OrderDate]
+FROM [Customers] AS [c]
+OUTER APPLY (
+    SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID] AND [o].[OrderID] > 5
+) AS [t]
+WHERE [c].[CustomerID] LIKE N'F%'");
     }
 
     public override async Task GroupJoin_Subquery_with_Take_Then_SelectMany_Where(bool async)

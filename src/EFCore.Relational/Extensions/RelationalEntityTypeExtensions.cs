@@ -54,7 +54,8 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The default name of the table to which the entity type would be mapped.</returns>
     public static string? GetDefaultTableName(this IReadOnlyEntityType entityType, bool truncate = true)
     {
-        if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy) == RelationalAnnotationNames.TphMappingStrategy
+        if ((entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+            == RelationalAnnotationNames.TphMappingStrategy
             && entityType.BaseType != null)
         {
             return entityType.GetRootType().GetTableName();
@@ -62,7 +63,7 @@ public static class RelationalEntityTypeExtensions
 
         var ownership = entityType.FindOwnership();
         if (ownership != null
-            && ownership.IsUnique)
+            && (ownership.IsUnique || entityType.IsMappedToJson()))
         {
             return ownership.PrincipalEntityType.GetTableName();
         }
@@ -112,14 +113,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.TableName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the table name.
@@ -201,14 +198,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.Schema,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the database schema.
@@ -316,7 +309,7 @@ public static class RelationalEntityTypeExtensions
 
         var ownership = entityType.FindOwnership();
         return ownership != null
-            && ownership.IsUnique
+            && (ownership.IsUnique || entityType.IsMappedToJson())
                 ? ownership.PrincipalEntityType.GetViewName()
                 : null;
     }
@@ -342,14 +335,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.ViewName,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the view name.
@@ -416,14 +405,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetAnnotation(
+        => (string?)entityType.SetAnnotation(
             RelationalAnnotationNames.ViewSchema,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the view schema.
@@ -833,7 +818,7 @@ public static class RelationalEntityTypeExtensions
         => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
                 RelationalAnnotationNames.DeleteStoredProcedureMappings)
             ?? Enumerable.Empty<IStoredProcedureMapping>();
-    
+
     /// <summary>
     ///     Returns the update stored procedures to which the entity type is mapped.
     /// </summary>
@@ -1082,11 +1067,10 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         string? comment,
         bool fromDataAnnotation = false)
-    {
-        entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.Comment, comment, fromDataAnnotation);
-
-        return comment;
-    }
+        => (string?)entityType.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.Comment,
+            comment,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the table comment.
@@ -1128,7 +1112,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(this IMutableEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IMutableEntityTypeMappingFragment>()
-         ?? Enumerable.Empty<IMutableEntityTypeMappingFragment>();
+            ?? Enumerable.Empty<IMutableEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1143,7 +1127,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(this IConventionEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IConventionEntityTypeMappingFragment>()
-         ?? Enumerable.Empty<IConventionEntityTypeMappingFragment>();
+            ?? Enumerable.Empty<IConventionEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1158,7 +1142,7 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(this IEntityType entityType)
         => EntityTypeMappingFragment.Get(entityType)?.Cast<IEntityTypeMappingFragment>()
-         ?? Enumerable.Empty<IEntityTypeMappingFragment>();
+            ?? Enumerable.Empty<IEntityTypeMappingFragment>();
 
     /// <summary>
     ///     <para>
@@ -1173,7 +1157,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IReadOnlyEntityTypeMappingFragment> GetMappingFragments(
-        this IReadOnlyEntityType entityType, StoreObjectType storeObjectType)
+        this IReadOnlyEntityType entityType,
+        StoreObjectType storeObjectType)
     {
         var fragments = EntityTypeMappingFragment.Get(entityType);
         return fragments == null
@@ -1194,7 +1179,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IMutableEntityTypeMappingFragment> GetMappingFragments(
-        this IMutableEntityType entityType, StoreObjectType storeObjectType)
+        this IMutableEntityType entityType,
+        StoreObjectType storeObjectType)
         => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IMutableEntityTypeMappingFragment>();
 
     /// <summary>
@@ -1210,7 +1196,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IConventionEntityTypeMappingFragment> GetMappingFragments(
-        this IConventionEntityType entityType, StoreObjectType storeObjectType)
+        this IConventionEntityType entityType,
+        StoreObjectType storeObjectType)
         => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IConventionEntityTypeMappingFragment>();
 
     /// <summary>
@@ -1226,7 +1213,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObjectType">The type of store object to get the mapping fragments for.</param>
     /// <returns>The configured entity type mapping fragments.</returns>
     public static IEnumerable<IEntityTypeMappingFragment> GetMappingFragments(
-        this IEntityType entityType, StoreObjectType storeObjectType)
+        this IEntityType entityType,
+        StoreObjectType storeObjectType)
         => GetMappingFragments((IReadOnlyEntityType)entityType, storeObjectType).Cast<IEntityTypeMappingFragment>();
 
     /// <summary>
@@ -1242,7 +1230,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IReadOnlyEntityTypeMappingFragment? FindMappingFragment(
-        this IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IReadOnlyEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1258,7 +1247,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IMutableEntityTypeMappingFragment? FindMappingFragment(
-        this IMutableEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IMutableEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => (IMutableEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1274,7 +1264,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IConventionEntityTypeMappingFragment? FindMappingFragment(
-        this IConventionEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IConventionEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => (IConventionEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1290,7 +1281,8 @@ public static class RelationalEntityTypeExtensions
     /// <param name="storeObject">The identifier of a table-like store object.</param>
     /// <returns>An object that represents an entity type mapping fragment.</returns>
     public static IEntityTypeMappingFragment? FindMappingFragment(
-        this IEntityType entityType, in StoreObjectIdentifier storeObject)
+        this IEntityType entityType,
+        in StoreObjectIdentifier storeObject)
         => (IEntityTypeMappingFragment?)EntityTypeMappingFragment.Find(entityType, storeObject);
 
     /// <summary>
@@ -1327,7 +1319,8 @@ public static class RelationalEntityTypeExtensions
         this IConventionEntityType entityType,
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
-        => EntityTypeMappingFragment.GetOrCreate((IMutableEntityType)entityType, storeObject,
+        => EntityTypeMappingFragment.GetOrCreate(
+            (IMutableEntityType)entityType, storeObject,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -1385,29 +1378,20 @@ public static class RelationalEntityTypeExtensions
         StoreObjectIdentifier storeObject)
     {
         var primaryKey = entityType.FindPrimaryKey();
-        if (primaryKey == null)
+        if (primaryKey == null || entityType.IsMappedToJson())
         {
             yield break;
         }
 
         foreach (var foreignKey in entityType.GetForeignKeys())
         {
-            if (!foreignKey.PrincipalKey.IsPrimaryKey()
-                || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                || !foreignKey.Properties.SequenceEqual(primaryKey.Properties)
-                || !IsMapped(foreignKey, storeObject))
+            if (!foreignKey.IsRowInternal(storeObject))
             {
                 continue;
             }
 
             yield return foreignKey;
         }
-
-        static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
-            => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject))
-                && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject));
     }
 
     /// <summary>
@@ -1562,8 +1546,8 @@ public static class RelationalEntityTypeExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
         => entityType.GetOrCreateMappingFragment(storeObject, fromDataAnnotation).SetIsTableExcludedFromMigrations(
-                excluded, fromDataAnnotation);
-        
+            excluded, fromDataAnnotation);
+
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType)" />.
     /// </summary>
@@ -1577,7 +1561,8 @@ public static class RelationalEntityTypeExtensions
             ?.GetConfigurationSource();
 
     /// <summary>
-    ///     Gets the <see cref="ConfigurationSource" /> for <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType, in StoreObjectIdentifier)" />.
+    ///     Gets the <see cref="ConfigurationSource" /> for
+    ///     <see cref="IsTableExcludedFromMigrations(IReadOnlyEntityType, in StoreObjectIdentifier)" />.
     /// </summary>
     /// <param name="entityType">The entity type to find configuration source for.</param>
     /// <param name="storeObject">The identifier of the table-like store object.</param>
@@ -1643,216 +1628,145 @@ public static class RelationalEntityTypeExtensions
 
     #endregion Mapping strategy
 
-    #region Trigger
+    #region Json
 
     /// <summary>
-    ///     Finds a trigger with the given name.
+    ///     Gets a value indicating whether the specified entity is mapped to a JSON column.
     /// </summary>
-    /// <param name="entityType">The entity type to find the sequence on.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
-    public static IReadOnlyTrigger? FindTrigger(this IReadOnlyEntityType entityType, string name)
-        => Trigger.FindTrigger(entityType, Check.NotEmpty(name, nameof(name)));
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>A value indicating whether the associated entity type is mapped to a JSON column.</returns>
+    public static bool IsMappedToJson(this IReadOnlyEntityType entityType)
+        => !string.IsNullOrEmpty(entityType.GetContainerColumnName());
 
     /// <summary>
-    ///     Finds a trigger with the given name.
+    ///     Sets the name of the container column to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to find the sequence on.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
-    public static IMutableTrigger? FindTrigger(this IMutableEntityType entityType, string name)
-        => (IMutableTrigger?)((IReadOnlyEntityType)entityType).FindTrigger(name);
+    /// <param name="entityType">The entity type to set the container column name for.</param>
+    /// <param name="columnName">The name to set.</param>
+    public static void SetContainerColumnName(this IMutableEntityType entityType, string? columnName)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName);
 
     /// <summary>
-    ///     Finds a trigger with the given name.
+    ///     Sets the name of the container column to which the entity type is mapped.
     /// </summary>
-    /// <param name="entityType">The entity type to find the sequence on.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
-    public static IConventionTrigger? FindTrigger(this IConventionEntityType entityType, string name)
-        => (IConventionTrigger?)((IReadOnlyEntityType)entityType).FindTrigger(name);
-
-    /// <summary>
-    ///     Finds a trigger with the given name.
-    /// </summary>
-    /// <param name="entityType">The entity type to find the sequence on.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
-    public static ITrigger? FindTrigger(this IEntityType entityType, string name)
-        => (ITrigger?)((IReadOnlyEntityType)entityType).FindTrigger(name);
-
-    /// <summary>
-    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
-    ///     entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to add the trigger to.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <returns>The trigger.</returns>
-    public static IMutableTrigger AddTrigger(this IMutableEntityType entityType, string name)
-    {
-        Check.NotEmpty(name, nameof(name));
-
-        return new Trigger(entityType, name, tableName: null, tableSchema: null, ConfigurationSource.Explicit);
-    }
-
-    /// <summary>
-    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
-    ///     entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to add the trigger to.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <param name="tableName">The name of the table on which this trigger is defined.</param>
-    /// <param name="tableSchema">The schema of the table on which this trigger is defined.</param>
-    /// <returns>The trigger.</returns>
-    public static IMutableTrigger AddTrigger(this IMutableEntityType entityType, string name, string tableName, string? tableSchema = null)
-    {
-        Check.NotEmpty(name, nameof(name));
-
-        return new Trigger(entityType, name, tableName, tableSchema, ConfigurationSource.Explicit);
-    }
-
-    /// <summary>
-    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
-    ///     entity type.
-    /// </summary>
-    /// <param name="entityType">The entityType to add the trigger to.</param>
-    /// <param name="name">The trigger name.</param>
+    /// <param name="entityType">The entity type to set the container column name for.</param>
+    /// <param name="columnName">The name to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The trigger.</returns>
-    public static IConventionTrigger AddTrigger(
+    /// <returns>The configured value.</returns>
+    public static string? SetContainerColumnName(
         this IConventionEntityType entityType,
-        string name,
+        string? columnName,
         bool fromDataAnnotation = false)
-    {
-        Check.NotEmpty(name, nameof(name));
-
-        return new Trigger(
-            (IMutableEntityType)entityType, name, tableName: null, tableSchema: null,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    }
+        => (string?)entityType.SetAnnotation(RelationalAnnotationNames.ContainerColumnName, columnName, fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Creates a new trigger with the given name on entity type. Throws an exception if a trigger with the same name exists on the same
-    ///     entity type.
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column name.
     /// </summary>
-    /// <param name="entityType">The entityType to add the trigger to.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <param name="tableName">The name of the table on which this trigger is defined.</param>
-    /// <param name="tableSchema">The schema of the table on which this trigger is defined.</param>
+    /// <param name="entityType">The entity type to set the container column name for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the container column name.</returns>
+    public static ConfigurationSource? GetContainerColumnNameConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the container column name to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the container column name for.</param>
+    /// <returns>The container column name to which the entity type is mapped.</returns>
+    public static string? GetContainerColumnName(this IReadOnlyEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName
+            ? columnName
+            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName());
+
+    /// <summary>
+    ///     Sets the type mapping for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
+    /// <param name="typeMapping">The type mapping to set.</param>
+    public static void SetContainerColumnTypeMapping(this IMutableEntityType entityType, RelationalTypeMapping typeMapping)
+        => entityType.SetOrRemoveAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping);
+
+    /// <summary>
+    ///     Sets the type mapping for the container column to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
+    /// <param name="typeMapping">The type mapping to set.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>The trigger.</returns>
-    public static IConventionTrigger AddTrigger(
+    /// <returns>The configured value.</returns>
+    public static RelationalTypeMapping? SetContainerColumnTypeMapping(
         this IConventionEntityType entityType,
-        string name,
-        string tableName,
-        string? tableSchema,
+        RelationalTypeMapping? typeMapping,
         bool fromDataAnnotation = false)
-    {
-        Check.NotEmpty(name, nameof(name));
-
-        return new Trigger(
-            (IMutableEntityType)entityType, name, tableName, tableSchema,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-    }
+        => (RelationalTypeMapping?)entityType.SetAnnotation(
+            RelationalAnnotationNames.ContainerColumnTypeMapping, typeMapping, fromDataAnnotation)?.Value;
 
     /// <summary>
-    ///     Removes the <see cref="IMutableTrigger" /> with the given name.
+    ///     Gets the <see cref="ConfigurationSource" /> for the container column type mapping.
     /// </summary>
-    /// <param name="entityType">The entityType to find the trigger in.</param>
-    /// <param name="name">The trigger name.</param>
+    /// <param name="entityType">The entity type to set the container column type mapping for.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the container column type mapping.</returns>
+    public static ConfigurationSource? GetContainerColumnTypeMappingConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping)
+            ?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Gets the container column type mapping to which the entity type is mapped.
+    /// </summary>
+    /// <param name="entityType">The entity type to get the container column type mapping for.</param>
+    /// <returns>The container column type mapping to which the entity type is mapped.</returns>
+    public static RelationalTypeMapping? GetContainerColumnTypeMapping(this IReadOnlyEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.ContainerColumnTypeMapping)?.Value is RelationalTypeMapping typeMapping
+            ? typeMapping
+            : (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnTypeMapping());
+
+    /// <summary>
+    ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="name">The name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static string? SetJsonPropertyName(
+        this IConventionEntityType entityType,
+        string? name,
+        bool fromDataAnnotation = false)
+        => (string?)entityType.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name, nameof(name)),
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.
+    /// </summary>
+    /// <remarks>
+    ///     Unless configured explicitly, navigation name is used.
+    /// </remarks>
+    /// <param name="entityType">The entity type.</param>
     /// <returns>
-    ///     The removed <see cref="IMutableTrigger" /> or <see langword="null" /> if no trigger with the given name was found.
+    ///     The value for the JSON property used to store this entity type.
+    ///     <see langword="null" /> is returned for entities that are not mapped to a JSON column.
     /// </returns>
-    public static IMutableTrigger? RemoveTrigger(this IMutableEntityType entityType, string name)
-        => Trigger.RemoveTrigger(entityType, name);
+    public static string? GetJsonPropertyName(this IReadOnlyEntityType entityType)
+        => (string?)entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
+            ?? (!entityType.IsMappedToJson() ? null : entityType.FindOwnership()!.GetNavigation(pointsToPrincipal: false)!.Name);
 
     /// <summary>
-    ///     Removes the <see cref="IConventionTrigger" /> with the given name.
+    ///     Sets the value of JSON property name used for the given entity mapped to a JSON column.
     /// </summary>
-    /// <param name="entityType">The entityType to find the trigger in.</param>
-    /// <param name="name">The trigger name.</param>
-    /// <returns>
-    ///     The removed <see cref="IMutableTrigger" /> or <see langword="null" /> if no trigger with the given name was found
-    ///     or the existing trigger was configured from a higher source.
-    /// </returns>
-    public static IConventionTrigger? RemoveTrigger(this IConventionEntityType entityType, string name)
-        => Trigger.RemoveTrigger((IMutableEntityType)entityType, name);
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="name">The name to be used.</param>
+    public static void SetJsonPropertyName(this IMutableEntityType entityType, string? name)
+        => entityType.SetOrRemoveAnnotation(
+            RelationalAnnotationNames.JsonPropertyName,
+            Check.NullButNotEmpty(name, nameof(name)));
 
     /// <summary>
-    ///     Returns all triggers on the entity type.
+    ///     Gets the <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.
     /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    public static IEnumerable<IReadOnlyTrigger> GetTriggers(this IReadOnlyEntityType entityType)
-        => Trigger.GetTriggers(entityType);
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the JSON property name for a given entity type.</returns>
+    public static ConfigurationSource? GetJsonPropertyNameConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.GetConfigurationSource();
 
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    public static IEnumerable<IMutableTrigger> GetTriggers(this IMutableEntityType entityType)
-        => Trigger.GetTriggers(entityType).Cast<IMutableTrigger>();
-
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    public static IEnumerable<IConventionTrigger> GetTriggers(this IConventionEntityType entityType)
-        => Trigger.GetTriggers(entityType).Cast<IConventionTrigger>();
-
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    public static IEnumerable<ITrigger> GetTriggers(this IEntityType entityType)
-        => Trigger.GetTriggers(entityType).Cast<ITrigger>();
-
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    /// <remarks>
-    ///     This method does not return triggers declared on base types.
-    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
-    ///     Use <see cref="GetTriggers(IReadOnlyEntityType)" /> to also return triggers declared on base types.
-    /// </remarks>
-    public static IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers(this IReadOnlyEntityType entityType)
-        => Trigger.GetDeclaredTriggers(entityType);
-
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    /// <remarks>
-    ///     This method does not return triggers declared on base types.
-    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
-    ///     Use <see cref="GetTriggers(IMutableEntityType)" /> to also return triggers declared on base types.
-    /// </remarks>
-    public static IEnumerable<IMutableTrigger> GetDeclaredTriggers(this IMutableEntityType entityType)
-        => Trigger.GetDeclaredTriggers(entityType).Cast<IMutableTrigger>();
-
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    /// <remarks>
-    ///     This method does not return triggers declared on base types.
-    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
-    ///     Use <see cref="GetTriggers(IConventionEntityType)" /> to also return triggers declared on base types.
-    /// </remarks>
-    public static IEnumerable<IConventionTrigger> GetDeclaredTriggers(this IConventionEntityType entityType)
-        => Trigger.GetDeclaredTriggers(entityType).Cast<IConventionTrigger>();
-
-    /// <summary>
-    ///     Returns all triggers on the entity type.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the triggers on.</param>
-    /// <remarks>
-    ///     This method does not return triggers declared on base types.
-    ///     It is useful when iterating over all entity types to avoid processing the same trigger more than once.
-    ///     Use <see cref="GetTriggers(IEntityType)" /> to also return triggers declared on base types.
-    /// </remarks>
-    public static IEnumerable<ITrigger> GetDeclaredTriggers(this IEntityType entityType)
-        => Trigger.GetDeclaredTriggers(entityType).Cast<ITrigger>();
-
-    #endregion Trigger
+    #endregion
 }

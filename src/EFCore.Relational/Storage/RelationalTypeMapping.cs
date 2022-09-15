@@ -4,7 +4,6 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -483,29 +482,38 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="name">The name of the parameter.</param>
     /// <param name="value">The value to be assigned to the parameter.</param>
     /// <param name="nullable">A value indicating whether the parameter should be a nullable type.</param>
+    /// <param name="direction">The direction of the parameter.</param>
     /// <returns>The newly created parameter.</returns>
     public virtual DbParameter CreateParameter(
         DbCommand command,
         string name,
         object? value,
-        bool? nullable = null)
+        bool? nullable = null,
+        ParameterDirection direction = ParameterDirection.Input)
     {
         var parameter = command.CreateParameter();
-        parameter.Direction = ParameterDirection.Input;
+        parameter.Direction = direction;
         parameter.ParameterName = name;
 
-        value = NormalizeEnumValue(value);
-
-        if (Converter != null)
+        if (direction.HasFlag(ParameterDirection.Input))
         {
-            value = Converter.ConvertToProvider(value);
-        }
+            value = NormalizeEnumValue(value);
 
-        parameter.Value = value ?? DBNull.Value;
+            if (Converter != null)
+            {
+                value = Converter.ConvertToProvider(value);
+            }
+
+            parameter.Value = value ?? DBNull.Value;
+        }
 
         if (nullable.HasValue)
         {
-            Check.DebugAssert(nullable.Value || value != null, "Null value in a non-nullable parameter");
+            Check.DebugAssert(
+                nullable.Value
+                || !direction.HasFlag(ParameterDirection.Input)
+                || value != null,
+                "Null value in a non-nullable input parameter");
 
             parameter.IsNullable = nullable.Value;
         }

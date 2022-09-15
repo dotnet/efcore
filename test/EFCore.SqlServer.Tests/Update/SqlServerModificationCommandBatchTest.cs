@@ -11,20 +11,33 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 public class SqlServerModificationCommandBatchTest
 {
-    [ConditionalFact]
-    public void AddCommand_returns_false_when_max_batch_size_is_reached()
+    [ConditionalTheory]
+    [InlineData(EntityState.Added)]
+    [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Modified)]
+    public void AddCommand_returns_false_when_max_batch_size_is_reached(EntityState entityState)
     {
         var batch = CreateBatch(maxBatchSize: 1);
 
         var firstCommand = CreateModificationCommand("T1", null, false);
+        firstCommand.EntityState = entityState;
+        var secondCommand = CreateModificationCommand("T1", null, false);
+        secondCommand.EntityState = entityState;
+
         Assert.True(batch.TryAddCommand(firstCommand));
-        Assert.False(batch.TryAddCommand(CreateModificationCommand("T1", null, false)));
+        Assert.False(batch.TryAddCommand(secondCommand));
 
         Assert.Same(firstCommand, Assert.Single(batch.ModificationCommands));
     }
 
-    [ConditionalFact]
-    public void AddCommand_returns_false_when_max_parameters_are_reached()
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Deleted, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Modified, false)]
+    public void AddCommand_returns_false_when_max_parameters_are_reached(EntityState entityState, bool withSameTable)
     {
         var typeMapper = CreateTypeMappingSource();
         var intMapping = typeMapper.FindMapping(typeof(int));
@@ -33,13 +46,16 @@ public class SqlServerModificationCommandBatchTest
         var batch = CreateBatch();
 
         var command = CreateModificationCommand("T1", null, false);
+        command.EntityState = entityState;
         for (var i = 0; i < 2098; i++)
         {
             command.AddColumnModification(CreateModificationParameters("col" + i));
         }
+
         Assert.True(batch.TryAddCommand(command));
 
         var secondCommand = CreateModificationCommand("T2", null, false);
+        secondCommand.EntityState = entityState;
         secondCommand.AddColumnModification(CreateModificationParameters("col"));
         Assert.False(batch.TryAddCommand(secondCommand));
         Assert.Same(command, Assert.Single(batch.ModificationCommands));

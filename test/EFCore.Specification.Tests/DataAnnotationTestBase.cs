@@ -554,6 +554,25 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public virtual Login1 User { get; set; }
     }
 
+    protected class PrincipalA
+    {
+        public int Id { get; set; }
+        public DependantA Dependant { get; set; }
+    }
+
+    protected class DependantA
+    {
+        public int Id { get; set; }
+        public int PrincipalId { get; set; }
+        public PrincipalA Principal { get; set; }
+    }
+
+    protected class PrincipalB
+    {
+        public int Id1 { get; set; }
+        public int Id2 { get; set; }
+    }
+
     [ConditionalFact]
     public virtual IModel Key_and_column_work_together()
     {
@@ -1561,54 +1580,6 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
 
         [InverseProperty(nameof(Profile2))]
         public virtual Profile15 Profile4 { get; set; }
-    }
-
-    [ConditionalFact]
-    public virtual void ForeignKey_to_ForeignKey_on_many_to_many()
-    {
-        var modelBuilder = CreateModelBuilder();
-
-        modelBuilder.Entity<Login16>(
-            entity =>
-            {
-                entity.HasMany(d => d.Profile16s)
-                    .WithMany(p => p.Login16s)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "Login16Profile16",
-                        l => l.HasOne<Profile16>().WithMany().HasForeignKey("Profile16Id"),
-                        r => r.HasOne<Login16>().WithMany().HasForeignKey("Login16Id"),
-                        j =>
-                        {
-                            j.HasKey("Login16Id", "Profile16Id");
-
-                            j.ToTable("Login16Profile16");
-                        });
-            });
-
-        var model = Validate(modelBuilder);
-
-        var login = modelBuilder.Model.FindEntityType(typeof(Login16));
-        var logins = login.FindSkipNavigation(nameof(Login16.Profile16s));
-        var join = logins.JoinEntityType;
-        Assert.Equal(2, join.GetProperties().Count());
-        Assert.False(GetProperty<Login16>(model, "Login16Id").IsForeignKey());
-        Assert.False(GetProperty<Profile16>(model, "Profile16Id").IsForeignKey());
-    }
-
-    public class Login16
-    {
-        public int Login16Id { get; set; }
-
-        [ForeignKey("Login16Id")]
-        public virtual ICollection<Profile16> Profile16s { get; set; }
-    }
-
-    public class Profile16
-    {
-        public int Profile16Id { get; set; }
-
-        [ForeignKey("Profile16Id")]
-        public virtual ICollection<Login16> Login16s { get; set; }
     }
 
     [ConditionalFact]

@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
 ///     A convention that configures the entity type key based on the <see cref="KeyAttribute" /> specified on a property or
-///     <see cref="PrimaryKeyAttribute"/> specified on a CLR type.
+///     <see cref="PrimaryKeyAttribute" /> specified on a CLR type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
@@ -183,36 +183,21 @@ public class KeyAttributeConvention
         }
 
         IConventionKeyBuilder? keyBuilder;
-        if (!shouldThrow)
+        if (!shouldThrow
+            && !entityType.Builder.CanSetPrimaryKey(primaryKeyAttribute.PropertyNames, fromDataAnnotation: true))
         {
-            var keyProperties = new List<IConventionProperty>();
-            foreach (var propertyName in primaryKeyAttribute.PropertyNames)
-            {
-                var property = entityType.FindProperty(propertyName);
-                if (property == null)
-                {
-                    return true;
-                }
-
-                keyProperties.Add(property);
-            }
-
-            keyBuilder = entityType.Builder.PrimaryKey(keyProperties, fromDataAnnotation: true);
+            return true;
         }
-        else
-        {
-            try
-            {
-                // Using the PrimaryKey(propertyNames) overload gives us a chance to create a missing property
-                // e.g. if the CLR property existed but was non-public.
-                keyBuilder = entityType.Builder.PrimaryKey(primaryKeyAttribute.PropertyNames, fromDataAnnotation: true);
-            }
-            catch (InvalidOperationException exception)
-            {
-                CheckMissingProperties(entityType, primaryKeyAttribute, exception);
 
-                throw;
-            }
+        try
+        {
+            keyBuilder = entityType.Builder.PrimaryKey(primaryKeyAttribute.PropertyNames, fromDataAnnotation: true);
+        }
+        catch (InvalidOperationException exception)
+        {
+            CheckMissingProperties(entityType, primaryKeyAttribute, exception);
+
+            throw;
         }
 
         if (keyBuilder == null

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -62,7 +63,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     /// <returns>The new entity type.</returns>
     public virtual RuntimeEntityType AddEntityType(
         string name,
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         RuntimeEntityType? baseType = null,
         bool sharedClrType = false,
         string? discriminatorProperty = null,
@@ -173,7 +174,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     private string GetDisplayName(Type type)
         => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
-    private PropertyInfo? FindIndexerPropertyInfo(Type type)
+    private PropertyInfo? FindIndexerPropertyInfo([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
         => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
 
     /// <summary>
@@ -240,7 +241,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IEntityType? IModel.FindEntityType(Type type)
+    IEntityType? IModel.FindEntityType([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
         => FindEntityType(type);
 
     /// <inheritdoc />
@@ -289,7 +290,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IReadOnlyModel.IsShared(Type type)
+    bool IReadOnlyModel.IsShared([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type)
         => _sharedTypes.ContainsKey(type);
 
     /// <inheritdoc />

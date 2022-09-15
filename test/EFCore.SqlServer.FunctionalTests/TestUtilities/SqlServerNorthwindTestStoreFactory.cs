@@ -14,5 +14,5 @@ public class SqlServerNorthwindTestStoreFactory : SqlServerTestStoreFactory
     }
 
     public override TestStore GetOrCreate(string storeName)
-        => SqlServerTestStore.GetOrCreate(storeName, "Northwind.sql");
+        => SqlServerTestStore.GetOrCreateWithScriptPath(storeName, "Northwind.sql");
 }

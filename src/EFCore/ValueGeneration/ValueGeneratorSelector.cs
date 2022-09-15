@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-
 namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 /// <summary>
@@ -107,7 +105,7 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     }
 
     /// <summary>
-    ///     Creates a new value generator for the given property and type, where the property may have a <see cref="ValueConverter"/>.
+    ///     Creates a new value generator for the given property and type, where the property may have a <see cref="ValueConverter" />.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
     /// <param name="entityType">

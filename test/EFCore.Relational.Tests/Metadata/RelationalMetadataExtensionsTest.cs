@@ -618,7 +618,7 @@ public class RelationalMetadataExtensionsTest
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private enum MyEnum : byte
     {

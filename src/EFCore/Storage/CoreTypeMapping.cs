@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -35,7 +36,7 @@ public abstract class CoreTypeMapping
         /// <param name="providerValueComparer">Supports custom comparisons between converted provider values.</param>
         /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
         public CoreTypeMappingParameters(
-            Type clrType,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type clrType,
             ValueConverter? converter = null,
             ValueComparer? comparer = null,
             ValueComparer? keyComparer = null,
@@ -53,6 +54,7 @@ public abstract class CoreTypeMapping
         /// <summary>
         ///     The mapping CLR type.
         /// </summary>
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)]
         public Type ClrType { get; init; }
 
         /// <summary>
@@ -155,6 +157,9 @@ public abstract class CoreTypeMapping
     /// <summary>
     ///     Gets the .NET type used in the EF model.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.NonPublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
     public virtual Type ClrType { get; }
 
     /// <summary>
@@ -199,8 +204,8 @@ public abstract class CoreTypeMapping
             ref _providerValueComparer,
             this,
             static c => (c.Converter?.ProviderClrType ?? c.ClrType) == c.ClrType
-                    ? c.KeyComparer
-                    : ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
+                ? c.KeyComparer
+                : ValueComparer.CreateDefault(c.Converter!.ProviderClrType, favorStructuralComparisons: true));
 
     /// <summary>
     ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />

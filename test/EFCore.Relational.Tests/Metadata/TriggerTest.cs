@@ -15,13 +15,13 @@ public class TriggerTest
             .Entity<Customer>()
             .ToTable(tb => tb.HasTrigger("Customer_Trigger"));
 
-        var trigger = entityType.FindTrigger("Customer_Trigger");
+        var trigger = entityType.FindDeclaredTrigger("Customer_Trigger");
 
         Assert.NotNull(trigger);
         Assert.Same(entityType, trigger.EntityType);
-        Assert.Equal("Customer_Trigger", trigger.Name);
-        Assert.Equal("Customer", trigger.TableName);
-        Assert.Null(trigger.TableSchema);
+        Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
+        Assert.Equal("Customer", trigger.GetTableName());
+        Assert.Null(trigger.GetTableSchema());
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionTrigger)trigger).GetConfigurationSource());
     }
 
@@ -35,27 +35,14 @@ public class TriggerTest
             .Entity<Customer>()
             .ToTable("CustomerTable", "dbo", tb => tb.HasTrigger("Customer_Trigger"));
 
-        var trigger = entityType.FindTrigger("Customer_Trigger");
+        var trigger = entityType.FindDeclaredTrigger("Customer_Trigger");
 
         Assert.NotNull(trigger);
         Assert.Same(entityType, trigger.EntityType);
-        Assert.Equal("Customer_Trigger", trigger.Name);
-        Assert.Equal("CustomerTable", trigger.TableName);
-        Assert.Equal("dbo", trigger.TableSchema);
+        Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
+        Assert.Equal("CustomerTable", trigger.GetTableName());
+        Assert.Equal("dbo", trigger.GetTableSchema());
         Assert.Equal(ConfigurationSource.Explicit, ((IConventionTrigger)trigger).GetConfigurationSource());
-    }
-
-    [ConditionalFact]
-    public void Create_trigger_on_unmapped_entity_type_throws()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        var exception = Assert.Throws<InvalidOperationException>(() => modelBuilder
-            .Entity<Customer>()
-            .ToTable((string)null)
-            .ToTable(tb => tb.HasTrigger("Customer_Trigger")));
-
-        Assert.Equal(RelationalStrings.TriggerOnUnmappedEntityType("Customer_Trigger", "Customer"), exception.Message);
     }
 
     [ConditionalFact]
@@ -64,12 +51,12 @@ public class TriggerTest
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
         var entityType = entityTypeBuilder.Metadata;
 
-        entityType.AddTrigger("SomeTrigger", "SomeTable", null);
+        entityType.AddTrigger("SomeTrigger").SetTableName("SomeTable");
 
         Assert.Equal(
-            RelationalStrings.DuplicateTrigger("SomeTrigger", entityType.DisplayName(), entityType.DisplayName()),
+            CoreStrings.DuplicateTrigger("SomeTrigger", entityType.DisplayName(), entityType.DisplayName()),
             Assert.Throws<InvalidOperationException>(
-                () => entityType.AddTrigger("SomeTrigger", "SomeTable")).Message);
+                () => entityType.AddTrigger("SomeTrigger")).Message);
     }
 
     [ConditionalFact]
@@ -78,9 +65,10 @@ public class TriggerTest
         var entityTypeBuilder = CreateConventionModelBuilder().Entity<Customer>();
         var entityType = entityTypeBuilder.Metadata;
 
-        var constraint = entityType.AddTrigger("SomeTrigger", "SomeTable");
+        var trigger = entityType.AddTrigger("SomeTrigger");
+        trigger.SetTableName("SomeTable");
 
-        Assert.Same(constraint, entityType.RemoveTrigger("SomeTrigger"));
+        Assert.Same(trigger, entityType.RemoveTrigger("SomeTrigger"));
     }
 
     [ConditionalFact]
@@ -93,7 +81,7 @@ public class TriggerTest
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private class Customer
     {

@@ -78,6 +78,7 @@ public class CosmosDatabaseWrapper : Database
                     // #16707
                     ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                    entries.Add(root);
                 }
 
                 continue;
@@ -151,6 +152,7 @@ public class CosmosDatabaseWrapper : Database
                     // #16707
                     ((InternalEntityEntry)root).SetEntityState(EntityState.Modified);
 #pragma warning restore EF1001 // Internal EF Core API usage.
+                    entries.Add(root);
                 }
 
                 continue;
@@ -171,7 +173,7 @@ public class CosmosDatabaseWrapper : Database
 
                 if (exception is not DbUpdateConcurrencyException
                     || !(await Dependencies.Logger.OptimisticConcurrencyExceptionAsync(
-                        entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
+                            entry.Context, errorEntries, (DbUpdateConcurrencyException)exception, null, cancellationToken)
                         .ConfigureAwait(false)).IsSuppressed)
                 {
                     throw exception;

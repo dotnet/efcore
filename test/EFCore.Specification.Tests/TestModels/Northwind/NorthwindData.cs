@@ -18,7 +18,7 @@ public partial class NorthwindData : ISetSource
     public OrderQuery[] OrderQueries { get; }
     public OrderDetail[] OrderDetails { get; }
 
-    private readonly Dictionary<int, string> _categoryNameMap = new Dictionary<int, string>
+    private readonly Dictionary<int, string> _categoryNameMap = new()
     {
         { 1, "Beverages" },
         { 2, "Condiments" },
@@ -74,12 +74,13 @@ public partial class NorthwindData : ISetSource
                         ProductName = product.ProductName
                     });
 
-                productViews.Add(new ProductView
-                {
-                    CategoryName = _categoryNameMap[product.CategoryID.Value],
-                    ProductID = product.ProductID,
-                    ProductName = product.ProductName
-                });
+                productViews.Add(
+                    new ProductView
+                    {
+                        CategoryName = _categoryNameMap[product.CategoryID.Value],
+                        ProductID = product.ProductID,
+                        ProductName = product.ProductName
+                    });
             }
         }
 

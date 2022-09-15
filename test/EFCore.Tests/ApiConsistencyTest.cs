@@ -45,6 +45,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(EntityTypeBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
+            typeof(TriggerBuilder),
             typeof(InvertibleRelationshipBuilderBase),
             typeof(KeyBuilder),
             typeof(KeyBuilder<>),
@@ -106,15 +107,19 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsOne), 0,
+                new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsOne), 0,
+                new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsMany), 0,
+                new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsMany), 0,
+                new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
@@ -133,6 +138,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
+            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder)),
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(Type), typeof(bool) }),
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(string), typeof(bool) }),
             typeof(IConventionPropertyBuilder).GetMethod(

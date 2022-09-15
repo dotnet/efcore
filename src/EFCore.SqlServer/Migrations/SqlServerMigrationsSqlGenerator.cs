@@ -33,16 +33,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private IReadOnlyList<MigrationOperation> _operations = null!;
     private int _variableCounter;
 
+    private readonly ICommandBatchPreparer _commandBatchPreparer;
+
     /// <summary>
     ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    /// <param name="migrationsAnnotations">Provider-specific Migrations annotations to use.</param>
+    /// <param name="commandBatchPreparer">The command batch preparer.</param>
     public SqlServerMigrationsSqlGenerator(
         MigrationsSqlGeneratorDependencies dependencies,
-        IRelationalAnnotationProvider migrationsAnnotations)
+        ICommandBatchPreparer commandBatchPreparer)
         : base(dependencies)
     {
+        _commandBatchPreparer = commandBatchPreparer;
     }
 
     /// <summary>
@@ -341,6 +344,42 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         {
             DropDefaultConstraint(operation.Schema, operation.Table, operation.Name, builder);
             (oldDefaultValue, oldDefaultValueSql) = (null, null);
+        }
+
+        // The column is being made non-nullable. Generate an update statement before doing that, to convert any existing null values to
+        // the default value (otherwise SQL Server fails).
+        if (!operation.IsNullable
+            && operation.OldColumn.IsNullable
+            && (operation.DefaultValueSql is not null || operation.DefaultValue is not null))
+        {
+            string defaultValueSql;
+            if (operation.DefaultValueSql is not null)
+            {
+                defaultValueSql = operation.DefaultValueSql;
+            }
+            else
+            {
+                Check.DebugAssert(operation.DefaultValue is not null, "operation.DefaultValue is not null");
+
+                var typeMapping = (columnType != null
+                        ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
+                        : null)
+                    ?? Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
+
+                defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
+            }
+
+            builder
+                .Append("UPDATE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" SET ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" = ")
+                .Append(defaultValueSql)
+                .Append(" WHERE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" IS NULL")
+                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         if (alterStatementNeeded)
@@ -1409,10 +1448,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         GenerateIdentityInsert(builder, operation, on: true, model);
 
         var sqlBuilder = new StringBuilder();
-        ((ISqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
-            sqlBuilder,
-            GenerateModificationCommands(operation, model).ToList(),
-            0);
+
+        var modificationCommands = GenerateModificationCommands(operation, model).ToList();
+        var updateSqlGenerator = (ISqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator;
+
+        foreach (var batch in _commandBatchPreparer.CreateCommandBatches(modificationCommands, moreCommandSets: true))
+        {
+            updateSqlGenerator.AppendBulkInsertOperation(sqlBuilder, batch.ModificationCommands, commandPosition: 0);
+        }
 
         if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
         {
@@ -2424,7 +2467,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                     var alterHistoryTableColumn = CopyColumnOperation<AlterColumnOperation>(alterColumnOperation);
                                     alterHistoryTableColumn.Table = historyTableName!;
                                     alterHistoryTableColumn.Schema = historyTableSchema;
-                                    alterHistoryTableColumn.OldColumn = CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
+                                    alterHistoryTableColumn.OldColumn =
+                                        CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
                                     alterHistoryTableColumn.OldColumn.Table = historyTableName!;
                                     alterHistoryTableColumn.OldColumn.Schema = historyTableSchema;
 

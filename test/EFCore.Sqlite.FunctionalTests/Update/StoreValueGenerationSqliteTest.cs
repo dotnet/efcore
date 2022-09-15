@@ -5,8 +5,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
-    StoreValueGenerationSqliteTest.StoreValueGenerationSqliteFixture>
+// Newer Sqlite versions support the RETURNING clause, so we use those (see StoreValueGenerationLegacySqliteTest for older Sqlite versions)
+[SqliteVersionCondition(Min = "3.35.0")]
+public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<StoreValueGenerationSqliteFixture>
 {
     public StoreValueGenerationSqliteTest(StoreValueGenerationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
@@ -15,6 +16,7 @@ public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<
         // fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    // We don't currently batch in Sqlite (the perf impact is likely to be minimal, no networking)
     protected override int ShouldExecuteInNumberOfCommands(
         EntityState firstOperationType,
         EntityState? secondOperationType,
@@ -331,10 +333,4 @@ RETURNING 1;");
     }
 
     #endregion Same two operations with different entity types
-
-    public class StoreValueGenerationSqliteFixture : StoreValueGenerationFixtureBase
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
-    }
 }

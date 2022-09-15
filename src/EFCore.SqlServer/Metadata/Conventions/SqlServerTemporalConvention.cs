@@ -13,7 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
-public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention, ISkipNavigationForeignKeyChangedConvention, IModelFinalizingConvention
+public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConvention,
+    ISkipNavigationForeignKeyChangedConvention,
+    IModelFinalizingConvention
 {
     private const string DefaultPeriodStartName = "PeriodStart";
     private const string DefaultPeriodEndName = "PeriodEnd";
@@ -27,7 +29,6 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
         ProviderConventionSetBuilderDependencies dependencies,
         RelationalConventionSetBuilderDependencies relationalDependencies)
     {
-        Dependencies = dependencies;
         Dependencies = dependencies;
         RelationalDependencies = relationalDependencies;
     }

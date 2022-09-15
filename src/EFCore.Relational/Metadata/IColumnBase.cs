@@ -27,6 +27,11 @@ public interface IColumnBase : IAnnotatable
     Type ProviderClrType { get; }
 
     /// <summary>
+    ///     Gets the type mapping for the column-like object.
+    /// </summary>
+    RelationalTypeMapping StoreTypeMapping { get; }
+
+    /// <summary>
     ///     Gets the value indicating whether the column can contain NULL.
     /// </summary>
     bool IsNullable { get; }
@@ -40,6 +45,14 @@ public interface IColumnBase : IAnnotatable
     ///     Gets the property mappings.
     /// </summary>
     IReadOnlyList<IColumnMappingBase> PropertyMappings { get; }
+
+    /// <summary>
+    ///     Gets the <see cref="ValueComparer" /> for this column.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    ValueComparer ProviderValueComparer
+        => PropertyMappings.First().Property
+            .GetProviderValueComparer();
 
     /// <summary>
     ///     Returns the property mapping for the given entity type.

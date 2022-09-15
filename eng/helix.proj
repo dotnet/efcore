@@ -17,10 +17,11 @@
 
   <PropertyGroup Condition = "'$(SYSTEM_ACCESSTOKEN)' == ''">
     <!-- Local build outside of Azure Pipeline -->
-    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1014.Amd64.Open;Ubuntu.1604.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20201109180804-3069967</HelixTargetQueues>
+    <HelixTargetQueues Condition = "'$(HelixTargetQueues)' == ''">Windows.10.Amd64.Open;Ubuntu.1804.Amd64.Open;OSX.1100.Amd64.Open;Ubuntu.1804.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072</HelixTargetQueues>
     <EnableAzurePipelinesReporter>false</EnableAzurePipelinesReporter>
     <HelixSource>efcore/localbuild/</HelixSource>
     <HelixBuild>t001</HelixBuild>
+    <MSSQL_SA_PASSWORD>Password12!</MSSQL_SA_PASSWORD>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,8 @@
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
+    <!-- The trimming test project is a console program -->
+    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Trimming.Tests/*.csproj"/>
   </ItemGroup>
 
   <!-- Start LocalDb instance for test projects which uses SqlServer on windows -->
@@ -57,16 +60,11 @@
     <XUnitProject Remove="$(SqlServerTests)"/>
   </ItemGroup>
 
-  <!-- The trimming test project is a console program -->
-  <ItemGroup>
-    <XUnitProject Remove="$(RepoRoot)/test/EFCore.Trimming.Tests/*.csproj"/>
-  </ItemGroup>
-
   <PropertyGroup>
     <XUnitPublishTargetFramework>net7.0</XUnitPublishTargetFramework>
     <XUnitRuntimeTargetFramework>netcoreapp2.0</XUnitRuntimeTargetFramework>
     <XUnitRunnerVersion>2.4.2-pre.9</XUnitRunnerVersion>
     <XUnitArguments></XUnitArguments>
-    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">01:00:00</XUnitWorkItemTimeout>
+    <XUnitWorkItemTimeout Condition = "'$(XUnitWorkItemTimeout)' == ''">02:00:00</XUnitWorkItemTimeout>
   </PropertyGroup>
 </Project>

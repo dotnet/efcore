@@ -33,10 +33,7 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
         { typeof(EntityOne), e => ((EntityOne)e)?.Id },
         { typeof(EntityTwo), e => ((EntityTwo)e)?.Id },
         { typeof(EntityThree), e => ((EntityThree)e)?.Id },
-        {
-            typeof(EntityCompositeKey),
-            e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3)
-        },
+        { typeof(EntityCompositeKey), e => (((EntityCompositeKey)e)?.Key1, ((EntityCompositeKey)e)?.Key2, ((EntityCompositeKey)e)?.Key3) },
         { typeof(EntityRoot), e => ((EntityRoot)e)?.Id },
         { typeof(EntityBranch), e => ((EntityBranch)e)?.Id },
         { typeof(EntityLeaf), e => ((EntityLeaf)e)?.Id },
@@ -268,6 +265,10 @@ public abstract class ManyToManyFieldsQueryFixtureBase : SharedStoreFixtureBase<
         modelBuilder.Entity<EntityOne>()
             .HasMany(e => e.TwoSkipShared)
             .WithMany(e => e.OneSkipShared);
+
+        modelBuilder.Entity<EntityRoot>()
+            .HasMany(e => e.BranchSkipShared)
+            .WithMany(e => e.RootSkipShared);
 
         // Nav:2 Payload:No Join:Concrete Extra:None
         modelBuilder.Entity<EntityOne>()

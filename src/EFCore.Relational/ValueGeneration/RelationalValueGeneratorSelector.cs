@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ValueGeneration;
@@ -43,6 +44,11 @@ public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     /// <inheritdoc />
     protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
     {
+        if (entityType.IsMappedToJson() && property.IsOrdinalKeyProperty())
+        {
+            return _numberFactory.Create(property, entityType);
+        }
+
         if (property.ValueGenerated != ValueGenerated.Never)
         {
             if (clrType.IsInteger()

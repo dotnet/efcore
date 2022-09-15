@@ -68,7 +68,8 @@ public class RelationalQueryFilterRewritingConvention : QueryFilterRewritingConv
             var methodName = methodCallExpression.Method.Name;
             if (methodCallExpression.Method.DeclaringType == typeof(RelationalQueryableExtensions)
                 && (methodName == nameof(RelationalQueryableExtensions.FromSqlRaw)
-                    || methodName == nameof(RelationalQueryableExtensions.FromSqlInterpolated)))
+                    || methodName == nameof(RelationalQueryableExtensions.FromSqlInterpolated)
+                    || methodName == nameof(RelationalQueryableExtensions.FromSql)))
             {
                 var newSource = (EntityQueryRootExpression)Visit(methodCallExpression.Arguments[0]);
 

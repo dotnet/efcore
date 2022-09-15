@@ -683,9 +683,8 @@ SELECT
     [cc].[is_persisted] AS [computed_is_persisted],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
     [c].[collation_name],
-    [c].[is_sparse]";
-
-        commandText += @"FROM
+    [c].[is_sparse]
+FROM
 (
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
     FROM [sys].[views] v WHERE ";
@@ -1324,16 +1323,13 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
 
             var table = tables.Single(t => t.Schema == tableSchema && t.Name == tableName);
 
-            var triggers = new HashSet<string>();
-            table[RelationalAnnotationNames.Triggers] = triggers;
-
             foreach (var triggerRecord in tableGroup)
             {
                 var triggerName = triggerRecord.GetFieldValue<string>("trigger_name");
 
                 // We don't actually scaffold anything beyond the fact that there's a trigger with a given name.
                 // This is to modify the SaveChanges logic to not use OUTPUT without INTO, which is incompatible with triggers.
-                triggers.Add(triggerName);
+                table.Triggers.Add(new DatabaseTrigger { Name = triggerName });
             }
         }
     }

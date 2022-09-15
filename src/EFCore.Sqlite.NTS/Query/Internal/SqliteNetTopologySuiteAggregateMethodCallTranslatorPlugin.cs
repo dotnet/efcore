@@ -19,10 +19,7 @@ public class SqliteNetTopologySuiteAggregateMethodCallTranslatorPlugin : IAggreg
     /// </summary>
     public SqliteNetTopologySuiteAggregateMethodCallTranslatorPlugin(ISqlExpressionFactory sqlExpressionFactory)
     {
-        Translators = new IAggregateMethodCallTranslator[]
-        {
-            new SqliteNetTopologySuiteAggregateMethodTranslator(sqlExpressionFactory)
-        };
+        Translators = new IAggregateMethodCallTranslator[] { new SqliteNetTopologySuiteAggregateMethodTranslator(sqlExpressionFactory) };
     }
 
     /// <summary>

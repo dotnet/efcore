@@ -26,14 +26,34 @@ public static class CosmosDatabaseFacadeExtensions
         => GetService<ISingletonCosmosClientWrapper>(databaseFacade).Client;
 
     private static TService GetService<TService>(IInfrastructure<IServiceProvider> databaseFacade)
+        where TService : class
     {
-        var service = databaseFacade.Instance.GetService<TService>();
+        var service = databaseFacade.GetService<TService>();
         if (service == null)
         {
             throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
         }
 
         return service;
+    }
+
+    /// <summary>
+    ///     Gets the configured database name for this <see cref="DbContext" />.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-cosmos">Accessing Azure Cosmos DB with EF Core</see> for more information and examples.
+    /// </remarks>
+    /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
+    /// <returns>The database name.</returns>
+    public static string GetCosmosDatabaseId(this DatabaseFacade databaseFacade)
+    {
+        var cosmosOptions = databaseFacade.GetService<IDbContextOptions>().FindExtension<CosmosOptionsExtension>();
+        if (cosmosOptions == null)
+        {
+            throw new InvalidOperationException(CosmosStrings.CosmosNotInUse);
+        }
+
+        return cosmosOptions.DatabaseName;
     }
 
     /// <summary>

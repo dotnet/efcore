@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class StoreValueGenerationTriggerSqlServerFixture : StoreValueGenerationFixtureBase
+public abstract class StoreValueGenerationTriggerSqlServerFixture : StoreValueGenerationSqlServerFixtureBase
 {
     protected override void Seed(StoreValueGenerationContext context)
     {

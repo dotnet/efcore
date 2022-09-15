@@ -993,8 +993,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     [InlineData("datetime", typeof(DateTime), null, false, false)]
     [InlineData("datetime2", typeof(DateTime), null, false, false)]
     [InlineData("datetimeoffset", typeof(DateTimeOffset), null, false, false)]
-    [InlineData("dec", typeof(decimal), null, false, false)]
-    [InlineData("decimal", typeof(decimal), null, false, false)]
+    [InlineData("dec", typeof(decimal), null, false, false, "dec(18,0)")]
+    [InlineData("decimal", typeof(decimal), null, false, false, "decimal(18,0)")]
     [InlineData("float", typeof(double), null, false, false)] // This is correct. SQL Server 'float' type maps to C# double
     [InlineData("float(10)", typeof(double), null, false, false)]
     [InlineData("image", typeof(byte[]), null, false, false)]
@@ -1007,7 +1007,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     [InlineData("national character(333)", typeof(string), 333, true, true)]
     [InlineData("nchar(333)", typeof(string), 333, true, true)]
     [InlineData("ntext", typeof(string), null, true, false)]
-    [InlineData("numeric", typeof(decimal), null, false, false)]
+    [InlineData("numeric", typeof(decimal), null, false, false, "numeric(18,0)")]
     [InlineData("nvarchar(333)", typeof(string), 333, true, false)]
     [InlineData("nvarchar(max)", typeof(string), null, true, false)]
     [InlineData("real", typeof(float), null, false, false)]
@@ -1227,6 +1227,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Null(mapping.Scale);
         Assert.Equal(typeName, mapping.StoreType, true);
     }
+
     private class VarTimeEntity
     {
         public int Id { get; set; }
@@ -1234,7 +1235,6 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         public DateTimeOffset DateTimeOffsetWithPrecision { get; set; }
         public TimeSpan TimeSpanWithPrecision { get; set; }
     }
-
 
     [ConditionalTheory]
     [InlineData("binary varying")]
@@ -1425,8 +1425,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     {
     }
 
-    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
-        => SqlServerTestHelpers.Instance.CreateConventionBuilder(configureModel: configure);
+    protected override ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null)
+        => SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: configureConventions);
 
     private class TestParameter : DbParameter
     {

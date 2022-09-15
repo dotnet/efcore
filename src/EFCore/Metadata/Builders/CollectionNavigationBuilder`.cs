@@ -1,7 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,7 +18,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </remarks>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
 /// <typeparam name="TRelatedEntity">The entity type that this relationship targets.</typeparam>
-public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNavigationBuilder
+public class CollectionNavigationBuilder<
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity,
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TRelatedEntity> : CollectionNavigationBuilder
     where TEntity : class
     where TRelatedEntity : class
 {
@@ -80,7 +82,7 @@ public class CollectionNavigationBuilder<TEntity, TRelatedEntity> : CollectionNa
     ///     Configures this as a many-to-many relationship.
     /// </summary>
     /// <param name="navigationName">
-    ///     The name of the collection navigation property on the other end of this relationship. Can be <see langword="null"/> to
+    ///     The name of the collection navigation property on the other end of this relationship. Can be <see langword="null" /> to
     ///     create a unidirectional relationship.
     /// </param>
     /// <returns>An object to further configure the relationship.</returns>

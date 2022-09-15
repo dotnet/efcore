@@ -213,7 +213,7 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                         _ => _sqlExpressionFactory.LessThan(testLeft, testRight)
                     });
         }
-   }
+    }
 
     private Expression SimplifySqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {
@@ -231,7 +231,8 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
             && sqlConstantComponent != null
             && sqlConstantComponent.Value != null
             && caseComponent != null
-            && caseComponent.Operand == null)
+            && caseComponent.Operand == null
+            && caseComponent.ElseResult == null)
         {
             var matchingCaseBlock = caseComponent.WhenClauses.FirstOrDefault(wc => sqlConstantComponent.Equals(wc.Result));
             if (matchingCaseBlock != null)

@@ -56,7 +56,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         var (key, processedKeyValues, _) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: false, default);
 
         return FindTracked(key, processedKeyValues)
-                ?? _queryRoot.FirstOrDefault(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)));
+            ?? _queryRoot.FirstOrDefault(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)));
     }
 
     /// <summary>
@@ -271,10 +271,10 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             ? navigation.ForeignKey.PrincipalKey.Properties
             : navigation.ForeignKey.Properties;
 
-    private (IKey Key, object[] KeyValues,CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
-            object[] keyValues,
-            bool async,
-            CancellationToken cancellationToken)
+    private (IKey Key, object[] KeyValues, CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
+        object[] keyValues,
+        bool async,
+        CancellationToken cancellationToken)
     {
         var key = _entityType.FindPrimaryKey()!;
         var keyPropertiesCount = key.Properties.Count;

@@ -29,6 +29,11 @@ public static class RelationalEntityTypeExtensions
         this IEntityType entityType,
         StoreObjectIdentifier storeObject)
     {
+        if (entityType.IsMappedToJson())
+        {
+            yield break;
+        }
+
         foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys())
         {
             var dependentPrimaryKey = foreignKey.DeclaringEntityType.FindPrimaryKey();
@@ -50,9 +55,11 @@ public static class RelationalEntityTypeExtensions
 
         static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
             => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject))
+                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == storeObject))
                 && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject));
+                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == storeObject));
     }
 
     /// <summary>

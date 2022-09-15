@@ -23,6 +23,10 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
     {
     }
 
+    // No owned types
+    public override Task Can_insert_when_composite_FK_has_default_value_for_one_part(bool async)
+        => Task.CompletedTask;
+
     public override void Required_one_to_one_relationships_are_one_to_one(CascadeTiming? deleteOrphansTiming)
     {
     }

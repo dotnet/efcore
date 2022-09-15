@@ -788,6 +788,85 @@ IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name'
 ");
     }
 
+    [ConditionalFact]
+    public virtual void InsertDataOperation_max_batch_size_is_respected()
+    {
+        // The SQL Server max batch size is 42 by default
+        var values = new object[50, 1];
+        for (var i = 0; i < 50; i++)
+        {
+            values[i, 0] = "Foo" + i;
+        }
+
+        Generate(
+            CreateGotModel,
+            new InsertDataOperation
+            {
+                Table = "People",
+                Columns = new[] { "First Name" },
+                Values = values
+            });
+
+        AssertSql(
+            @"IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] ON;
+INSERT INTO [dbo].[People] ([First Name])
+VALUES (N'Foo0'),
+(N'Foo1'),
+(N'Foo2'),
+(N'Foo3'),
+(N'Foo4'),
+(N'Foo5'),
+(N'Foo6'),
+(N'Foo7'),
+(N'Foo8'),
+(N'Foo9'),
+(N'Foo10'),
+(N'Foo11'),
+(N'Foo12'),
+(N'Foo13'),
+(N'Foo14'),
+(N'Foo15'),
+(N'Foo16'),
+(N'Foo17'),
+(N'Foo18'),
+(N'Foo19'),
+(N'Foo20'),
+(N'Foo21'),
+(N'Foo22'),
+(N'Foo23'),
+(N'Foo24'),
+(N'Foo25'),
+(N'Foo26'),
+(N'Foo27'),
+(N'Foo28'),
+(N'Foo29'),
+(N'Foo30'),
+(N'Foo31'),
+(N'Foo32'),
+(N'Foo33'),
+(N'Foo34'),
+(N'Foo35'),
+(N'Foo36'),
+(N'Foo37'),
+(N'Foo38'),
+(N'Foo39'),
+(N'Foo40'),
+(N'Foo41');
+INSERT INTO [dbo].[People] ([First Name])
+VALUES (N'Foo42'),
+(N'Foo43'),
+(N'Foo44'),
+(N'Foo45'),
+(N'Foo46'),
+(N'Foo47'),
+(N'Foo48'),
+(N'Foo49');
+IF EXISTS (SELECT * FROM [sys].[identity_columns] WHERE [name] IN (N'First Name') AND [object_id] = OBJECT_ID(N'[dbo].[People]'))
+    SET IDENTITY_INSERT [dbo].[People] OFF;
+");
+    }
+
     public override void InsertDataOperation_throws_for_unsupported_column_types()
         => base.InsertDataOperation_throws_for_unsupported_column_types();
 
@@ -1044,6 +1123,19 @@ SELECT @@ROWCOUNT;
             @"EXEC(N'CREATE UNIQUE INDEX [IX_Table1_Column1] ON [Table1] ([Column1]) WHERE [Column1] IS NOT NULL');
 ");
     }
+
+    private static void CreateGotModel(ModelBuilder b)
+        => b.HasDefaultSchema("dbo").Entity(
+            "Person", pb =>
+            {
+                pb.ToTable("People");
+                pb.Property<string>("FirstName").HasColumnName("First Name");
+                pb.Property<string>("LastName").HasColumnName("Last Name");
+                pb.Property<string>("Birthplace").HasColumnName("Birthplace");
+                pb.Property<string>("Allegiance").HasColumnName("House Allegiance");
+                pb.Property<string>("Culture").HasColumnName("Culture");
+                pb.HasKey("FirstName", "LastName");
+            });
 
     public SqlServerMigrationsSqlGeneratorTest()
         : base(

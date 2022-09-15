@@ -44,7 +44,7 @@ public class TableValuedFunctionBuilder : DbFunctionBuilderBase, IInfrastructure
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual TableValuedFunctionBuilder HasSchema(string? schema)
         => (TableValuedFunctionBuilder)base.HasSchema(schema);
-    
+
     /// <summary>
     ///     Marks whether the database function is built-in.
     /// </summary>
@@ -86,5 +86,6 @@ public class TableValuedFunctionBuilder : DbFunctionBuilderBase, IInfrastructure
         return this;
     }
 
-    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder IInfrastructure<EntityTypeBuilder>.Instance
+        => EntityTypeBuilder;
 }

@@ -97,8 +97,10 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         }
     }
 
-    [ConditionalFact]
-    public virtual async Task Can_manipulate_embedded_collections()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_manipulate_embedded_collections(bool useIds)
     {
         var options = Fixture.CreateOptions(seed: false);
 
@@ -111,27 +113,62 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         using (var context = new EmbeddedTransportationContext(options))
         {
             context.Add(new Person { Id = 1 });
-            var note1 = new Note { Content = "First note" };
-            var note2 = new Note { Content = "Second note" };
             existingAddress1Person2 = new Address
             {
                 Street = "Second",
-                City = "Village",
-                Notes = new List<Note> { note1, note2 }
+                City = "Village"
             };
-            context.Add(new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2 } });
+            if (useIds)
+            {
+                existingAddress1Person2.IdNotes = new List<NoteWithId>
+                {
+                    new NoteWithId { Content = "First note" },
+                    new NoteWithId { Content = "Second note" }
+                };
+            }
+            else
+            {
+                existingAddress1Person2.Notes = new List<Note>
+                {
+                    new Note { Content = "First note" },
+                    new Note { Content = "Second note" }
+                };
+            }
+
+            var existingAddress2Person2 = new Address
+            {
+                Street = "First",
+                City = "Village"
+            };
+            context.Add(new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2, existingAddress2Person2 } });
             existingAddress1Person3 = new Address
             {
                 Street = "First",
                 City = "City",
-                AddressTitle = new AddressTitle { Title = "P3 Shipping" }
+                AddressTitle = new AddressTitle { Title = "P3 Shipping" },
             };
+            if (useIds)
+            {
+                existingAddress1Person3.IdNotes = new List<NoteWithId>
+                {
+                    new NoteWithId { Id = 2, Content = "First City note" }
+                };
+            }
+            else
+            {
+                existingAddress1Person3.Notes = new List<Note>
+                {
+                    new Note { Content = "First City note" }
+                };
+            }
+
             existingAddress2Person3 = new Address
             {
                 Street = "Second",
                 City = "City",
                 AddressTitle = new AddressTitle { Title = "P3 Billing" }
             };
+
             context.Add(new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
             await context.SaveChangesAsync();
@@ -140,10 +177,18 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             Assert.Empty(people[0].Addresses);
 
-            Assert.Equal(1, people[1].Addresses.Count);
+            Assert.Equal(2, people[1].Addresses.Count);
             Assert.Same(existingAddress1Person2, people[1].Addresses.First());
+            Assert.Same(existingAddress2Person2, people[1].Addresses.Last());
 
-            Assert.Equal(2, existingAddress1Person2.Notes.Count);
+            if (useIds)
+            {
+                Assert.Equal(2, existingAddress1Person2.IdNotes.Count);
+            }
+            else
+            {
+                Assert.Equal(2, existingAddress1Person2.Notes.Count);
+            }
             Assert.Same(existingAddress1Person3, people[2].Addresses.First());
             Assert.Same(existingAddress2Person3, people[2].Addresses.Last());
 
@@ -167,19 +212,40 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             {
                 Street = "Another",
                 City = "Village",
-                AddressTitle = new AddressTitle { Title = "P2" },
-                Notes = existingAddress1Person2.Notes
+                AddressTitle = new AddressTitle { Title = "P2" }
             };
-            people[1].Addresses.Clear();
+            if (useIds)
+            {
+                addedAddress2.IdNotes = existingAddress1Person2.IdNotes;
+            }
+            else
+            {
+                addedAddress2.Notes = existingAddress1Person2.Notes;
+            }
+
+            people[1].Addresses.Remove(people[1].Addresses.First());
             people[1].Addresses.Add(addedAddress2);
 
             addedAddress3 = new Address
             {
                 Street = "Another",
                 City = "City",
-                AddressTitle = new AddressTitle { Title = "P3 Alternative" },
-                Notes = new List<Note> { new() { Content = "Another note" } }
+                AddressTitle = new AddressTitle { Title = "P3 Alternative" }
             };
+            if (useIds)
+            {
+                addedAddress3.IdNotes = new List<NoteWithId>
+                {
+                    new NoteWithId { Id = -1, Content = "Another note" }
+                };
+            }
+            else
+            {
+                addedAddress3.Notes = new List<Note>
+                {
+                    new Note { Content = "Another note" }
+                };
+            }
 
             var existingFirstAddressEntry = context.Entry(people[2].Addresses.First());
 
@@ -190,12 +256,35 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
             existingFirstAddressEntry.Property<JObject>("__jObject").IsModified = true;
 
-            var existingLastAddress = people[2].Addresses.Last();
-            people[2].Addresses.Remove(existingLastAddress);
+            existingAddress1Person3 = people[2].Addresses.First();
+            existingAddress2Person3 = people[2].Addresses.Last();
+            people[2].Addresses.Remove(existingAddress2Person3);
             people[2].Addresses.Add(addedAddress3);
-            people[2].Addresses.Add(existingLastAddress);
+            people[2].Addresses.Add(existingAddress2Person3);
 
-            existingLastAddress.Notes.Add(new Note { Content = "City note" });
+            if (useIds)
+            {
+                existingAddress1Person3.IdNotes = new List<NoteWithId>
+                {
+                    new NoteWithId { Id = 1, Content = "Some City note" }
+                };
+            }
+            else
+            {
+                existingAddress1Person3.Notes = new List<Note>
+                {
+                    new Note { Content = "Some City note" }
+                };
+            }
+
+            if (useIds)
+            {
+                existingAddress2Person3.IdNotes.Add(new NoteWithId { Id = 4, Content = "City note" });
+            }
+            else
+            {
+                existingAddress2Person3.Notes.Add(new Note { Content = "City note" });
+            }
 
             await context.SaveChangesAsync();
 
@@ -215,17 +304,36 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             Assert.Equal("Town", firstAddress.City);
             Assert.Equal("P1", firstAddress.AddressTitle.Title);
             Assert.Empty(firstAddress.Notes);
+            Assert.Empty(firstAddress.IdNotes);
 
             var addresses = people[1].Addresses.ToList();
-            Assert.Single(addresses);
+            Assert.Equal(2, addresses.Count);
 
-            Assert.Equal("Another", addresses[0].Street);
+            Assert.Equal("First", addresses[0].Street);
             Assert.Equal("Village", addresses[0].City);
-            Assert.Equal("P2", addresses[0].AddressTitle.Title);
-            var notes = addresses[0].Notes;
-            Assert.Equal(2, notes.Count);
-            Assert.Equal("First note", notes.First().Content);
-            Assert.Equal("Second note", notes.Last().Content);
+            Assert.Null(addresses[0].AddressTitle);
+            Assert.Empty(addresses[0].Notes);
+            Assert.Empty(addresses[0].IdNotes);
+
+            Assert.Equal("Another", addresses[1].Street);
+            Assert.Equal("Village", addresses[1].City);
+            Assert.Equal("P2", addresses[1].AddressTitle.Title);
+            if (useIds)
+            {
+                var notes = addresses[1].IdNotes;
+                Assert.Equal(2, notes.Count);
+                Assert.Equal(1, notes.First().Id);
+                Assert.Equal("First note", notes.First().Content);
+                Assert.Equal(2, notes.Last().Id);
+                Assert.Equal("Second note", notes.Last().Content);
+            }
+            else
+            {
+                var notes = addresses[1].Notes;
+                Assert.Equal(2, notes.Count);
+                Assert.Equal("First note", notes.First().Content);
+                Assert.Equal("Second note", notes.Last().Content);
+            }
 
             addresses = people[2].Addresses.ToList();
             Assert.Equal(3, addresses.Count);
@@ -233,26 +341,55 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             Assert.Equal("First", addresses[0].Street);
             Assert.Equal("City", addresses[0].City);
             Assert.Equal("P3 Shipping", addresses[0].AddressTitle.Title);
+            if (useIds)
+            {
+                Assert.Equal(1, addresses[0].IdNotes.Count);
+                Assert.Equal(1, addresses[0].IdNotes.First().Id);
+                Assert.Equal("Some City note", addresses[0].IdNotes.First().Content);
+            }
+            else
+            {
+                Assert.Equal(1, addresses[0].Notes.Count);
+                Assert.Equal("Some City note", addresses[0].Notes.First().Content);
+            }
 
             var existingAddressEntry = context.Entry(addresses[0]);
 
             var addressJson = existingAddressEntry.Property<JObject>("__jObject").CurrentValue;
 
             Assert.Equal("First", addressJson[nameof(Address.Street)]);
-            Assert.Equal(5, addressJson.Count);
+            Assert.Equal(6, addressJson.Count);
             Assert.Equal(2, addressJson["unmappedId"]);
 
             Assert.Equal("Another", addresses[1].Street);
             Assert.Equal("City", addresses[1].City);
             Assert.Equal("P3 Alternative", addresses[1].AddressTitle.Title);
-            Assert.Equal(1, addresses[1].Notes.Count);
-            Assert.Equal("Another note", addresses[1].Notes.First().Content);
+            if (useIds)
+            {
+                Assert.Equal(1, addresses[1].IdNotes.Count);
+                Assert.Equal(1, addresses[1].IdNotes.First().Id);
+                Assert.Equal("Another note", addresses[1].IdNotes.First().Content);
+            }
+            else
+            {
+                Assert.Equal(1, addresses[1].Notes.Count);
+                Assert.Equal("Another note", addresses[1].Notes.First().Content);
+            }
 
             Assert.Equal("Second", addresses[2].Street);
             Assert.Equal("City", addresses[2].City);
             Assert.Equal("P3 Billing", addresses[2].AddressTitle.Title);
-            Assert.Equal(1, addresses[2].Notes.Count);
-            Assert.Equal("City note", addresses[2].Notes.First().Content);
+            if (useIds)
+            {
+                Assert.Equal(1, addresses[2].IdNotes.Count);
+                Assert.Equal(1, addresses[2].IdNotes.First().Id);
+                Assert.Equal("City note", addresses[2].IdNotes.First().Content);
+            }
+            else
+            {
+                Assert.Equal(1, addresses[2].Notes.Count);
+                Assert.Equal("City note", addresses[2].Notes.First().Content);
+            }
         }
     }
 
@@ -590,7 +727,6 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                     {
                         b.ToJsonProperty("Stored Addresses");
                         b.OwnsOne(a => a.AddressTitle).Property(a => a.Title).HasValueGenerator<TitleGenerator>().IsRequired();
-                        b.OwnsMany(a => a.Notes);
                     }));
         }
     }
@@ -611,7 +747,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
     private class Person : PersonBase
     {
-        public ICollection<Address> Addresses { get; set; } = new HashSet<Address>();
+        public ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 
     public class Address
@@ -619,7 +755,8 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         public string Street { get; set; }
         public string City { get; set; }
         public AddressTitle AddressTitle { get; set; }
-        public ICollection<Note> Notes { get; set; } = new HashSet<Note>();
+        public ICollection<Note> Notes { get; set; } = new List<Note>();
+        public ICollection<NoteWithId> IdNotes { get; set; } = new List<NoteWithId>();
     }
 
     public class AddressTitle
@@ -629,6 +766,12 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
     public class Note
     {
+        public string Content { get; set; }
+    }
+
+    public class NoteWithId
+    {
+        public int Id { get; set; }
         public string Content { get; set; }
     }
 }

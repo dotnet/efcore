@@ -21,8 +21,9 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     ///     Creates a new <see cref="AffectedCountModificationCommandBatch" /> instance.
     /// </summary>
     /// <param name="dependencies">Service dependencies.</param>
-    protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies)
-        : base(dependencies)
+    /// <param name="maxBatchSize">The maximum batch size. Defaults to 1000.</param>
+    protected AffectedCountModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int? maxBatchSize = null)
+        : base(dependencies, maxBatchSize)
     {
     }
 
@@ -33,57 +34,110 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     protected override void Consume(RelationalDataReader reader)
     {
         Check.DebugAssert(
-            CommandResultSet.Count == ModificationCommands.Count,
-            $"CommandResultSet.Count of {CommandResultSet.Count} != ModificationCommands.Count of {ModificationCommands.Count}");
+            ResultSetMappings.Count == ModificationCommands.Count,
+            $"CommandResultSet.Count of {ResultSetMappings.Count} != ModificationCommands.Count of {ModificationCommands.Count}");
 
         var commandIndex = 0;
 
         try
         {
-            var actualResultSetCount = 0;
-            do
+            bool? onResultSet = null;
+            var hasOutputParameters = false;
+
+            while (commandIndex < ResultSetMappings.Count)
             {
-                while (commandIndex < CommandResultSet.Count
-                       && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                var resultSetMapping = ResultSetMappings[commandIndex];
+
+                if (resultSetMapping.HasFlag(ResultSetMapping.HasResultRow))
+                {
+                    if (onResultSet == false)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.MissingResultSetWhenSaving);
+                    }
+
+                    var lastHandledCommandIndex = resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)
+                        ? ConsumeResultSetWithRowsAffectedOnly(commandIndex, reader)
+                        : ConsumeResultSet(commandIndex, reader);
+
+                    Check.DebugAssert(
+                        resultSetMapping.HasFlag(ResultSetMapping.LastInResultSet)
+                            ? lastHandledCommandIndex == commandIndex
+                            : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
+
+                    commandIndex = lastHandledCommandIndex + 1;
+
+                    onResultSet = reader.DbDataReader.NextResult();
+                }
+                else
                 {
                     commandIndex++;
                 }
 
-                if (commandIndex < CommandResultSet.Count)
+                if (resultSetMapping.HasFlag(ResultSetMapping.HasOutputParameters))
                 {
-                    commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                        ? ConsumeResultSetWithPropagation(commandIndex, reader)
-                        : ConsumeResultSetWithoutPropagation(commandIndex, reader);
-                    actualResultSetCount++;
+                    hasOutputParameters = true;
                 }
             }
-            while (commandIndex < CommandResultSet.Count
-                   && reader.DbDataReader.NextResult());
 
-#if DEBUG
-            while (commandIndex < CommandResultSet.Count
-                   && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+            if (onResultSet == true)
             {
-                commandIndex++;
+                Dependencies.UpdateLogger.UnexpectedTrailingResultSetWhenSaving();
             }
 
-            Check.DebugAssert(
-                commandIndex == ModificationCommands.Count,
-                "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
+            reader.Close();
 
-            var expectedResultSetCount = CommandResultSet.Count(e => e == ResultSetMapping.LastInResultSet);
+            if (hasOutputParameters)
+            {
+                var parameterCounter = 0;
+                IReadOnlyModificationCommand command;
 
-            Check.DebugAssert(
-                actualResultSetCount == expectedResultSetCount,
-                "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
-#endif
+                for (commandIndex = 0;
+                     commandIndex < ResultSetMappings.Count;
+                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
+                {
+                    command = ModificationCommands[commandIndex];
+
+                    if (!ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
+                    {
+                        continue;
+                    }
+
+                    // Note: we assume that the return value is the parameter at position 0, and skip it here for the purpose of calculating
+                    // the right baseParameterIndex to pass to PropagateOutputParameters below.
+                    var rowsAffectedDbParameter = command.RowsAffectedColumn is IStoreStoredProcedureParameter rowsAffectedParameter
+                        ? reader.DbCommand.Parameters[parameterCounter + rowsAffectedParameter.Position]
+                        : command.StoreStoredProcedure!.ReturnValue is not null
+                            ? reader.DbCommand.Parameters[parameterCounter++]
+                            : null;
+
+                    if (rowsAffectedDbParameter is not null)
+                    {
+                        if (rowsAffectedDbParameter.Value is int rowsAffected)
+                        {
+                            if (rowsAffected != 1)
+                            {
+                                ThrowAggregateUpdateConcurrencyException(
+                                    reader, commandIndex + 1, expectedRowsAffected: 1, rowsAffected: 0);
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.StoredProcedureRowsAffectedNotPopulated(
+                                    command.StoreStoredProcedure!.SchemaQualifiedName));
+                        }
+                    }
+
+                    command.PropagateOutputParameters(reader.DbCommand.Parameters, parameterCounter);
+                }
+            }
         }
         catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
                 ex,
-                ModificationCommands[commandIndex].Entries);
+                ModificationCommands[commandIndex < ModificationCommands.Count ? commandIndex : ModificationCommands.Count - 1].Entries);
         }
     }
 
@@ -99,57 +153,111 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
         CancellationToken cancellationToken = default)
     {
         Check.DebugAssert(
-            CommandResultSet.Count == ModificationCommands.Count,
-            $"CommandResultSet.Count of {CommandResultSet.Count} != ModificationCommands.Count of {ModificationCommands.Count}");
+            ResultSetMappings.Count == ModificationCommands.Count,
+            $"CommandResultSet.Count of {ResultSetMappings.Count} != ModificationCommands.Count of {ModificationCommands.Count}");
 
         var commandIndex = 0;
 
         try
         {
-            var actualResultSetCount = 0;
-            do
+            bool? onResultSet = null;
+            var hasOutputParameters = false;
+
+            while (commandIndex < ResultSetMappings.Count)
             {
-                while (commandIndex < CommandResultSet.Count
-                       && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+                var resultSetMapping = ResultSetMappings[commandIndex];
+
+                if (resultSetMapping.HasFlag(ResultSetMapping.HasResultRow))
+                {
+                    if (onResultSet == false)
+                    {
+                        throw new InvalidOperationException(RelationalStrings.MissingResultSetWhenSaving);
+                    }
+
+                    var lastHandledCommandIndex = resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)
+                        ? await ConsumeResultSetWithRowsAffectedOnlyAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false)
+                        : await ConsumeResultSetAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false);
+
+                    Check.DebugAssert(
+                        resultSetMapping.HasFlag(ResultSetMapping.LastInResultSet)
+                            ? lastHandledCommandIndex == commandIndex
+                            : lastHandledCommandIndex > commandIndex, "Bad handling of ResultSetMapping and command indexing");
+
+                    commandIndex = lastHandledCommandIndex + 1;
+
+                    onResultSet = await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false);
+                }
+                else
                 {
                     commandIndex++;
                 }
 
-                if (commandIndex < CommandResultSet.Count)
+                if (resultSetMapping.HasFlag(ResultSetMapping.HasOutputParameters))
                 {
-                    commandIndex = ModificationCommands[commandIndex].RequiresResultPropagation
-                        ? await ConsumeResultSetWithPropagationAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false)
-                        : await ConsumeResultSetWithoutPropagationAsync(commandIndex, reader, cancellationToken).ConfigureAwait(false);
-                    actualResultSetCount++;
+                    hasOutputParameters = true;
                 }
             }
-            while (commandIndex < CommandResultSet.Count
-                   && await reader.DbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false));
 
-#if DEBUG
-            while (commandIndex < CommandResultSet.Count
-                   && CommandResultSet[commandIndex] == ResultSetMapping.NoResultSet)
+            if (onResultSet == true)
             {
-                commandIndex++;
+                Dependencies.UpdateLogger.UnexpectedTrailingResultSetWhenSaving();
             }
 
-            Check.DebugAssert(
-                commandIndex == ModificationCommands.Count,
-                "Expected " + ModificationCommands.Count + " results, got " + commandIndex);
+            await reader.CloseAsync().ConfigureAwait(false);
 
-            var expectedResultSetCount = CommandResultSet.Count(e => e == ResultSetMapping.LastInResultSet);
+            if (hasOutputParameters)
+            {
+                var parameterCounter = 0;
+                IReadOnlyModificationCommand command;
 
-            Check.DebugAssert(
-                actualResultSetCount == expectedResultSetCount,
-                "Expected " + expectedResultSetCount + " result sets, got " + actualResultSetCount);
-#endif
+                for (commandIndex = 0;
+                     commandIndex < ResultSetMappings.Count;
+                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
+                {
+                    command = ModificationCommands[commandIndex];
+
+                    if (!ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
+                    {
+                        continue;
+                    }
+
+                    // Note: we assume that the return value is the parameter at position 0, and skip it here for the purpose of calculating
+                    // the right baseParameterIndex to pass to PropagateOutputParameters below.
+                    var rowsAffectedDbParameter = command.RowsAffectedColumn is IStoreStoredProcedureParameter rowsAffectedParameter
+                        ? reader.DbCommand.Parameters[parameterCounter + rowsAffectedParameter.Position]
+                        : command.StoreStoredProcedure!.ReturnValue is not null
+                            ? reader.DbCommand.Parameters[parameterCounter++]
+                            : null;
+
+                    if (rowsAffectedDbParameter is not null)
+                    {
+                        if (rowsAffectedDbParameter.Value is int rowsAffected)
+                        {
+                            if (rowsAffected != 1)
+                            {
+                                await ThrowAggregateUpdateConcurrencyExceptionAsync(
+                                        reader, commandIndex + 1, expectedRowsAffected: 1, rowsAffected: 0, cancellationToken)
+                                    .ConfigureAwait(false);
+                            }
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException(
+                                RelationalStrings.StoredProcedureRowsAffectedNotPopulated(
+                                    command.StoreStoredProcedure!.SchemaQualifiedName));
+                        }
+                    }
+
+                    command.PropagateOutputParameters(reader.DbCommand.Parameters, parameterCounter);
+                }
+            }
         }
         catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
         {
             throw new DbUpdateException(
                 RelationalStrings.UpdateStoreException,
                 ex,
-                ModificationCommands[commandIndex].Entries);
+                ModificationCommands[commandIndex < ModificationCommands.Count ? commandIndex : ModificationCommands.Count - 1].Entries);
         }
     }
 
@@ -157,51 +265,55 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     ///     Consumes the data reader created by <see cref="ReaderModificationCommandBatch.Execute" />,
     ///     propagating values back into the <see cref="ModificationCommand" />.
     /// </summary>
-    /// <param name="startResultSetIndex">The ordinal of the first result set being consumed.</param>
+    /// <param name="startCommandIndex">The ordinal of the first command being consumed.</param>
     /// <param name="reader">The data reader.</param>
     /// <returns>The ordinal of the next result set that must be consumed.</returns>
-    protected virtual int ConsumeResultSetWithPropagation(int startResultSetIndex, RelationalDataReader reader)
+    protected virtual int ConsumeResultSet(int startCommandIndex, RelationalDataReader reader)
     {
-        var resultSetIndex = startResultSetIndex;
+        var commandIndex = startCommandIndex;
         var rowsAffected = 0;
         do
         {
             if (!reader.Read())
             {
                 var expectedRowsAffected = rowsAffected + 1;
-                while (++resultSetIndex < CommandResultSet.Count
-                       && CommandResultSet[resultSetIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                while (++commandIndex < ResultSetMappings.Count
+                       && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
                 {
                     expectedRowsAffected++;
                 }
 
-                ThrowAggregateUpdateConcurrencyException(reader, resultSetIndex, expectedRowsAffected, rowsAffected);
+                ThrowAggregateUpdateConcurrencyException(reader, commandIndex, expectedRowsAffected, rowsAffected);
             }
             else
             {
-                var tableModification = ModificationCommands[
-                    ResultsPositionalMappingEnabled?.Length > resultSetIndex && ResultsPositionalMappingEnabled[resultSetIndex]
-                        ? startResultSetIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
-                        : resultSetIndex];
+                var resultSetMapping = ResultSetMappings[commandIndex];
 
-                Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
+                var command = ModificationCommands[
+                    resultSetMapping.HasFlag(ResultSetMapping.IsPositionalResultMappingEnabled)
+                        ? startCommandIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
+                        : commandIndex];
 
-                tableModification.PropagateResults(reader);
+                Check.DebugAssert(
+                    !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
+                    "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+
+                command.PropagateResults(reader);
             }
 
             rowsAffected++;
         }
-        while (++resultSetIndex < CommandResultSet.Count
-               && CommandResultSet[resultSetIndex - 1] == ResultSetMapping.NotLastInResultSet);
+        while (++commandIndex < ResultSetMappings.Count
+               && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet));
 
-        return resultSetIndex;
+        return commandIndex - 1;
     }
 
     /// <summary>
     ///     Consumes the data reader created by <see cref="ReaderModificationCommandBatch.ExecuteAsync" />,
     ///     propagating values back into the <see cref="ModificationCommand" />.
     /// </summary>
-    /// <param name="startResultSetIndex">The ordinal of the first result set being consumed.</param>
+    /// <param name="startCommandIndex">The ordinal of the first result set being consumed.</param>
     /// <param name="reader">The data reader.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>
@@ -209,45 +321,49 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     ///     The task contains the ordinal of the next command that must be consumed.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    protected virtual async Task<int> ConsumeResultSetWithPropagationAsync(
-        int startResultSetIndex,
+    protected virtual async Task<int> ConsumeResultSetAsync(
+        int startCommandIndex,
         RelationalDataReader reader,
         CancellationToken cancellationToken)
     {
-        var resultSetIndex = startResultSetIndex;
+        var commandIndex = startCommandIndex;
         var rowsAffected = 0;
         do
         {
             if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
             {
                 var expectedRowsAffected = rowsAffected + 1;
-                while (++resultSetIndex < CommandResultSet.Count
-                       && CommandResultSet[resultSetIndex - 1] == ResultSetMapping.NotLastInResultSet)
+                while (++commandIndex < ResultSetMappings.Count
+                       && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
                 {
                     expectedRowsAffected++;
                 }
 
                 await ThrowAggregateUpdateConcurrencyExceptionAsync(
-                    reader, resultSetIndex, expectedRowsAffected, rowsAffected, cancellationToken).ConfigureAwait(false);
+                    reader, commandIndex, expectedRowsAffected, rowsAffected, cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                var tableModification = ModificationCommands[
-                    ResultsPositionalMappingEnabled?.Length > resultSetIndex && ResultsPositionalMappingEnabled[resultSetIndex]
-                        ? startResultSetIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
-                        : resultSetIndex];
+                var resultSetMapping = ResultSetMappings[commandIndex];
 
-                Check.DebugAssert(tableModification.RequiresResultPropagation, "RequiresResultPropagation is false");
+                var command = ModificationCommands[
+                    resultSetMapping.HasFlag(ResultSetMapping.IsPositionalResultMappingEnabled)
+                        ? startCommandIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
+                        : commandIndex];
 
-                tableModification.PropagateResults(reader);
+                Check.DebugAssert(
+                    !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
+                    "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+
+                command.PropagateResults(reader);
             }
 
             rowsAffected++;
         }
-        while (++resultSetIndex < CommandResultSet.Count
-               && CommandResultSet[resultSetIndex - 1] == ResultSetMapping.NotLastInResultSet);
+        while (++commandIndex < ResultSetMappings.Count
+               && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet));
 
-        return resultSetIndex;
+        return commandIndex - 1;
     }
 
     /// <summary>
@@ -257,13 +373,15 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     /// <param name="commandIndex">The ordinal of the command being consumed.</param>
     /// <param name="reader">The data reader.</param>
     /// <returns>The ordinal of the next command that must be consumed.</returns>
-    protected virtual int ConsumeResultSetWithoutPropagation(int commandIndex, RelationalDataReader reader)
+    protected virtual int ConsumeResultSetWithRowsAffectedOnly(int commandIndex, RelationalDataReader reader)
     {
         var expectedRowsAffected = 1;
-        while (++commandIndex < CommandResultSet.Count
-               && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+        while (++commandIndex < ResultSetMappings.Count
+               && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
         {
-            Check.DebugAssert(!ModificationCommands[commandIndex].RequiresResultPropagation, "RequiresResultPropagation is true");
+            Check.DebugAssert(
+                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
+                "ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
 
             expectedRowsAffected++;
         }
@@ -281,7 +399,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
             ThrowAggregateUpdateConcurrencyException(reader, commandIndex, 1, 0);
         }
 
-        return commandIndex;
+        return commandIndex - 1;
     }
 
     /// <summary>
@@ -296,16 +414,18 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     ///     The task contains the ordinal of the next command that must be consumed.
     /// </returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    protected virtual async Task<int> ConsumeResultSetWithoutPropagationAsync(
+    protected virtual async Task<int> ConsumeResultSetWithRowsAffectedOnlyAsync(
         int commandIndex,
         RelationalDataReader reader,
         CancellationToken cancellationToken)
     {
         var expectedRowsAffected = 1;
-        while (++commandIndex < CommandResultSet.Count
-               && CommandResultSet[commandIndex - 1] == ResultSetMapping.NotLastInResultSet)
+        while (++commandIndex < ResultSetMappings.Count
+               && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
         {
-            Check.DebugAssert(!ModificationCommands[commandIndex].RequiresResultPropagation, "RequiresResultPropagation is true");
+            Check.DebugAssert(
+                ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
+                "ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
 
             expectedRowsAffected++;
         }
@@ -325,7 +445,7 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 reader, commandIndex, 1, 0, cancellationToken).ConfigureAwait(false);
         }
 
-        return commandIndex;
+        return commandIndex - 1;
     }
 
     private IReadOnlyList<IUpdateEntry> AggregateEntries(int endIndex, int commandCount)

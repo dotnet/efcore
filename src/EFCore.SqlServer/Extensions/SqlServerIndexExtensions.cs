@@ -70,14 +70,10 @@ public static class SqlServerIndexExtensions
         this IConventionIndex index,
         bool? value,
         bool fromDataAnnotation = false)
-    {
-        index.SetAnnotation(
+        => (bool?)index.SetAnnotation(
             SqlServerAnnotationNames.Clustered,
             value,
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for whether the index is clustered.
@@ -141,14 +137,10 @@ public static class SqlServerIndexExtensions
         this IConventionIndex index,
         IReadOnlyList<string>? properties,
         bool fromDataAnnotation = false)
-    {
-        index.SetAnnotation(
+        => (IReadOnlyList<string>?)index.SetAnnotation(
             SqlServerAnnotationNames.Include,
             properties,
-            fromDataAnnotation);
-
-        return properties;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for the included property names.
@@ -212,14 +204,10 @@ public static class SqlServerIndexExtensions
         this IConventionIndex index,
         bool? createdOnline,
         bool fromDataAnnotation = false)
-    {
-        index.SetAnnotation(
+        => (bool?)index.SetAnnotation(
             SqlServerAnnotationNames.CreatedOnline,
             createdOnline,
-            fromDataAnnotation);
-
-        return createdOnline;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Returns the <see cref="ConfigurationSource" /> for whether the index is online.
@@ -296,12 +284,10 @@ public static class SqlServerIndexExtensions
             throw new ArgumentOutOfRangeException(nameof(fillFactor));
         }
 
-        index.SetAnnotation(
+        return (int?)index.SetAnnotation(
             SqlServerAnnotationNames.FillFactor,
             fillFactor,
-            fromDataAnnotation);
-
-        return fillFactor;
+            fromDataAnnotation)?.Value;
     }
 
     /// <summary>

@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -57,7 +55,7 @@ public class InternalStoredProcedureBuilder :
 
         return sproc.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -76,9 +74,10 @@ public class InternalStoredProcedureBuilder :
         }
         else
         {
-            sproc.UpdateConfigurationSource(fromDataAnnotation
-                ? ConfigurationSource.DataAnnotation
-                : ConfigurationSource.Convention);
+            sproc.UpdateConfigurationSource(
+                fromDataAnnotation
+                    ? ConfigurationSource.DataAnnotation
+                    : ConfigurationSource.Convention);
         }
 
         return sproc?.Builder;
@@ -156,37 +155,39 @@ public class InternalStoredProcedureBuilder :
     public virtual bool CanSetSchema(string? schema, ConfigurationSource configurationSource)
         => configurationSource.Overrides(Metadata.GetSchemaConfigurationSource())
             || Metadata.Schema == schema;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalStoredProcedureBuilder? HasParameter(
-        string propertyName, ConfigurationSource configurationSource)
+    public virtual InternalStoredProcedureParameterBuilder? HasParameter(
+        string propertyName,
+        ConfigurationSource configurationSource)
     {
-        if (!Metadata.ContainsParameter(propertyName))
+        var parameter = Metadata.FindParameter(propertyName);
+        if (parameter == null)
         {
             if (!configurationSource.Overrides(Metadata.GetConfigurationSource()))
             {
                 return null;
             }
-            
-            Metadata.AddParameter(propertyName);
+
+            parameter = Metadata.AddParameter(propertyName);
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
-        return this;
+        return parameter.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalStoredProcedureBuilder? HasParameter<TDerivedEntity, TProperty>(
+    public virtual InternalStoredProcedureParameterBuilder? HasParameter<TDerivedEntity, TProperty>(
         Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
         ConfigurationSource configurationSource)
         where TDerivedEntity : class
@@ -199,7 +200,7 @@ public class InternalStoredProcedureBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanHaveParameter(string propertyName, ConfigurationSource configurationSource)
-        => Metadata.ContainsParameter(propertyName)
+        => Metadata.FindParameter(propertyName) != null
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
 
     /// <summary>
@@ -208,30 +209,124 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalStoredProcedureBuilder? HasResultColumn(
-        string propertyName, ConfigurationSource configurationSource)
+    public virtual InternalStoredProcedureParameterBuilder? HasOriginalValueParameter(
+        string propertyName,
+        ConfigurationSource configurationSource)
     {
-        if (!Metadata.ContainsResultColumn(propertyName))
+        var parameter = Metadata.FindOriginalValueParameter(propertyName);
+        if (parameter == null)
         {
             if (!configurationSource.Overrides(Metadata.GetConfigurationSource()))
             {
                 return null;
             }
 
-            Metadata.AddResultColumn(propertyName);
+            parameter = Metadata.AddOriginalValueParameter(propertyName);
         }
 
         Metadata.UpdateConfigurationSource(configurationSource);
-        return this;
+        return parameter.Builder;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalStoredProcedureBuilder? HasResultColumn<TDerivedEntity, TProperty>(
+    public virtual InternalStoredProcedureParameterBuilder? HasOriginalValueParameter<TDerivedEntity, TProperty>(
+        Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+        ConfigurationSource configurationSource)
+        where TDerivedEntity : class
+        => HasOriginalValueParameter(propertyExpression.GetMemberAccess().Name, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanHaveOriginalValueParameter(string propertyName, ConfigurationSource configurationSource)
+        => Metadata.FindOriginalValueParameter(propertyName) != null
+            || configurationSource.Overrides(Metadata.GetConfigurationSource());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalStoredProcedureParameterBuilder? HasRowsAffectedParameter(
+        ConfigurationSource configurationSource)
+    {
+        var parameter = Metadata.FindRowsAffectedParameter();
+        if (parameter == null)
+        {
+            if (!configurationSource.Overrides(Metadata.GetConfigurationSource()))
+            {
+                return null;
+            }
+
+            parameter = Metadata.AddRowsAffectedParameter();
+        }
+
+        Metadata.UpdateConfigurationSource(configurationSource);
+        return parameter.Builder;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalStoredProcedureParameterBuilder? HasRowsAffectedParameter<TDerivedEntity, TProperty>(
+        ConfigurationSource configurationSource)
+        where TDerivedEntity : class
+        => HasRowsAffectedParameter(configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanHaveRowsAffectedParameter(ConfigurationSource configurationSource)
+        => Metadata.FindRowsAffectedParameter() != null
+            || configurationSource.Overrides(Metadata.GetConfigurationSource());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalStoredProcedureResultColumnBuilder? HasResultColumn(
+        string propertyName,
+        ConfigurationSource configurationSource)
+    {
+        var resultColumn = Metadata.FindResultColumn(propertyName);
+        if (resultColumn == null)
+        {
+            if (!configurationSource.Overrides(Metadata.GetConfigurationSource()))
+            {
+                return null;
+            }
+
+            resultColumn = Metadata.AddResultColumn(propertyName);
+        }
+
+        Metadata.UpdateConfigurationSource(configurationSource);
+        return resultColumn.Builder;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalStoredProcedureResultColumnBuilder? HasResultColumn<TDerivedEntity, TProperty>(
         Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
         ConfigurationSource configurationSource)
         where TDerivedEntity : class
@@ -244,7 +339,7 @@ public class InternalStoredProcedureBuilder :
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanHaveResultColumn(string propertyName, ConfigurationSource configurationSource)
-        => Metadata.ContainsResultColumn(propertyName)
+        => Metadata.FindResultColumn(propertyName) != null
             || configurationSource.Overrides(Metadata.GetConfigurationSource());
 
     /// <summary>
@@ -253,14 +348,59 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalStoredProcedureBuilder? SuppressTransactions(bool suppress, ConfigurationSource configurationSource)
+    public virtual InternalStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn(
+        ConfigurationSource configurationSource)
     {
-        if (!CanSuppressTransactions(suppress, configurationSource))
+        var resultColumn = Metadata.FindRowsAffectedResultColumn();
+        if (resultColumn == null)
+        {
+            if (!configurationSource.Overrides(Metadata.GetConfigurationSource()))
+            {
+                return null;
+            }
+
+            resultColumn = Metadata.AddRowsAffectedResultColumn();
+        }
+
+        Metadata.UpdateConfigurationSource(configurationSource);
+        return resultColumn.Builder;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalStoredProcedureResultColumnBuilder? HasRowsAffectedResultColumn<TDerivedEntity, TProperty>(
+        ConfigurationSource configurationSource)
+        where TDerivedEntity : class
+        => HasRowsAffectedResultColumn(configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanHaveRowsAffectedResultColumn(ConfigurationSource configurationSource)
+        => Metadata.FindRowsAffectedResultColumn() != null
+            || configurationSource.Overrides(Metadata.GetConfigurationSource());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalStoredProcedureBuilder? HasRowsAffectedReturn(bool rowsAffectedReturned, ConfigurationSource configurationSource)
+    {
+        if (!CanHaveRowsAffectedReturn(rowsAffectedReturned, configurationSource))
         {
             return null;
         }
 
-        Metadata.SetAreTransactionsSuppressed(suppress, configurationSource);
+        Metadata.SetIsRowsAffectedReturned(rowsAffectedReturned);
         return this;
     }
 
@@ -270,9 +410,9 @@ public class InternalStoredProcedureBuilder :
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanSuppressTransactions(bool suppress, ConfigurationSource configurationSource)
-        => Metadata.AreTransactionsSuppressed == suppress
-            || configurationSource.Overrides(Metadata.GetAreTransactionsSuppressedConfigurationSource());
+    public virtual bool CanHaveRowsAffectedReturn(bool rowsAffectedReturned, ConfigurationSource configurationSource)
+        => Metadata.IsRowsAffectedReturned == rowsAffectedReturned
+            || configurationSource.Overrides(Metadata.GetConfigurationSource());
 
     IConventionStoredProcedure IConventionStoredProcedureBuilder.Metadata
     {
@@ -288,7 +428,6 @@ public class InternalStoredProcedureBuilder :
     /// <inheritdoc />
     [DebuggerStepThrough]
     IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.HasName(string? name, string? schema, bool fromDataAnnotation)
-
         => HasName(name, schema, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
@@ -308,34 +447,63 @@ public class InternalStoredProcedureBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.HasParameter(string propertyName, bool fromDataAnnotation)
+    IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureBuilder.HasParameter(string propertyName, bool fromDataAnnotation)
         => HasParameter(propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveParameter(string propertyName, bool fromDataAnnotation)
-        => CanHaveParameter(propertyName,
-                fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => CanHaveParameter(
+            propertyName,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.HasResultColumn(string propertyName, bool fromDataAnnotation)
+    IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureBuilder.HasOriginalValueParameter(
+        string propertyName,
+        bool fromDataAnnotation)
+        => HasOriginalValueParameter(
+            propertyName,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionStoredProcedureBuilder.CanHaveOriginalValueParameter(string propertyName, bool fromDataAnnotation)
+        => CanHaveOriginalValueParameter(
+            propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureParameterBuilder? IConventionStoredProcedureBuilder.HasRowsAffectedParameter(bool fromDataAnnotation)
+        => HasRowsAffectedParameter(
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionStoredProcedureBuilder.CanHaveRowsAffectedParameter(bool fromDataAnnotation)
+        => CanHaveRowsAffectedParameter(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasResultColumn(
+        string propertyName,
+        bool fromDataAnnotation)
         => HasResultColumn(propertyName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     bool IConventionStoredProcedureBuilder.CanHaveResultColumn(string propertyName, bool fromDataAnnotation)
-        => CanHaveResultColumn(propertyName,
+        => CanHaveResultColumn(
+            propertyName,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IConventionStoredProcedureBuilder? IConventionStoredProcedureBuilder.SuppressTransactions(bool suppress, bool fromDataAnnotation)
-        => SuppressTransactions(suppress, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureBuilder.HasRowsAffectedResultColumn(bool fromDataAnnotation)
+        => HasRowsAffectedResultColumn(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IConventionStoredProcedureBuilder.CanSetSuppressTransactions(bool suppress, bool fromDataAnnotation)
-        => CanSuppressTransactions(suppress,
-            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    bool IConventionStoredProcedureBuilder.CanHaveRowsAffectedResultColumn(bool fromDataAnnotation)
+        => CanHaveRowsAffectedResultColumn(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

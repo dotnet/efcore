@@ -69,10 +69,12 @@ public class SqlServerQueryTranslationPostprocessor : RelationalQueryTranslation
                     return relationalSplitCollectionShaperExpression;
 
                 case SelectExpression selectExpression
-                when selectExpression.Offset != null
-                && selectExpression.Orderings.Count == 0:
+                    when selectExpression.Offset != null
+                    && selectExpression.Orderings.Count == 0:
                     throw new InvalidOperationException(SqlServerStrings.SplitQueryOffsetWithoutOrderBy);
 
+                case NonQueryExpression nonQueryExpression:
+                    return nonQueryExpression;
 
                 default:
                     return base.Visit(expression);

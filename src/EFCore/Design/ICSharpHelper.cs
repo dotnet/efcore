@@ -23,7 +23,7 @@ public interface ICSharpHelper
     ///     <see langword="true" /> if the method call should be type-qualified, <see langword="false" /> for instance/extension syntax.
     /// </param>
     /// <returns>The fragment.</returns>
-    string Fragment(MethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified);
+    string Fragment(IMethodCallCodeFragment fragment, string? instanceIdentifier, bool typeQualified);
 
     /// <summary>
     ///     Generates a method call code fragment.
@@ -31,15 +31,22 @@ public interface ICSharpHelper
     /// <param name="fragment">The method call. If null, no code is generated.</param>
     /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
     /// <returns>The fragment.</returns>
-    string Fragment(MethodCallCodeFragment? fragment, int indent = 0);
+    string Fragment(IMethodCallCodeFragment? fragment, int indent = 0);
 
     /// <summary>
-    /// Generates a lambda code fragment.
+    ///     Generates a lambda code fragment.
     /// </summary>
     /// <param name="fragment">The lambda.</param>
     /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
     /// <returns>The fragment.</returns>
     string Fragment(NestedClosureCodeFragment fragment, int indent = 0);
+
+    /// <summary>
+    ///     Generates a property accessor lambda code fragment.
+    /// </summary>
+    /// <param name="fragment">The property accessor lambda.</param>
+    /// <returns>A code representation of the lambda.</returns>
+    string Fragment(PropertyAccessorCodeFragment fragment);
 
     /// <summary>
     ///     Generates a valid C# identifier from the specified string unique to the scope.
@@ -87,7 +94,7 @@ public interface ICSharpHelper
         where T : struct;
 
     /// <summary>
-    /// Generates a BigInteger literal.
+    ///     Generates a BigInteger literal.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The literal.</returns>
@@ -115,7 +122,7 @@ public interface ICSharpHelper
     string Literal(char value);
 
     /// <summary>
-    /// Generates a DateOnly literal.
+    ///     Generates a DateOnly literal.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The literal.</returns>
@@ -206,7 +213,7 @@ public interface ICSharpHelper
     string Literal(string? value);
 
     /// <summary>
-    /// Generates a TimeOnly literal.
+    ///     Generates a TimeOnly literal.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The literal.</returns>
@@ -257,6 +264,23 @@ public interface ICSharpHelper
     string Literal<T>(T[] values, bool vertical = false);
 
     /// <summary>
+    ///     Generates a list literal.
+    /// </summary>
+    /// <param name="values">The list.</param>
+    /// <param name="vertical">A value indicating whether to layout the literal vertically.</param>
+    /// <returns>The literal.</returns>
+    string Literal<T>(List<T> values, bool vertical = false);
+
+    /// <summary>
+    ///     Generates a dictionary literal.
+    /// </summary>
+    /// <param name="values">The dictionary.</param>
+    /// <param name="vertical">A value indicating whether to layout the literal vertically.</param>
+    /// <returns>The literal.</returns>
+    string Literal<TKey, TValue>(Dictionary<TKey, TValue> values, bool vertical = false)
+        where TKey : notnull;
+
+    /// <summary>
     ///     Generates a valid C# namespace from the specified parts.
     /// </summary>
     /// <param name="name">The base parts of the namespace.</param>
@@ -279,7 +303,7 @@ public interface ICSharpHelper
     string UnknownLiteral(object? value);
 
     /// <summary>
-    /// Generates an XML documentation comment. Handles escaping and newlines.
+    ///     Generates an XML documentation comment. Handles escaping and newlines.
     /// </summary>
     /// <param name="comment">The comment.</param>
     /// <param name="indent">The indentation level to use when multiple lines are generated.</param>
@@ -287,9 +311,23 @@ public interface ICSharpHelper
     string XmlComment(string comment, int indent = 0);
 
     /// <summary>
-    /// Generates an attribute specification.
+    ///     Generates an attribute specification.
     /// </summary>
     /// <param name="fragment">The attribute code fragment.</param>
     /// <returns>The attribute specification code.</returns>
     string Fragment(AttributeCodeFragment fragment);
+
+    /// <summary>
+    ///     Generates a comma-sepearated argument list of values.
+    /// </summary>
+    /// <param name="values">The values.</param>
+    /// <returns>The argument list.</returns>
+    string Arguments(IEnumerable<object> values);
+
+    /// <summary>
+    ///     Gets the using statements required when referencing a type.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The usings.</returns>
+    IEnumerable<string> GetRequiredUsings(Type type);
 }

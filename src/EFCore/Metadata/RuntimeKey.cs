@@ -108,18 +108,43 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     IEnumerable<IReadOnlyForeignKey> IReadOnlyKey.GetReferencingForeignKeys()
         => ReferencingForeignKeys ?? Enumerable.Empty<IReadOnlyForeignKey>();
 
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
-        => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
-            ref _principalKeyValueFactory, this, static key =>
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Func<bool, IIdentityMap> IdentityMapFactory
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _identityMapFactory, this, static key =>
             {
                 key.EnsureReadOnly();
-                return new KeyValueFactoryFactory().Create<TKey>(key);
+                return new IdentityMapFactoryFactory().Create(key);
             });
 
     /// <inheritdoc />
-    [DebuggerStepThrough]
+    IPrincipalKeyValueFactory<TKey> IKey.GetPrincipalKeyValueFactory<TKey>()
+        => (IPrincipalKeyValueFactory<TKey>)NonCapturingLazyInitializer.EnsureInitialized(
+            ref _principalKeyValueFactory, this, static key => key.CreatePrincipalKeyValueFactory<TKey>());
+
+    /// <inheritdoc />
+    IPrincipalKeyValueFactory IKey.GetPrincipalKeyValueFactory()
+        => (IPrincipalKeyValueFactory)NonCapturingLazyInitializer.EnsureInitialized(
+            ref _principalKeyValueFactory, (IKey)this, static key => _createPrincipalKeyValueFactoryMethod
+                .MakeGenericMethod(key.GetKeyType())
+                .Invoke(key, new object[0])!);
+
+    private static readonly MethodInfo _createPrincipalKeyValueFactoryMethod = typeof(Key).GetTypeInfo()
+        .GetDeclaredMethod(nameof(CreatePrincipalKeyValueFactory))!;
+
+    private IPrincipalKeyValueFactory<TKey> CreatePrincipalKeyValueFactory<TKey>()
+        where TKey : notnull
+    {
+        EnsureReadOnly();
+        return new KeyValueFactoryFactory().Create<TKey>(this);
+    }
+
+    /// <inheritdoc />
     Func<bool, IIdentityMap> IRuntimeKey.GetIdentityMapFactory()
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _identityMapFactory, this, static key =>

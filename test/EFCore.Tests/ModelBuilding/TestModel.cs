@@ -1,13 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
-
-#nullable enable
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -750,15 +750,27 @@ public abstract partial class ModelBuilderTest
 
     protected class QueryResult
     {
-        public int Id { get; set; }
+        public CustomId Id { get; set; } = null!;
         public int ValueFk { get; set; }
         public Value Value { get; set; } = null!;
     }
 
+    [Owned]
     protected class Value
     {
         public int Id { get; set; }
-        public int AlternateId { get; set; }
+        public CustomId? CategoryId { get; set; }
+        public ValueCategory? Category { get; set; }
+    }
+
+    protected class CustomId
+    {
+        public int Id { get; set; }
+    }
+
+    protected class ValueCategory
+    {
+        public CustomId Id { get; set; } = null!;
     }
 
     protected class KeylessEntity

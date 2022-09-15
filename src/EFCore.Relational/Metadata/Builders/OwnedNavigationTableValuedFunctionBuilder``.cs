@@ -30,7 +30,7 @@ public class OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentE
 
     private OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnedNavigationBuilder
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((IInfrastructure<OwnedNavigationBuilder>)this)
-        .GetInfrastructure();
+            .GetInfrastructure();
 
     /// <summary>
     ///     Sets the name of the database function.
@@ -53,7 +53,7 @@ public class OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentE
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity> HasSchema(string? schema)
         => (OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>)base.HasSchema(schema);
-    
+
     /// <summary>
     ///     Marks whether the database function is built-in.
     /// </summary>
@@ -76,7 +76,9 @@ public class OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentE
     /// <param name="buildAction">An action that performs configuration of the parameter.</param>
     /// <returns>The builder to use for further parameter configuration.</returns>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity> HasParameter(string name, Action<DbFunctionParameterBuilder> buildAction)
+    public new virtual OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+        string name,
+        Action<DbFunctionParameterBuilder> buildAction)
         => (OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>)base.HasParameter(name, buildAction);
 
     /// <summary>
@@ -86,7 +88,9 @@ public class OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentE
     /// <param name="annotation">The key of the annotation to be added or updated.</param>
     /// <param name="value">The value to be stored in the annotation.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value)
+    public new virtual OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+        string annotation,
+        object? value)
         => (OwnedNavigationTableValuedFunctionBuilder<TOwnerEntity, TDependentEntity>)base.HasAnnotation(annotation, value);
 
     OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>>.Instance

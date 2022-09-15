@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 ///     Instances of this class are returned from methods when using the <see cref="ModelBuilder" /> API
 ///     and it is not designed to be directly constructed in your application code.
 /// </summary>
-public class TemporalPeriodPropertyBuilder
+public class TemporalPeriodPropertyBuilder : IInfrastructure<PropertyBuilder>
 {
     private readonly PropertyBuilder _propertyBuilder;
 
@@ -42,6 +42,25 @@ public class TemporalPeriodPropertyBuilder
 
         return this;
     }
+
+    /// <summary>
+    ///     Configures the precision of the period property.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-temporal">Using SQL Server temporal tables with EF Core</see>
+    ///     for more information.
+    /// </remarks>
+    /// <param name="precision">The precision of the period property.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual TemporalPeriodPropertyBuilder HasPrecision(int precision)
+    {
+        _propertyBuilder.HasPrecision(precision);
+
+        return this;
+    }
+
+    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance
+        => _propertyBuilder;
 
     #region Hidden System.Object members
 

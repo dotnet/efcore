@@ -1,8 +1,6 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
@@ -108,7 +106,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         }
     }
 
-    protected static void AssertNormalOutcome(DbContext context,TestQueryExpressionInterceptor interceptor)
+    protected static void AssertNormalOutcome(DbContext context, TestQueryExpressionInterceptor interceptor)
     {
         Assert.Same(context, interceptor.Context);
         Assert.True(interceptor.QueryCompilationStartingCalled);

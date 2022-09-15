@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -358,54 +357,6 @@ public static class RelationalPropertyBuilderExtensions
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.IsFixedLength, fixedLength, fromDataAnnotation);
 
-    /// <summary>
-    ///     Sets the direction of the stored procedure parameter.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="direction">The direction.</param>
-    /// <param name="storeObject">The identifier of the stored procedure.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    public static IConventionPropertyBuilder? HasDirection(
-        this IConventionPropertyBuilder propertyBuilder,
-        ParameterDirection direction,
-        in StoreObjectIdentifier storeObject,
-        bool fromDataAnnotation = false)
-    {
-        if (!propertyBuilder.CanSetDirection(direction, storeObject, fromDataAnnotation))
-        {
-            return null;
-        }
-
-        propertyBuilder.Metadata.SetDirection(direction, storeObject, fromDataAnnotation);
-        return propertyBuilder;
-    }
-
-    /// <summary>
-    ///     Returns a value indicating whether the given direction can be configured on the corresponding stored procedure parameter.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property being configured.</param>
-    /// <param name="direction">The direction.</param>
-    /// <param name="storeObject">The identifier of the stored procedure.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns><see langword="true" /> if the property can be mapped to the given column.</returns>
-    public static bool CanSetDirection(
-        this IConventionPropertyBuilder propertyBuilder,
-        ParameterDirection direction,
-        in StoreObjectIdentifier storeObject,
-        bool fromDataAnnotation = false)
-    {
-        var overrides = (IConventionRelationalPropertyOverrides?)RelationalPropertyOverrides.Find(
-            propertyBuilder.Metadata, storeObject);
-        return overrides == null
-            || (fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)
-                .Overrides(overrides.GetDirectionConfigurationSource())
-            || overrides.Direction == direction;
-    }
-    
     /// <summary>
     ///     Configures the default value expression for the column that the property maps to when targeting a
     ///     relational database.
@@ -1035,4 +986,73 @@ public static class RelationalPropertyBuilderExtensions
         string? collation,
         bool fromDataAnnotation = false)
         => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.Collation, collation, fromDataAnnotation);
+
+    /// <summary>
+    ///     Configures the property of an entity mapped to a JSON column, mapping the entity property to a specific JSON property,
+    ///     rather than using the entity property name.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="name">JSON property name to be used.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder HasJsonPropertyName(
+        this PropertyBuilder propertyBuilder,
+        string? name)
+    {
+        Check.NullButNotEmpty(name, nameof(name));
+
+        propertyBuilder.Metadata.SetJsonPropertyName(name);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Configures the property of an entity mapped to a JSON column, mapping the entity property to a specific JSON property,
+    ///     rather than using the entity property name.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="name">JSON property name to be used.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static PropertyBuilder<TProperty> HasJsonPropertyName<TProperty>(
+        this PropertyBuilder<TProperty> propertyBuilder,
+        string? name)
+        => (PropertyBuilder<TProperty>)HasJsonPropertyName((PropertyBuilder)propertyBuilder, name);
+
+    /// <summary>
+    ///     Configures the property of an entity mapped to a JSON column, mapping the entity property to a specific JSON property,
+    ///     rather than using the entity property name.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="name">JSON property name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    public static IConventionPropertyBuilder? HasJsonPropertyName(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? name,
+        bool fromDataAnnotation = false)
+    {
+        if (!propertyBuilder.CanSetJsonPropertyName(name, fromDataAnnotation))
+        {
+            return null;
+        }
+
+        propertyBuilder.Metadata.SetJsonPropertyName(name, fromDataAnnotation);
+
+        return propertyBuilder;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether the given value can be used as a JSON property name for a given entity property.
+    /// </summary>
+    /// <param name="propertyBuilder">The builder for the property being configured.</param>
+    /// <param name="name">JSON property name to be used.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given value can be set as JSON property name for this entity property.</returns>
+    public static bool CanSetJsonPropertyName(
+        this IConventionPropertyBuilder propertyBuilder,
+        string? name,
+        bool fromDataAnnotation = false)
+        => propertyBuilder.CanSetAnnotation(RelationalAnnotationNames.JsonPropertyName, name, fromDataAnnotation);
 }

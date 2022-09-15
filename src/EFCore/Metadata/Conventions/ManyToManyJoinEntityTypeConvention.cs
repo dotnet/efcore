@@ -120,9 +120,11 @@ public class ManyToManyJoinEntityTypeConvention :
         var inverseEntityType = inverseSkipNavigation.DeclaringEntityType;
         var model = declaringEntityType.Model;
         var joinEntityTypeName = !declaringEntityType.HasSharedClrType
-            ? declaringEntityType.ClrType.ShortDisplayName() : declaringEntityType.ShortName();
+            ? declaringEntityType.ClrType.ShortDisplayName()
+            : declaringEntityType.ShortName();
         var inverseName = !inverseEntityType.HasSharedClrType
-            ? inverseEntityType.ClrType.ShortDisplayName() : inverseEntityType.ShortName();
+            ? inverseEntityType.ClrType.ShortDisplayName()
+            : inverseEntityType.ShortName();
         joinEntityTypeName = StringComparer.Ordinal.Compare(joinEntityTypeName, inverseName) < 0
             ? joinEntityTypeName + inverseName
             : inverseName + joinEntityTypeName;

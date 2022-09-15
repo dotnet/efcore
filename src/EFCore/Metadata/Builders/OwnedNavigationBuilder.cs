@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -171,32 +172,6 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
                     Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata));
 
     /// <summary>
-    ///     Returns an object that can be used to configure a property of the entity type.
-    ///     If no property with the given name exists, then a new property will be added.
-    /// </summary>
-    /// <remarks>
-    ///     When adding a new property, if a property with the same name exists in the entity class
-    ///     then it will be added to the model. If no property exists in the entity class, then
-    ///     a new shadow state property will be added. A shadow state property is one that does not have a
-    ///     corresponding property in the entity class. The current value for the property is stored in
-    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the entity class.
-    /// </remarks>
-    /// <param name="propertyType">The type of the property to be configured.</param>
-    /// <param name="propertyName">The name of the property to be configured.</param>
-    /// <param name="setTypeConfigurationSource">Indicates whether the type configuration source should be set.</param>
-    /// <returns>An object that can be used to configure the property.</returns>
-    public virtual PropertyBuilder Property(
-        Type propertyType,
-        string propertyName,
-        bool setTypeConfigurationSource = true)
-        => new(
-            DependentEntityType.Builder.Property(
-                Check.NotNull(propertyType, nameof(propertyType)),
-                Check.NotEmpty(propertyName, nameof(propertyName)),
-                setTypeConfigurationSource ? ConfigurationSource.Explicit : null,
-                ConfigurationSource.Explicit)!.Metadata);
-
-    /// <summary>
     ///     Returns an object that can be used to configure a property of the owned entity type.
     ///     If no property with the given name exists, then a new property will be added.
     /// </summary>
@@ -228,7 +203,8 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual PropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
+    public virtual PropertyBuilder<TProperty> IndexerProperty
+        <[DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] TProperty>(string propertyName)
         => new(
             DependentEntityType.Builder.IndexerProperty(
                 typeof(TProperty),
@@ -246,11 +222,17 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <param name="propertyType">The type of the property to be configured.</param>
     /// <param name="propertyName">The name of the property to be configured.</param>
     /// <returns>An object that can be used to configure the property.</returns>
-    public virtual PropertyBuilder IndexerProperty(Type propertyType, string propertyName)
-        => new(
+    public virtual PropertyBuilder IndexerProperty(
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        string propertyName)
+    {
+        Check.NotNull(propertyType, nameof(propertyType));
+
+        return new(
             DependentEntityType.Builder.IndexerProperty(
-                Check.NotNull(propertyType, nameof(propertyType)),
+                propertyType,
                 Check.NotEmpty(propertyName, nameof(propertyName)), ConfigurationSource.Explicit)!.Metadata);
+    }
 
     /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property
@@ -372,11 +354,15 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <returns>An object that can be used to configure the relationship.</returns>
     public virtual OwnedNavigationBuilder OwnsOne(
         string ownedTypeName,
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
-        => OwnsOneBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
+    {
+        Check.NotNull(ownedType, nameof(ownedType));
+
+        return OwnsOneBuilder(
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
             Check.NotEmpty(navigationName, nameof(navigationName)));
+    }
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -402,11 +388,15 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// </param>
     /// <returns>An object that can be used to configure the relationship.</returns>
     public virtual OwnedNavigationBuilder OwnsOne(
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
-        => OwnsOneBuilder(
-            new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
+    {
+        Check.NotNull(ownedType, nameof(ownedType));
+
+        return OwnsOneBuilder(
+            new TypeIdentity(ownedType, DependentEntityType.Model),
             Check.NotEmpty(navigationName, nameof(navigationName)));
+    }
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -475,7 +465,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <returns>An object that can be used to configure the entity type.</returns>
     public virtual OwnedNavigationBuilder OwnsOne(
         string ownedTypeName,
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
@@ -516,7 +506,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <param name="buildAction">An action that performs configuration of the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
     public virtual OwnedNavigationBuilder OwnsOne(
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
@@ -599,11 +589,15 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
     public virtual OwnedNavigationBuilder OwnsMany(
         string ownedTypeName,
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
-        => OwnsManyBuilder(
-            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), Check.NotNull(ownedType, nameof(ownedType))),
+    {
+        Check.NotNull(ownedType, nameof(ownedType));
+
+        return OwnsManyBuilder(
+            new TypeIdentity(Check.NotEmpty(ownedTypeName, nameof(ownedTypeName)), ownedType),
             Check.NotEmpty(navigationName, nameof(navigationName)));
+    }
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -628,11 +622,15 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// </param>
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
     public virtual OwnedNavigationBuilder OwnsMany(
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName)
-        => OwnsManyBuilder(
-            new TypeIdentity(Check.NotNull(ownedType, nameof(ownedType)), DependentEntityType.Model),
+    {
+        Check.NotNull(ownedType, nameof(ownedType));
+
+        return OwnsManyBuilder(
+            new TypeIdentity(ownedType, DependentEntityType.Model),
             Check.NotEmpty(navigationName, nameof(navigationName)));
+    }
 
     /// <summary>
     ///     Configures a relationship where the target entity is owned by (or part of) this entity.
@@ -699,7 +697,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <returns>An object that can be used to configure the entity type.</returns>
     public virtual OwnedNavigationBuilder OwnsMany(
         string ownedTypeName,
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
@@ -739,7 +737,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
     public virtual OwnedNavigationBuilder OwnsMany(
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
     {
@@ -833,6 +831,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     The name of the reference navigation property on this entity type that represents the relationship.
     /// </param>
     /// <returns>An object that can be used to configure the relationship.</returns>
+    [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual ReferenceNavigationBuilder HasOne(string navigationName)
     {
         Check.NotEmpty(navigationName, nameof(navigationName));
@@ -868,7 +867,7 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     /// </param>
     /// <returns>An object that can be used to configure the relationship.</returns>
     public virtual ReferenceNavigationBuilder HasOne(
-        Type relatedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
         string? navigationName = null)
     {
         Check.NotNull(relatedType, nameof(relatedType));
@@ -926,7 +925,9 @@ public class OwnedNavigationBuilder : IInfrastructure<IConventionEntityTypeBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    protected virtual EntityType FindRelatedEntityType(Type relatedType, string? navigationName)
+    protected virtual EntityType FindRelatedEntityType(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type relatedType,
+        string? navigationName)
     {
         var relatedEntityType = (EntityType?)DependentEntityType.FindInOwnershipPath(relatedType);
         if (relatedEntityType != null)

@@ -26,6 +26,7 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete("Configure this using ToTable(t => t.IsMemoryOptimized()) instead.")]
     public static EntityTypeBuilder IsMemoryOptimized(
         this EntityTypeBuilder entityTypeBuilder,
         bool memoryOptimized = true)
@@ -46,6 +47,7 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// <param name="entityTypeBuilder">The builder for the entity type being configured.</param>
     /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete("Configure this using ToTable(t => t.IsMemoryOptimized()) instead.")]
     public static EntityTypeBuilder<TEntity> IsMemoryOptimized<TEntity>(
         this EntityTypeBuilder<TEntity> entityTypeBuilder,
         bool memoryOptimized = true)
@@ -62,6 +64,7 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// <param name="collectionOwnershipBuilder">The builder for the entity type being configured.</param>
     /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete("Configure this using ToTable(t => t.IsMemoryOptimized()) instead.")]
     public static OwnedNavigationBuilder IsMemoryOptimized(
         this OwnedNavigationBuilder collectionOwnershipBuilder,
         bool memoryOptimized = true)
@@ -83,6 +86,7 @@ public static class SqlServerEntityTypeBuilderExtensions
     /// <param name="collectionOwnershipBuilder">The builder for the entity type being configured.</param>
     /// <param name="memoryOptimized">A value indicating whether the table is memory-optimized.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    [Obsolete("Configure this using ToTable(t => t.IsMemoryOptimized()) instead.")]
     public static OwnedNavigationBuilder<TEntity, TRelatedEntity> IsMemoryOptimized<TEntity, TRelatedEntity>(
         this OwnedNavigationBuilder<TEntity, TRelatedEntity> collectionOwnershipBuilder,
         bool memoryOptimized = true)

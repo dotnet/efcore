@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class SqlServerBuilderExtensionsTest
@@ -65,7 +64,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .IsMemoryOptimized();
+            .ToTable(tb => tb.IsMemoryOptimized());
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -73,7 +72,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .IsMemoryOptimized(false);
+            .ToTable(tb => tb.IsMemoryOptimized(false));
 
         Assert.False(entityType.IsMemoryOptimized());
     }
@@ -85,7 +84,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity(typeof(Customer))
-            .IsMemoryOptimized();
+            .ToTable(tb => tb.IsMemoryOptimized());
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -93,7 +92,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity(typeof(Customer))
-            .IsMemoryOptimized(false);
+            .ToTable(tb => tb.IsMemoryOptimized(false));
 
         Assert.False(entityType.IsMemoryOptimized());
     }
@@ -968,27 +967,6 @@ public class SqlServerBuilderExtensionsTest
 
         Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
         Assert.Null(model.FindSequence(SqlServerModelExtensions.DefaultHiLoSequenceName));
-    }
-
-    [ConditionalFact]
-    public void SqlServer_entity_methods_dont_break_out_of_the_generics()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        AssertIsGeneric(
-            modelBuilder
-                .Entity<Customer>()
-                .IsMemoryOptimized());
-    }
-
-    [ConditionalFact]
-    public void SqlServer_entity_methods_have_non_generic_overloads()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        modelBuilder
-            .Entity(typeof(Customer))
-            .IsMemoryOptimized();
     }
 
     [ConditionalFact]

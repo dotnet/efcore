@@ -185,6 +185,12 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                                 break;
                             }
 
+                            // If we are already pointing to next row, we don't need to call Read
+                            if (_resultCoordinator.HasNext == true)
+                            {
+                                continue;
+                            }
+
                             if (!_dataReader!.Read())
                             {
                                 _resultCoordinator.HasNext = false;
@@ -338,6 +344,12 @@ public class SingleQueryingEnumerable<T> : IEnumerable<T>, IAsyncEnumerable<T>, 
                                 // We generated a result so null out previously stored values
                                 _resultCoordinator.ResultContext.Values = null;
                                 break;
+                            }
+
+                            // If we are already pointing to next row, we don't need to call Read
+                            if (_resultCoordinator.HasNext == true)
+                            {
+                                continue;
                             }
 
                             if (!await _dataReader!.ReadAsync(_cancellationToken).ConfigureAwait(false))

@@ -2313,6 +2313,126 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ExecuteDeleteFailed" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    /// <param name="exception">The exception that caused this failure.</param>
+    public static void ExecuteDeleteFailed(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        Type contextType,
+        Exception exception)
+    {
+        var definition = RelationalResources.LogExceptionDuringExecuteDelete(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                contextType, Environment.NewLine, exception,
+                exception);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new DbContextTypeErrorEventData(
+                definition,
+                ExecuteDeleteFailed,
+                contextType,
+                exception);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ExecuteDeleteFailed(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<Type, string, Exception>)definition;
+        var p = (DbContextTypeErrorEventData)payload;
+        return d.GenerateMessage(p.ContextType, Environment.NewLine, p.Exception);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.ExecuteUpdateFailed" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    /// <param name="exception">The exception that caused this failure.</param>
+    public static void ExecuteUpdateFailed(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        Type contextType,
+        Exception exception)
+    {
+        var definition = RelationalResources.LogExceptionDuringExecuteUpdate(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                contextType, Environment.NewLine, exception,
+                exception);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new DbContextTypeErrorEventData(
+                definition,
+                ExecuteUpdateFailed,
+                contextType,
+                exception);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string ExecuteUpdateFailed(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<Type, string, Exception>)definition;
+        var p = (DbContextTypeErrorEventData)payload;
+        return d.GenerateMessage(p.ContextType, Environment.NewLine, p.Exception);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.NonQueryOperationFailed" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="contextType">The <see cref="DbContext" /> type being used.</param>
+    /// <param name="exception">The exception that caused this failure.</param>
+    public static void NonQueryOperationFailed(
+        this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        Type contextType,
+        Exception exception)
+    {
+        var definition = RelationalResources.LogExceptionDuringNonQueryOperation(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(
+                diagnostics,
+                contextType, Environment.NewLine, exception,
+                exception);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new DbContextTypeErrorEventData(
+                definition,
+                NonQueryOperationFailed,
+                contextType,
+                exception);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string NonQueryOperationFailed(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<Type, string, Exception>)definition;
+        var p = (DbContextTypeErrorEventData)payload;
+        return d.GenerateMessage(p.ContextType, Environment.NewLine, p.Exception);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.MultipleCollectionIncludeWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -3206,5 +3326,32 @@ public static class RelationalLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (MigrationColumnOperationEventData)payload;
         return d.GenerateMessage((p.ColumnOperation.Table, p.ColumnOperation.Schema).FormatTable(), p.ColumnOperation.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="RelationalEventId.UnexpectedTrailingResultSetWhenSaving" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    public static void UnexpectedTrailingResultSetWhenSaving(this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics)
+    {
+        var definition = RelationalResources.LogUnexpectedTrailingResultSetWhenSaving(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EventData(
+                definition,
+                static (definition, _) =>
+                {
+                    var d = (EventDefinition)definition;
+                    return d.GenerateMessage();
+                });
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
     }
 }

@@ -219,7 +219,7 @@ public abstract class SnapshotFactoryFactory
         IPropertyBase property)
         => Expression.Call(
             parameter,
-            InternalEntityEntry.ReadShadowValueMethod.MakeGenericMethod((property as IProperty)?.ClrType ?? typeof(object)),
+            InternalEntityEntry.MakeReadShadowValueMethod((property as IProperty)?.ClrType ?? typeof(object)),
             Expression.Constant(property.GetShadowIndex()));
 
     /// <summary>
@@ -233,7 +233,7 @@ public abstract class SnapshotFactoryFactory
         IPropertyBase property)
         => Expression.Call(
             parameter,
-            InternalEntityEntry.GetCurrentValueMethod.MakeGenericMethod(property.ClrType),
+            InternalEntityEntry.MakeGetCurrentValueMethod(property.ClrType),
             Expression.Constant(property, typeof(IProperty)));
 
     /// <summary>

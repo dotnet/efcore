@@ -4,7 +4,6 @@
 using Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.Geometries.Utilities;
-using NetTopologySuite.Operation.Polygonize;
 using NetTopologySuite.Operation.Union;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -190,11 +189,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<PointEntity>()
                 .Where(e => e.Point != null)
                 .GroupBy(e => e.Group)
-                .Select(g => new
-                {
-                    Id = g.Key,
-                    Combined = GeometryCombiner.Combine(g.Select(e => e.Point))
-                }),
+                .Select(g => new { Id = g.Key, Combined = GeometryCombiner.Combine(g.Select(e => e.Point)) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
@@ -1135,11 +1130,7 @@ public abstract class SpatialQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<PointEntity>()
                 .Where(e => e.Point != null)
                 .GroupBy(e => e.Group)
-                .Select(g => new
-                {
-                    Id = g.Key,
-                    Union = UnaryUnionOp.Union(g.Select(e => e.Point))
-                }),
+                .Select(g => new { Id = g.Key, Union = UnaryUnionOp.Union(g.Select(e => e.Point)) }),
             elementSorter: x => x.Id,
             elementAsserter: (e, a) =>
             {
