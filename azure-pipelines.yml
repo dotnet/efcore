@@ -147,7 +147,7 @@ stages:
             enablePublishTestResults: true
             pool:
               ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
-                vmImage: ubuntu-18.04
+                vmImage: ubuntu-22.04
               ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                 name: NetCore1ESPool-Svc-Internal
                 demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
@@ -206,12 +206,12 @@ stages:
                 value: $(_BuildConfig)
               - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: OSX.1100.Amd64.Open;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1804.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072
+                  value: OSX.1100.Amd64.Open;(Ubuntu.2204.Amd64.SqlServer)Ubuntu.2204.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072
                 - name: _HelixAccessToken
                   value: '' # Needed for public queues
               - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                 - name: HelixTargetQueues
-                  value: OSX.1100.Amd64;(Ubuntu.1804.Amd64.SqlServer)Ubuntu.1804.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072
+                  value: OSX.1100.Amd64;(Ubuntu.2204.Amd64.SqlServer)Ubuntu.2204.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64-20220131172221-d5c5072
                 - name: _HelixAccessToken
                   value: $(HelixApiAccessToken) # Needed for internal queues
             steps:
