@@ -174,6 +174,15 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique().HasFilter("Name IS NOT NULL");
 
+            modelBuilder.Entity<Person>()
+                .Property(p => p.Country)
+                .HasColumnName("Country");
+
+            modelBuilder.Entity<Person>()
+                .OwnsOne(p => p.Address)
+                .Property(p => p.Country)
+                .HasColumnName("Country");
+
             modelBuilder
                 .Entity<
                     LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails

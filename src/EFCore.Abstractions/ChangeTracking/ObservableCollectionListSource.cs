@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -25,6 +26,8 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///     </para>
 /// </remarks>
 /// <typeparam name="T">The type of elements in the collection.</typeparam>
+[RequiresUnreferencedCode(
+    "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
 public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListSource
     where T : class
 {
@@ -71,6 +74,14 @@ public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListS
     /// <returns>
     ///     An <see cref="IBindingList" /> in sync with the ObservableCollection.
     /// </returns>
+    [RequiresUnreferencedCode(
+        "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis",
+        "IL2046",
+        Justification =
+            "This method is an interface implementation, and the interface method isn't annotated with RequiresUnreferencedCode. " +
+            "The entire type is marked with RequiresUnreferencedCode.")]
     IList IListSource.GetList()
         => _bindingList ??= this.ToBindingList();
 }

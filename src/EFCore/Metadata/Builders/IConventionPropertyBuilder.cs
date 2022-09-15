@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -282,7 +284,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    IConventionPropertyBuilder? HasValueGenerator(Type? valueGeneratorType, bool fromDataAnnotation = false);
+    IConventionPropertyBuilder? HasValueGenerator(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? valueGeneratorType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures the <see cref="ValueGenerator" /> that will generate values for this property.
@@ -307,7 +311,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    IConventionPropertyBuilder? HasValueGeneratorFactory(Type? valueGeneratorFactoryType, bool fromDataAnnotation = false);
+    IConventionPropertyBuilder? HasValueGeneratorFactory(
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the <see cref="ValueGenerator" /> can be configured for this property
@@ -340,7 +346,7 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     ///     <see langword="true" /> if the <see cref="ValueGenerator" /> can be configured for this property.
     /// </returns>
     bool CanSetValueGeneratorFactory(
-        Type? valueGeneratorFactoryType,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -402,7 +408,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     ///     The same builder instance if the configuration was applied,
     ///     <see langword="null" /> otherwise.
     /// </returns>
-    IConventionPropertyBuilder? HasConverter(Type? converterType, bool fromDataAnnotation = false);
+    IConventionPropertyBuilder? HasConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the <see cref="ValueConverter" /> can be configured for this property
@@ -416,7 +424,7 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     /// <returns>
     ///     <see langword="true" /> if the <see cref="ValueConverter" /> can be configured for this property.
     /// </returns>
-    bool CanSetConverter(Type? converterType, bool fromDataAnnotation = false);
+    bool CanSetConverter([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType, bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures the <see cref="CoreTypeMapping" /> for this property.
@@ -472,7 +480,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     /// <returns>
     ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
     /// </returns>
-    IConventionPropertyBuilder? HasValueComparer(Type? comparerType, bool fromDataAnnotation = false);
+    IConventionPropertyBuilder? HasValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the given <see cref="ValueComparer" />
@@ -486,7 +496,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     /// <returns>
     ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
     /// </returns>
-    bool CanSetValueComparer(Type? comparerType, bool fromDataAnnotation = false);
+    bool CanSetValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Configures the <see cref="ValueComparer" /> to use for the provider values for this property.
@@ -520,7 +532,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     /// <returns>
     ///     The same builder instance if the configuration was applied, <see langword="null" /> otherwise.
     /// </returns>
-    IConventionPropertyBuilder? HasProviderValueComparer(Type? comparerType, bool fromDataAnnotation = false);
+    IConventionPropertyBuilder? HasProviderValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Returns a value indicating whether the given <see cref="ValueComparer" />
@@ -534,5 +548,7 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     /// <returns>
     ///     <see langword="true" /> if the given <see cref="ValueComparer" /> can be configured for this property.
     /// </returns>
-    bool CanSetProviderValueComparer(Type? comparerType, bool fromDataAnnotation = false);
+    bool CanSetProviderValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        bool fromDataAnnotation = false);
 }

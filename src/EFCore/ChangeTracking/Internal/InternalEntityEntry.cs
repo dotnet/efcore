@@ -3,6 +3,7 @@
 
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -829,8 +830,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     public void MarkUnknown(IProperty property)
         => _stateData.FlagProperty(property.GetIndex(), PropertyFlag.Unknown, true);
 
-    internal static readonly MethodInfo ReadShadowValueMethod
-        = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue))!;
+    internal static MethodInfo MakeReadShadowValueMethod(Type type)
+        => typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadShadowValue))!
+            .MakeGenericMethod(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -841,37 +843,62 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private T ReadShadowValue<T>(int shadowIndex)
         => _shadowValues.GetValue<T>(shadowIndex);
 
-    internal static readonly MethodInfo ReadOriginalValueMethod
+    private static readonly MethodInfo ReadOriginalValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadOriginalValueMethod(Type type)
+        => ReadOriginalValueMethod.MakeGenericMethod(type);
 
     [UsedImplicitly]
     private T ReadOriginalValue<T>(IProperty property, int originalValueIndex)
         => _originalValues.GetValue<T>(this, property, originalValueIndex);
 
-    internal static readonly MethodInfo ReadRelationshipSnapshotValueMethod
+    private static readonly MethodInfo ReadRelationshipSnapshotValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadRelationshipSnapshotValueMethod(Type type)
+        => ReadRelationshipSnapshotValueMethod.MakeGenericMethod(type);
 
     [UsedImplicitly]
     private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
         => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
 
-    internal static readonly MethodInfo ReadStoreGeneratedValueMethod
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadStoreGeneratedValueMethod(Type type)
+        => ReadStoreGeneratedValueMethod.MakeGenericMethod(type);
+
+    private static readonly MethodInfo ReadStoreGeneratedValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadStoreGeneratedValue))!;
 
     [UsedImplicitly]
     private T ReadStoreGeneratedValue<T>(int storeGeneratedIndex)
         => _storeGeneratedValues.GetValue<T>(storeGeneratedIndex);
 
-    internal static readonly MethodInfo ReadTemporaryValueMethod
+    private static readonly MethodInfo ReadTemporaryValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadTemporaryValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeReadTemporaryValueMethod(Type type)
+        => ReadTemporaryValueMethod.MakeGenericMethod(type);
 
     [UsedImplicitly]
     private T ReadTemporaryValue<T>(int storeGeneratedIndex)
         => _temporaryValues.GetValue<T>(storeGeneratedIndex);
 
-    internal static readonly MethodInfo GetCurrentValueMethod
+    private static readonly MethodInfo GetCurrentValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
             m => m.IsGenericMethod);
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
+    internal static MethodInfo MakeGetCurrentValueMethod(Type type)
+        => GetCurrentValueMethod.MakeGenericMethod(type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

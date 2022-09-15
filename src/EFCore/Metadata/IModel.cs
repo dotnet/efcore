@@ -126,7 +126,7 @@ public interface IModel : IReadOnlyModel, IAnnotatable
     /// </remarks>
     /// <param name="type">The type to find the corresponding entity type for.</param>
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
-    new IEntityType? FindEntityType(Type type);
+    new IEntityType? FindEntityType([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type);
 
     /// <summary>
     ///     Gets the entity type for the given name, defining navigation name

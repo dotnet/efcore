@@ -765,6 +765,16 @@ public sealed partial class SelectExpression
                 throw new InvalidOperationException();
             }
 
+            if (expression is RelationalGroupByResultExpression relationalGroupByResultExpression)
+            {
+                // Only element shaper needs remapping
+                return new RelationalGroupByResultExpression(
+                    relationalGroupByResultExpression.KeyIdentifier,
+                    relationalGroupByResultExpression.KeyIdentifierValueComparers,
+                    relationalGroupByResultExpression.KeyShaper,
+                    Visit(relationalGroupByResultExpression.ElementShaper));
+            }
+
             return base.Visit(expression);
         }
     }

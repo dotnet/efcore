@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -11,6 +12,13 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 ///     Entity Framework LINQ related extension methods.
 /// </summary>
+[UnconditionalSuppressMessage(
+    "ReflectionAnalysis",
+    "IL2060",
+    Justification =
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called " +
+        "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no " +
+        "longer be necessary.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>

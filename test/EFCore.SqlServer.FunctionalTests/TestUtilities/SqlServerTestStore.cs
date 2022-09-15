@@ -130,8 +130,8 @@ public class SqlServerTestStore : RelationalTestStore
                                 new DbContextOptionsBuilder()
                                     .EnableServiceProviderCaching(false))
                             .Options);
-                    clean?.Invoke(context);
                     Clean(context);
+                    clean?.Invoke(context);
                     return true;
                 }
 

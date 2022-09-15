@@ -60,6 +60,13 @@ public sealed partial class SelectExpression : TableExpressionBase
 
     private SortedDictionary<string, IAnnotation>? _annotations;
 
+    // We need to remember identfiers before GroupBy in case it is final GroupBy and element selector has a colection
+    // This state doesn't need to propagate
+    // It should be only at top-level otherwise GroupBy won't be final operator.
+    // Cloning skips it altogether (we don't clone top level with GroupBy)
+    // Pushdown should null it out as if GroupBy was present was pushed down.
+    private List<(ColumnExpression Column, ValueComparer Comparer)>? _preGroupByIdentifier;
+
 #if DEBUG
     private List<string>? _removedAliases;
 #endif
@@ -768,6 +775,33 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         _mutable = false;
+        if (shaperExpression is RelationalGroupByShaperExpression relationalGroupByShaperExpression)
+        {
+            // This is final GroupBy operation
+            Check.DebugAssert(_groupBy.Count > 0, "The selectExpression doesn't have grouping terms.");
+
+            if (_clientProjections.Count == 0)
+            {
+                // Force client projection because we would be injecting keys and client-side key comparison
+                var mapping = ConvertProjectionMappingToClientProjections(_projectionMapping);
+                var innerShaperExpression = new ProjectionMemberToIndexConvertingExpressionVisitor(this, mapping).Visit(
+                    relationalGroupByShaperExpression.ElementSelector);
+                shaperExpression = new RelationalGroupByShaperExpression(
+                    relationalGroupByShaperExpression.KeySelector,
+                    innerShaperExpression,
+                    relationalGroupByShaperExpression.GroupingEnumerable);
+            }
+
+            // Convert GroupBy to OrderBy
+            foreach (var groupingTerm in _groupBy)
+            {
+                AppendOrdering(new OrderingExpression(groupingTerm, ascending: true));
+            }
+            _groupBy.Clear();
+            // We do processing of adding key terms to projection when applying projection so we can move offsets for other
+            // projections correctly
+        }
+
         if (_clientProjections.Count > 0)
         {
             EntityShaperNullableMarkingExpressionVisitor? entityShaperNullableMarkingExpressionVisitor = null;
@@ -803,6 +837,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 || (querySplittingBehavior == QuerySplittingBehavior.SingleQuery && containsCollection))
             {
                 // Pushdown outer since we will be adding join to this
+                // For grouping query pushown will not occur since we don't allow this terms to compose (yet!).
                 if (Limit != null
                     || Offset != null
                     || IsDistinct
@@ -815,14 +850,124 @@ public sealed partial class SelectExpression : TableExpressionBase
                 entityShaperNullableMarkingExpressionVisitor = new EntityShaperNullableMarkingExpressionVisitor();
             }
 
-            if (containsSingleResult || containsCollection)
+            if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery
+                && (containsSingleResult || containsCollection))
             {
+                // SingleResult can lift collection from inner
                 cloningExpressionVisitor = new CloningExpressionVisitor();
+            }
+
+            var jsonClientProjectionDeduplicationMap = BuildJsonProjectionDeduplicationMap(_clientProjections.OfType<JsonQueryExpression>());
+            var earlierClientProjectionCount = _clientProjections.Count;
+            var newClientProjections = new List<Expression>();
+            var clientProjectionIndexMap = new List<object>();
+            var remappingRequired = false;
+
+            if (shaperExpression is RelationalGroupByShaperExpression groupByShaper)
+            {
+                // We need to add key to projection and generate key selector in terms of projectionBindings
+                var projectionBindingMap = new Dictionary<SqlExpression, ProjectionBindingExpression>();
+                var keySelector = AddGroupByKeySelectorToProjection(
+                    this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
+                var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(projectionBindingMap, _identifier);
+                _identifier.Clear();
+                _identifier.AddRange(_preGroupByIdentifier!);
+                _preGroupByIdentifier!.Clear();
+
+                static Expression AddGroupByKeySelectorToProjection(
+                    SelectExpression selectExpression,
+                    List<Expression> clientProjectionList,
+                    Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
+                    Expression keySelector)
+                {
+                    switch (keySelector)
+                    {
+                        case SqlExpression sqlExpression:
+                            var index = selectExpression.AddToProjection(sqlExpression);
+                            var clientProjectionToAdd = Constant(index);
+                            var existingIndex = clientProjectionList.FindIndex(
+                                e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
+                            if (existingIndex == -1)
+                            {
+                                clientProjectionList.Add(Constant(index));
+                                existingIndex = clientProjectionList.Count - 1;
+                            }
+
+                            var projectionBindingExpression = new ProjectionBindingExpression(
+                                selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
+                            projectionBindingMap[sqlExpression] = projectionBindingExpression;
+                            return projectionBindingExpression;
+
+                        case NewExpression newExpression:
+                            var newArguments = new Expression[newExpression.Arguments.Count];
+                            for (var i = 0; i < newExpression.Arguments.Count; i++)
+                            {
+                                var newArgument = AddGroupByKeySelectorToProjection(
+                                    selectExpression, clientProjectionList, projectionBindingMap, newExpression.Arguments[i]);
+                                newArguments[i] = newExpression.Arguments[i].Type != newArgument.Type
+                                    ? Convert(newArgument, newExpression.Arguments[i].Type)
+                                    : newArgument;
+                            }
+
+                            return newExpression.Update(newArguments);
+
+                        case MemberInitExpression memberInitExpression:
+                            var updatedNewExpression = AddGroupByKeySelectorToProjection(
+                                selectExpression, clientProjectionList, projectionBindingMap, memberInitExpression.NewExpression);
+                            var newBindings = new MemberBinding[memberInitExpression.Bindings.Count];
+                            for (var i = 0; i < newBindings.Length; i++)
+                            {
+                                var memberAssignment = (MemberAssignment)memberInitExpression.Bindings[i];
+                                var newAssignmentExpression = AddGroupByKeySelectorToProjection(
+                                    selectExpression, clientProjectionList, projectionBindingMap, memberAssignment.Expression);
+                                newBindings[i] = memberAssignment.Update(
+                                    memberAssignment.Expression.Type != newAssignmentExpression.Type
+                                    ? Convert(newAssignmentExpression, memberAssignment.Expression.Type)
+                                    : newAssignmentExpression);
+                            }
+
+                            return memberInitExpression.Update((NewExpression)updatedNewExpression, newBindings);
+
+                        case UnaryExpression unaryExpression
+                        when unaryExpression.NodeType == ExpressionType.Convert
+                            || unaryExpression.NodeType == ExpressionType.ConvertChecked:
+                            return unaryExpression.Update(
+                                AddGroupByKeySelectorToProjection(
+                                    selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
+
+                        default:
+                            throw new InvalidOperationException(
+                                RelationalStrings.InvalidKeySelectorForGroupBy(keySelector, keySelector.GetType()));
+                    }
+                }
+
+                static (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
+                    Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
+                    IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
+                {
+                    var updatedExpressions = new List<Expression>();
+                    var comparers = new List<ValueComparer>();
+                    foreach (var (column, comparer) in identifyingProjection)
+                    {
+                        var projectionBindingExpression = projectionBindingMap[column];
+                        updatedExpressions.Add(
+                            projectionBindingExpression.Type.IsValueType
+                                ? Convert(projectionBindingExpression, typeof(object))
+                                : projectionBindingExpression);
+                        comparers.Add(comparer);
+                    }
+
+                    return (NewArrayInit(typeof(object), updatedExpressions), comparers);
+                }
+                remappingRequired = true;
+                shaperExpression = new RelationalGroupByResultExpression(
+                    keyIdentifier, keyIdentifierValueComparers, keySelector, groupByShaper.ElementSelector);
             }
 
             SelectExpression? baseSelectExpression = null;
             if (querySplittingBehavior == QuerySplittingBehavior.SplitQuery && containsCollection)
             {
+                // Needs to happen after converting final GroupBy so we clone correct form.
                 baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
                 // We mark this as mutable because the split query will combine into this and take it over.
                 baseSelectExpression._mutable = true;
@@ -851,12 +996,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
             }
 
-            var jsonClientProjectionDeduplicationMap =
-                BuildJsonProjectionDeduplicationMap(_clientProjections.OfType<JsonQueryExpression>());
-            var earlierClientProjectionCount = _clientProjections.Count;
-            var newClientProjections = new List<Expression>();
-            var clientProjectionIndexMap = new List<object>();
-            var remappingRequired = false;
             for (var i = 0; i < _clientProjections.Count; i++)
             {
                 if (i == earlierClientProjectionCount)
@@ -864,9 +1003,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                     // Since we lift nested client projections for single results up, we may need to re-clone the baseSelectExpression
                     // again so it does contain the single result subquery too. We erase projections for it since it would be non-empty.
                     earlierClientProjectionCount = _clientProjections.Count;
-                    baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
-                    baseSelectExpression._mutable = true;
-                    baseSelectExpression._projection.Clear();
+                    if (cloningExpressionVisitor != null)
+                    {
+                        baseSelectExpression = (SelectExpression)cloningExpressionVisitor.Visit(this);
+                        baseSelectExpression._mutable = true;
+                        baseSelectExpression._projection.Clear();
+                    }
 
                     //since we updated the client projections, we also need updated deduplication map
                     jsonClientProjectionDeduplicationMap = BuildJsonProjectionDeduplicationMap(
@@ -1715,7 +1857,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var groupByAliases = new List<string?>();
         PopulateGroupByTerms(keySelector, groupByTerms, groupByAliases, "Key");
 
-        if (groupByTerms.Any(e => e is SqlConstantExpression || e is SqlParameterExpression || e is ScalarSubqueryExpression))
+        if (groupByTerms.Any(e => e is not ColumnExpression))
         {
             var sqlRemappingVisitor = PushdownIntoSubqueryInternal();
             var newGroupByTerms = new List<SqlExpression>(groupByTerms.Count);
@@ -1808,6 +1950,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         if (!_identifier.All(e => _groupBy.Contains(e.Column)))
         {
+            _preGroupByIdentifier = _identifier.ToList();
             _identifier.Clear();
             if (_groupBy.All(e => e is ColumnExpression))
             {
@@ -1858,6 +2001,23 @@ public sealed partial class SelectExpression : TableExpressionBase
                 when unaryExpression.NodeType == ExpressionType.Convert
                 || unaryExpression.NodeType == ExpressionType.ConvertChecked:
                 PopulateGroupByTerms(unaryExpression.Operand, groupByTerms, groupByAliases, name);
+                break;
+
+            case EntityShaperExpression entityShaperExpression
+                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                var entityProjectionExpression = (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
+                        .GetProjection(projectionBindingExpression);
+                foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
+                {
+                    PopulateGroupByTerms(entityProjectionExpression.BindProperty(property), groupByTerms, groupByAliases, name: null);
+                }
+
+                if (entityProjectionExpression.DiscriminatorExpression != null)
+                {
+                    PopulateGroupByTerms(
+                        entityProjectionExpression.DiscriminatorExpression, groupByTerms, groupByAliases, name: DiscriminatorColumnAlias);
+                }
+
                 break;
 
             default:
@@ -2093,7 +2253,10 @@ public sealed partial class SelectExpression : TableExpressionBase
             var innerColumn2 = (SqlExpression)expression2;
             // For now, make sure that both sides output the same store type, otherwise the query may fail.
             // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
-            if (innerColumn1.TypeMapping!.StoreType != innerColumn2.TypeMapping!.StoreType)
+            if (!string.Equals(
+                    innerColumn1.TypeMapping!.StoreType,
+                    innerColumn2.TypeMapping!.StoreType,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
             }
@@ -3203,6 +3366,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         Having = null;
         Offset = null;
         Limit = null;
+        _preGroupByIdentifier = null;
         subquery._removableJoinTables.AddRange(_removableJoinTables);
         _removableJoinTables.Clear();
         foreach (var kvp in _tpcDiscriminatorValues)

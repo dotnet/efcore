@@ -58,15 +58,18 @@ public static class ExpressionExtensions
     /// <param name="memberExpression">The member to which assignment will be made.</param>
     /// <param name="valueExpression">The value that will be assigned.</param>
     /// <returns>The <see cref="BinaryExpression" /> representing the assignment binding.</returns>
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2077",
+        Justification = "AssignBinaryExpression is preserved via DynamicDependency below")]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, "System.Linq.Expressions.AssignBinaryExpression", "System.Linq.Expressions")]
     public static Expression Assign(
         this MemberExpression memberExpression,
         Expression valueExpression)
     {
-        if (memberExpression.Member is FieldInfo fieldInfo
-            && fieldInfo.IsInitOnly)
+        if (memberExpression.Member is FieldInfo { IsInitOnly: true })
         {
             return (BinaryExpression)Activator.CreateInstance(
-                AssignBinaryExpressionType,
+                GetAssignBinaryExpressionType(),
                 BindingFlags.NonPublic | BindingFlags.Instance,
                 null,
                 new object[] { memberExpression, valueExpression },
@@ -74,10 +77,13 @@ public static class ExpressionExtensions
         }
 
         return Expression.Assign(memberExpression, valueExpression);
-    }
 
-    private static readonly Type AssignBinaryExpressionType
-        = typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression", throwOnError: true)!;
+        [UnconditionalSuppressMessage(
+            "ReflectionAnalysis", "IL2026",
+            Justification = "DynamicDependency ensures AssignBinaryExpression isn't trimmed")]
+        static Type GetAssignBinaryExpressionType()
+            => typeof(Expression).Assembly.GetType("System.Linq.Expressions.AssignBinaryExpression", throwOnError: true)!;
+    }
 
     /// <summary>
     ///     If the given a method-call expression represents a call to <see cref="EF.Property{TProperty}" />, then this
@@ -283,7 +289,7 @@ public static class ExpressionExtensions
         int index,
         IPropertyBase? property)
         => Expression.Call(
-            ValueBufferTryReadValueMethod.MakeGenericMethod(type),
+            MakeValueBufferTryReadValueMethod(type),
             valueBuffer,
             Expression.Constant(index),
             Expression.Constant(property, typeof(IPropertyBase)));
@@ -300,6 +306,11 @@ public static class ExpressionExtensions
     /// </summary>
     public static readonly MethodInfo ValueBufferTryReadValueMethod
         = typeof(ExpressionExtensions).GetTypeInfo().GetDeclaredMethod(nameof(ValueBufferTryReadValue))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "ValueBufferTryReadValueMethod has no DynamicallyAccessedMembers annotations and is safe to construct.")]
+    private static MethodInfo MakeValueBufferTryReadValueMethod(Type type)
+        => ValueBufferTryReadValueMethod.MakeGenericMethod(type);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static TValue ValueBufferTryReadValue<TValue>(
@@ -372,7 +383,7 @@ public static class ExpressionExtensions
         }
 
         return Expression.Call(
-            EF.PropertyMethod.MakeGenericMethod(propertyType),
+            EF.MakePropertyMethod(propertyType),
             target,
             Expression.Constant(propertyName));
     }

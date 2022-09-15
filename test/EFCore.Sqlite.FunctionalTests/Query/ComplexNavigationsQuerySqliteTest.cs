@@ -42,4 +42,16 @@ public class ComplexNavigationsQuerySqliteTest : ComplexNavigationsQueryRelation
             CoreStrings.QueryUnableToTranslateMethod(
                 "Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQueryTestBase<Microsoft.EntityFrameworkCore.Query.ComplexNavigationsQuerySqliteFixture>",
                 "ClientMethodNullableInt"));
+
+    public override async Task GroupJoin_with_subquery_on_inner(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupJoin_with_subquery_on_inner(async))).Message);
+
+    public override async Task GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.GroupJoin_with_subquery_on_inner_and_no_DefaultIfEmpty(async))).Message);
 }

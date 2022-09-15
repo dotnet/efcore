@@ -78,5 +78,5 @@ public class QueryTranslationPreprocessor
     /// <returns>A query expression after normalization has been done.</returns>
     public virtual Expression NormalizeQueryableMethod(Expression expression)
         => new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext)
-            .Visit(expression);
+            .Normalize(expression);
 }

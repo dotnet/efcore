@@ -995,14 +995,13 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     {
         var builder = CreateConventionlessModelBuilder();
         var modelBuilder = (InternalModelBuilder)builder.GetInfrastructure();
+        modelBuilder.Owned(typeof(A), ConfigurationSource.Convention);
         var aBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
         aBuilder.Ignore(nameof(A.Id), ConfigurationSource.Explicit);
         aBuilder.Ignore(nameof(A.P0), ConfigurationSource.Explicit);
         aBuilder.Ignore(nameof(A.P1), ConfigurationSource.Explicit);
         aBuilder.Ignore(nameof(A.P2), ConfigurationSource.Explicit);
         aBuilder.Ignore(nameof(A.P3), ConfigurationSource.Explicit);
-
-        modelBuilder.Owned(typeof(A), ConfigurationSource.Convention);
 
         VerifyError(CoreStrings.OwnerlessOwnedType(nameof(A)), builder);
     }

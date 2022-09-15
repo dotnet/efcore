@@ -4410,23 +4410,22 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Join_with_complex_key_selector(bool async)
-        => AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<Squad>()
-                    .Join(ss.Set<CogTag>().Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new { o, i })
-                    .GroupJoin(
-                        ss.Set<Gear>(),
-                        oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
-                        ii => ii,
-                        (k, g) => new
-                        {
-                            k.o,
-                            k.i,
-                            value = g.OrderBy(gg => gg.FullName).FirstOrDefault()
-                        })
-                    .Select(r => new { r.o.Id, TagId = r.i.Id }),
-                elementSorter: e => (e.Id, e.TagId)));
+        => AssertQuery(
+            async,
+            ss => ss.Set<Squad>()
+                .Join(ss.Set<CogTag>().Where(t => t.Note == "Marcus' Tag"), o => true, i => true, (o, i) => new { o, i })
+                .GroupJoin(
+                    ss.Set<Gear>(),
+                    oo => oo.o.Members.FirstOrDefault(v => v.Tag == oo.i),
+                    ii => ii,
+                    (k, g) => new
+                    {
+                        k.o,
+                        k.i,
+                        value = g.OrderBy(gg => gg.FullName).FirstOrDefault()
+                    })
+                .Select(r => new { r.o.Id, TagId = r.i.Id }),
+            elementSorter: e => (e.Id, e.TagId));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

@@ -8387,7 +8387,14 @@ ORDER BY [g].[Nickname], [g].[SquadId]");
     {
         await base.Join_with_complex_key_selector(async);
 
-        AssertSql();
+        AssertSql(
+            @"SELECT [s].[Id], [t0].[Id] AS [TagId]
+FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
+CROSS JOIN (
+    SELECT [t].[Id]
+    FROM [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t]
+    WHERE [t].[Note] = N'Marcus'' Tag'
+) AS [t0]");
     }
 
     public override async Task Streaming_correlated_collection_issue_11403_returning_ordered_enumerable_throws(bool async)

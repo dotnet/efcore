@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -10,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     See <see href="https://aka.ms/efcore-docs-dbcontext-factory">Using DbContextFactory</see> for more information and examples.
 /// </remarks>
 /// <typeparam name="TContext">The <see cref="DbContext" /> type to create.</typeparam>
-public interface IDbContextFactory<TContext>
+public interface IDbContextFactory<[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>
     where TContext : DbContext
 {
     /// <summary>

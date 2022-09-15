@@ -3,21 +3,16 @@
 
 #nullable enable
 
-using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
-
 namespace Microsoft.EntityFrameworkCore;
 
-public class UpdatesSqlServerTest : UpdatesRelationalTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
+public class UpdatesSqlServerTest : UpdatesSqlServerTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
 {
     // ReSharper disable once UnusedParameter.Local
     public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
-        : base(fixture)
+        : base(fixture, testOutputHelper)
     {
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        Fixture.TestSqlLoggerFactory.Clear();
     }
 
-    [ConditionalFact]
     public override void Save_with_shared_foreign_key()
     {
         base.Save_with_shared_foreign_key();
@@ -41,58 +36,6 @@ SET NOCOUNT ON;
 INSERT INTO [Categories] ([Discriminator], [Name], [PrincipalId])
 OUTPUT INSERTED.[Id]
 VALUES (@p0, @p1, @p2);");
-    }
-
-    [ConditionalFact]
-    public override void Can_add_and_remove_self_refs()
-    {
-        base.Can_add_and_remove_self_refs();
-
-        AssertContainsSql(
-            @"@p0='1' (Nullable = false) (Size = 4000)
-@p1=NULL (DbType = Int32)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-INSERT INTO [Person] ([Name], [ParentId])
-OUTPUT INSERTED.[PersonId]
-VALUES (@p0, @p1);",
-            //
-            @"@p2='2' (Nullable = false) (Size = 4000)
-@p3='1' (Nullable = true)
-@p4='3' (Nullable = false) (Size = 4000)
-@p5='1' (Nullable = true)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-MERGE [Person] USING (
-VALUES (@p2, @p3, 0),
-(@p4, @p5, 1)) AS i ([Name], [ParentId], _Position) ON 1=0
-WHEN NOT MATCHED THEN
-INSERT ([Name], [ParentId])
-VALUES (i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;",
-            //
-            @"@p6='4' (Nullable = false) (Size = 4000)
-@p7='2' (Nullable = true)
-@p8='5' (Nullable = false) (Size = 4000)
-@p9='2' (Nullable = true)
-@p10='6' (Nullable = false) (Size = 4000)
-@p11='3' (Nullable = true)
-@p12='7' (Nullable = false) (Size = 4000)
-@p13='3' (Nullable = true)
-
-SET IMPLICIT_TRANSACTIONS OFF;
-SET NOCOUNT ON;
-MERGE [Person] USING (
-VALUES (@p6, @p7, 0),
-(@p8, @p9, 1),
-(@p10, @p11, 2),
-(@p12, @p13, 3)) AS i ([Name], [ParentId], _Position) ON 1=0
-WHEN NOT MATCHED THEN
-INSERT ([Name], [ParentId])
-VALUES (i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;");
     }
 
     public override void Save_replaced_principal()
@@ -128,75 +71,9 @@ FROM [ProductBase] AS [p]
 WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0");
     }
 
-    public override void Identifiers_are_generated_correctly()
+    public class UpdatesSqlServerFixture : UpdatesSqlServerFixtureBase
     {
-        using var context = CreateContext();
-        var entityType = context.Model.FindEntityType(
-            typeof(
-                LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectly
-            ))!;
-        Assert.Equal(
-            "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorking~",
-            entityType.GetTableName());
-        Assert.Equal(
-            "PK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType.GetKeys().Single().GetName());
-        Assert.Equal(
-            "FK_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType.GetForeignKeys().Single().GetConstraintName());
-        Assert.Equal(
-            "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType.GetIndexes().Single().GetDatabaseName());
-
-        var entityType2 = context.Model.FindEntityType(
-            typeof(
-                LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCorrectlyDetails
-            ))!;
-
-        Assert.Equal(
-            "LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkin~1",
-            entityType2.GetTableName());
-        Assert.Equal(
-            "PK_LoginDetails",
-            entityType2.GetKeys().Single().GetName());
-        Assert.Equal(
-            "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingCo~",
-            entityType2.GetProperties().ElementAt(1).GetColumnName(StoreObjectIdentifier.Table(entityType2.GetTableName()!)));
-        Assert.Equal(
-            "ExtraPropertyWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWorkingC~1",
-            entityType2.GetProperties().ElementAt(2).GetColumnName(StoreObjectIdentifier.Table(entityType2.GetTableName()!)));
-        Assert.Equal(
-            "IX_LoginEntityTypeWithAnExtremelyLongAndOverlyConvolutedNameThatIsUsedToVerifyThatTheStoreIdentifierGenerationLengthLimitIsWork~",
-            entityType2.GetIndexes().Single().GetDatabaseName());
-    }
-
-    private void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
-
-    protected void AssertContainsSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected, assertOrder: false);
-
-    public class UpdatesSqlServerFixture : UpdatesRelationalFixture
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => SqlServerTestStoreFactory.Instance;
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(
-                w =>
-                {
-                    w.Log(SqlServerEventId.DecimalTypeKeyWarning);
-                });
-
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-            => configurationBuilder.Properties<decimal>().HaveColumnType("decimal(18, 2)");
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<ProductBase>()
-                .Property(p => p.Id).HasDefaultValueSql("NEWID()");
-        }
+        protected override string StoreName
+            => "UpdateTest";
     }
 }

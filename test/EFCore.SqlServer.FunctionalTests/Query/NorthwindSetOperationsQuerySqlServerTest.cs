@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindSetOperationsQuerySqlServerTest : NorthwindSetOperationsQueryRelationalTestBase<
@@ -284,16 +286,16 @@ FROM (
         await base.Select_Union_unrelated(async);
 
         AssertSql(
-            @"SELECT [t].[ContactName]
+            @"SELECT [t].[CompanyName]
 FROM (
-    SELECT [c].[ContactName]
+    SELECT [c].[CompanyName]
     FROM [Customers] AS [c]
     UNION
-    SELECT [p].[ProductName] AS [ContactName]
+    SELECT [p].[ProductName] AS [CompanyName]
     FROM [Products] AS [p]
 ) AS [t]
-WHERE [t].[ContactName] IS NOT NULL AND ([t].[ContactName] LIKE N'C%')
-ORDER BY [t].[ContactName]");
+WHERE [t].[CompanyName] IS NOT NULL AND ([t].[CompanyName] LIKE N'C%')
+ORDER BY [t].[CompanyName]");
     }
 
     public override async Task Select_Union_different_fields_in_anonymous_with_subquery(bool async)
@@ -1180,6 +1182,37 @@ WHERE [c0].[ContactTitle] = N'Owner'");
                 () => base.Client_eval_Union_FirstOrDefault(async))).Message);
 
         AssertSql();
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_with_different_store_types_throws(bool async)
+    {
+        AssertEqual(
+            RelationalStrings.SetOperationsOnDifferentStoreTypes,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => AssertQuery(
+                    async,
+                    ss => ss.Set<Customer>()
+                        .Select(e => e.CompanyName)
+                        .Union(ss.Set<Customer>().Select(e => e.ContactName))))).Message);
+    }
+
+    [ConditionalTheory] // Issue #29020
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Union_with_store_types_differing_only_by_case(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Select(e => e.ContactName)
+                .Union(ss.Set<Customer>().Select(e => e.ContactTitle)));
+
+        AssertSql(@"SELECT [c].[ContactName]
+FROM [Customers] AS [c]
+UNION
+SELECT [c0].[ContactTitle] AS [ContactName]
+FROM [Customers] AS [c0]");
     }
 
     private void AssertSql(params string[] expected)

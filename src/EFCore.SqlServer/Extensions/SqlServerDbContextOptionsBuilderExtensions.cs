@@ -192,10 +192,11 @@ public static class SqlServerDbContextOptionsExtensions
             = optionsBuilder.Options.FindExtension<CoreOptionsExtension>()
             ?? new CoreOptionsExtension();
 
-        coreOptionsExtension = RelationalOptionsExtension.WithDefaultWarningConfiguration(coreOptionsExtension)
-            .WithWarningsConfiguration(
-                coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
-                    SqlServerEventId.ConflictingValueGenerationStrategiesWarning, WarningBehavior.Throw));
+        coreOptionsExtension = RelationalOptionsExtension.WithDefaultWarningConfiguration(coreOptionsExtension);
+
+        coreOptionsExtension = coreOptionsExtension.WithWarningsConfiguration(
+            coreOptionsExtension.WarningsConfiguration.TryWithExplicit(
+                SqlServerEventId.ConflictingValueGenerationStrategiesWarning, WarningBehavior.Throw));
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(coreOptionsExtension);
     }

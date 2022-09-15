@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
@@ -102,7 +103,8 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var newKey = Metadata.SetPrimaryKey(keyBuilder.Metadata.Properties, configurationSource);
                 foreach (var key in Metadata.GetDeclaredKeys().ToList())
                 {
-                    if (key == keyBuilder.Metadata)
+                    if (key == keyBuilder.Metadata
+                        || !key.IsInModel)
                     {
                         continue;
                     }
@@ -484,7 +486,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? Property(
-        Type? propertyType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource? configurationSource)
@@ -518,7 +520,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalPropertyBuilder? IndexerProperty(
-        Type? propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type? propertyType,
         string propertyName,
         ConfigurationSource? configurationSource)
     {
@@ -533,7 +535,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     }
 
     private InternalPropertyBuilder? Property(
-        Type? propertyType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
@@ -706,7 +708,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool CanHaveProperty(
-        Type? propertyType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
@@ -727,7 +729,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     }
 
     private bool CanAddProperty(
-        Type? propertyType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? propertyType,
         string propertyName,
         ConfigurationSource configurationSource,
         bool checkClrProperty = false)
@@ -1065,7 +1067,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanHaveNavigation(string navigationName, Type? type, ConfigurationSource? configurationSource)
+    public virtual bool CanHaveNavigation(
+        string navigationName,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? type,
+        ConfigurationSource? configurationSource)
     {
         var existingNavigation = Metadata.FindNavigation(navigationName);
         return existingNavigation != null
@@ -1082,7 +1087,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanAddNavigation(string navigationName, Type? type, ConfigurationSource configurationSource)
+    public virtual bool CanAddNavigation(
+        string navigationName,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? type,
+        ConfigurationSource configurationSource)
         => !IsIgnored(navigationName, configurationSource)
             && (type == null || CanBeNavigation(type, configurationSource))
             && Metadata.FindPropertiesInHierarchy(navigationName).Cast<IConventionPropertyBase>()
@@ -1115,7 +1123,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             && CanAddSkipNavigation(skipNavigationName, type, configurationSource.Value);
     }
 
-    private bool CanAddSkipNavigation(string skipNavigationName, Type? type, ConfigurationSource configurationSource)
+    private bool CanAddSkipNavigation(
+        string skipNavigationName,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? type,
+        ConfigurationSource configurationSource)
         => !IsIgnored(skipNavigationName, configurationSource)
             && (type == null || CanBeNavigation(type, configurationSource))
             && Metadata.FindPropertiesInHierarchy(skipNavigationName).Cast<IConventionPropertyBase>()
@@ -3727,7 +3738,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalEntityTypeBuilder? GetTargetEntityTypeBuilder(
-        Type targetClrType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type targetClrType,
         MemberInfo navigationInfo,
         ConfigurationSource? configurationSource,
         bool? targetShouldBeOwned = null)
@@ -3956,6 +3967,12 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         }
         else
         {
+            if (targetEntityTypeBuilder != null
+                && targetEntityTypeBuilder.Metadata.GetConfigurationSource().OverridesStrictly(configurationSource))
+            {
+                return targetEntityTypeBuilder;
+            }
+
             targetEntityTypeBuilder = targetEntityType.IsNamed
                 ? ModelBuilder.SharedTypeEntity(targetTypeName, targetType, configurationSource.Value, targetShouldBeOwned)
                 : ModelBuilder.Entity(targetType, configurationSource.Value, targetShouldBeOwned);
@@ -4490,81 +4507,77 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         var clrProperties = Metadata.GetRuntimeProperties();
         var clrFields = Metadata.GetRuntimeFields();
         var canReuniquify = false;
-        using (var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator())
+        using var principalPropertyNamesEnumerator = principalPropertyNames.GetEnumerator();
+        using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
+        for (var i = 0;
+             i < propertyCount
+             && principalPropertyNamesEnumerator.MoveNext()
+             && principalPropertyTypesEnumerator.MoveNext();
+             i++)
         {
-            using var principalPropertyTypesEnumerator = principalPropertyTypes.GetEnumerator();
-            for (var i = 0;
-                 i < propertyCount
-                 && principalPropertyNamesEnumerator.MoveNext()
-                 && principalPropertyTypesEnumerator.MoveNext();
-                 i++)
+            var keyPropertyName = principalPropertyNamesEnumerator.Current;
+            var keyPropertyType = principalPropertyTypesEnumerator.Current;
+
+            var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
+                ? keyPropertyName
+                : baseName + keyPropertyName;
+            string propertyName;
+            var clrType = keyPropertyType.MakeNullable(!isRequired);
+            var index = -1;
+            while (true)
             {
-                var keyPropertyName = principalPropertyNamesEnumerator.Current;
-                var keyPropertyType = principalPropertyTypesEnumerator.Current;
-                var keyModifiedBaseName = keyPropertyName.StartsWith(baseName, StringComparison.OrdinalIgnoreCase)
-                    ? keyPropertyName
-                    : baseName + keyPropertyName;
-                string propertyName;
-                var clrType = keyPropertyType.MakeNullable(!isRequired);
-                var index = -1;
-                while (true)
+                propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
+                if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
+                    && !clrProperties.ContainsKey(propertyName)
+                    && !clrFields.ContainsKey(propertyName)
+                    && !IsIgnored(propertyName, ConfigurationSource.Convention))
                 {
-                    propertyName = keyModifiedBaseName + (++index > 0 ? index.ToString(CultureInfo.InvariantCulture) : "");
-                    if (!Metadata.FindPropertiesInHierarchy(propertyName).Any()
-                        && !clrProperties.ContainsKey(propertyName)
-                        && !clrFields.ContainsKey(propertyName)
-                        && !IsIgnored(propertyName, ConfigurationSource.Convention))
+                    if (currentProperties == null)
                     {
-                        if (currentProperties == null)
+                        var propertyBuilder = Property(
+                            clrType, propertyName, typeConfigurationSource: null,
+                            configurationSource: ConfigurationSource.Convention);
+
+                        if (propertyBuilder == null)
                         {
-                            var propertyBuilder = Property(
-                                clrType, propertyName, typeConfigurationSource: null,
-                                configurationSource: ConfigurationSource.Convention);
-
-                            if (propertyBuilder == null)
-                            {
-                                return (false, null);
-                            }
-
-                            if (index > 0)
-                            {
-                                propertyBuilder.HasAnnotation(
-                                    CoreAnnotationNames.PreUniquificationName,
-                                    keyModifiedBaseName,
-                                    ConfigurationSource.Convention);
-                            }
-
-                            if (clrType.IsNullableType())
-                            {
-                                propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
-                            }
-
-                            newProperties![i] = propertyBuilder.Metadata;
-                        }
-                        else if (!Metadata.Model.Builder.CanBeConfigured(
-                                     clrType, TypeConfigurationType.Property, ConfigurationSource.Convention))
-                        {
-                        }
-                        else
-                        {
-                            canReuniquify = true;
+                            return (false, null);
                         }
 
-                        break;
+                        if (index > 0)
+                        {
+                            propertyBuilder.HasAnnotation(
+                                CoreAnnotationNames.PreUniquificationName,
+                                keyModifiedBaseName,
+                                ConfigurationSource.Convention);
+                        }
+
+                        if (clrType.IsNullableType())
+                        {
+                            propertyBuilder.IsRequired(isRequired, ConfigurationSource.Convention);
+                        }
+
+                        newProperties![i] = propertyBuilder.Metadata;
+                    }
+                    else if (Metadata.Model.Builder.CanBeConfigured(
+                                 clrType, TypeConfigurationType.Property, ConfigurationSource.Convention))
+                    {
+                        canReuniquify = true;
                     }
 
-                    var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
-                    if (currentProperty != null)
-                    {
-                        if (((IConventionProperty)currentProperty).IsImplicitlyCreated()
-                            && currentProperty.ClrType != clrType
-                            && isRequired)
-                        {
-                            canReuniquify = true;
-                        }
+                    break;
+                }
 
-                        break;
+                var currentProperty = currentProperties?.SingleOrDefault(p => p.Name == propertyName);
+                if (currentProperty != null)
+                {
+                    if (((IConventionProperty)currentProperty).IsImplicitlyCreated()
+                        && currentProperty.ClrType != clrType
+                        && isRequired)
+                    {
+                        canReuniquify = true;
                     }
+
+                    break;
                 }
             }
         }
@@ -5892,7 +5905,10 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionEntityTypeBuilder.CanHaveNavigation(string navigationName, Type? type, bool fromDataAnnotation)
+    bool IConventionEntityTypeBuilder.CanHaveNavigation(
+        string navigationName,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type? type,
+        bool fromDataAnnotation)
         => CanHaveNavigation(
             navigationName,
             type,

@@ -21,5 +21,7 @@ public class Person
     public int PersonId { get; set; }
     public string Name { get; set; }
     public int? ParentId { get; set; }
+    public string? Country { get; set; }
     public Person? Parent { get; set; }
+    public Address? Address { get; set; }
 }

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -51,7 +53,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     /// </summary>
     public virtual InternalEntityTypeBuilder? SharedTypeEntity(
         string name,
-        Type? type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type? type,
         ConfigurationSource configurationSource,
         bool? shouldBeOwned = false)
         => Entity(new TypeIdentity(name, type ?? Model.DefaultPropertyBagType), configurationSource, shouldBeOwned);
@@ -63,7 +65,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalEntityTypeBuilder? Entity(
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         ConfigurationSource configurationSource,
         bool? shouldBeOwned = null)
         => Entity(new TypeIdentity(type, Metadata), configurationSource, shouldBeOwned);
@@ -267,7 +269,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual InternalEntityTypeBuilder? Entity(
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         string definingNavigationName,
         EntityType definingEntityType,
         ConfigurationSource configurationSource)
@@ -306,13 +308,21 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IConventionOwnedEntityTypeBuilder? Owned(
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         ConfigurationSource configurationSource)
     {
         if (IsIgnored(type, configurationSource)
             || !CanBeConfigured(type, TypeConfigurationType.OwnedEntityType, configurationSource))
         {
             return null;
+        }
+
+        foreach (var existingEntityType in Metadata.FindEntityTypes(type))
+        {
+            if (!existingEntityType.Builder.CanSetIsOwned(true, configurationSource))
+            {
+                return null;
+            }
         }
 
         Metadata.RemoveIgnored(type);
@@ -337,15 +347,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
             }
             else
             {
-                if (entityType.Builder.CanSetIsOwned(true, configurationSource))
-                {
-                    // Discover the ownership when the type is added back
-                    HasNoEntityType(entityType, configurationSource);
-                }
-                else
-                {
-                    return null;
-                }
+                // Discover the ownership when the type is added back
+                HasNoEntityType(entityType, configurationSource);
             }
         }
 
@@ -361,7 +364,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsIgnored(Type type, ConfigurationSource? configurationSource)
+    public virtual bool IsIgnored(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        ConfigurationSource? configurationSource)
         => IsIgnored(new TypeIdentity(type, Metadata), configurationSource);
 
     /// <summary>
@@ -397,7 +402,10 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanBeConfigured(Type type, TypeConfigurationType configurationType, ConfigurationSource configurationSource)
+    public virtual bool CanBeConfigured(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type,
+        TypeConfigurationType configurationType,
+        ConfigurationSource configurationSource)
     {
         if (configurationSource == ConfigurationSource.Explicit)
         {
@@ -405,9 +413,8 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
         }
 
         if (!configurationType.IsEntityType()
-            && (!configurationSource.Overrides(Metadata.FindEntityType(type)?.GetConfigurationSource())
-                || !configurationSource.Overrides(Metadata.FindIsOwnedConfigurationSource(type))
-                || Metadata.IsShared(type)))
+            && (!configurationSource.Overrides(Metadata.FindIsOwnedConfigurationSource(type))
+                || Metadata.FindEntityTypes(type).Any(e => !configurationSource.Overrides(e.GetConfigurationSource()))))
         {
             return false;
         }
@@ -423,7 +430,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalModelBuilder? Ignore(Type type, ConfigurationSource configurationSource)
+    public virtual InternalModelBuilder? Ignore(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        ConfigurationSource configurationSource)
         => Ignore(new TypeIdentity(type, Metadata), configurationSource);
 
     /// <summary>
@@ -487,7 +496,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool CanIgnore(Type type, ConfigurationSource configurationSource)
+    public virtual bool CanIgnore(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        ConfigurationSource configurationSource)
         => CanIgnore(new TypeIdentity(type, Metadata), configurationSource);
 
     /// <summary>
@@ -683,7 +694,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     [DebuggerStepThrough]
     IConventionEntityTypeBuilder? IConventionModelBuilder.SharedTypeEntity(
         string name,
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         bool? shouldBeOwned,
         bool fromDataAnnotation)
         => SharedTypeEntity(
@@ -696,7 +707,10 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionEntityTypeBuilder? IConventionModelBuilder.Entity(Type type, bool? shouldBeOwned, bool fromDataAnnotation)
+    IConventionEntityTypeBuilder? IConventionModelBuilder.Entity(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool? shouldBeOwned,
+        bool fromDataAnnotation)
         => Entity(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention, shouldBeOwned);
 
     /// <summary>
@@ -725,7 +739,7 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     /// </summary>
     [DebuggerStepThrough]
     IConventionEntityTypeBuilder? IConventionModelBuilder.Entity(
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         string definingNavigationName,
         IConventionEntityType definingEntityType,
         bool fromDataAnnotation)
@@ -742,7 +756,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionOwnedEntityTypeBuilder? IConventionModelBuilder.Owned(Type type, bool fromDataAnnotation)
+    IConventionOwnedEntityTypeBuilder? IConventionModelBuilder.Owned(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation)
         => Owned(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -752,7 +768,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionModelBuilder.IsIgnored(Type type, bool fromDataAnnotation)
+    bool IConventionModelBuilder.IsIgnored(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation)
         => IsIgnored(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -772,7 +790,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionModelBuilder? IConventionModelBuilder.Ignore(Type type, bool fromDataAnnotation)
+    IConventionModelBuilder? IConventionModelBuilder.Ignore(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation)
         => Ignore(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
@@ -803,7 +823,9 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    bool IConventionModelBuilder.CanIgnore(Type type, bool fromDataAnnotation)
+    bool IConventionModelBuilder.CanIgnore(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation)
         => CanIgnore(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
