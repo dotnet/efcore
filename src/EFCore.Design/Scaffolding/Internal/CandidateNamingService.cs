@@ -145,8 +145,15 @@ public class CandidateNamingService : ICandidateNamingService
             return commonPrefix;
         }
 
+        var ignoredCharacterCount = 2;
+        if (commonPrefix.Length > 4
+            && commonPrefix.EndsWith("guid", StringComparison.OrdinalIgnoreCase))
+        {
+            ignoredCharacterCount = 4;
+        }
+
         int i;
-        for (i = commonPrefix.Length - 3; i >= 0; i--)
+        for (i = commonPrefix.Length - ignoredCharacterCount - 1; i >= 0; i--)
         {
             if (char.IsLetterOrDigit(commonPrefix[i]))
             {

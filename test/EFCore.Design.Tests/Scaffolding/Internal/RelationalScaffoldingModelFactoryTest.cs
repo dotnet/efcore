@@ -2452,4 +2452,152 @@ public class RelationalScaffoldingModelFactoryTest
                 Assert.Equal(2, t2.GetForeignKeys().Count());
             });
     }
+
+    [ConditionalFact]
+    public void Fk_property_ending_in_guid_navigation_name()
+    {
+        var blogTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Blog",
+            Columns = { IdColumn },
+            PrimaryKey = IdPrimaryKey
+        };
+        var postTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Post",
+            Columns =
+            {
+                IdColumn,
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "BlogGuid",
+                    StoreType = "int",
+                    IsNullable = true
+                }
+            },
+            PrimaryKey = IdPrimaryKey
+        };
+
+        postTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = postTable,
+                Name = "FK_Foo",
+                Columns = { postTable.Columns.ElementAt(1) },
+                PrincipalTable = blogTable,
+                PrincipalColumns = { blogTable.Columns.ElementAt(0) },
+                OnDelete = ReferentialAction.Cascade
+            });
+
+        var info = new DatabaseModel { Tables = { blogTable, postTable } };
+
+        var model = _factory.Create(info, new ModelReverseEngineerOptions());
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            entity =>
+            {
+                Assert.Equal("Blog", entity.Name);
+                Assert.Equal("Posts", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("Post", entity.Name);
+                Assert.Equal("Blog", entity.GetNavigations().Single().Name);
+            }
+        );
+    }
+
+    [ConditionalFact]
+    public void Composite_fk_property_ending_in_guid_navigation_name()
+    {
+        var blogTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Blog",
+            Columns =
+            {
+                IdColumn,
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "BlogGuid1",
+                    StoreType = "int",
+                    IsNullable = false
+                },
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "BlogGuid2",
+                    StoreType = "int",
+                    IsNullable = false
+                }
+            },
+            PrimaryKey = IdPrimaryKey
+        };
+        var postTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Post",
+            Columns =
+            {
+                IdColumn,
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "BlogGuid1",
+                    StoreType = "int",
+                    IsNullable = true
+                },
+                new DatabaseColumn
+                {
+                    Table = Table,
+                    Name = "BlogGuid2",
+                    StoreType = "int",
+                    IsNullable = true
+                }
+            },
+            PrimaryKey = IdPrimaryKey
+        };
+
+        blogTable.UniqueConstraints.Add(
+            new DatabaseUniqueConstraint
+            {
+                Table = blogTable,
+                Name = "AK_Foo",
+                Columns = { blogTable.Columns.ElementAt(1), blogTable.Columns.ElementAt(2) }
+            });
+
+        postTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = postTable,
+                Name = "FK_Foo",
+                Columns = { postTable.Columns.ElementAt(1), postTable.Columns.ElementAt(2) },
+                PrincipalTable = blogTable,
+                PrincipalColumns = { blogTable.Columns.ElementAt(1), blogTable.Columns.ElementAt(2) },
+                OnDelete = ReferentialAction.Cascade
+            });
+
+        var info = new DatabaseModel { Tables = { blogTable, postTable } };
+
+        var model = _factory.Create(info, new ModelReverseEngineerOptions());
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            entity =>
+            {
+                Assert.Equal("Blog", entity.Name);
+                Assert.Equal("Posts", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("Post", entity.Name);
+                Assert.Equal("Blog", entity.GetNavigations().Single().Name);
+            }
+        );
+    }
 }
