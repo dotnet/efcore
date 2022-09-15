@@ -3,6 +3,8 @@
 
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -40,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore;
 ///     </para>
 /// </remarks>
 /// <typeparam name="TEntity">The type of entity being operated on by this set.</typeparam>
-public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
+public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>
+    : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
     where TEntity : class
 {
     /// <summary>

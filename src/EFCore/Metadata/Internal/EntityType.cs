@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -94,7 +95,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityType(Type type, Model model, bool owned, ConfigurationSource configurationSource)
+    public EntityType(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        Model model,
+        bool owned,
+        ConfigurationSource configurationSource)
         : base(type, model, configurationSource)
     {
         if (!type.IsValidEntityType())
@@ -120,7 +125,12 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityType(string name, Type type, Model model, bool owned, ConfigurationSource configurationSource)
+    public EntityType(
+        string name,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        Model model,
+        bool owned,
+        ConfigurationSource configurationSource)
         : base(name, type, model, configurationSource)
     {
         if (!type.IsValidEntityType())
@@ -2304,7 +2314,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Property? AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource configurationSource)
     {
@@ -2325,6 +2335,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual Property? AddProperty(
         MemberInfo memberInfo,
         ConfigurationSource configurationSource)
@@ -2341,6 +2352,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual Property? AddProperty(
         string name,
         ConfigurationSource configurationSource)
@@ -2370,7 +2382,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Property? AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource configurationSource)
@@ -4859,7 +4871,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType)
+    IMutableProperty IMutableEntityType.AddProperty(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType)
         => AddProperty(
             name,
             propertyType,
@@ -4875,7 +4889,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IConventionProperty? IConventionEntityType.AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         bool setTypeConfigurationSource,
         bool fromDataAnnotation)
         => AddProperty(
@@ -4893,7 +4907,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo? memberInfo)
+    IMutableProperty IMutableEntityType.AddProperty(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo? memberInfo)
         => AddProperty(
             name, propertyType, memberInfo,
             ConfigurationSource.Explicit, ConfigurationSource.Explicit)!;
@@ -4907,7 +4924,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IConventionProperty? IConventionEntityType.AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         bool setTypeConfigurationSource,
         bool fromDataAnnotation)

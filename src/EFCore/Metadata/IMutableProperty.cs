@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -194,7 +196,8 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     A factory that will be used to create the value generator, or <see langword="null" /> to
     ///     clear any previously set factory.
     /// </param>
-    void SetValueGeneratorFactory(Type? valueGeneratorFactory);
+    void SetValueGeneratorFactory(
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory);
 
     /// <summary>
     ///     Sets the custom <see cref="ValueConverter" /> for this property.
@@ -208,7 +211,7 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <param name="converterType">
     ///     A type that derives from <see cref="ValueConverter" />, or <see langword="null" /> to remove any previously set converter.
     /// </param>
-    void SetValueConverter(Type? converterType);
+    void SetValueConverter([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType);
 
     /// <summary>
     ///     Sets the type that the property value will be converted to before being sent to the database provider.
@@ -234,7 +237,7 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <param name="comparerType">
     ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
     /// </param>
-    void SetValueComparer(Type? comparerType);
+    void SetValueComparer([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType);
 
     /// <summary>
     ///     Sets the custom <see cref="ValueComparer" /> to use for the provider values for this property.
@@ -248,5 +251,5 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <param name="comparerType">
     ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
     /// </param>
-    void SetProviderValueComparer(Type? comparerType);
+    void SetProviderValueComparer([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType);
 }

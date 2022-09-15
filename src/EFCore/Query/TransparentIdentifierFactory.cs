@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -28,6 +29,8 @@ public static class TransparentIdentifierFactory
     /// <param name="outerType">The outer type of the transparent identifier.</param>
     /// <param name="innerType">The inner type of the transparent identifier.</param>
     /// <returns>The created transparent identifier type.</returns>
+    [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(TransparentIdentifier<,>))]
     public static Type Create(Type outerType, Type innerType)
         => typeof(TransparentIdentifier<,>).MakeGenericType(outerType, innerType);
 

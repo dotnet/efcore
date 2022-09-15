@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -42,6 +43,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
 
     private RuntimeKey? _primaryKey;
     private readonly bool _hasSharedClrType;
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     private readonly Type _clrType;
     private readonly RuntimeEntityType? _baseType;
     private readonly SortedSet<RuntimeEntityType> _directlyDerivedTypes = new(EntityTypeFullNameComparer.Instance);
@@ -73,7 +75,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     [EntityFrameworkInternal]
     public RuntimeEntityType(
         string name,
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         bool sharedClrType,
         RuntimeModel model,
         RuntimeEntityType? baseType,
@@ -836,7 +838,9 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// </summary>
     /// <param name="type">The type to look for the indexer on.</param>
     /// <returns>An indexer property or <see langword="null" />.</returns>
-    public static PropertyInfo? FindIndexerProperty(Type type)
+    public static PropertyInfo? FindIndexerProperty(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.NonPublicProperties)]
+        Type type)
         => type.FindIndexerProperty();
 
     /// <summary>
@@ -859,6 +863,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             () => ((IReadOnlyEntityType)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     Type IReadOnlyTypeBase.ClrType
     {
         [DebuggerStepThrough]

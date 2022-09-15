@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 /// <summary>
@@ -30,6 +32,7 @@ public interface IMigrator
     /// <param name="targetMigration">
     ///     The target migration to migrate the database to, or <see langword="null" /> to migrate to the latest.
     /// </param>
+    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     void Migrate(string? targetMigration = null);
 
     /// <summary>
@@ -45,6 +48,7 @@ public interface IMigrator
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     Task MigrateAsync(
         string? targetMigration = null,
         CancellationToken cancellationToken = default);
@@ -66,6 +70,7 @@ public interface IMigrator
     ///     The options to use when generating SQL for migrations.
     /// </param>
     /// <returns>The generated script.</returns>
+    [RequiresUnreferencedCode("Migration generation currently isn't compatible with trimming")]
     string GenerateScript(
         string? fromMigration = null,
         string? toMigration = null,

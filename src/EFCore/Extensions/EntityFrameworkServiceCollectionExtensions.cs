@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -54,11 +55,12 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
     /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContext<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<DbContextOptionsBuilder>? optionsAction = null,
-        ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-        ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddDbContext
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder>? optionsAction = null,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
         => AddDbContext<TContext, TContext>(serviceCollection, optionsAction, contextLifetime, optionsLifetime);
 
@@ -105,11 +107,12 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
     /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
-        this IServiceCollection serviceCollection,
-        Action<DbContextOptionsBuilder>? optionsAction = null,
-        ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-        ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddDbContext
+        <TContextService, [DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContextImplementation>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder>? optionsAction = null,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContextImplementation : DbContext, TContextService
         => AddDbContext<TContextService, TContextImplementation>(
             serviceCollection,
@@ -156,10 +159,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </param>
     /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextPool<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<DbContextOptionsBuilder> optionsAction,
-        int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
+    public static IServiceCollection AddDbContextPool
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder> optionsAction,
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
         => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
@@ -203,10 +207,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </param>
     /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
-        this IServiceCollection serviceCollection,
-        Action<DbContextOptionsBuilder> optionsAction,
-        int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
+    public static IServiceCollection AddDbContextPool
+        <TContextService, [DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContextImplementation>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder> optionsAction,
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
     {
@@ -262,10 +267,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </param>
     /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextPool<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-        int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
+    public static IServiceCollection AddDbContextPool
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
         => AddDbContextPool<TContext, TContext>(serviceCollection, optionsAction, poolSize);
 
@@ -318,10 +324,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </param>
     /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextPool<TContextService, TContextImplementation>(
-        this IServiceCollection serviceCollection,
-        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-        int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
+    public static IServiceCollection AddDbContextPool
+        <TContextService, [DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContextImplementation>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
     {
@@ -343,7 +350,7 @@ public static class EntityFrameworkServiceCollectionExtensions
         return serviceCollection;
     }
 
-    private static void AddPoolingOptions<TContext>(
+    private static void AddPoolingOptions<[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
         IServiceCollection serviceCollection,
         Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
         int poolSize)
@@ -396,10 +403,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
     /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContext<TContext>(
-        this IServiceCollection serviceCollection,
-        ServiceLifetime contextLifetime,
-        ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddDbContext
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
         => AddDbContext<TContext, TContext>(serviceCollection, contextLifetime, optionsLifetime);
 
@@ -430,10 +438,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
     /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
-        this IServiceCollection serviceCollection,
-        ServiceLifetime contextLifetime,
-        ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddDbContext
+        <TContextService, [DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContextImplementation>(
+            this IServiceCollection serviceCollection,
+            ServiceLifetime contextLifetime,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContextImplementation : DbContext, TContextService
         where TContextService : class
         => AddDbContext<TContextService, TContextImplementation>(
@@ -500,11 +509,12 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
     /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContext<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
-        ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-        ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddDbContext
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContext : DbContext
         => AddDbContext<TContext, TContext>(serviceCollection, optionsAction, contextLifetime, optionsLifetime);
 
@@ -561,11 +571,12 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// <param name="contextLifetime">The lifetime with which to register the DbContext service in the container.</param>
     /// <param name="optionsLifetime">The lifetime with which to register the DbContextOptions service in the container.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContext<TContextService, TContextImplementation>(
-        this IServiceCollection serviceCollection,
-        Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
-        ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
-        ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddDbContext
+        <TContextService, [DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContextImplementation>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
+            ServiceLifetime contextLifetime = ServiceLifetime.Scoped,
+            ServiceLifetime optionsLifetime = ServiceLifetime.Scoped)
         where TContextImplementation : DbContext, TContextService
     {
         if (contextLifetime == ServiceLifetime.Singleton)
@@ -660,10 +671,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///     The default is <see cref="ServiceLifetime.Singleton" />
     /// </param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextFactory<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<DbContextOptionsBuilder>? optionsAction = null,
-        ServiceLifetime lifetime = ServiceLifetime.Singleton)
+    public static IServiceCollection AddDbContextFactory
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder>? optionsAction = null,
+            ServiceLifetime lifetime = ServiceLifetime.Singleton)
         where TContext : DbContext
         => AddDbContextFactory<TContext, DbContextFactory<TContext>>(serviceCollection, optionsAction, lifetime);
 
@@ -728,7 +740,9 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///     The default is <see cref="ServiceLifetime.Singleton" />
     /// </param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
+    public static IServiceCollection AddDbContextFactory
+    <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TFactory>(
         this IServiceCollection serviceCollection,
         Action<DbContextOptionsBuilder>? optionsAction = null,
         ServiceLifetime lifetime = ServiceLifetime.Singleton)
@@ -805,10 +819,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///     The default is <see cref="ServiceLifetime.Singleton" />
     /// </param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextFactory<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-        ServiceLifetime lifetime = ServiceLifetime.Singleton)
+    public static IServiceCollection AddDbContextFactory
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            ServiceLifetime lifetime = ServiceLifetime.Singleton)
         where TContext : DbContext
         => AddDbContextFactory<TContext, DbContextFactory<TContext>>(serviceCollection, optionsAction, lifetime);
 
@@ -881,7 +896,9 @@ public static class EntityFrameworkServiceCollectionExtensions
     ///     The default is <see cref="ServiceLifetime.Singleton" />
     /// </param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddDbContextFactory<TContext, TFactory>(
+    public static IServiceCollection AddDbContextFactory
+    <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TFactory>(
         this IServiceCollection serviceCollection,
         Action<IServiceProvider, DbContextOptionsBuilder>? optionsAction,
         ServiceLifetime lifetime = ServiceLifetime.Singleton)
@@ -948,10 +965,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </param>
     /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddPooledDbContextFactory<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<DbContextOptionsBuilder> optionsAction,
-        int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
+    public static IServiceCollection AddPooledDbContextFactory
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<DbContextOptionsBuilder> optionsAction,
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
     {
         Check.NotNull(optionsAction, nameof(optionsAction));
@@ -998,10 +1016,11 @@ public static class EntityFrameworkServiceCollectionExtensions
     /// </param>
     /// <param name="poolSize">Sets the maximum number of instances retained by the pool. Defaults to 1024.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection AddPooledDbContextFactory<TContext>(
-        this IServiceCollection serviceCollection,
-        Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
-        int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
+    public static IServiceCollection AddPooledDbContextFactory
+        <[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>(
+            this IServiceCollection serviceCollection,
+            Action<IServiceProvider, DbContextOptionsBuilder> optionsAction,
+            int poolSize = DbContextPool<DbContext>.DefaultPoolSize)
         where TContext : DbContext
     {
         Check.NotNull(optionsAction, nameof(optionsAction));

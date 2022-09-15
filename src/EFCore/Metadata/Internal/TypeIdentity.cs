@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
@@ -33,7 +35,7 @@ public readonly struct TypeIdentity : IEquatable<TypeIdentity>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public TypeIdentity(string name, Type type)
+    public TypeIdentity(string name, [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
     {
         Name = name;
         Type = type;
@@ -47,7 +49,7 @@ public readonly struct TypeIdentity : IEquatable<TypeIdentity>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    public TypeIdentity(Type type, Model model)
+    public TypeIdentity([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type, Model model)
     {
         Name = model.GetDisplayName(type);
         Type = type;
@@ -68,6 +70,7 @@ public readonly struct TypeIdentity : IEquatable<TypeIdentity>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     public Type? Type { [DebuggerStepThrough] get; }
 
     /// <summary>
