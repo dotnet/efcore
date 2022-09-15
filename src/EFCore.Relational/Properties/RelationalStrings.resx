@@ -769,6 +769,10 @@
     <value>The entity type '{entityType}' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
     <comment>Warning RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning string</comment>
   </data>
+  <data name="LogStoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
+    <comment>Warning RelationalEventId.StoredProcedureConcurrencyTokenNotMapped string string string</comment>
+  </data>
   <data name="LogPossibleUnintendedUseOfEquals" xml:space="preserve">
     <value>Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.</value>
     <comment>Warning RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning string string</comment>
@@ -975,9 +979,6 @@
   </data>
   <data name="SqlQueryUnmappedType" xml:space="preserve">
     <value>The element type '{elementType}' used in 'SqlQuery' method is not natively supported by your database provider. Either use a supported element type, or use ModelConfigurationBuilder.DefaultTypeMapping to define a mapping for your type.</value>
-  </data>
-  <data name="StoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
   </data>
   <data name="StoredProcedureCurrentValueParameterOnDelete" xml:space="preserve">
     <value>Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.</value>

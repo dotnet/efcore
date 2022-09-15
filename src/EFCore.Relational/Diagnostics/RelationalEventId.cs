@@ -102,6 +102,7 @@ public static class RelationalEventId
         ForeignKeyTpcPrincipalWarning,
         TpcStoreGeneratedIdentityWarning,
         KeyPropertiesNotMappedToTable,
+        StoredProcedureConcurrencyTokenNotMapped,
 
         // Update events
         BatchReadyForExecution = CoreEventId.RelationalBaseId + 700,
@@ -871,6 +872,20 @@ public static class RelationalEventId
     /// </remarks>
     public static readonly EventId KeyPropertiesNotMappedToTable =
         MakeValidationId(Id.KeyPropertiesNotMappedToTable);
+
+    /// <summary>
+    ///     An entity type is mapped to the stored procedure with a concurrency token not mapped to any original value parameter.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model.Validation" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="StoredProcedurePropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId StoredProcedureConcurrencyTokenNotMapped =
+        MakeValidationId(Id.StoredProcedureConcurrencyTokenNotMapped);
 
     /// <summary>
     ///     A foreign key specifies properties which don't map to the related tables.

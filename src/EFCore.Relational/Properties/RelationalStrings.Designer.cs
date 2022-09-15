@@ -1476,14 +1476,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 elementType);
 
         /// <summary>
-        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.
-        /// </summary>
-        public static string StoredProcedureConcurrencyTokenNotMapped(object? entityType, object? sproc, object? token)
-            => string.Format(
-                GetString("StoredProcedureConcurrencyTokenNotMapped", nameof(entityType), nameof(sproc), nameof(token)),
-                entityType, sproc, token);
-
-        /// <summary>
         ///     Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.
         /// </summary>
         public static string StoredProcedureCurrentValueParameterOnDelete(object? parameter, object? sproc)
@@ -3473,6 +3465,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogStoredProcedureConcurrencyTokenNotMapped(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogStoredProcedureConcurrencyTokenNotMapped;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogStoredProcedureConcurrencyTokenNotMapped,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.StoredProcedureConcurrencyTokenNotMapped,
+                        LogLevel.Warning,
+                        "RelationalEventId.StoredProcedureConcurrencyTokenNotMapped",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.StoredProcedureConcurrencyTokenNotMapped,
+                            _resourceManager.GetString("LogStoredProcedureConcurrencyTokenNotMapped")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
         }
 
         /// <summary>

@@ -127,6 +127,14 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }
 
+    public override void Detects_unmapped_concurrency_token()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Detects_unmapped_concurrency_token());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
     public override void Store_generated_in_composite_key()
     {
         var modelBuilder = CreateConventionModelBuilder();

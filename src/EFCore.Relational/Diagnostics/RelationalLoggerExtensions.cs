@@ -3123,6 +3123,46 @@ public static class RelationalLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs the <see cref="RelationalEventId.StoredProcedureConcurrencyTokenNotMapped" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The entity type that the stored procedure is mapped to.</param>
+    /// <param name="concurrencyProperty">The property which represents the concurrency token.</param>
+    /// <param name="storedProcedureName">The stored procedure name.</param>
+    public static void StoredProcedureConcurrencyTokenNotMapped(
+        this IDiagnosticsLogger<DbLoggerCategory.Model.Validation> diagnostics,
+        IEntityType entityType,
+        IProperty concurrencyProperty,
+        string storedProcedureName)
+    {
+        var definition = RelationalResources.LogStoredProcedureConcurrencyTokenNotMapped(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.DisplayName(), storedProcedureName, concurrencyProperty.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new StoredProcedurePropertyEventData(
+                definition,
+                StoredProcedureConcurrencyTokenNotMapped,
+                entityType,
+                concurrencyProperty,
+                storedProcedureName);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string StoredProcedureConcurrencyTokenNotMapped(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string, string>)definition;
+        var p = (StoredProcedurePropertyEventData)payload;
+        return d.GenerateMessage(p.EntityType.DisplayName(), p.StoredProcedureName, p.Property.Name);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="RelationalEventId.BatchExecutorFailedToRollbackToSavepoint" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

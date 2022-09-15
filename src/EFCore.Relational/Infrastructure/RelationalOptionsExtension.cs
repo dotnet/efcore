@@ -386,7 +386,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                 .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw));
+                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.StoredProcedureConcurrencyTokenNotMapped, WarningBehavior.Throw));
 
     /// <summary>
     ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.

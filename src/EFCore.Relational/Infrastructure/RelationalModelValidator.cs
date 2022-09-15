@@ -221,7 +221,7 @@ public class RelationalModelValidator : ModelValidator
             if (deleteStoredProcedure != null)
             {
                 AddSproc(StoreObjectType.DeleteStoredProcedure, entityType, storedProcedures);
-                ValidateSproc(deleteStoredProcedure, mappingStrategy);
+                ValidateSproc(deleteStoredProcedure, mappingStrategy, logger);
                 sprocCount++;
             }
 
@@ -229,7 +229,7 @@ public class RelationalModelValidator : ModelValidator
             if (insertStoredProcedure != null)
             {
                 AddSproc(StoreObjectType.InsertStoredProcedure, entityType, storedProcedures);
-                ValidateSproc(insertStoredProcedure, mappingStrategy);
+                ValidateSproc(insertStoredProcedure, mappingStrategy, logger);
                 sprocCount++;
             }
 
@@ -237,7 +237,7 @@ public class RelationalModelValidator : ModelValidator
             if (updateStoredProcedure != null)
             {
                 AddSproc(StoreObjectType.UpdateStoredProcedure, entityType, storedProcedures);
-                ValidateSproc(updateStoredProcedure, mappingStrategy);
+                ValidateSproc(updateStoredProcedure, mappingStrategy, logger);
                 sprocCount++;
             }
 
@@ -288,7 +288,10 @@ public class RelationalModelValidator : ModelValidator
         }
     }
 
-    private static void ValidateSproc(IStoredProcedure sproc, string mappingStrategy)
+    private static void ValidateSproc(
+        IStoredProcedure sproc,
+        string mappingStrategy,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
         var entityType = sproc.EntityType;
         var storeObjectIdentifier = sproc.GetStoreIdentifier();
@@ -646,11 +649,7 @@ public class RelationalModelValidator : ModelValidator
 
             if (originalValueProperties.Values.FirstOrDefault(p => p.IsConcurrencyToken) is { } missedConcurrencyToken)
             {
-                throw new InvalidOperationException(
-                    RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(
-                        entityType.DisplayName(),
-                        storeObjectIdentifier.DisplayName(),
-                        missedConcurrencyToken.Name));
+                logger.StoredProcedureConcurrencyTokenNotMapped(entityType, missedConcurrencyToken, storeObjectIdentifier.DisplayName());
             }
 
             if (sproc.ResultColumns.Any(c => c != sproc.FindRowsAffectedResultColumn()))
