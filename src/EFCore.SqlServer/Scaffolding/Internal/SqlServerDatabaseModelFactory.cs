@@ -1162,10 +1162,10 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
     {
         using var command = connection.CreateCommand();
         command.CommandText = @"
-SELECT 
-	SCHEMA_NAME([t].[schema_id]) AS [table_schema],
+SELECT
+    SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
-    [f].[name] AS [name],
+    [f].[name],
 	SCHEMA_NAME(tab2.[schema_id]) AS [principal_table_schema],
 	[tab2].name AS [principal_table_name],	
 	[f].[delete_referential_action_desc] AS [delete_referential_action_desc],
