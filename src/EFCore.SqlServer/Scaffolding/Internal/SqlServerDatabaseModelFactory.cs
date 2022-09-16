@@ -1357,7 +1357,7 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
         => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsViewsAndIndexes()
-        => _engineEdition == 1000;
+        => _engineEdition != 1000;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
