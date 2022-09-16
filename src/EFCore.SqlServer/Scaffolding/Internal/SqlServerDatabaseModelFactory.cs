@@ -1348,16 +1348,16 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
     }
 
     private bool SupportsTemporalTable()
-        => _compatibilityLevel >= 130 && (_engineEdition != 6 && _engineEdition != 11 && _engineEdition != 1000);
+        => _compatibilityLevel >= 130 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsMemoryOptimizedTable()
-        => _compatibilityLevel >= 120 && (_engineEdition != 6 && _engineEdition != 11 && _engineEdition != 1000);
+        => _compatibilityLevel >= 120 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && (_engineEdition != 6 && _engineEdition != 11 && _engineEdition != 1000);
+        => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsViewsAndIndexes()
-        => _engineEdition != 1000;
+        => _engineEdition is  1000;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
