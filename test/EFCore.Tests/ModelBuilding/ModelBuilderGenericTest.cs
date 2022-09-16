@@ -471,6 +471,9 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
+        public override TestPropertyBuilder<TProperty> HasPrecision(int precision)
+            => Wrap(PropertyBuilder.HasPrecision(precision));
+
         public override TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale)
             => Wrap(PropertyBuilder.HasPrecision(precision, scale));
 

@@ -9,6 +9,100 @@ public abstract partial class ModelBuilderTest
 {
     public abstract class OwnedTypesTestBase : ModelBuilderTestBase
     {
+        [ConditionalTheory] // Issue #28091
+        [InlineData(16, 2, 16, 4, 16, 4, 16, 4, 16, 4)]
+        [InlineData(16, 2, 17, 4, 17, 4, 17, 4, 17, 4)]
+        [InlineData(null, null, 16, 4, 16, 4, 16, 4, 16, 4)]
+        [InlineData(null, null, 16, 4, 15, 3, 14, 2, 13, 1)]
+        [InlineData(null, null, 16, null, 15, null, 14, null, 13, null)]
+        [InlineData(17, null, 16, null, 15, null, 14, null, 13, null)]
+        [InlineData(17, 5, 16, 4, 15, 3, 14, 2, 13, 1)]
+        [InlineData(17, 5, null, null, null, null, null, null, null, null)]
+        public virtual void Precision_and_scale_for_property_type_used_in_owned_types_can_be_overwritten(
+            int? defaultPrecision,
+            int? defaultScale,
+            int? mainPrecision,
+            int? mainScale,
+            int? otherPrecision,
+            int? otherScale,
+            int? onePrecision,
+            int? oneScale,
+            int? manyPrecision,
+            int? manyScale)
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    if (defaultPrecision.HasValue)
+                    {
+                        if (defaultScale.HasValue)
+                        {
+                            c.Properties<decimal>().HavePrecision(defaultPrecision.Value, defaultScale.Value);
+                        }
+                        else
+                        {
+                            c.Properties<decimal>().HavePrecision(defaultPrecision.Value);
+                        }
+                    }
+                });
+
+            modelBuilder.Entity<MainOtter>(
+                b =>
+                {
+                    HasPrecision(b.Property(x => x.Number), mainPrecision, mainScale);
+                    b.OwnsOne(
+                        b => b.OwnedEntity, b =>
+                        {
+                            HasPrecision(b.Property(x => x.Number), onePrecision, oneScale);
+                        });
+                });
+
+            modelBuilder.Entity<OtherOtter>(
+                b =>
+                {
+                    HasPrecision(b.Property(x => x.Number), otherPrecision, otherScale);
+                    b.OwnsMany(
+                        b => b.OwnedEntities, b =>
+                        {
+                            HasPrecision(b.Property(x => x.Number), manyPrecision, manyScale);
+                        });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var mainType = model.FindEntityType(typeof(MainOtter))!;
+            var otherType = model.FindEntityType(typeof(OtherOtter))!;
+            var oneType = model.FindEntityType(typeof(OwnedOtter), nameof(MainOtter.OwnedEntity), mainType)!;
+            var manyType = model.FindEntityType(typeof(OwnedOtter), nameof(OtherOtter.OwnedEntities), otherType)!;
+
+            Assert.Equal(mainPrecision ?? defaultPrecision, mainType.FindProperty(nameof(MainOtter.Number))!.GetPrecision());
+            Assert.Equal(mainScale ?? defaultScale, mainType.FindProperty(nameof(MainOtter.Number))!.GetScale());
+
+            Assert.Equal(otherPrecision ?? defaultPrecision, otherType.FindProperty(nameof(OtherOtter.Number))!.GetPrecision());
+            Assert.Equal(otherScale ?? defaultScale, otherType.FindProperty(nameof(OtherOtter.Number))!.GetScale());
+
+            Assert.Equal(onePrecision ?? defaultPrecision, oneType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
+            Assert.Equal(oneScale ?? defaultScale, oneType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
+
+            Assert.Equal(manyPrecision ?? defaultPrecision, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetPrecision());
+            Assert.Equal(manyScale ?? defaultScale, manyType.FindProperty(nameof(OwnedOtter.Number))!.GetScale());
+
+            void HasPrecision(TestPropertyBuilder<decimal> testPropertyBuilder, int? precision, int? scale)
+            {
+                if (precision.HasValue)
+                {
+                    if (scale.HasValue)
+                    {
+                        testPropertyBuilder.HasPrecision(precision.Value, scale.Value);
+                    }
+                    else
+                    {
+                        testPropertyBuilder.HasPrecision(precision.Value);
+                    }
+                }
+            }
+        }
+
         [ConditionalFact]
         public virtual void Can_configure_owned_type()
         {

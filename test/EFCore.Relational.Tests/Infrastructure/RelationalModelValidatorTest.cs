@@ -2960,9 +2960,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                     .HasRowsAffectedReturnValue())
             .Property(a => a.Name).IsRowVersion();
 
-        VerifyError(
-            RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(nameof(Animal), "Animal_Update", nameof(Animal.Name)),
-            modelBuilder);
+        VerifyWarning(
+            RelationalResources.LogStoredProcedureConcurrencyTokenNotMapped(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage(nameof(Animal), "Animal_Update", nameof(Animal.Name)), modelBuilder);
     }
 
     [ConditionalFact]
