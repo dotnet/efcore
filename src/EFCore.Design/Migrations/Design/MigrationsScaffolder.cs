@@ -387,7 +387,10 @@ public class MigrationsScaffolder : IMigrationsScaffolder
     /// <returns>The saved migrations files.</returns>
     public virtual MigrationFiles Save(string projectDir, ScaffoldedMigration migration, string? outputDir)
     {
-        var lastMigrationFileName = migration.PreviousMigrationId + migration.FileExtension;
+        var normalizedPreviousMigrationId = migration.PreviousMigrationId != null
+            ? GetNormalizedMigrationId(migration.PreviousMigrationId)
+            : null;
+        var lastMigrationFileName = normalizedPreviousMigrationId + migration.FileExtension;
         var migrationDirectory = outputDir ?? GetDirectory(projectDir, lastMigrationFileName, migration.MigrationSubNamespace);
         var normalizedMigrationId = GetNormalizedMigrationId(migration.MigrationId);
         var migrationFile = Path.Combine(migrationDirectory, normalizedMigrationId + migration.FileExtension);
