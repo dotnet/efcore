@@ -1312,6 +1312,24 @@ public partial class TestDbContext : DbContext
                     Assert.Equal(SqlServerValueGenerationStrategy.None, property.GetValueGenerationStrategy());
                 });
 
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public Task ColumnOrder_is_ignored(bool useDataAnnotations)
+            => TestAsync(
+                modelBuilder => modelBuilder.Entity("Entity").Property<string>("Property").HasColumnOrder(1),
+                new ModelCodeGenerationOptions { UseDataAnnotations = useDataAnnotations },
+                code =>
+                {
+                    Assert.DoesNotContain(".HasColumnOrder(1)", code.ContextFile.Code);
+                    Assert.DoesNotContain("[Column(Order = 1)]", code.ContextFile.Code);
+                },
+                model =>
+                {
+                    var entity = model.FindEntityType("TestNamespace.Entity");
+                    Assert.Null(entity.GetProperty("Property").GetColumnOrder());
+                });
+
         protected override void AddModelServices(IServiceCollection services)
             => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());
 
