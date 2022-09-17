@@ -1171,8 +1171,8 @@ SELECT
 	[f].[delete_referential_action_desc] AS [delete_referential_action_desc],
     [col1].[name] AS [column_name],
     [col2].[name] AS [referenced_column_name]
-FROM [sys].[foreign_key_columns] AS fc
-JOIN [sys].[foreign_keys] AS [f] ON [f].[object_id] = [fc].[constraint_object_id]
+FROM [sys].[foreign_keys] AS [f] 
+JOIN [sys].[foreign_key_columns] AS fc ON [fc].[constraint_object_id] = [f].[object_id]
 JOIN [sys].[tables] AS [t] ON [t].[object_id] = [fc].[parent_object_id]
 JOIN [sys].[columns] AS [col1] ON [col1].[column_id] = [fc].[parent_column_id] AND [col1].[object_id] = [t].[object_id]
 JOIN [sys].[tables] AS [tab2] ON [tab2].[object_id] = [fc].[referenced_object_id]
