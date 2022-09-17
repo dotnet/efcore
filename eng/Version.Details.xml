@@ -23,7 +23,7 @@
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="6.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>ea2f839fb3ff57233673ddd9fc5f94656fb02b9c</Sha>
+      <Sha>2768a7a7e73255a475206f30c4eb51f651b8cef8</Sha>
     </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="6.0.0">
       <Uri>https://github.com/dotnet/runtime</Uri>
