@@ -34,7 +34,7 @@ public class DatabaseInMemoryTest
 
         using (var context = new DbContext(options))
         {
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 

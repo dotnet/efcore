@@ -18,7 +18,7 @@ public class ReloadTest
         using var context = new ReloadTestContext(testDatabase);
         await context.Database.EnsureCreatedAsync();
 
-        var entry = context.Add(new Item { Id = 1337 });
+        var entry = await context.AddAsync(new Item { Id = 1337 });
 
         await context.SaveChangesAsync();
 

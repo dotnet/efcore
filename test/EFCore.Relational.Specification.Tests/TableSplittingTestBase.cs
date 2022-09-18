@@ -167,7 +167,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         using (var context = CreateContext())
         {
-            var scooterEntry = context.Add(
+            var scooterEntry = await context.AddAsync(
                 new PoweredVehicle
                 {
                     Name = "Electric scooter",
@@ -212,7 +212,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         using (var context = CreateContext())
         {
-            var scooterEntry = context.Add(
+            var scooterEntry = await context.AddAsync(
                 new PoweredVehicle
                 {
                     Name = "Electric scooter",
@@ -357,14 +357,14 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         await InitializeAsync(OnModelCreating);
 
         using var context = CreateContext();
-        context.Add(
+        await context.AddAsync(
             new PoweredVehicle
             {
                 Name = "Fuel transport",
                 SeatingCapacity = 1,
                 Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
             });
-        context.Add(
+        await context.AddAsync(
             new FuelTank
             {
                 Capacity = 10000_1,
@@ -453,7 +453,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             };
 
             context.Remove(bike);
-            context.Add(newBike);
+            await context.AddAsync(newBike);
 
             TestSqlLoggerFactory.Clear();
             context.SaveChanges();
@@ -503,7 +503,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             };
 
             context.Remove(bike);
-            context.Add(newBike);
+            await context.AddAsync(newBike);
 
             TestSqlLoggerFactory.Clear();
             context.SaveChanges();
@@ -545,7 +545,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail() };
 
         using var context = CreateSharedContext();
-        context.Add(meterReading);
+        await context.AddAsync(meterReading);
 
         context.SaveChanges();
 
@@ -566,7 +566,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail() };
 
         using var context = CreateSharedContext();
-        context.Add(meterReading);
+        await context.AddAsync(meterReading);
 
         TestSqlLoggerFactory.Clear();
 
@@ -605,7 +605,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail { CurrentRead = "100" } };
 
-        context.Add(meterReading);
+        await context.AddAsync(meterReading);
 
         TestSqlLoggerFactory.Clear();
 

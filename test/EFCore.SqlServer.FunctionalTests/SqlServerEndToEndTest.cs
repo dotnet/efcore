@@ -443,11 +443,11 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             context.Database.EnsureCreatedResiliently();
             var first = new Int32CompositeKeys { Id1 = 1, Id2 = 2 };
 
-            context.Add(first);
+            await context.AddAsync(first);
 
             var second = new Int64CompositeKeys { Id1 = 1, Id2 = 2 };
 
-            context.Add(second);
+            await context.AddAsync(second);
             await context.SaveChangesAsync();
         }
 
@@ -567,7 +567,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             context.Database.EnsureCreatedResiliently();
 
             var ferrari = new Ferrari { Special = new Car() };
-            context.Add(ferrari);
+            await context.AddAsync(ferrari);
 
             await context.SaveChangesAsync();
 
@@ -1440,9 +1440,9 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
 
         using (var context = new SchemaContext(options))
         {
-            context.Add(
+            await context.AddAsync(
                 new Jack { MyKey = 1 });
-            context.Add(
+            await context.AddAsync(
                 new Black { MyKey = 2 });
             context.SaveChanges();
         }
@@ -1549,7 +1549,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
             blog2.NotFigTime = new DateTime();
             blog2.AndChew = null;
 
-            var blog3 = context.Add(new TBlog()).Entity;
+            var blog3 = (await context.AddAsync(new TBlog())).Entity;
 
             await context.SaveChangesAsync();
 
@@ -1581,7 +1581,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
     {
         context.Database.EnsureCreatedResiliently();
 
-        var blog1 = context.Add(
+        var blog1 = (await context.AddAsync(
             new TBlog
             {
                 Name = "Blog1",
@@ -1599,8 +1599,8 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 OrUSkint = 8888888,
                 OrUShort = 888888888888888,
                 AndChew = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }
-            }).Entity;
-        var blog2 = context.Add(
+            })).Entity;
+        var blog2 = (await context.AddAsync(
             new TBlog
             {
                 Name = "Blog2",
@@ -1618,7 +1618,7 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                 OrUSkint = 8888888,
                 OrUShort = 888888888888888,
                 AndChew = new byte[16]
-            }).Entity;
+            })).Entity;
         await context.SaveChangesAsync();
 
         return new[] { blog1, blog2 };
