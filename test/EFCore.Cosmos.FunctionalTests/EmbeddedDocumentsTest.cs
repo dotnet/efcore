@@ -83,7 +83,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         using (var context = new EmbeddedTransportationContext(options))
         {
             //Issue #15289
-            var firstVehicleEntry = context.Add(firstVehicle);
+            var firstVehicleEntry = await context.AddAsync(firstVehicle);
             firstVehicleEntry.State = EntityState.Unchanged;
             firstVehicle.Operator.Name += "1";
 
@@ -112,7 +112,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
         Address addedAddress3;
         using (var context = new EmbeddedTransportationContext(options))
         {
-            context.Add(new Person { Id = 1 });
+            await context.AddAsync(new Person { Id = 1 });
             existingAddress1Person2 = new Address
             {
                 Street = "Second",
@@ -140,7 +140,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 Street = "First",
                 City = "Village"
             };
-            context.Add(new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2, existingAddress2Person2 } });
+            await context.AddAsync(new Person { Id = 2, Addresses = new List<Address> { existingAddress1Person2, existingAddress2Person2 } });
             existingAddress1Person3 = new Address
             {
                 Street = "First",
@@ -169,7 +169,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 AddressTitle = new AddressTitle { Title = "P3 Billing" }
             };
 
-            context.Add(new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
+            await context.AddAsync(new Person { Id = 3, Addresses = new List<Address> { existingAddress1Person3, existingAddress2Person3 } });
 
             await context.SaveChangesAsync();
 
@@ -407,7 +407,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
                 AddressTitle = new AddressTitle()
             };
 
-            context.Add(new Person { Id = 1, Addresses = new List<Address> { address } });
+            await context.AddAsync(new Person { Id = 1, Addresses = new List<Address> { address } });
             Assert.Equal("DefaultTitle", address.AddressTitle.Title);
 
             await context.SaveChangesAsync();
@@ -441,7 +441,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             var person = new Person { Id = 1 };
             address = new Address { Street = "Second", City = "Village" };
             person.Addresses.Add(address);
-            context.Add(person);
+            await context.AddAsync(person);
 
             var addressEntry = context.Entry(address);
             addressGuid = (Guid)addressEntry.Property("Id").CurrentValue;
@@ -505,7 +505,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
 
         using (var context = new EmbeddedTransportationContext(options))
         {
-            context.Add(
+            await context.AddAsync(
                 new Person
                 {
                     Id = 3,
@@ -531,7 +531,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     {
         var options = Fixture.CreateOptions(seed: false);
         using var context = new EmbeddedTransportationContext(options);
-        context.Add(
+        await context.AddAsync(
             new LicensedOperator
             {
                 Name = "Jack Jackson",
@@ -586,7 +586,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
             };
 
             context.Remove(bike);
-            context.Add(newBike);
+            await context.AddAsync(newBike);
 
             TestSqlLoggerFactory.Clear();
             await context.SaveChangesAsync();

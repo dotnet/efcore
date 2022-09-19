@@ -77,7 +77,8 @@ public class KeyPropagator : IKeyPropagator
         var principalEntry = TryPropagateValue(entry, property, generationProperty);
 
         if (principalEntry == null
-            && property.IsKey())
+            && property.IsKey()
+            && !property.IsForeignKeyToSelf())
         {
             var valueGenerator = TryGetValueGenerator(
                 generationProperty,

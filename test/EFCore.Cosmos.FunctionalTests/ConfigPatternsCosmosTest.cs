@@ -59,9 +59,9 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         using var context = new CustomerContext(options);
         context.Database.EnsureCreated();
 
-        context.Add(customer);
+        await context.AddAsync(customer);
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
     [ConditionalFact]
@@ -78,9 +78,9 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
                 using var context = new CustomerContext(options);
                 context.Database.EnsureCreated();
 
-                context.Add(customer);
+                await context.AddAsync(customer);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             });
 
         Assert.Equal(
@@ -101,9 +101,9 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
         using var context = new CustomerContext(options);
         context.Database.EnsureCreated();
 
-        context.Add(customer);
+        await context.AddAsync(customer);
 
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
     [ConditionalFact]
@@ -121,9 +121,9 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
                 using var context = new CustomerContext(options);
                 context.Database.EnsureCreated();
 
-                context.Add(customer);
+                await context.AddAsync(customer);
 
-                context.SaveChanges();
+                await context.SaveChangesAsync();
             });
     }
 

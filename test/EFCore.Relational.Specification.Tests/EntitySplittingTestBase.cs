@@ -21,7 +21,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
         {
             var meterReading = new MeterReading { ReadingStatus = MeterReadingStatus.NotAccesible, CurrentRead = "100" };
 
-            context.Add(meterReading);
+            await context.AddAsync(meterReading);
 
             TestSqlLoggerFactory.Clear();
 

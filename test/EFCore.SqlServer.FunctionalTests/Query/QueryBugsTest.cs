@@ -3974,7 +3974,7 @@ ORDER BY [p].[Id]");
 
         using (var context = contextFactory.CreateContext())
         {
-            context.Add(new MyContext13079.BaseEntity13079());
+            await context.AddAsync(new MyContext13079.BaseEntity13079());
             context.SaveChanges();
 
             AssertSql(
@@ -9058,7 +9058,7 @@ WHERE JSON_VALUE([b].[JObject], '$.Author') = N'Maumar'");
 
         try
         {
-            context.Add(observableThing);
+            await context.AddAsync(observableThing);
             await context.SaveChangesAsync();
         }
         finally

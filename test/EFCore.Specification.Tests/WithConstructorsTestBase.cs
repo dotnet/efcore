@@ -741,7 +741,7 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
         {
             var immutableBlog = new BlogAsImmutableRecord(title);
 
-            context.Add(immutableBlog);
+            await context.AddAsync(immutableBlog);
             await context.SaveChangesAsync();
 
             Assert.NotEqual(0, immutableBlog.BlogId);

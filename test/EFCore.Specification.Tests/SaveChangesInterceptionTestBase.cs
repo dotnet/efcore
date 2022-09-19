@@ -47,7 +47,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             exceptionFromEvent = args.Exception;
         };
 
-        context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+        await context.AddAsync(new Singularity { Id = 35, Type = "Red Dwarf" });
 
         using var transaction = context.Database.BeginTransaction();
 
@@ -117,7 +117,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             exceptionFromEvent = args.Exception;
         };
 
-        context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+        await context.AddAsync(new Singularity { Id = 35, Type = "Red Dwarf" });
 
         using var transaction = context.Database.BeginTransaction();
 
@@ -203,7 +203,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             exceptionFromEvent = args.Exception;
         };
 
-        context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+        await context.AddAsync(new Singularity { Id = 35, Type = "Red Dwarf" });
 
         using var transaction = context.Database.BeginTransaction();
 
@@ -285,7 +285,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
 
         if (!concurrencyError)
         {
-            context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+            await context.AddAsync(new Singularity { Id = 35, Type = "Red Dwarf" });
             var ___ = async ? await context.SaveChangesAsync() : context.SaveChanges();
             context.ChangeTracker.Clear();
         }
@@ -490,7 +490,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             new IInterceptor[] { new PassiveSaveChangesInterceptor(), interceptor1, interceptor2 },
             new IInterceptor[] { interceptor3, interceptor4, new PassiveSaveChangesInterceptor() });
 
-        context.Add(new Singularity { Id = 35, Type = "Red Dwarf" });
+        await context.AddAsync(new Singularity { Id = 35, Type = "Red Dwarf" });
 
         using var transaction = context.Database.BeginTransaction();
 
