@@ -1322,7 +1322,7 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     Assert.DoesNotContain(".HasColumnOrder(1)", code.ContextFile.Code);
-                    Assert.DoesNotContain("[Column(Order = 1)]", code.ContextFile.Code);
+                    Assert.DoesNotContain("[Column(Order = 1)]", code.AdditionalFiles[0].Code);
                 },
                 model =>
                 {
