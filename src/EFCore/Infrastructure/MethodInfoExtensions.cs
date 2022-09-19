@@ -25,5 +25,5 @@ public static class MethodInfoExtensions
     /// <returns><see langword="true" /> if the method is <see cref="EF.Property{TProperty}" />; <see langword="false" /> otherwise.</returns>
     public static bool IsEFPropertyMethod(this MethodInfo methodInfo)
         => methodInfo.IsGenericMethod
-            && Equals(methodInfo.GetGenericMethodDefinition(), EF.PropertyMethod);
+            && methodInfo.GetGenericMethodDefinition() == EF.PropertyMethod;
 }
