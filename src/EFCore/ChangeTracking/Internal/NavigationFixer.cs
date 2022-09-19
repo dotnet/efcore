@@ -780,7 +780,8 @@ public class NavigationFixer : INavigationFixer
                 if (foreignKey.IsUnique)
                 {
                     var dependentEntry = (InternalEntityEntry?)dependents.FirstOrDefault();
-                    if (dependentEntry != null)
+                    if (dependentEntry != null
+                        && dependentEntry.EntityState != EntityState.Deleted)
                     {
                         var toDependent = foreignKey.PrincipalToDependent;
                         if (CanOverrideCurrentValue(entry, toDependent, dependentEntry, fromQuery)
@@ -796,7 +797,8 @@ public class NavigationFixer : INavigationFixer
                 {
                     foreach (InternalEntityEntry dependentEntry in dependents)
                     {
-                        if (!IsAmbiguous(dependentEntry)
+                        if (dependentEntry.EntityState != EntityState.Deleted
+                            && !IsAmbiguous(dependentEntry)
                             && (!fromQuery || CanOverrideCurrentValue(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery)))
                         {
                             SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);

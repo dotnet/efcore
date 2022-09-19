@@ -212,7 +212,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.False(changeDetector.DetectChangesCalled);
 
@@ -225,8 +232,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.Children.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.Children);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.Children.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -250,7 +265,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.False(changeDetector.DetectChangesCalled);
 
@@ -263,8 +285,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.Single);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.Single);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
+        }
     }
 
     [ConditionalTheory]
@@ -326,7 +356,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.False(changeDetector.DetectChangesCalled);
 
@@ -339,8 +376,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SinglePkToPk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SinglePkToPk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
+        }
     }
 
     [ConditionalTheory]
@@ -865,7 +910,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -876,8 +928,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenAk.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenAk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenAk.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -897,7 +957,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -908,8 +975,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleAk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleAk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleAk);
+        }
     }
 
     [ConditionalTheory]
@@ -1050,7 +1125,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1061,8 +1143,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenShadowFk.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenShadowFk.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -1082,7 +1172,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1093,8 +1190,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleShadowFk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleShadowFk);
+        }
     }
 
     [ConditionalTheory]
@@ -1235,7 +1340,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1246,8 +1358,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -1267,7 +1387,14 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1278,8 +1405,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleCompositeKey);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleCompositeKey);
+        }
     }
 
     [ConditionalTheory]
@@ -1545,8 +1680,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.Children.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.Children);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.Children.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -1586,8 +1729,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.Single);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.Single);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
+        }
     }
 
     [ConditionalTheory]
@@ -1629,8 +1780,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.Single);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.Single);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
+        }
     }
 
     [ConditionalTheory]
@@ -1711,8 +1870,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SinglePkToPk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SinglePkToPk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
+        }
     }
 
     [ConditionalTheory]
@@ -1816,13 +1983,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.Children.Single());
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.Children);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.Children.Single());
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -1851,13 +2027,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.Single);
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.Single);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -1921,13 +2106,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SinglePkToPk);
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SinglePkToPk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -3009,8 +3203,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.Children.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.Children);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.Children.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -3050,8 +3252,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.Single);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.Single);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
+        }
     }
 
     [ConditionalTheory]
@@ -3157,13 +3367,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? (await navigationEntry.Query().ToListAsync<object>()).Single()
             : navigationEntry.Query().ToList<object>().Single();
 
-        Assert.True(navigationEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, navigationEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, ((Parent)parent).Children.Single());
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(((Parent)parent).Children);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, ((Parent)parent).Children.Single());
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -3193,13 +3412,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? (await navigationEntry.Query().ToListAsync<object>()).Single()
             : navigationEntry.Query().ToList<object>().Single();
 
-        Assert.True(navigationEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, navigationEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, ((Parent)parent).Single);
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(((Parent)parent).Single);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, ((Parent)parent).Single);
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -3982,8 +4210,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenAk.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenAk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenAk.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -4023,8 +4259,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleAk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleAk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleAk);
+        }
     }
 
     [ConditionalTheory]
@@ -4128,13 +4372,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenAk.Single());
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenAk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenAk.Single());
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -4163,13 +4416,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleAk);
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleAk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleAk);
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -4432,8 +4694,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenShadowFk.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenShadowFk.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -4473,8 +4743,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleShadowFk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleShadowFk);
+        }
     }
 
     [ConditionalTheory]
@@ -4578,13 +4856,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenShadowFk.Single());
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenShadowFk.Single());
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -4613,13 +4900,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleShadowFk);
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleShadowFk);
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -4882,8 +5178,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -4923,8 +5227,16 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleCompositeKey);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleCompositeKey);
+        }
     }
 
     [ConditionalTheory]
@@ -5028,13 +5340,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenCompositeKey.Single());
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
@@ -5063,13 +5384,22 @@ public abstract class LoadTestBase<TFixture> : IClassFixture<TFixture>
             ? await referenceEntry.Query().SingleAsync()
             : referenceEntry.Query().Single();
 
-        Assert.True(referenceEntry.IsLoaded);
+        Assert.Equal(state != EntityState.Deleted, referenceEntry.IsLoaded);
 
         RecordLog();
 
         Assert.NotNull(parent);
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleCompositeKey);
+
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleCompositeKey);
+        }
 
         Assert.Equal(2, context.ChangeTracker.Entries().Count());
     }
