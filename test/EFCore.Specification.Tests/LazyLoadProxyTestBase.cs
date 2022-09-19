@@ -394,7 +394,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             changeDetector.DetectChangesCalled = false;
 
-            Assert.NotNull(child.Parent);
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(child.Parent);
+            }
+            else
+            {
+                Assert.NotNull(child.Parent);
+            }
 
             Assert.False(changeDetector.DetectChangesCalled);
 
@@ -407,8 +414,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-            Assert.Same(parent, child.Parent);
-            Assert.Same(child, parent.Children.Single());
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(child.Parent);
+                Assert.Null(parent.Children);
+            }
+            else
+            {
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.Children.Single());
+            }
         }
     }
 
@@ -471,7 +486,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             changeDetector.DetectChangesCalled = false;
 
-            Assert.NotNull(single.Parent);
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+            }
+            else
+            {
+                Assert.NotNull(single.Parent);
+            }
 
             Assert.True(referenceEntry.IsLoaded);
 
@@ -484,8 +506,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-            Assert.Same(parent, single.Parent);
-            Assert.Same(single, parent.Single);
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+                Assert.Null(parent.Single);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
+                Assert.Same(single, parent.Single);
+            }
         }
     }
 
@@ -587,7 +617,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.False(changeDetector.DetectChangesCalled);
 
@@ -600,8 +637,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SinglePkToPk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SinglePkToPk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
+        }
     }
 
     [ConditionalTheory]
@@ -860,7 +905,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         context.ChangeTracker.DetectChanges();
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(changeDetector.DetectChangesCalled);
 
@@ -873,8 +925,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(child, parent.Children.Single());
-        Assert.Same(parent, child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(parent.Children);
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Same(child, parent.Children.Single());
+            Assert.Same(parent, child.Parent);
+        }
     }
 
     [ConditionalTheory]
@@ -914,7 +974,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         context.ChangeTracker.DetectChanges();
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(changeDetector.DetectChangesCalled);
 
@@ -927,8 +994,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
 
-        Assert.Same(child, newParent.Children.Single());
-        Assert.Same(newParent, child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Empty(parent.Children);
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Same(child, newParent.Children.Single());
+            Assert.Same(newParent, child.Parent);
+        }
     }
 
     [ConditionalTheory]
@@ -1375,7 +1450,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1386,8 +1468,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenAk.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenAk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenAk.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -1407,7 +1497,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1418,8 +1515,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleAk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleAk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleAk);
+        }
     }
 
     [ConditionalTheory]
@@ -1564,7 +1669,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1575,8 +1687,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenShadowFk.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenShadowFk.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -1596,7 +1716,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1607,8 +1734,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleShadowFk);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleShadowFk);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleShadowFk);
+        }
     }
 
     [ConditionalTheory]
@@ -1753,7 +1888,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(child.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.NotNull(child.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1764,8 +1906,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(child.Parent);
+            Assert.Null(parent.ChildrenCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.ChildrenCompositeKey.Single());
+        }
     }
 
     [ConditionalTheory]
@@ -1785,7 +1935,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.NotNull(single.Parent);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.NotNull(single.Parent);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1796,8 +1953,16 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SingleCompositeKey);
+        if (state == EntityState.Deleted)
+        {
+            Assert.Null(single.Parent);
+            Assert.Null(parent.SingleCompositeKey);
+        }
+        else
+        {
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SingleCompositeKey);
+        }
     }
 
     [ConditionalTheory]
