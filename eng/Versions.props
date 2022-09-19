@@ -26,7 +26,7 @@
     <MicrosoftExtensionsLoggingVersion>8.0.0-alpha.1.22468.3</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.22456.4</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.22466.3</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <MicrosoftCodeAnalysisVersion>4.2.0</MicrosoftCodeAnalysisVersion>
