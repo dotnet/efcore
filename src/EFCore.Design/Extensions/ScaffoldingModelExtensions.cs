@@ -562,6 +562,8 @@ public static class ScaffoldingModelExtensions
             .ToDictionary(a => a.Name, a => a);
         annotationCodeGenerator.RemoveAnnotationsHandledByConventions(property, annotations);
 
+        annotations.Remove(RelationalAnnotationNames.ColumnOrder);
+
         var annotationsHandledByDataAnnotations = new Dictionary<string, IAnnotation>(annotations);
 
         // Strip out any annotations handled as attributes
