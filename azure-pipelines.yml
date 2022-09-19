@@ -150,7 +150,7 @@ stages:
                 vmImage: ubuntu-22.04
               ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                 name: NetCore1ESPool-Svc-Internal
-                demands: ImageOverride -equals Build.Ubuntu.1804.Amd64
+                demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
               - ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'PullRequest', 'Schedule')) }}:
