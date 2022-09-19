@@ -46,7 +46,7 @@ public class TransactionSqlServerTest : TransactionTestBase<TransactionSqlServer
         var orderId = 300;
         foreach (var _ in context.Set<TransactionCustomer>())
         {
-            context.Add(new TransactionOrder { Id = orderId++, Name = "Order " + orderId });
+            await context.AddAsync(new TransactionOrder { Id = orderId++, Name = "Order " + orderId });
             if (async)
             {
                 await context.SaveChangesAsync();

@@ -15,7 +15,7 @@ public class ValueConverterTest
     {
         using (var context = new InMemoryConvertersContext())
         {
-            context.Add(
+            await context.AddAsync(
                 new Person
                 {
                     Id = async ? 1 : 2,

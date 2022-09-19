@@ -102,7 +102,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
@@ -170,11 +170,11 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            var entry = context.Add(customer);
+            var entry = await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             storeId = entry.Property<string>(StoreKeyConvention.DefaultIdPropertyName).CurrentValue;
         }
@@ -319,7 +319,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            var entry = context.Add(customer);
+            var entry = await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
@@ -336,7 +336,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             Assert.Empty(await context.Set<Customer>().ToListAsync());
 
-            var entry = context.Add(customer);
+            var entry = await context.AddAsync(customer);
 
             entry.Property<JObject>("__jObject").CurrentValue = new JObject { ["key1"] = "value1" };
 
@@ -408,7 +408,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -459,7 +459,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            var entry = context.Add(customer);
+            var entry = await context.AddAsync(customer);
 
             Assert.Equal("CustomerDateTime|0001-01-01T00:00:00.0000000|Theon^2F^5C^23^5C^5C^3F", entry.CurrentValues["__id"]);
 
@@ -588,7 +588,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -828,7 +828,7 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -911,8 +911,8 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
                 context.Model.FindEntityType(typeof(CustomerWithResourceId))
                     .FindProperty(StoreKeyConvention.DefaultIdPropertyName));
 
-            context.Add(customer);
-            context.Add(
+            await context.AddAsync(customer);
+            await context.AddAsync(
                 new CustomerWithResourceId
                 {
                     id = "42",
@@ -1039,8 +1039,8 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
-            context.Add(
+            await context.AddAsync(customer);
+            await context.AddAsync(
                 new Customer
                 {
                     Id = 42,
@@ -1207,7 +1207,7 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -1233,7 +1233,7 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -1259,7 +1259,7 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -1285,7 +1285,7 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -1449,14 +1449,14 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
 
         using (var context = new NoDiscriminatorCustomerContext(options))
         {
-            context.Add(customer).State = EntityState.Modified;
+            (await context.AddAsync(customer)).State = EntityState.Modified;
 
             customer.Name = "Theon Greyjoy";
 
@@ -1470,7 +1470,7 @@ OFFSET 0 LIMIT 1");
             Assert.Equal(42, customerFromStore.Id);
             Assert.Equal("Theon Greyjoy", customerFromStore.Name);
 
-            context.Add(customer).State = EntityState.Deleted;
+            (await context.AddAsync(customer)).State = EntityState.Deleted;
 
             await context.SaveChangesAsync();
         }
@@ -1570,7 +1570,7 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
             Assert.Equal("Theon", customer.Name);
@@ -1609,7 +1609,7 @@ OFFSET 0 LIMIT 1");
         var customer = new Customer { Id = 42, Name = "Theon" };
         using (var context = new CustomerContext(options))
         {
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             Assert.StartsWith(
                 "Response status code does not indicate success: NotFound (404); Substatus: 0",
@@ -1618,7 +1618,7 @@ OFFSET 0 LIMIT 1");
 
         using (var context = new CustomerContext(options))
         {
-            context.Add(customer).State = EntityState.Modified;
+            (await context.AddAsync(customer)).State = EntityState.Modified;
 
             Assert.StartsWith(
                 "Response status code does not indicate success: NotFound (404); Substatus: 0",
@@ -1627,7 +1627,7 @@ OFFSET 0 LIMIT 1");
 
         using (var context = new CustomerContext(options))
         {
-            context.Add(customer).State = EntityState.Deleted;
+            (await context.AddAsync(customer)).State = EntityState.Deleted;
 
             Assert.StartsWith(
                 "Response status code does not indicate success: NotFound (404); Substatus: 0",
@@ -1653,7 +1653,7 @@ OFFSET 0 LIMIT 1");
             {
                 await context.Database.EnsureCreatedAsync();
 
-                context.Add(new ConflictingIncompatibleId { id = 42 });
+                await context.AddAsync(new ConflictingIncompatibleId { id = 42 });
 
                 await context.SaveChangesAsync();
             });
@@ -1688,7 +1688,7 @@ OFFSET 0 LIMIT 1");
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(entity);
+            await context.AddAsync(entity);
 
             await context.SaveChangesAsync();
         }
@@ -1754,7 +1754,7 @@ OFFSET 0 LIMIT 1");
         using var context = new NonStringDiscriminatorContext(Fixture.CreateOptions());
         context.Database.EnsureCreated();
 
-        context.Add(new NonStringDiscriminator { Id = 1 });
+        await context.AddAsync(new NonStringDiscriminator { Id = 1 });
         await context.SaveChangesAsync();
 
         Assert.NotNull(await context.Set<NonStringDiscriminator>().OrderBy(e => e.Id).FirstOrDefaultAsync());

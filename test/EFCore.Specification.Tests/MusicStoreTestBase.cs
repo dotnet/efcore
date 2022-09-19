@@ -119,10 +119,10 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
 
                     foreach (var album in albums)
                     {
-                        context.Add(album);
+                        await context.AddAsync(album);
                     }
 
-                    context.SaveChanges();
+                    await context.SaveChangesAsync();
 
                     var result = await controller.Index(context);
 
@@ -256,8 +256,8 @@ public abstract class MusicStoreTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     var controller = new CheckoutController();
 
-                    var order = context.Add(CreateOrder()).Entity;
-                    context.SaveChanges();
+                    var order = (await context.AddAsync(CreateOrder())).Entity;
+                    await context.SaveChangesAsync();
 
                     var result = await controller.Complete(context, order.OrderId);
 

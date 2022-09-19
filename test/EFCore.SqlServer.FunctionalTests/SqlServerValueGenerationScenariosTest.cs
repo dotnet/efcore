@@ -1011,7 +1011,7 @@ END");
         {
             using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                context.Add(new FullNameBlog());
+                await context.AddAsync(new FullNameBlog());
 
                 var exception = async
                     ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
@@ -1056,7 +1056,7 @@ END");
         {
             using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                context.Add(new FullNameBlog());
+                await context.AddAsync(new FullNameBlog());
 
                 var exception = async
                     ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())

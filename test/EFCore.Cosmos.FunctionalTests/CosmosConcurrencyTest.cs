@@ -61,7 +61,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -96,7 +96,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
         }
@@ -144,7 +144,7 @@ public class CosmosConcurrencyTest : IClassFixture<CosmosConcurrencyTest.CosmosF
         {
             await context.Database.EnsureCreatedAsync();
 
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             await context.SaveChangesAsync();
 
