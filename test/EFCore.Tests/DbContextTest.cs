@@ -499,8 +499,8 @@ public partial class DbContextTest
         {
             Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
 
-            var product = context.Add(
-                new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+            var product = (await context.AddAsync(
+                new Product { Id = 1, Name = "Little Hedgehogs" })).Entity;
 
             if (async)
             {
@@ -541,8 +541,8 @@ public partial class DbContextTest
             context.ChangeTracker.AutoDetectChangesEnabled = false;
             Assert.False(context.ChangeTracker.AutoDetectChangesEnabled);
 
-            var product = context.Add(
-                new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+            var product = (await context.AddAsync(
+                new Product { Id = 1, Name = "Little Hedgehogs" })).Entity;
 
             if (async)
             {

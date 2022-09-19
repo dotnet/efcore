@@ -5045,7 +5045,7 @@ public class OwnedFixupTest
         {
             // Trying to do the same thing again will throw since only one row can have ID zero.
 
-            context.Add(new Blog { Type = new OwnedType { Value = "A" } });
+            await context.AddAsync(new Blog { Type = new OwnedType { Value = "A" } });
             Assert.Throws<ArgumentException>(() => context.SaveChanges());
         }
     }

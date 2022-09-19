@@ -23,7 +23,7 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFi
 
         using (var context = CreateContext())
         {
-            var pegasus = context.Add(
+            var pegasus = await context.AddAsync(
                 new Pegasus
                 {
                     Id1 = ticks,
@@ -74,8 +74,8 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFi
         {
             context.Database.EnsureCreatedResiliently();
 
-            var added = context.Add(
-                new Unicorn { Id2 = id2, Name = "Rarity" }).Entity;
+            var added = (await context.AddAsync(
+                new Unicorn { Id2 = id2, Name = "Rarity" })).Entity;
 
             await context.SaveChangesAsync();
 
@@ -124,27 +124,27 @@ public abstract class CompositeKeyEndToEndTestBase<TFixture> : IClassFixture<TFi
 
         using (var context = CreateContext())
         {
-            var pony1 = context.Add(
+            var pony1 = (await context.AddAsync(
                 new EarthPony
                 {
                     Id1 = 1,
                     Id2 = 7,
                     Name = "Apple Jack 1"
-                }).Entity;
-            var pony2 = context.Add(
+                })).Entity;
+            var pony2 = (await context.AddAsync(
                 new EarthPony
                 {
                     Id1 = 2,
                     Id2 = 7,
                     Name = "Apple Jack 2"
-                }).Entity;
-            var pony3 = context.Add(
+                })).Entity;
+            var pony3 = (await context.AddAsync(
                 new EarthPony
                 {
                     Id1 = 3,
                     Id2 = 7,
                     Name = "Apple Jack 3"
-                }).Entity;
+                })).Entity;
 
             await context.SaveChangesAsync();
 

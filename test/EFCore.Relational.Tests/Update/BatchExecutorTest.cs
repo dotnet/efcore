@@ -15,8 +15,8 @@ public class BatchExecutorTest
         using var context = new TestContext();
         var connection = SetupConnection(context);
 
-        context.Add(new Foo { Id = "1" });
-        context.Add(new Bar { Id = "1" });
+        await context.AddAsync(new Foo { Id = "1" });
+        await context.AddAsync(new Bar { Id = "1" });
 
         if (async)
         {
@@ -40,7 +40,7 @@ public class BatchExecutorTest
         var transaction = new FakeDbTransaction(connection);
         context.Database.UseTransaction(transaction);
 
-        context.Add(
+        await context.AddAsync(
             new Foo { Id = "1" });
 
         if (async)

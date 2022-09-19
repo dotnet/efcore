@@ -20,13 +20,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         using (var context = CreateContext())
         {
-            context.Add(
+            await context.AddAsync(
                 new HeliumBalloon
                 {
                     Id = Guid.NewGuid().ToString(), Gas = new Helium(),
                 });
 
-            context.Add(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
+            await context.AddAsync(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
 
             _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
         }
