@@ -260,13 +260,11 @@ EXEC [WithStoreGeneratedConcurrencyTokenAsInOutParameter_Update] @p0, @p1 OUTPUT
 
         // Can't assert SQL baseline as usual because the concurrency token changes
         Assert.Equal(
-            @"@p2='Updated' (Size = 4000)
-@p3=NULL (Size = 8) (Direction = Output) (DbType = Binary)
-@p4='0' (Direction = Output)
+            @"@p4='0' (Direction = Output)
 
 SET NOCOUNT ON;
 EXEC [WithStoreGeneratedConcurrencyTokenAsTwoParameters_Update] @p0, @p1, @p2, @p3 OUTPUT, @p4 OUTPUT;",
-            Fixture.TestSqlLoggerFactory.Sql.Substring(Fixture.TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)),
+            Fixture.TestSqlLoggerFactory.Sql.Substring(Fixture.TestSqlLoggerFactory.Sql.IndexOf("@p4", StringComparison.Ordinal)),
             ignoreLineEndingDifferences: true);
     }
 
@@ -526,16 +524,20 @@ GO
 
 CREATE PROCEDURE WithStoreGeneratedConcurrencyTokenAsInOutParameter_Update(@Id int, @ConcurrencyToken rowversion OUT, @Name varchar(max), @RowsAffected int OUT)
 AS BEGIN
-    UPDATE [WithStoreGeneratedConcurrencyTokenAsInOutParameter] SET [Name] = @Name WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyToken;
+    DECLARE @TempTable table ([ConcurrencyToken] varbinary(8));
+    UPDATE [WithStoreGeneratedConcurrencyTokenAsInOutParameter] SET [Name] = @Name OUTPUT INSERTED.[ConcurrencyToken] INTO @TempTable WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyToken;
     SET @RowsAffected = @@ROWCOUNT;
+    SELECT @ConcurrencyToken = [ConcurrencyToken] FROM @TempTable;
 END;
 
 GO
 
 CREATE PROCEDURE WithStoreGeneratedConcurrencyTokenAsTwoParameters_Update(@Id int, @ConcurrencyTokenIn rowversion, @Name varchar(max), @ConcurrencyTokenOut rowversion OUT, @RowsAffected int OUT)
 AS BEGIN
-    UPDATE [WithStoreGeneratedConcurrencyTokenAsTwoParameters] SET [Name] = @Name, @ConcurrencyTokenOut = [ConcurrencyToken] WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyTokenIn;
+    DECLARE @TempTable table ([ConcurrencyToken] varbinary(8));
+    UPDATE [WithStoreGeneratedConcurrencyTokenAsTwoParameters] SET [Name] = @Name OUTPUT INSERTED.[ConcurrencyToken] INTO @TempTable WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyTokenIn;
     SET @RowsAffected = @@ROWCOUNT;
+    SELECT @ConcurrencyTokenOut = [ConcurrencyToken] FROM @TempTable;
 END;
 
 GO
@@ -578,10 +580,10 @@ GO
 
 CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child2InputProperty int, @Child2OutputParameterProperty int OUT, @Child1Property int)
 AS BEGIN
-    DECLARE @Table table ([Child2OutputParameterProperty] int);
-    INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @Table VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);
+    DECLARE @TempTable table ([Child2OutputParameterProperty] int);
+    INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @TempTable VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);
     SET @Id = SCOPE_IDENTITY();
-    SELECT @Child2OutputParameterProperty = [Child2OutputParameterProperty] FROM @Table;
+    SELECT @Child2OutputParameterProperty = [Child2OutputParameterProperty] FROM @TempTable;
     SELECT [Child2ResultColumnProperty] FROM [Tph] WHERE [Id] = @Id
 END;
 
