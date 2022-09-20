@@ -1152,7 +1152,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <param name="setPropertyCalls">
     ///     The lambda expression containing
     ///     <see
-    ///         cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" />
+    ///         cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, Func{TSource, TProperty})" />
     ///     statements.
     /// </param>
     /// <returns>The non query after translation.</returns>
@@ -1160,7 +1160,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         ShapedQueryExpression source,
         LambdaExpression setPropertyCalls)
     {
-        var propertyValueLambdaExpressions = new List<(LambdaExpression, LambdaExpression)>();
+        var propertyValueLambdaExpressions = new List<(LambdaExpression, Expression)>();
         PopulateSetPropertyCalls(setPropertyCalls.Body, propertyValueLambdaExpressions, setPropertyCalls.Parameters[0]);
         if (TranslationErrorDetails != null)
         {
@@ -1174,7 +1174,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         EntityShaperExpression? entityShaperExpression = null;
-        var remappedUnwrappeLeftExpressions = new List<Expression>();
+        var remappedUnwrappedLeftExpressions = new List<Expression>();
         foreach (var (propertyExpression, _) in propertyValueLambdaExpressions)
         {
             var left = RemapLambdaBody(source, propertyExpression);
@@ -1197,7 +1197,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 return null;
             }
 
-            remappedUnwrappeLeftExpressions.Add(left);
+            remappedUnwrappedLeftExpressions.Add(left);
         }
 
         Check.DebugAssert(entityShaperExpression != null, "EntityShaperExpression should have a value.");
@@ -1233,7 +1233,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             return TranslateSetPropertyExpressions(
                 this, source, selectExpression, tableExpression,
-                propertyValueLambdaExpressions, remappedUnwrappeLeftExpressions);
+                propertyValueLambdaExpressions, remappedUnwrappedLeftExpressions);
         }
 
         // We need to convert to join with original query using PK
@@ -1279,9 +1279,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         entitySource),
                     propertyReplacement, propertyExpression.Body),
                 transparentIdentifierParameter);
-            valueExpression = Expression.Lambda(
-                ReplacingExpressionVisitor.Replace(valueExpression.Parameters[0], valueReplacement, valueExpression.Body),
-                transparentIdentifierParameter);
+
+            valueExpression = valueExpression is LambdaExpression lambdaExpression
+                ? Expression.Lambda(
+                    ReplacingExpressionVisitor.Replace(lambdaExpression.Parameters[0], valueReplacement, lambdaExpression.Body),
+                    transparentIdentifierParameter)
+                : valueExpression;
+
             propertyValueLambdaExpressions[i] = (propertyExpression, valueExpression);
         }
 
@@ -1294,7 +1298,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             ShapedQueryExpression source,
             SelectExpression selectExpression,
             TableExpression tableExpression,
-            List<(LambdaExpression, LambdaExpression)> propertyValueLambdaExpressions,
+            List<(LambdaExpression, Expression)> propertyValueLambdaExpressions,
             List<Expression>? leftExpressions)
         {
             var columnValueSetters = new List<ColumnValueSetter>();
@@ -1312,7 +1316,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     left = left.UnwrapTypeConversion(out _);
                 }
 
-                var right = visitor.RemapLambdaBody(source, valueExpression);
+                var right = valueExpression is LambdaExpression lambdaExpression
+                    ? visitor.RemapLambdaBody(source, lambdaExpression)
+                    : valueExpression;
+
                 if (right.Type != left.Type)
                 {
                     right = Expression.Convert(right, left.Type);
@@ -1348,7 +1355,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         void PopulateSetPropertyCalls(
             Expression expression,
-            List<(LambdaExpression, LambdaExpression)> list,
+            List<(LambdaExpression, Expression)> list,
             ParameterExpression parameter)
         {
             switch (expression)
@@ -1363,9 +1370,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     && methodCallExpression.Method.DeclaringType!.IsGenericType
                     && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>):
 
-                    list.Add(
-                        (methodCallExpression.Arguments[0].UnwrapLambdaFromQuote(),
-                            methodCallExpression.Arguments[1].UnwrapLambdaFromQuote()));
+                    list.Add(((LambdaExpression)methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
+
                     PopulateSetPropertyCalls(methodCallExpression.Object!, list, parameter);
 
                     break;
