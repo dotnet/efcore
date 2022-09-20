@@ -82,7 +82,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
                     RelationalStrings.NonQueryTranslationFailedWithDetails(
                         "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteUpdate", "MeterReading"))[21..],
                     (await Assert.ThrowsAsync<InvalidOperationException>(
-                        () => context.MeterReadings.ExecuteUpdateAsync(s => s.SetProperty(m => m.CurrentRead, m => "Value")))).Message));
+                        () => context.MeterReadings.ExecuteUpdateAsync(s => s.SetProperty(m => m.CurrentRead, "Value")))).Message));
         }
         else
         {
@@ -93,7 +93,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
                     RelationalStrings.NonQueryTranslationFailedWithDetails(
                         "", RelationalStrings.ExecuteOperationOnEntitySplitting("ExecuteUpdate", "MeterReading"))[21..],
                     Assert.Throws<InvalidOperationException>(
-                        () => context.MeterReadings.ExecuteUpdate(s => s.SetProperty(m => m.CurrentRead, m => "Value"))).Message));
+                        () => context.MeterReadings.ExecuteUpdate(s => s.SetProperty(m => m.CurrentRead, "Value"))).Message));
         }
     }
 

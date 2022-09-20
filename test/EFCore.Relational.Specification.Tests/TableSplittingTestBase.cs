@@ -657,7 +657,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             await TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 CreateContext,
                 UseTransaction,
-                async context => await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, e => 1)),
+                async context => await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, 1)),
                 context =>
                 {
                     Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1));
@@ -670,7 +670,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext,
                 UseTransaction,
-                context => context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, e => 1)),
+                context => context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, 1)),
                 context => Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1)));
         }
     }

@@ -7,9 +7,13 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class NorthwindBulkUpdatesSqliteTest : NorthwindBulkUpdatesTestBase<NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer>>
 {
-    public NorthwindBulkUpdatesSqliteTest(NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer> fixture)
+    public NorthwindBulkUpdatesSqliteTest(
+        NorthwindBulkUpdatesSqliteFixture<NoopModelCustomizer> fixture,
+        ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
+        ClearLog();
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -584,6 +588,40 @@ WHERE 0");
 
 UPDATE ""Customers"" AS ""c""
 SET ""ContactName"" = @__value_0
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_Where_set_parameter_from_closure_array(bool async)
+    {
+        await base.Update_Where_set_parameter_from_closure_array(async);
+
+        AssertExecuteUpdateSql(
+            @"@__p_0='Abc' (Size = 3)
+
+UPDATE ""Customers"" AS ""c""
+SET ""ContactName"" = @__p_0
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_Where_set_parameter_from_inline_list(bool async)
+    {
+        await base.Update_Where_set_parameter_from_inline_list(async);
+
+        AssertExecuteUpdateSql(
+            @"UPDATE ""Customers"" AS ""c""
+SET ""ContactName"" = 'Abc'
+WHERE ""c"".""CustomerID"" LIKE 'F%'");
+    }
+
+    public override async Task Update_Where_set_parameter_from_multilevel_property_access(bool async)
+    {
+        await base.Update_Where_set_parameter_from_multilevel_property_access(async);
+
+        AssertExecuteUpdateSql(
+            @"@__container_Containee_Property_0='Abc' (Size = 3)
+
+UPDATE ""Customers"" AS ""c""
+SET ""ContactName"" = @__container_Containee_Property_0
 WHERE ""c"".""CustomerID"" LIKE 'F%'");
     }
 
