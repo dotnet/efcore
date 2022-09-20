@@ -25,7 +25,7 @@
     <MicrosoftExtensionsLoggingVersion>7.0.0-rtm.22469.12</MicrosoftExtensionsLoggingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>7.0.0-beta.22458.5</MicrosoftDotNetBuildTasksTemplatingVersion>
+    <MicrosoftDotNetBuildTasksTemplatingVersion>7.0.0-beta.22464.4</MicrosoftDotNetBuildTasksTemplatingVersion>
   </PropertyGroup>
   <PropertyGroup Label="Other dependencies">
     <!-- NB: Roslyn version affects the minimum required Visual Studio version -->
