@@ -126,38 +126,30 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="ExecuteSql" />.
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> should only be used when dynamically constructing SQL.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="ExecuteSql" /> to create parameters.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sql">The SQL to execute.</param>
     /// <param name="parameters">Parameters to use with the SQL.</param>
     /// <returns>The number of rows affected.</returns>
-    public static int ExecuteSqlRaw(
-        this DatabaseFacade databaseFacade,
-        string sql,
-        params object[] parameters)
+    public static int ExecuteSqlRaw(this DatabaseFacade databaseFacade, string sql, params object[] parameters)
         => ExecuteSqlRaw(databaseFacade, sql, (IEnumerable<object>)parameters);
 
     /// <summary>
@@ -165,31 +157,29 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> and take care to protect against SQL injection yourself.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
     /// <returns>The number of rows affected.</returns>
-    public static int ExecuteSqlInterpolated(
-        this DatabaseFacade databaseFacade,
-        FormattableString sql)
+    public static int ExecuteSqlInterpolated(this DatabaseFacade databaseFacade, FormattableString sql)
         => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments()!);
 
     /// <summary>
@@ -197,31 +187,29 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> and take care to protect against SQL injection yourself.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
     /// <returns>The number of rows affected.</returns>
-    public static int ExecuteSql(
-        this DatabaseFacade databaseFacade,
-        FormattableString sql)
+    public static int ExecuteSql(this DatabaseFacade databaseFacade, FormattableString sql)
         => ExecuteSqlRaw(databaseFacade, sql.Format, sql.GetArguments()!);
 
     /// <summary>
@@ -229,28 +217,23 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="ExecuteSql" />.
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> should only be used when dynamically constructing SQL.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="ExecuteSql" /> to create parameters.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
@@ -295,10 +278,16 @@ public static class RelationalDatabaseFacadeExtensions
     }
 
     /// <summary>
-    ///     Creates a LINQ query based on a raw SQL query, which returns a result set of a scalar type natively supported by the database
+    ///     Creates a LINQ query based on a SQL query, which returns a result set of a scalar type natively supported by the database
     ///     provider.
     /// </summary>
     /// <remarks>
+    ///     <para>
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="SqlQuery{TResult}" />.
+    ///         <see cref="SqlQueryRaw{TResult}" /> should only be used when dynamically constructing SQL.
+    ///     </para>
     ///     <para>
     ///         To use this method with a return type that isn't natively supported by the database provider, use the
     ///         <see cref="ModelConfigurationBuilder.DefaultTypeMapping{TScalar}(Action{TypeMappingConfigurationBuilder{TScalar}})" />
@@ -312,24 +301,29 @@ public static class RelationalDatabaseFacadeExtensions
     ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
-    ///     </para>
-    ///     <para>
-    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="SqlQuery{TResult}(DatabaseFacade, FormattableString)" /> to create parameters.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
+    /// <example>
+    ///     <para>The following queries scalar int values via a SQL query:</para>
+    ///     <code>
+    ///         var ids = context.Database.SqlQueryRaw&lt;int&gt;("SELECT [BlogId] FROM [Blogs]").ToList();
+    ///     </code>
+    ///     <para>
+    ///         To compose LINQ operators over the SQL query, name your output column <c>Value</c> so it can be properly referenced:
+    ///     </para>
+    ///     <code>
+    ///         context.Database
+    ///             .SqlQueryRaw&lt;int&gt;("SELECT [BlogId] AS [Value] FROM [Blogs]")
+    ///             .Where(id => id > context.Blogs.Average(b => b.BlogId))
+    ///             .ToList();
+    ///     </code>
+    /// </example>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sql">The raw SQL query.</param>
+    /// <param name="sql">The SQL query.</param>
     /// <param name="parameters">The values to be assigned to parameters.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> representing the raw SQL query.</returns>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the SQL query.</returns>
     [StringFormatMethod("sql")]
     public static IQueryable<TResult> SqlQueryRaw<TResult>(
         this DatabaseFacade databaseFacade,
@@ -348,10 +342,16 @@ public static class RelationalDatabaseFacadeExtensions
     }
 
     /// <summary>
-    ///     Creates a LINQ query based on a raw SQL query, which returns a result set of a scalar type natively supported by the database
+    ///     Creates a LINQ query based on a SQL query, which returns a result set of a scalar type natively supported by the database
     ///     provider.
     /// </summary>
     /// <remarks>
+    ///     <para>
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see <see cref="SqlQueryRaw{TResult}" /> and
+    ///         take care to protect against SQL injection yourself.
+    ///     </para>
     ///     <para>
     ///         To use this method with a return type that isn't natively supported by the database provider, use the
     ///         <see cref="ModelConfigurationBuilder.DefaultTypeMapping{TScalar}(Action{TypeMappingConfigurationBuilder{TScalar}})" />
@@ -365,17 +365,27 @@ public static class RelationalDatabaseFacadeExtensions
     ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
+    /// <example>
+    ///     <para>The following queries scalar int values via a SQL query:</para>
+    ///     <code>
+    ///         var ids = context.Database.SqlQuery&lt;int&gt;($"SELECT [BlogId] FROM [Blogs]").ToList();
+    ///     </code>
+    ///     <para>
+    ///         To compose LINQ operators over the SQL query, name your output column <c>Value</c> so it can be properly referenced:
+    ///     </para>
+    ///     <code>
+    ///         context.Database
+    ///             .SqlQuery&lt;int&gt;($"SELECT [BlogId] AS [Value] FROM [Blogs]")
+    ///             .Where(id => id > context.Blogs.Average(b => b.BlogId))
+    ///             .ToList();
+    ///     </code>
+    /// </example>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
     /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
     public static IQueryable<TResult> SqlQuery<TResult>(
         this DatabaseFacade databaseFacade,
@@ -397,31 +407,29 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> and take care to protect against SQL injection yourself.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-    /// </returns>
+    /// <returns>A task that represents the asynchronous operation. The task result is the number of rows affected.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public static Task<int> ExecuteSqlInterpolatedAsync(
         this DatabaseFacade databaseFacade,
@@ -434,31 +442,29 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> and take care to protect against SQL injection yourself.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-    /// </returns>
+    /// <returns>A task that represents the asynchronous operation. The task result is the number of rows affected.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public static Task<int> ExecuteSqlAsync(
         this DatabaseFacade databaseFacade,
@@ -471,29 +477,29 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="ExecuteSql" />.
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> should only be used when dynamically constructing SQL.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         <b>Never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sql">The SQL to execute.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-    /// </returns>
+    /// <returns>A task that represents the asynchronous operation. The task result is the number of rows affected.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public static Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,
@@ -506,36 +512,29 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="ExecuteSql" />.
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> should only be used when dynamically constructing SQL.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An <see cref="ExecutionStrategy" />
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="ExecuteSqlAsync" /> to create parameters.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sql">The SQL to execute.</param>
     /// <param name="parameters">Parameters to use with the SQL.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-    /// </returns>
+    /// <returns>A task that represents the asynchronous operation. The task result is the number of rows affected.</returns>
     public static Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,
         string sql,
@@ -547,37 +546,30 @@ public static class RelationalDatabaseFacadeExtensions
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Note that this method does not start a transaction. To use this method with
-    ///         a transaction, first call <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="ExecuteSql" />.
+    ///         <see cref="ExecuteSqlRaw(DatabaseFacade, string, object[])" /> should only be used when dynamically constructing SQL.
     ///     </para>
     ///     <para>
-    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method
-    ///         since the SQL may not be idempotent and does not run in a transaction. An ExecutionStrategy
-    ///         can be used explicitly, making sure to also use a transaction if the SQL is not
-    ///         idempotent.
+    ///         Note that this method does not start a transaction. To use this method with a transaction, first call
+    ///         <see cref="BeginTransaction" /> or <see cref="O:UseTransaction" />.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a DbParameter.
+    ///         Note that the current <see cref="ExecutionStrategy" /> is not used by this method since the SQL may not be idempotent and
+    ///         does not run in a transaction. An <see cref="ExecutionStrategy" /> can be used explicitly, making sure to also use a
+    ///         transaction if the SQL is not idempotent.
     ///     </para>
     ///     <para>
-    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="ExecuteSqlAsync" /> to create parameters.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see> for more information and
+    ///         examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="sql">The SQL to execute.</param>
     /// <param name="parameters">Parameters to use with the SQL.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>
-    ///     A task that represents the asynchronous operation. The task result is the number of rows affected.
-    /// </returns>
+    /// <returns>A task that represents the asynchronous operation. The task result is the number of rows affected.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public static async Task<int> ExecuteSqlRawAsync(
         this DatabaseFacade databaseFacade,

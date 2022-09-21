@@ -51,39 +51,50 @@ public static class RelationalQueryableExtensions
     #region FromSql
 
     /// <summary>
-    ///     Creates a LINQ query based on a raw SQL query.
+    ///     Creates a LINQ query based on a SQL query, given as a regular .NET string. This method can be vulnerable to SQL injection
+    ///     attacks, if improperly used.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-    ///         LINQ operators: <c>context.Blogs.FromSqlRaw("SELECT * FROM Blogs").OrderBy(b => b.Name)</c>.
+    ///         This method does <b>not</b> protect against SQL injection attacks: any user-provided value will be inserted into the SQL
+    ///         as-is, and unless properly sanitized, attackers could potentially use maliciously crafted values with disastrous
+    ///         consequences. For a safe way of executing SQL queries without risk of SQL injection, see <see cref="FromSql{TEntity}" />.
+    ///         <see cref="FromSqlRaw{TEntity}" /> should only be used when dynamically constructing SQL.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include parameter place holders in the SQL query string and then supply parameter values as additional
-    ///         arguments. Any parameter values you supply will automatically be converted to a <see cref="DbParameter" />.
+    ///         Note that rather than passing raw parameter values, this method also accepts <see cref="DbParameter" /> instances. This
+    ///         allows explicitly specifying the database type and parameter facets, and protects against SQL injection (though see
+    ///         <see cref="FromSql{TEntity}" /> for a method which does this automatically).
     ///     </para>
     ///     <para>
-    ///         However, <b>never</b> pass a concatenated or interpolated string (<c>$""</c>) with non-validated user-provided values
-    ///         into this method. Doing so may expose your application to SQL injection attacks. To use the interpolated string syntax,
-    ///         consider using <see cref="FromSql{TEntity}" /> to create parameters.
+    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the SQL query using LINQ
+    ///         operators: <c>context.Blogs.FromSqlRaw("SELECT * FROM Blogs").OrderBy(b => b.Name)</c>.
     ///     </para>
     ///     <para>
-    ///         This overload also accepts <see cref="DbParameter" /> instances as parameter values. In addition to using positional
-    ///         placeholders as above (<c>{0}</c>), you can also use named placeholders directly in the SQL query string.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">SQL Queries with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <example>
+    ///     <para>
+    ///         The following example shows a dynamic SQL scenario where a column name is is inserted directly into the SQL, using C# string
+    ///         interpolation. It is your responsibility to make sure this string value is safe, sanitizing it if it comes from an unsafe
+    ///         origin. On the other hand, the column value is sent via a <see cref="DbParameter" />, and is therefore safe in the face of
+    ///         SQL injection:
+    ///     </para>
+    ///     <code>
+    ///         var columnName = "Name";
+    ///         var columnValue = new SqlParameter("columnValue", "johndoe");
+    ///
+    ///         var blogs = context.Blogs
+    ///             .FromSqlRaw($"SELECT * FROM [Blogs] WHERE {columnName} = @columnValue", columnValue)
+    ///             .ToList();
+    ///     </code>
+    /// </example>
     /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
-    /// <param name="source">
-    ///     An <see cref="IQueryable{T}" /> to use as the base of the raw SQL query (typically a <see cref="DbSet{TEntity}" />).
-    /// </param>
-    /// <param name="sql">The raw SQL query.</param>
+    /// <param name="source">A <see cref="DbSet{TEntity}" /> to use as the base of the SQL query.</param>
+    /// <param name="sql">The SQL query.</param>
     /// <param name="parameters">The values to be assigned to parameters.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> representing the raw SQL query.</returns>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the SQL query.</returns>
     [StringFormatMethod("sql")]
     public static IQueryable<TEntity> FromSqlRaw<TEntity>(
         this DbSet<TEntity> source,
@@ -103,32 +114,54 @@ public static class RelationalQueryableExtensions
     }
 
     /// <summary>
-    ///     Creates a LINQ query based on an interpolated string representing a SQL query.
+    ///     Creates a LINQ query based on a SQL query, given as a <see cref="FormattableString" />. This method is safe in the face of SQL
+    ///     injection attacks.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-    ///         LINQ operators.
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see <see cref="FromSqlRaw{TEntity}" /> and
+    ///         take care to protect against SQL injection yourself.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
-    ///         you supply will automatically be converted to a <see cref="DbParameter" />.
+    ///         Note that rather than passing raw parameter values, this method also accepts <see cref="DbParameter" /> instances. This
+    ///         allows explicitly specifying the database type and parameter facets.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the SQL query using LINQ
+    ///         operators: <c>context.Blogs.FromSqlRaw("SELECT * FROM Blogs").OrderBy(b => b.Name)</c>.
+    ///     </para>
+    ///     <para>
+    ///         This method is identical to <see cref="FromSql{TEntity}" />, consider using that as a shorter variant.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">SQL Queries with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <example>
+    ///     <para>
+    ///         The following executes a simple SQL query and reads the results back as entity instances. Since the method accepts a
+    ///         <see cref="FormattableString" />, the <c>$</c> is always required:
+    ///     </para>
+    ///     <code>
+    ///         var blogs = context.Blogs.FromSqlInterpolated($"SELECT * FROM dbo.Blogs").ToList();
+    ///     </code>
+    ///     <para>
+    ///         Any interpolated parameter is automatically wrapped in a <see cref="DbParameter" />, and its placeholder is integrated into
+    ///         the SQL. This makes the method safe in the face of SQL injection:
+    ///     </para>
+    ///     <code>
+    ///         int rating = 3;
+    ///
+    ///         var blogs = context.Blogs.FromSqlInterpolated($"SELECT * FROM dbo.Blogs WHERE Rating > {rating}").ToList();
+    ///     </code>
+    /// </example>
     /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
-    /// <param name="source">
-    ///     An <see cref="IQueryable{T}" /> to use as the base of the interpolated string SQL query (typically a <see cref="DbSet{TEntity}" />).
-    /// </param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
-    public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(
-        this DbSet<TEntity> source,
-        [NotParameterized] FormattableString sql)
+    /// <param name="source">A <see cref="DbSet{TEntity}" /> to use as the base of the SQL query.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the SQL query.</returns>
+    public static IQueryable<TEntity> FromSqlInterpolated<TEntity>(this DbSet<TEntity> source, [NotParameterized] FormattableString sql)
         where TEntity : class
     {
         Check.NotNull(sql, nameof(sql));
@@ -143,32 +176,51 @@ public static class RelationalQueryableExtensions
     }
 
     /// <summary>
-    ///     Creates a LINQ query based on an interpolated string representing a SQL query.
+    ///     Creates a LINQ query based on a SQL query, given as a <see cref="FormattableString" />. This method is safe in the face of SQL
+    ///     injection attacks.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the raw SQL query using
-    ///         LINQ operators.
+    ///         Any interpolated parameter values provided to this method are automatically wrapped in a <see cref="DbParameter" />, making
+    ///         the method safe in the face of SQL injection. If you need to interpolate SQL fragments which are incompatible with database
+    ///         parameterization (e.g. dynamic SQL construction of column or table names), see <see cref="FromSqlRaw{TEntity}" /> and
+    ///         take care to protect against SQL injection yourself.
     ///     </para>
     ///     <para>
-    ///         As with any API that accepts SQL it is important to parameterize any user input to protect against a SQL injection
-    ///         attack. You can include interpolated parameter place holders in the SQL query string. Any interpolated parameter values
-    ///         you supply will automatically be converted to a <see cref="DbParameter" />.
+    ///         Note that rather than passing raw parameter values, this method also accepts <see cref="DbParameter" /> instances. This
+    ///         allows explicitly specifying the database type and parameter facets.
     ///     </para>
     ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
-    ///         for more information and examples.
+    ///         If the database provider supports composing on the supplied SQL, you can compose on top of the SQL query using LINQ
+    ///         operators: <c>context.Blogs.FromSqlRaw("SELECT * FROM Blogs").OrderBy(b => b.Name)</c>.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-raw-sql">SQL Queries with EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <example>
+    ///     <para>
+    ///         The following executes a simple SQL query and reads the results back as entity instances. Since the method accepts a
+    ///         <see cref="FormattableString" />, the <c>$</c> is always required:
+    ///     </para>
+    ///     <code>
+    ///         var blogs = context.Blogs.FromSql($"SELECT * FROM dbo.Blogs").ToList();
+    ///     </code>
+    ///     <para>
+    ///         Any interpolated parameter is automatically wrapped in a <see cref="DbParameter" />, and its placeholder is integrated into
+    ///         the SQL. This makes the method safe in the face of SQL injection:
+    ///     </para>
+    ///     <code>
+    ///         int rating = 3;
+    ///
+    ///         var blogs = context.Blogs.FromSql($"SELECT * FROM dbo.Blogs WHERE Rating > {rating}").ToList();
+    ///     </code>
+    /// </example>
     /// <typeparam name="TEntity">The type of the elements of <paramref name="source" />.</typeparam>
-    /// <param name="source">
-    ///     An <see cref="IQueryable{T}" /> to use as the base of the interpolated string SQL query (typically a <see cref="DbSet{TEntity}" />).
-    /// </param>
-    /// <param name="sql">The interpolated string representing a SQL query with parameters.</param>
-    /// <returns>An <see cref="IQueryable{T}" /> representing the interpolated string SQL query.</returns>
-    public static IQueryable<TEntity> FromSql<TEntity>(
-        this DbSet<TEntity> source,
-        [NotParameterized] FormattableString sql)
+    /// <param name="source">A <see cref="DbSet{TEntity}" /> to use as the base of the SQL query.</param>
+    /// <param name="sql">The <see cref="FormattableString" /> representing a SQL query, optionally with parameters.</param>
+    /// <returns>An <see cref="IQueryable{T}" /> representing the SQL query.</returns>
+    public static IQueryable<TEntity> FromSql<TEntity>(this DbSet<TEntity> source, [NotParameterized] FormattableString sql)
         where TEntity : class
     {
         Check.NotNull(sql, nameof(sql));
