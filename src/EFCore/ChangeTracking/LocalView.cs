@@ -499,4 +499,23 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// </summary>
     bool IListSource.ContainsListCollection
         => false;
+
+    /// <summary>
+    ///     Resets this view, clearing any <see cref="IBindingList" /> created with <see cref="ToBindingList" /> and
+    ///     any <see cref="ObservableCollection{T}" /> created with <see cref="ToObservableCollection" />, and clearing any
+    ///     events registered on <see cref="PropertyChanged" />, <see cref="PropertyChanging" />, or <see cref="CollectionChanged" />.
+    /// </summary>
+    public virtual void Reset()
+    {
+        _bindingList = null;
+        _observable = null;
+        _countChanges = 0;
+        _count = 0;
+        _triggeringStateManagerChange = false;
+        _triggeringObservableChange = false;
+        _triggeringLocalViewChange = false;
+        PropertyChanged = null;
+        PropertyChanging = null;
+        CollectionChanged = null;
+    }
 }
