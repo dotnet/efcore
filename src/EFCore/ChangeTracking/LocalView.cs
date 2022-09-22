@@ -51,7 +51,8 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     INotifyCollectionChanged,
     INotifyPropertyChanged,
     INotifyPropertyChanging,
-    IListSource
+    IListSource,
+    IResettableService
     where TEntity : class
 {
     private ObservableBackedBindingList<TEntity>? _bindingList;
@@ -499,4 +500,35 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     /// </summary>
     bool IListSource.ContainsListCollection
         => false;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    void IResettableService.ResetState()
+    {
+        _bindingList = null;
+        _observable = null;
+        _countChanges = 0;
+        _count = 0;
+        _triggeringStateManagerChange = false;
+        _triggeringObservableChange = false;
+        _triggeringLocalViewChange = false;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+    {
+        ((IResettableService)this).ResetState();
+        return Task.CompletedTask;
+    }
 }

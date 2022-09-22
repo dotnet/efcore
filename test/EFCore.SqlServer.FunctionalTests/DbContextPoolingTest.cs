@@ -768,6 +768,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Null(context1!.Database.GetCommandTimeout());
 
+        var set = context1.Customers;
+        var localView = set.Local;
+
         context1.ChangeTracker.AutoDetectChangesEnabled = true;
         context1.ChangeTracker.LazyLoadingEnabled = true;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
@@ -826,6 +829,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_context_OnSavedChanges);
         Assert.False(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
+
+        Assert.Same(set, context2!.Customers);
+        Assert.Same(localView, context2!.Customers.Local);
     }
 
     [ConditionalTheory]
@@ -865,6 +871,8 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
 
         var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        var set = context1.Customers;
+        var localView = set.Local;
 
         context1.ChangeTracker.AutoDetectChangesEnabled = true;
         context1.ChangeTracker.LazyLoadingEnabled = true;
@@ -909,6 +917,9 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_context_OnSavedChanges);
         Assert.False(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
+
+        Assert.Same(set, context2!.Customers);
+        Assert.Same(localView, context2!.Customers.Local);
     }
 
     [ConditionalFact]
