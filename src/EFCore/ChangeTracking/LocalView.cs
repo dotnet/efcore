@@ -51,8 +51,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     INotifyCollectionChanged,
     INotifyPropertyChanged,
     INotifyPropertyChanging,
-    IListSource,
-    IResettableService
+    IListSource
     where TEntity : class
 {
     private ObservableBackedBindingList<TEntity>? _bindingList;
@@ -502,13 +501,11 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         => false;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Resets this view, clearing any <see cref="IBindingList" /> created with <see cref="ToBindingList" /> and
+    ///     any <see cref="ObservableCollection{T}" /> created with <see cref="ToObservableCollection" />, and clearing any
+    ///     events registered on <see cref="PropertyChanged" />, <see cref="PropertyChanging" />, or <see cref="CollectionChanged" />.
     /// </summary>
-    [EntityFrameworkInternal]
-    void IResettableService.ResetState()
+    public virtual void Reset()
     {
         _bindingList = null;
         _observable = null;
@@ -517,18 +514,8 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         _triggeringStateManagerChange = false;
         _triggeringObservableChange = false;
         _triggeringLocalViewChange = false;
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [EntityFrameworkInternal]
-    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
-    {
-        ((IResettableService)this).ResetState();
-        return Task.CompletedTask;
+        PropertyChanged = null;
+        PropertyChanging = null;
+        CollectionChanged = null;
     }
 }

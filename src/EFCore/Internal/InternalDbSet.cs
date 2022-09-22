@@ -520,7 +520,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     void IResettableService.ResetState()
-        => ((IResettableService?)_localView)?.ResetState();
+        => _localView?.Reset();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -528,12 +528,11 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    async Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
+    Task IResettableService.ResetStateAsync(CancellationToken cancellationToken)
     {
-        if (_localView != null)
-        {
-            await ((IResettableService)_localView).ResetStateAsync(cancellationToken).ConfigureAwait(false);
-        }
+        ((IResettableService)this).ResetState();
+
+        return Task.CompletedTask;
     }
 
     private EntityEntry<TEntity> EntryWithoutDetectChanges(TEntity entity)
