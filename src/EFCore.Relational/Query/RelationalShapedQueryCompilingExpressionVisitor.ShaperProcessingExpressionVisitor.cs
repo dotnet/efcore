@@ -412,7 +412,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             switch (extensionExpression)
             {
                 case RelationalEntityShaperExpression entityShaperExpression
-                    when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                    when !_inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
                 {
                     if (!_variableShaperMapping.TryGetValue(entityShaperExpression.ValueBufferExpression, out var accessor))
                     {
@@ -482,6 +482,53 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     }
 
                     return accessor;
+                }
+
+                case RelationalEntityShaperExpression entityShaperExpression
+                    when _inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                {
+                    if (GetProjectionIndex(projectionBindingExpression) is ValueTuple<int, List<(IProperty, int)>, string[]>
+                        jsonProjectionIndex)
+                    {
+                        throw new InvalidOperationException();
+                        //// json entity at the root
+                        //var (jsonElementParameter, keyValuesParameter) = JsonShapingPreProcess(
+                        //    jsonProjectionIndex,
+                        //    entityShaperExpression.EntityType,
+                        //    isCollection: false);
+
+                        //var shaperResult = CreateJsonShapers(
+                        //    entityShaperExpression.EntityType,
+                        //    entityShaperExpression.IsNullable,
+                        //    collection: false,
+                        //    jsonElementParameter,
+                        //    keyValuesParameter,
+                        //    parentEntityExpression: null,
+                        //    navigation: null);
+
+                        //return Visit(shaperResult);
+                    }
+                    else
+                    {
+                        if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
+                        {
+                            var concreteTypes = entityShaperExpression.EntityType.GetDerivedTypesInclusive().Where(e => !e.IsAbstract())
+                                .ToArray();
+                            // Single concrete TPC entity type won't have discriminator column.
+                            // We store the value here and inject it directly rather than reading from server.
+                            if (concreteTypes.Length == 1)
+                            {
+                                _singleEntityTypeDiscriminatorValues[
+                                        (ProjectionBindingExpression)entityShaperExpression.ValueBufferExpression]
+                                    = concreteTypes[0].ShortName();
+                            }
+                        }
+
+                        var entityMaterializationExpression = _parentVisitor.InjectEntityMaterializers(entityShaperExpression);
+                        entityMaterializationExpression = Visit(entityMaterializationExpression);
+
+                        return entityMaterializationExpression;
+                    }
                 }
 
                 case CollectionResultExpression collectionResultExpression

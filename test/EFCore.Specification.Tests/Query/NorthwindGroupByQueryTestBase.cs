@@ -2598,6 +2598,16 @@ public abstract class NorthwindGroupByQueryTestBase<TFixture> : QueryTestBase<TF
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Final_GroupBy_entity(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(e => e.OrderID < 10500).GroupBy(c => c.Customer),
+            elementSorter: e => e.Key.CustomerID,
+            elementAsserter: (e, a) => AssertGrouping(e, a),
+            entryCount: 328);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Final_GroupBy_property_anonymous_type(bool async)
         => AssertQuery(
             async,
