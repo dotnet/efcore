@@ -870,12 +870,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var projectionBindingMap = new Dictionary<SqlExpression, ProjectionBindingExpression>();
                 var keySelector = AddGroupByKeySelectorToProjection(
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
-                var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(projectionBindingMap, _identifier);
+                var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
+                    this, newClientProjections, projectionBindingMap, _identifier);
                 _identifier.Clear();
                 _identifier.AddRange(_preGroupByIdentifier!);
                 _preGroupByIdentifier!.Clear();
 
-                static Expression AddGroupByKeySelectorToProjection(
+                Expression AddGroupByKeySelectorToProjection(
                     SelectExpression selectExpression,
                     List<Expression> clientProjectionList,
                     Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
@@ -884,13 +885,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                     switch (keySelector)
                     {
                         case SqlExpression sqlExpression:
+                        {
                             var index = selectExpression.AddToProjection(sqlExpression);
                             var clientProjectionToAdd = Constant(index);
                             var existingIndex = clientProjectionList.FindIndex(
                                 e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
                             if (existingIndex == -1)
                             {
-                                clientProjectionList.Add(Constant(index));
+                                clientProjectionList.Add(clientProjectionToAdd);
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
@@ -898,6 +900,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
                             projectionBindingMap[sqlExpression] = projectionBindingExpression;
                             return projectionBindingExpression;
+                        }
 
                         case NewExpression newExpression:
                             var newArguments = new Expression[newExpression.Arguments.Count];
@@ -936,6 +939,22 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 AddGroupByKeySelectorToProjection(
                                     selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
 
+                        case EntityShaperExpression entityShaperExpression
+                        when entityShaperExpression.ValueBufferExpression is EntityProjectionExpression entityProjectionExpression:
+                        {
+                            var clientProjectionToAdd = AddEntityProjection(entityProjectionExpression);
+                            var existingIndex = clientProjectionList.FindIndex(
+                                e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
+                            if (existingIndex == -1)
+                            {
+                                clientProjectionList.Add(clientProjectionToAdd);
+                                existingIndex = clientProjectionList.Count - 1;
+                            }
+
+                            return entityShaperExpression.Update(
+                                new ProjectionBindingExpression(selectExpression, existingIndex, typeof(ValueBuffer)));
+                        }
+
                         default:
                             throw new InvalidOperationException(
                                 RelationalStrings.InvalidKeySelectorForGroupBy(keySelector, keySelector.GetType()));
@@ -943,6 +962,8 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
 
                 static (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
+                    SelectExpression selectExpression,
+                    List<Expression> clientProjectionList,
                     Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
                     IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
                 {
@@ -950,7 +971,22 @@ public sealed partial class SelectExpression : TableExpressionBase
                     var comparers = new List<ValueComparer>();
                     foreach (var (column, comparer) in identifyingProjection)
                     {
-                        var projectionBindingExpression = projectionBindingMap[column];
+                        if (!projectionBindingMap.TryGetValue(column, out var projectionBindingExpression))
+                        {
+                            var index = selectExpression.AddToProjection(column);
+                            var clientProjectionToAdd = Constant(index);
+                            var existingIndex = clientProjectionList.FindIndex(
+                                e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
+                            if (existingIndex == -1)
+                            {
+                                clientProjectionList.Add(clientProjectionToAdd);
+                                existingIndex = clientProjectionList.Count - 1;
+                            }
+
+                            projectionBindingExpression = new ProjectionBindingExpression(
+                                selectExpression, existingIndex, column.Type.MakeNullable());
+                        }
+
                         updatedExpressions.Add(
                             projectionBindingExpression.Type.IsValueType
                                 ? Convert(projectionBindingExpression, typeof(object))
@@ -2005,9 +2041,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 break;
 
             case EntityShaperExpression entityShaperExpression
-                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
-                var entityProjectionExpression = (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
-                        .GetProjection(projectionBindingExpression);
+                when entityShaperExpression.ValueBufferExpression is EntityProjectionExpression entityProjectionExpression:
                 foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
                 {
                     PopulateGroupByTerms(entityProjectionExpression.BindProperty(property), groupByTerms, groupByAliases, name: null);

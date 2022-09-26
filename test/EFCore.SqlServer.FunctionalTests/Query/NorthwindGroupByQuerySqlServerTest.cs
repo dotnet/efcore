@@ -3142,6 +3142,18 @@ FROM [Customers] AS [c]
 ORDER BY [c].[City]");
     }
 
+    public override async Task Final_GroupBy_entity(bool async)
+    {
+        await base.Final_GroupBy_entity(async);
+
+        AssertSql(
+            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
+WHERE [o].[OrderID] < 10500
+ORDER BY [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]");
+    }
+
     public override async Task Final_GroupBy_property_anonymous_type(bool async)
     {
         await base.Final_GroupBy_property_anonymous_type(async);

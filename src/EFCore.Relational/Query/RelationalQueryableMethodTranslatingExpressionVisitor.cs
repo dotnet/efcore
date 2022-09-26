@@ -454,14 +454,14 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             // This could be group by entity type
             if (remappedKeySelector is not EntityShaperExpression
-                { ValueBufferExpression: ProjectionBindingExpression })
+                { ValueBufferExpression: ProjectionBindingExpression pbe } ese)
             {
                 // ValueBufferExpression can be JsonQuery, ProjectionBindingExpression, EntityProjection
                 // We only allow ProjectionBindingExpression which represents a regular entity
                 return null;
             }
 
-            translatedKey = remappedKeySelector;
+            translatedKey = ese.Update(((SelectExpression)pbe.QueryExpression).GetProjection(pbe));
         }
 
         if (elementSelector != null)
