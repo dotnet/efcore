@@ -675,6 +675,96 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         }
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Optional_dependent_without_required_property(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context29196>(
+            onConfiguring: e => e.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)));
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.DetailedOrders.Where(o => o.Status == OrderStatus.Pending);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+    }
+
+    protected class Context29196 : DbContext
+    {
+        public Context29196(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Order> Orders => Set<Order>();
+
+        public DbSet<DetailedOrder> DetailedOrders => Set<DetailedOrder>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<DetailedOrder>(
+             dob =>
+             {
+                 dob.ToTable("Orders");
+                 dob.Property(o => o.Status).HasColumnName("Status");
+                 dob.Property(o => o.Version).IsRowVersion().HasColumnName("Version");
+             });
+
+            modelBuilder.Entity<Order>(
+                ob =>
+                {
+                    ob.ToTable("Orders");
+                    ob.Property(o => o.Status).HasColumnName("Status");
+                    ob.HasOne(o => o.DetailedOrder).WithOne().HasForeignKey<DetailedOrder>(o => o.Id);
+                    ob.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+                });
+        }
+
+        public void Seed()
+        {
+            Add(
+                new Order
+                {
+                    Status = OrderStatus.Pending,
+                    DetailedOrder = new DetailedOrder
+                    {
+                        Status = OrderStatus.Pending,
+                        ShippingAddress = "221 B Baker St, London",
+                        BillingAddress = "11 Wall Street, New York"
+                    }
+                });
+
+            SaveChanges();
+        }
+    }
+
+    public class DetailedOrder
+    {
+        public int Id { get; set; }
+        public OrderStatus? Status { get; set; }
+        public string BillingAddress { get; set; }
+        public string ShippingAddress { get; set; }
+        public byte[] Version { get; set; }
+    }
+
+    public class Order
+    {
+        public int Id { get; set; }
+        public OrderStatus? Status { get; set; }
+        public DetailedOrder DetailedOrder { get; set; }
+    }
+
+    public enum OrderStatus
+    {
+        Pending,
+        Shipped
+    }
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 
