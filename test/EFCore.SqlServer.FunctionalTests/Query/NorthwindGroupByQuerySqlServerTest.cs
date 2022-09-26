@@ -3154,6 +3154,17 @@ WHERE [o].[OrderID] < 10500
 ORDER BY [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]");
     }
 
+    public override async Task Final_GroupBy_property_entity_non_nullable(bool async)
+    {
+        await base.Final_GroupBy_property_entity_non_nullable(async);
+
+        AssertSql(
+            @"SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
+FROM [Order Details] AS [o]
+WHERE [o].[OrderID] < 10500
+ORDER BY [o].[OrderID]");
+    }
+
     public override async Task Final_GroupBy_property_anonymous_type(bool async)
     {
         await base.Final_GroupBy_property_anonymous_type(async);

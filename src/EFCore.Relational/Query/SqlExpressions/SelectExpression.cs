@@ -867,7 +867,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (shaperExpression is RelationalGroupByShaperExpression groupByShaper)
             {
                 // We need to add key to projection and generate key selector in terms of projectionBindings
-                var projectionBindingMap = new Dictionary<SqlExpression, ProjectionBindingExpression>();
+                var projectionBindingMap = new Dictionary<SqlExpression, Expression>();
                 var keySelector = AddGroupByKeySelectorToProjection(
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
                 var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
@@ -879,7 +879,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 Expression AddGroupByKeySelectorToProjection(
                     SelectExpression selectExpression,
                     List<Expression> clientProjectionList,
-                    Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
+                    Dictionary<SqlExpression, Expression> projectionBindingMap,
                     Expression keySelector)
                 {
                     switch (keySelector)
@@ -896,8 +896,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
-                            var projectionBindingExpression = new ProjectionBindingExpression(
-                                selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
+                            var projectionBindingExpression = sqlExpression.Type.IsNullableType()
+                                ? (Expression)new ProjectionBindingExpression(selectExpression, existingIndex, sqlExpression.Type)
+                                : Convert(new ProjectionBindingExpression(
+                                    selectExpression, existingIndex, sqlExpression.Type.MakeNullable()),
+                                    sqlExpression.Type);
                             projectionBindingMap[sqlExpression] = projectionBindingExpression;
                             return projectionBindingExpression;
                         }
@@ -964,14 +967,14 @@ public sealed partial class SelectExpression : TableExpressionBase
                 static (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
                     SelectExpression selectExpression,
                     List<Expression> clientProjectionList,
-                    Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
+                    Dictionary<SqlExpression, Expression> projectionBindingMap,
                     IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
                 {
                     var updatedExpressions = new List<Expression>();
                     var comparers = new List<ValueComparer>();
                     foreach (var (column, comparer) in identifyingProjection)
                     {
-                        if (!projectionBindingMap.TryGetValue(column, out var projectionBindingExpression))
+                        if (!projectionBindingMap.TryGetValue(column, out var mappedExpresssion))
                         {
                             var index = selectExpression.AddToProjection(column);
                             var clientProjectionToAdd = Constant(index);
@@ -983,14 +986,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
-                            projectionBindingExpression = new ProjectionBindingExpression(
-                                selectExpression, existingIndex, column.Type.MakeNullable());
+                            mappedExpresssion = new ProjectionBindingExpression(selectExpression, existingIndex, column.Type.MakeNullable());
                         }
 
                         updatedExpressions.Add(
-                            projectionBindingExpression.Type.IsValueType
-                                ? Convert(projectionBindingExpression, typeof(object))
-                                : projectionBindingExpression);
+                            mappedExpresssion.Type.IsValueType
+                                ? Convert(mappedExpresssion, typeof(object))
+                                : mappedExpresssion);
                         comparers.Add(comparer);
                     }
 
