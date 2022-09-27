@@ -125,12 +125,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 exception);
         }
 
-        private static object? ExtractJsonProperty(JsonElement element, string propertyName, Type returnType)
-        {
-            var jsonElementProperty = element.GetProperty(propertyName);
-
-            return jsonElementProperty.Deserialize(returnType);
-        }
+        private static T? ExtractJsonProperty<T>(JsonElement element, string propertyName, bool nullable)
+            => nullable
+                ? element.TryGetProperty(propertyName, out var jsonValue)
+                    ? jsonValue.Deserialize<T>()
+                    : default
+                : element.GetProperty(propertyName).Deserialize<T>();
 
         private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,

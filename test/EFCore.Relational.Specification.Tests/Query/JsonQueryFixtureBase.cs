@@ -297,6 +297,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.Date, actual.Date);
         Assert.Equal(expected.Fraction, actual.Fraction);
         Assert.Equal(expected.Enum, actual.Enum);
+        Assert.Equal(expected.NullableEnum, actual.NullableEnum);
 
         AssertOwnedLeaf(expected.OwnedReferenceLeaf, actual.OwnedReferenceLeaf);
         Assert.Equal(expected.OwnedCollectionLeaf.Count, actual.OwnedCollectionLeaf.Count);
@@ -345,6 +346,12 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.TestUnsignedInt16, actual.TestUnsignedInt16);
         Assert.Equal(expected.TestUnsignedInt32, actual.TestUnsignedInt32);
         Assert.Equal(expected.TestUnsignedInt64, actual.TestUnsignedInt64);
+        Assert.Equal(expected.TestNullableInt32, actual.TestNullableInt32);
+        Assert.Equal(expected.TestEnum, actual.TestEnum);
+        Assert.Equal(expected.TestEnumWithIntConverter, actual.TestEnumWithIntConverter);
+        Assert.Equal(expected.TestNullableEnum, actual.TestNullableEnum);
+        Assert.Equal(expected.TestNullableEnumWithIntConverter, actual.TestNullableEnumWithIntConverter);
+        Assert.Equal(expected.TestNullableEnumWithConverterThatHandlesNulls, actual.TestNullableEnumWithConverterThatHandlesNulls);
     }
 
     protected override string StoreName { get; } = "JsonQueryTest";
@@ -496,6 +503,27 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             {
                 b.ToJson();
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+                b.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
+                b.Property(x => x.TestNullableEnumWithIntConverter).HasConversion<int>();
+                b.Property(x => x.TestNullableEnumWithConverterThatHandlesNulls).HasConversion(
+                    new ValueConverter<JsonEnum?, string>(
+                        x => x == null
+                            ? "Null"
+                            : x == JsonEnum.One
+                                ? "One"
+                                : x == JsonEnum.Two
+                                    ? "Two"
+                                    : x == JsonEnum.Three
+                                        ? "Three"
+                                        : "INVALID",
+                        x => x == "One"
+                            ? JsonEnum.One
+                            : x == "Two"
+                                ? JsonEnum.Two
+                                : x == "Three"
+                                    ? JsonEnum.Three
+                                    : null,
+                        convertsNulls: true));
             });
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(
             x => x.Collection, b =>

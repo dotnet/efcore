@@ -1501,34 +1501,79 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonElementParameter,
             IProperty property)
         {
+            var nullable = property.IsNullable;
             Expression resultExpression;
             if (property.GetTypeMapping().Converter is ValueConverter converter)
             {
-                resultExpression = Expression.Call(
-                    ExtractJsonPropertyMethodInfo,
-                    jsonElementParameter,
-                    Expression.Constant(property.GetJsonPropertyName()),
-                    Expression.Constant(converter.ProviderClrType));
-
-                if (resultExpression.Type != converter.ProviderClrType)
+                var providerClrType = converter.ProviderClrType.MakeNullable(nullable);
+                if (!property.IsNullable || converter.ConvertsNulls)
                 {
-                    resultExpression = Expression.Convert(resultExpression, converter.ProviderClrType);
-                }
+                    resultExpression = Expression.Call(
+                        ExtractJsonPropertyMethodInfo.MakeGenericMethod(providerClrType),
+                        jsonElementParameter,
+                        Expression.Constant(property.GetJsonPropertyName()),
+                        Expression.Constant(nullable));
 
-                resultExpression = ReplacingExpressionVisitor.Replace(
-                    converter.ConvertFromProviderExpression.Parameters.Single(),
-                    resultExpression,
-                    converter.ConvertFromProviderExpression.Body);
+                    resultExpression = ReplacingExpressionVisitor.Replace(
+                        converter.ConvertFromProviderExpression.Parameters.Single(),
+                        resultExpression,
+                        converter.ConvertFromProviderExpression.Body);
+
+                    if (resultExpression.Type != property.ClrType)
+                    {
+                        resultExpression = Expression.Convert(resultExpression, property.ClrType);
+                    }
+                }
+                else
+                {
+                    // property is nullable and the converter can't handle nulls
+                    // we need to peek into the JSON value and only pass it thru converter if it's not null
+                    var jsonPropertyCall = Expression.Call(
+                        ExtractJsonPropertyMethodInfo.MakeGenericMethod(providerClrType),
+                        jsonElementParameter,
+                        Expression.Constant(property.GetJsonPropertyName()),
+                        Expression.Constant(nullable));
+
+                    var jsonPropertyVariable = Expression.Variable(providerClrType);
+                    var jsonPropertyAssignment = Expression.Assign(jsonPropertyVariable, jsonPropertyCall);
+
+                    var testExpression = Expression.NotEqual(
+                        jsonPropertyVariable,
+                        Expression.Default(providerClrType));
+
+                    var ifTrueExpression = (Expression)jsonPropertyVariable;
+                    if (ifTrueExpression.Type != converter.ProviderClrType)
+                    {
+                        ifTrueExpression = Expression.Convert(ifTrueExpression, converter.ProviderClrType);
+                    }
+
+                    ifTrueExpression = ReplacingExpressionVisitor.Replace(
+                        converter.ConvertFromProviderExpression.Parameters.Single(),
+                        ifTrueExpression,
+                        converter.ConvertFromProviderExpression.Body);
+
+                    if (ifTrueExpression.Type != property.ClrType)
+                    {
+                        ifTrueExpression = Expression.Convert(ifTrueExpression, property.ClrType);
+                    }
+
+                    var condition = Expression.Condition(
+                        testExpression,
+                        ifTrueExpression,
+                        Expression.Default(property.ClrType));
+
+                    resultExpression = Expression.Block(
+                        new ParameterExpression[] { jsonPropertyVariable },
+                        new Expression[] { jsonPropertyAssignment, condition });
+                }
             }
             else
             {
-                resultExpression = Expression.Convert(
-                    Expression.Call(
-                        ExtractJsonPropertyMethodInfo,
-                        jsonElementParameter,
-                        Expression.Constant(property.GetJsonPropertyName()),
-                        Expression.Constant(property.ClrType)),
-                    property.ClrType);
+                resultExpression = Expression.Call(
+                    ExtractJsonPropertyMethodInfo.MakeGenericMethod(property.ClrType),
+                    jsonElementParameter,
+                    Expression.Constant(property.GetJsonPropertyName()),
+                    Expression.Constant(nullable));
             }
 
             if (_detailedErrorsEnabled)

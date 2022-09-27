@@ -726,7 +726,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityAllTypes>(),
-            entryCount: 3);
+            entryCount: 6);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -752,6 +752,12 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     x.Reference.TestTimeSpan,
                     x.Reference.TestUnsignedInt16,
                     x.Reference.TestUnsignedInt32,
-                    x.Reference.TestUnsignedInt64
+                    x.Reference.TestUnsignedInt64,
+                    x.Reference.TestNullableInt32,
+                    x.Reference.TestEnum,
+                    x.Reference.TestEnumWithIntConverter,
+                    x.Reference.TestNullableEnum,
+                    x.Reference.TestNullableEnumWithIntConverter,
+                    x.Reference.TestNullableEnumWithConverterThatHandlesNulls,
                 }));
 }

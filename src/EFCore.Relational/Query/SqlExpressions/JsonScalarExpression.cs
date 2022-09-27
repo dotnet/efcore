@@ -26,7 +26,7 @@ public class JsonScalarExpression : SqlExpression
         IProperty property,
         IReadOnlyList<PathSegment> path,
         bool nullable)
-        : this(jsonColumn, path, property.ClrType, property.FindRelationalTypeMapping()!, nullable)
+        : this(jsonColumn, path, property.ClrType.UnwrapNullableType(), property.FindRelationalTypeMapping()!, nullable)
     {
     }
 
