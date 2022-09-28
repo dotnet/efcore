@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -1184,18 +1185,43 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             }
 
             // this is optional dependent sharing table
-            var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table).ToList();
+            var nonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
             if (nonPrincipalSharedNonPkProperties.Contains(property))
             {
                 // The column is not being shared with principal side so we can always use directly
                 return propertyAccess;
             }
 
-            var condition = nonPrincipalSharedNonPkProperties
-                .Where(e => !e.IsNullable)
-                .Select(p => entityProjectionExpression.BindProperty(p))
-                .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
-                .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+            SqlExpression? condition = null;
+            // Property is being shared with principal side, so we need to make it conditional access
+            var allRequiredNonPkProperties =
+                entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+            if (allRequiredNonPkProperties.Count > 0)
+            {
+                condition = allRequiredNonPkProperties.Select(p => entityProjectionExpression.BindProperty(p))
+                    .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                    .Aggregate((a, b) => _sqlExpressionFactory.AndAlso(a, b));
+            }
+
+            if (nonPrincipalSharedNonPkProperties.Count != 0
+                && nonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+            {
+                // If all non principal shared properties are nullable then we need additional condition
+                var atLeastOneNonNullValueInNullableColumnsCondition = nonPrincipalSharedNonPkProperties
+                    .Select(p => entityProjectionExpression.BindProperty(p))
+                    .Select(c => (SqlExpression)_sqlExpressionFactory.NotEqual(c, _sqlExpressionFactory.Constant(null)))
+                    .Aggregate((a, b) => _sqlExpressionFactory.OrElse(a, b));
+
+                condition = condition == null
+                    ? atLeastOneNonNullValueInNullableColumnsCondition
+                    : _sqlExpressionFactory.AndAlso(condition, atLeastOneNonNullValueInNullableColumnsCondition);
+            }
+
+            if (condition == null)
+            {
+                // if we cannot compute condition then we just return property access (and hope for the best)
+                return propertyAccess;
+            }
 
             return _sqlExpressionFactory.Case(
                 new List<CaseWhenClause> { new(condition, propertyAccess) },
@@ -1610,17 +1636,47 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     ?? nullComparedEntityType.GetDefaultMappings().Single().Table;
                 if (table.IsOptional(nullComparedEntityType))
                 {
-                    var condition = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table)
-                        .Where(e => !e.IsNullable)
-                        .Select(
-                            p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
-                                CreatePropertyAccessExpression(nonNullEntityReference, p),
-                                Expression.Constant(null, p.ClrType.MakeNullable()),
-                                nodeType != ExpressionType.Equal))
-                        .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+                    Expression? condition = null;
+                    // Optional dependent sharing table
+                    var requiredNonPkProperties = nullComparedEntityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+                    if (requiredNonPkProperties.Count > 0)
+                    {
+                        condition = requiredNonPkProperties.Select(
+                                p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    Expression.Constant(null, p.ClrType.MakeNullable()),
+                                    nodeType != ExpressionType.Equal))
+                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+                    }
 
-                    result = Visit(condition);
-                    return true;
+                    var allNonPrincipalSharedNonPkProperties = nullComparedEntityType.GetNonPrincipalSharedNonPkProperties(table);
+                    // We don't need condition for nullable property if there exist at least one required property which is non shared.
+                    if (allNonPrincipalSharedNonPkProperties.Count != 0
+                        && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
+                    {
+                        var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
+                            .Select(
+                                p => Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                                    CreatePropertyAccessExpression(nonNullEntityReference, p),
+                                    Expression.Constant(null, p.ClrType.MakeNullable()),
+                                    nodeType != ExpressionType.Equal))
+                            .Aggregate((l, r) => nodeType == ExpressionType.Equal ? Expression.OrElse(l, r) : Expression.AndAlso(l, r));
+
+                        condition = condition == null
+                            ? atLeastOneNonNullValueInNullablePropertyCondition
+                            : nodeType == ExpressionType.Equal
+                                ? Expression.OrElse(condition, atLeastOneNonNullValueInNullablePropertyCondition)
+                                : Expression.AndAlso(condition, atLeastOneNonNullValueInNullablePropertyCondition);
+                    }
+
+                    if (condition != null)
+                    {
+                        result = Visit(condition);
+                        return true;
+                    }
+
+                    result = null;
+                    return false;
                 }
             }
 

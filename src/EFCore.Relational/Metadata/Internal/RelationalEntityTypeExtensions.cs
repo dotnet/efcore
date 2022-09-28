@@ -80,10 +80,11 @@ public static class RelationalEntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IEnumerable<IProperty> GetNonPrincipalSharedNonPkProperties(this IEntityType entityType, ITableBase table)
+    public static List<IProperty> GetNonPrincipalSharedNonPkProperties(this IEntityType entityType, ITableBase table)
     {
         var principalEntityTypes = new HashSet<IEntityType>();
         PopulatePrincipalEntityTypes(table, entityType, principalEntityTypes);
+        var properties = new List<IProperty>();
         foreach (var property in entityType.GetProperties())
         {
             if (property.IsPrimaryKey())
@@ -104,8 +105,10 @@ public static class RelationalEntityTypeExtensions
                 continue;
             }
 
-            yield return property;
+            properties.Add(property);
         }
+
+        return properties;
 
         static void PopulatePrincipalEntityTypes(ITableBase table, IEntityType entityType, HashSet<IEntityType> entityTypes)
         {

@@ -645,12 +645,33 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var table = (firstTable as FromSqlExpression)?.Table ?? ((ITableBasedExpression)firstTable).Table;
         if (table.IsOptional(entityType))
         {
+            SqlExpression? predicate = null;
             var entityProjectionExpression = GetMappedEntityProjectionExpression(selectExpression);
-            var predicate = entityType.GetNonPrincipalSharedNonPkProperties(table)
-                .Where(e => !e.IsNullable)
-                .Select(e => IsNotNull(e, entityProjectionExpression))
-                .Aggregate((l, r) => AndAlso(l, r));
-            selectExpression.ApplyPredicate(predicate);
+            var requiredNonPkProperties = entityType.GetProperties().Where(p => !p.IsNullable && !p.IsPrimaryKey()).ToList();
+            if (requiredNonPkProperties.Count > 0)
+            {
+                predicate = requiredNonPkProperties.Select(e => IsNotNull(e, entityProjectionExpression))
+                    .Aggregate((l, r) => AndAlso(l, r));
+            }
+
+            var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
+            // We don't need condition for nullable property if there exist at least one required property which is non shared.
+            if (allNonSharedNonPkProperties.Count != 0
+                && allNonSharedNonPkProperties.All(p => p.IsNullable))
+            {
+                var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
+                    .Select(e => IsNotNull(e, entityProjectionExpression))
+                    .Aggregate((a, b) => OrElse(a, b));
+
+                predicate = predicate == null
+                    ? atLeastOneNonNullValueInNullablePropertyCondition
+                    : AndAlso(predicate, atLeastOneNonNullValueInNullablePropertyCondition);
+            }
+
+            if (predicate != null)
+            {
+                selectExpression.ApplyPredicate(predicate);
+            }
         }
 
         bool HasSiblings(IEntityType entityType)
