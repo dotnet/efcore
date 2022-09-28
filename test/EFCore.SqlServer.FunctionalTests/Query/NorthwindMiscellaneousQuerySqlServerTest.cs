@@ -428,10 +428,7 @@ FROM [Employees] AS [e]
 WHERE [e].[FirstName] = (
     SELECT TOP(1) [e0].[FirstName]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) OR (([e].[FirstName] IS NULL) AND ((
-    SELECT TOP(1) [e0].[FirstName]
-    FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) IS NULL))");
+    ORDER BY [e0].[EmployeeID])");
     }
 
     public override async Task Where_query_composition_is_null(bool async)
@@ -647,10 +644,7 @@ FROM (
 WHERE [t].[FirstName] = (
     SELECT TOP(1) [e0].[FirstName]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) OR (([t].[FirstName] IS NULL) AND ((
-    SELECT TOP(1) [e0].[FirstName]
-    FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) IS NULL))");
+    ORDER BY [e0].[EmployeeID])");
     }
 
     public override async Task Where_query_composition2_FirstOrDefault(bool async)
@@ -668,10 +662,7 @@ FROM (
 WHERE [t].[FirstName] = (
     SELECT TOP(1) [e0].[FirstName]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) OR (([t].[FirstName] IS NULL) AND ((
-    SELECT TOP(1) [e0].[FirstName]
-    FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) IS NULL))");
+    ORDER BY [e0].[EmployeeID])");
     }
 
     public override async Task Where_query_composition2_FirstOrDefault_with_anonymous(bool async)
@@ -689,10 +680,7 @@ FROM (
 WHERE [t].[FirstName] = (
     SELECT TOP(1) [e0].[FirstName]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) OR (([t].[FirstName] IS NULL) AND ((
-    SELECT TOP(1) [e0].[FirstName]
-    FROM [Employees] AS [e0]
-    ORDER BY [e0].[EmployeeID]) IS NULL))");
+    ORDER BY [e0].[EmployeeID])");
     }
 
     public override async Task Select_Subquery_Single(bool async)
@@ -1536,8 +1524,8 @@ WHERE [c].[City] IN (N'London', N'Berlin', N'Seattle', N'Lisboa')");
         await base.Where_select_many_or_with_parameter(async);
 
         AssertSql(
-            @"@__london_0='London' (Size = 4000)
-@__lisboa_1='Lisboa' (Size = 4000)
+            @"@__london_0='London' (Size = 15)
+@__lisboa_1='Lisboa' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
@@ -5092,7 +5080,7 @@ ORDER BY [c].[CustomerID]");
 
         AssertSql(
             @"@__p_1='5'
-@__searchTerm_0='c' (Size = 4000)
+@__searchTerm_0='c' (Size = 15)
 
 SELECT TOP(@__p_1) [t].[City]
 FROM (
@@ -5102,7 +5090,7 @@ FROM (
 ) AS [t]
 ORDER BY CASE
     WHEN @__searchTerm_0 = N'' THEN 0
-    ELSE CAST(CHARINDEX(@__searchTerm_0, [t].[City]) AS int) - 1
+    ELSE CHARINDEX(@__searchTerm_0, [t].[City]) - 1
 END, [t].[City]");
     }
 
@@ -5604,13 +5592,13 @@ ORDER BY [c].[CustomerID]");
         await base.Where_Property_shadow_closure(async);
 
         AssertSql(
-            @"@__value_0='Sales Representative' (Size = 4000)
+            @"@__value_0='Sales Representative' (Size = 30)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 WHERE [e].[Title] = @__value_0",
             //
-            @"@__value_0='Steven' (Size = 4000)
+            @"@__value_0='Steven' (Size = 10)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
@@ -5718,7 +5706,7 @@ WHERE [e].[Title] = N'Sales Representative'");
         await base.Where_Property_when_shadow_unconstrained_generic_method(async);
 
         AssertSql(
-            @"@__value_0='Sales Representative' (Size = 4000)
+            @"@__value_0='Sales Representative' (Size = 30)
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]

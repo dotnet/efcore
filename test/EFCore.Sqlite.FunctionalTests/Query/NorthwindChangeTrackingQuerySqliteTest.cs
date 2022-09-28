@@ -14,7 +14,7 @@ public class NorthwindChangeTrackingQuerySqliteTest : NorthwindChangeTrackingQue
     }
 
     protected override NorthwindContext CreateNoTrackingContext()
-        => new NorthwindRelationalContext(
+        => new NorthwindSqliteContext(
             new DbContextOptionsBuilder(Fixture.CreateOptions())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
 }
