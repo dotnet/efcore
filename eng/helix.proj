@@ -56,7 +56,7 @@
   </ItemGroup>
 
   <!-- Remove test projects which requires SqlServer from Ubuntu/OSX. -->
-  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))' OR '$(HelixTargetQueue)' == 'Ubuntu.1804.Amd64.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.1804.Amd64'">
+  <ItemGroup Condition = "'$(HelixTargetQueue.StartsWith(`OSX`))' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64.Open' OR '$(HelixTargetQueue)' == 'Ubuntu.2204.Amd64'">
     <XUnitProject Remove="$(SqlServerTests)"/>
   </ItemGroup>
 

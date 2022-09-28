@@ -139,4 +139,23 @@ ORDER BY [o].[Id]");
 FROM [RotRutCases] AS [r]
 ORDER BY [r].[Buyer]");
     }
+
+    public override async Task Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(bool async)
+    {
+        await base.Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(async);
+
+        AssertSql(
+            @"SELECT [r].[Id], [r].[Rot_ApartmentNo], [r].[Rot_ServiceType]
+FROM [RotRutCases] AS [r]
+WHERE [r].[Rot_ApartmentNo] IS NOT NULL AND [r].[Rot_ServiceType] IS NOT NULL");
+    }
+
+    public override async Task Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(bool async)
+    {
+        await base.Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(async);
+
+        AssertSql(
+            @"SELECT [r].[Rot_ApartmentNo]
+FROM [RotRutCases] AS [r]");
+    }
 }

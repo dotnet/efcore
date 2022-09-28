@@ -116,7 +116,7 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
 
             var allNonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
             // We don't need condition for nullable property if there exist at least one required property which is non shared.
-            if (allNonPrincipalSharedNonPkProperties.Any()
+            if (allNonPrincipalSharedNonPkProperties.Count != 0
                 && allNonPrincipalSharedNonPkProperties.All(p => p.IsNullable))
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonPrincipalSharedNonPkProperties
