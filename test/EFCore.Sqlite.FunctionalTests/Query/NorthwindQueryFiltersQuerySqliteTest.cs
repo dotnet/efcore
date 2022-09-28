@@ -24,7 +24,7 @@ public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTe
 
 SELECT COUNT(*)
 FROM ""Customers"" AS ""c""
-WHERE @__ef_filter__TenantPrefix_0 = '' OR (""c"".""CompanyName"" IS NOT NULL AND (((""c"".""CompanyName"" LIKE @__ef_filter__TenantPrefix_0 || '%') AND substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) OR @__ef_filter__TenantPrefix_0 = ''))");
+WHERE @__ef_filter__TenantPrefix_0 = '' OR ((""c"".""CompanyName"" IS NOT NULL) AND (((""c"".""CompanyName"" LIKE @__ef_filter__TenantPrefix_0 || '%') AND substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) OR @__ef_filter__TenantPrefix_0 = ''))");
     }
 
     private void AssertSql(params string[] expected)

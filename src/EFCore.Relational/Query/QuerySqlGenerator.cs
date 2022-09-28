@@ -958,10 +958,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
             case SqlUnaryExpression sqlUnaryExpression:
             {
-                // Wrap IS (NOT) NULL operation when applied on bool column.
-                if ((sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                        || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
-                    && sqlUnaryExpression.Operand.Type == typeof(bool))
+                // Wrap IS (NOT) NULL operation
+                if (sqlUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
                 {
                     return true;
                 }

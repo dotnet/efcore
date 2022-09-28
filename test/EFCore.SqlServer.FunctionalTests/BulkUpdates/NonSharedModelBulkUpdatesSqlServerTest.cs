@@ -45,7 +45,7 @@ FROM [Owner] AS [o]");
             @"DELETE FROM [p]
 FROM [Posts] AS [p]
 LEFT JOIN [Blogs] AS [b] ON [p].[BlogId] = [b].[Id]
-WHERE [b].[Title] IS NOT NULL AND ([b].[Title] LIKE N'Arthur%')");
+WHERE ([b].[Title] IS NOT NULL) AND ([b].[Title] LIKE N'Arthur%')");
     }
 
     private void AssertSql(params string[] expected)

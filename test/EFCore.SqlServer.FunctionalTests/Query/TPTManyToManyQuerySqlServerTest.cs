@@ -107,7 +107,7 @@ ORDER BY (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
-    WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%')), [e].[Id]");
+    WHERE [e].[Id] = [j].[EntityOneId] AND ([t].[Name] IS NOT NULL) AND ([t].[Name] LIKE N'L%')), [e].[Id]");
     }
 
     public override async Task Skip_navigation_long_count_without_predicate(bool async)
@@ -135,7 +135,7 @@ ORDER BY (
     SELECT COUNT_BIG(*)
     FROM [EntityTwoEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
-    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND [e1].[Name] IS NOT NULL AND ([e1].[Name] LIKE N'L%')) DESC, [e].[Id]");
+    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND ([e1].[Name] IS NOT NULL) AND ([e1].[Name] LIKE N'L%')) DESC, [e].[Id]");
     }
 
     public override async Task Skip_navigation_select_many_average(bool async)
@@ -1751,7 +1751,7 @@ LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Branch2s] AS [b0] ON [r].[Id] = [b0].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN [Leaf2s] AS [l0] ON [r].[Id] = [l0].[Id]
-WHERE [l0].[Id] IS NULL AND [l].[Id] IS NULL AND [b].[Id] IS NULL");
+WHERE ([l0].[Id] IS NULL) AND ([l].[Id] IS NULL) AND ([b].[Id] IS NULL)");
     }
 
     public override async Task GetType_in_hierarchy_in_intermediate_type(bool async)
@@ -1769,7 +1769,7 @@ LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Branch2s] AS [b0] ON [r].[Id] = [b0].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN [Leaf2s] AS [l0] ON [r].[Id] = [l0].[Id]
-WHERE [l].[Id] IS NULL AND [b].[Id] IS NOT NULL");
+WHERE ([l].[Id] IS NULL) AND ([b].[Id] IS NOT NULL)");
     }
 
     public override async Task GetType_in_hierarchy_in_leaf_type(bool async)
@@ -1925,7 +1925,7 @@ ORDER BY (
         INNER JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
         LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
     ) AS [t] ON [u0].[UnidirectionalEntityBranchId] = [t].[Id]
-    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND [t].[Name] IS NOT NULL AND ([t].[Name] LIKE N'L%')), [u].[Id]");
+    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND ([t].[Name] IS NOT NULL) AND ([t].[Name] LIKE N'L%')), [u].[Id]");
     }
 
     public override async Task Skip_navigation_select_subquery_average_unidirectional(bool async)
@@ -2426,7 +2426,7 @@ END AS [Discriminator]
 FROM [UnidirectionalRoots] AS [u]
 LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
 LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
-WHERE [u1].[Id] IS NULL AND [u0].[Id] IS NULL");
+WHERE ([u1].[Id] IS NULL) AND ([u0].[Id] IS NULL)");
     }
 
     public override async Task GetType_in_hierarchy_in_intermediate_type_unidirectional(bool async)
@@ -2441,7 +2441,7 @@ END AS [Discriminator]
 FROM [UnidirectionalRoots] AS [u]
 LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
 LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
-WHERE [u1].[Id] IS NULL AND [u0].[Id] IS NOT NULL");
+WHERE ([u1].[Id] IS NULL) AND ([u0].[Id] IS NOT NULL)");
     }
 
     public override async Task GetType_in_hierarchy_in_leaf_type_unidirectional(bool async)
