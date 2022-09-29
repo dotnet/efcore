@@ -1501,19 +1501,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             ParameterExpression jsonElementParameter,
             IProperty property)
         {
+            var nullable = property.IsNullable;
             Expression resultExpression;
             if (property.GetTypeMapping().Converter is ValueConverter converter)
             {
                 resultExpression = Expression.Call(
-                    ExtractJsonPropertyMethodInfo,
+                    ExtractJsonPropertyMethodInfo.MakeGenericMethod(converter.ProviderClrType.MakeNullable(nullable)),
                     jsonElementParameter,
                     Expression.Constant(property.GetJsonPropertyName()),
-                    Expression.Constant(converter.ProviderClrType));
-
-                if (resultExpression.Type != converter.ProviderClrType)
-                {
-                    resultExpression = Expression.Convert(resultExpression, converter.ProviderClrType);
-                }
+                    Expression.Constant(nullable));
 
                 resultExpression = ReplacingExpressionVisitor.Replace(
                     converter.ConvertFromProviderExpression.Parameters.Single(),
@@ -1522,13 +1518,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
             else
             {
-                resultExpression = Expression.Convert(
-                    Expression.Call(
-                        ExtractJsonPropertyMethodInfo,
-                        jsonElementParameter,
-                        Expression.Constant(property.GetJsonPropertyName()),
-                        Expression.Constant(property.ClrType)),
-                    property.ClrType);
+                resultExpression = Expression.Call(
+                    ExtractJsonPropertyMethodInfo.MakeGenericMethod(property.ClrType),
+                    jsonElementParameter,
+                    Expression.Constant(property.GetJsonPropertyName()),
+                    Expression.Constant(nullable));
             }
 
             if (_detailedErrorsEnabled)
