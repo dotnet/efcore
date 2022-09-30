@@ -441,6 +441,14 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         AssertSql(" ");
     }
 
+    [ConditionalTheory(Skip = "GroupBy #17314")]
+    public override async Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
+
+        AssertSql();
+    }
+
     public override async Task Filter_on_indexer_using_closure(bool async)
     {
         await base.Filter_on_indexer_using_closure(async);

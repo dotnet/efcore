@@ -68,6 +68,8 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
     private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
 
+    private bool _throwForNotTranslatedEfProperty;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="RelationalSqlTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -85,6 +87,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         _model = queryCompilationContext.Model;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
         _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
+        _throwForNotTranslatedEfProperty = true;
     }
 
     /// <summary>
@@ -723,8 +726,20 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         // EF.Property case
         if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName))
         {
-            return TryBindMember(Visit(source), MemberIdentity.Create(propertyName))
-                ?? throw new InvalidOperationException(CoreStrings.QueryUnableToTranslateEFProperty(methodCallExpression.Print()));
+            if (TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is SqlExpression result)
+            {
+                return result;
+            }
+
+            var message = CoreStrings.QueryUnableToTranslateEFProperty(methodCallExpression.Print());
+            if (_throwForNotTranslatedEfProperty)
+            {
+                throw new InvalidOperationException(message);
+            }
+
+            AddTranslationErrorDetails(message);
+
+            return QueryCompilationContext.NotTranslatedExpression;
         }
 
         // EF Indexer property
@@ -1423,7 +1438,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         MethodInfo method,
         List<SqlExpression> scalarArguments)
     {
+        _throwForNotTranslatedEfProperty = false;
         var selector = TranslateInternal(enumerableExpression.Selector);
+        _throwForNotTranslatedEfProperty = true;
         if (selector != null)
         {
             enumerableExpression = enumerableExpression.ApplySelector(selector);

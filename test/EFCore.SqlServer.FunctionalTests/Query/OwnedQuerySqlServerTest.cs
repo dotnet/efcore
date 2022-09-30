@@ -1236,6 +1236,19 @@ LEFT JOIN (
 ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
     }
 
+    public override async Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
+
+        AssertSql(
+            @"SELECT [o].[Id] AS [Key], (
+    SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
+    FROM [OwnedPerson] AS [o0]
+    WHERE [o].[Id] = [o0].[Id]) AS [Sum]
+FROM [OwnedPerson] AS [o]
+GROUP BY [o].[Id]");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
