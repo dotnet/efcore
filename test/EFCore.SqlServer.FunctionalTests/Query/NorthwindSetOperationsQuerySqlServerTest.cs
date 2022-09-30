@@ -273,11 +273,11 @@ FROM (
 FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
     FROM [Customers] AS [c]
-    WHERE [c].[CompanyName] IS NOT NULL AND ([c].[CompanyName] LIKE N'A%')
+    WHERE ([c].[CompanyName] IS NOT NULL) AND ([c].[CompanyName] LIKE N'A%')
     UNION
     SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region]
     FROM [Customers] AS [c0]
-    WHERE [c0].[CompanyName] IS NOT NULL AND ([c0].[CompanyName] LIKE N'B%')
+    WHERE ([c0].[CompanyName] IS NOT NULL) AND ([c0].[CompanyName] LIKE N'B%')
 ) AS [t]");
     }
 
@@ -294,7 +294,7 @@ FROM (
     SELECT [p].[ProductName] AS [CompanyName]
     FROM [Products] AS [p]
 ) AS [t]
-WHERE [t].[CompanyName] IS NOT NULL AND ([t].[CompanyName] LIKE N'C%')
+WHERE ([t].[CompanyName] IS NOT NULL) AND ([t].[CompanyName] LIKE N'C%')
 ORDER BY [t].[CompanyName]");
     }
 

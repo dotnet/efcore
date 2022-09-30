@@ -72,10 +72,7 @@ WHERE ""e"".""BoolB"" <> (""e"".""NullableBoolA"" IS NOT NULL)");
 
     public override async Task Bool_not_equal_nullable_int_HasValue(bool async)
     {
-        Assert.Equal(
-            "18",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Bool_not_equal_nullable_int_HasValue(async))).Actual);
+        await base.Bool_not_equal_nullable_int_HasValue(async);
 
         AssertSql(
             @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
@@ -86,11 +83,11 @@ WHERE ""e"".""NullableIntA"" IS NULL",
 
 SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
 FROM ""Entities1"" AS ""e""
-WHERE @__prm_0 <> ""e"".""NullableIntA"" IS NOT NULL",
+WHERE @__prm_0 <> (""e"".""NullableIntA"" IS NOT NULL)",
             //
             @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
 FROM ""Entities1"" AS ""e""
-WHERE ""e"".""BoolB"" <> ""e"".""NullableIntA"" IS NOT NULL");
+WHERE ""e"".""BoolB"" <> (""e"".""NullableIntA"" IS NOT NULL)");
     }
 
     public override async Task Bool_not_equal_nullable_bool_compared_to_null(bool async)

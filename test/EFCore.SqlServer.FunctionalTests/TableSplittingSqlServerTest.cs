@@ -34,12 +34,12 @@ END
 LEFT JOIN (
     SELECT [v2].[Name], [v2].[Computed], [v2].[Description], [v2].[Engine_Discriminator]
     FROM [Vehicles] AS [v2]
-    WHERE [v2].[Computed] IS NOT NULL AND [v2].[Engine_Discriminator] IS NOT NULL
+    WHERE ([v2].[Computed] IS NOT NULL) AND ([v2].[Engine_Discriminator] IS NOT NULL)
 ) AS [t0] ON [v].[Name] = [t0].[Name]
 LEFT JOIN (
     SELECT [v3].[Name], [v3].[Capacity], [v3].[FuelTank_Discriminator], [v3].[FuelType], [v3].[GrainGeometry]
     FROM [Vehicles] AS [v3]
-    WHERE [v3].[Capacity] IS NOT NULL AND [v3].[FuelTank_Discriminator] IS NOT NULL
+    WHERE ([v3].[Capacity] IS NOT NULL) AND ([v3].[FuelTank_Discriminator] IS NOT NULL)
 ) AS [t1] ON [t0].[Name] = [t1].[Name]
 ORDER BY [v].[Name]");
     }
@@ -78,7 +78,7 @@ FROM [Vehicles] AS [v]");
         AssertSql(
             @"SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[FuelType], [v].[GrainGeometry]
 FROM [Vehicles] AS [v]
-WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL");
+WHERE ([v].[Capacity] IS NOT NULL) AND ([v].[FuelTank_Discriminator] IS NOT NULL)");
     }
 
     public override async Task Can_query_shared_derived_nonhierarchy()
@@ -98,7 +98,7 @@ WHERE [v].[Capacity] IS NOT NULL");
         AssertSql(
             @"SELECT [v].[Name], [v].[Capacity], [v].[FuelType]
 FROM [Vehicles] AS [v]
-WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelType] IS NOT NULL");
+WHERE ([v].[Capacity] IS NOT NULL) AND ([v].[FuelType] IS NOT NULL)");
     }
 
     public override async Task Can_change_dependent_instance_non_derived()

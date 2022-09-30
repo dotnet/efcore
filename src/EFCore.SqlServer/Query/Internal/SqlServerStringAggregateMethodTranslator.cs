@@ -61,21 +61,21 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
         var resultTypeMapping = sqlExpression.TypeMapping;
         if (resultTypeMapping?.Size != null)
         {
-            if (resultTypeMapping.IsUnicode && resultTypeMapping.Size < 8000)
+            if (resultTypeMapping.IsUnicode && resultTypeMapping.Size < 4000)
             {
                 resultTypeMapping = _typeMappingSource.FindMapping(
                     typeof(string),
                     resultTypeMapping.StoreTypeNameBase,
                     unicode: true,
-                    size: 8000);
+                    size: 4000);
             }
-            else if (!resultTypeMapping.IsUnicode && resultTypeMapping.Size < 4000)
+            else if (!resultTypeMapping.IsUnicode && resultTypeMapping.Size < 8000)
             {
                 resultTypeMapping = _typeMappingSource.FindMapping(
                     typeof(string),
                     resultTypeMapping.StoreTypeNameBase,
                     unicode: false,
-                    size: 4000);
+                    size: 8000);
             }
         }
 

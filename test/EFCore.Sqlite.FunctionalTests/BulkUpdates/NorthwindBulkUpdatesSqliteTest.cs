@@ -193,7 +193,7 @@ WHERE ""o"".""OrderID"" < (
     SELECT (
         SELECT ""o1"".""OrderID""
         FROM ""Orders"" AS ""o1""
-        WHERE ""o0"".""CustomerID"" = ""o1"".""CustomerID"" OR (""o0"".""CustomerID"" IS NULL AND ""o1"".""CustomerID"" IS NULL)
+        WHERE ""o0"".""CustomerID"" = ""o1"".""CustomerID"" OR ((""o0"".""CustomerID"" IS NULL) AND (""o1"".""CustomerID"" IS NULL))
         LIMIT 1)
     FROM ""Orders"" AS ""o0""
     GROUP BY ""o0"".""CustomerID""
@@ -218,7 +218,7 @@ WHERE EXISTS (
         HAVING COUNT(*) > 9 AND (
             SELECT ""o3"".""OrderID""
             FROM ""Orders"" AS ""o3""
-            WHERE ""o2"".""CustomerID"" = ""o3"".""CustomerID"" OR (""o2"".""CustomerID"" IS NULL AND ""o3"".""CustomerID"" IS NULL)
+            WHERE ""o2"".""CustomerID"" = ""o3"".""CustomerID"" OR ((""o2"".""CustomerID"" IS NULL) AND (""o3"".""CustomerID"" IS NULL))
             LIMIT 1) = ""o1"".""OrderID"") AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
     }
 
@@ -324,7 +324,7 @@ WHERE EXISTS (
     FROM ""Order Details"" AS ""o0""
     INNER JOIN ""Orders"" AS ""o1"" ON ""o0"".""OrderID"" = ""o1"".""OrderID""
     LEFT JOIN ""Customers"" AS ""c"" ON ""o1"".""CustomerID"" = ""c"".""CustomerID""
-    WHERE ""c"".""CustomerID"" IS NOT NULL AND (""c"".""CustomerID"" LIKE 'F%') AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
+    WHERE (""c"".""CustomerID"" IS NOT NULL) AND (""c"".""CustomerID"" LIKE 'F%') AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
     }
 
     public override async Task Delete_Union(bool async)
@@ -455,7 +455,7 @@ WHERE EXISTS (
     FROM ""Order Details"" AS ""o0""
     INNER JOIN ""Orders"" AS ""o1"" ON ""o0"".""OrderID"" = ""o1"".""OrderID""
     LEFT JOIN ""Customers"" AS ""c"" ON ""o1"".""CustomerID"" = ""c"".""CustomerID""
-    WHERE ""c"".""City"" IS NOT NULL AND (""c"".""City"" LIKE 'Se%') AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
+    WHERE (""c"".""City"" IS NOT NULL) AND (""c"".""City"" LIKE 'Se%') AND ""o0"".""OrderID"" = ""o"".""OrderID"" AND ""o0"".""ProductID"" = ""o"".""ProductID"")");
     }
 
     public override async Task Delete_with_join(bool async)
@@ -804,7 +804,7 @@ WHERE ""c"".""CustomerID"" = (
     SELECT (
         SELECT ""o0"".""CustomerID""
         FROM ""Orders"" AS ""o0""
-        WHERE ""o"".""CustomerID"" = ""o0"".""CustomerID"" OR (""o"".""CustomerID"" IS NULL AND ""o0"".""CustomerID"" IS NULL)
+        WHERE ""o"".""CustomerID"" = ""o0"".""CustomerID"" OR ((""o"".""CustomerID"" IS NULL) AND (""o0"".""CustomerID"" IS NULL))
         LIMIT 1)
     FROM ""Orders"" AS ""o""
     GROUP BY ""o"".""CustomerID""
@@ -834,7 +834,7 @@ WHERE EXISTS (
         SELECT ""c0"".""CustomerID""
         FROM ""Orders"" AS ""o0""
         LEFT JOIN ""Customers"" AS ""c0"" ON ""o0"".""CustomerID"" = ""c0"".""CustomerID""
-        WHERE ""o"".""CustomerID"" = ""o0"".""CustomerID"" OR (""o"".""CustomerID"" IS NULL AND ""o0"".""CustomerID"" IS NULL)
+        WHERE ""o"".""CustomerID"" = ""o0"".""CustomerID"" OR ((""o"".""CustomerID"" IS NULL) AND (""o0"".""CustomerID"" IS NULL))
         LIMIT 1) = ""c"".""CustomerID"")");
     }
 
