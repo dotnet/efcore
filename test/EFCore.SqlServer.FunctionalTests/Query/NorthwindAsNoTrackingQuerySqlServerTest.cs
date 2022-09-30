@@ -88,7 +88,7 @@ CROSS JOIN [Customers] AS [c]");
             @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [c].[City] <> N'London' OR [c].[City] IS NULL");
+WHERE [c].[City] <> N'London' OR ([c].[City] IS NULL)");
     }
 
     public override async Task Include_reference_and_collection(bool async)

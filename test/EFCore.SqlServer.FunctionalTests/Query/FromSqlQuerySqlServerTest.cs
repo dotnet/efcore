@@ -497,7 +497,7 @@ FROM [Customers] AS [c]");
 FROM (
     SELECT * FROM ""Customers""
 ) AS [m]
-WHERE [m].[ContactName] = [m].[CompanyName] OR ([m].[ContactName] IS NULL AND [m].[CompanyName] IS NULL)");
+WHERE [m].[ContactName] = [m].[CompanyName] OR (([m].[ContactName] IS NULL) AND ([m].[CompanyName] IS NULL))");
     }
 
     public override async Task FromSqlRaw_with_dbParameter(bool async)

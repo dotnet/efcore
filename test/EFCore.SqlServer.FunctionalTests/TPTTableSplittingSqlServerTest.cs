@@ -126,7 +126,7 @@ WHERE [c].[Capacity] IS NOT NULL");
         AssertSql(
             @"SELECT [c].[VehicleName], [c].[Capacity], [c].[FuelType]
 FROM [CombustionEngines] AS [c]
-WHERE [c].[Capacity] IS NOT NULL AND [c].[FuelType] IS NOT NULL");
+WHERE ([c].[Capacity] IS NOT NULL) AND ([c].[FuelType] IS NOT NULL)");
     }
 
     public override async Task Can_change_dependent_instance_non_derived()

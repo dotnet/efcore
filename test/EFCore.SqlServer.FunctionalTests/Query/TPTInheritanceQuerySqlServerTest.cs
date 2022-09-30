@@ -277,7 +277,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL AND [a].[CountryId] = 1");
+WHERE ([k].[Id] IS NOT NULL) AND [a].[CountryId] = 1");
     }
 
     public override async Task Can_use_of_type_animal(bool async)
@@ -309,7 +309,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL
+WHERE ([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL)
 ORDER BY [a].[Species]");
     }
 
@@ -326,7 +326,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL
+WHERE ([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL)
 ORDER BY [a].[Species]");
     }
 
@@ -343,7 +343,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [a].[CountryId] = 1 AND ([k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL)
+WHERE [a].[CountryId] = 1 AND (([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL))
 ORDER BY [a].[Species]");
     }
 
@@ -357,7 +357,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL");
+WHERE ([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL)");
     }
 
     public override async Task Can_use_of_type_kiwi(bool async)
@@ -385,7 +385,7 @@ END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL AND [k].[FoundOn] = CAST(0 AS tinyint)");
+WHERE ([k].[Id] IS NOT NULL) AND [k].[FoundOn] = CAST(0 AS tinyint)");
     }
 
     public override async Task Can_use_of_type_kiwi_where_south_on_derived_property(bool async)
@@ -399,7 +399,7 @@ END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL AND [k].[FoundOn] = CAST(1 AS tinyint)");
+WHERE ([k].[Id] IS NOT NULL) AND [k].[FoundOn] = CAST(1 AS tinyint)");
     }
 
     public override async Task Can_use_of_type_rose(bool async)
@@ -625,7 +625,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL AND [e].[Id] IS NOT NULL");
+WHERE ([k].[Id] IS NOT NULL) AND ([e].[Id] IS NOT NULL)");
     }
 
     public override async Task Using_is_operator_with_of_type_on_multiple_type_with_no_result(bool async)
@@ -640,7 +640,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [k].[Id] IS NOT NULL AND [e].[Id] IS NOT NULL");
+WHERE ([k].[Id] IS NOT NULL) AND ([e].[Id] IS NOT NULL)");
     }
 
     public override async Task Using_OfType_on_multiple_type_with_no_result(bool async)

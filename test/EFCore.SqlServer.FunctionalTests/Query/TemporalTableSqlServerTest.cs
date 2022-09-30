@@ -448,7 +448,7 @@ ORDER BY [t].[Id], [o].[MainEntityManyId]");
         AssertSql(
             @"SELECT [v].[Name], [v].[Capacity], [v].[FuelTank_Discriminator], [v].[End], [v].[FuelType], [v].[Start], [v].[GrainGeometry]
 FROM [Vehicles] FOR SYSTEM_TIME AS OF '2000-01-01T00:00:00.0000000' AS [v]
-WHERE [v].[Capacity] IS NOT NULL AND [v].[FuelTank_Discriminator] IS NOT NULL");
+WHERE ([v].[Capacity] IS NOT NULL) AND ([v].[FuelTank_Discriminator] IS NOT NULL)");
     }
 
     protected Task<ContextFactory<TransportationContext>> InitializeAsync(
