@@ -16,7 +16,7 @@ public class JsonUpdateSqlServerTest : JsonUpdateTestBase<JsonUpdateSqlServerFix
         await base.Add_element_to_json_collection_branch();
 
         AssertSql(
-            @"@p0='[{""Date"":""2101-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":10.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c1_c1""},{""SomethingSomething"":""e1_r_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c1_r""}},{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c2_c1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c2_r""}},{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}]' (Nullable = false) (Size = 622)
+            @"@p0='[{""Date"":""2101-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":10.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c1_c1""},{""SomethingSomething"":""e1_r_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c1_r""}},{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c2_c1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c2_r""}},{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}]' (Nullable = false) (Size = 684)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -24,8 +24,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -52,7 +52,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Add_element_to_json_collection_on_derived();
 
         AssertSql(
-            @"@p0='[{""Date"":""2221-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":221.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""d2_r_c1""},{""SomethingSomething"":""d2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""d2_r_r""}},{""Date"":""2222-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":222.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""d2_r_c1""},{""SomethingSomething"":""d2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""d2_r_r""}},{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}]' (Nullable = false) (Size = 606)
+            @"@p0='[{""Date"":""2221-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":221.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""d2_r_c1""},{""SomethingSomething"":""d2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""d2_r_r""}},{""Date"":""2222-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":222.1,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""d2_r_c1""},{""SomethingSomething"":""d2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""d2_r_r""}},{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}]' (Nullable = false) (Size = 668)
 @p1='2'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -60,8 +60,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesInheritance] SET [CollectionOnDerived] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], JSON_QUERY([j].[CollectionOnBase],'$'), JSON_QUERY([j].[ReferenceOnBase],'$'), JSON_QUERY([j].[CollectionOnDerived],'$'), JSON_QUERY([j].[ReferenceOnDerived],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], JSON_QUERY([j].[CollectionOnBase],'$'), JSON_QUERY([j].[ReferenceOnBase],'$'), JSON_QUERY([j].[CollectionOnDerived],'$'), JSON_QUERY([j].[ReferenceOnDerived],'$')
 FROM [JsonEntitiesInheritance] AS [j]
 WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'");
     }
@@ -71,7 +71,7 @@ WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'");
         await base.Add_element_to_json_collection_root();
 
         AssertSql(
-            @"@p0='[{""Name"":""e1_c1"",""Number"":11,""OwnedCollectionBranch"":[{""Date"":""2111-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":11.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c1_c1""},{""SomethingSomething"":""e1_c1_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c1_r""}},{""Date"":""2112-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":11.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c2_c1""},{""SomethingSomething"":""e1_c1_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2110-01-01T00:00:00"",""Enum"":""One"",""Fraction"":11.0,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_r_c1""},{""SomethingSomething"":""e1_c1_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_r_r""}}},{""Name"":""e1_c2"",""Number"":12,""OwnedCollectionBranch"":[{""Date"":""2121-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":12.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c1_c1""},{""SomethingSomething"":""e1_c2_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c1_r""}},{""Date"":""2122-01-01T00:00:00"",""Enum"":""One"",""Fraction"":12.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c2_c1""},{""SomethingSomething"":""e1_c2_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2120-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":12.0,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_r_c1""},{""SomethingSomething"":""e1_c2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_r_r""}}},{""Name"":""new Name"",""Number"":142,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}]' (Nullable = false) (Size = 1723)
+            @"@p0='[{""Name"":""e1_c1"",""Number"":11,""OwnedCollectionBranch"":[{""Date"":""2111-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":11.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c1_c1""},{""SomethingSomething"":""e1_c1_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c1_r""}},{""Date"":""2112-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":11.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c2_c1""},{""SomethingSomething"":""e1_c1_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2110-01-01T00:00:00"",""Enum"":""One"",""Fraction"":11.0,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_r_c1""},{""SomethingSomething"":""e1_c1_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_r_r""}}},{""Name"":""e1_c2"",""Number"":12,""OwnedCollectionBranch"":[{""Date"":""2121-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":12.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c1_c1""},{""SomethingSomething"":""e1_c2_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c1_r""}},{""Date"":""2122-01-01T00:00:00"",""Enum"":""One"",""Fraction"":12.2,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c2_c1""},{""SomethingSomething"":""e1_c2_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2120-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":12.0,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_r_c1""},{""SomethingSomething"":""e1_c2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_r_r""}}},{""Name"":""new Name"",""Number"":142,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}]' (Nullable = false) (Size = 1867)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -79,8 +79,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -89,7 +89,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Add_entity_with_json();
 
         AssertSql(
-            @"@p0='{""Name"":""RootName"",""Number"":42,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}' (Nullable = false) (Size = 276)
+            @"@p0='{""Name"":""RootName"",""Number"":42,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}' (Nullable = false) (Size = 296)
 @p1='2'
 @p2=NULL (DbType = Int32)
 @p3='NewEntity' (Size = 4000)
@@ -98,8 +98,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
 VALUES (@p0, @p1, @p2, @p3);",
-            //
-            @"SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -126,7 +126,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Add_json_reference_root();
 
         AssertSql(
-            @"@p0='{""Name"":""RootName"",""Number"":42,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}' (Nullable = false) (Size = 276)
+            @"@p0='{""Name"":""RootName"",""Number"":42,""OwnedCollectionBranch"":[],""OwnedReferenceBranch"":{""Date"":""2010-10-10T00:00:00"",""Enum"":""Three"",""Fraction"":42.42,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""ss1""},{""SomethingSomething"":""ss2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""ss3""}}}' (Nullable = false) (Size = 296)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -134,8 +134,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -287,8 +287,8 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Edit_element_in_json_multiple_levels_partial_update();
 
         AssertSql(
-            @"@p0='[{""Date"":""2111-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":11.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""...and another""},{""SomethingSomething"":""e1_c1_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c1_r""}},{""Date"":""2112-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":11.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""yet another change""},{""SomethingSomething"":""and another""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c2_r""}}]' (Nullable = false) (Size = 443)
-@p1='{""Name"":""edit"",""Number"":10,""OwnedCollectionBranch"":[{""Date"":""2101-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":10.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c1_c1""},{""SomethingSomething"":""e1_r_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c1_r""}},{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c2_c1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2111-11-11T00:00:00"",""Enum"":""One"",""Fraction"":10.0,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_r_c1""},{""SomethingSomething"":""e1_r_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_r_r""}}}' (Nullable = false) (Size = 711)
+            @"@p0='[{""Date"":""2111-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":11.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""...and another""},{""SomethingSomething"":""e1_c1_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c1_r""}},{""Date"":""2112-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":11.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""yet another change""},{""SomethingSomething"":""and another""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c2_r""}}]' (Nullable = false) (Size = 485)
+@p1='{""Name"":""edit"",""Number"":10,""OwnedCollectionBranch"":[{""Date"":""2101-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":10.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c1_c1""},{""SomethingSomething"":""e1_r_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c1_r""}},{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c2_c1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2111-11-11T00:00:00"",""Enum"":""One"",""Fraction"":10.0,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_r_c1""},{""SomethingSomething"":""e1_r_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_r_r""}}}' (Nullable = false) (Size = 773)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -296,8 +296,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[0].OwnedCollectionBranch', JSON_QUERY(@p0)), [OwnedReferenceRoot] = @p1
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -306,7 +306,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Edit_element_in_json_branch_collection_and_add_element_to_the_same_collection();
 
         AssertSql(
-            @"@p0='[{""Date"":""2101-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":4321.3,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c1_c1""},{""SomethingSomething"":""e1_r_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c1_r""}},{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c2_c1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c2_r""}},{""Date"":""2222-11-11T00:00:00"",""Enum"":""Three"",""Fraction"":45.32,""OwnedCollectionLeaf"":[],""OwnedReferenceLeaf"":{""SomethingSomething"":""cc""}}]' (Nullable = false) (Size = 566)
+            @"@p0='[{""Date"":""2101-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":4321.3,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c1_c1""},{""SomethingSomething"":""e1_r_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c1_r""}},{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_c2_c1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_c2_r""}},{""Date"":""2222-11-11T00:00:00"",""Enum"":""Three"",""Fraction"":45.32,""NullableEnum"":null,""OwnedCollectionLeaf"":[],""OwnedReferenceLeaf"":{""SomethingSomething"":""cc""}}]' (Nullable = false) (Size = 628)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -314,8 +314,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -342,7 +342,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Edit_two_elements_in_the_same_json_collection_at_the_root();
 
         AssertSql(
-            @"@p0='[{""Name"":""edit1"",""Number"":11,""OwnedCollectionBranch"":[{""Date"":""2111-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":11.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c1_c1""},{""SomethingSomething"":""e1_c1_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c1_r""}},{""Date"":""2112-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":11.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c2_c1""},{""SomethingSomething"":""e1_c1_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2110-01-01T00:00:00"",""Enum"":""One"",""Fraction"":11.0,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_r_c1""},{""SomethingSomething"":""e1_c1_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_r_r""}}},{""Name"":""edit2"",""Number"":12,""OwnedCollectionBranch"":[{""Date"":""2121-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":12.1,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c1_c1""},{""SomethingSomething"":""e1_c2_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c1_r""}},{""Date"":""2122-01-01T00:00:00"",""Enum"":""One"",""Fraction"":12.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c2_c1""},{""SomethingSomething"":""e1_c2_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2120-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":12.0,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_r_c1""},{""SomethingSomething"":""e1_c2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_r_r""}}}]' (Nullable = false) (Size = 1445)
+            @"@p0='[{""Name"":""edit1"",""Number"":11,""OwnedCollectionBranch"":[{""Date"":""2111-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":11.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c1_c1""},{""SomethingSomething"":""e1_c1_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c1_r""}},{""Date"":""2112-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":11.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_c2_c1""},{""SomethingSomething"":""e1_c1_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2110-01-01T00:00:00"",""Enum"":""One"",""Fraction"":11.0,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c1_r_c1""},{""SomethingSomething"":""e1_c1_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c1_r_r""}}},{""Name"":""edit2"",""Number"":12,""OwnedCollectionBranch"":[{""Date"":""2121-01-01T00:00:00"",""Enum"":""Two"",""Fraction"":12.1,""NullableEnum"":""One"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c1_c1""},{""SomethingSomething"":""e1_c2_c1_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c1_r""}},{""Date"":""2122-01-01T00:00:00"",""Enum"":""One"",""Fraction"":12.2,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_c2_c1""},{""SomethingSomething"":""e1_c2_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_c2_r""}}],""OwnedReferenceBranch"":{""Date"":""2120-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":12.0,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_c2_r_c1""},{""SomethingSomething"":""e1_c2_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_c2_r_r""}}}]' (Nullable = false) (Size = 1569)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -350,8 +350,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -360,7 +360,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Edit_collection_element_and_reference_at_once();
 
         AssertSql(
-            @"@p0='{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""OwnedCollectionLeaf"":[{""SomethingSomething"":""edit1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""edit2""}}' (Nullable = false) (Size = 204)
+            @"@p0='{""Date"":""2102-01-01T00:00:00"",""Enum"":""Three"",""Fraction"":10.2,""NullableEnum"":""Two"",""OwnedCollectionLeaf"":[{""SomethingSomething"":""edit1""},{""SomethingSomething"":""e1_r_c2_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""edit2""}}' (Nullable = false) (Size = 225)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -368,8 +368,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedCollectionBranch[1]', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -425,9 +425,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestBoolean', CAST(JSON_VALUE(@p0, '$[0]') AS bit)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestBoolean', CAST(JSON_VALUE(@p1, '$[0]') AS bit))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_byte()
@@ -444,9 +445,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByte', CAST(JSON_VALUE(@p0, '$[0]') AS tinyint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByte', CAST(JSON_VALUE(@p1, '$[0]') AS tinyint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_char()
@@ -462,9 +464,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', CAST(JSON_VALUE(@p0, '$[0]') AS nvarchar(1)))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_datetime()
@@ -481,9 +484,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTime', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTime', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_datetimeoffset()
@@ -500,9 +504,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDateTimeOffset', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDateTimeOffset', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_decimal()
@@ -519,9 +524,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimal', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(18,3))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimal', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(18,3)))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_double()
@@ -538,9 +544,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDouble', CAST(JSON_VALUE(@p0, '$[0]') AS float)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDouble', CAST(JSON_VALUE(@p1, '$[0]') AS float))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_guid()
@@ -557,9 +564,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestGuid', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestGuid', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_int16()
@@ -576,9 +584,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt16', CAST(JSON_VALUE(@p0, '$[0]') AS smallint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt16', CAST(JSON_VALUE(@p1, '$[0]') AS smallint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_int32()
@@ -595,9 +604,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt32', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt32', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_int64()
@@ -614,9 +624,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt64', CAST(JSON_VALUE(@p0, '$[0]') AS bigint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt64', CAST(JSON_VALUE(@p1, '$[0]') AS bigint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_signed_byte()
@@ -633,9 +644,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSignedByte', CAST(JSON_VALUE(@p0, '$[0]') AS smallint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSignedByte', CAST(JSON_VALUE(@p1, '$[0]') AS smallint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_single()
@@ -652,9 +664,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSingle', CAST(JSON_VALUE(@p0, '$[0]') AS real)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSingle', CAST(JSON_VALUE(@p1, '$[0]') AS real))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_timespan()
@@ -671,9 +684,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestTimeSpan', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestTimeSpan', JSON_VALUE(@p1, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_uint16()
@@ -690,9 +704,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt16', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt16', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_uint32()
@@ -709,9 +724,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt32', CAST(JSON_VALUE(@p0, '$[0]') AS bigint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt32', CAST(JSON_VALUE(@p1, '$[0]') AS bigint))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_single_property_uint64()
@@ -728,9 +744,210 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(20,0))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(20,0)))
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_int32()
+    {
+        await base.Edit_single_property_nullable_int32();
+
+        AssertSql(
+            @"@p0='[122354]' (Nullable = false) (Size = 8)
+@p1='[64528]' (Nullable = false) (Size = 7)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32', CAST(JSON_VALUE(@p1, '$[0]') AS int))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_int32_set_to_null()
+    {
+        await base.Edit_single_property_nullable_int32_set_to_null();
+
+        AssertSql(
+            @"@p0='[null]' (Nullable = false) (Size = 6)
+@p1='[null]' (Nullable = false) (Size = 6)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32', CAST(JSON_VALUE(@p1, '$[0]') AS int))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_enum()
+    {
+        await base.Edit_single_property_enum();
+
+        AssertSql(
+            @"@p0='[""Three""]' (Nullable = false) (Size = 9)
+@p1='[""Three""]' (Nullable = false) (Size = 9)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnum', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnum', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_enum_with_int_converter()
+    {
+        await base.Edit_single_property_enum_with_int_converter();
+
+        AssertSql(
+            @"@p0='[""Three""]' (Nullable = false) (Size = 9)
+@p1='[""Three""]' (Nullable = false) (Size = 9)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_enum()
+    {
+        await base.Edit_single_property_nullable_enum();
+
+        AssertSql(
+            @"@p0='[""Three""]' (Nullable = false) (Size = 9)
+@p1='[""Three""]' (Nullable = false) (Size = 9)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnum', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnum', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_enum_set_to_null()
+    {
+        await base.Edit_single_property_nullable_enum_set_to_null();
+
+        AssertSql(
+            @"@p0='[null]' (Nullable = false) (Size = 6)
+@p1='[null]' (Nullable = false) (Size = 6)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnum', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnum', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_enum_with_int_converter()
+    {
+        await base.Edit_single_property_nullable_enum_with_int_converter();
+
+        AssertSql(
+            @"@p0='[""One""]' (Nullable = false) (Size = 7)
+@p1='[""Three""]' (Nullable = false) (Size = 9)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_enum_with_int_converter_set_to_null()
+    {
+        await base.Edit_single_property_nullable_enum_with_int_converter_set_to_null();
+
+        AssertSql(
+            @"@p0='[null]' (Nullable = false) (Size = 6)
+@p1='[null]' (Nullable = false) (Size = 6)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_enum_with_converter_that_handles_nulls()
+    {
+        await base.Edit_single_property_nullable_enum_with_converter_that_handles_nulls();
+
+        AssertSql(
+            @"@p0='[""Three""]' (Nullable = false) (Size = 9)
+@p1='[""One""]' (Nullable = false) (Size = 7)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
+    }
+
+    public override async Task Edit_single_property_nullable_enum_with_converter_that_handles_nulls_set_to_null()
+    {
+        await base.Edit_single_property_nullable_enum_with_converter_that_handles_nulls_set_to_null();
+
+        AssertSql(
+            @"@p0='[null]' (Nullable = false) (Size = 6)
+@p1='[null]' (Nullable = false) (Size = 6)
+@p2='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithConverterThatHandlesNulls', JSON_VALUE(@p1, '$[0]'))
+OUTPUT 1
+WHERE [Id] = @p2;",
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_two_properties_on_same_entity_updates_the_entire_entity()
@@ -738,8 +955,8 @@ FROM [JsonEntitiesAllTypes] AS [j]");
         await base.Edit_two_properties_on_same_entity_updates_the_entire_entity();
 
         AssertSql(
-            @"@p0='{""TestBoolean"":false,""TestByte"":25,""TestCharacter"":""h"",""TestDateTime"":""2100-11-11T12:34:56"",""TestDateTimeOffset"":""2200-11-11T12:34:56-05:00"",""TestDecimal"":-123450.01,""TestDouble"":-1.2345,""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestInt16"":-12,""TestInt32"":32,""TestInt64"":64,""TestSignedByte"":-18,""TestSingle"":-1.4,""TestTimeSpan"":""06:05:04.0030000"",""TestUnsignedInt16"":12,""TestUnsignedInt32"":12345,""TestUnsignedInt64"":1234567867}' (Nullable = false) (Size = 436)
-@p1='{""TestBoolean"":true,""TestByte"":255,""TestCharacter"":""a"",""TestDateTime"":""2000-01-01T12:34:56"",""TestDateTimeOffset"":""2000-01-01T12:34:56-08:00"",""TestDecimal"":-1234567890.01,""TestDouble"":-1.23456789,""TestGuid"":""12345678-1234-4321-7777-987654321000"",""TestInt16"":-1234,""TestInt32"":32,""TestInt64"":64,""TestSignedByte"":-128,""TestSingle"":-1.234,""TestTimeSpan"":""10:09:08.0070000"",""TestUnsignedInt16"":1234,""TestUnsignedInt32"":1234565789,""TestUnsignedInt64"":1234567890123456789}' (Nullable = false) (Size = 465)
+            @"@p0='{""TestBoolean"":false,""TestByte"":25,""TestCharacter"":""h"",""TestDateTime"":""2100-11-11T12:34:56"",""TestDateTimeOffset"":""2200-11-11T12:34:56-05:00"",""TestDecimal"":-123450.01,""TestDouble"":-1.2345,""TestEnum"":""One"",""TestEnumWithIntConverter"":""Two"",""TestGuid"":""00000000-0000-0000-0000-000000000000"",""TestInt16"":-12,""TestInt32"":32,""TestInt64"":64,""TestNullableEnum"":""One"",""TestNullableEnumWithConverterThatHandlesNulls"":""Two"",""TestNullableEnumWithIntConverter"":""Three"",""TestNullableInt32"":90,""TestSignedByte"":-18,""TestSingle"":-1.4,""TestTimeSpan"":""06:05:04.0030000"",""TestUnsignedInt16"":12,""TestUnsignedInt32"":12345,""TestUnsignedInt64"":1234567867}' (Nullable = false) (Size = 631)
+@p1='{""TestBoolean"":true,""TestByte"":255,""TestCharacter"":""a"",""TestDateTime"":""2000-01-01T12:34:56"",""TestDateTimeOffset"":""2000-01-01T12:34:56-08:00"",""TestDecimal"":-1234567890.01,""TestDouble"":-1.23456789,""TestEnum"":""One"",""TestEnumWithIntConverter"":""Two"",""TestGuid"":""12345678-1234-4321-7777-987654321000"",""TestInt16"":-1234,""TestInt32"":32,""TestInt64"":64,""TestNullableEnum"":""One"",""TestNullableEnumWithConverterThatHandlesNulls"":""Three"",""TestNullableEnumWithIntConverter"":""Two"",""TestNullableInt32"":78,""TestSignedByte"":-128,""TestSingle"":-1.234,""TestTimeSpan"":""10:09:08.0070000"",""TestUnsignedInt16"":1234,""TestUnsignedInt32"":1234565789,""TestUnsignedInt64"":1234567890123456789}' (Nullable = false) (Size = 660)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -747,9 +964,10 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0]', JSON_QUERY(@p0)), [Reference] = @p1
 OUTPUT 1
 WHERE [Id] = @p2;",
-            //
-            @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
-FROM [JsonEntitiesAllTypes] AS [j]");
+                //
+                @"SELECT TOP(2) [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE [j].[Id] = 1");
     }
 
     public override async Task Edit_a_scalar_property_and_reference_navigation_on_the_same_entity()
@@ -757,7 +975,7 @@ FROM [JsonEntitiesAllTypes] AS [j]");
         await base.Edit_a_scalar_property_and_reference_navigation_on_the_same_entity();
 
         AssertSql(
-            @"@p0='{""Date"":""2100-01-01T00:00:00"",""Enum"":""One"",""Fraction"":523.532,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_r_c1""},{""SomethingSomething"":""e1_r_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""edit""}}' (Nullable = false) (Size = 207)
+            @"@p0='{""Date"":""2100-01-01T00:00:00"",""Enum"":""One"",""Fraction"":523.532,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_r_c1""},{""SomethingSomething"":""e1_r_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""edit""}}' (Nullable = false) (Size = 227)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -765,8 +983,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -775,7 +993,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Edit_a_scalar_property_and_collection_navigation_on_the_same_entity();
 
         AssertSql(
-            @"@p0='{""Date"":""2100-01-01T00:00:00"",""Enum"":""One"",""Fraction"":523.532,""OwnedCollectionLeaf"":[{""SomethingSomething"":""edit""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_r_r""}}' (Nullable = false) (Size = 171)
+            @"@p0='{""Date"":""2100-01-01T00:00:00"",""Enum"":""One"",""Fraction"":523.532,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""edit""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""e1_r_r_r""}}' (Nullable = false) (Size = 191)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -783,8 +1001,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 
@@ -793,7 +1011,7 @@ FROM [JsonEntitiesBasic] AS [j]");
         await base.Edit_a_scalar_property_and_another_property_behind_reference_navigation_on_the_same_entity();
 
         AssertSql(
-            @"@p0='{""Date"":""2100-01-01T00:00:00"",""Enum"":""One"",""Fraction"":523.532,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_r_c1""},{""SomethingSomething"":""e1_r_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""edit""}}' (Nullable = false) (Size = 207)
+            @"@p0='{""Date"":""2100-01-01T00:00:00"",""Enum"":""One"",""Fraction"":523.532,""NullableEnum"":null,""OwnedCollectionLeaf"":[{""SomethingSomething"":""e1_r_r_c1""},{""SomethingSomething"":""e1_r_r_c2""}],""OwnedReferenceLeaf"":{""SomethingSomething"":""edit""}}' (Nullable = false) (Size = 227)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -801,8 +1019,8 @@ SET NOCOUNT ON;
 UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.OwnedReferenceBranch', JSON_QUERY(@p0))
 OUTPUT 1
 WHERE [Id] = @p1;",
-            //
-            @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
+                //
+                @"SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$')
 FROM [JsonEntitiesBasic] AS [j]");
     }
 

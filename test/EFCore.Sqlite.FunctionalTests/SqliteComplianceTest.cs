@@ -10,6 +10,7 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         typeof(FromSqlSprocQueryTestBase<>),
         typeof(JsonQueryTestBase<>),
         typeof(JsonUpdateTestBase<>),
+        typeof(JsonQueryAdHocTestBase),
         typeof(SqlExecutorTestBase<>),
         typeof(UdfDbFunctionTestBase<>),
         typeof(TPCRelationshipsQueryTestBase<>), // internal class is added

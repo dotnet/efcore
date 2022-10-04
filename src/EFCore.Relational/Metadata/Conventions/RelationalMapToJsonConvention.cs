@@ -70,7 +70,7 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
     {
         foreach (var jsonEntityType in modelBuilder.Metadata.GetEntityTypes().Where(e => e.IsMappedToJson()))
         {
-            foreach (var enumProperty in jsonEntityType.GetDeclaredProperties().Where(p => p.ClrType.IsEnum))
+            foreach (var enumProperty in jsonEntityType.GetDeclaredProperties().Where(p => p.ClrType.UnwrapNullableType().IsEnum))
             {
                 // by default store enums as strings - values should be human-readable
                 enumProperty.Builder.HasConversion(typeof(string));

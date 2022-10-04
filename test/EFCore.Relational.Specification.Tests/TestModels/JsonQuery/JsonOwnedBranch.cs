@@ -10,6 +10,8 @@ public class JsonOwnedBranch
 
     public JsonEnum Enum { get; set; }
 
+    public JsonEnum? NullableEnum { get; set; }
+
     public JsonOwnedLeaf OwnedReferenceLeaf { get; set; }
     public List<JsonOwnedLeaf> OwnedCollectionLeaf { get; set; }
 }

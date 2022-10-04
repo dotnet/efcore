@@ -22,4 +22,10 @@ public class JsonOwnedAllTypes
     public ulong TestUnsignedInt64 { get; set; }
     public char TestCharacter { get; set; }
     public sbyte TestSignedByte { get; set; }
+    public int? TestNullableInt32 { get; set; }
+    public JsonEnum TestEnum { get; set; }
+    public JsonEnum TestEnumWithIntConverter { get; set; }
+    public JsonEnum? TestNullableEnum { get; set; }
+    public JsonEnum? TestNullableEnumWithIntConverter { get; set; }
+    public JsonEnum? TestNullableEnumWithConverterThatHandlesNulls { get; set; }
 }
