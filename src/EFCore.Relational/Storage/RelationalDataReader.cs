@@ -131,12 +131,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _disposed = true;
 
-                    if (!interceptionResult.IsSuppressed)
+                    try
                     {
-                        _reader.Dispose();
-                        _command.Parameters.Clear();
-                        _command.Dispose();
-                        _relationalConnection.Close();
+                        if (!interceptionResult.IsSuppressed)
+                        {
+                            _reader.Dispose();
+                            _command.Parameters.Clear();
+                            _command.Dispose();
+                            _relationalConnection.Close();
+                        }
+                    }
+                    finally
+                    {
+                        _reader = null!;
+                        _command = null!;
+                        _relationalConnection = null!;
+                        _logger = null;
                     }
                 }
             }
@@ -171,12 +181,22 @@ namespace Microsoft.EntityFrameworkCore.Storage
                 {
                     _disposed = true;
 
-                    if (!interceptionResult.IsSuppressed)
+                    try
                     {
-                        await _reader.DisposeAsync().ConfigureAwait(false);
-                        _command.Parameters.Clear();
-                        await _command.DisposeAsync().ConfigureAwait(false);
-                        await _relationalConnection.CloseAsync().ConfigureAwait(false);
+                        if (!interceptionResult.IsSuppressed)
+                        {
+                            await _reader.DisposeAsync().ConfigureAwait(false);
+                            _command.Parameters.Clear();
+                            await _command.DisposeAsync().ConfigureAwait(false);
+                            await _relationalConnection.CloseAsync().ConfigureAwait(false);
+                        }
+                    }
+                    finally
+                    {
+                        _reader = null!;
+                        _command = null!;
+                        _relationalConnection = null!;
+                        _logger = null;
                     }
                 }
             }
