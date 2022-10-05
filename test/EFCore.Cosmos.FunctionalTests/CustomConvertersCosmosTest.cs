@@ -118,6 +118,13 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisib
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
 
+    public override void GroupBy_converted_enum()
+    {
+        Assert.Contains(
+            CoreStrings.TranslationFailed("")[21..],
+            Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
