@@ -64,11 +64,11 @@ stages:
             enablePublishTestResults: true
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCore-Svc-Public
-                demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
+                name: NetCore-Public
+                demands: ImageOverride -equals 1es-windows-2019-open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: NetCore1ESPool-Svc-Internal
-                demands: ImageOverride -equals Build.Server.Amd64.VS2019
+                name: NetCore1ESPool-Internal
+                demands: ImageOverride -equals 1es-windows-2019
             variables:
               - _InternalBuildArgs: ''
               - skipComponentGovernanceDetection: ${{ ne(variables['System.TeamProject'], 'internal') }}
@@ -151,7 +151,7 @@ stages:
               ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                 vmImage: ubuntu-22.04
               ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
-                name: NetCore1ESPool-Svc-Internal
+                name: NetCore1ESPool-Internal
                 demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
             variables:
               - _runCounter: $[counter(variables['Build.Reason'], 0)]
@@ -196,11 +196,11 @@ stages:
             timeoutInMinutes: 180
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCore-Svc-Public
-                demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
+                name: NetCore-Public
+                demands: ImageOverride -equals 1es-windows-2019-open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: NetCore1ESPool-Svc-Internal
-                demands: ImageOverride -equals Build.Server.Amd64.VS2019
+                name: NetCore1ESPool-Internal
+                demands: ImageOverride -equals 1es-windows-2019
             variables:
               - skipComponentGovernanceDetection: ${{ ne(variables['System.TeamProject'], 'internal') }}
               - name: _HelixBuildConfig
