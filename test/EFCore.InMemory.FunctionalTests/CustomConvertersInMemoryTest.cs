@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.InMemory.Internal;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConvertersInMemoryTest.CustomConvertersInMemoryFixture>
@@ -35,6 +38,13 @@ public class CustomConvertersInMemoryTest : CustomConvertersTestBase<CustomConve
     [ConditionalFact(Skip = "Issue#17050")]
     public override void Collection_enum_as_string_Contains()
         => base.Collection_enum_as_string_Contains();
+
+    public override void GroupBy_converted_enum()
+    {
+        Assert.Contains(
+            CoreStrings.TranslationFailedWithDetails("", InMemoryStrings.NonComposedGroupByNotSupported)[21..],
+            Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
+    }
 
     public class CustomConvertersInMemoryFixture : CustomConvertersFixtureBase
     {

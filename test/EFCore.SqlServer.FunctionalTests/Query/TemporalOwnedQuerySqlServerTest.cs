@@ -1224,6 +1224,19 @@ LEFT JOIN (
 ORDER BY [p].[Id], [t].[Id], [t].[Id0], [t0].[ClientId], [t0].[Id], [t0].[OrderClientId], [t0].[OrderId]");
     }
 
+    public override async Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
+
+        AssertSql(
+            @"SELECT [o].[Id] AS [Key], (
+    SELECT COALESCE(SUM([o0].[PersonAddress_Country_PlanetId]), 0)
+    FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o0]
+    WHERE [o].[Id] = [o0].[Id]) AS [Sum]
+FROM [OwnedPerson] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [o]
+GROUP BY [o].[Id]");
+    }
+
     // not AssertQuery so original (non-temporal) query gets executed, but data is modified
     // so results don't match expectations
     public override Task Owned_entity_without_owner_does_not_throw_for_identity_resolution(bool async, bool useAsTracking)
