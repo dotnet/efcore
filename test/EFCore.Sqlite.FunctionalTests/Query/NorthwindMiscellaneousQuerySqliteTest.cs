@@ -87,11 +87,29 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
 
     public override async Task Select_expression_datetime_add_month(bool async)
     {
-        // Add ticks. Issue #25851.
-        Assert.Equal(
-            "1996-12-01T00:00:00.0000000",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Select_expression_datetime_add_month(async))).Actual);
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderDate != null)
+                .Select(o => new Order { OrderDate = o.OrderDate.Value.AddMonths(1) }),
+            e => e.OrderDate,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.OrderDate.HasValue, a.OrderDate.HasValue);
+                if (e.OrderDate.HasValue && a.OrderDate.HasValue)
+                {
+                    // difference between how Sqlite and everyone else add months
+                    // e.g. when adding 1 month to Jan 31st, we get March 2/3 on Sqlite and Feb 28th/29ths for everyone else
+                    // see notes on issue #25851 for more details
+                    var diff = (e.OrderDate - a.OrderDate).Value;
+                    Assert.True(diff.Days is >= -3 and <= 0);
+                    Assert.Equal(0, diff.Hours);
+                    Assert.Equal(0, diff.Minutes);
+                    Assert.Equal(0, diff.Seconds);
+                    Assert.Equal(0, diff.Milliseconds);
+                    Assert.Equal(0, diff.Microseconds);
+                }
+            });
 
         AssertSql(
             @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' months'), '0'), '.') AS ""OrderDate""
