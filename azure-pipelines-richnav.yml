@@ -19,7 +19,7 @@ stages:
             enablePublishTestResults: true
             pool:
               name: NetCore-Svc-Public
-              demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
+              demands: ImageOverride -equals 1es-windows-2019-open
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
