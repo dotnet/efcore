@@ -838,7 +838,45 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(nameof(OrderDetails), "Order", nameof(Order)),
+            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(nameof(OrderDetails), "Order", nameof(Order), "Order"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_entity_splitting_with_reverse_table_splitting()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Order>(
+            cb =>
+            {
+                cb.Ignore(c => c.Customer);
+
+                cb.ToTable("Order");
+
+                cb.SplitToTable(
+                    "OrderDetails", tb =>
+                    {
+                        tb.Property(c => c.PartitionId);
+                    });
+
+                cb.OwnsOne(
+                    c => c.OrderDetails, db =>
+                    {
+                        db.ToTable("OrderDetails");
+
+                        db.Property<string>("OtherAddress");
+                        db.SplitToTable(
+                            "Order", tb =>
+                            {
+                                tb.Property("OtherAddress");
+                            });
+                    });
+                cb.Navigation(c => c.OrderDetails).IsRequired();
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(nameof(OrderDetails), "Order", nameof(Order), "Order"),
             modelBuilder);
     }
 

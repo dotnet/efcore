@@ -904,116 +904,6 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             entryCount: 10);
     }
 
-    [ConditionalTheory(Skip = "Issue#29104")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_2(bool async)
-    {
-        await InitializeContextFactoryAsync(
-            mb =>
-            {
-                mb.Entity<EntityOne>(
-                    b =>
-                    {
-                        b.ToTable("SplitEntityOnePart1");
-
-                        b.SplitToTable("SplitEntityOnePart2",
-                            tb =>
-                            {
-                                tb.Property(e => e.IntValue3);
-                                tb.Property(e => e.StringValue3);
-                            });
-
-                        b.SplitToTable("SplitEntityOnePart3",
-                            tb =>
-                            {
-                                tb.Property(e => e.IntValue4);
-                                tb.Property(e => e.StringValue4);
-                            });
-
-                        b.OwnsOne(e => e.OwnedReference,
-                            o =>
-                            {
-                                o.ToTable("SplitEntityOnePart2");
-
-                                o.SplitToTable("SplitEntityOnePart3",
-                                    t =>
-                                    {
-                                        t.Property(e => e.OwnedIntValue3);
-                                        t.Property(e => e.OwnedStringValue3);
-                                    });
-
-                                o.SplitToTable("SplitEntityOnePart1",
-                                    t =>
-                                    {
-                                        t.Property(e => e.OwnedIntValue4);
-                                        t.Property(e => e.OwnedStringValue4);
-                                    });
-                            });
-                    });
-            });
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<EntityOne>(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<EntityOne>(i => i.OwnedReference)),
-            entryCount: 10);
-    }
-
-    [ConditionalTheory(Skip = "Issue#29104")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_3(bool async)
-    {
-        await InitializeContextFactoryAsync(
-            mb =>
-            {
-                mb.Entity<EntityOne>(
-                    b =>
-                    {
-                        b.ToTable("SplitEntityOnePart1");
-
-                        b.SplitToTable("SplitEntityOnePart2",
-                            tb =>
-                            {
-                                tb.Property(e => e.IntValue3);
-                                tb.Property(e => e.StringValue3);
-                            });
-
-                        b.SplitToTable("SplitEntityOnePart3",
-                            tb =>
-                            {
-                                tb.Property(e => e.IntValue4);
-                                tb.Property(e => e.StringValue4);
-                            });
-
-                        b.OwnsOne(e => e.OwnedReference,
-                            o =>
-                            {
-                                o.ToTable("SplitEntityOnePart3");
-
-                                o.SplitToTable("SplitEntityOnePart2",
-                                    t =>
-                                    {
-                                        t.Property(e => e.OwnedIntValue3);
-                                        t.Property(e => e.OwnedStringValue3);
-                                    });
-
-                                o.SplitToTable("SplitEntityOnePart1",
-                                    t =>
-                                    {
-                                        t.Property(e => e.OwnedIntValue4);
-                                        t.Property(e => e.OwnedStringValue4);
-                                    });
-                            });
-                    });
-            });
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<EntityOne>(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<EntityOne>(i => i.OwnedReference)),
-            entryCount: 10);
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_4(bool async)
@@ -1069,61 +959,6 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
             entryCount: 10);
     }
 
-    [ConditionalTheory(Skip = "Issue#29104")]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_5(bool async)
-    {
-        await InitializeContextFactoryAsync(
-            mb =>
-            {
-                mb.Entity<EntityOne>(
-                    b =>
-                    {
-                        b.ToTable("SplitEntityOnePart1");
-
-                        b.SplitToTable("SplitEntityOnePart2",
-                            tb =>
-                            {
-                                tb.Property(e => e.IntValue3);
-                                tb.Property(e => e.StringValue3);
-                            });
-
-                        b.SplitToTable("SplitEntityOnePart3",
-                            tb =>
-                            {
-                                tb.Property(e => e.IntValue4);
-                                tb.Property(e => e.StringValue4);
-                            });
-
-                        b.OwnsOne(e => e.OwnedReference,
-                            o =>
-                            {
-                                o.ToTable("SplitEntityOnePart2");
-
-                                o.SplitToTable("SplitEntityOnePart1",
-                                    t =>
-                                    {
-                                        t.Property(e => e.OwnedIntValue3);
-                                        t.Property(e => e.OwnedStringValue3);
-                                    });
-
-                                o.SplitToTable("OwnedReferencePart3",
-                                    t =>
-                                    {
-                                        t.Property(e => e.OwnedIntValue4);
-                                        t.Property(e => e.OwnedStringValue4);
-                                    });
-                            });
-                    });
-            });
-
-        await AssertQuery(
-            async,
-            ss => ss.Set<EntityOne>(),
-            elementAsserter: (e, a) => AssertInclude(e, a, new ExpectedInclude<EntityOne>(i => i.OwnedReference)),
-            entryCount: 10);
-    }
-
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Split_entity_owning_a_split_reference_with_table_sharing_6(bool async)
@@ -1155,7 +990,7 @@ public abstract class EntitySplittingQueryTestBase : NonSharedModelTestBase
                             {
                                 o.ToTable("SplitEntityOnePart2");
 
-                                o.SplitToTable("SplitEntityOnePart3",
+                                o.SplitToTable("OwnedReferencePart2",
                                     t =>
                                     {
                                         t.Property(e => e.OwnedIntValue3);

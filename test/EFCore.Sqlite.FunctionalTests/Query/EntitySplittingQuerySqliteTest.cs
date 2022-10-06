@@ -81,16 +81,18 @@ LEFT JOIN (
 ) AS ""t"" ON ""e"".""Id"" = ""t"".""EntityOneId""
 ORDER BY ""e"".""Id"", ""t"".""EntityOneId""");
     }
+
     public override async Task Split_entity_owning_a_split_reference_with_table_sharing_6(bool async)
     {
         await base.Split_entity_owning_a_split_reference_with_table_sharing_6(async);
 
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""EntityThreeId"", ""s"".""IntValue1"", ""s"".""IntValue2"", ""s1"".""IntValue3"", ""s0"".""IntValue4"", ""s"".""StringValue1"", ""s"".""StringValue2"", ""s1"".""StringValue3"", ""s0"".""StringValue4"", ""s1"".""Id"", ""s1"".""OwnedReference_Id"", ""s1"".""OwnedReference_OwnedIntValue1"", ""s1"".""OwnedReference_OwnedIntValue2"", ""s0"".""OwnedReference_OwnedIntValue3"", ""o"".""OwnedIntValue4"", ""s1"".""OwnedReference_OwnedStringValue1"", ""s1"".""OwnedReference_OwnedStringValue2"", ""s0"".""OwnedReference_OwnedStringValue3"", ""o"".""OwnedStringValue4""
+            @"SELECT ""s"".""Id"", ""s"".""EntityThreeId"", ""s"".""IntValue1"", ""s"".""IntValue2"", ""s1"".""IntValue3"", ""s0"".""IntValue4"", ""s"".""StringValue1"", ""s"".""StringValue2"", ""s1"".""StringValue3"", ""s0"".""StringValue4"", ""s1"".""Id"", ""s1"".""OwnedReference_Id"", ""s1"".""OwnedReference_OwnedIntValue1"", ""s1"".""OwnedReference_OwnedIntValue2"", ""o0"".""OwnedIntValue3"", ""o"".""OwnedIntValue4"", ""s1"".""OwnedReference_OwnedStringValue1"", ""s1"".""OwnedReference_OwnedStringValue2"", ""o0"".""OwnedStringValue3"", ""o"".""OwnedStringValue4""
 FROM ""SplitEntityOnePart1"" AS ""s""
 INNER JOIN ""SplitEntityOnePart3"" AS ""s0"" ON ""s"".""Id"" = ""s0"".""Id""
 INNER JOIN ""SplitEntityOnePart2"" AS ""s1"" ON ""s"".""Id"" = ""s1"".""Id""
-LEFT JOIN ""OwnedReferencePart3"" AS ""o"" ON ""s1"".""Id"" = ""o"".""EntityOneId""");
+LEFT JOIN ""OwnedReferencePart3"" AS ""o"" ON ""s1"".""Id"" = ""o"".""EntityOneId""
+LEFT JOIN ""OwnedReferencePart2"" AS ""o0"" ON ""s1"".""Id"" = ""o0"".""EntityOneId""");
     }
 
     public override async Task Tph_entity_owning_a_split_reference_on_base_without_table_sharing(bool async)

@@ -2143,16 +2143,19 @@ public class RelationalModelValidator : ModelValidator
                             entityType.DisplayName(), fragment.StoreObject.DisplayName()));
                 }
 
-                var unmatchedLeafRowInternalFk = entityType.FindRowInternalForeignKeys(fragment.StoreObject)
-                    .FirstOrDefault(
-                        fk => entityType.FindRowInternalForeignKeys(mainStoreObject.Value)
-                            .All(mainFk => mainFk.PrincipalEntityType != fk.PrincipalEntityType));
-                if (unmatchedLeafRowInternalFk != null)
+                foreach (var foreignKey in entityType.FindRowInternalForeignKeys(fragment.StoreObject))
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(
-                            entityType.DisplayName(), fragment.StoreObject.DisplayName(),
-                            unmatchedLeafRowInternalFk.PrincipalEntityType.DisplayName()));
+                    var principalMainFragment = StoreObjectIdentifier.Create(
+                        foreignKey.PrincipalEntityType, fragment.StoreObject.StoreObjectType)!.Value;
+                    if (principalMainFragment != mainStoreObject)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(
+                                entityType.DisplayName(),
+                                fragment.StoreObject.DisplayName(),
+                                foreignKey.PrincipalEntityType.DisplayName(),
+                                principalMainFragment.DisplayName()));
+                    }
                 }
 
                 var propertiesFound = false;
