@@ -670,12 +670,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject, storeObjectType);
 
         /// <summary>
-        ///     Entity type '{entityType}' has a split mapping for '{storeObject}' that shares the table with '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to a table that '{principalEntityType}' is also mapped to.
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}' that is shared with the entity type '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to '{principalStoreObject}'.
         /// </summary>
-        public static string EntitySplittingUnmatchedMainTableSplitting(object? entityType, object? storeObject, object? principalEntityType)
+        public static string EntitySplittingUnmatchedMainTableSplitting(object? entityType, object? storeObject, object? principalEntityType, object? principalStoreObject)
             => string.Format(
-                GetString("EntitySplittingUnmatchedMainTableSplitting", nameof(entityType), nameof(storeObject), nameof(principalEntityType)),
-                entityType, storeObject, principalEntityType);
+                GetString("EntitySplittingUnmatchedMainTableSplitting", nameof(entityType), nameof(storeObject), nameof(principalEntityType), nameof(principalStoreObject)),
+                entityType, storeObject, principalEntityType, principalStoreObject);
 
         /// <summary>
         ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.

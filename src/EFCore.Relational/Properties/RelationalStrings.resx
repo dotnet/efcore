@@ -365,7 +365,7 @@
     <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.</value>
   </data>
   <data name="EntitySplittingUnmatchedMainTableSplitting" xml:space="preserve">
-    <value>Entity type '{entityType}' has a split mapping for '{storeObject}' that shares the table with '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to a table that '{principalEntityType}' is also mapped to.</value>
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}' that is shared with the entity type '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to '{principalStoreObject}'.</value>
   </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
