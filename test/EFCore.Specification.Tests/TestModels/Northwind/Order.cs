@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 public class Order
@@ -13,6 +15,7 @@ public class Order
         set => _orderId = value;
     }
 
+    [MaxLength(5)]
     public string CustomerID { get; set; }
     public uint? EmployeeID { get; set; }
     public DateTime? OrderDate { get; set; }
@@ -20,11 +23,23 @@ public class Order
     public DateTime? ShippedDate { get; set; }
     public int? ShipVia { get; set; }
     public decimal? Freight { get; set; }
+
+    [MaxLength(40)]
     public string ShipName { get; set; }
+
+    [MaxLength(60)]
     public string ShipAddress { get; set; }
+
+    [MaxLength(15)]
     public string ShipCity { get; set; }
+
+    [MaxLength(15)]
     public string ShipRegion { get; set; }
+
+    [MaxLength(10)]
     public string ShipPostalCode { get; set; }
+
+    [MaxLength(15)]
     public string ShipCountry { get; set; }
 
     public Customer Customer { get; set; } = new(); // Initialized to test #23851

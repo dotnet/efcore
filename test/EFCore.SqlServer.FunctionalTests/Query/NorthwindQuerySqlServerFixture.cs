@@ -54,4 +54,7 @@ public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRe
             .Property(p => p.UnitPrice)
             .HasColumnType("money");
     }
+
+    protected override Type ContextType
+        => typeof(NorthwindSqlServerContext);
 }

@@ -282,7 +282,7 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected override NorthwindContext CreateNoTrackingContext()
-        => new NorthwindRelationalContext(
+        => new NorthwindSqlServerContext(
             new DbContextOptionsBuilder(Fixture.CreateOptions())
                 .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options);
 }

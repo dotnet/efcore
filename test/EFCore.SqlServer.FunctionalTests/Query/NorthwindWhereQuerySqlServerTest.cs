@@ -50,14 +50,14 @@ WHERE EXISTS (
         var queryString = await base.Where_simple_closure(async);
 
         AssertSql(
-            @"@__city_0='London' (Size = 4000)
+            @"@__city_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0");
 
         Assert.Equal(
-            @"DECLARE @__city_0 nvarchar(4000) = N'London';
+            @"DECLARE @__city_0 nvarchar(15) = N'London';
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -71,7 +71,7 @@ WHERE [c].[City] = @__city_0", queryString, ignoreLineEndingDifferences: true, i
         await base.Where_indexer_closure(async);
 
         AssertSql(
-            @"@__p_0='London' (Size = 4000)
+            @"@__p_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -83,7 +83,7 @@ WHERE [c].[City] = @__p_0");
         await base.Where_dictionary_key_access_closure(async);
 
         AssertSql(
-            @"@__get_Item_0='London' (Size = 4000)
+            @"@__get_Item_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -95,7 +95,7 @@ WHERE [c].[City] = @__get_Item_0");
         await base.Where_tuple_item_closure(async);
 
         AssertSql(
-            @"@__predicateTuple_Item2_0='London' (Size = 4000)
+            @"@__predicateTuple_Item2_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -107,7 +107,7 @@ WHERE [c].[City] = @__predicateTuple_Item2_0");
         await base.Where_named_tuple_item_closure(async);
 
         AssertSql(
-            @"@__predicateTuple_Item2_0='London' (Size = 4000)
+            @"@__predicateTuple_Item2_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -131,13 +131,13 @@ WHERE @__predicate_0 = CAST(1 AS bit)");
         await base.Where_simple_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__city_0='London' (Size = 4000)
+            @"@__city_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_0",
             //
-            @"@__city_0='Seattle' (Size = 4000)
+            @"@__city_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -185,13 +185,13 @@ WHERE CAST([e].[EmployeeID] AS bigint) > @__p_0");
         await base.Where_method_call_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__GetCity_0='London' (Size = 4000)
+            @"@__GetCity_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__GetCity_0",
             //
-            @"@__GetCity_0='Seattle' (Size = 4000)
+            @"@__GetCity_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -203,13 +203,13 @@ WHERE [c].[City] = @__GetCity_0");
         await base.Where_field_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__city_InstanceFieldValue_0='London' (Size = 4000)
+            @"@__city_InstanceFieldValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstanceFieldValue_0",
             //
-            @"@__city_InstanceFieldValue_0='Seattle' (Size = 4000)
+            @"@__city_InstanceFieldValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -221,13 +221,13 @@ WHERE [c].[City] = @__city_InstanceFieldValue_0");
         await base.Where_property_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__city_InstancePropertyValue_0='London' (Size = 4000)
+            @"@__city_InstancePropertyValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_InstancePropertyValue_0",
             //
-            @"@__city_InstancePropertyValue_0='Seattle' (Size = 4000)
+            @"@__city_InstancePropertyValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -239,13 +239,13 @@ WHERE [c].[City] = @__city_InstancePropertyValue_0");
         await base.Where_static_field_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__StaticFieldValue_0='London' (Size = 4000)
+            @"@__StaticFieldValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticFieldValue_0",
             //
-            @"@__StaticFieldValue_0='Seattle' (Size = 4000)
+            @"@__StaticFieldValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -257,13 +257,13 @@ WHERE [c].[City] = @__StaticFieldValue_0");
         await base.Where_static_property_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__StaticPropertyValue_0='London' (Size = 4000)
+            @"@__StaticPropertyValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__StaticPropertyValue_0",
             //
-            @"@__StaticPropertyValue_0='Seattle' (Size = 4000)
+            @"@__StaticPropertyValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -275,13 +275,13 @@ WHERE [c].[City] = @__StaticPropertyValue_0");
         await base.Where_nested_field_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__city_Nested_InstanceFieldValue_0='London' (Size = 4000)
+            @"@__city_Nested_InstanceFieldValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0",
             //
-            @"@__city_Nested_InstanceFieldValue_0='Seattle' (Size = 4000)
+            @"@__city_Nested_InstanceFieldValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -293,13 +293,13 @@ WHERE [c].[City] = @__city_Nested_InstanceFieldValue_0");
         await base.Where_nested_property_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__city_Nested_InstancePropertyValue_0='London' (Size = 4000)
+            @"@__city_Nested_InstancePropertyValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0",
             //
-            @"@__city_Nested_InstancePropertyValue_0='Seattle' (Size = 4000)
+            @"@__city_Nested_InstancePropertyValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -311,13 +311,13 @@ WHERE [c].[City] = @__city_Nested_InstancePropertyValue_0");
         await base.Where_new_instance_field_access_query_cache(async);
 
         AssertSql(
-            @"@__InstanceFieldValue_0='London' (Size = 4000)
+            @"@__InstanceFieldValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__InstanceFieldValue_0",
             //
-            @"@__InstanceFieldValue_0='Seattle' (Size = 4000)
+            @"@__InstanceFieldValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -329,13 +329,13 @@ WHERE [c].[City] = @__InstanceFieldValue_0");
         await base.Where_new_instance_field_access_closure_via_query_cache(async);
 
         AssertSql(
-            @"@__InstanceFieldValue_0='London' (Size = 4000)
+            @"@__InstanceFieldValue_0='London' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[City] = @__InstanceFieldValue_0",
             //
-            @"@__InstanceFieldValue_0='Seattle' (Size = 4000)
+            @"@__InstanceFieldValue_0='Seattle' (Size = 15)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
@@ -674,7 +674,7 @@ WHERE CAST(LEN([c].[City]) AS int) = 6");
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CAST(CHARINDEX(N'Sea', [c].[City]) AS int) - 1) <> -1 OR ([c].[City] IS NULL)");
+WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1 OR ([c].[City] IS NULL)");
     }
 
     public override async Task Where_string_replace(bool async)

@@ -605,7 +605,7 @@ WHERE 0 = 1");
         await base.Update_Where_set_parameter(async);
 
         AssertExecuteUpdateSql(
-            @"@__value_0='Abc' (Size = 4000)
+            @"@__value_0='Abc' (Size = 30)
 
 UPDATE [c]
 SET [c].[ContactName] = @__value_0
@@ -618,7 +618,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
         await base.Update_Where_set_parameter_from_closure_array(async);
 
         AssertExecuteUpdateSql(
-            @"@__p_0='Abc' (Size = 4000)
+            @"@__p_0='Abc' (Size = 30)
 
 UPDATE [c]
 SET [c].[ContactName] = @__p_0
@@ -642,7 +642,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
         await base.Update_Where_set_parameter_from_multilevel_property_access(async);
 
         AssertExecuteUpdateSql(
-            @"@__container_Containee_Property_0='Abc' (Size = 4000)
+            @"@__container_Containee_Property_0='Abc' (Size = 30)
 
 UPDATE [c]
 SET [c].[ContactName] = @__container_Containee_Property_0
@@ -922,7 +922,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
         await base.Update_Where_set_property_plus_parameter(async);
 
         AssertExecuteUpdateSql(
-            @"@__value_0='Abc' (Size = 4000)
+            @"@__value_0='Abc' (Size = 30)
 
 UPDATE [c]
 SET [c].[ContactName] = COALESCE([c].[ContactName], N'') + @__value_0
@@ -982,7 +982,7 @@ WHERE [c].[CustomerID] LIKE N'F%'");
         await base.Update_Where_multiple_set(async);
 
         AssertExecuteUpdateSql(
-            @"@__value_0='Abc' (Size = 4000)
+            @"@__value_0='Abc' (Size = 30)
 
 UPDATE [c]
 SET [c].[City] = N'Seattle',

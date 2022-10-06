@@ -40,6 +40,15 @@ public class NorthwindContext : PoolableDbContext
                 e.HasOne(e1 => e1.Manager).WithMany().HasForeignKey(e1 => e1.ReportsTo);
             });
 
+        modelBuilder.Entity<Customer>(
+            e =>
+            {
+                e.HasIndex(e => e.City);
+                e.HasIndex(e => e.CompanyName);
+                e.HasIndex(e => e.PostalCode);
+                e.HasIndex(e => e.Region);
+            });
+
         modelBuilder.Entity<Product>(
             e =>
             {
@@ -47,6 +56,8 @@ public class NorthwindContext : PoolableDbContext
                 e.Ignore(p => p.QuantityPerUnit);
                 e.Ignore(p => p.ReorderLevel);
                 e.Ignore(p => p.UnitsOnOrder);
+
+                e.HasIndex(e => e.ProductName);
             });
 
         modelBuilder.Entity<Order>(
@@ -62,6 +73,8 @@ public class NorthwindContext : PoolableDbContext
                 e.Ignore(o => o.ShipRegion);
                 e.Ignore(o => o.ShipVia);
                 e.Ignore(o => o.ShippedDate);
+
+                e.HasIndex(e => e.OrderDate);
             });
 
         modelBuilder.Entity<OrderDetail>(

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
@@ -20,16 +21,39 @@ public class Customer : IComparable<Customer>
         CustomerID = customerID;
     }
 
+    [MaxLength(5)]
+    [Required]
     public string CustomerID { get; set; }
+
+    [MaxLength(40)]
+    [Required]
     public string CompanyName { get; set; }
+
+    [MaxLength(30)]
     public string ContactName { get; set; }
+
+    [MaxLength(30)]
     public string ContactTitle { get; set; }
+
+    [MaxLength(60)]
     public string Address { get; set; }
+
+    [MaxLength(15)]
     public string City { get; set; }
+
+    [MaxLength(15)]
     public string Region { get; set; }
+
+    [MaxLength(10)]
     public string PostalCode { get; set; }
+
+    [MaxLength(15)]
     public string Country { get; set; }
+
+    [MaxLength(24)]
     public string Phone { get; set; }
+
+    [MaxLength(24)]
     public string Fax { get; set; }
 
     public virtual List<Order> Orders { get; set; }
