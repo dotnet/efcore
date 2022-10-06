@@ -84,7 +84,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.Convert(
                     _sqlExpressionFactory.Divide(
                         arguments[0],
-                        _sqlExpressionFactory.Constant((double)TimeSpan.TicksPerDay)),
+                        _sqlExpressionFactory.Constant((double)TimeSpan.TicksPerSecond)),
                     typeof(string)),
                 _sqlExpressionFactory.Constant(" seconds"));
         }

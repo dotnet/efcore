@@ -149,14 +149,15 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
 
     public override async Task Select_expression_datetime_add_ticks(bool async)
     {
-        // Add ticks. Issue #25851.
-        Assert.Equal(
-            "1996-07-04T00:00:00.0000000",
-            (await Assert.ThrowsAsync<EqualException>(
-                () => base.Select_expression_datetime_add_ticks(async))).Actual);
+        // modifying the original scenario - Sqlite gives inaccurate results for values of granularity less than 1 second
+        await AssertQuery(
+            async,
+            ss => ss.Set<Order>().Where(o => o.OrderDate != null)
+                .Select(o => new Order { OrderDate = o.OrderDate.Value.AddTicks(10 * TimeSpan.TicksPerSecond) }),
+            e => e.OrderDate);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((10000 / 864000000000) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
+            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((100000000 / 10000000) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
 FROM ""Orders"" AS ""o""
 WHERE ""o"".""OrderDate"" IS NOT NULL");
     }
