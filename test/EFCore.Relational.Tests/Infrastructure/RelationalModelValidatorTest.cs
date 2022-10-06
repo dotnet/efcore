@@ -767,6 +767,44 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public void Detects_entity_splitting_with_optional_table_splitting_without_required_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Order>(
+            cb =>
+            {
+                cb.Ignore(c => c.Customer);
+
+                cb.ToTable("Order");
+
+                cb.SplitToTable(
+                    "OrderDetails", tb =>
+                    {
+                        tb.Property(c => c.PartitionId);
+                    });
+
+                cb.OwnsOne(
+                    c => c.OrderDetails, db =>
+                    {
+                        db.ToTable("Order");
+
+                        db.Property<string>("OtherAddress");
+                        db.SplitToTable(
+                            "Details", tb =>
+                            {
+                                tb.Property("OtherAddress");
+                            });
+                    });
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingMissingRequiredPropertiesOptionalDependent(
+                nameof(OrderDetails), "Order", ".Navigation(p => p.OrderDetails).IsRequired()"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Detects_entity_splitting_with_partial_table_splitting()
     {
         var modelBuilder = CreateConventionModelBuilder();
