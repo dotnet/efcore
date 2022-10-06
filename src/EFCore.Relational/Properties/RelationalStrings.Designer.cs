@@ -654,6 +654,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject);
 
         /// <summary>
+        ///     Entity type '{entityType}' has a split mapping and is an optional dependent sharing a store object, but it doesn't map any required non-shared property to the main store object. Keep at least one required non-shared property mapped to a column on '{storeObject}' or mark '{entityType}' as a required dependent by calling '{requiredDependentConfig}'.
+        /// </summary>
+        public static string EntitySplittingMissingRequiredPropertiesOptionalDependent(object? entityType, object? storeObject, object? requiredDependentConfig)
+            => string.Format(
+                GetString("EntitySplittingMissingRequiredPropertiesOptionalDependent", nameof(entityType), nameof(storeObject), nameof(requiredDependentConfig)),
+                entityType, storeObject, requiredDependentConfig);
+
+        /// <summary>
         ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.
         /// </summary>
         public static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType)
@@ -1740,7 +1748,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. Foreign key column types must be comparable with principal key column types.
+        ///     The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. To use 'SaveChanges` or 'SaveChangesAsync', foreign key column types must be comparable with principal key column types.
         /// </summary>
         public static string StoredKeyTypesNotConvertable(object? fkColumnName, object? fkColumnType, object? pkColumnType, object? pkColumnName)
             => string.Format(
@@ -3757,7 +3765,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         logger.Options,
                         RelationalEventId.UnexpectedTrailingResultSetWhenSaving,
                         LogLevel.Warning,
-                        "CoreEventId.UnexpectedTrailingResultSetWhenSaving",
+                        "RelationalEventId.UnexpectedTrailingResultSetWhenSaving",
                         level => LoggerMessage.Define(
                             level,
                             RelationalEventId.UnexpectedTrailingResultSetWhenSaving,
