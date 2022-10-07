@@ -2124,7 +2124,6 @@ public class RelationalModelValidator : ModelValidator
                     RelationalStrings.EntitySplittingHierarchy(entityType.DisplayName(), fragments.First().StoreObject.DisplayName()));
             }
 
-            // dependent table splitting and main fragment is not
             var anyTableFragments = false;
             var anyViewFragments = false;
             foreach (var fragment in fragments)
@@ -2144,16 +2143,19 @@ public class RelationalModelValidator : ModelValidator
                             entityType.DisplayName(), fragment.StoreObject.DisplayName()));
                 }
 
-                var unmatchedLeafRowInternalFk = entityType.FindRowInternalForeignKeys(fragment.StoreObject)
-                    .FirstOrDefault(
-                        fk => entityType.FindRowInternalForeignKeys(mainStoreObject.Value)
-                            .All(mainFk => mainFk.PrincipalEntityType != fk.PrincipalEntityType));
-                if (unmatchedLeafRowInternalFk != null)
+                foreach (var foreignKey in entityType.FindRowInternalForeignKeys(fragment.StoreObject))
                 {
-                    throw new InvalidOperationException(
-                        RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(
-                            entityType.DisplayName(), fragment.StoreObject.DisplayName(),
-                            unmatchedLeafRowInternalFk.PrincipalEntityType.DisplayName()));
+                    var principalMainFragment = StoreObjectIdentifier.Create(
+                        foreignKey.PrincipalEntityType, fragment.StoreObject.StoreObjectType)!.Value;
+                    if (principalMainFragment != mainStoreObject)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(
+                                entityType.DisplayName(),
+                                fragment.StoreObject.DisplayName(),
+                                foreignKey.PrincipalEntityType.DisplayName(),
+                                principalMainFragment.DisplayName()));
+                    }
                 }
 
                 var propertiesFound = false;
@@ -2198,17 +2200,21 @@ public class RelationalModelValidator : ModelValidator
 
             if (anyTableFragments)
             {
-                ValidateMainMapping(entityType, StoreObjectIdentifier.Create(entityType, StoreObjectType.Table));
+                ValidateMainMapping(entityType, StoreObjectIdentifier.Create(entityType, StoreObjectType.Table)!.Value);
             }
 
             if (anyViewFragments)
             {
-                ValidateMainMapping(entityType, StoreObjectIdentifier.Create(entityType, StoreObjectType.View));
+                ValidateMainMapping(entityType, StoreObjectIdentifier.Create(entityType, StoreObjectType.View)!.Value);
             }
         }
 
-        static StoreObjectIdentifier? ValidateMainMapping(IEntityType entityType, StoreObjectIdentifier? mainObject)
+        static StoreObjectIdentifier? ValidateMainMapping(IEntityType entityType, StoreObjectIdentifier mainObject)
         {
+            var nonSharedRequiredPropertyFound =
+                entityType.FindRowInternalForeignKeys(mainObject).All(fk => fk.IsRequiredDependent);
+
+            var propertyFound = false;
             foreach (var property in entityType.GetProperties())
             {
                 if (property.IsPrimaryKey())
@@ -2216,21 +2222,34 @@ public class RelationalModelValidator : ModelValidator
                     continue;
                 }
 
-                if (mainObject != null)
+                var columnName = property.GetColumnName(mainObject);
+                if (columnName != null)
                 {
-                    var columnName = property.GetColumnName(mainObject.Value);
-                    if (columnName != null)
+                    propertyFound = true;
+
+                    if (!nonSharedRequiredPropertyFound
+                        && !property.IsNullable
+                        && property.FindSharedStoreObjectRootProperty(mainObject) == null)
                     {
-                        mainObject = null;
+                        nonSharedRequiredPropertyFound = true;
                     }
                 }
             }
 
-            if (mainObject != null)
+            if (!propertyFound)
             {
                 throw new InvalidOperationException(
                     RelationalStrings.EntitySplittingMissingPropertiesMainFragment(
-                        entityType.DisplayName(), mainObject.Value.DisplayName()));
+                        entityType.DisplayName(), mainObject.DisplayName()));
+            }
+
+            if (!nonSharedRequiredPropertyFound)
+            {
+                var rowInternalFk = entityType.FindRowInternalForeignKeys(mainObject).First(fk => !fk.IsRequiredDependent);
+                throw new InvalidOperationException(
+                    RelationalStrings.EntitySplittingMissingRequiredPropertiesOptionalDependent(
+                        entityType.DisplayName(), mainObject.DisplayName(),
+                        $".Navigation(p => p.{rowInternalFk.PrincipalToDependent!.Name}).IsRequired()" ));
             }
 
             return mainObject;
