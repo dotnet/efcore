@@ -669,6 +669,49 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Group_by_First_on_json_scalar(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).First()),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Group_by_FirstOrDefault_on_json_scalar(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).FirstOrDefault()),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Group_by_Skip_Take_on_json_scalar(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.OrderBy(x => x.Id).Skip(1).Take(5)));
+
+    [ConditionalTheory(Skip = "issue #29287")]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .GroupBy(x => x.OwnedReferenceRoot.OwnedReferenceBranch.Enum).Select(g => g.OrderBy(x => x.OwnedReferenceRoot.Number).FirstOrDefault()),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Group_by_json_scalar_Skip_First_project_json_scalar(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .GroupBy(x => x.OwnedReferenceRoot.Name).Select(g => g.First().OwnedReferenceRoot.OwnedReferenceBranch.Enum));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_with_include_on_json_entity(bool async)
         => AssertQuery(
             async,
