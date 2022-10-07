@@ -550,6 +550,115 @@ FROM (
 GROUP BY [t].[Key]");
     }
 
+    public override async Task Group_by_First_on_json_scalar(bool async)
+    {
+        await base.Group_by_First_on_json_scalar(async);
+
+        AssertSql(
+            @"SELECT [t1].[Id], [t1].[EntityBasicId], [t1].[Name], JSON_QUERY([t1].[c],'$'), JSON_QUERY([t1].[c0],'$')
+FROM (
+    SELECT [t].[Key]
+    FROM (
+        SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        FROM [JsonEntitiesBasic] AS [j]
+    ) AS [t]
+    GROUP BY [t].[Key]
+) AS [t0]
+LEFT JOIN (
+    SELECT [t2].[Id], [t2].[EntityBasicId], [t2].[Name], JSON_QUERY([t2].[c],'$') AS [c], JSON_QUERY([t2].[c0],'$') AS [c0], [t2].[Key]
+    FROM (
+        SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], JSON_QUERY([t3].[c],'$') AS [c], JSON_QUERY([t3].[c0],'$') AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
+        FROM (
+            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+            FROM [JsonEntitiesBasic] AS [j0]
+        ) AS [t3]
+    ) AS [t2]
+    WHERE [t2].[row] <= 1
+) AS [t1] ON [t0].[Key] = [t1].[Key]");
+    }
+
+    public override async Task Group_by_FirstOrDefault_on_json_scalar(bool async)
+    {
+        await base.Group_by_FirstOrDefault_on_json_scalar(async);
+
+        AssertSql(
+            @"SELECT [t1].[Id], [t1].[EntityBasicId], [t1].[Name], JSON_QUERY([t1].[c],'$'), JSON_QUERY([t1].[c0],'$')
+FROM (
+    SELECT [t].[Key]
+    FROM (
+        SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        FROM [JsonEntitiesBasic] AS [j]
+    ) AS [t]
+    GROUP BY [t].[Key]
+) AS [t0]
+LEFT JOIN (
+    SELECT [t2].[Id], [t2].[EntityBasicId], [t2].[Name], JSON_QUERY([t2].[c],'$') AS [c], JSON_QUERY([t2].[c0],'$') AS [c0], [t2].[Key]
+    FROM (
+        SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], JSON_QUERY([t3].[c],'$') AS [c], JSON_QUERY([t3].[c0],'$') AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
+        FROM (
+            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+            FROM [JsonEntitiesBasic] AS [j0]
+        ) AS [t3]
+    ) AS [t2]
+    WHERE [t2].[row] <= 1
+) AS [t1] ON [t0].[Key] = [t1].[Key]");
+    }
+
+    public override async Task Group_by_Skip_Take_on_json_scalar(bool async)
+    {
+        await base.Group_by_Skip_Take_on_json_scalar(async);
+
+        AssertSql(
+            @"SELECT [t0].[Key], [t1].[Id], [t1].[EntityBasicId], [t1].[Name], [t1].[c], [t1].[c0]
+FROM (
+    SELECT [t].[Key]
+    FROM (
+        SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        FROM [JsonEntitiesBasic] AS [j]
+    ) AS [t]
+    GROUP BY [t].[Key]
+) AS [t0]
+LEFT JOIN (
+    SELECT [t2].[Id], [t2].[EntityBasicId], [t2].[Name], [t2].[c], [t2].[c0], [t2].[Key]
+    FROM (
+        SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], JSON_QUERY([t3].[c],'$') AS [c], JSON_QUERY([t3].[c0],'$') AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
+        FROM (
+            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+            FROM [JsonEntitiesBasic] AS [j0]
+        ) AS [t3]
+    ) AS [t2]
+    WHERE 1 < [t2].[row] AND [t2].[row] <= 6
+) AS [t1] ON [t0].[Key] = [t1].[Key]
+ORDER BY [t0].[Key], [t1].[Key], [t1].[Id]");
+    }
+
+    public override async Task Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(bool async)
+    {
+        await base.Group_by_json_scalar_Orderby_json_scalar_FirstOrDefault(async);
+
+        AssertSql(
+            @"");
+    }
+
+    public override async Task Group_by_json_scalar_Skip_First_project_json_scalar(bool async)
+    {
+        await base.Group_by_json_scalar_Skip_First_project_json_scalar(async);
+
+        AssertSql(
+            @"SELECT (
+    SELECT TOP(1) CAST(JSON_VALUE([t0].[c0],'$.OwnedReferenceBranch.Enum') AS nvarchar(max))
+    FROM (
+        SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        FROM [JsonEntitiesBasic] AS [j0]
+    ) AS [t0]
+    WHERE [t].[Key] = [t0].[Key] OR (([t].[Key] IS NULL) AND ([t0].[Key] IS NULL)))
+FROM (
+    SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+    FROM [JsonEntitiesBasic] AS [j]
+) AS [t]
+GROUP BY [t].[Key]");
+    }
+
     public override async Task Json_with_include_on_json_entity(bool async)
     {
         await base.Json_with_include_on_json_entity(async);
