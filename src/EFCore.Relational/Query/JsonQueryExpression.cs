@@ -195,9 +195,13 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var jsonColumn = (ColumnExpression)visitor.Visit(JsonColumn);
+        var newKeyPropertyMap = new Dictionary<IProperty, ColumnExpression>();
+        foreach (var (property, column) in _keyPropertyMap)
+        {
+            newKeyPropertyMap[property] = (ColumnExpression)visitor.Visit(column);
+        }
 
-        // TODO: also visit columns in the _keyPropertyMap?
-        return Update(jsonColumn, _keyPropertyMap);
+        return Update(jsonColumn, newKeyPropertyMap);
     }
 
     /// <summary>
