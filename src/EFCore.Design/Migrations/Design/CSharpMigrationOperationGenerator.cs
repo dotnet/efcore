@@ -1805,11 +1805,14 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append(Code.Literal(operation.Schema));
             }
 
-            builder
-                .AppendLine(",")
-                .Append("startValue: ")
-                .Append(Code.Literal(operation.StartValue))
-                .Append(")");
+            if (operation.StartValue.HasValue)
+            {
+                builder
+                    .AppendLine(",")
+                    .Append("startValue: ")
+                    .Append(Code.Literal(operation.StartValue))
+                    .Append(")");
+            }
 
             Annotations(operation.GetAnnotations(), builder);
         }

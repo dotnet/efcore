@@ -1238,7 +1238,7 @@ public class MigrationBuilder
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<RestartSequenceOperation> RestartSequence(
         string name,
-        long startValue = 1L,
+        long? startValue = null,
         string? schema = null)
     {
         Check.NotEmpty(name, nameof(name));

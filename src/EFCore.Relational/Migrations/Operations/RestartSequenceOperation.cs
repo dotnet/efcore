@@ -23,7 +23,7 @@ public class RestartSequenceOperation : MigrationOperation
     public virtual string? Schema { get; set; }
 
     /// <summary>
-    ///     The value at which the sequence should re-start, defaulting to 1.
+    ///     The value at which the sequence should re-start, of <see langword="null" /> if the start value should not be specified .
     /// </summary>
-    public virtual long StartValue { get; set; } = 1L;
+    public virtual long? StartValue { get; set; } = 1L;
 }
