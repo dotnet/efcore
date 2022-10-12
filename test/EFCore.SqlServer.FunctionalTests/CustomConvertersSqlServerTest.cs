@@ -216,12 +216,14 @@ User23059.MessageGroups ---> [nullable nvarchar] [MaxLength = -1]
         base.Value_conversion_is_appropriately_used_for_join_condition();
 
         AssertSql(
-            @"@__blogId_0='1'
+"""
+@__blogId_0='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
 INNER JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
-WHERE [b].[IsVisible] = N'Y'");
+WHERE [b].[IsVisible] = N'Y'
+""");
     }
 
     [ConditionalFact]
@@ -230,12 +232,14 @@ WHERE [b].[IsVisible] = N'Y'");
         base.Value_conversion_is_appropriately_used_for_left_join_condition();
 
         AssertSql(
-            @"@__blogId_0='1'
+"""
+@__blogId_0='1'
 
 SELECT [b].[Url]
 FROM [Blog] AS [b]
 LEFT JOIN [Post] AS [p] ON [b].[BlogId] = [p].[BlogId] AND [b].[IsVisible] = N'Y' AND [b].[BlogId] = @__blogId_0
-WHERE [b].[IsVisible] = N'Y'");
+WHERE [b].[IsVisible] = N'Y'
+""");
     }
 
     [ConditionalFact]
@@ -244,9 +248,11 @@ WHERE [b].[IsVisible] = N'Y'");
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+"""
+SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[IsVisible] = N'Y'");
+WHERE [b].[IsVisible] = N'Y'
+""");
     }
 
     [ConditionalFact]
@@ -255,9 +261,11 @@ WHERE [b].[IsVisible] = N'Y'");
         base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+"""
+SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[IsVisible] = N'N'");
+WHERE [b].[IsVisible] = N'N'
+""");
     }
 
     public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty()
@@ -265,9 +273,11 @@ WHERE [b].[IsVisible] = N'N'");
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
         AssertSql(
-            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+"""
+SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[IsVisible] = N'Y'");
+WHERE [b].[IsVisible] = N'Y'
+""");
     }
 
     public override void Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer()
@@ -275,9 +285,11 @@ WHERE [b].[IsVisible] = N'Y'");
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
         AssertSql(
-            @"SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
+"""
+SELECT [b].[BlogId], [b].[Discriminator], [b].[IndexerVisible], [b].[IsVisible], [b].[Url], [b].[RssUrl]
 FROM [Blog] AS [b]
-WHERE [b].[IndexerVisible] = N'Nay'");
+WHERE [b].[IndexerVisible] = N'Nay'
+""");
     }
 
     public override void Object_to_string_conversion()
@@ -290,9 +302,11 @@ WHERE [b].[IndexerVisible] = N'Nay'");
         base.Id_object_as_entity_key();
 
         AssertSql(
-            @"SELECT [b].[Id], [b].[Value]
+"""
+SELECT [b].[Id], [b].[Value]
 FROM [Book] AS [b]
-WHERE [b].[Id] = 1");
+WHERE [b].[Id] = 1
+""");
     }
 
     public override void Value_conversion_on_enum_collection_contains()
@@ -315,7 +329,9 @@ WHERE [b].[Id] = 1");
         Assert.Equal(HoldingEnum.Value2, result.Single());
 
         AssertSql(
-            @"SELECT [HoldingEnum] FROM [HolderClass]");
+"""
+SELECT [HoldingEnum] FROM [HolderClass]
+""");
     }
 
     private void AssertSql(params string[] expected)

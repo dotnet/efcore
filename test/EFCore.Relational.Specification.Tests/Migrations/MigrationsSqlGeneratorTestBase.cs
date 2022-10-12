@@ -793,7 +793,7 @@ public abstract class MigrationsSqlGeneratorTestBase
     }
 
     protected void AssertSql(string expected)
-        => Assert.Equal(expected, Sql, ignoreLineEndingDifferences: true);
+        => Assert.Equal(expected.TrimEnd(), Sql.TrimEnd(), ignoreLineEndingDifferences: true);
 
     protected class Person
     {

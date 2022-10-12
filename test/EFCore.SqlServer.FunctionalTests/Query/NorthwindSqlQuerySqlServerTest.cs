@@ -22,7 +22,9 @@ public class NorthwindSqlQuerySqlServerTest : NorthwindSqlQueryTestBase<Northwin
         await base.SqlQueryRaw_over_int(async);
 
         AssertSql(
-            @"SELECT ""ProductID"" FROM ""Products""");
+"""
+SELECT "ProductID" FROM "Products"
+""");
     }
 
     public override async Task SqlQuery_composed_Contains(bool async)
@@ -30,14 +32,16 @@ public class NorthwindSqlQuerySqlServerTest : NorthwindSqlQueryTestBase<Northwin
         await base.SqlQuery_composed_Contains(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT ""ProductID"" AS ""Value"" FROM ""Products""
+        SELECT "ProductID" AS "Value" FROM "Products"
     ) AS [t]
-    WHERE CAST([t].[Value] AS int) = [o].[OrderID])");
+    WHERE CAST([t].[Value] AS int) = [o].[OrderID])
+""");
     }
 
     public override async Task SqlQuery_composed_Join(bool async)
@@ -45,11 +49,13 @@ WHERE EXISTS (
         await base.SqlQuery_composed_Join(async);
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CAST([t].[Value] AS int) AS [p]
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], CAST([t].[Value] AS int) AS [p]
 FROM [Orders] AS [o]
 INNER JOIN (
-    SELECT ""ProductID"" AS ""Value"" FROM ""Products""
-) AS [t] ON [o].[OrderID] = CAST([t].[Value] AS int)");
+    SELECT "ProductID" AS "Value" FROM "Products"
+) AS [t] ON [o].[OrderID] = CAST([t].[Value] AS int)
+""");
     }
 
     public override async Task SqlQuery_over_int_with_parameter(bool async)
@@ -57,9 +63,11 @@ INNER JOIN (
         await base.SqlQuery_over_int_with_parameter(async);
 
         AssertSql(
-            @"p0='10'
+"""
+p0='10'
 
-SELECT ""ProductID"" FROM ""Products"" WHERE ""ProductID"" = @p0");
+SELECT "ProductID" FROM "Products" WHERE "ProductID" = @p0
+""");
     }
 
     protected override DbParameter CreateDbParameter(string name, object value)

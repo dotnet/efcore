@@ -207,15 +207,20 @@ public class DataAnnotationSqlServerTest : DataAnnotationRelationalTestBase<Data
         base.ConcurrencyCheckAttribute_throws_if_value_in_database_changed();
 
         AssertSql(
-            @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
+"""
+SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
 FROM [Sample] AS [s]
-WHERE [s].[Unique_No] = 1",
+WHERE [s].[Unique_No] = 1
+""",
             //
-            @"SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
+"""
+SELECT TOP(1) [s].[Unique_No], [s].[MaxLengthProperty], [s].[Name], [s].[RowVersion], [s].[AdditionalDetails_Name], [s].[AdditionalDetails_Value], [s].[Details_Name], [s].[Details_Value]
 FROM [Sample] AS [s]
-WHERE [s].[Unique_No] = 1",
+WHERE [s].[Unique_No] = 1
+""",
             //
-            @"@p2='1'
+"""
+@p2='1'
 @p0='ModifiedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0003-000000000001'
 @p3='00000001-0000-0000-0000-000000000001'
@@ -224,9 +229,11 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 OUTPUT 1
-WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;",
+WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
+""",
             //
-            @"@p2='1'
+"""
+@p2='1'
 @p0='ChangedData' (Nullable = false) (Size = 4000)
 @p1='00000000-0000-0000-0002-000000000001'
 @p3='00000001-0000-0000-0000-000000000001'
@@ -235,7 +242,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Sample] SET [Name] = @p0, [RowVersion] = @p1
 OUTPUT 1
-WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;");
+WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;
+""");
     }
 
     public override void DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity()
@@ -243,7 +251,8 @@ WHERE [Unique_No] = @p2 AND [RowVersion] = @p3;");
         base.DatabaseGeneratedAttribute_autogenerates_values_when_set_to_identity();
 
         AssertSql(
-            @"@p0=NULL (Size = 10)
+"""
+@p0=NULL (Size = 10)
 @p1='Third' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000003'
 @p3='Third Additional Name' (Size = 4000)
@@ -255,7 +264,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
 OUTPUT INSERTED.[Unique_No]
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+""");
     }
 
     public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -263,7 +273,8 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
         base.MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
         AssertSql(
-            @"@p0='Short' (Size = 10)
+"""
+@p0='Short' (Size = 10)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000001'
 @p3='Third Additional Name' (Size = 4000)
@@ -275,9 +286,11 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
 OUTPUT INSERTED.[Unique_No]
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);",
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+""",
             //
-            @"@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
+"""
+@p0='VeryVeryVeryVeryVeryVeryLongString' (Size = 4000)
 @p1='ValidString' (Nullable = false) (Size = 4000)
 @p2='00000000-0000-0000-0000-000000000002'
 @p3='Third Additional Name' (Size = 4000)
@@ -289,7 +302,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Sample] ([MaxLengthProperty], [Name], [RowVersion], [AdditionalDetails_Name], [AdditionalDetails_Value], [Details_Name], [Details_Value])
 OUTPUT INSERTED.[Unique_No]
-VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
+""");
     }
 
     public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
@@ -297,21 +311,25 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);");
         base.StringLengthAttribute_throws_while_inserting_value_longer_than_max_length();
 
         AssertSql(
-            @"@p0='ValidString' (Size = 16)
+"""
+@p0='ValidString' (Size = 16)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
 OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
-VALUES (@p0);",
+VALUES (@p0);
+""",
             //
-            @"@p0='ValidButLongString' (Size = 4000)
+"""
+@p0='ValidButLongString' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Two] ([Data])
 OUTPUT INSERTED.[Id], INSERTED.[Timestamp]
-VALUES (@p0);");
+VALUES (@p0);
+""");
     }
 
     public override void TimestampAttribute_throws_if_value_in_database_changed()

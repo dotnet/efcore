@@ -17,20 +17,24 @@ public class SimpleQuerySqlServerTest : SimpleQueryRelationalTestBase
         await base.Multiple_nested_reference_navigations(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT TOP(1) [s].[Id], [s].[Email], [s].[Logon], [s].[ManagerId], [s].[Name], [s].[SecondaryManagerId]
 FROM [Staff] AS [s]
-WHERE [s].[Id] = @__p_0",
+WHERE [s].[Id] = @__p_0
+""",
             //
-            @"@__id_0='1'
+"""
+@__id_0='1'
 
 SELECT TOP(2) [a].[Id], [a].[Complete], [a].[Deleted], [a].[PeriodEnd], [a].[PeriodStart], [a].[StaffId], [s].[Id], [s].[Email], [s].[Logon], [s].[ManagerId], [s].[Name], [s].[SecondaryManagerId], [s0].[Id], [s0].[Email], [s0].[Logon], [s0].[ManagerId], [s0].[Name], [s0].[SecondaryManagerId], [s1].[Id], [s1].[Email], [s1].[Logon], [s1].[ManagerId], [s1].[Name], [s1].[SecondaryManagerId]
 FROM [Appraisals] AS [a]
 INNER JOIN [Staff] AS [s] ON [a].[StaffId] = [s].[Id]
 LEFT JOIN [Staff] AS [s0] ON [s].[ManagerId] = [s0].[Id]
 LEFT JOIN [Staff] AS [s1] ON [s].[SecondaryManagerId] = [s1].[Id]
-WHERE [a].[Id] = @__id_0");
+WHERE [a].[Id] = @__id_0
+""");
     }
 
     public override async Task Comparing_enum_casted_to_byte_with_int_parameter(bool async)
@@ -38,11 +42,13 @@ WHERE [a].[Id] = @__id_0");
         await base.Comparing_enum_casted_to_byte_with_int_parameter(async);
 
         AssertSql(
-            @"@__bitterTaste_0='1'
+"""
+@__bitterTaste_0='1'
 
 SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
 FROM [IceCreams] AS [i]
-WHERE [i].[Taste] = @__bitterTaste_0");
+WHERE [i].[Taste] = @__bitterTaste_0
+""");
     }
 
     public override async Task Comparing_enum_casted_to_byte_with_int_constant(bool async)
@@ -50,9 +56,11 @@ WHERE [i].[Taste] = @__bitterTaste_0");
         await base.Comparing_enum_casted_to_byte_with_int_constant(async);
 
         AssertSql(
-            @"SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
+"""
+SELECT [i].[IceCreamId], [i].[Name], [i].[Taste]
 FROM [IceCreams] AS [i]
-WHERE [i].[Taste] = 1");
+WHERE [i].[Taste] = 1
+""");
     }
 
     public override async Task Comparing_byte_column_to_enum_in_vb_creating_double_cast(bool async)
@@ -60,9 +68,11 @@ WHERE [i].[Taste] = 1");
         await base.Comparing_byte_column_to_enum_in_vb_creating_double_cast(async);
 
         AssertSql(
-            @"SELECT [f].[Id], [f].[Taste]
+"""
+SELECT [f].[Id], [f].[Taste]
 FROM [Food] AS [f]
-WHERE [f].[Taste] = CAST(1 AS tinyint)");
+WHERE [f].[Taste] = CAST(1 AS tinyint)
+""");
     }
 
     public override async Task Null_check_removal_in_ternary_maintain_appropriate_cast(bool async)
@@ -70,8 +80,10 @@ WHERE [f].[Taste] = CAST(1 AS tinyint)");
         await base.Null_check_removal_in_ternary_maintain_appropriate_cast(async);
 
         AssertSql(
-            @"SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
-FROM [Food] AS [f]");
+"""
+SELECT CAST([f].[Taste] AS tinyint) AS [Bar]
+FROM [Food] AS [f]
+""");
     }
 
     public override async Task Bool_discriminator_column_works(bool async)
@@ -79,9 +91,11 @@ FROM [Food] AS [f]");
         await base.Bool_discriminator_column_works(async);
 
         AssertSql(
-            @"SELECT [a].[Id], [a].[BlogId], [b].[Id], [b].[IsPhotoBlog], [b].[Title], [b].[NumberOfPhotos]
+"""
+SELECT [a].[Id], [a].[BlogId], [b].[Id], [b].[IsPhotoBlog], [b].[Title], [b].[NumberOfPhotos]
 FROM [Authors] AS [a]
-LEFT JOIN [Blog] AS [b] ON [a].[BlogId] = [b].[Id]");
+LEFT JOIN [Blog] AS [b] ON [a].[BlogId] = [b].[Id]
+""");
     }
 
     public override async Task Count_member_over_IReadOnlyCollection_works(bool async)
@@ -89,11 +103,13 @@ LEFT JOIN [Blog] AS [b] ON [a].[BlogId] = [b].[Id]");
         await base.Count_member_over_IReadOnlyCollection_works(async);
 
         AssertSql(
-            @"SELECT (
+"""
+SELECT (
     SELECT COUNT(*)
     FROM [Books] AS [b]
     WHERE [a].[AuthorId] = [b].[AuthorId]) AS [BooksCount]
-FROM [Authors] AS [a]");
+FROM [Authors] AS [a]
+""");
     }
 
     public override async Task Multiple_different_entity_type_from_different_namespaces(bool async)
@@ -101,7 +117,9 @@ FROM [Authors] AS [a]");
         await base.Multiple_different_entity_type_from_different_namespaces(async);
 
         AssertSql(
-            @"SELECT cast(null as int) AS MyValue");
+"""
+SELECT cast(null as int) AS MyValue
+""");
     }
 
     public override async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(bool async)
@@ -109,7 +127,8 @@ FROM [Authors] AS [a]");
         await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery(async);
 
         AssertSql(
-            @"@__currentUserId_0='1'
+"""
+@__currentUserId_0='1'
 
 SELECT CASE
     WHEN EXISTS (
@@ -122,7 +141,8 @@ SELECT CASE
             WHERE [m0].[UserId] = @__currentUserId_0 AND [m0].[GroupId] = [m].[GroupId]) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
-FROM [Users] AS [u]");
+FROM [Users] AS [u]
+""");
     }
 
     public override async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(bool async)
@@ -130,7 +150,8 @@ FROM [Users] AS [u]");
         await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_2(async);
 
         AssertSql(
-            @"@__currentUserId_0='1'
+"""
+@__currentUserId_0='1'
 
 SELECT CASE
     WHEN EXISTS (
@@ -145,7 +166,8 @@ SELECT CASE
             WHERE [m0].[UserId] = @__currentUserId_0 AND [g0].[Id] = [g].[Id]) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
-FROM [Users] AS [u]");
+FROM [Users] AS [u]
+""");
     }
 
     public override async Task Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(bool async)
@@ -153,7 +175,8 @@ FROM [Users] AS [u]");
         await base.Unwrap_convert_node_over_projection_when_translating_contains_over_subquery_3(async);
 
         AssertSql(
-            @"@__currentUserId_0='1'
+"""
+@__currentUserId_0='1'
 
 SELECT CASE
     WHEN EXISTS (
@@ -166,7 +189,8 @@ SELECT CASE
             WHERE [m0].[UserId] = @__currentUserId_0 AND [m0].[GroupId] = [m].[GroupId]) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
-FROM [Users] AS [u]");
+FROM [Users] AS [u]
+""");
     }
 
     public override async Task GroupBy_aggregate_on_right_side_of_join(bool async)
@@ -174,7 +198,8 @@ FROM [Users] AS [u]");
         await base.GroupBy_aggregate_on_right_side_of_join(async);
 
         AssertSql(
-            @"@__orderId_0='123456'
+"""
+@__orderId_0='123456'
 
 SELECT [o].[Id], [o].[CancellationDate], [o].[OrderId], [o].[ShippingDate]
 FROM [OrderItems] AS [o]
@@ -188,7 +213,8 @@ INNER JOIN (
     GROUP BY [o0].[OrderId]
 ) AS [t] ON [o].[OrderId] = [t].[Key]
 WHERE [o].[OrderId] = @__orderId_0
-ORDER BY [o].[OrderId]");
+ORDER BY [o].[OrderId]
+""");
     }
 
     public override async Task Enum_with_value_converter_matching_take_value(bool async)
@@ -196,7 +222,8 @@ ORDER BY [o].[OrderId]");
         await base.Enum_with_value_converter_matching_take_value(async);
 
         AssertSql(
-            @"@__orderItemType_1='MyType1' (Nullable = false) (Size = 4000)
+"""
+@__orderItemType_1='MyType1' (Nullable = false) (Size = 4000)
 @__p_0='1'
 
 SELECT [o1].[Id], COALESCE((
@@ -213,7 +240,8 @@ FROM (
     ORDER BY [o].[Id]
 ) AS [t]
 INNER JOIN [Orders] AS [o1] ON [t].[Id] = [o1].[Id]
-ORDER BY [t].[Id]");
+ORDER BY [t].[Id]
+""");
     }
 
     public override async Task GroupBy_Aggregate_over_navigations_repeated(bool async)
@@ -221,7 +249,8 @@ ORDER BY [t].[Id]");
         await base.GroupBy_Aggregate_over_navigations_repeated(async);
 
         AssertSql(
-            @"SELECT (
+"""
+SELECT (
     SELECT MIN([o].[HourlyRate])
     FROM [TimeSheets] AS [t0]
     LEFT JOIN [Order] AS [o] ON [t0].[OrderId] = [o].[Id]
@@ -238,7 +267,8 @@ ORDER BY [t].[Id]");
     WHERE ([t2].[OrderId] IS NOT NULL) AND [t].[OrderId] = [t2].[OrderId]) AS [CustomerName]
 FROM [TimeSheets] AS [t]
 WHERE [t].[OrderId] IS NOT NULL
-GROUP BY [t].[OrderId]");
+GROUP BY [t].[OrderId]
+""");
     }
 
     public override async Task Aggregate_over_subquery_in_group_by_projection(bool async)
@@ -246,13 +276,15 @@ GROUP BY [t].[OrderId]");
         await base.Aggregate_over_subquery_in_group_by_projection(async);
 
         AssertSql(
-            @"SELECT [o].[CustomerId], (
+"""
+SELECT [o].[CustomerId], (
     SELECT MIN([o0].[HourlyRate])
     FROM [Order] AS [o0]
     WHERE [o0].[CustomerId] = [o].[CustomerId]) AS [CustomerMinHourlyRate], MIN([o].[HourlyRate]) AS [HourlyRate], COUNT(*) AS [Count]
 FROM [Order] AS [o]
 WHERE [o].[Number] <> N'A1' OR ([o].[Number] IS NULL)
-GROUP BY [o].[CustomerId], [o].[Number]");
+GROUP BY [o].[CustomerId], [o].[Number]
+""");
     }
 
     public override async Task Aggregate_over_subquery_in_group_by_projection_2(bool async)
@@ -260,12 +292,14 @@ GROUP BY [o].[CustomerId], [o].[Number]");
         await base.Aggregate_over_subquery_in_group_by_projection_2(async);
 
         AssertSql(
-            @"SELECT [t].[Value] AS [A], (
+"""
+SELECT [t].[Value] AS [A], (
     SELECT MAX([t0].[Id])
     FROM [Table] AS [t0]
     WHERE [t0].[Value] = (MAX([t].[Id]) * 6) OR (([t0].[Value] IS NULL) AND (MAX([t].[Id]) IS NULL))) AS [B]
 FROM [Table] AS [t]
-GROUP BY [t].[Value]");
+GROUP BY [t].[Value]
+""");
     }
 
     public override async Task Group_by_aggregate_in_subquery_projection_after_group_by(bool async)
@@ -273,13 +307,15 @@ GROUP BY [t].[Value]");
         await base.Group_by_aggregate_in_subquery_projection_after_group_by(async);
 
         AssertSql(
-            @"SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
+"""
+SELECT [t].[Value] AS [A], COALESCE(SUM([t].[Id]), 0) AS [B], COALESCE((
     SELECT TOP(1) COALESCE(SUM([t].[Id]), 0) + COALESCE(SUM([t0].[Id]), 0)
     FROM [Table] AS [t0]
     GROUP BY [t0].[Value]
     ORDER BY (SELECT 1)), 0) AS [C]
 FROM [Table] AS [t]
-GROUP BY [t].[Value]");
+GROUP BY [t].[Value]
+""");
     }
 
     public override async Task Group_by_multiple_aggregate_joining_different_tables(bool async)
@@ -287,7 +323,8 @@ GROUP BY [t].[Value]");
         await base.Group_by_multiple_aggregate_joining_different_tables(async);
 
         AssertSql(
-            @"SELECT (
+"""
+SELECT (
     SELECT COUNT(*)
     FROM (
         SELECT DISTINCT [c].[Value1]
@@ -312,7 +349,8 @@ FROM (
     SELECT 1 AS [Key]
     FROM [Parents] AS [p]
 ) AS [t]
-GROUP BY [t].[Key]");
+GROUP BY [t].[Key]
+""");
     }
 
     public override async Task Group_by_multiple_aggregate_joining_different_tables_with_query_filter(bool async)
@@ -320,7 +358,8 @@ GROUP BY [t].[Key]");
         await base.Group_by_multiple_aggregate_joining_different_tables_with_query_filter(async);
 
         AssertSql(
-            @"SELECT (
+"""
+SELECT (
     SELECT COUNT(*)
     FROM (
         SELECT DISTINCT [t2].[Value1]
@@ -353,7 +392,8 @@ FROM (
     SELECT 1 AS [Key]
     FROM [Parents] AS [p]
 ) AS [t]
-GROUP BY [t].[Key]");
+GROUP BY [t].[Key]
+""");
     }
 
     public override async Task Subquery_first_member_compared_to_null(bool async)
@@ -361,7 +401,8 @@ GROUP BY [t].[Key]");
         await base.Subquery_first_member_compared_to_null(async);
 
         AssertSql(
-            @"SELECT (
+"""
+SELECT (
     SELECT TOP(1) [c1].[SomeOtherNullableDateTime]
     FROM [Child26744] AS [c1]
     WHERE [p].[Id] = [c1].[ParentId] AND ([c1].[SomeNullableDateTime] IS NULL)
@@ -374,7 +415,8 @@ WHERE EXISTS (
     SELECT TOP(1) [c0].[SomeOtherNullableDateTime]
     FROM [Child26744] AS [c0]
     WHERE [p].[Id] = [c0].[ParentId] AND ([c0].[SomeNullableDateTime] IS NULL)
-    ORDER BY [c0].[SomeInteger]) IS NOT NULL)");
+    ORDER BY [c0].[SomeInteger]) IS NOT NULL)
+""");
     }
 
     public override async Task SelectMany_where_Select(bool async)
@@ -382,7 +424,8 @@ WHERE EXISTS (
         await base.SelectMany_where_Select(async);
 
         AssertSql(
-            @"SELECT [t0].[SomeNullableDateTime]
+"""
+SELECT [t0].[SomeNullableDateTime]
 FROM [Parents] AS [p]
 INNER JOIN (
     SELECT [t].[ParentId], [t].[SomeNullableDateTime], [t].[SomeOtherNullableDateTime]
@@ -393,7 +436,8 @@ INNER JOIN (
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [p].[Id] = [t0].[ParentId]
-WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
+WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL
+""");
     }
 
     public override async Task StoreType_for_UDF_used(bool async)
@@ -401,17 +445,21 @@ WHERE [t0].[SomeOtherNullableDateTime] IS NOT NULL");
         await base.StoreType_for_UDF_used(async);
 
         AssertSql(
-            @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+"""
+@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
 FROM [MyEntities] AS [m]
-WHERE [m].[SomeDate] = @__date_0",
+WHERE [m].[SomeDate] = @__date_0
+""",
             //
-            @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+"""
+@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
 
 SELECT [m].[Id], [m].[SomeDate]
 FROM [MyEntities] AS [m]
-WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0");
+WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0
+""");
     }
 
     public override async Task Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(bool async)
@@ -419,7 +467,8 @@ WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0");
         await base.Pushdown_does_not_add_grouping_key_to_projection_when_distinct_is_applied(async);
 
         AssertSql(
-            @"@__p_0='123456'
+"""
+@__p_0='123456'
 
 SELECT TOP(@__p_0) [t].[JSON]
 FROM [TableData] AS [t]
@@ -431,7 +480,8 @@ INNER JOIN (
     HAVING COUNT(*) = 1
 ) AS [t0] ON [t].[ParcelNumber] = [t0].[Parcel]
 WHERE [t].[TableId] = 123
-ORDER BY [t].[ParcelNumber]");
+ORDER BY [t].[ParcelNumber]
+""");
     }
 
     public override async Task Hierarchy_query_with_abstract_type_sibling(bool async)
@@ -439,9 +489,11 @@ ORDER BY [t].[ParcelNumber]");
         await base.Hierarchy_query_with_abstract_type_sibling(async);
 
         AssertSql(
-            @"SELECT [a].[Id], [a].[Discriminator], [a].[Species], [a].[Name], [a].[EdcuationLevel], [a].[FavoriteToy]
+"""
+SELECT [a].[Id], [a].[Discriminator], [a].[Species], [a].[Name], [a].[EdcuationLevel], [a].[FavoriteToy]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND ([a].[Species] IS NOT NULL) AND ([a].[Species] LIKE N'F%')");
+WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND ([a].[Species] IS NOT NULL) AND ([a].[Species] LIKE N'F%')
+""");
     }
 
     public override async Task Hierarchy_query_with_abstract_type_sibling_TPT(bool async)
@@ -449,7 +501,8 @@ WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND ([a].[Species] IS NOT NULL) AN
         await base.Hierarchy_query_with_abstract_type_sibling_TPT(async);
 
         AssertSql(
-            @"SELECT [a].[Id], [a].[Species], [p].[Name], [c].[EdcuationLevel], [d].[FavoriteToy], CASE
+"""
+SELECT [a].[Id], [a].[Species], [p].[Name], [c].[EdcuationLevel], [d].[FavoriteToy], CASE
     WHEN [d].[Id] IS NOT NULL THEN N'Dog'
     WHEN [c].[Id] IS NOT NULL THEN N'Cat'
 END AS [Discriminator]
@@ -457,7 +510,8 @@ FROM [Animals] AS [a]
 LEFT JOIN [Pets] AS [p] ON [a].[Id] = [p].[Id]
 LEFT JOIN [Cats] AS [c] ON [a].[Id] = [c].[Id]
 LEFT JOIN [Dogs] AS [d] ON [a].[Id] = [d].[Id]
-WHERE (([d].[Id] IS NOT NULL) OR ([c].[Id] IS NOT NULL)) AND ([a].[Species] IS NOT NULL) AND ([a].[Species] LIKE N'F%')");
+WHERE (([d].[Id] IS NOT NULL) OR ([c].[Id] IS NOT NULL)) AND ([a].[Species] IS NOT NULL) AND ([a].[Species] LIKE N'F%')
+""");
     }
 
     public override async Task Hierarchy_query_with_abstract_type_sibling_TPC(bool async)
@@ -465,7 +519,8 @@ WHERE (([d].[Id] IS NOT NULL) OR ([c].[Id] IS NOT NULL)) AND ([a].[Species] IS N
         await base.Hierarchy_query_with_abstract_type_sibling_TPC(async);
 
         AssertSql(
-            @"SELECT [t].[Id], [t].[Species], [t].[Name], [t].[EdcuationLevel], [t].[FavoriteToy], [t].[Discriminator]
+"""
+SELECT [t].[Id], [t].[Species], [t].[Name], [t].[EdcuationLevel], [t].[FavoriteToy], [t].[Discriminator]
 FROM (
     SELECT [c].[Id], [c].[Species], [c].[Name], [c].[EdcuationLevel], NULL AS [FavoriteToy], N'Cat' AS [Discriminator]
     FROM [Cats] AS [c]
@@ -473,7 +528,8 @@ FROM (
     SELECT [d].[Id], [d].[Species], [d].[Name], NULL AS [EdcuationLevel], [d].[FavoriteToy], N'Dog' AS [Discriminator]
     FROM [Dogs] AS [d]
 ) AS [t]
-WHERE ([t].[Species] IS NOT NULL) AND ([t].[Species] LIKE N'F%')");
+WHERE ([t].[Species] IS NOT NULL) AND ([t].[Species] LIKE N'F%')
+""");
     }
 
     [ConditionalTheory]
@@ -501,7 +557,8 @@ WHERE ([t].[Species] IS NOT NULL) AND ([t].[Species] LIKE N'F%')");
         }
 
         AssertSql(
-            @"p0='1'
+"""
+p0='1'
 
 SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
 FROM [DemoEntities] AS [d]
@@ -511,7 +568,8 @@ WHERE EXISTS (
         SELECT * FROM DemoEntities WHERE Id = @p0
     ) AS [m]
     WHERE [m].[Id] = [d].[Id])
-GROUP BY [d].[Id]");
+GROUP BY [d].[Id]
+""");
     }
 
     protected class Context27427 : DbContext
