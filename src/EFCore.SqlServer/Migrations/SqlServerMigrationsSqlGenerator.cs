@@ -540,11 +540,12 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     {
         builder
             .Append("ALTER SEQUENCE ")
-            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema));
+            .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
+            .Append(" RESTART");
         if (operation.StartValue.HasValue)
         {
             builder
-                .Append(" RESTART WITH ")
+                .Append(" WITH ")
                 .Append(IntegerConstant(operation.StartValue.Value));
         }
         builder

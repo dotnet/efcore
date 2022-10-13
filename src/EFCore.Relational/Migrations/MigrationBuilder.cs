@@ -1233,7 +1233,7 @@ public class MigrationBuilder
     ///     See <see href="https://aka.ms/efcore-docs-migrations">Database migrations</see> for more information and examples.
     /// </remarks>
     /// <param name="name">The name of the sequence.</param>
-    /// <param name="startValue">The value at which the sequence will start, defaulting to 1.</param>
+    /// <param name="startValue">The value at which the sequence will start. If not specified,  <see langword="null" />, the sequence numbering restarts based on the original CREATE SEQUENCE options.</param>
     /// <param name="schema">The schema that contains the sequence, or <see langword="null" /> to use the default schema.</param>
     /// <returns>A builder to allow annotations to be added to the operation.</returns>
     public virtual OperationBuilder<RestartSequenceOperation> RestartSequence(
