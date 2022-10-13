@@ -97,6 +97,13 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task ToString_string_property_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Weapon>().Select(w => w.Name.ToString()));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task ToString_boolean_property_non_nullable(bool async)
         => AssertQuery(
             async,

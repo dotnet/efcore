@@ -67,6 +67,11 @@ public class SqlServerObjectToStringTranslator : IMethodCallTranslator
             return null;
         }
 
+        if(instance.TypeMapping is not null && instance.TypeMapping.ClrType == typeof(string))
+        {
+            return instance;
+        }
+
         if (instance.Type == typeof(bool))
         {
             if (instance is ColumnExpression columnExpression && columnExpression.IsNullable)

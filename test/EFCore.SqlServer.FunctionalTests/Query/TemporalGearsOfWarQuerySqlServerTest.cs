@@ -7838,6 +7838,14 @@ FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 CROSS JOIN [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g0]");
     }
 
+    public override async Task ToString_string_property_projection(bool async)
+    {
+        await base.ToString_string_property_projection(async);
+
+        AssertSql(@"SELECT [w].[Name]
+FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]");
+    }
+
     public override async Task ToString_boolean_property_non_nullable(bool async)
     {
         await base.ToString_boolean_property_non_nullable(async);
