@@ -1165,6 +1165,12 @@ FROM ""People"";",
     public override Task Alter_sequence_increment_by()
         => AssertNotSupportedAsync(base.Alter_sequence_increment_by, SqliteStrings.SequencesNotSupported);
 
+    public override Task Alter_sequence_restart()
+        => AssertNotSupportedAsync(base.Alter_sequence_restart, SqliteStrings.SequencesNotSupported);
+
+    public override Task Alter_sequence_restart_with()
+        => AssertNotSupportedAsync(base.Alter_sequence_restart_with, SqliteStrings.SequencesNotSupported);
+
     public override Task Drop_sequence()
         => AssertNotSupportedAsync(base.Drop_sequence, SqliteStrings.SequencesNotSupported);
 

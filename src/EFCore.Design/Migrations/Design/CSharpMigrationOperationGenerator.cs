@@ -1790,6 +1790,7 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
     protected virtual void Generate(RestartSequenceOperation operation, IndentedStringBuilder builder)
     {
         builder.AppendLine(".RestartSequence(");
+
         using (builder.Indent())
         {
             builder
@@ -1812,9 +1813,10 @@ public class CSharpMigrationOperationGenerator : ICSharpMigrationOperationGenera
                     .Append(Code.Literal(operation.StartValue.Value));
             }
 
+            builder.Append(")");
+
             Annotations(operation.GetAnnotations(), builder);
         }
-        builder.Append(")");
     }
 
     /// <summary>

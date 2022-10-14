@@ -15,4 +15,9 @@ public interface ISequence : IReadOnlySequence, IAnnotatable
     ///     Gets the model in which this sequence is defined.
     /// </summary>
     new IModel Model { get; }
+
+    /// <summary>
+    ///     Gets the StartValue property for this sequence, without defaulting to DefaultStartValue.
+    /// </summary>
+    long? InternalStartValue { get ; }
 }

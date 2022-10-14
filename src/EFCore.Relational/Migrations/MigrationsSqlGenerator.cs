@@ -795,12 +795,14 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             .Append("ALTER SEQUENCE ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
             .Append(" RESTART");
+
         if (operation.StartValue.HasValue)
         {
             builder
                 .Append(" WITH ")
                 .Append(longTypeMapping.GenerateSqlLiteral(operation.StartValue.Value));
         }
+
         builder
             .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 

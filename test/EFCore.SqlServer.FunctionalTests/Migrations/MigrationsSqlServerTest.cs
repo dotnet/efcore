@@ -2323,6 +2323,22 @@ ALTER TABLE [People] ALTER COLUMN [SomeField] nvarchar(max) NOT NULL;");
             @"ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE;");
     }
 
+    public override async Task Alter_sequence_restart()
+    {
+        await base.Alter_sequence_restart();
+
+        AssertSql(
+            @"ALTER SEQUENCE [foo] RESTART;");
+    }
+
+    public override async Task Alter_sequence_restart_with()
+    {
+        await base.Alter_sequence_restart_with();
+
+        AssertSql(
+            @"ALTER SEQUENCE [foo] RESTART WITH 3;");
+    }
+
     public override async Task Drop_sequence()
     {
         await base.Drop_sequence();

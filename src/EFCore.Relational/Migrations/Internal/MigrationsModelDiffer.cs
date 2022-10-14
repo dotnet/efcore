@@ -1613,13 +1613,13 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             yield return renameSequenceOperation;
         }
 
-        if (source.StartValue != target.StartValue)
+        if (source.InternalStartValue != target.InternalStartValue)
         {
             yield return new RestartSequenceOperation
             {
                 Schema = target.Schema,
                 Name = target.Name,
-                StartValue = target.StartValue
+                StartValue = target.InternalStartValue
             };
         }
 
