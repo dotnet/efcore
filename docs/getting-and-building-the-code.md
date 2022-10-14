@@ -50,6 +50,14 @@ The `build` script has different arguments to perform specific actions. The full
 | -test | Run all tests (requires build). | test.cmd |
 | -pack | Build and produce NuGet packages. | None |
 
+**Note**, to enable developer builds, create a file named `AspNetCoreSettings.props` above the repo root with the following contents.
+
+```<Project>
+  <PropertyGroup>
+    <DeveloperBuild>True</DeveloperBuild>
+  </PropertyGroup>
+</Project>
+```
 ## Using Visual Studio
 
 **The command line `build` (see above) should be run before using the solution with Visual Studio.**
