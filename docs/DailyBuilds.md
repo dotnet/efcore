@@ -58,7 +58,7 @@ dotnet new install Microsoft.EntityFrameworkCore.Templates::7.0.0-* --add-source
 
 ### Using wildcards
 
-The easiest way to use daily builds is with wildcards in project references. For example, for EF Core 6.0 daily builds:
+The easiest way to use daily builds is with wildcards in project references. For example, for EF Core 7.0 daily builds:
 
 ```xml
   <ItemGroup>
