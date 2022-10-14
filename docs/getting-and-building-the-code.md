@@ -52,7 +52,8 @@ The `build` script has different arguments to perform specific actions. The full
 
 **Note**, to enable developer builds, create a file named `AspNetCoreSettings.props` above the repo root with the following contents.
 
-```<Project>
+```
+<Project>
   <PropertyGroup>
     <DeveloperBuild>True</DeveloperBuild>
   </PropertyGroup>
