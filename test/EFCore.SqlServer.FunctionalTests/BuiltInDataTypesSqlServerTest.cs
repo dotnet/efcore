@@ -632,9 +632,11 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         Assert.Empty(results);
 
         AssertSql(
-            @"SELECT [m].[Int]
+"""
+SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[TimeSpanAsTime] = '00:01:02'");
+WHERE [m].[TimeSpanAsTime] = '00:01:02'
+""");
     }
 
     [ConditionalFact]
@@ -651,11 +653,13 @@ WHERE [m].[TimeSpanAsTime] = '00:01:02'");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_0='02:01:00' (Nullable = true)
+"""
+@__timeSpan_0='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
+WHERE [m].[TimeSpanAsTime] = @__timeSpan_0
+""");
     }
 
     [ConditionalFact]
@@ -680,9 +684,11 @@ WHERE [m].[TimeSpanAsTime] = @__timeSpan_0");
 
             Assert.Equal(-1, Assert.Single(results));
             AssertSql(
-                @"SELECT CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
+"""
+SELECT CAST(CHARINDEX('a', [m].[StringAsVarcharMax]) AS int) - 1
 FROM [MappedNullableDataTypes] AS [m]
-WHERE [m].[Int] = 81");
+WHERE [m].[Int] = 81
+""");
         }
     }
 
@@ -700,11 +706,13 @@ WHERE [m].[Int] = 81");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_1='02:01:00' (Nullable = true)
+"""
+@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+""");
     }
 
     [ConditionalFact]
@@ -721,11 +729,13 @@ WHERE DATEDIFF(hour, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_1='02:01:00' (Nullable = true)
+"""
+@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+""");
     }
 
     [ConditionalFact]
@@ -742,11 +752,13 @@ WHERE DATEDIFF(minute, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_1='02:01:00' (Nullable = true)
+"""
+@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+""");
     }
 
     [ConditionalFact]
@@ -763,11 +775,13 @@ WHERE DATEDIFF(second, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_1='02:01:00' (Nullable = true)
+"""
+@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+""");
     }
 
     [ConditionalFact]
@@ -784,11 +798,13 @@ WHERE DATEDIFF(millisecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_1='02:01:00' (Nullable = true)
+"""
+@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+""");
     }
 
     [ConditionalFact]
@@ -805,11 +821,13 @@ WHERE DATEDIFF(microsecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
 
         Assert.Empty(results);
         AssertSql(
-            @"@__timeSpan_1='02:01:00' (Nullable = true)
+"""
+@__timeSpan_1='02:01:00' (Nullable = true)
 
 SELECT [m].[Int]
 FROM [MappedNullableDataTypes] AS [m]
-WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0");
+WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
+""");
     }
 
     [ConditionalFact]
@@ -4132,24 +4150,28 @@ UnicodeDataTypes.StringUnicode ---> [nullable nvarchar] [MaxLength = -1]
         base.Object_to_string_conversion();
 
         AssertSql(
-            @"SELECT CONVERT(varchar(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(varchar(3), [b].[TestByte]) AS [Byte], CONVERT(varchar(6), [b].[TestInt16]) AS [Short], CONVERT(varchar(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(varchar(11), [b].[TestInt32]) AS [Int], CONVERT(varchar(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(varchar(20), [b].[TestInt64]) AS [Long], CONVERT(varchar(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(varchar(100), [b].[TestSingle]) AS [Float], CONVERT(varchar(100), [b].[TestDouble]) AS [Double], CONVERT(varchar(100), [b].[TestDecimal]) AS [Decimal], CONVERT(varchar(1), [b].[TestCharacter]) AS [Char], CONVERT(varchar(100), [b].[TestDateTime]) AS [DateTime], CONVERT(varchar(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(varchar(100), [b].[TestTimeSpan]) AS [TimeSpan]
+"""
+SELECT CONVERT(varchar(4), [b].[TestSignedByte]) AS [Sbyte], CONVERT(varchar(3), [b].[TestByte]) AS [Byte], CONVERT(varchar(6), [b].[TestInt16]) AS [Short], CONVERT(varchar(5), [b].[TestUnsignedInt16]) AS [Ushort], CONVERT(varchar(11), [b].[TestInt32]) AS [Int], CONVERT(varchar(10), [b].[TestUnsignedInt32]) AS [Uint], CONVERT(varchar(20), [b].[TestInt64]) AS [Long], CONVERT(varchar(20), [b].[TestUnsignedInt64]) AS [Ulong], CONVERT(varchar(100), [b].[TestSingle]) AS [Float], CONVERT(varchar(100), [b].[TestDouble]) AS [Double], CONVERT(varchar(100), [b].[TestDecimal]) AS [Decimal], CONVERT(varchar(1), [b].[TestCharacter]) AS [Char], CONVERT(varchar(100), [b].[TestDateTime]) AS [DateTime], CONVERT(varchar(100), [b].[TestDateTimeOffset]) AS [DateTimeOffset], CONVERT(varchar(100), [b].[TestTimeSpan]) AS [TimeSpan]
 FROM [BuiltInDataTypes] AS [b]
-WHERE [b].[Id] = 13");
+WHERE [b].[Id] = 13
+""");
     }
 
     public static string QueryForColumnTypes(DbContext context, params string[] tablesToIgnore)
     {
-        const string query
-            = @"SELECT
-                        TABLE_NAME,
-                        COLUMN_NAME,
-                        DATA_TYPE,
-                        IS_NULLABLE,
-                        CHARACTER_MAXIMUM_LENGTH,
-                        NUMERIC_PRECISION,
-                        NUMERIC_SCALE,
-                        DATETIME_PRECISION
-                    FROM INFORMATION_SCHEMA.COLUMNS";
+        const string query =
+"""
+SELECT
+    TABLE_NAME,
+    COLUMN_NAME,
+    DATA_TYPE,
+    IS_NULLABLE,
+    CHARACTER_MAXIMUM_LENGTH,
+    NUMERIC_PRECISION,
+    NUMERIC_SCALE,
+    DATETIME_PRECISION
+FROM INFORMATION_SCHEMA.COLUMNS
+""";
 
         var columns = new List<ColumnInfo>();
 

@@ -85,7 +85,8 @@ public abstract class StoreValueGenerationTriggerSqlServerTestBase<TFixture> : S
         }
 
         AssertSql(
-            @"@p0='0'
+"""
+@p0='0'
 @p1='0'
 @p2='0'
 @p3='0'
@@ -105,6 +106,7 @@ INTO @inserted0;
 
 SELECT [t].[Id], [t].[Data1] FROM [WithSomeDatabaseGenerated] t
 INNER JOIN @inserted0 i ON ([t].[Id] = [i].[Id])
-ORDER BY [i].[_Position];");
+ORDER BY [i].[_Position];
+""");
     }
 }

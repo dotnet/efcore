@@ -20,8 +20,10 @@ public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryRelationalTest
         await base.Select_datetime_year_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%Y', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     [ConditionalTheory]
@@ -33,8 +35,10 @@ FROM ""Orders"" AS ""o""");
             ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Year));
 
         AssertSql(
-            @"SELECT CAST(strftime('%Y', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%Y', "o"."OrderDate", CAST(1 AS TEXT) || ' years') AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_month_component(bool async)
@@ -42,8 +46,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_month_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%m', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%m', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_day_of_year_component(bool async)
@@ -51,8 +57,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_day_of_year_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%j', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%j', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_day_component(bool async)
@@ -60,8 +68,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_day_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%d', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%d', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_hour_component(bool async)
@@ -69,8 +79,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_hour_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%H', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%H', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_minute_component(bool async)
@@ -78,8 +90,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_minute_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%M', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%M', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_second_component(bool async)
@@ -87,8 +101,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_second_component(async);
 
         AssertSql(
-            @"SELECT CAST(strftime('%S', ""o"".""OrderDate"") AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(strftime('%S', "o"."OrderDate") AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_millisecond_component(bool async)
@@ -96,8 +112,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_millisecond_component(async);
 
         AssertSql(
-            @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0
-FROM ""Orders"" AS ""o""");
+"""
+SELECT (CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_DayOfWeek_component(bool async)
@@ -105,8 +123,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_DayOfWeek_component(async);
 
         AssertSql(
-            @"SELECT CAST(CAST(strftime('%w', ""o"".""OrderDate"") AS INTEGER) AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(CAST(strftime('%w', "o"."OrderDate") AS INTEGER) AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_Ticks_component(bool async)
@@ -114,8 +134,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_Ticks_component(async);
 
         AssertSql(
-            @"SELECT CAST(((julianday(""o"".""OrderDate"") - 1721425.5) * 864000000000.0) AS INTEGER)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST(((julianday("o"."OrderDate") - 1721425.5) * 864000000000.0) AS INTEGER)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_datetime_TimeOfDay_component(bool async)
@@ -123,8 +145,10 @@ FROM ""Orders"" AS ""o""");
         await base.Select_datetime_TimeOfDay_component(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate""), '0'), '.')
-FROM ""Orders"" AS ""o""");
+"""
+SELECT rtrim(rtrim(strftime('%H:%M:%f', "o"."OrderDate"), '0'), '.')
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task

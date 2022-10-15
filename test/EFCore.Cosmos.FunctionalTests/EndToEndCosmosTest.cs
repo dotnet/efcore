@@ -1167,12 +1167,15 @@ public class EndToEndCosmosTest : IClassFixture<EndToEndCosmosTest.CosmosFixture
             Assert.Equal("Theon", customerFromStore.Name);
             Assert.Equal(pk1, customerFromStore.PartitionKey);
             AssertSql(
-                context, @"@__p_1='42'
+                context,
+"""
+@__p_1='42'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""Id""] = @__p_1))
-OFFSET 0 LIMIT 1");
+WHERE ((c["Discriminator"] = "Customer") AND (c["Id"] = @__p_1))
+OFFSET 0 LIMIT 1
+""");
 
             customerFromStore.Name = "Theon Greyjoy";
 
@@ -1297,12 +1300,15 @@ OFFSET 0 LIMIT 1");
             Assert.Equal("42", customerFromStore.id);
             Assert.Equal("Theon", customerFromStore.Name);
             AssertSql(
-                context, @"@__p_0='42'
+                context,
+"""
+@__p_0='42'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""CustomerWithResourceId"") AND (c[""id""] = @__p_0))
-OFFSET 0 LIMIT 1");
+WHERE ((c["Discriminator"] = "CustomerWithResourceId") AND (c["id"] = @__p_0))
+OFFSET 0 LIMIT 1
+""");
         }
     }
 
