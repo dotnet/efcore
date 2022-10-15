@@ -627,26 +627,17 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         await using (var context2 = contextFactory.CreateContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
-            entity2.Name = "Updated";
-
-            entity1.Name = "Preempted";
-            await SaveChanges(context1, async);
-
-            ClearLog();
-
-            var exception = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await SaveChanges(context2, async));
-            var entry = exception.Entries.Single();
-            Assert.Same(entity2, entry.Entity);
+            entity2.Name = "Preempted";
+            await SaveChanges(context2, async);
         }
 
-        // Make sure we propagated the new concurrency token in the update above
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
-        {
-            entity1.Name = "Another update";
-            await SaveChanges(context1, async);
+        ClearLog();
 
-            Assert.Equal("Another update", (await context1.WithStoreGeneratedConcurrencyTokenAsInOutParameter.SingleAsync(w => w.Id == entity1.Id)).Name);
-        }
+        entity1.Name = "Updated";
+
+        var exception = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await SaveChanges(context1, async));
+        var entry = exception.Entries.Single();
+        Assert.Same(entity1, entry.Entity);
     }
 
     [ConditionalTheory]
@@ -684,26 +675,17 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         await using (var context2 = contextFactory.CreateContext())
         {
             var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
-            entity2.Name = "Updated";
-
-            entity1.Name = "Preempted";
-            await SaveChanges(context1, async);
-
-            ClearLog();
-
-            var exception = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await SaveChanges(context2, async));
-            var entry = exception.Entries.Single();
-            Assert.Same(entity2, entry.Entity);
+            entity2.Name = "Preempted";
+            await SaveChanges(context2, async);
         }
 
-        // Make sure we propagated the new concurrency token in the update above
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
-        {
-            entity1.Name = "Another update";
-            await SaveChanges(context1, async);
+        ClearLog();
 
-            Assert.Equal("Another update", (await context1.WithStoreGeneratedConcurrencyTokenAsTwoParameters.SingleAsync(w => w.Id == entity1.Id)).Name);
-        }
+        entity1.Name = "Updated";
+
+        var exception = await Assert.ThrowsAsync<DbUpdateConcurrencyException>(async () => await SaveChanges(context1, async));
+        var entry = exception.Entries.Single();
+        Assert.Same(entity1, entry.Entity);
     }
 
     [ConditionalTheory]

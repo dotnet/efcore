@@ -78,7 +78,7 @@ WHERE [m].[ContactName] LIKE N'%z%'
 SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
 FROM (
 
-
+        
 
 
     SELECT

@@ -418,11 +418,13 @@ END
 
         // Can't assert SQL baseline as usual because the concurrency token changes
         Assert.Equal(
-            @"@p4='0' (Direction = Output)
+            @"@p2='Updated' (Size = 4000)
+@p3=NULL (Size = 8) (Direction = Output) (DbType = Binary)
+@p4='0' (Direction = Output)
 
 SET NOCOUNT ON;
 EXEC [Entity_Update] @p0, @p1, @p2, @p3 OUTPUT, @p4 OUTPUT;",
-            TestSqlLoggerFactory.Sql.Substring(TestSqlLoggerFactory.Sql.IndexOf("@p4", StringComparison.Ordinal)),
+            TestSqlLoggerFactory.Sql.Substring(TestSqlLoggerFactory.Sql.IndexOf("@p2", StringComparison.Ordinal)),
             ignoreLineEndingDifferences: true);
     }
 
@@ -514,190 +516,6 @@ EXEC [Entity_Insert] @p0 OUTPUT, @p1 OUTPUT;
             async,
 """
 CREATE PROCEDURE Entity_Insert(@Id int OUT, @Name varchar(max) OUT)
-        await base.Input_or_output_parameter_with_output(async);
-
-        AssertSql(
-            @"@p0='1' (Direction = Output)
-@p1='Some default value' (Nullable = false) (Size = 4000) (Direction = InputOutput)
-
-SET NOCOUNT ON;
-EXEC [WithInputOrOutputParameter_Insert] @p0 OUTPUT, @p1 OUTPUT;");
-    }
-
-    [ConditionalFact]
-    public virtual void Check_all_tests_overridden()
-        => TestHelpers.AssertAllMethodsOverridden(GetType());
-
-    public class StoredProcedureUpdateSqlServerFixture : StoredProcedureUpdateFixtureBase
-    {
-        protected override ITestStoreFactory TestStoreFactory
-            => StoredProcedureTestStoryFactory.Instance;
-
-        protected override void ConfigureStoreGeneratedConcurrencyToken(EntityTypeBuilder entityTypeBuilder, string propertyName)
-            => entityTypeBuilder.Property<byte[]>(propertyName).IsRowVersion();
-
-        public override void CleanData()
-        {
-            using var context = CreateContext();
-            context.Database.ExecuteSqlRaw(CleanDataSql);
-        }
-
-        private const string CleanDataSql = @"
--- Regular tables without foreign keys
-TRUNCATE TABLE [WithInputOrOutputParameter];
-TRUNCATE TABLE [WithOriginalAndCurrentValueOnNonConcurrencyToken];
-TRUNCATE TABLE [WithOutputParameter];
-TRUNCATE TABLE [WithOutputParameterAndResultColumn];
-TRUNCATE TABLE [WithOutputParameterAndRowsAffectedResultColumn];
-TRUNCATE TABLE [WithResultColumn];
-TRUNCATE TABLE [WithTwoResultColumns];
-TRUNCATE TABLE [WithRowsAffectedParameter];
-TRUNCATE TABLE [WithRowsAffectedResultColumn];
-TRUNCATE TABLE [WithRowsAffectedReturnValue];
-TRUNCATE TABLE [WithStoreGeneratedConcurrencyTokenAsInOutParameter];
-TRUNCATE TABLE [WithStoreGeneratedConcurrencyTokenAsTwoParameters];
-TRUNCATE TABLE [WithTwoInputParameters];
-TRUNCATE TABLE [WithUserManagedConcurrencyToken];
-TRUNCATE TABLE [Tph];
-TRUNCATE TABLE [TpcChild];
-TRUNCATE TABLE [TpcParent];
-
-ALTER SEQUENCE [TpcParentSequence] RESTART WITH 1;
-
--- We can't use TRUNCATE on tables with foreign keys, so we DELETE and reset IDENTITY manually.
--- DBCC CHECKIDENT resets IDENTITY, but behaves differently based on whether whether rows were ever inserted (seed+1) or not (seed).
--- So we insert a dummy row before deleting everything to make sure we get the seed value 1.
-INSERT INTO [TptMixedParent] DEFAULT VALUES;
-DELETE FROM [TptMixedChild];
-DELETE FROM [TptMixedParent];
-DBCC CHECKIDENT ('[TptMixedParent]', RESEED, 0);
-
-INSERT INTO [TptParent] DEFAULT VALUES;
-DELETE FROM [TptChild];
-DELETE FROM [TptParent];
-DBCC CHECKIDENT ('[TptParent]', RESEED, 0);";
-
-        private class StoredProcedureTestStoryFactory : SqlServerTestStoreFactory
-        {
-            public static new StoredProcedureTestStoryFactory Instance { get; } = new();
-
-            public override TestStore GetOrCreate(string storeName)
-                => SqlServerTestStore.GetOrCreateWithInitScript(storeName, InitScript);
-
-            private const string InitScript = @"
-CREATE PROCEDURE WithOutputParameter_Insert(@Name varchar(max), @Id int OUT)
-AS BEGIN
-    INSERT INTO [WithOutputParameter] ([Name]) VALUES (@Name);
-    SET @Id = SCOPE_IDENTITY();
-END;
-
-GO
-
-CREATE PROCEDURE WithOutputParameter_Update(@Id int, @Name varchar(max))
-AS UPDATE [WithOutputParameter] SET [Name] = @Name WHERE [Id] = @id;
-
-GO
-
-CREATE PROCEDURE WithOutputParameter_Delete(@Id int)
-AS DELETE FROM [WithOutputParameter] WHERE [Id] = @Id;
-
-GO
-
-CREATE PROCEDURE WithResultColumn_Insert(@Name varchar(max))
-AS INSERT INTO [WithResultColumn] ([Name]) OUTPUT [Inserted].[Id] VALUES (@Name);
-
-GO
-
-CREATE PROCEDURE WithTwoResultColumns_Insert(@Name varchar(max))
-AS INSERT INTO [WithTwoResultColumns] ([Name]) OUTPUT [Inserted].[AdditionalProperty], [Inserted].[Id] VALUES (@Name);
-
-GO
-
-CREATE PROCEDURE WithOutputParameterAndResultColumn_Insert(@Id int OUT, @Name varchar(max))
-AS BEGIN
-    INSERT INTO [WithOutputParameterAndResultColumn] ([Name]) VALUES (@Name);
-    SET @Id = SCOPE_IDENTITY();
-    SELECT [AdditionalProperty] FROM [WithOutputParameterAndResultColumn] WHERE [Id] = @Id
-END;
-
-GO
-
-CREATE PROCEDURE WithOutputParameterAndRowsAffectedResultColumn_Update(@Id int, @Name varchar(max), @AdditionalProperty int OUT)
-AS BEGIN
-    UPDATE [WithOutputParameterAndRowsAffectedResultColumn] SET [Name] = @Name, @AdditionalProperty = [AdditionalProperty] WHERE [Id] = @Id;
-    SELECT @@ROWCOUNT;
-END;
-
-GO
-
-CREATE PROCEDURE WithTwoInputParameters_Update(@Id int, @Name varchar(max), @AdditionalProperty int)
-AS UPDATE [WithTwoInputParameters] SET [Name] = @Name, [AdditionalProperty] = @AdditionalProperty WHERE [Id] = @id;
-
-GO
-
-CREATE PROCEDURE WithRowsAffectedParameter_Update(@Id int, @Name varchar(max), @RowsAffected int OUT)
-AS BEGIN
-    UPDATE [WithRowsAffectedParameter] SET [Name] = @Name WHERE [Id] = @Id;
-    SET @RowsAffected = @@ROWCOUNT;
-END;
-
-GO
-
-CREATE PROCEDURE WithRowsAffectedResultColumn_Update(@Id int, @Name varchar(max))
-AS BEGIN
-    UPDATE [WithRowsAffectedResultColumn] SET [Name] = @Name WHERE [Id] = @Id;
-    SELECT @@ROWCOUNT;
-END;
-
-GO
-
-CREATE PROCEDURE WithRowsAffectedReturnValue_Update(@Id int, @Name varchar(max))
-AS BEGIN
-    UPDATE [WithRowsAffectedReturnValue] SET [Name] = @Name WHERE [Id] = @Id;
-    RETURN @@ROWCOUNT;
-END;
-
-GO
-
-CREATE PROCEDURE WithStoreGeneratedConcurrencyTokenAsInOutParameter_Update(@Id int, @ConcurrencyToken rowversion OUT, @Name varchar(max), @RowsAffected int OUT)
-AS BEGIN
-    DECLARE @TempTable table ([ConcurrencyToken] varbinary(8));
-    UPDATE [WithStoreGeneratedConcurrencyTokenAsInOutParameter] SET [Name] = @Name OUTPUT INSERTED.[ConcurrencyToken] INTO @TempTable WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyToken;
-    SET @RowsAffected = @@ROWCOUNT;
-    SELECT @ConcurrencyToken = [ConcurrencyToken] FROM @TempTable;
-END;
-
-GO
-
-CREATE PROCEDURE WithStoreGeneratedConcurrencyTokenAsTwoParameters_Update(@Id int, @ConcurrencyTokenIn rowversion, @Name varchar(max), @ConcurrencyTokenOut rowversion OUT, @RowsAffected int OUT)
-AS BEGIN
-    DECLARE @TempTable table ([ConcurrencyToken] varbinary(8));
-    UPDATE [WithStoreGeneratedConcurrencyTokenAsTwoParameters] SET [Name] = @Name OUTPUT INSERTED.[ConcurrencyToken] INTO @TempTable WHERE [Id] = @Id AND [ConcurrencyToken] = @ConcurrencyTokenIn;
-    SET @RowsAffected = @@ROWCOUNT;
-    SELECT @ConcurrencyTokenOut = [ConcurrencyToken] FROM @TempTable;
-END;
-
-GO
-
-CREATE PROCEDURE WithUserManagedConcurrencyToken_Update(@Id int, @ConcurrencyTokenOriginal int, @Name varchar(max), @ConcurrencyTokenCurrent int, @RowsAffected int OUT)
-AS BEGIN
-    UPDATE [WithUserManagedConcurrencyToken] SET [Name] = @Name, [AdditionalProperty] = @ConcurrencyTokenCurrent WHERE [Id] = @Id AND [AdditionalProperty] = @ConcurrencyTokenOriginal;
-    SET @RowsAffected = @@ROWCOUNT;
-END;
-
-GO
-
-CREATE PROCEDURE WithOriginalAndCurrentValueOnNonConcurrencyToken_Update(@Id int, @NameCurrent varchar(max), @NameOriginal varchar(max))
-AS BEGIN
-    IF @NameCurrent <> @NameOriginal
-    BEGIN
-        UPDATE [WithOriginalAndCurrentValueOnNonConcurrencyToken] SET [Name] = @NameCurrent WHERE [Id] = @Id;
-    END
-END;
-
-GO
-
-CREATE PROCEDURE WithInputOrOutputParameter_Insert(@Id int OUT, @Name varchar(max) OUT)
 AS BEGIN
     IF @Name IS NULL
     BEGIN
@@ -731,10 +549,10 @@ EXEC [Entity_Insert] @p0 OUTPUT, @p1 OUTPUT;
 """
 CREATE PROCEDURE Tph_Insert(@Id int OUT, @Discriminator varchar(max), @Name varchar(max), @Child2InputProperty int, @Child2OutputParameterProperty int OUT, @Child1Property int)
 AS BEGIN
-    DECLARE @TempTable table ([Child2OutputParameterProperty] int);
-    INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @TempTable VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);
+    DECLARE @Table table ([Child2OutputParameterProperty] int);
+    INSERT INTO [Tph] ([Discriminator], [Name], [Child1Property], [Child2InputProperty]) OUTPUT [Inserted].[Child2OutputParameterProperty] INTO @Table VALUES (@Discriminator, @Name, @Child1Property, @Child2InputProperty);
     SET @Id = SCOPE_IDENTITY();
-    SELECT @Child2OutputParameterProperty = [Child2OutputParameterProperty] FROM @TempTable;
+    SELECT @Child2OutputParameterProperty = [Child2OutputParameterProperty] FROM @Table;
     SELECT [Child2ResultColumnProperty] FROM [Tph] WHERE [Id] = @Id
 END
 """);

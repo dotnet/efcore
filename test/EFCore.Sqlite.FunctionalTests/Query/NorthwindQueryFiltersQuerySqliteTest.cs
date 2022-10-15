@@ -24,8 +24,8 @@ public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTe
 @__ef_filter__TenantPrefix_0='B' (Size = 1)
 
 SELECT COUNT(*)
-FROM ""Customers"" AS ""c""
-WHERE @__ef_filter__TenantPrefix_0 = '' OR ((""c"".""CompanyName"" LIKE @__ef_filter__TenantPrefix_0 || '%') AND substr(""c"".""CompanyName"", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) OR @__ef_filter__TenantPrefix_0 = ''");
+FROM "Customers" AS "c"
+WHERE @__ef_filter__TenantPrefix_0 = '' OR (("c"."CompanyName" LIKE @__ef_filter__TenantPrefix_0 || '%') AND substr("c"."CompanyName", 1, length(@__ef_filter__TenantPrefix_0)) = @__ef_filter__TenantPrefix_0) OR @__ef_filter__TenantPrefix_0 = ''
 """);
     }
 
