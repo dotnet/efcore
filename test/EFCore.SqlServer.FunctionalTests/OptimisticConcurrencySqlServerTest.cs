@@ -155,11 +155,14 @@ public abstract class OptimisticConcurrencySqlServerTestBase<TFixture, TRowVersi
         base.Property_entry_original_value_is_set();
 
         AssertSql(
-            @"SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
+"""
+SELECT TOP(1) [e].[Id], [e].[EngineSupplierId], [e].[Name], [e].[StorageLocation_Latitude], [e].[StorageLocation_Longitude]
 FROM [Engines] AS [e]
-ORDER BY [e].[Id]",
+ORDER BY [e].[Id]
+""",
             //
-            @"@p1='1'
+"""
+@p1='1'
 @p2='Mercedes' (Size = 450)
 @p0='FO 108X' (Size = 4000)
 @p3='ChangedEngine' (Size = 4000)
@@ -170,7 +173,8 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Engines] SET [Name] = @p0
 OUTPUT 1
-WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3 AND [StorageLocation_Latitude] = @p4 AND [StorageLocation_Longitude] = @p5;");
+WHERE [Id] = @p1 AND [EngineSupplierId] = @p2 AND [Name] = @p3 AND [StorageLocation_Latitude] = @p4 AND [StorageLocation_Longitude] = @p5;
+""");
     }
 
     private void AssertSql(params string[] expected)

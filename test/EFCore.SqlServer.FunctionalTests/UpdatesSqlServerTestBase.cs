@@ -25,7 +25,8 @@ public abstract class UpdatesSqlServerTestBase<TFixture> : UpdatesRelationalTest
         base.Can_add_and_remove_self_refs();
 
         AssertSql(
-            @"@p0=NULL (Size = 4000)
+"""
+@p0=NULL (Size = 4000)
 @p1='1' (Nullable = false) (Size = 4000)
 @p2=NULL (DbType = Int32)
 
@@ -33,9 +34,11 @@ SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 INSERT INTO [Person] ([Country], [Name], [ParentId])
 OUTPUT INSERTED.[PersonId]
-VALUES (@p0, @p1, @p2);",
-                //
-                @"@p3=NULL (Size = 4000)
+VALUES (@p0, @p1, @p2);
+""",
+            //
+"""
+@p3=NULL (Size = 4000)
 @p4='2' (Nullable = false) (Size = 4000)
 @p5='1' (Nullable = true)
 @p6=NULL (Size = 4000)
@@ -50,9 +53,11 @@ VALUES (@p3, @p4, @p5, 0),
 WHEN NOT MATCHED THEN
 INSERT ([Country], [Name], [ParentId])
 VALUES (i.[Country], i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;",
-                //
-                @"@p9=NULL (Size = 4000)
+OUTPUT INSERTED.[PersonId], i._Position;
+""",
+            //
+"""
+@p9=NULL (Size = 4000)
 @p10='4' (Nullable = false) (Size = 4000)
 @p11='2' (Nullable = true)
 @p12=NULL (Size = 4000)
@@ -75,9 +80,11 @@ VALUES (@p9, @p10, @p11, 0),
 WHEN NOT MATCHED THEN
 INSERT ([Country], [Name], [ParentId])
 VALUES (i.[Country], i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;",
-                //
-                @"@p0='4'
+OUTPUT INSERTED.[PersonId], i._Position;
+""",
+            //
+"""
+@p0='4'
 @p1='5'
 @p2='6'
 @p3='2'
@@ -108,9 +115,11 @@ OUTPUT 1
 WHERE [PersonId] = @p5;
 INSERT INTO [Person] ([Country], [Name], [ParentId])
 OUTPUT INSERTED.[PersonId]
-VALUES (@p6, @p7, @p8);",
-                //
-                @"@p9='1'
+VALUES (@p6, @p7, @p8);
+""",
+            //
+"""
+@p9='1'
 @p10=NULL (Size = 4000)
 @p11='2' (Nullable = false) (Size = 4000)
 @p12='8' (Nullable = true)
@@ -128,9 +137,11 @@ VALUES (@p10, @p11, @p12, 0),
 WHEN NOT MATCHED THEN
 INSERT ([Country], [Name], [ParentId])
 VALUES (i.[Country], i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;",
-                //
-                @"@p16=NULL (Size = 4000)
+OUTPUT INSERTED.[PersonId], i._Position;
+""",
+            //
+"""
+@p16=NULL (Size = 4000)
 @p17='4' (Nullable = false) (Size = 4000)
 @p18='9' (Nullable = true)
 @p19=NULL (Size = 4000)
@@ -153,13 +164,16 @@ VALUES (@p16, @p17, @p18, 0),
 WHEN NOT MATCHED THEN
 INSERT ([Country], [Name], [ParentId])
 VALUES (i.[Country], i.[Name], i.[ParentId])
-OUTPUT INSERTED.[PersonId], i._Position;",
-                //
-                @"SELECT [p].[PersonId], [p].[Country], [p].[Name], [p].[ParentId], [p].[Address_City], [p].[Country], [p0].[PersonId], [p0].[Country], [p0].[Name], [p0].[ParentId], [p0].[Address_City], [p0].[Country], [p1].[PersonId], [p1].[Country], [p1].[Name], [p1].[ParentId], [p1].[Address_City], [p1].[Country], [p2].[PersonId], [p2].[Country], [p2].[Name], [p2].[ParentId], [p2].[Address_City], [p2].[Country]
+OUTPUT INSERTED.[PersonId], i._Position;
+""",
+            //
+"""
+SELECT [p].[PersonId], [p].[Country], [p].[Name], [p].[ParentId], [p].[Address_City], [p].[Country], [p0].[PersonId], [p0].[Country], [p0].[Name], [p0].[ParentId], [p0].[Address_City], [p0].[Country], [p1].[PersonId], [p1].[Country], [p1].[Name], [p1].[ParentId], [p1].[Address_City], [p1].[Country], [p2].[PersonId], [p2].[Country], [p2].[Name], [p2].[ParentId], [p2].[Address_City], [p2].[Country]
 FROM [Person] AS [p]
 LEFT JOIN [Person] AS [p0] ON [p].[ParentId] = [p0].[PersonId]
 LEFT JOIN [Person] AS [p1] ON [p0].[ParentId] = [p1].[PersonId]
-LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]");
+LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
+""");
     }
 
     public override void Identifiers_are_generated_correctly()

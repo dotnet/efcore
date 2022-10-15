@@ -1495,8 +1495,10 @@ public class BuiltInDataTypesSqliteTest : BuiltInDataTypesTestBase<BuiltInDataTy
             .Select(e => char.ToLower(e.Character)).ToList();
 
         AssertSql(
-            @"SELECT lower(""o"".""Character"")
-FROM ""ObjectBackedDataTypes"" AS ""o""");
+"""
+SELECT lower("o"."Character")
+FROM "ObjectBackedDataTypes" AS "o"
+""");
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => char.ToLower(e.Character)).ToList();
@@ -1513,8 +1515,10 @@ FROM ""ObjectBackedDataTypes"" AS ""o""");
             .Select(e => char.ToUpper(e.Character)).ToList();
 
         AssertSql(
-            @"SELECT upper(""o"".""Character"")
-FROM ""ObjectBackedDataTypes"" AS ""o""");
+"""
+SELECT upper("o"."Character")
+FROM "ObjectBackedDataTypes" AS "o"
+""");
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => char.ToUpper(e.Character)).ToList();
@@ -1531,8 +1535,10 @@ FROM ""ObjectBackedDataTypes"" AS ""o""");
             .Select(e => EF.Functions.Hex(e.Bytes)).ToList();
 
         AssertSql(
-            @"SELECT hex(""o"".""Bytes"")
-FROM ""ObjectBackedDataTypes"" AS ""o""");
+"""
+SELECT hex("o"."Bytes")
+FROM "ObjectBackedDataTypes" AS "o"
+""");
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => string.Concat(e.Bytes.Select(b => b.ToString("X2")))).ToList();
@@ -1549,8 +1555,10 @@ FROM ""ObjectBackedDataTypes"" AS ""o""");
             .Select(e => EF.Functions.Substr(e.Bytes, 2)).ToList();
 
         AssertSql(
-            @"SELECT substr(""o"".""Bytes"", 2)
-FROM ""ObjectBackedDataTypes"" AS ""o""");
+"""
+SELECT substr("o"."Bytes", 2)
+FROM "ObjectBackedDataTypes" AS "o"
+""");
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => e.Bytes.Skip(1).ToArray()).ToList();
@@ -1567,8 +1575,10 @@ FROM ""ObjectBackedDataTypes"" AS ""o""");
             .Select(e => EF.Functions.Substr(e.Bytes, 1, 1)).ToList();
 
         AssertSql(
-            @"SELECT substr(""o"".""Bytes"", 1, 1)
-FROM ""ObjectBackedDataTypes"" AS ""o""");
+"""
+SELECT substr("o"."Bytes", 1, 1)
+FROM "ObjectBackedDataTypes" AS "o"
+""");
 
         var expectedResults = context.Set<ObjectBackedDataTypes>().AsEnumerable()
             .Select(e => e.Bytes.Take(1).ToArray()).ToList();
@@ -1581,9 +1591,11 @@ FROM ""ObjectBackedDataTypes"" AS ""o""");
         base.Object_to_string_conversion();
 
         AssertSql(
-            @"SELECT CAST(""b"".""TestSignedByte"" AS TEXT), CAST(""b"".""TestByte"" AS TEXT), CAST(""b"".""TestInt16"" AS TEXT), CAST(""b"".""TestUnsignedInt16"" AS TEXT), CAST(""b"".""TestInt32"" AS TEXT), CAST(""b"".""TestUnsignedInt32"" AS TEXT), CAST(""b"".""TestInt64"" AS TEXT), ""b"".""TestUnsignedInt64"", CAST(""b"".""TestSingle"" AS TEXT), CAST(""b"".""TestDouble"" AS TEXT), CAST(""b"".""TestDecimal"" AS TEXT), CAST(""b"".""TestCharacter"" AS TEXT), CAST(""b"".""TestDateTime"" AS TEXT), CAST(""b"".""TestDateTimeOffset"" AS TEXT), CAST(""b"".""TestTimeSpan"" AS TEXT)
-FROM ""BuiltInDataTypes"" AS ""b""
-WHERE ""b"".""Id"" = 13");
+"""
+SELECT CAST("b"."TestSignedByte" AS TEXT), CAST("b"."TestByte" AS TEXT), CAST("b"."TestInt16" AS TEXT), CAST("b"."TestUnsignedInt16" AS TEXT), CAST("b"."TestInt32" AS TEXT), CAST("b"."TestUnsignedInt32" AS TEXT), CAST("b"."TestInt64" AS TEXT), "b"."TestUnsignedInt64", CAST("b"."TestSingle" AS TEXT), CAST("b"."TestDouble" AS TEXT), CAST("b"."TestDecimal" AS TEXT), CAST("b"."TestCharacter" AS TEXT), CAST("b"."TestDateTime" AS TEXT), CAST("b"."TestDateTimeOffset" AS TEXT), CAST("b"."TestTimeSpan" AS TEXT)
+FROM "BuiltInDataTypes" AS "b"
+WHERE "b"."Id" = 13
+""");
     }
 
     [ConditionalFact]
@@ -1627,10 +1639,12 @@ WHERE ""b"".""Id"" = 13");
         }
 
         AssertSql(
-            @"SELECT ef_add(""b"".""TestDecimal"", ""b0"".""TestDecimal"") AS ""add"", ef_add(""b"".""TestDecimal"", ef_negate(""b0"".""TestDecimal"")) AS ""subtract"", ef_multiply(""b"".""TestDecimal"", ""b0"".""TestDecimal"") AS ""multiply"", ef_divide(""b"".""TestDecimal"", ""b0"".""TestDecimal"") AS ""divide"", ef_negate(""b"".""TestDecimal"") AS ""negate""
-FROM ""BuiltInDataTypes"" AS ""b""
-CROSS JOIN ""BuiltInDataTypes"" AS ""b0""
-ORDER BY ""b"".""Id"", ""b0"".""Id""");
+"""
+SELECT ef_add("b"."TestDecimal", "b0"."TestDecimal") AS "add", ef_add("b"."TestDecimal", ef_negate("b0"."TestDecimal")) AS "subtract", ef_multiply("b"."TestDecimal", "b0"."TestDecimal") AS "multiply", ef_divide("b"."TestDecimal", "b0"."TestDecimal") AS "divide", ef_negate("b"."TestDecimal") AS "negate"
+FROM "BuiltInDataTypes" AS "b"
+CROSS JOIN "BuiltInDataTypes" AS "b0"
+ORDER BY "b"."Id", "b0"."Id"
+""");
     }
 
     private void AssertTranslationFailed(Action testCode)

@@ -19,19 +19,25 @@ public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSeman
         await base.Bool_equal_nullable_bool_HasValue(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""NullableBoolA"" IS NOT NULL",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" IS NOT NULL
+""",
             //
-            @"@__prm_0='False'
+"""
+@__prm_0='False'
 
-SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE @__prm_0 = (""e"".""NullableBoolA"" IS NOT NULL)",
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE @__prm_0 = ("e"."NullableBoolA" IS NOT NULL)
+""",
             //
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""BoolB"" = (""e"".""NullableBoolA"" IS NOT NULL)");
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB" = ("e"."NullableBoolA" IS NOT NULL)
+""");
     }
 
     public override async Task Bool_equal_nullable_bool_compared_to_null(bool async)
@@ -39,15 +45,19 @@ WHERE ""e"".""BoolB"" = (""e"".""NullableBoolA"" IS NOT NULL)");
         await base.Bool_equal_nullable_bool_compared_to_null(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""NullableBoolA"" IS NULL",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" IS NULL
+""",
             //
-            @"@__prm_0='False'
+"""
+@__prm_0='False'
 
-SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE @__prm_0 = (""e"".""NullableBoolA"" IS NOT NULL)");
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE @__prm_0 = ("e"."NullableBoolA" IS NOT NULL)
+""");
     }
 
     public override async Task Bool_not_equal_nullable_bool_HasValue(bool async)
@@ -55,19 +65,25 @@ WHERE @__prm_0 = (""e"".""NullableBoolA"" IS NOT NULL)");
         await base.Bool_not_equal_nullable_bool_HasValue(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""NullableBoolA"" IS NULL",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" IS NULL
+""",
             //
-            @"@__prm_0='False'
+"""
+@__prm_0='False'
 
-SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE @__prm_0 <> (""e"".""NullableBoolA"" IS NOT NULL)",
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE @__prm_0 <> ("e"."NullableBoolA" IS NOT NULL)
+""",
             //
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""BoolB"" <> (""e"".""NullableBoolA"" IS NOT NULL)");
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB" <> ("e"."NullableBoolA" IS NOT NULL)
+""");
     }
 
     public override async Task Bool_not_equal_nullable_int_HasValue(bool async)
@@ -75,19 +91,25 @@ WHERE ""e"".""BoolB"" <> (""e"".""NullableBoolA"" IS NOT NULL)");
         await base.Bool_not_equal_nullable_int_HasValue(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""NullableIntA"" IS NULL",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableIntA" IS NULL
+""",
             //
-            @"@__prm_0='False'
+"""
+@__prm_0='False'
 
-SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE @__prm_0 <> (""e"".""NullableIntA"" IS NOT NULL)",
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE @__prm_0 <> ("e"."NullableIntA" IS NOT NULL)
+""",
             //
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""BoolB"" <> (""e"".""NullableIntA"" IS NOT NULL)");
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB" <> ("e"."NullableIntA" IS NOT NULL)
+""");
     }
 
     public override async Task Bool_not_equal_nullable_bool_compared_to_null(bool async)
@@ -95,15 +117,19 @@ WHERE ""e"".""BoolB"" <> (""e"".""NullableIntA"" IS NOT NULL)");
         await base.Bool_not_equal_nullable_bool_compared_to_null(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""NullableBoolA"" IS NOT NULL",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableBoolA" IS NOT NULL
+""",
             //
-            @"@__prm_0='False'
+"""
+@__prm_0='False'
 
-SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE @__prm_0 <> (""e"".""NullableBoolA"" IS NOT NULL)");
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE @__prm_0 <> ("e"."NullableBoolA" IS NOT NULL)
+""");
     }
 
     public override async Task Bool_logical_operation_with_nullable_bool_HasValue(bool async)
@@ -111,16 +137,22 @@ WHERE @__prm_0 <> (""e"".""NullableBoolA"" IS NOT NULL)");
         await base.Bool_logical_operation_with_nullable_bool_HasValue(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+""",
             //
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE 0",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE 0
+""",
             //
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE ""e"".""BoolB"" | (""e"".""NullableBoolA"" IS NOT NULL)");
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE "e"."BoolB" | ("e"."NullableBoolA" IS NOT NULL)
+""");
     }
 
     public override async Task Comparison_compared_to_null_check_on_bool(bool async)
@@ -128,13 +160,17 @@ WHERE ""e"".""BoolB"" | (""e"".""NullableBoolA"" IS NOT NULL)");
         await base.Comparison_compared_to_null_check_on_bool(async);
 
         AssertSql(
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE (""e"".""IntA"" = ""e"".""IntB"") <> (""e"".""NullableBoolA"" IS NOT NULL)",
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE ("e"."IntA" = "e"."IntB") <> ("e"."NullableBoolA" IS NOT NULL)
+""",
             //
-            @"SELECT ""e"".""Id"", ""e"".""BoolA"", ""e"".""BoolB"", ""e"".""BoolC"", ""e"".""IntA"", ""e"".""IntB"", ""e"".""IntC"", ""e"".""NullableBoolA"", ""e"".""NullableBoolB"", ""e"".""NullableBoolC"", ""e"".""NullableIntA"", ""e"".""NullableIntB"", ""e"".""NullableIntC"", ""e"".""NullableStringA"", ""e"".""NullableStringB"", ""e"".""NullableStringC"", ""e"".""StringA"", ""e"".""StringB"", ""e"".""StringC""
-FROM ""Entities1"" AS ""e""
-WHERE (""e"".""IntA"" <> ""e"".""IntB"") = (""e"".""NullableBoolA"" IS NOT NULL)");
+"""
+SELECT "e"."Id", "e"."BoolA", "e"."BoolB", "e"."BoolC", "e"."IntA", "e"."IntB", "e"."IntC", "e"."NullableBoolA", "e"."NullableBoolB", "e"."NullableBoolC", "e"."NullableIntA", "e"."NullableIntB", "e"."NullableIntC", "e"."NullableStringA", "e"."NullableStringB", "e"."NullableStringC", "e"."StringA", "e"."StringB", "e"."StringC"
+FROM "Entities1" AS "e"
+WHERE ("e"."IntA" <> "e"."IntB") = ("e"."NullableBoolA" IS NOT NULL)
+""");
     }
 
     private void AssertSql(params string[] expected)

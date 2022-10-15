@@ -25,11 +25,13 @@ public class PartitionKeyTest : IClassFixture<PartitionKeyTest.CosmosPartitionKe
     public virtual async Task Can_add_update_delete_end_to_end_with_partition_key()
     {
         const string readSql =
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")
-ORDER BY c[""PartitionKey""]
-OFFSET 0 LIMIT 1";
+WHERE (c["Discriminator"] = "Customer")
+ORDER BY c["PartitionKey"]
+OFFSET 0 LIMIT 1
+""";
 
         await PartitionKeyTestAsync(
             ctx => ctx.Customers.OrderBy(c => c.PartitionKey).FirstAsync(),
@@ -43,10 +45,12 @@ OFFSET 0 LIMIT 1";
     public virtual async Task Can_add_update_delete_end_to_end_with_with_partition_key_extension()
     {
         const string readSql =
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")
-OFFSET 0 LIMIT 1";
+WHERE (c["Discriminator"] = "Customer")
+OFFSET 0 LIMIT 1
+""";
 
         await PartitionKeyTestAsync(
             ctx => ctx.Customers.WithPartitionKey("1").FirstAsync(),
@@ -60,10 +64,12 @@ OFFSET 0 LIMIT 1";
     public async Task Can_query_with_implicit_partition_key_filter()
     {
         const string readSql =
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND ((c[""Id""] = 42) OR (c[""Name""] = ""John Snow"")))
-OFFSET 0 LIMIT 1";
+WHERE ((c["Discriminator"] = "Customer") AND ((c["Id"] = 42) OR (c["Name"] = "John Snow")))
+OFFSET 0 LIMIT 1
+""";
 
         await PartitionKeyTestAsync(
             ctx => ctx.Customers

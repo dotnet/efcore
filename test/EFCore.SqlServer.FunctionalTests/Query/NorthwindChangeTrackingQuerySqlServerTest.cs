@@ -23,8 +23,10 @@ public class NorthwindChangeTrackingQuerySqlServerTest : NorthwindChangeTracking
         base.Entity_reverts_when_state_set_to_unchanged();
 
         AssertSql(
-            @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+"""
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
     }
 
     public override void Entity_does_not_revert_when_attached_on_DbSet()
@@ -32,8 +34,10 @@ FROM [Customers] AS [c]");
         base.Entity_does_not_revert_when_attached_on_DbSet();
 
         AssertSql(
-            @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+"""
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
     }
 
     public override void AsTracking_switches_tracking_on_when_off_in_options()
@@ -41,8 +45,10 @@ FROM [Customers] AS [c]");
         base.AsTracking_switches_tracking_on_when_off_in_options();
 
         AssertSql(
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]");
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""");
     }
 
     public override void Can_disable_and_reenable_query_result_tracking_query_caching_using_options()
@@ -50,11 +56,15 @@ FROM [Employees] AS [e]");
         base.Can_disable_and_reenable_query_result_tracking_query_caching_using_options();
 
         AssertSql(
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]",
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""",
             //
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]");
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""");
     }
 
     public override void Can_disable_and_reenable_query_result_tracking()
@@ -62,22 +72,28 @@ FROM [Employees] AS [e]");
         base.Can_disable_and_reenable_query_result_tracking();
 
         AssertSql(
-            @"@__p_0='1'
+"""
+@__p_0='1'
 
 SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-ORDER BY [e].[EmployeeID]",
+ORDER BY [e].[EmployeeID]
+""",
             //
-            @"@__p_0='1'
+"""
+@__p_0='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY",
+OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+""",
             //
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-ORDER BY [e].[EmployeeID]");
+ORDER BY [e].[EmployeeID]
+""");
     }
 
     public override void Entity_range_does_not_revert_when_attached_dbSet()
@@ -85,7 +101,8 @@ ORDER BY [e].[EmployeeID]");
         base.Entity_range_does_not_revert_when_attached_dbSet();
 
         AssertSql(
-            @"@__p_0='2'
+"""
+@__p_0='2'
 
 SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
@@ -93,9 +110,11 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
-ORDER BY [t].[CustomerID]",
+ORDER BY [t].[CustomerID]
+""",
             //
-            @"@__p_0='2'
+"""
+@__p_0='2'
 @__p_1='1'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -105,13 +124,16 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]
-OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY",
+OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY
+""",
             //
-            @"@__p_0='2'
+"""
+@__p_0='2'
 
 SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID]
+""");
     }
 
     public override void Precedence_of_tracking_modifiers5()
@@ -119,10 +141,12 @@ ORDER BY [c].[CustomerID]");
         base.Precedence_of_tracking_modifiers5();
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
     }
 
     public override void Precedence_of_tracking_modifiers2()
@@ -130,8 +154,10 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         base.Precedence_of_tracking_modifiers2();
 
         AssertSql(
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]");
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""");
     }
 
     public override void Can_disable_and_reenable_query_result_tracking_query_caching()
@@ -139,11 +165,15 @@ FROM [Employees] AS [e]");
         base.Can_disable_and_reenable_query_result_tracking_query_caching();
 
         AssertSql(
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]",
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""",
             //
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]");
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""");
     }
 
     public override void Entity_range_does_not_revert_when_attached_dbContext()
@@ -151,7 +181,8 @@ FROM [Employees] AS [e]");
         base.Entity_range_does_not_revert_when_attached_dbContext();
 
         AssertSql(
-            @"@__p_0='2'
+"""
+@__p_0='2'
 
 SELECT TOP(1) [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
 FROM (
@@ -159,9 +190,11 @@ FROM (
     FROM [Customers] AS [c]
     ORDER BY [c].[CustomerID]
 ) AS [t]
-ORDER BY [t].[CustomerID]",
+ORDER BY [t].[CustomerID]
+""",
             //
-            @"@__p_0='2'
+"""
+@__p_0='2'
 @__p_1='1'
 
 SELECT [t].[CustomerID], [t].[Address], [t].[City], [t].[CompanyName], [t].[ContactName], [t].[ContactTitle], [t].[Country], [t].[Fax], [t].[Phone], [t].[PostalCode], [t].[Region]
@@ -171,13 +204,16 @@ FROM (
     ORDER BY [c].[CustomerID]
 ) AS [t]
 ORDER BY [t].[CustomerID]
-OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY",
+OFFSET @__p_1 ROWS FETCH NEXT 1 ROWS ONLY
+""",
             //
-            @"@__p_0='2'
+"""
+@__p_0='2'
 
 SELECT TOP(@__p_0) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-ORDER BY [c].[CustomerID]");
+ORDER BY [c].[CustomerID]
+""");
     }
 
     public override void Precedence_of_tracking_modifiers()
@@ -185,8 +221,10 @@ ORDER BY [c].[CustomerID]");
         base.Precedence_of_tracking_modifiers();
 
         AssertSql(
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]");
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""");
     }
 
     public override void Precedence_of_tracking_modifiers3()
@@ -194,10 +232,12 @@ FROM [Employees] AS [e]");
         base.Precedence_of_tracking_modifiers3();
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
     }
 
     public override void Can_disable_and_reenable_query_result_tracking_starting_with_NoTracking()
@@ -205,18 +245,22 @@ WHERE [c].[CustomerID] = N'ALFKI'");
         base.Can_disable_and_reenable_query_result_tracking_starting_with_NoTracking();
 
         AssertSql(
-            @"@__p_0='1'
+"""
+@__p_0='1'
 
 SELECT TOP(@__p_0) [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
-ORDER BY [e].[EmployeeID]",
+ORDER BY [e].[EmployeeID]
+""",
             //
-            @"@__p_0='1'
+"""
+@__p_0='1'
 
 SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Employees] AS [e]
 ORDER BY [e].[EmployeeID]
-OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
+OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY
+""");
     }
 
     public override void Entity_does_not_revert_when_attached_on_DbContext()
@@ -224,8 +268,10 @@ OFFSET @__p_0 ROWS FETCH NEXT @__p_0 ROWS ONLY");
         base.Entity_does_not_revert_when_attached_on_DbContext();
 
         AssertSql(
-            @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]");
+"""
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""");
     }
 
     public override void Can_disable_and_reenable_query_result_tracking_query_caching_single_context()
@@ -233,11 +279,15 @@ FROM [Customers] AS [c]");
         base.Can_disable_and_reenable_query_result_tracking_query_caching_single_context();
 
         AssertSql(
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]",
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""",
             //
-            @"SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
-FROM [Employees] AS [e]");
+"""
+SELECT [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
+FROM [Employees] AS [e]
+""");
     }
 
     public override void Multiple_entities_can_revert()
@@ -245,26 +295,40 @@ FROM [Employees] AS [e]");
         base.Multiple_entities_can_revert();
 
         AssertSql(
-            @"SELECT [c].[PostalCode]
-FROM [Customers] AS [c]",
+"""
+SELECT [c].[PostalCode]
+FROM [Customers] AS [c]
+""",
             //
-            @"SELECT [c].[Region]
-FROM [Customers] AS [c]",
+"""
+SELECT [c].[Region]
+FROM [Customers] AS [c]
+""",
             //
-            @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""",
             //
-            @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+"""
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""",
             //
-            @"SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
-FROM [Customers] AS [c]",
+"""
+SELECT TOP(1) [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+""",
             //
-            @"SELECT [c].[PostalCode]
-FROM [Customers] AS [c]",
+"""
+SELECT [c].[PostalCode]
+FROM [Customers] AS [c]
+""",
             //
-            @"SELECT [c].[Region]
-FROM [Customers] AS [c]");
+"""
+SELECT [c].[Region]
+FROM [Customers] AS [c]
+""");
     }
 
     public override void Precedence_of_tracking_modifiers4()
@@ -272,10 +336,12 @@ FROM [Customers] AS [c]");
         base.Precedence_of_tracking_modifiers4();
 
         AssertSql(
-            @"SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Customers] AS [c]
 INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
-WHERE [c].[CustomerID] = N'ALFKI'");
+WHERE [c].[CustomerID] = N'ALFKI'
+""");
     }
 
     private void AssertSql(params string[] expected)
