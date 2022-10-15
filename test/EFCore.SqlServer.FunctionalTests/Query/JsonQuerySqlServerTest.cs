@@ -1,6 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class JsonQuerySqlServerTest : JsonQueryTestBase<JsonQuerySqlServerFixture>
@@ -835,6 +838,183 @@ FROM [JsonEntitiesAllTypes] AS [j]
 """
 SELECT CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) AS [TestBoolean], CAST(JSON_VALUE([j].[Reference],'$.TestByte') AS tinyint) AS [TestByte], CAST(JSON_VALUE([j].[Reference],'$.TestCharacter') AS nvarchar(1)) AS [TestCharacter], CAST(JSON_VALUE([j].[Reference],'$.TestDateTime') AS datetime2) AS [TestDateTime], CAST(JSON_VALUE([j].[Reference],'$.TestDateTimeOffset') AS datetimeoffset) AS [TestDateTimeOffset], CAST(JSON_VALUE([j].[Reference],'$.TestDecimal') AS decimal(18,3)) AS [TestDecimal], CAST(JSON_VALUE([j].[Reference],'$.TestDouble') AS float) AS [TestDouble], CAST(JSON_VALUE([j].[Reference],'$.TestGuid') AS uniqueidentifier) AS [TestGuid], CAST(JSON_VALUE([j].[Reference],'$.TestInt16') AS smallint) AS [TestInt16], CAST(JSON_VALUE([j].[Reference],'$.TestInt32') AS int) AS [TestInt32], CAST(JSON_VALUE([j].[Reference],'$.TestInt64') AS bigint) AS [TestInt64], CAST(JSON_VALUE([j].[Reference],'$.TestSignedByte') AS smallint) AS [TestSignedByte], CAST(JSON_VALUE([j].[Reference],'$.TestSingle') AS real) AS [TestSingle], CAST(JSON_VALUE([j].[Reference],'$.TestTimeSpan') AS time) AS [TestTimeSpan], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt16') AS int) AS [TestUnsignedInt16], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt32') AS bigint) AS [TestUnsignedInt32], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt64') AS decimal(20,0)) AS [TestUnsignedInt64], CAST(JSON_VALUE([j].[Reference],'$.TestNullableInt32') AS int) AS [TestNullableInt32], CAST(JSON_VALUE([j].[Reference],'$.TestEnum') AS nvarchar(max)) AS [TestEnum], CAST(JSON_VALUE([j].[Reference],'$.TestEnumWithIntConverter') AS int) AS [TestEnumWithIntConverter], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnum') AS nvarchar(max)) AS [TestNullableEnum], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithIntConverter') AS int) AS [TestNullableEnumWithIntConverter], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithConverterThatHandlesNulls') AS nvarchar(max)) AS [TestNullableEnumWithConverterThatHandlesNulls]
 FROM [JsonEntitiesAllTypes] AS [j]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_basic(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j")),
+            ss => ss.Set<JsonEntityBasic>(),
+            entryCount: 40);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[EntityBasicId], [m].[Name], JSON_QUERY([m].[OwnedCollectionRoot],'$'), JSON_QUERY([m].[OwnedReferenceRoot],'$')
+FROM (
+    SELECT * FROM "JsonEntitiesBasic" AS j
+) AS [m]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSqlInterpolated_on_entity_with_json_with_predicate(bool async)
+    {
+        var parameter = new SqlParameter { ParameterName = "prm", Value = 1 };
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSql(
+                Fixture.TestStore.NormalizeDelimitersInInterpolatedString($"SELECT * FROM [JsonEntitiesBasic] AS j WHERE [j].[Id] = {parameter}")),
+            ss => ss.Set<JsonEntityBasic>(),
+            entryCount: 40);
+
+        AssertSql(
+"""
+prm='1'
+
+SELECT [m].[Id], [m].[EntityBasicId], [m].[Name], JSON_QUERY([m].[OwnedCollectionRoot],'$'), JSON_QUERY([m].[OwnedReferenceRoot],'$')
+FROM (
+    SELECT * FROM "JsonEntitiesBasic" AS j WHERE "j"."Id" = @prm
+) AS [m]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_project_json_reference(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
+                .AsNoTracking()
+                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch),
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch));
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([m].[OwnedReferenceRoot],'$.OwnedReferenceBranch'), [m].[Id]
+FROM (
+    SELECT * FROM "JsonEntitiesBasic" AS j
+) AS [m]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_project_json_collection(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
+                .AsNoTracking()
+                .Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)));
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([m].[OwnedReferenceRoot],'$.OwnedCollectionBranch'), [m].[Id]
+FROM (
+    SELECT * FROM "JsonEntitiesBasic" AS j
+) AS [m]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_inheritance_on_base(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceBase>)ss.Set<JsonEntityInheritanceBase>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
+            ss => ss.Set<JsonEntityInheritanceBase>(),
+            entryCount: 38);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Fraction], JSON_QUERY([m].[CollectionOnBase],'$'), JSON_QUERY([m].[ReferenceOnBase],'$'), JSON_QUERY([m].[CollectionOnDerived],'$'), JSON_QUERY([m].[ReferenceOnDerived],'$')
+FROM (
+    SELECT * FROM "JsonEntitiesInheritance" AS j
+) AS [m]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_inheritance_on_derived(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceDerived>)ss.Set<JsonEntityInheritanceDerived>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
+            ss => ss.Set<JsonEntityInheritanceDerived>(),
+            entryCount: 25);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[Discriminator], [m].[Name], [m].[Fraction], JSON_QUERY([m].[CollectionOnBase],'$'), JSON_QUERY([m].[ReferenceOnBase],'$'), JSON_QUERY([m].[CollectionOnDerived],'$'), JSON_QUERY([m].[ReferenceOnDerived],'$')
+FROM (
+    SELECT * FROM "JsonEntitiesInheritance" AS j
+) AS [m]
+WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_inheritance_project_reference_on_base(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceBase>)ss.Set<JsonEntityInheritanceBase>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .Select(x => x.ReferenceOnBase),
+            ss => ss.Set<JsonEntityInheritanceBase>().OrderBy(x => x.Id).Select(x => x.ReferenceOnBase),
+            assertOrder: true);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([m].[ReferenceOnBase],'$'), [m].[Id]
+FROM (
+    SELECT * FROM "JsonEntitiesInheritance" AS j
+) AS [m]
+ORDER BY [m].[Id]
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task FromSql_on_entity_with_json_inheritance_project_reference_on_derived(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceDerived>)ss.Set<JsonEntityInheritanceDerived>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .Select(x => x.CollectionOnDerived),
+            ss => ss.Set<JsonEntityInheritanceDerived>().OrderBy(x => x.Id).Select(x => x.CollectionOnDerived),
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)),
+            assertOrder: true);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([m].[CollectionOnDerived],'$'), [m].[Id]
+FROM (
+    SELECT * FROM "JsonEntitiesInheritance" AS j
+) AS [m]
+WHERE [m].[Discriminator] = N'JsonEntityInheritanceDerived'
+ORDER BY [m].[Id]
 """);
     }
 
