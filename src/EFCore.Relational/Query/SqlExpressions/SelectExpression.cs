@@ -440,52 +440,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
-
-            foreach (var ownedJsonNavigation in GetAllNavigationsInHierarchy(entityType)
-                         .Where(
-                             n => n.ForeignKey.IsOwnership
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && n.ForeignKey.PrincipalToDependent == n))
-            {
-                var targetEntityType = ownedJsonNavigation.TargetEntityType;
-                var jsonColumnName = targetEntityType.GetContainerColumnName()!;
-                var jsonColumnTypeMapping = targetEntityType.GetContainerColumnTypeMapping()!;
-
-                var jsonColumn = new ConcreteColumnExpression(
-                    jsonColumnName,
-                    tableReferenceExpression,
-                    jsonColumnTypeMapping.ClrType,
-                    jsonColumnTypeMapping,
-                    nullable: !ownedJsonNavigation.ForeignKey.IsRequiredDependent || ownedJsonNavigation.IsCollection);
-
-                // for json collections we need to skip ordinal key (which is always the last one)
-                // simple copy from parent is safe here, because we only do it at top level
-                // so there is no danger of multiple keys being synthesized (like we have in multi-level nav chains)
-                var keyPropertiesMap = new Dictionary<IProperty, ColumnExpression>();
-                var keyProperties = targetEntityType.FindPrimaryKey()!.Properties;
-                var keyPropertiesCount = ownedJsonNavigation.IsCollection
-                    ? keyProperties.Count - 1
-                    : keyProperties.Count;
-
-                for (var i = 0; i < keyPropertiesCount; i++)
-                {
-                    var correspondingParentKeyProperty = ownedJsonNavigation.ForeignKey.PrincipalKey.Properties[i];
-                    keyPropertiesMap[keyProperties[i]] = propertyExpressions[correspondingParentKeyProperty];
-                }
-
-                var entityShaperExpression = new RelationalEntityShaperExpression(
-                    targetEntityType,
-                    new JsonQueryExpression(
-                        targetEntityType,
-                        jsonColumn,
-                        keyPropertiesMap,
-                        ownedJsonNavigation.ClrType,
-                        ownedJsonNavigation.IsCollection),
-                    !ownedJsonNavigation.ForeignKey.IsRequiredDependent);
-
-                entityProjection.AddNavigationBinding(ownedJsonNavigation, entityShaperExpression);
-            }
-
+            AddJsonNavigationBindings(entityType, entityProjection, propertyExpressions, tableReferenceExpression);
             _projectionMapping[new ProjectionMember()] = entityProjection;
 
             var primaryKey = entityType.FindPrimaryKey();
@@ -522,6 +477,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
+        AddJsonNavigationBindings(entityType, entityProjection, propertyExpressions, tableReferenceExpression);
         _projectionMapping[new ProjectionMember()] = entityProjection;
 
         var primaryKey = entityType.FindPrimaryKey();
@@ -531,6 +487,58 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
             }
+        }
+    }
+
+    private void AddJsonNavigationBindings(
+        IEntityType entityType,
+        EntityProjectionExpression entityProjection,
+        Dictionary<IProperty, ColumnExpression> propertyExpressions,
+        TableReferenceExpression tableReferenceExpression)
+    {
+        foreach (var ownedJsonNavigation in GetAllNavigationsInHierarchy(entityType)
+                     .Where(
+                         n => n.ForeignKey.IsOwnership
+                             && n.TargetEntityType.IsMappedToJson()
+                             && n.ForeignKey.PrincipalToDependent == n))
+        {
+            var targetEntityType = ownedJsonNavigation.TargetEntityType;
+            var jsonColumnName = targetEntityType.GetContainerColumnName()!;
+            var jsonColumnTypeMapping = targetEntityType.GetContainerColumnTypeMapping()!;
+
+            var jsonColumn = new ConcreteColumnExpression(
+                jsonColumnName,
+                tableReferenceExpression,
+                jsonColumnTypeMapping.ClrType,
+                jsonColumnTypeMapping,
+                nullable: !ownedJsonNavigation.ForeignKey.IsRequiredDependent || ownedJsonNavigation.IsCollection);
+
+            // for json collections we need to skip ordinal key (which is always the last one)
+            // simple copy from parent is safe here, because we only do it at top level
+            // so there is no danger of multiple keys being synthesized (like we have in multi-level nav chains)
+            var keyPropertiesMap = new Dictionary<IProperty, ColumnExpression>();
+            var keyProperties = targetEntityType.FindPrimaryKey()!.Properties;
+            var keyPropertiesCount = ownedJsonNavigation.IsCollection
+                ? keyProperties.Count - 1
+                : keyProperties.Count;
+
+            for (var i = 0; i < keyPropertiesCount; i++)
+            {
+                var correspondingParentKeyProperty = ownedJsonNavigation.ForeignKey.PrincipalKey.Properties[i];
+                keyPropertiesMap[keyProperties[i]] = propertyExpressions[correspondingParentKeyProperty];
+            }
+
+            var entityShaperExpression = new RelationalEntityShaperExpression(
+                targetEntityType,
+                new JsonQueryExpression(
+                    targetEntityType,
+                    jsonColumn,
+                    keyPropertiesMap,
+                    ownedJsonNavigation.ClrType,
+                    ownedJsonNavigation.IsCollection),
+                !ownedJsonNavigation.ForeignKey.IsRequiredDependent);
+
+            entityProjection.AddNavigationBinding(ownedJsonNavigation, entityShaperExpression);
         }
     }
 
