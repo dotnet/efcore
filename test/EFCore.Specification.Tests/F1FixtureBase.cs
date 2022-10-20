@@ -192,20 +192,6 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
                     eb.Property<TRowVersion>("Version").IsRowVersion();
                     eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
                 });
-
-        if (typeof(TRowVersion) != typeof(byte[]))
-        {
-            modelBuilder.Entity<Chassis>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<Driver>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<Team>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<Sponsor>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<TitleSponsor>()
-                .OwnsOne(
-                    s => s.Details, eb =>
-                    {
-                        eb.Property<TRowVersion>("Version").IsRowVersion().HasConversion<byte[]>();
-                    });
-        }
     }
 
     private static void ConfigureConstructorBinding<TEntity>(IMutableEntityType mutableEntityType, params string[] propertyNames)
