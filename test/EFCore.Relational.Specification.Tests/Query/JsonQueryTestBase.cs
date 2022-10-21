@@ -803,4 +803,84 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     x.Reference.TestNullableEnumWithIntConverter,
                     x.Reference.TestNullableEnumWithConverterThatHandlesNulls,
                 }));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_basic(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j")),
+            ss => ss.Set<JsonEntityBasic>(),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_project_json_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
+                .AsNoTracking()
+                .Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch),
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_project_json_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityBasic>)ss.Set<JsonEntityBasic>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesBasic] AS j"))
+                .AsNoTracking()
+                .Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedCollectionBranch),
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_inheritance_on_base(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceBase>)ss.Set<JsonEntityInheritanceBase>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
+            ss => ss.Set<JsonEntityInheritanceBase>(),
+            entryCount: 38);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_inheritance_on_derived(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceDerived>)ss.Set<JsonEntityInheritanceDerived>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j")),
+            ss => ss.Set<JsonEntityInheritanceDerived>(),
+            entryCount: 25);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_inheritance_project_reference_on_base(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceBase>)ss.Set<JsonEntityInheritanceBase>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .Select(x => x.ReferenceOnBase),
+            ss => ss.Set<JsonEntityInheritanceBase>().OrderBy(x => x.Id).Select(x => x.ReferenceOnBase),
+            assertOrder: true);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task FromSql_on_entity_with_json_inheritance_project_reference_on_derived(bool async)
+        => AssertQuery(
+            async,
+            ss => ((DbSet<JsonEntityInheritanceDerived>)ss.Set<JsonEntityInheritanceDerived>()).FromSqlRaw(
+                Fixture.TestStore.NormalizeDelimitersInRawString("SELECT * FROM [JsonEntitiesInheritance] AS j"))
+                .AsNoTracking()
+                .OrderBy(x => x.Id)
+                .Select(x => x.CollectionOnDerived),
+            ss => ss.Set<JsonEntityInheritanceDerived>().OrderBy(x => x.Id).Select(x => x.CollectionOnDerived),
+            elementAsserter: (e, a) => AssertCollection(e, a, elementSorter: ee => (ee.Date, ee.Enum, ee.Fraction)),
+            assertOrder: true);
 }

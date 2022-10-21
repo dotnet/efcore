@@ -299,6 +299,14 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// <inheritdoc />
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
+        if (jsonScalarExpression.Path.Count == 1
+            && jsonScalarExpression.Path[0].ToString() == "$")
+        {
+            Visit(jsonScalarExpression.JsonColumn);
+
+            return jsonScalarExpression;
+        }
+
         if (jsonScalarExpression.TypeMapping is SqlServerJsonTypeMapping)
         {
             Sql.Append("JSON_QUERY(");
