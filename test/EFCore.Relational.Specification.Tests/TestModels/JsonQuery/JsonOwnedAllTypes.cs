@@ -5,6 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
 public class JsonOwnedAllTypes
 {
+    public string TestDefaultString { get; set; }
+    public string TestMaxLengthString { get; set; }
     public short TestInt16 { get; set; }
     public int TestInt32 { get; set; }
     public long TestInt64 { get; set; }
