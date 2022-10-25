@@ -74,6 +74,10 @@ public class QueryFilterFuncletizationContext : DbContext
         // Multiple context used in filter
         modelBuilder.Entity<MultiContextFilter>()
             .HasQueryFilter(e => e.IsEnabled == Property && e.BossId == new IncorrectDbContext().BossId);
+
+        modelBuilder.Entity<DeDupeFilter1>().HasQueryFilter(x => x.Tenant == Tenant);
+        modelBuilder.Entity<DeDupeFilter2>().HasQueryFilter(x => x.TenantX == Tenant);
+        modelBuilder.Entity<DeDupeFilter3>().HasQueryFilter(x => x.Tenant == Tenant);
     }
 
     private void ConfigureFilter(EntityTypeBuilder<LocalMethodFilter> builder)
@@ -205,7 +209,14 @@ public class QueryFilterFuncletizationContext : DbContext
             new MultiContextFilter { BossId = 1, IsEnabled = false },
             new MultiContextFilter { BossId = 1, IsEnabled = true },
             new MultiContextFilter { BossId = 2, IsEnabled = true },
-            new MultiContextFilter { BossId = 2, IsEnabled = false }
+            new MultiContextFilter { BossId = 2, IsEnabled = false },
+            new DeDupeFilter1
+            {
+                Tenant = 1,
+                DeDupeFilter2s = new List<DeDupeFilter2> { new() { TenantX = 1 }, new() { TenantX = 2 } },
+                DeDupeFilter3s = new List<DeDupeFilter3> { new() { Tenant = 1 }, new() { Tenant = 2 } }
+            },
+            new DeDupeFilter1 { Tenant = 2 }
         );
 
         context.SaveChanges();
@@ -416,6 +427,30 @@ public class MultiContextFilter
     public int Id { get; set; }
     public int BossId { get; set; }
     public bool IsEnabled { get; set; }
+}
+
+public class DeDupeFilter1
+{
+    public int Id { get; set; }
+    public int Tenant { get; set; }
+    public ICollection<DeDupeFilter2> DeDupeFilter2s { get; set; }
+    public ICollection<DeDupeFilter3> DeDupeFilter3s { get; set; }
+}
+
+public class DeDupeFilter2
+{
+    public int Id { get; set; }
+    public int TenantX { get; set; }
+    public int? DeDupeFilter1Id { get; set; }
+    public DeDupeFilter1 DeDupeFilter1 { get; set; }
+}
+
+public class DeDupeFilter3
+{
+    public int Id { get; set; }
+    public short Tenant { get; set; }
+    public int? DeDupeFilter1Id { get; set; }
+    public DeDupeFilter1 DeDupeFilter1 { get; set; }
 }
 
 #endregion

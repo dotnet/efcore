@@ -340,4 +340,21 @@ public abstract class QueryFilterFuncletizationTestBase<TFixture> : IClassFixtur
         query = context.Set<MultiContextFilter>().ToList();
         Assert.Equal(2, query.Count);
     }
+
+    [ConditionalFact]
+    public virtual void Using_multiple_entities_with_filters_reuses_parameters()
+    {
+        using var context = CreateContext();
+        context.Tenant = 1;
+        context.Property = false;
+
+        var query = context.Set<DeDupeFilter1>()
+            .Include(x => x.DeDupeFilter2s)
+            .Include(x => x.DeDupeFilter3s)
+            .ToList();
+
+        Assert.Single(query);
+        Assert.Single(query[0].DeDupeFilter2s);
+        Assert.Single(query[0].DeDupeFilter3s);
+    }
 }
