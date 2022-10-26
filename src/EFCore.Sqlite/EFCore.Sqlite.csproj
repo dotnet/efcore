@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.6" PrivateAssets="None" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.2" PrivateAssets="None" />
   </ItemGroup>
 
   <ItemGroup>
