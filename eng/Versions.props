@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup Label="Version settings">
-    <VersionPrefix>7.0.0</VersionPrefix>
+    <VersionPrefix>7.0.1</VersionPrefix>
     <PreReleaseVersionLabel>rtm</PreReleaseVersionLabel>
     <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
     <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
