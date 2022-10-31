@@ -18,11 +18,13 @@ public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteF
         var queryString = await base.FromSqlRaw_queryable_composed(async);
 
         var expected =
-            @"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+"""
+SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
-    SELECT * FROM ""Customers""
-) AS ""m""
-WHERE 'z' = '' OR instr(""m"".""ContactName"", 'z') > 0";
+    SELECT * FROM "Customers"
+) AS "m"
+WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
+""";
 
         Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
 
@@ -67,14 +69,16 @@ WHERE ""m"".""ContactTitle"" = @__contactTitle_1", queryString, ignoreLineEnding
         await base.FromSqlRaw_composed_with_common_table_expression(async);
 
         AssertSql(
-            @"SELECT ""m"".""CustomerID"", ""m"".""Address"", ""m"".""City"", ""m"".""CompanyName"", ""m"".""ContactName"", ""m"".""ContactTitle"", ""m"".""Country"", ""m"".""Fax"", ""m"".""Phone"", ""m"".""PostalCode"", ""m"".""Region""
+"""
+SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
-    WITH ""Customers2"" AS (
-        SELECT * FROM ""Customers""
+    WITH "Customers2" AS (
+        SELECT * FROM "Customers"
     )
-    SELECT * FROM ""Customers2""
-) AS ""m""
-WHERE 'z' = '' OR instr(""m"".""ContactName"", 'z') > 0");
+    SELECT * FROM "Customers2"
+) AS "m"
+WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
+""");
     }
 
     protected override DbParameter CreateDbParameter(string name, object value)

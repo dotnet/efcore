@@ -25,9 +25,11 @@ public class NorthwindMiscellaneousQuerySqliteTest : NorthwindMiscellaneousQuery
         await base.Query_expression_with_to_string_and_contains(async);
 
         AssertSql(
-            @"SELECT ""o"".""CustomerID""
-FROM ""Orders"" AS ""o""
-WHERE (""o"".""OrderDate"" IS NOT NULL) AND ('10' = '' OR instr(CAST(""o"".""EmployeeID"" AS TEXT), '10') > 0)");
+"""
+SELECT "o"."CustomerID"
+FROM "Orders" AS "o"
+WHERE ("o"."OrderDate" IS NOT NULL) AND ('10' = '' OR instr(CAST("o"."EmployeeID" AS TEXT), '10') > 0)
+""");
     }
 
     public override async Task Take_Skip(bool async)
@@ -35,18 +37,20 @@ WHERE (""o"".""OrderDate"" IS NOT NULL) AND ('10' = '' OR instr(CAST(""o"".""Emp
         await base.Take_Skip(async);
 
         AssertSql(
-            @"@__p_0='10'
+"""
+@__p_0='10'
 @__p_1='5'
 
-SELECT ""t"".""CustomerID"", ""t"".""Address"", ""t"".""City"", ""t"".""CompanyName"", ""t"".""ContactName"", ""t"".""ContactTitle"", ""t"".""Country"", ""t"".""Fax"", ""t"".""Phone"", ""t"".""PostalCode"", ""t"".""Region""
+SELECT "t"."CustomerID", "t"."Address", "t"."City", "t"."CompanyName", "t"."ContactName", "t"."ContactTitle", "t"."Country", "t"."Fax", "t"."Phone", "t"."PostalCode", "t"."Region"
 FROM (
-    SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-    FROM ""Customers"" AS ""c""
-    ORDER BY ""c"".""ContactName""
+    SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."ContactName"
     LIMIT @__p_0
-) AS ""t""
-ORDER BY ""t"".""ContactName""
-LIMIT -1 OFFSET @__p_1");
+) AS "t"
+ORDER BY "t"."ContactName"
+LIMIT -1 OFFSET @__p_1
+""");
     }
 
     [ConditionalTheory]
@@ -58,8 +62,10 @@ LIMIT -1 OFFSET @__p_1");
             ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).Millisecond));
 
         AssertSql(
-            @"SELECT (CAST(strftime('%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
-FROM ""Orders"" AS ""o""");
+"""
+SELECT (CAST(strftime('%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years') AS REAL) * 1000.0) % 1000.0
+FROM "Orders" AS "o"
+""");
     }
 
     [ConditionalTheory]
@@ -71,8 +77,10 @@ FROM ""Orders"" AS ""o""");
             ss => ss.Set<Order>().Select(o => o.OrderDate.Value.AddYears(1).TimeOfDay));
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.')
-FROM ""Orders"" AS ""o""");
+"""
+SELECT rtrim(rtrim(strftime('%H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years'), '0'), '.')
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Select_expression_date_add_year(bool async)
@@ -80,9 +88,11 @@ FROM ""Orders"" AS ""o""");
         await base.Select_expression_date_add_year(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' years'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' years'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_datetime_add_month(bool async)
@@ -112,9 +122,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             });
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1 AS TEXT) || ' months'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1 AS TEXT) || ' months'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_datetime_add_hour(bool async)
@@ -122,9 +134,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Select_expression_datetime_add_hour(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1.0 AS TEXT) || ' hours'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1.0 AS TEXT) || ' hours'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_datetime_add_minute(bool async)
@@ -132,9 +146,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Select_expression_datetime_add_minute(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1.0 AS TEXT) || ' minutes'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1.0 AS TEXT) || ' minutes'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_datetime_add_second(bool async)
@@ -142,9 +158,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Select_expression_datetime_add_second(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST(1.0 AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST(1.0 AS TEXT) || ' seconds'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_datetime_add_ticks(bool async)
@@ -157,9 +175,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
             e => e.OrderDate);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((100000000 / 10000000) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST((100000000 / 10000000) AS TEXT) || ' seconds'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_date_add_milliseconds_above_the_range(bool async)
@@ -167,9 +187,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Select_expression_date_add_milliseconds_above_the_range(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((1000000000000.0 / 1000.0) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST((1000000000000.0 / 1000.0) AS TEXT) || ' seconds'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_date_add_milliseconds_below_the_range(bool async)
@@ -177,9 +199,11 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Select_expression_date_add_milliseconds_below_the_range(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", CAST((-1000000000000.0 / 1000.0) AS TEXT) || ' seconds'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", CAST((-1000000000000.0 / 1000.0) AS TEXT) || ' seconds'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Select_expression_date_add_milliseconds_large_number_divided(bool async)
@@ -187,11 +211,13 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Select_expression_date_add_milliseconds_large_number_divided(async);
 
         AssertSql(
-            @"@__millisecondsPerDay_0='86400000'
+"""
+@__millisecondsPerDay_0='86400000'
 
-SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', ""o"".""OrderDate"", COALESCE(CAST(CAST((CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) AS INTEGER) / @__millisecondsPerDay_0) AS REAL) AS TEXT), '') || ' days', COALESCE(CAST((CAST((CAST(((CAST(strftime('%f', ""o"".""OrderDate"") AS REAL) * 1000.0) % 1000.0) AS INTEGER) % @__millisecondsPerDay_0) AS REAL) / 1000.0) AS TEXT), '') || ' seconds'), '0'), '.') AS ""OrderDate""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderDate"" IS NOT NULL");
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', "o"."OrderDate", COALESCE(CAST(CAST((CAST(((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0) AS INTEGER) / @__millisecondsPerDay_0) AS REAL) AS TEXT), '') || ' days', COALESCE(CAST((CAST((CAST(((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0) AS INTEGER) % @__millisecondsPerDay_0) AS REAL) / 1000.0) AS TEXT), '') || ' seconds'), '0'), '.') AS "OrderDate"
+FROM "Orders" AS "o"
+WHERE "o"."OrderDate" IS NOT NULL
+""");
     }
 
     public override async Task Add_minutes_on_constant_value(bool async)
@@ -199,10 +225,12 @@ WHERE ""o"".""OrderDate"" IS NOT NULL");
         await base.Add_minutes_on_constant_value(async);
 
         AssertSql(
-            @"SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', '1900-01-01 00:00:00', CAST(CAST((""o"".""OrderID"" % 25) AS REAL) AS TEXT) || ' minutes'), '0'), '.') AS ""Test""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderID"" < 10500
-ORDER BY ""o"".""OrderID""");
+"""
+SELECT rtrim(rtrim(strftime('%Y-%m-%d %H:%M:%f', '1900-01-01 00:00:00', CAST(CAST(("o"."OrderID" % 25) AS REAL) AS TEXT) || ' minutes'), '0'), '.') AS "Test"
+FROM "Orders" AS "o"
+WHERE "o"."OrderID" < 10500
+ORDER BY "o"."OrderID"
+""");
     }
 
     public override async Task Select_distinct_long_count(bool async)
@@ -210,11 +238,13 @@ ORDER BY ""o"".""OrderID""");
         await base.Select_distinct_long_count(async);
 
         AssertSql(
-            @"SELECT COUNT(*)
+"""
+SELECT COUNT(*)
 FROM (
-    SELECT DISTINCT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-    FROM ""Customers"" AS ""c""
-) AS ""t""");
+    SELECT DISTINCT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+    FROM "Customers" AS "c"
+) AS "t"
+""");
     }
 
     public override async Task Select_orderBy_skip_long_count(bool async)
@@ -222,15 +252,17 @@ FROM (
         await base.Select_orderBy_skip_long_count(async);
 
         AssertSql(
-            @"@__p_0='7'
+"""
+@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
-    SELECT ""c"".""CustomerID"", ""c"".""Country""
-    FROM ""Customers"" AS ""c""
-    ORDER BY ""c"".""Country""
+    SELECT "c"."CustomerID", "c"."Country"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."Country"
     LIMIT -1 OFFSET @__p_0
-) AS ""t""");
+) AS "t"
+""");
     }
 
     public override async Task Select_orderBy_take_long_count(bool async)
@@ -238,15 +270,17 @@ FROM (
         await base.Select_orderBy_take_long_count(async);
 
         AssertSql(
-            @"@__p_0='7'
+"""
+@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
-    SELECT ""c"".""CustomerID"", ""c"".""Country""
-    FROM ""Customers"" AS ""c""
-    ORDER BY ""c"".""Country""
+    SELECT "c"."CustomerID", "c"."Country"
+    FROM "Customers" AS "c"
+    ORDER BY "c"."Country"
     LIMIT @__p_0
-) AS ""t""");
+) AS "t"
+""");
     }
 
     public override async Task Select_skip_long_count(bool async)
@@ -254,14 +288,16 @@ FROM (
         await base.Select_skip_long_count(async);
 
         AssertSql(
-            @"@__p_0='7'
+"""
+@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
-    SELECT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
     LIMIT -1 OFFSET @__p_0
-) AS ""t""");
+) AS "t"
+""");
     }
 
     public override async Task Select_take_long_count(bool async)
@@ -269,14 +305,16 @@ FROM (
         await base.Select_take_long_count(async);
 
         AssertSql(
-            @"@__p_0='7'
+"""
+@__p_0='7'
 
 SELECT COUNT(*)
 FROM (
-    SELECT ""c"".""CustomerID""
-    FROM ""Customers"" AS ""c""
+    SELECT "c"."CustomerID"
+    FROM "Customers" AS "c"
     LIMIT @__p_0
-) AS ""t""");
+) AS "t"
+""");
     }
 
     public override Task Complex_nested_query_doesnt_try_binding_to_grandparent_when_parent_returns_complex_result(bool async)
@@ -290,8 +328,10 @@ FROM (
         await base.Concat_string_int(async);
 
         AssertSql(
-            @"SELECT CAST(""o"".""OrderID"" AS TEXT) || COALESCE(""o"".""CustomerID"", '')
-FROM ""Orders"" AS ""o""");
+"""
+SELECT CAST("o"."OrderID" AS TEXT) || COALESCE("o"."CustomerID", '')
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Concat_int_string(bool async)
@@ -299,8 +339,10 @@ FROM ""Orders"" AS ""o""");
         await base.Concat_int_string(async);
 
         AssertSql(
-            @"SELECT COALESCE(""o"".""CustomerID"", '') || CAST(""o"".""OrderID"" AS TEXT)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT COALESCE("o"."CustomerID", '') || CAST("o"."OrderID" AS TEXT)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Concat_parameter_string_int(bool async)
@@ -308,10 +350,12 @@ FROM ""Orders"" AS ""o""");
         await base.Concat_parameter_string_int(async);
 
         AssertSql(
-            @"@__parameter_0='-' (Size = 1)
+"""
+@__parameter_0='-' (Size = 1)
 
-SELECT @__parameter_0 || CAST(""o"".""OrderID"" AS TEXT)
-FROM ""Orders"" AS ""o""");
+SELECT @__parameter_0 || CAST("o"."OrderID" AS TEXT)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Concat_constant_string_int(bool async)
@@ -319,8 +363,10 @@ FROM ""Orders"" AS ""o""");
         await base.Concat_constant_string_int(async);
 
         AssertSql(
-            @"SELECT '-' || CAST(""o"".""OrderID"" AS TEXT)
-FROM ""Orders"" AS ""o""");
+"""
+SELECT '-' || CAST("o"."OrderID" AS TEXT)
+FROM "Orders" AS "o"
+""");
     }
 
     public override async Task Client_code_using_instance_method_throws(bool async)

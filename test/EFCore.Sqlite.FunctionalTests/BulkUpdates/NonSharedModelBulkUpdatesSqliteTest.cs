@@ -17,7 +17,9 @@ public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesTest
         await base.Delete_aggregate_root_when_eager_loaded_owned_collection(async);
 
         AssertSql(
-            @"DELETE FROM ""Owner"" AS ""o""");
+"""
+DELETE FROM "Owner" AS "o"
+""");
     }
 
     public override async Task Delete_aggregate_root_when_table_sharing_with_owned(bool async)
@@ -25,7 +27,9 @@ public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesTest
         await base.Delete_aggregate_root_when_table_sharing_with_owned(async);
 
         AssertSql(
-            @"DELETE FROM ""Owner"" AS ""o""");
+"""
+DELETE FROM "Owner" AS "o"
+""");
     }
 
     public override async Task Delete_aggregate_root_when_table_sharing_with_non_owned_throws(bool async)
@@ -40,12 +44,14 @@ public class NonSharedModelBulkUpdatesSqliteTest : NonSharedModelBulkUpdatesTest
         await base.Delete_predicate_based_on_optional_navigation(async);
 
         AssertSql(
-            @"DELETE FROM ""Posts"" AS ""p""
+"""
+DELETE FROM "Posts" AS "p"
 WHERE EXISTS (
     SELECT 1
-    FROM ""Posts"" AS ""p0""
-    LEFT JOIN ""Blogs"" AS ""b"" ON ""p0"".""BlogId"" = ""b"".""Id""
-    WHERE (""b"".""Title"" IS NOT NULL) AND (""b"".""Title"" LIKE 'Arthur%') AND ""p0"".""Id"" = ""p"".""Id"")");
+    FROM "Posts" AS "p0"
+    LEFT JOIN "Blogs" AS "b" ON "p0"."BlogId" = "b"."Id"
+    WHERE ("b"."Title" IS NOT NULL) AND ("b"."Title" LIKE 'Arthur%') AND "p0"."Id" = "p"."Id")
+""");
     }
 
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)

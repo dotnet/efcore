@@ -14,6 +14,17 @@ public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
     {
         base.BuildModelExternal(modelBuilder);
 
+        modelBuilder.Entity<Chassis>().Property<ulong>("Version").HasConversion<byte[]>();
+        modelBuilder.Entity<Driver>().Property<ulong>("Version").HasConversion<byte[]>();
+        modelBuilder.Entity<Team>().Property<ulong>("Version").HasConversion<byte[]>();
+        modelBuilder.Entity<Sponsor>().Property<ulong>("Version").HasConversion<byte[]>();
+        modelBuilder.Entity<TitleSponsor>()
+            .OwnsOne(
+                s => s.Details, eb =>
+                {
+                    eb.Property<ulong>("Version").IsRowVersion().HasConversion<byte[]>();
+                });
+
         modelBuilder
             .Entity<OptimisticOptionalChild>()
             .Property(x => x.Version)

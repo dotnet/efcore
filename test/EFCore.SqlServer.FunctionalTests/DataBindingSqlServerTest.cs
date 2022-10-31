@@ -3,9 +3,9 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class DatabindingSqlServerTest : DatabindingTestBase<F1SqlServerFixture>
+public class DataBindingSqlServerTest : DataBindingTestBase<F1SqlServerFixture>
 {
-    public DatabindingSqlServerTest(F1SqlServerFixture fixture)
+    public DataBindingSqlServerTest(F1SqlServerFixture fixture)
         : base(fixture)
     {
     }

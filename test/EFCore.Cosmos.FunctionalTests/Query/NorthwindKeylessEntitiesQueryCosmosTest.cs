@@ -26,9 +26,11 @@ public class NorthwindKeylessEntitiesQueryCosmosTest : NorthwindKeylessEntitiesQ
         await base.KeylessEntity_simple(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c["Discriminator"] = "Customer")
+""");
     }
 
     public override async Task KeylessEntity_where_simple(bool async)
@@ -36,9 +38,11 @@ WHERE (c[""Discriminator""] = ""Customer"")");
         await base.KeylessEntity_where_simple(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
+WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = "London"))
+""");
     }
 
     public override async Task KeylessEntity_by_database_view(bool async)
@@ -50,9 +54,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = ""London""))");
                 () => base.KeylessEntity_by_database_view(async))).Actual);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""ProductView"")");
+WHERE (c["Discriminator"] = "ProductView")
+""");
     }
 
     public override async Task Entity_mapped_to_view_on_right_side_of_join(bool async)
@@ -70,9 +76,11 @@ WHERE (c[""Discriminator""] = ""ProductView"")");
                 () => base.KeylessEntity_with_nav_defining_query(async))).Actual);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""OrderCount""] > 0))");
+WHERE ((c["Discriminator"] = "Customer") AND (c["OrderCount"] > 0))
+""");
     }
 
     public override async Task KeylessEntity_with_mixed_tracking(bool async)
@@ -96,9 +104,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""OrderCount""] > 0))");
         await base.KeylessEntity_with_defining_query(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))");
+WHERE ((c["Discriminator"] = "Order") AND (c["CustomerID"] = "ALFKI"))
+""");
     }
 
     public override async Task KeylessEntity_with_defining_query_and_correlated_collection(bool async)
@@ -154,9 +164,11 @@ WHERE ((c[""Discriminator""] = ""Order"") AND (c[""CustomerID""] = ""ALFKI""))")
         await base.Auto_initialized_view_set(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")");
+WHERE (c["Discriminator"] = "Customer")
+""");
     }
 
     private void AssertSql(params string[] expected)
