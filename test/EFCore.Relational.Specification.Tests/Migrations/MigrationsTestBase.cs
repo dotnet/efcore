@@ -1649,18 +1649,6 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
-    public virtual Task Alter_sequence_restart()
-        => Test(
-            builder => builder.HasSequence<int>("foo").StartsAt(4),
-            builder => { },
-            builder => builder.HasSequence<int>("foo").StartsAt(null),
-            model =>
-            {
-                var sequence = Assert.Single(model.Sequences);
-                Assert.Equal(4, 4);
-            });
-
-    [ConditionalFact]
     public virtual Task Alter_sequence_restart_with()
         => Test(
             builder => builder.HasSequence<int>("foo"),

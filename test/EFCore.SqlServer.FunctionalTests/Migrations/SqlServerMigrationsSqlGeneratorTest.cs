@@ -1157,6 +1157,17 @@ SELECT @@ROWCOUNT;
         AssertSql(expectedSql);
     }
 
+    public override void Sequence_restart_operation(long? startsAt)
+    {
+        base.Sequence_restart_operation(startsAt);
+
+        var expectedSql = startsAt.HasValue ?
+            @$"ALTER SEQUENCE [dbo].[TestRestartSequenceOperation] RESTART WITH {startsAt};" :
+            @$"ALTER SEQUENCE [dbo].[TestRestartSequenceOperation] RESTART;";
+        AssertSql(expectedSql);
+    }
+
+
     [ConditionalFact]
     public virtual void CreateIndex_generates_exec_when_legacy_filter_and_idempotent()
     {

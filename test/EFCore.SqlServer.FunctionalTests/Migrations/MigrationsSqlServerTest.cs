@@ -2653,14 +2653,6 @@ ALTER SEQUENCE [foo] INCREMENT BY 2 NO MINVALUE NO MAXVALUE NO CYCLE;
 """);
     }
 
-    public override async Task Alter_sequence_restart()
-    {
-        await base.Alter_sequence_restart();
-
-        AssertSql(
-            @"ALTER SEQUENCE [foo] RESTART;");
-    }
-
     public override async Task Alter_sequence_restart_with()
     {
         await base.Alter_sequence_restart_with();

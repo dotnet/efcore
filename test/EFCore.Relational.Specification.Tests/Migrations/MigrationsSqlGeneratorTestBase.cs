@@ -671,6 +671,7 @@ public abstract class MigrationsSqlGeneratorTestBase
                             Values = new object[,] { { "Targaryen" } }
                         })).Message);
 
+
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
@@ -720,6 +721,20 @@ public abstract class MigrationsSqlGeneratorTestBase
                         IsUnicode = isUnicode
                     }
                 }
+            });
+    }
+
+    [ConditionalTheory]
+    [InlineData((long)3)]
+    [InlineData(null)]
+    public virtual void Sequence_restart_operation(long? startsAt)
+    {
+        Generate(
+            new RestartSequenceOperation
+            {
+                Name = "TestRestartSequenceOperation",
+                Schema = "dbo",
+                StartValue = startsAt
             });
     }
 

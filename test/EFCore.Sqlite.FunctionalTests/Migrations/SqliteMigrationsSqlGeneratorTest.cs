@@ -648,6 +648,12 @@ RETURNING 1;
 """);
     }
 
+    public override void Sequence_restart_operation(long? startsAt)
+    {
+        var ex = Assert.Throws<NotSupportedException>(() => base.Sequence_restart_operation(startsAt));
+        Assert.Equal(SqliteStrings.SequencesNotSupported, ex.Message);      
+    }
+
     [ConditionalFact]
     public virtual void AddPrimaryKey_throws_when_no_model()
     {

@@ -61,7 +61,7 @@ public class SequenceBuilder : IInfrastructure<IConventionSequenceBuilder>
     /// </remarks>
     /// <param name="startValue">The starting value for the sequence.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
-    public virtual SequenceBuilder StartsAt(long? startValue)
+    public virtual SequenceBuilder StartsAt(long startValue)
     {
         Builder.StartsAt(startValue, ConfigurationSource.Explicit);
 

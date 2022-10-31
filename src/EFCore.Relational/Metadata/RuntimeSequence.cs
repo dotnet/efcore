@@ -122,9 +122,6 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     }
 
     /// <inheritdoc />
-    long? ISequence.InternalStartValue => _startValue;
-
-    /// <inheritdoc />
     int IReadOnlySequence.IncrementBy
     {
         [DebuggerStepThrough]
