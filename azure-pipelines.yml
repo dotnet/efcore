@@ -107,7 +107,6 @@ stages:
                 - _SignType: real
                 - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
               - ${{ if eq(variables.runCodeQL3000, 'true') }}:
-                - Codeql.SourceRoot: src
                 - _AdditionalBuildArgs: /p:Test=false /p:Sign=false /p:Pack=false /p:Publish=false /p:UseSharedCompilation=false
                 # Security analysis is included in normal runs. Disable its auto-injection.
                 - skipNugetSecurityAnalysis: true
@@ -115,8 +114,12 @@ stages:
                 - Codeql.Cadence: 0
                 # Enable CodeQL3000 unconditionally so it may be run on any branch.
                 - Codeql.Enabled: true
+                # Ignore test and infrastructure code.
+                - Codeql.SourceRoot: src
                 # CodeQL3000 needs this plumbed along as a variable to enable TSA.
                 - Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
+                # Default expects tsaoptions.json under SourceRoot.
+                - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
@@ -141,10 +144,11 @@ stages:
                   env:
                     Token: $(dn-bot-dnceng-artifact-feeds-rw)
               - ${{ if eq(variables.runCodeQL3000, 'true') }}:
-                - script: "echo ##vso[build.addbuildtag]CodeQL3000"
-                  displayName: 'Set CI CodeQL3000 tag'
                 - task: CodeQL3000Init@0
                   displayName: CodeQL Initialize
+                - script: "echo ##vso[build.addbuildtag]CodeQL3000"
+                  displayName: 'Set CI CodeQL3000 tag'
+                  condition: ne(variables.CODEQL_DIST,'')
               - script: eng\common\cibuild.cmd -configuration $(_BuildConfig) -prepareMachine $(_InternalBuildArgs)
                   $(_InternalRuntimeDownloadArgs) $(_AdditionalBuildArgs)
                 env:
