@@ -725,7 +725,7 @@ public abstract class MigrationsSqlGeneratorTestBase
     }
 
     [ConditionalTheory]
-    [InlineData((long)3)]
+    [InlineData(3L)]
     [InlineData(null)]
     public virtual void Sequence_restart_operation(long? startsAt)
     {
