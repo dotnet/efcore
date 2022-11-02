@@ -1,12 +1,37 @@
 #
-# See https://docs.microsoft.com/en-us/vsts/pipelines/yaml-schema for details
+# See https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/?view=azure-pipelines for details
 #
+
+schedules:
+- cron: 0 9 * * 1
+  displayName: "Run CodeQL3000 weekly, Monday at 2:00 AM PDT"
+  branches:
+    include:
+    - release/2.1
+    - release/6.0
+    - release/7.0
+    - main
+  always: true
+
+parameters:
+# Parameter below is ignored in public builds.
+#
+# Choose whether to run the CodeQL3000 tasks.
+# Manual builds align w/ official builds unless this parameter is true.
+- name: runCodeQL3000
+  default: false
+  displayName: Run CodeQL3000 tasks
+  type: boolean
+
+variables:
+- name: runCodeQL3000
+  value: ${{ and(ne(variables['System.TeamProject'], 'public'), or(eq(variables['Build.Reason'], 'Schedule'), and(eq(variables['Build.Reason'], 'Manual'), eq(parameters.runCodeQL3000, 'true')))) }}
 
 # Only run CI builds for these branches
 trigger:
   branches:
     include:
-    - 'master'
+    - 'main'
     - 'release/*'
 # Run PR validation on all branches
 pr:
@@ -20,19 +45,46 @@ jobs:
 - template: build/templates/default-build.yml
   parameters:
     agentOs: Windows
-    codeSign: true
+    codeSign: ${{ ne(variables.runCodeQL3000, 'true') }}
     configuration: Release
-    artifacts:
-      publish: true
-      name: packages
-      path: 'artifacts/build/'
+    ${{ if eq(variables.runCodeQL3000, 'true') }}:
+      variables:
+        # Security analysis is included in normal runs. Disable its auto-injection.
+        skipNugetSecurityAnalysis: true
+        # Do not let CodeQL3000 Extension gate scan frequency.
+        Codeql.Cadence: 0
+        # Enable CodeQL3000 unconditionally so it may be run on any branch.
+        Codeql.Enabled: true
+        # Ignore test and infrastructure code.
+        Codeql.SourceRoot: src
+        # CodeQL3000 needs this plumbed along as a variable to enable TSA.
+        Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
+        # Default expects tsaoptions.json under SourceRoot.
+        Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
+      beforeBuild:
+      - task: CodeQL3000Init@0
+        displayName: CodeQL Initialize
+      - script: "echo ##vso[build.addbuildtag]CodeQL3000"
+        displayName: 'Set CI CodeQL3000 tag'
+        condition: ne(variables.CODEQL_DIST,'')
+      # Note packages are produced, just not signed, verified, or uploaded. No way to turn off production.
+      buildArgs: /p:UseSharedCompilation=false /p:SkipTests=true /p:DisableCodeSigning=true /p:SkipArtifactVerification=true
+      afterBuild:
+      - task: CodeQL3000Finalize@0
+        displayName: CodeQL Finalize
+    ${{ else }}:
+      artifacts:
+        publish: true
+        name: packages
+        path: 'artifacts/build/'
 
-- template: build/templates/default-build.yml
-  parameters:
-    agentOs: macOS
-    configuration: Release
+- ${{ if ne(variables.runCodeQL3000, 'true') }}:
+  - template: build/templates/default-build.yml
+    parameters:
+      agentOs: macOS
+      configuration: Release
 
-- template: build/templates/default-build.yml
-  parameters:
-    agentOs: Linux
-    configuration: Release
+  - template: build/templates/default-build.yml
+    parameters:
+      agentOs: Linux
+      configuration: Release
