@@ -321,6 +321,24 @@ WHERE [t].[TableId] = 123
 ORDER BY [t].[ParcelNumber]");
         }
 
+        public override async Task StoreType_for_UDF_used(bool async)
+        {
+            await base.StoreType_for_UDF_used(async);
+
+            AssertSql(
+                @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [m].[Id], [m].[SomeDate]
+FROM [MyEntities] AS [m]
+WHERE [m].[SomeDate] = @__date_0",
+                    //
+                    @"@__date_0='2012-12-12T00:00:00.0000000' (DbType = DateTime)
+
+SELECT [m].[Id], [m].[SomeDate]
+FROM [MyEntities] AS [m]
+WHERE [dbo].[ModifyDate]([m].[SomeDate]) = @__date_0");
+        }
+
         [ConditionalTheory]
         [MemberData(nameof(IsAsyncData))]
         public virtual async Task Muliple_occurrences_of_FromSql_in_group_by_aggregate(bool async)
