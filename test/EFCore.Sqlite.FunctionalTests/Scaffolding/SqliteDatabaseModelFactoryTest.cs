@@ -337,11 +337,11 @@ CREATE TABLE StoreType (
                 {
                     var columns = dbModel.Tables.Single().Columns;
 
-                    Assert.Equal("integer", columns.Single(c => c.Name == "IntegerProperty").StoreType);
-                    Assert.Equal("real", columns.Single(c => c.Name == "RealProperty").StoreType);
-                    Assert.Equal("text", columns.Single(c => c.Name == "TextProperty").StoreType);
-                    Assert.Equal("blob", columns.Single(c => c.Name == "BlobProperty").StoreType);
-                    Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
+                    Assert.Equal("integer", columns.Single(c => c.Name == "IntegerProperty").StoreType, ignoreCase: true);
+                    Assert.Equal("real", columns.Single(c => c.Name == "RealProperty").StoreType, ignoreCase: true);
+                    Assert.Equal("text", columns.Single(c => c.Name == "TextProperty").StoreType, ignoreCase: true);
+                    Assert.Equal("blob", columns.Single(c => c.Name == "BlobProperty").StoreType, ignoreCase: true);
+                    Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType, ignoreCase: true);
                 },
                 "DROP TABLE StoreType;");
         }
