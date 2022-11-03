@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Collections.Generic;
@@ -128,6 +128,27 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetBytes_works_streaming()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (x'01020304');");
+
+                using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var buffer = new byte[2];
+                    reader.GetBytes(1, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new byte[] { 0x02, 0x03 }, buffer);
+                }
+            }
+        }
+
+        [Fact]
         public void GetBytes_NullBuffer()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
@@ -139,12 +160,9 @@ namespace Microsoft.Data.Sqlite
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    byte[] buffer = null;
-                    long bytesRead = reader.GetBytes(0, 1, buffer, 0, 3);
+                    long bytesRead = reader.GetBytes(0, 1, null, 0, 3);
 
-                    // Expecting to return the length of the field in bytes,
-                    // which can be simply be blob length minus the offset.
-                    Assert.Equal(3, bytesRead);
+                    Assert.Equal(4, bytesRead);
                 }
             }
         }
@@ -215,14 +233,33 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
                     var buffer = new char[2];
                     reader.GetChars(0, 1, buffer, 0, buffer.Length);
-                    Assert.Equal(new char[2] { 'e', 's' }, buffer);
+                    Assert.Equal(new char[2] { 'ê', 's' }, buffer);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetChars_works_when_buffer_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    long bytesRead = reader.GetChars(0, 1, null, 0, 3);
+
+                    Assert.Equal(4, bytesRead);
                 }
             }
         }
@@ -234,7 +271,7 @@ namespace Microsoft.Data.Sqlite
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
@@ -243,7 +280,7 @@ namespace Microsoft.Data.Sqlite
                     long charsRead = reader.GetChars(0, 1, hugeBuffer, 0, hugeBuffer.Length);
                     Assert.Equal(3, charsRead);
 
-                    var correctBytes = new char[3] { 'e', 's', 't' };
+                    var correctBytes = new char[3] { 'ê', 's', 't' };
                     for (int i = 0; i < charsRead; i++)
                     {
                         Assert.Equal(correctBytes[i], hugeBuffer[i]);
@@ -253,14 +290,55 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetChars_throws_when_dataOffset_out_of_range()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'têst';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var buffer = new char[1];
+                    var ex = Assert.Throws<ArgumentOutOfRangeException>(
+                        () => reader.GetChars(0, 5, buffer, 0, buffer.Length));
+                    Assert.Equal("dataOffset", ex.ParamName);
+                }
+            }
+        }
+
+        [Fact]
         public void GetChars_throws_when_closed()
         {
-            X_throws_when_closed(r => r.GetChars(0, 0, null, 0, 0), nameof(SqliteDataReader.GetChars));
+            X_throws_when_closed(r => r.GetChars(0, 0, null!, 0, 0), nameof(SqliteDataReader.GetChars));
         }
 
         [Fact]
         public void GetChars_throws_when_non_query()
-            => X_throws_when_non_query(r => r.GetChars(0, 0, null, 0, 0));
+            => X_throws_when_non_query(r => r.GetChars(0, 0, null!, 0, 0));
+
+        [Fact]
+        public void GetChars_works_streaming()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES ('têst');");
+
+                using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var buffer = new char[2];
+                    reader.GetChars(1, 1, buffer, 0, buffer.Length);
+                    Assert.Equal(new[] { 'ê', 's' }, buffer);
+                }
+            }
+        }
 
         [Fact]
         public void GetStream_works()
@@ -379,6 +457,90 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetStream_Blob_works_when_long_pk()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    "CREATE TABLE DataTable (Id INTEGER PRIMARY KEY, Data BLOB);" +
+                    $"INSERT INTO DataTable VALUES (2147483648, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = $"SELECT Id, Data FROM DataTable WHERE Id = 2147483648";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(1))
+                    {
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetStream_works_when_composite_pk()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE DataTable (Id1 INTEGER, Id2 INTEGER, Data BLOB, PRIMARY KEY (Id1, Id2));
+                    INSERT INTO DataTable VALUES (5, 6, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "SELECT Id1, Id2, Data FROM DataTable WHERE Id1 = 5 AND Id2 = 6";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(2))
+                    {
+                        Assert.IsType<MemoryStream>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetStream_works_when_composite_pk_and_rowid()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE DataTable (Id1 INTEGER, Id2 INTEGER, Data BLOB, PRIMARY KEY (Id1, Id2));
+                    INSERT INTO DataTable VALUES (5, 6, X'01020304');");
+
+                var selectCommand = connection.CreateCommand();
+                selectCommand.CommandText = "SELECT Id1, Id2, rowid, Data FROM DataTable WHERE Id1 = 5 AND Id2 = 6";
+                using (var reader = selectCommand.ExecuteReader())
+                {
+                    Assert.True(reader.Read());
+                    using (var sourceStream = reader.GetStream(3))
+                    {
+                        Assert.IsType<SqliteBlob>(sourceStream);
+                        var buffer = new byte[4];
+                        var bytesRead = sourceStream.Read(buffer, 0, 4);
+                        Assert.Equal(4, bytesRead);
+                        Assert.Equal(new byte[] { 0x01, 0x02, 0x03, 0x04 }, buffer);
+                    }
+                }
+            }
+        }
+
+        [Fact]
         public void GetStream_throws_when_closed()
         {
             X_throws_when_closed(r => r.GetStream(0), nameof(SqliteDataReader.GetStream));
@@ -387,6 +549,71 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetStream_throws_when_non_query()
             => X_throws_when_non_query(r => r.GetStream(0));
+
+        [Fact]
+        public void GetTextReader_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetTextReader(0))
+                    {
+                        Assert.IsType<MemoryStream>(Assert.IsType<StreamReader>(textReader).BaseStream);
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetTextReader_works_when_null()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT NULL;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetTextReader(0))
+                    {
+                        Assert.IsType<StringReader>(textReader);
+                        Assert.Empty(textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
+
+        [Fact]
+        public void GetTextReader_works_streaming()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                connection.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES ('test');");
+
+                using (var reader = connection.ExecuteReader("SELECT rowid, Value FROM Data;"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetTextReader(1))
+                    {
+                        Assert.IsType<SqliteBlob>(Assert.IsType<StreamReader>(textReader).BaseStream);
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
 
         [Fact]
         public void GetDateTime_works_with_text()
@@ -488,6 +715,32 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetDateTimeOffset_throws_when_null()
             => GetX_throws_when_null(r => ((SqliteDataReader)r).GetDateTimeOffset(0));
+
+#if NET6_0_OR_GREATER
+        [Fact]
+        public void GetFieldValue_of_DateOnly_works()
+            => GetFieldValue_works(
+                "SELECT '2014-04-15';",
+                new DateOnly(2014, 4, 15));
+
+        [Fact]
+        public void GetFieldValue_of_DateOnly_works_with_real()
+            => GetFieldValue_works(
+                "SELECT julianday('2014-04-15');",
+                new DateOnly(2014, 4, 15));
+
+        [Fact]
+        public void GetFieldValue_of_TimeOnly_works()
+            => GetFieldValue_works(
+                "SELECT '13:10:15';",
+                new TimeOnly(13, 10, 15));
+
+        [Fact]
+        public void GetFieldValue_of_TimeOnly_works_with_milliseconds()
+            => GetFieldValue_works(
+                "SELECT '13:10:15.5';",
+                new TimeOnly(13, 10, 15, 500));
+#endif
 
         [Theory]
         [InlineData("SELECT 1;", "INTEGER")]
@@ -708,6 +961,45 @@ namespace Microsoft.Data.Sqlite
             => GetFieldValue_works(
                 "SELECT 1;",
                 (int?)1);
+
+        [Fact]
+        public void GetFieldValue_of_Stream_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT x'7E57';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    var stream = reader.GetFieldValue<Stream>(0);
+                    Assert.Equal(0x7E, stream.ReadByte());
+                    Assert.Equal(0x57, stream.ReadByte());
+                }
+            }
+        }
+
+        [Fact]
+        public void GetFieldValue_of_TextReader_works()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT 'test';"))
+                {
+                    var hasData = reader.Read();
+                    Assert.True(hasData);
+
+                    using (var textReader = reader.GetFieldValue<TextReader>(0))
+                    {
+                        Assert.Equal("test", textReader.ReadToEnd());
+                    }
+                }
+            }
+        }
 
         [Fact]
         public void GetFieldValue_of_TimeSpan_works()
@@ -989,6 +1281,9 @@ namespace Microsoft.Data.Sqlite
                 using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
                 {
                     Assert.Equal("Id", reader.GetName(0));
+
+                    // NB: Repeated to use caching
+                    Assert.Equal("Id", reader.GetName(0));
                 }
             }
         }
@@ -1028,6 +1323,9 @@ namespace Microsoft.Data.Sqlite
                 using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
                 {
                     Assert.Equal(0, reader.GetOrdinal("Id"));
+
+                    // NB: Repeated to use caching
+                    Assert.Equal(0, reader.GetOrdinal("Id"));
                 }
             }
         }
@@ -1050,9 +1348,21 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetOrdinal_throws_when_ambiguous()
+        {
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+
+            using var reader = connection.ExecuteReader("SELECT 1 AS Id, 2 AS ID");
+            var ex = Assert.Throws<InvalidOperationException>(() => reader.GetOrdinal("id"));
+
+            Assert.Contains(Resources.AmbiguousColumnName("id", "Id", "ID"), ex.Message);
+        }
+
+        [Fact]
         public void GetOrdinal_throws_when_closed()
         {
-            X_throws_when_closed(r => r.GetOrdinal(null), nameof(SqliteDataReader.GetOrdinal));
+            X_throws_when_closed(r => r.GetOrdinal(null!), nameof(SqliteDataReader.GetOrdinal));
         }
 
         [Fact]
@@ -1193,12 +1503,12 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void GetValues_throws_when_closed()
         {
-            X_throws_when_closed(r => r.GetValues(null), nameof(SqliteDataReader.GetValues));
+            X_throws_when_closed(r => r.GetValues(null!), nameof(SqliteDataReader.GetValues));
         }
 
         [Fact]
         public void GetValues_throws_when_non_query()
-            => X_throws_when_non_query(r => r.GetValues(null));
+            => X_throws_when_non_query(r => r.GetValues(null!));
 
         [Fact]
         public void HasRows_returns_true_when_rows()
@@ -1339,19 +1649,22 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
-        [Fact]
-        public void Item_by_name_works()
+        [Theory]
+        [InlineData("SELECT 1 AS Id;", "Id", 1L)]
+        [InlineData("SELECT 1 AS Id;", "id", 1L)]
+        [InlineData("SELECT 1 AS Id, 2 AS id;", "id", 2L)]
+        public void Item_by_name_works(string query, string column, long expected)
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
             {
                 connection.Open();
 
-                using (var reader = connection.ExecuteReader("SELECT 1 AS Id;"))
+                using (var reader = connection.ExecuteReader(query))
                 {
                     var hasData = reader.Read();
                     Assert.True(hasData);
 
-                    Assert.Equal(1L, reader["Id"]);
+                    Assert.Equal(expected, reader[column]);
                 }
             }
         }
@@ -1683,6 +1996,83 @@ namespace Microsoft.Data.Sqlite
                     Assert.True((bool)schema.Rows[3]["IsExpression"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["IsAutoIncrement"]);
                     Assert.Equal(DBNull.Value, schema.Rows[3]["IsLong"]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_view()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(
+                    @"CREATE VIEW dual AS SELECT 'X' AS dummy;");
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM dual;"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal("dummy", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_virtual_table()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE VIRTUAL TABLE dual USING fts3(dummy);");
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM dual;"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal("dummy", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_pragma()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("PRAGMA table_info('sqlite_master');"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(6, schemaTable.Rows.Count);
+                    Assert.Equal("cid", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("name", schemaTable.Rows[1][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("type", schemaTable.Rows[2][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
+                }
+            }
+        }
+
+        [Fact]
+        public void GetSchemaTable_works_when_eponymous_virtual_table()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+
+                using (var reader = connection.ExecuteReader("SELECT * FROM pragma_table_info('sqlite_master');"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(6, schemaTable.Rows.Count);
+                    Assert.Equal("cid", schemaTable.Rows[0][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("name", schemaTable.Rows[1][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("type", schemaTable.Rows[2][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("notnull", schemaTable.Rows[3][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("dflt_value", schemaTable.Rows[4][SchemaTableColumn.ColumnName]);
+                    Assert.Equal("pk", schemaTable.Rows[5][SchemaTableColumn.ColumnName]);
                 }
             }
         }

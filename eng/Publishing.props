@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+   <PropertyGroup>
+      <PublishingVersion>3</PublishingVersion>
+      <!-- This repo does its own symbol package generation.  Arcade's symbols.nupkg generation conflicts with the symbol package generation in 
+           this repo and causes confusion (due to empty symblos.nupkg's) in downstream processes -->
+      <AutoGenerateSymbolPackages>false</AutoGenerateSymbolPackages>
+   </PropertyGroup>
+</Project>

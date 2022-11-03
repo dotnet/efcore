@@ -1,37 +1,36 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Diagnostics;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Migrations;
+namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace Microsoft.EntityFrameworkCore.Diagnostics
+/// <summary>
+///     The <see cref="DiagnosticSource" /> event payload for
+///     <see cref="RelationalEventId" /> migrations assembly events.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-diagnostics">Logging, events, and diagnostics</see> for more information and examples.
+/// </remarks>
+public class MigrationAssemblyEventData : MigratorEventData
 {
     /// <summary>
-    ///     The <see cref="DiagnosticSource" /> event payload for
-    ///     <see cref="RelationalEventId" /> migrations assembly events.
+    ///     Constructs the event payload.
     /// </summary>
-    public class MigrationAssemblyEventData : MigratorEventData
+    /// <param name="eventDefinition">The event definition.</param>
+    /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
+    /// <param name="migrator">The <see cref="IMigrator" /> in use.</param>
+    /// <param name="migrationsAssembly">The <see cref="IMigrationsAssembly" /> in use.</param>
+    public MigrationAssemblyEventData(
+        EventDefinitionBase eventDefinition,
+        Func<EventDefinitionBase, EventData, string> messageGenerator,
+        IMigrator migrator,
+        IMigrationsAssembly migrationsAssembly)
+        : base(eventDefinition, messageGenerator, migrator)
     {
-        /// <summary>
-        ///     Constructs the event payload.
-        /// </summary>
-        /// <param name="eventDefinition"> The event definition. </param>
-        /// <param name="messageGenerator"> A delegate that generates a log message for this event. </param>
-        /// <param name="migrator"> The <see cref="IMigrator" /> in use. </param>
-        /// <param name="migrationsAssembly"> The <see cref="IMigrationsAssembly" /> in use. </param>
-        public MigrationAssemblyEventData(
-            [NotNull] EventDefinitionBase eventDefinition,
-            [NotNull] Func<EventDefinitionBase, EventData, string> messageGenerator,
-            [NotNull] IMigrator migrator,
-            [NotNull] IMigrationsAssembly migrationsAssembly)
-            : base(eventDefinition, messageGenerator, migrator)
-            => MigrationsAssembly = migrationsAssembly;
-
-        /// <summary>
-        ///     The <see cref="IMigrationsAssembly" /> in use.
-        /// </summary>
-        public virtual IMigrationsAssembly MigrationsAssembly { get; }
+        MigrationsAssembly = migrationsAssembly;
     }
+
+    /// <summary>
+    ///     The <see cref="IMigrationsAssembly" /> in use.
+    /// </summary>
+    public virtual IMigrationsAssembly MigrationsAssembly { get; }
 }

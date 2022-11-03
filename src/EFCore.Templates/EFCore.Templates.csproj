@@ -1,0 +1,131 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>Microsoft.EntityFrameworkCore.Templates</PackageId>
+    <Description>
+      Entity Framework Core templates for dotnet-new.
+
+      Enables these commonly used templates:
+      ef-templates
+    </Description>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <IncludeSymbols>false</IncludeSymbols>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="templates\**\*" Exclude="templates\**\bin\**;templates\**\obj\**" />
+    <Compile Remove="**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <GeneratedContent Include="..\EFCore.Design\Scaffolding\Internal\CSharpDbContextGenerator.tt">
+      <PackagePath>content\templates\ef-templates\CodeTemplates\EFCore\DbContext.t4</PackagePath>
+      <IsDbContext>true</IsDbContext>
+    </GeneratedContent>
+    <GeneratedContent Include="..\EFCore.Design\Scaffolding\Internal\CSharpEntityTypeGenerator.tt">
+      <PackagePath>content\templates\ef-templates\CodeTemplates\EFCore\EntityType.t4</PackagePath>
+    </GeneratedContent>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <UsingTask TaskName="PatchTemplate" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <TemplateFile ParameterType="System.String" Required="true" />
+      <OutputPath ParameterType="System.String" Required="true" />
+      <IsDbContext ParameterType="System.Boolean" />
+      <VersionPrefix ParameterType="System.String" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+const string importLine = @"<#@ import namespace=""Microsoft.EntityFrameworkCore.Infrastructure"" #>";
+
+var linePragmasRemoved = false;
+var importAdded = !IsDbContext;
+var versionCheckAdded = !IsDbContext;
+
+Directory.CreateDirectory(Path.GetDirectoryName(OutputPath));
+
+using (var reader = new StreamReader(TemplateFile))
+using (var writer = new StreamWriter(OutputPath))
+{
+    string line;
+    while ((line = reader.ReadLine()) != null)
+    {
+        if (!linePragmasRemoved
+            && line.StartsWith("<#@ template "))
+        {
+            writer.WriteLine(line.Replace(@" linePragmas=""false""", ""));
+
+            linePragmasRemoved = true;
+        }
+        else if (!importAdded
+          && line.StartsWith("<#@ import ")
+          && !line.Contains(@" namespace=""System.")
+          && string.Compare(line, importLine) > 0
+          && !line.Contains(@" namespace=""Microsoft.EntityFrameworkCore"""))
+        {
+            writer.WriteLine(importLine);
+            writer.WriteLine(line);
+
+            importAdded = true;
+        }
+        else if (!versionCheckAdded
+            && line == "<#")
+        {
+            var version = new Version(VersionPrefix);
+
+            writer.WriteLine(line);
+            writer.WriteLine(@"    if (!ProductInfo.GetVersion().StartsWith(""" + version.Major + "." + version.Minor + @"""))");
+            writer.WriteLine(@"    {");
+            writer.WriteLine(@"        Warning(""Your templates were created using an older version of Entity Framework. Additional features and bug fixes may be available. See https://aka.ms/efcore-docs-updating-templates for more information."");");
+            writer.WriteLine(@"    }");
+            writer.WriteLine();
+
+            versionCheckAdded = true;
+        }
+        else
+        {
+            writer.WriteLine(line);
+        }
+    }
+}
+
+if (!linePragmasRemoved
+    || !importAdded
+    || !versionCheckAdded)
+{
+    Log.LogError("Failed to patch the template files. Update the code in EFCore.Templates.csproj");
+
+    return false;
+}
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <PropertyGroup>
+    <BeforePack>$(BeforePack);GenerateContent</BeforePack>
+  </PropertyGroup>
+
+  <Target Name="GenerateContent">
+    <PatchTemplate TemplateFile="%(GeneratedContent.Identity)"
+                   OutputPath="$(IntermediateOutputPath)%(GeneratedContent.PackagePath)"
+                   IsDbContext="%(GeneratedContent.IsDbContext)"
+                   VersionPrefix="$(VersionPrefix)"/>
+    <ItemGroup>
+      <Content Include="$(IntermediateOutputPath)%(GeneratedContent.PackagePath)" PackagePath="$([System.IO.Path]::GetDirectoryName(%(GeneratedContent.PackagePath)))" />
+    </ItemGroup>
+  </Target>
+
+</Project>

@@ -1,68 +1,69 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Data.Common;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
+using System.Data;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+namespace Microsoft.EntityFrameworkCore.Storage.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class RawRelationalParameter : RelationalParameterBase
 {
+    private readonly DbParameter _parameter;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class RawRelationalParameter : RelationalParameterBase
+    public RawRelationalParameter(
+        string invariantName,
+        DbParameter parameter)
+        : base(invariantName)
     {
-        private readonly DbParameter _parameter;
+        _parameter = parameter;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public RawRelationalParameter(
-            [NotNull] string invariantName,
-            [NotNull] DbParameter parameter)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object?>? parameterValues)
+        => AddDbParameter(command, _parameter);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void AddDbParameter(DbCommand command, object? value)
+    {
+        Check.DebugAssert(
+            value is DbParameter,
+            $"{nameof(value)} isn't a DbParameter in {nameof(RawRelationalParameter)}.{nameof(AddDbParameter)}");
+
+        if (value is DbParameter dbParameter)
         {
-            Check.NotEmpty(invariantName, nameof(invariantName));
-            Check.NotNull(parameter, nameof(parameter));
+            if (command.Parameters.Contains(dbParameter.ParameterName))
+            {
+                return;
+            }
 
-            InvariantName = invariantName;
-            _parameter = parameter;
+            if (dbParameter.Direction == ParameterDirection.Input
+                && value is ICloneable cloneable)
+            {
+                value = cloneable.Clone();
+            }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override string InvariantName { get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object> parameterValues)
-        {
-            AddDbParameter(command, _parameter);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override void AddDbParameter(DbCommand command, object value)
-        {
-            command.Parameters.Add(value);
-        }
+        command.Parameters.Add(value);
     }
 }

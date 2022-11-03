@@ -1,19 +1,15 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class SpatialSqlServerTest : SpatialTestBase<SpatialSqlServerFixture>
 {
-    public class SpatialSqlServerTest : SpatialTestBase<SpatialSqlServerFixture>
+    public SpatialSqlServerTest(SpatialSqlServerFixture fixture)
+        : base(fixture)
     {
-        public SpatialSqlServerTest(SpatialSqlServerFixture fixture)
-            : base(fixture)
-        {
-        }
-
-        protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
-            => facade.UseTransaction(transaction.GetDbTransaction());
     }
+
+    protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
+        => facade.UseTransaction(transaction.GetDbTransaction());
 }

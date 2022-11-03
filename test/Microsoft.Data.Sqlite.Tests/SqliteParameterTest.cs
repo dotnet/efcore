@@ -1,7 +1,8 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using Microsoft.Data.Sqlite.Properties;
@@ -33,6 +34,46 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void ParameterName_defaults_to_empty()
+        {
+            var parameter = new SqliteParameter();
+
+            Assert.Empty(parameter.ParameterName);
+        }
+
+        [Fact]
+        public void ParameterName_coalesces_to_empty()
+        {
+            var parameter = new SqliteParameter
+            {
+                ParameterName = null
+            };
+
+            Assert.NotNull(parameter.ParameterName);
+            Assert.Empty(parameter.ParameterName);
+        }
+
+        [Fact]
+        public void SourceColumn_defaults_to_empty()
+        {
+            var parameter = new SqliteParameter();
+
+            Assert.Empty(parameter.SourceColumn);
+        }
+
+        [Fact]
+        public void SourceColumn_coalesces_to_empty()
+        {
+            var parameter = new SqliteParameter
+            {
+                SourceColumn = null
+            };
+
+            Assert.NotNull(parameter.SourceColumn);
+            Assert.Empty(parameter.SourceColumn);
+        }
+
+        [Fact]
         public void DbType_defaults_to_string()
         {
             Assert.Equal(DbType.String, new SqliteParameter().DbType);
@@ -53,6 +94,21 @@ namespace Microsoft.Data.Sqlite
         public void SqliteType_defaults_to_text()
         {
             Assert.Equal(SqliteType.Text, new SqliteParameter().SqliteType);
+        }
+
+        [Theory]
+        [MemberData(nameof(TypesData))]
+        public void SqliteType_is_inferred_from_value(object value, SqliteType expectedType)
+        {
+            var parameter = new SqliteParameter { Value = value };
+            Assert.Equal(expectedType, parameter.SqliteType);
+        }
+
+        [Fact]
+        public void SqliteType_overrides_inferred_value()
+        {
+            var parameter = new SqliteParameter { Value = 'A', SqliteType = SqliteType.Integer };
+            Assert.Equal(SqliteType.Integer, parameter.SqliteType);
         }
 
         [Fact]
@@ -88,6 +144,16 @@ namespace Microsoft.Data.Sqlite
 
             Assert.Equal(DbType.String, parameter.DbType);
             Assert.Equal(SqliteType.Text, parameter.SqliteType);
+        }
+
+        [Fact]
+        public void ResetSqliteType_works_when_value()
+        {
+            var parameter = new SqliteParameter { Value = new byte[0], SqliteType = SqliteType.Text };
+
+            parameter.ResetSqliteType();
+
+            Assert.Equal(SqliteType.Blob, parameter.SqliteType);
         }
 
         [Fact]
@@ -218,6 +284,28 @@ namespace Microsoft.Data.Sqlite
                 new DateTimeOffset(new DateTime(2014, 4, 14, 11, 13, 59)),
                 2456761.9680439816,
                 SqliteType.Real);
+
+#if NET6_0_OR_GREATER
+        [Fact]
+        public void Bind_works_when_DateOnly()
+            => Bind_works(new DateOnly(2014, 4, 14), "2014-04-14");
+
+        [Fact]
+        public void Bind_works_when_DateOnly_with_SqliteType_Real()
+            => Bind_works(new DateOnly(2014, 4, 14), 2456761.5, SqliteType.Real);
+
+        [Fact]
+        public void Bind_works_when_TimeOnly()
+            => Bind_works(new TimeOnly(13, 10, 15), "13:10:15");
+
+        [Fact]
+        public void Bind_works_when_TimeOnly_with_milliseconds()
+            => Bind_works(new TimeOnly(13, 10, 15, 500), "13:10:15.5000000");
+
+        [Fact]
+        public void Bind_works_when_TimeOnly_with_SqliteType_Real()
+            => Bind_works(new TimeOnly(13, 10, 15), 0.5487847222222222, SqliteType.Real);
+#endif
 
         [Fact]
         public void Bind_works_when_DBNull()
@@ -429,7 +517,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(1, command.ExecuteNonQuery());
 
                 command.CommandText = "SELECT DateOfBirth FROM Person;";
-                var result = command.ExecuteScalar();
+                var result = command.ExecuteScalar()!;
                 Assert.Equal("2018-03-25 00:00:00", (string)result);
 
                 using (var reader = command.ExecuteReader())
@@ -457,7 +545,7 @@ namespace Microsoft.Data.Sqlite
                 Assert.Equal(1, command.ExecuteNonQuery());
 
                 command.CommandText = "SELECT date FROM Test;";
-                var result = command.ExecuteScalar();
+                var result = command.ExecuteScalar()!;
                 Assert.Equal("2018-03-25 00:00:00+00:00", (string)result);
 
                 using (var reader = command.ExecuteReader())
@@ -496,6 +584,36 @@ namespace Microsoft.Data.Sqlite
                 }
             }
         }
+
+        public static IEnumerable<object[]> TypesData
+        => new List<object[]>
+        {
+            new object[] { default(DateTime), SqliteType.Text },
+            new object[] { default(DateTimeOffset), SqliteType.Text },
+            new object[] { DBNull.Value, SqliteType.Text },
+            new object[] { 0m, SqliteType.Text },
+            new object[] { default(Guid), SqliteType.Text },
+            new object[] { default(TimeSpan), SqliteType.Text },
+            new object[] { default(TimeSpan), SqliteType.Text },
+#if NET6_0_OR_GREATER
+            new object[] { default(DateOnly), SqliteType.Text },
+            new object[] { default(TimeOnly), SqliteType.Text },
+#endif
+            new object[] { 'A', SqliteType.Text },
+            new object[] { "", SqliteType.Text },
+            new object[] { false, SqliteType.Integer },
+            new object[] { (byte)0, SqliteType.Integer },
+            new object[] { 0, SqliteType.Integer },
+            new object[] { 0L, SqliteType.Integer },
+            new object[] { (sbyte)0, SqliteType.Integer },
+            new object[] { (short)0, SqliteType.Integer },
+            new object[] { 0u, SqliteType.Integer },
+            new object[] { 0ul, SqliteType.Integer },
+            new object[] { (ushort)0, SqliteType.Integer },
+            new object[] { 0.0, SqliteType.Real },
+            new object[] { 0f, SqliteType.Real },
+            new object[] { new byte[0], SqliteType.Blob },
+        };
 
         private enum MyEnum
         {

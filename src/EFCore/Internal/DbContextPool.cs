@@ -1,19 +1,18 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Collections.Concurrent;
-using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Microsoft.EntityFrameworkCore.Internal
+namespace Microsoft.EntityFrameworkCore.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class DbContextPool<TContext> : IDbContextPool<TContext>, IDisposable, IAsyncDisposable
+    where TContext : DbContext
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -21,232 +20,159 @@ namespace Microsoft.EntityFrameworkCore.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class DbContextPool<TContext> : IDbContextPool, IDisposable, IAsyncDisposable
-        where TContext : DbContext
+    public const int DefaultPoolSize = 1024;
+
+    private readonly ConcurrentQueue<IDbContextPoolable> _pool = new();
+
+    private readonly Func<DbContext> _activator;
+
+    private int _maxSize;
+    private int _count;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public DbContextPool(DbContextOptions<TContext> options)
     {
-        private const int DefaultPoolSize = 32;
+        _maxSize = options.FindExtension<CoreOptionsExtension>()?.MaxPoolSize ?? DefaultPoolSize;
 
-        private readonly ConcurrentQueue<TContext> _pool = new ConcurrentQueue<TContext>();
-
-        private readonly Func<TContext> _activator;
-
-        private int _maxSize;
-        private int _count;
-
-        private DbContextPoolConfigurationSnapshot _configurationSnapshot;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public sealed class Lease : IDisposable, IAsyncDisposable
+        if (_maxSize <= 0)
         {
-            private DbContextPool<TContext> _contextPool;
+            throw new ArgumentOutOfRangeException(nameof(CoreOptionsExtension.MaxPoolSize), CoreStrings.InvalidPoolSize);
+        }
 
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            public Lease([NotNull] DbContextPool<TContext> contextPool)
+        options.Freeze();
+
+        _activator = CreateActivator(options);
+    }
+
+    private static Func<DbContext> CreateActivator(DbContextOptions<TContext> options)
+    {
+        var constructors = typeof(TContext).GetTypeInfo().DeclaredConstructors
+            .Where(c => !c.IsStatic && c.IsPublic && c.GetParameters().Length > 0).ToArray();
+
+        if (constructors.Length == 1)
+        {
+            var parameters = constructors[0].GetParameters();
+            if (parameters.Length == 1
+                && (parameters[0].ParameterType == typeof(DbContextOptions)
+                    || parameters[0].ParameterType == typeof(DbContextOptions<TContext>)))
             {
-                _contextPool = contextPool;
-
-                Context = _contextPool.Rent();
-            }
-
-            /// <summary>
-            ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-            ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-            ///     any release. You should only use it directly in your code with extreme caution and knowing that
-            ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-            /// </summary>
-            public TContext Context { get; private set; }
-
-            void IDisposable.Dispose()
-            {
-                if (_contextPool != null)
-                {
-                    if (!_contextPool.Return(Context))
-                    {
-                        ((IDbContextPoolable)Context).SetPool(null);
-                        Context.Dispose();
-                    }
-
-                    _contextPool = null;
-                    Context = null;
-                }
-            }
-
-            async ValueTask IAsyncDisposable.DisposeAsync()
-            {
-                if (_contextPool != null)
-                {
-                    if (!_contextPool.Return(Context))
-                    {
-                        ((IDbContextPoolable)Context).SetPool(null);
-                        await Context.DisposeAsync();
-                    }
-
-                    _contextPool = null;
-                    Context = null;
-                }
+                return Expression.Lambda<Func<TContext>>(Expression.New(constructors[0], Expression.Constant(options))).Compile();
             }
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public DbContextPool([NotNull] DbContextOptions options)
+        throw new InvalidOperationException(CoreStrings.PoolingContextCtorError(typeof(TContext).ShortDisplayName()));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IDbContextPoolable Rent()
+    {
+        if (_pool.TryDequeue(out var context))
         {
-            _maxSize = options.FindExtension<CoreOptionsExtension>()?.MaxPoolSize ?? DefaultPoolSize;
+            Interlocked.Decrement(ref _count);
 
-            options.Freeze();
-
-            _activator = CreateActivator(options);
-
-            if (_activator == null)
-            {
-                throw new InvalidOperationException(
-                    CoreStrings.PoolingContextCtorError(typeof(TContext).ShortDisplayName()));
-            }
-        }
-
-        private static Func<TContext> CreateActivator(DbContextOptions options)
-        {
-            var constructors
-                = typeof(TContext).GetTypeInfo().DeclaredConstructors
-                    .Where(c => !c.IsStatic && c.IsPublic)
-                    .ToArray();
-
-            if (constructors.Length == 1)
-            {
-                var parameters = constructors[0].GetParameters();
-
-                if (parameters.Length == 1
-                    && (parameters[0].ParameterType == typeof(DbContextOptions)
-                        || parameters[0].ParameterType == typeof(DbContextOptions<TContext>)))
-                {
-                    return
-                        Expression.Lambda<Func<TContext>>(
-                                Expression.New(constructors[0], Expression.Constant(options)))
-                            .Compile();
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual TContext Rent()
-        {
-            if (_pool.TryDequeue(out var context))
-            {
-                Interlocked.Decrement(ref _count);
-
-                Debug.Assert(_count >= 0);
-
-                ((IDbContextPoolable)context).Resurrect(_configurationSnapshot);
-
-                return context;
-            }
-
-            context = _activator();
-
-            NonCapturingLazyInitializer
-                .EnsureInitialized(
-                    ref _configurationSnapshot,
-                    (IDbContextPoolable)context,
-                    c => c.SnapshotConfiguration());
-
-            ((IDbContextPoolable)context).SetPool(this);
+            Check.DebugAssert(_count >= 0, $"_count is {_count}");
 
             return context;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool Return([NotNull] TContext context)
+        context = _activator();
+
+        context.SnapshotConfiguration();
+
+        return context;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Return(IDbContextPoolable context)
+    {
+        if (Interlocked.Increment(ref _count) <= _maxSize)
         {
-            if (Interlocked.Increment(ref _count) <= _maxSize)
-            {
-                ((IDbContextPoolable)context).ResetState();
+            context.ResetState();
 
-                _pool.Enqueue(context);
-
-                return true;
-            }
-
-            Interlocked.Decrement(ref _count);
-
-            Debug.Assert(_maxSize == 0 || _pool.Count <= _maxSize);
-
-            return false;
+            _pool.Enqueue(context);
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        DbContext IDbContextPool.Rent() => Rent();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        bool IDbContextPool.Return(DbContext context) => Return((TContext)context);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Dispose()
+        else
         {
-            _maxSize = 0;
-
-            while (_pool.TryDequeue(out var context))
-            {
-                ((IDbContextPoolable)context).SetPool(null);
-                context.Dispose();
-            }
+            PooledReturn(context);
         }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual async ValueTask DisposeAsync()
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async ValueTask ReturnAsync(IDbContextPoolable context, CancellationToken cancellationToken = default)
+    {
+        if (Interlocked.Increment(ref _count) <= _maxSize)
         {
-            _maxSize = 0;
+            await context.ResetStateAsync(cancellationToken).ConfigureAwait(false);
 
-            while (_pool.TryDequeue(out var context))
-            {
-                ((IDbContextPoolable)context).SetPool(null);
-                await context.DisposeAsync();
-            }
+            _pool.Enqueue(context);
+        }
+        else
+        {
+            PooledReturn(context);
+        }
+    }
+
+    private void PooledReturn(IDbContextPoolable context)
+    {
+        Interlocked.Decrement(ref _count);
+
+        Check.DebugAssert(_maxSize == 0 || _pool.Count <= _maxSize, $"_maxSize is {_maxSize}");
+
+        context.ClearLease();
+        context.Dispose();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Dispose()
+    {
+        _maxSize = 0;
+
+        while (_pool.TryDequeue(out var context))
+        {
+            context.ClearLease();
+            context.Dispose();
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async ValueTask DisposeAsync()
+    {
+        _maxSize = 0;
+
+        while (_pool.TryDequeue(out var context))
+        {
+            context.ClearLease();
+            await context.DisposeAsync().ConfigureAwait(false);
         }
     }
 }

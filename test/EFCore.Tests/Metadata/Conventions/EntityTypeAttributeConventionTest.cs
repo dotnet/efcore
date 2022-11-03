@@ -1,83 +1,184 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+public class EntityTypeAttributeConventionTest
 {
-    public class EntityTypeAttributeConventionTest
+    #region NotMappedAttribute
+
+    [ConditionalFact]
+    public void NotMappedAttribute_overrides_configuration_from_convention_source()
     {
-        #region NotMappedAttribute
+        var modelBuilder = new InternalModelBuilder(new Model());
 
-        [ConditionalFact]
-        public void NotMappedAttribute_overrides_configuration_from_convention_source()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
+        var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
 
-            var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Convention);
+        RunConvention(entityBuilder);
 
-            RunConvention(entityBuilder);
+        Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
+    }
 
-            Assert.Empty(modelBuilder.Metadata.GetEntityTypes());
-        }
+    [ConditionalFact]
+    public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
+    {
+        var modelBuilder = new InternalModelBuilder(new Model());
 
-        [ConditionalFact]
-        public void NotMappedAttribute_does_not_override_configuration_from_explicit_source()
-        {
-            var modelBuilder = new InternalModelBuilder(new Model());
+        var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
 
-            var entityBuilder = modelBuilder.Entity(typeof(A), ConfigurationSource.Explicit);
+        RunConvention(entityBuilder);
 
-            RunConvention(entityBuilder);
+        Assert.Single(modelBuilder.Metadata.GetEntityTypes());
+    }
 
-            Assert.Single(modelBuilder.Metadata.GetEntityTypes());
-        }
+    [ConditionalFact]
+    public void NotMappedAttribute_ignores_entityTypes_with_conventional_builder()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-        [ConditionalFact]
-        public void NotMappedAttribute_ignores_entityTypes_with_conventional_builder()
-        {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+        modelBuilder.Entity<B>();
 
-            modelBuilder.Entity<B>();
+        Assert.Single(modelBuilder.Model.GetEntityTypes());
+    }
 
-            Assert.Single(modelBuilder.Model.GetEntityTypes());
-        }
+    #endregion
 
-        #endregion
+    #region OwnedAttribute
 
-        private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
-        {
-            var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+    [ConditionalFact]
+    public void OwnedAttribute_configures_entity_as_owned()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            new NotMappedEntityTypeAttributeConvention(CreateDependencies())
-                .ProcessEntityTypeAdded(entityTypeBuilder, context);
-        }
+        modelBuilder.Entity<Customer>();
 
-        private ProviderConventionSetBuilderDependencies CreateDependencies()
-            => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+        Assert.Equal(2, modelBuilder.Model.GetEntityTypes().Count());
+        Assert.True(
+            modelBuilder.Model.FindEntityType(typeof(Customer)).FindNavigation(nameof(Customer.Address)).ForeignKey.IsOwnership);
+    }
 
-        [NotMapped]
-        private class A
-        {
-            public int Id { get; set; }
+    [ConditionalFact]
+    public void Entity_marked_with_OwnedAttribute_cannot_be_configured_as_regular_entity()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
 
-            public string Name { get; set; }
-        }
+        Assert.Equal(
+            CoreStrings.ClashingOwnedEntityType(nameof(Address)),
+            Assert.Throws<InvalidOperationException>(
+                () => modelBuilder.Entity<Customer>().HasOne(e => e.Address).WithOne(e => e.Customer)).Message);
+    }
 
-        private class B
-        {
-            public int Id { get; set; }
+    #endregion
 
-            public virtual A NavToA { get; set; }
-        }
+    #region KeylessAttribute
+
+    [ConditionalFact]
+    public void KeylessAttribute_overrides_configuration_from_convention()
+    {
+        var modelBuilder = new InternalModelBuilder(new Model());
+
+        var entityBuilder = modelBuilder.Entity(typeof(KeylessEntity), ConfigurationSource.Convention);
+        entityBuilder.Property("Id", ConfigurationSource.Convention);
+        entityBuilder.PrimaryKey(new List<string> { "Id" }, ConfigurationSource.Convention);
+
+        Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
+
+        RunConvention(entityBuilder);
+
+        Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
+        Assert.True(entityBuilder.Metadata.IsKeyless);
+    }
+
+    [ConditionalFact]
+    public void KeylessAttribute_can_be_overriden_using_explicit_configuration()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        var entityBuilder = modelBuilder.Entity<KeylessEntity>();
+
+        Assert.True(entityBuilder.Metadata.IsKeyless);
+
+        entityBuilder.HasKey(e => e.Id);
+
+        Assert.False(entityBuilder.Metadata.IsKeyless);
+        Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
+    }
+
+    [ConditionalFact]
+    public void KeyAttribute_does_not_override_keyless_attribute()
+    {
+        var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        var entityBuilder = modelBuilder.Entity<KeyClash>();
+
+        Assert.True(entityBuilder.Metadata.IsKeyless);
+        Assert.Null(entityBuilder.Metadata.FindPrimaryKey());
+    }
+
+    #endregion
+
+    private void RunConvention(InternalEntityTypeBuilder entityTypeBuilder)
+    {
+        var context = new ConventionContext<IConventionEntityTypeBuilder>(entityTypeBuilder.Metadata.Model.ConventionDispatcher);
+
+        new NotMappedEntityTypeAttributeConvention(CreateDependencies())
+            .ProcessEntityTypeAdded(entityTypeBuilder, context);
+
+        new OwnedEntityTypeAttributeConvention(CreateDependencies())
+            .ProcessEntityTypeAdded(entityTypeBuilder, context);
+
+        new KeylessEntityTypeAttributeConvention(CreateDependencies())
+            .ProcessEntityTypeAdded(entityTypeBuilder, context);
+    }
+
+    private ProviderConventionSetBuilderDependencies CreateDependencies()
+        => InMemoryTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+
+    [NotMapped]
+    private class A
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+    }
+
+    private class B
+    {
+        public int Id { get; set; }
+
+        public virtual A NavToA { get; set; }
+    }
+
+    private class Customer
+    {
+        public int Id { get; set; }
+        public Address Address { get; set; }
+    }
+
+    [Owned]
+    private class Address
+    {
+        public int Id { get; set; }
+        public Customer Customer { get; set; }
+    }
+
+    [Keyless]
+    private class KeylessEntity
+    {
+        public int Id { get; set; }
+    }
+
+    [Keyless]
+    private class KeyClash
+    {
+        [Key]
+        public int MyId { get; set; }
     }
 }

@@ -1,36 +1,27 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration
+public class BinaryValueGeneratorTest
 {
-    public class BinaryValueGeneratorTest
+    [ConditionalFact]
+    public void Creates_GUID_arrays()
     {
-        [ConditionalFact]
-        public void Creates_GUID_arrays()
+        var generator = new BinaryValueGenerator();
+
+        var values = new HashSet<Guid>();
+        for (var i = 0; i < 100; i++)
         {
-            var generator = new BinaryValueGenerator(generateTemporaryValues: true);
+            var generatedValue = generator.Next(null);
 
-            var values = new HashSet<Guid>();
-            for (var i = 0; i < 100; i++)
-            {
-                var generatedValue = generator.Next(null);
-
-                values.Add(new Guid(generatedValue));
-            }
-
-            Assert.Equal(100, values.Count);
+            values.Add(new Guid(generatedValue));
         }
 
-        [ConditionalFact]
-        public void Generates_temp_or_non_temp_values()
-        {
-            Assert.True(new BinaryValueGenerator(generateTemporaryValues: true).GeneratesTemporaryValues);
-            Assert.False(new BinaryValueGenerator(generateTemporaryValues: false).GeneratesTemporaryValues);
-        }
+        Assert.Equal(100, values.Count);
     }
+
+    [ConditionalFact]
+    public void Generates_non_temp_values()
+        => Assert.False(new BinaryValueGenerator().GeneratesTemporaryValues);
 }

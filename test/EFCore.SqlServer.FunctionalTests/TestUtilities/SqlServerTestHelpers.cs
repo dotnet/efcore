@@ -1,27 +1,24 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
+
+public class SqlServerTestHelpers : RelationalTestHelpers
 {
-    public class SqlServerTestHelpers : TestHelpers
+    protected SqlServerTestHelpers()
     {
-        protected SqlServerTestHelpers()
-        {
-        }
-
-        public static SqlServerTestHelpers Instance { get; } = new SqlServerTestHelpers();
-
-        public override IServiceCollection AddProviderServices(IServiceCollection services)
-            => services.AddEntityFrameworkSqlServer();
-
-        protected override void UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
-
-        public override LoggingDefinitions LoggingDefinitions { get; } = new SqlServerLoggingDefinitions();
     }
+
+    public static SqlServerTestHelpers Instance { get; } = new();
+
+    public override IServiceCollection AddProviderServices(IServiceCollection services)
+        => services.AddEntityFrameworkSqlServer();
+
+    public override DbContextOptionsBuilder UseProviderOptions(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer(new SqlConnection("Database=DummyDatabase"));
+
+    public override LoggingDefinitions LoggingDefinitions { get; } = new SqlServerLoggingDefinitions();
 }

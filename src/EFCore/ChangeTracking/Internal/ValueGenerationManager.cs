@@ -1,198 +1,223 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
-namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class ValueGenerationManager : IValueGenerationManager
 {
+    private readonly IValueGeneratorSelector _valueGeneratorSelector;
+    private readonly IKeyPropagator _keyPropagator;
+    private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
+    private readonly ILoggingOptions _loggingOptions;
+
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ValueGenerationManager : IValueGenerationManager
+    public ValueGenerationManager(
+        IValueGeneratorSelector valueGeneratorSelector,
+        IKeyPropagator keyPropagator,
+        IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
+        ILoggingOptions loggingOptions)
     {
-        private readonly IValueGeneratorSelector _valueGeneratorSelector;
-        private readonly IKeyPropagator _keyPropagator;
-        private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
-        private readonly ILoggingOptions _loggingOptions;
+        _valueGeneratorSelector = valueGeneratorSelector;
+        _keyPropagator = keyPropagator;
+        _logger = logger;
+        _loggingOptions = loggingOptions;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public ValueGenerationManager(
-            [NotNull] IValueGeneratorSelector valueGeneratorSelector,
-            [NotNull] IKeyPropagator keyPropagator,
-            [NotNull] IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> logger,
-            [NotNull] ILoggingOptions loggingOptions)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? Propagate(InternalEntityEntry entry)
+    {
+        InternalEntityEntry? chosenPrincipal = null;
+        foreach (var property in entry.EntityType.GetForeignKeyProperties())
         {
-            _valueGeneratorSelector = valueGeneratorSelector;
-            _keyPropagator = keyPropagator;
-            _logger = logger;
-            _loggingOptions = loggingOptions;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InternalEntityEntry Propagate(InternalEntityEntry entry)
-        {
-            InternalEntityEntry chosenPrincipal = null;
-            foreach (var property in FindPropagatingProperties(entry))
+            if (!entry.HasDefaultValue(property))
             {
-                var principalEntry = _keyPropagator.PropagateValue(entry, property);
-                if (chosenPrincipal == null)
-                {
-                    chosenPrincipal = principalEntry;
-                }
+                continue;
             }
 
-            return chosenPrincipal;
+            var principalEntry = _keyPropagator.PropagateValue(entry, property);
+            chosenPrincipal ??= principalEntry;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Generate(InternalEntityEntry entry)
+        return chosenPrincipal;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async Task<InternalEntityEntry?> PropagateAsync(InternalEntityEntry entry, CancellationToken cancellationToken)
+    {
+        InternalEntityEntry? chosenPrincipal = null;
+        foreach (var property in entry.EntityType.GetForeignKeyProperties())
         {
-            var entityEntry = new EntityEntry(entry);
-
-            foreach (var property in FindGeneratingProperties(entry))
+            if (!entry.HasDefaultValue(property))
             {
-                var valueGenerator = GetValueGenerator(entry, property);
-
-                var generatedValue = valueGenerator.Next(entityEntry);
-                var temporary = valueGenerator.GeneratesTemporaryValues;
-
-                Log(entry, property, generatedValue, temporary);
-
-                SetGeneratedValue(
-                    entry,
-                    property,
-                    generatedValue,
-                    temporary);
+                continue;
             }
+
+            var principalEntry = await _keyPropagator.PropagateValueAsync(entry, property, cancellationToken).ConfigureAwait(false);
+            chosenPrincipal ??= principalEntry;
         }
 
-        private void Log(InternalEntityEntry entry, IProperty property, object generatedValue, bool temporary)
+        return chosenPrincipal;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool Generate(InternalEntityEntry entry, bool includePrimaryKey = true)
+    {
+        var entityEntry = new EntityEntry(entry);
+        var hasStableValues = false;
+        var hasNonStableValues = false;
+
+        foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
-            if (_loggingOptions.IsSensitiveDataLoggingEnabled)
+            if (!entry.HasDefaultValue(property)
+                || (!includePrimaryKey
+                    && property.IsPrimaryKey()))
             {
-                _logger.ValueGeneratedSensitive(entry, property, generatedValue, temporary);
+                continue;
+            }
+
+            var valueGenerator = GetValueGenerator(property);
+
+            var generatedValue = valueGenerator.Next(entityEntry);
+            var temporary = valueGenerator.GeneratesTemporaryValues;
+
+            if (valueGenerator.GeneratesStableValues)
+            {
+                hasStableValues = true;
             }
             else
             {
-                _logger.ValueGenerated(entry, property, generatedValue, temporary);
+                hasNonStableValues = true;
             }
+
+            Log(entry, property, generatedValue, temporary);
+
+            SetGeneratedValue(entry, property, generatedValue, temporary);
+
+            MarkKeyUnknown(entry, includePrimaryKey, property, valueGenerator);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual async Task GenerateAsync(
-            InternalEntityEntry entry,
-            CancellationToken cancellationToken = default)
+        return hasStableValues && !hasNonStableValues;
+    }
+
+    private void Log(InternalEntityEntry entry, IProperty property, object? generatedValue, bool temporary)
+    {
+        if (_loggingOptions.IsSensitiveDataLoggingEnabled)
         {
-            var entityEntry = new EntityEntry(entry);
+            _logger.ValueGeneratedSensitive(entry, property, generatedValue, temporary);
+        }
+        else
+        {
+            _logger.ValueGenerated(entry, property, generatedValue, temporary);
+        }
+    }
 
-            foreach (var property in FindGeneratingProperties(entry))
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual async Task<bool> GenerateAsync(
+        InternalEntityEntry entry,
+        bool includePrimaryKey = true,
+        CancellationToken cancellationToken = default)
+    {
+        var entityEntry = new EntityEntry(entry);
+        var hasStableValues = false;
+        var hasNonStableValues = false;
+        foreach (var property in entry.EntityType.GetValueGeneratingProperties())
+        {
+            if (!entry.HasDefaultValue(property)
+                || (!includePrimaryKey
+                    && property.IsPrimaryKey()))
             {
-                var valueGenerator = GetValueGenerator(entry, property);
-                var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken);
-                var temporary = valueGenerator.GeneratesTemporaryValues;
-
-                Log(entry, property, generatedValue, temporary);
-
-                SetGeneratedValue(
-                    entry,
-                    property,
-                    generatedValue,
-                    temporary);
+                continue;
             }
+
+            var valueGenerator = GetValueGenerator(property);
+            var generatedValue = await valueGenerator.NextAsync(entityEntry, cancellationToken).ConfigureAwait(false);
+            var temporary = valueGenerator.GeneratesTemporaryValues;
+
+            if (valueGenerator.GeneratesStableValues)
+            {
+                hasStableValues = true;
+            }
+            else
+            {
+                hasNonStableValues = true;
+            }
+
+            Log(entry, property, generatedValue, temporary);
+
+            SetGeneratedValue(
+                entry,
+                property,
+                generatedValue,
+                temporary);
+
+            MarkKeyUnknown(entry, includePrimaryKey, property, valueGenerator);
         }
 
-        private static IEnumerable<IProperty> FindPropagatingProperties(InternalEntityEntry entry)
+        return hasStableValues && !hasNonStableValues;
+    }
+
+    private ValueGenerator GetValueGenerator(IProperty property)
+        => _valueGeneratorSelector.Select(property, property.DeclaringEntityType);
+
+    private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object? generatedValue, bool isTemporary)
+    {
+        if (generatedValue != null)
         {
-            foreach (var property in ((EntityType)entry.EntityType).GetProperties())
+            if (isTemporary)
             {
-                if (property.IsForeignKey()
-                    && entry.HasDefaultValue(property))
-                {
-                    yield return property;
-                }
+                entry.SetTemporaryValue(property, generatedValue);
+            }
+            else
+            {
+                entry[property] = generatedValue;
             }
         }
+    }
 
-        private static IEnumerable<IProperty> FindGeneratingProperties(InternalEntityEntry entry)
+    private static void MarkKeyUnknown(
+        InternalEntityEntry entry,
+        bool includePrimaryKey,
+        IProperty property,
+        ValueGenerator valueGenerator)
+    {
+        if (includePrimaryKey
+            && property.IsKey()
+            && property.IsShadowProperty()
+            && !property.IsForeignKey()
+            && !valueGenerator.GeneratesStableValues)
         {
-            foreach (var property in ((EntityType)entry.EntityType).GetProperties())
-            {
-                if (property.RequiresValueGenerator()
-                    && entry.HasDefaultValue(property))
-                {
-                    yield return property;
-                }
-            }
-        }
-
-        private ValueGenerator GetValueGenerator(InternalEntityEntry entry, IProperty property)
-            => _valueGeneratorSelector.Select(
-                property, property.IsKey()
-                    ? property.DeclaringEntityType
-                    : entry.EntityType);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool MayGetTemporaryValue(IProperty property, IEntityType entityType)
-            => property.RequiresValueGenerator()
-                && _valueGeneratorSelector.Select(property, entityType).GeneratesTemporaryValues;
-
-        private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object generatedValue, bool isTemporary)
-        {
-            if (generatedValue != null)
-            {
-                if (isTemporary)
-                {
-                    entry.SetTemporaryValue(property, generatedValue);
-                }
-                else
-                {
-                    entry[property] = generatedValue;
-                }
-            }
+            entry.MarkUnknown(property);
         }
     }
 }

@@ -1,449 +1,546 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
+#nullable disable
+
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class QuerySqlGenerator : SqlExpressionVisitor
 {
+    private readonly ITypeMappingSource _typeMappingSource;
+    private readonly IndentedStringBuilder _sqlBuilder = new();
+    private IReadOnlyDictionary<string, object> _parameterValues;
+    private List<SqlParameter> _sqlParameters;
+    private bool _useValueProjection;
+    private ParameterNameGenerator _parameterNameGenerator;
+
+    private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+    {
+        // Arithmetic
+        { ExpressionType.Add, " + " },
+        { ExpressionType.Subtract, " - " },
+        { ExpressionType.Multiply, " * " },
+        { ExpressionType.Divide, " / " },
+        { ExpressionType.Modulo, " % " },
+
+        // Bitwise >>> (zero-fill right shift) not available in C#
+        { ExpressionType.Or, " | " },
+        { ExpressionType.And, " & " },
+        { ExpressionType.ExclusiveOr, " ^ " },
+        { ExpressionType.LeftShift, " << " },
+        { ExpressionType.RightShift, " >> " },
+
+        // Logical
+        { ExpressionType.AndAlso, " AND " },
+        { ExpressionType.OrElse, " OR " },
+
+        // Comparison
+        { ExpressionType.Equal, " = " },
+        { ExpressionType.NotEqual, " != " },
+        { ExpressionType.GreaterThan, " > " },
+        { ExpressionType.GreaterThanOrEqual, " >= " },
+        { ExpressionType.LessThan, " < " },
+        { ExpressionType.LessThanOrEqual, " <= " },
+
+        // Unary
+        { ExpressionType.UnaryPlus, "+" },
+        { ExpressionType.Negate, "-" },
+        { ExpressionType.Not, "~" }
+    };
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class QuerySqlGenerator : SqlExpressionVisitor
+    public QuerySqlGenerator(ITypeMappingSource typeMappingSource)
     {
-        private readonly StringBuilder _sqlBuilder = new StringBuilder();
-        private IReadOnlyDictionary<string, object> _parameterValues;
-        private List<SqlParameter> _sqlParameters;
+        _typeMappingSource = typeMappingSource;
+    }
 
-        private readonly IDictionary<ExpressionType, string> _operatorMap = new Dictionary<ExpressionType, string>
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosSqlQuery GetSqlQuery(
+        SelectExpression selectExpression,
+        IReadOnlyDictionary<string, object> parameterValues)
+    {
+        _sqlBuilder.Clear();
+        _parameterValues = parameterValues;
+        _sqlParameters = new List<SqlParameter>();
+        _parameterNameGenerator = new ParameterNameGenerator();
+
+        Visit(selectExpression);
+
+        return new CosmosSqlQuery(_sqlBuilder.ToString(), _sqlParameters);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression)
+    {
+        Visit(entityProjectionExpression.AccessExpression);
+
+        return entityProjectionExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression)
+    {
+        _sqlBuilder.Append(objectArrayProjectionExpression.ToString());
+
+        return objectArrayProjectionExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression)
+    {
+        _sqlBuilder.Append(keyAccessExpression.ToString());
+
+        return keyAccessExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression)
+    {
+        _sqlBuilder.Append(objectAccessExpression.ToString());
+
+        return objectAccessExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitProjection(ProjectionExpression projectionExpression)
+    {
+        if (_useValueProjection)
         {
-            // Arithmetic
-            { ExpressionType.Add, " + " },
-            { ExpressionType.Subtract, " - " },
-            { ExpressionType.Multiply, " * " },
-            { ExpressionType.Divide, " / " },
-            { ExpressionType.Modulo, " % " },
-
-            // Bitwise >>> (zero-fill right shift) not available in C#
-            { ExpressionType.Or, " | " },
-            { ExpressionType.And, " & " },
-            { ExpressionType.ExclusiveOr, " ^ " },
-            { ExpressionType.LeftShift, " << " },
-            { ExpressionType.RightShift, " >> " },
-
-            // Logical
-            { ExpressionType.AndAlso, " AND " },
-            { ExpressionType.OrElse, " OR " },
-
-            // Comparison
-            { ExpressionType.Equal, " = " },
-            { ExpressionType.NotEqual, " != " },
-            { ExpressionType.GreaterThan, " > " },
-            { ExpressionType.GreaterThanOrEqual, " >= " },
-            { ExpressionType.LessThan, " < " },
-            { ExpressionType.LessThanOrEqual, " <= " },
-
-            // Unary
-            { ExpressionType.UnaryPlus, "+" },
-            { ExpressionType.Negate, "-" },
-            { ExpressionType.Not, "~" },
-
-            // Others
-            { ExpressionType.Coalesce, " ?? " }
-        };
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual CosmosSqlQuery GetSqlQuery(SelectExpression selectExpression, IReadOnlyDictionary<string, object> parameterValues)
-        {
-            _sqlBuilder.Clear();
-            _parameterValues = parameterValues;
-            _sqlParameters = new List<SqlParameter>();
-
-            Visit(selectExpression);
-
-            return new CosmosSqlQuery(_sqlBuilder.ToString(), _sqlParameters);
+            _sqlBuilder.Append('"').Append(projectionExpression.Alias).Append("\" : ");
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitEntityProjection(EntityProjectionExpression entityProjectionExpression)
-        {
-            Visit(entityProjectionExpression.AccessExpression);
+        Visit(projectionExpression.Expression);
 
-            return entityProjectionExpression;
+        if (!_useValueProjection
+            && !string.IsNullOrEmpty(projectionExpression.Alias)
+            && projectionExpression.Alias != projectionExpression.Name)
+        {
+            _sqlBuilder.Append(" AS " + projectionExpression.Alias);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitObjectArrayProjection(ObjectArrayProjectionExpression objectArrayProjectionExpression)
-        {
-            _sqlBuilder.Append(objectArrayProjectionExpression);
+        return projectionExpression;
+    }
 
-            return objectArrayProjectionExpression;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitRootReference(RootReferenceExpression rootReferenceExpression)
+    {
+        _sqlBuilder.Append(rootReferenceExpression.ToString());
+
+        return rootReferenceExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSelect(SelectExpression selectExpression)
+    {
+        _sqlBuilder.Append("SELECT ");
+
+        if (selectExpression.IsDistinct)
+        {
+            _sqlBuilder.Append("DISTINCT ");
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitKeyAccess(KeyAccessExpression keyAccessExpression)
+        if (selectExpression.Projection.Count > 0)
         {
-            _sqlBuilder.Append(keyAccessExpression);
-
-            return keyAccessExpression;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitObjectAccess(ObjectAccessExpression objectAccessExpression)
-        {
-            _sqlBuilder.Append(objectAccessExpression);
-
-            return objectAccessExpression;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitProjection(ProjectionExpression projectionExpression)
-        {
-            Visit(projectionExpression.Expression);
-
-            if (!string.Equals(string.Empty, projectionExpression.Alias)
-                && !string.Equals(projectionExpression.Alias, projectionExpression.Name))
+            if (selectExpression.Projection.Any(p => !string.IsNullOrEmpty(p.Alias) && p.Alias != p.Name)
+                && !selectExpression.Projection.Any(p => p.Expression is SqlFunctionExpression)) // Aggregates are not allowed
             {
-                _sqlBuilder.Append(" AS " + projectionExpression.Alias);
-            }
-
-            return projectionExpression;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitRootReference(RootReferenceExpression rootReferenceExpression)
-        {
-            _sqlBuilder.Append(rootReferenceExpression);
-
-            return rootReferenceExpression;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSelect(SelectExpression selectExpression)
-        {
-            _sqlBuilder.Append("SELECT ");
-
-            if (selectExpression.IsDistinct)
-            {
-                _sqlBuilder.Append("DISTINCT ");
-            }
-
-            if (selectExpression.Projection.Any())
-            {
+                _useValueProjection = true;
+                _sqlBuilder.Append("VALUE {");
                 GenerateList(selectExpression.Projection, e => Visit(e));
+                _sqlBuilder.Append('}');
+                _useValueProjection = false;
             }
             else
             {
-                _sqlBuilder.Append("1");
+                GenerateList(selectExpression.Projection, e => Visit(e));
             }
-
-            _sqlBuilder.AppendLine();
-
-            _sqlBuilder.Append("FROM root ");
-            Visit(selectExpression.FromExpression);
-            _sqlBuilder.AppendLine();
-
-            if (selectExpression.Predicate != null)
-            {
-                _sqlBuilder.Append("WHERE ");
-                Visit(selectExpression.Predicate);
-            }
-
-            if (selectExpression.Orderings.Any())
-            {
-                _sqlBuilder.AppendLine().Append("ORDER BY ");
-
-                GenerateList(selectExpression.Orderings, e => Visit(e));
-            }
-
-            if (selectExpression.Offset != null
-                || selectExpression.Limit != null)
-            {
-                _sqlBuilder.AppendLine().Append("OFFSET ");
-
-                if (selectExpression.Offset != null)
-                {
-                    Visit(selectExpression.Offset);
-                }
-                else
-                {
-                    _sqlBuilder.Append("0");
-                }
-
-                _sqlBuilder.Append(" LIMIT ");
-
-                if (selectExpression.Limit != null)
-                {
-                    Visit(selectExpression.Limit);
-                }
-                else
-                {
-                    throw new InvalidOperationException(CoreStrings.QueryFailed(selectExpression.Print(), GetType().Name));
-                }
-            }
-
-            return selectExpression;
+        }
+        else
+        {
+            _sqlBuilder.Append('1');
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitOrdering(OrderingExpression orderingExpression)
+        _sqlBuilder.AppendLine();
+
+        _sqlBuilder.Append(selectExpression.FromExpression is FromSqlExpression ? "FROM " : "FROM root ");
+
+        Visit(selectExpression.FromExpression);
+
+        if (selectExpression.Predicate != null)
         {
-            Visit(orderingExpression.Expression);
-
-            if (!orderingExpression.IsAscending)
-            {
-                _sqlBuilder.Append(" DESC");
-            }
-
-            return orderingExpression;
+            _sqlBuilder.AppendLine().Append("WHERE ");
+            Visit(selectExpression.Predicate);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
+        if (selectExpression.Orderings.Any())
         {
-            var op = _operatorMap[sqlBinaryExpression.OperatorType];
-            _sqlBuilder.Append("(");
-            Visit(sqlBinaryExpression.Left);
+            _sqlBuilder.AppendLine().Append("ORDER BY ");
 
-            if (sqlBinaryExpression.OperatorType == ExpressionType.Add
-                && sqlBinaryExpression.Left.Type == typeof(string))
-            {
-                op = " || ";
-            }
-
-            _sqlBuilder.Append(op);
-
-            Visit(sqlBinaryExpression.Right);
-            _sqlBuilder.Append(")");
-
-            return sqlBinaryExpression;
+            GenerateList(selectExpression.Orderings, e => Visit(e));
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+        if (selectExpression.Offset != null
+            || selectExpression.Limit != null)
         {
-            var op = _operatorMap[sqlUnaryExpression.OperatorType];
+            _sqlBuilder.AppendLine().Append("OFFSET ");
 
-            if (sqlUnaryExpression.OperatorType == ExpressionType.Not
-                && sqlUnaryExpression.Operand.Type == typeof(bool))
+            if (selectExpression.Offset != null)
             {
-                op = "NOT";
+                Visit(selectExpression.Offset);
+            }
+            else
+            {
+                _sqlBuilder.Append('0');
             }
 
-            _sqlBuilder.Append(op);
+            _sqlBuilder.Append(" LIMIT ");
 
-            _sqlBuilder.Append("(");
-            Visit(sqlUnaryExpression.Operand);
-            _sqlBuilder.Append(")");
-
-            return sqlUnaryExpression;
+            if (selectExpression.Limit != null)
+            {
+                Visit(selectExpression.Limit);
+            }
+            else
+            {
+                // TODO: See Issue#18923
+                throw new InvalidOperationException(CosmosStrings.OffsetRequiresLimit);
+            }
         }
 
-        private void GenerateList<T>(
-            IReadOnlyList<T> items,
-            Action<T> generationAction,
-            Action<StringBuilder> joinAction = null)
-        {
-            joinAction ??= (isb => isb.Append(", "));
+        return selectExpression;
+    }
 
-            for (var i = 0; i < items.Count; i++)
+    /// <inheritdoc />
+    protected override Expression VisitFromSql(FromSqlExpression fromSqlExpression)
+    {
+        var sql = fromSqlExpression.Sql;
+
+        string[] substitutions;
+
+        switch (fromSqlExpression.Arguments)
+        {
+            case ParameterExpression { Name: not null } parameterExpression
+                when _parameterValues.TryGetValue(parameterExpression.Name, out var parameterValue)
+                && parameterValue is object[] parameterValues:
             {
-                if (i > 0)
+                substitutions = new string[parameterValues.Length];
+                for (var i = 0; i < parameterValues.Length; i++)
                 {
-                    joinAction(_sqlBuilder);
+                    var parameterName = _parameterNameGenerator.GenerateNext();
+                    _sqlParameters.Add(new SqlParameter(parameterName, parameterValues[i]));
+                    substitutions[i] = parameterName;
                 }
 
-                generationAction(items[i]);
+                break;
             }
-        }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
-        {
-            var jToken = GenerateJToken(sqlConstantExpression.Value, sqlConstantExpression.TypeMapping);
-
-            _sqlBuilder.Append(jToken == null ? "null" : jToken.ToString(Formatting.None));
-
-            return sqlConstantExpression;
-        }
-
-        private JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
-        {
-            if (!(AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue20404", out var enabled)
-                && enabled))
+            case ConstantExpression { Value: object[] constantValues }:
             {
-                value = ConvertUnderlyingEnumValueToEnum(value, typeMapping.ClrType);
+                substitutions = new string[constantValues.Length];
+                for (var i = 0; i < constantValues.Length; i++)
+                {
+                    var value = constantValues[i];
+                    substitutions[i] = GenerateConstant(value, _typeMappingSource.FindMapping(value.GetType()));
+                }
+
+                break;
             }
 
-            var converter = typeMapping.Converter;
-            if (converter != null)
+            default:
+                throw new ArgumentOutOfRangeException(
+                    nameof(fromSqlExpression),
+                    fromSqlExpression.Arguments,
+                    CosmosStrings.InvalidFromSqlArguments(
+                        fromSqlExpression.Arguments.GetType(),
+                        fromSqlExpression.Arguments is ConstantExpression constantExpression
+                            ? constantExpression.Value?.GetType()
+                            : null));
+        }
+
+        // ReSharper disable once CoVariantArrayConversion
+        // InvariantCulture not needed since substitutions are all strings
+        sql = string.Format(sql, substitutions);
+
+        _sqlBuilder.AppendLine("(");
+
+        using (_sqlBuilder.Indent())
+        {
+            _sqlBuilder.AppendLines(sql);
+        }
+
+        _sqlBuilder
+            .Append(") ")
+            .Append(fromSqlExpression.Alias);
+
+        return fromSqlExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitOrdering(OrderingExpression orderingExpression)
+    {
+        Visit(orderingExpression.Expression);
+
+        if (!orderingExpression.IsAscending)
+        {
+            _sqlBuilder.Append(" DESC");
+        }
+
+        return orderingExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
+    {
+        var op = _operatorMap[sqlBinaryExpression.OperatorType];
+        _sqlBuilder.Append('(');
+        Visit(sqlBinaryExpression.Left);
+
+        if (sqlBinaryExpression.OperatorType == ExpressionType.Add
+            && sqlBinaryExpression.Left.Type == typeof(string))
+        {
+            op = " || ";
+        }
+
+        _sqlBuilder.Append(op);
+
+        Visit(sqlBinaryExpression.Right);
+        _sqlBuilder.Append(')');
+
+        return sqlBinaryExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+    {
+        var op = _operatorMap[sqlUnaryExpression.OperatorType];
+
+        if (sqlUnaryExpression.OperatorType == ExpressionType.Not
+            && sqlUnaryExpression.Operand.Type == typeof(bool))
+        {
+            op = "NOT";
+        }
+
+        _sqlBuilder.Append(op);
+
+        _sqlBuilder.Append('(');
+        Visit(sqlUnaryExpression.Operand);
+        _sqlBuilder.Append(')');
+
+        return sqlUnaryExpression;
+    }
+
+    private void GenerateList<T>(
+        IReadOnlyList<T> items,
+        Action<T> generationAction,
+        Action<IndentedStringBuilder> joinAction = null)
+    {
+        joinAction ??= (isb => isb.Append(", "));
+
+        for (var i = 0; i < items.Count; i++)
+        {
+            if (i > 0)
             {
-                value = converter.ConvertToProvider(value);
+                joinAction(_sqlBuilder);
             }
 
-            if (value == null)
-            {
-                return null;
-            }
-
-            return (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+            generationAction(items[i]);
         }
+    }
 
-        // Enum when compared to constant will always have value of integral type
-        // when enum would contain convert node. We remove the convert node but we also
-        // need to convert the integral value to enum value.
-        // This allows us to use converter on enum value or print enum value directly if supported by provider
-        private object ConvertUnderlyingEnumValueToEnum(object value, Type clrType)
-            => value?.GetType().IsInteger() == true && clrType.UnwrapNullableType().IsEnum
-            ? Enum.ToObject(clrType.UnwrapNullableType(), value)
-            : value;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlConstant(SqlConstantExpression sqlConstantExpression)
+    {
+        _sqlBuilder.Append(GenerateConstant(sqlConstantExpression.Value, sqlConstantExpression.TypeMapping));
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
+        return sqlConstantExpression;
+    }
+
+    private static string GenerateConstant(object value, CoreTypeMapping typeMapping)
+    {
+        var jToken = GenerateJToken(value, typeMapping);
+
+        return jToken is null ? "null" : jToken.ToString(Formatting.None);
+    }
+
+    private static JToken GenerateJToken(object value, CoreTypeMapping typeMapping)
+    {
+        if (value?.GetType().IsInteger() == true)
         {
-            _sqlBuilder.Append("(");
-            Visit(sqlConditionalExpression.Test);
-            _sqlBuilder.Append(" ? ");
-            Visit(sqlConditionalExpression.IfTrue);
-            _sqlBuilder.Append(" : ");
-            Visit(sqlConditionalExpression.IfFalse);
-            _sqlBuilder.Append(")");
-
-            return sqlConditionalExpression;
+            var unwrappedType = typeMapping.ClrType.UnwrapNullableType();
+            value = unwrappedType.IsEnum
+                ? Enum.ToObject(unwrappedType, value)
+                : unwrappedType == typeof(char)
+                    ? Convert.ChangeType(value, unwrappedType)
+                    : value;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
+        var converter = typeMapping.Converter;
+        if (converter != null)
         {
-            var parameterName = $"@{sqlParameterExpression.Name}";
-
-            if (_sqlParameters.All(sp => sp.Name != parameterName))
-            {
-                var jToken = GenerateJToken(_parameterValues[sqlParameterExpression.Name], sqlParameterExpression.TypeMapping);
-                _sqlParameters.Add(new SqlParameter(parameterName, jToken));
-            }
-
-            _sqlBuilder.Append(parameterName);
-
-            return sqlParameterExpression;
+            value = converter.ConvertToProvider(value);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitIn(InExpression inExpression)
+        return value == null
+            ? null
+            : (value as JToken) ?? JToken.FromObject(value, CosmosClientWrapper.Serializer);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlConditional(SqlConditionalExpression sqlConditionalExpression)
+    {
+        _sqlBuilder.Append('(');
+        Visit(sqlConditionalExpression.Test);
+        _sqlBuilder.Append(" ? ");
+        Visit(sqlConditionalExpression.IfTrue);
+        _sqlBuilder.Append(" : ");
+        Visit(sqlConditionalExpression.IfFalse);
+        _sqlBuilder.Append(')');
+
+        return sqlConditionalExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlParameter(SqlParameterExpression sqlParameterExpression)
+    {
+        var parameterName = $"@{sqlParameterExpression.Name}";
+
+        if (_sqlParameters.All(sp => sp.Name != parameterName))
         {
-            Visit(inExpression.Item);
-            _sqlBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
-            _sqlBuilder.Append("(");
-            var valuesConstant = (SqlConstantExpression)inExpression.Values;
-            var valuesList = ((IEnumerable<object>)valuesConstant.Value)
-                .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
-            GenerateList(valuesList, e => Visit(e));
-            _sqlBuilder.Append(")");
-
-            return inExpression;
+            var jToken = GenerateJToken(_parameterValues[sqlParameterExpression.Name], sqlParameterExpression.TypeMapping);
+            _sqlParameters.Add(new SqlParameter(parameterName, jToken));
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
-        {
-            _sqlBuilder.Append(sqlFunctionExpression.Name);
-            _sqlBuilder.Append("(");
-            GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
-            _sqlBuilder.Append(")");
+        _sqlBuilder.Append(parameterName);
 
-            return sqlFunctionExpression;
-        }
+        return sqlParameterExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitIn(InExpression inExpression)
+    {
+        Visit(inExpression.Item);
+        _sqlBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
+        _sqlBuilder.Append('(');
+        var valuesConstant = (SqlConstantExpression)inExpression.Values;
+        var valuesList = ((IEnumerable<object>)valuesConstant.Value)
+            .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
+        GenerateList(valuesList, e => Visit(e));
+        _sqlBuilder.Append(')');
+
+        return inExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlFunction(SqlFunctionExpression sqlFunctionExpression)
+    {
+        _sqlBuilder.Append(sqlFunctionExpression.Name);
+        _sqlBuilder.Append('(');
+        GenerateList(sqlFunctionExpression.Arguments, e => Visit(e));
+        _sqlBuilder.Append(')');
+
+        return sqlFunctionExpression;
+    }
+
+    private sealed class ParameterNameGenerator
+    {
+        private int _count;
+
+        public string GenerateNext()
+            => "@p" + _count++;
     }
 }

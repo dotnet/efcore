@@ -1,168 +1,211 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal
+namespace Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class InMemoryOptionsExtension : IDbContextOptionsExtension
 {
+    private string? _storeName;
+    private bool _nullabilityCheckEnabled;
+    private InMemoryDatabaseRoot? _databaseRoot;
+    private DbContextOptionsExtensionInfo? _info;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class InMemoryOptionsExtension : IDbContextOptionsExtension
+    public InMemoryOptionsExtension()
     {
-        private string _storeName;
-        private InMemoryDatabaseRoot _databaseRoot;
-        private DbContextOptionsExtensionInfo _info;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public InMemoryOptionsExtension()
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected InMemoryOptionsExtension(InMemoryOptionsExtension copyFrom)
+    {
+        _storeName = copyFrom._storeName;
+        _databaseRoot = copyFrom._databaseRoot;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual DbContextOptionsExtensionInfo Info
+        => _info ??= new ExtensionInfo(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual InMemoryOptionsExtension Clone()
+        => new(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string StoreName
+        => _storeName!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsNullabilityCheckEnabled
+        => _nullabilityCheckEnabled;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InMemoryOptionsExtension WithStoreName(string storeName)
+    {
+        var clone = Clone();
+
+        clone._storeName = storeName;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InMemoryOptionsExtension WithNullabilityCheckEnabled(bool nullabilityCheckEnabled)
+    {
+        var clone = Clone();
+
+        clone._nullabilityCheckEnabled = nullabilityCheckEnabled;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InMemoryDatabaseRoot? DatabaseRoot
+        => _databaseRoot;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InMemoryOptionsExtension WithDatabaseRoot(InMemoryDatabaseRoot databaseRoot)
+    {
+        var clone = Clone();
+
+        clone._databaseRoot = databaseRoot;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ApplyServices(IServiceCollection services)
+        => services.AddEntityFrameworkInMemoryDatabase();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void Validate(IDbContextOptions options)
+    {
+    }
+
+    private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
+    {
+        private string? _logFragment;
+
+        public ExtensionInfo(IDbContextOptionsExtension extension)
+            : base(extension)
         {
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected InMemoryOptionsExtension([NotNull] InMemoryOptionsExtension copyFrom)
+        private new InMemoryOptionsExtension Extension
+            => (InMemoryOptionsExtension)base.Extension;
+
+        public override bool IsDatabaseProvider
+            => true;
+
+        public override string LogFragment
         {
-            _storeName = copyFrom._storeName;
-            _databaseRoot = copyFrom._databaseRoot;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual DbContextOptionsExtensionInfo Info
-            => _info ??= new ExtensionInfo(this);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected virtual InMemoryOptionsExtension Clone() => new InMemoryOptionsExtension(this);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string StoreName => _storeName;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InMemoryOptionsExtension WithStoreName([NotNull] string storeName)
-        {
-            var clone = Clone();
-
-            clone._storeName = storeName;
-
-            return clone;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InMemoryDatabaseRoot DatabaseRoot => _databaseRoot;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual InMemoryOptionsExtension WithDatabaseRoot([NotNull] InMemoryDatabaseRoot databaseRoot)
-        {
-            var clone = Clone();
-
-            clone._databaseRoot = databaseRoot;
-
-            return clone;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ApplyServices(IServiceCollection services)
-            => services.AddEntityFrameworkInMemoryDatabase();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void Validate(IDbContextOptions options)
-        {
-        }
-
-        private sealed class ExtensionInfo : DbContextOptionsExtensionInfo
-        {
-            private string _logFragment;
-
-            public ExtensionInfo(IDbContextOptionsExtension extension)
-                : base(extension)
+            get
             {
-            }
-
-            private new InMemoryOptionsExtension Extension
-                => (InMemoryOptionsExtension)base.Extension;
-
-            public override bool IsDatabaseProvider => true;
-
-            public override string LogFragment
-            {
-                get
+                if (_logFragment == null)
                 {
-                    if (_logFragment == null)
+                    var builder = new StringBuilder();
+
+                    builder.Append("StoreName=").Append(Extension._storeName).Append(' ');
+
+                    if (!Extension._nullabilityCheckEnabled)
                     {
-                        var builder = new StringBuilder();
-
-                        builder.Append("StoreName=").Append(Extension._storeName).Append(' ');
-
-                        _logFragment = builder.ToString();
+                        builder.Append("NullabilityChecksEnabled ");
                     }
 
-                    return _logFragment;
+                    _logFragment = builder.ToString();
                 }
+
+                return _logFragment;
             }
+        }
 
-            public override long GetServiceProviderHashCode() => Extension._databaseRoot?.GetHashCode() ?? 0L;
+        public override int GetServiceProviderHashCode()
+        {
+            var hashCode = new HashCode();
+            hashCode.Add(Extension._databaseRoot);
+            hashCode.Add(Extension._nullabilityCheckEnabled);
+            return hashCode.ToHashCode();
+        }
 
-            public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
-                => debugInfo["InMemoryDatabase:DatabaseRoot"]
-                    = (Extension._databaseRoot?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+        public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+            => other is ExtensionInfo otherInfo
+                && Extension._databaseRoot == otherInfo.Extension._databaseRoot
+                && Extension._nullabilityCheckEnabled == otherInfo.Extension._nullabilityCheckEnabled;
+
+        public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
+        {
+            debugInfo["InMemoryDatabase:DatabaseRoot"]
+                = (Extension._databaseRoot?.GetHashCode() ?? 0).ToString(CultureInfo.InvariantCulture);
+            debugInfo["InMemoryDatabase:NullabilityChecksEnabled"]
+                = (!Extension._nullabilityCheckEnabled).GetHashCode().ToString(CultureInfo.InvariantCulture);
         }
     }
 }

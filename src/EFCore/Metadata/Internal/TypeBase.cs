@@ -1,344 +1,414 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Utilities;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Internal
+namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase, ITypeBase
 {
+    private ConfigurationSource _configurationSource;
+
+    private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
+        = new(StringComparer.Ordinal);
+
+    private bool _indexerPropertyInitialized;
+    private PropertyInfo? _indexerPropertyInfo;
+    private SortedDictionary<string, PropertyInfo>? _runtimeProperties;
+    private SortedDictionary<string, FieldInfo>? _runtimeFields;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConventionTypeBase
+    protected TypeBase(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        Model model,
+        ConfigurationSource configurationSource)
     {
-        private ConfigurationSource _configurationSource;
+        Check.NotNull(model, nameof(model));
 
-        private readonly Dictionary<string, ConfigurationSource> _ignoredMembers
-            = new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
-
-        private Dictionary<string, PropertyInfo> _runtimeProperties;
-        private Dictionary<string, FieldInfo> _runtimeFields;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected TypeBase([NotNull] string name, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
-        {
-            Check.NotEmpty(name, nameof(name));
-            Check.NotNull(model, nameof(model));
-
-            Name = name;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected TypeBase([NotNull] Type clrType, [NotNull] Model model, ConfigurationSource configurationSource)
-            : this(model, configurationSource)
-        {
-            Check.NotNull(model, nameof(model));
-
-            Name = model.GetDisplayName(clrType);
-            ClrType = clrType;
-        }
-
-        private TypeBase([NotNull] Model model, ConfigurationSource configurationSource)
-        {
-            Model = model;
-            _configurationSource = configurationSource;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Type ClrType { [DebuggerStepThrough] get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual Model Model { [DebuggerStepThrough] get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string Name { [DebuggerStepThrough] get; }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        [DebuggerStepThrough]
-        public virtual ConfigurationSource GetConfigurationSource() => _configurationSource;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
-            => _configurationSource = configurationSource.Max(_configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties()
-        {
-            if (ClrType == null)
-            {
-                return null;
-            }
-
-            if (_runtimeProperties == null)
-            {
-                var runtimeProperties = new Dictionary<string, PropertyInfo>(StringComparer.Ordinal);
-                foreach (var property in ClrType.GetRuntimeProperties())
-                {
-                    if (!property.IsStatic()
-                        && !runtimeProperties.ContainsKey(property.Name))
-                    {
-                        runtimeProperties[property.Name] = property;
-                    }
-                }
-
-                Interlocked.CompareExchange(ref _runtimeProperties, runtimeProperties, null);
-            }
-
-            return _runtimeProperties;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields()
-        {
-            if (ClrType == null)
-            {
-                return null;
-            }
-
-            if (_runtimeFields == null)
-            {
-                var runtimeFields = new Dictionary<string, FieldInfo>(StringComparer.Ordinal);
-                foreach (var field in ClrType.GetRuntimeFields())
-                {
-                    if (!field.IsStatic
-                        && !runtimeFields.ContainsKey(field.Name))
-                    {
-                        runtimeFields[field.Name] = field;
-                    }
-                }
-
-                Interlocked.CompareExchange(ref _runtimeFields, runtimeFields, null);
-            }
-
-            return _runtimeFields;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void SetPropertyAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void SetNavigationAccessMode(
-            PropertyAccessMode? propertyAccessMode, ConfigurationSource configurationSource)
-            => this.SetOrRemoveAnnotation(CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, configurationSource);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void ClearCaches()
-        {
-            _runtimeProperties = null;
-            _runtimeFields = null;
-            Thread.MemoryBarrier();
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void AddIgnored([NotNull] string name, ConfigurationSource configurationSource)
-        {
-            Check.NotNull(name, nameof(name));
-
-            if (_ignoredMembers.TryGetValue(name, out var existingIgnoredConfigurationSource))
-            {
-                _ignoredMembers[name] = configurationSource.Max(existingIgnoredConfigurationSource);
-                return;
-            }
-
-            _ignoredMembers[name] = configurationSource;
-
-            OnTypeMemberIgnored(name);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public abstract void OnTypeMemberIgnored([NotNull] string name);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual IReadOnlyList<string> GetIgnoredMembers()
-            => _ignoredMembers.Keys.ToList();
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource([NotNull] string name)
-            => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
-                ? (ConfigurationSource?)ignoredConfigurationSource
-                : null;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
-            => FindDeclaredIgnoredConfigurationSource(name);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual bool IsIgnored(string name)
-            => FindIgnoredConfigurationSource(name) != null;
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void RemoveIgnored(string name)
-        {
-            Check.NotNull(name, nameof(name));
-            _ignoredMembers.Remove(name);
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IModel ITypeBase.Model
-        {
-            [DebuggerStepThrough] get => Model;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IMutableModel IMutableTypeBase.Model
-        {
-            [DebuggerStepThrough] get => Model;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        IConventionModel IConventionTypeBase.Model
-        {
-            [DebuggerStepThrough] get => Model;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        Type ITypeBase.ClrType
-        {
-            [DebuggerStepThrough] get => ClrType;
-        }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        void IMutableTypeBase.AddIgnored(string name) => AddIgnored(name, ConfigurationSource.Explicit);
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        void IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
-            => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        ClrType = type;
+        Model = model;
+        _configurationSource = configurationSource;
+        Name = model.GetDisplayName(type);
+        HasSharedClrType = false;
+        IsPropertyBag = type.IsPropertyBagType();
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected TypeBase(
+        string name,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        Model model,
+        ConfigurationSource configurationSource)
+    {
+        Name = name;
+        ClrType = type;
+        Model = model;
+        _configurationSource = configurationSource;
+        HasSharedClrType = true;
+        IsPropertyBag = type.IsPropertyBagType();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
+    public virtual Type ClrType { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Model Model { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool IsReadOnly
+        => Model.IsReadOnly;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string Name { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool HasSharedClrType { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsPropertyBag { [DebuggerStepThrough] get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    public virtual ConfigurationSource GetConfigurationSource()
+        => _configurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
+        => _configurationSource = configurationSource.Max(_configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyDictionary<string, PropertyInfo> GetRuntimeProperties()
+    {
+        if (_runtimeProperties == null)
+        {
+            var runtimeProperties = new SortedDictionary<string, PropertyInfo>(StringComparer.Ordinal);
+            foreach (var property in ClrType.GetRuntimeProperties())
+            {
+                if (!property.IsStatic()
+                    && !runtimeProperties.ContainsKey(property.Name))
+                {
+                    runtimeProperties[property.Name] = property;
+                }
+            }
+
+            Interlocked.CompareExchange(ref _runtimeProperties, runtimeProperties, null);
+        }
+
+        return _runtimeProperties;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlyDictionary<string, FieldInfo> GetRuntimeFields()
+    {
+        if (_runtimeFields == null)
+        {
+            var runtimeFields = new SortedDictionary<string, FieldInfo>(StringComparer.Ordinal);
+            foreach (var field in ClrType.GetRuntimeFields())
+            {
+                if (!field.IsStatic
+                    && !runtimeFields.ContainsKey(field.Name))
+                {
+                    runtimeFields[field.Name] = field;
+                }
+            }
+
+            Interlocked.CompareExchange(ref _runtimeFields, runtimeFields, null);
+        }
+
+        return _runtimeFields;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PropertyInfo? FindIndexerPropertyInfo()
+    {
+        if (!_indexerPropertyInitialized)
+        {
+            var indexerPropertyInfo = ClrType.FindIndexerProperty();
+
+            Interlocked.CompareExchange(ref _indexerPropertyInfo, indexerPropertyInfo, null);
+            _indexerPropertyInitialized = true;
+        }
+
+        return _indexerPropertyInfo;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PropertyAccessMode GetPropertyAccessMode()
+        => (PropertyAccessMode?)this[CoreAnnotationNames.PropertyAccessMode]
+            ?? Model.GetPropertyAccessMode();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PropertyAccessMode? SetPropertyAccessMode(
+        PropertyAccessMode? propertyAccessMode,
+        ConfigurationSource configurationSource)
+        => (PropertyAccessMode?)SetOrRemoveAnnotation(
+            CoreAnnotationNames.PropertyAccessMode, propertyAccessMode, configurationSource)?.Value;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PropertyAccessMode GetNavigationAccessMode()
+        => (PropertyAccessMode?)this[CoreAnnotationNames.NavigationAccessMode]
+            ?? GetPropertyAccessMode();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual PropertyAccessMode? SetNavigationAccessMode(
+        PropertyAccessMode? propertyAccessMode,
+        ConfigurationSource configurationSource)
+        => (PropertyAccessMode?)SetOrRemoveAnnotation(
+            CoreAnnotationNames.NavigationAccessMode, propertyAccessMode, configurationSource)?.Value;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? AddIgnored(string name, ConfigurationSource configurationSource)
+    {
+        Check.NotNull(name, nameof(name));
+        EnsureMutable();
+
+        if (_ignoredMembers.TryGetValue(name, out var existingIgnoredConfigurationSource))
+        {
+            _ignoredMembers[name] = configurationSource.Max(existingIgnoredConfigurationSource);
+            return name;
+        }
+
+        _ignoredMembers[name] = configurationSource;
+
+        return OnTypeMemberIgnored(name);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract string? OnTypeMemberIgnored(string name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<string> GetIgnoredMembers()
+        => _ignoredMembers.Keys;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? FindDeclaredIgnoredConfigurationSource(string name)
+        => _ignoredMembers.TryGetValue(Check.NotEmpty(name, nameof(name)), out var ignoredConfigurationSource)
+            ? ignoredConfigurationSource
+            : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? FindIgnoredConfigurationSource(string name)
+        => FindDeclaredIgnoredConfigurationSource(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsIgnored(string name)
+        => FindIgnoredConfigurationSource(name) != null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? RemoveIgnored(string name)
+    {
+        Check.NotNull(name, nameof(name));
+        EnsureMutable();
+
+        return _ignoredMembers.Remove(name) ? name : null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IReadOnlyModel IReadOnlyTypeBase.Model
+    {
+        [DebuggerStepThrough]
+        get => Model;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IMutableModel IMutableTypeBase.Model
+    {
+        [DebuggerStepThrough]
+        get => Model;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionModel IConventionTypeBase.Model
+    {
+        [DebuggerStepThrough]
+        get => Model;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IModel ITypeBase.Model
+    {
+        [DebuggerStepThrough]
+        get => Model;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
+    Type IReadOnlyTypeBase.ClrType
+    {
+        [DebuggerStepThrough]
+        get => ClrType;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    string? IMutableTypeBase.AddIgnored(string name)
+        => AddIgnored(name, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    string? IConventionTypeBase.AddIgnored(string name, bool fromDataAnnotation)
+        => AddIgnored(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

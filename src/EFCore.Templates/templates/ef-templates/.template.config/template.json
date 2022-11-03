@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Microsoft",
+  "classifications": [ "EFCore", "Scaffolding" ],
+  "identity": "Microsoft.EntityFrameworkCore.Templates.ef-templates",
+  "groupIdentity": "Microsoft.EntityFrameworkCore.Templates.ef-templates",
+  "name": "Entity Framework Core Scaffolding Templates",
+  "shortName": "ef-templates",
+  "tags": {
+    "language": "C#",
+    "type": "item"
+  }
+}

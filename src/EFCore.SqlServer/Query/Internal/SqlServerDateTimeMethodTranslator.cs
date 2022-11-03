@@ -1,67 +1,144 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
 {
-    public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
+    private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new()
     {
-        private readonly Dictionary<MethodInfo, string> _methodInfoDatePartMapping = new Dictionary<MethodInfo, string>
-        {
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) }), "year" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) }), "month" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) }), "day" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) }), "hour" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) }), "minute" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) }), "second" },
-            { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) }), "millisecond" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) }), "year" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) }), "month" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) }), "day" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) }), "hour" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) }), "minute" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) }), "second" },
-            { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) }), "millisecond" }
-        };
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) })!, "year" },
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMonths), new[] { typeof(int) })!, "month" },
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddDays), new[] { typeof(double) })!, "day" },
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddHours), new[] { typeof(double) })!, "hour" },
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMinutes), new[] { typeof(double) })!, "minute" },
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddSeconds), new[] { typeof(double) })!, "second" },
+        { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) })!, "millisecond" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddYears), new[] { typeof(int) })!, "year" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMonths), new[] { typeof(int) })!, "month" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddDays), new[] { typeof(double) })!, "day" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddHours), new[] { typeof(double) })!, "hour" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMinutes), new[] { typeof(double) })!, "minute" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddSeconds), new[] { typeof(double) })!, "second" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) })!, "millisecond" }
+    };
 
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
 
-        public SqlServerDateTimeMethodTranslator(
-            ISqlExpressionFactory sqlExpressionFactory)
-        {
-            _sqlExpressionFactory = sqlExpressionFactory;
-        }
+    private static readonly MethodInfo AtTimeZoneDateTimeMethodInfo = typeof(SqlServerDbFunctionsExtensions)
+        .GetRuntimeMethod(
+            nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTime), typeof(string) })!;
 
-        public virtual SqlExpression Translate(SqlExpression instance, MethodInfo method, IReadOnlyList<SqlExpression> arguments)
+    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public SqlServerDateTimeMethodTranslator(
+        ISqlExpressionFactory sqlExpressionFactory,
+        IRelationalTypeMappingSource typeMappingSource)
+    {
+        _sqlExpressionFactory = sqlExpressionFactory;
+        _typeMappingSource = typeMappingSource;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
+        MethodInfo method,
+        IReadOnlyList<SqlExpression> arguments,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+    {
+        if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart)
+            && instance != null)
         {
-            if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart))
+            // DateAdd does not accept number argument outside of int range
+            // AddYears/AddMonths take int argument so no need to check for range
+            if (datePart != "year"
+                && datePart != "month"
+                && arguments[0] is SqlConstantExpression sqlConstant
+                && sqlConstant.Value is double doubleValue
+                && (doubleValue >= int.MaxValue
+                    || doubleValue <= int.MinValue))
             {
-                // DateAdd does not accept number argument outside of int range
-                // AddYears/AddMonths take int argument so no need to check for range
-                return !datePart.Equals("year")
-                    && !datePart.Equals("month")
-                    && arguments[0] is SqlConstantExpression sqlConstant
-                    && ((double)sqlConstant.Value >= int.MaxValue
-                        || (double)sqlConstant.Value <= int.MinValue)
-                        ? null
-                        : _sqlExpressionFactory.Function(
-                            "DATEADD",
-                            new[]
-                            {
-                                _sqlExpressionFactory.Fragment(datePart),
-                                _sqlExpressionFactory.Convert(arguments[0], typeof(int)),
-                                instance
-                            },
-                            instance.Type,
-                            instance.TypeMapping);
+                return null;
             }
 
-            return null;
+            if (instance is SqlConstantExpression instanceConstant)
+            {
+                instance = instanceConstant.ApplyTypeMapping(_typeMappingSource.FindMapping(typeof(DateTime), "datetime"));
+            }
+
+            return _sqlExpressionFactory.Function(
+                "DATEADD",
+                new[] { _sqlExpressionFactory.Fragment(datePart), _sqlExpressionFactory.Convert(arguments[0], typeof(int)), instance },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true, true },
+                instance.Type,
+                instance.TypeMapping);
         }
+
+        if (method == AtTimeZoneDateTimeOffsetMethodInfo || method == AtTimeZoneDateTimeMethodInfo)
+        {
+            var (operand, timeZone) = (arguments[1], arguments[2]);
+
+            RelationalTypeMapping? resultTypeMapping = null;
+
+            // The AT TIME ZONE construct bubbles up the precision of its operand, so when invoked over datetime2(2) it returns a
+            // datetimeoffset(2). So if the operand has a type mapping, bubble it up accordingly, otherwise allow the result type mapping
+            // to be inferred.
+            if (operand.TypeMapping is { } operandTypeMapping)
+            {
+                switch (operandTypeMapping.StoreTypeNameBase)
+                {
+                    case "datetimeoffset":
+                        resultTypeMapping = operandTypeMapping;
+                        break;
+                    case "datetime" or "datetime2" or "smalldatetime":
+                        resultTypeMapping = _typeMappingSource.FindMapping(
+                            typeof(DateTimeOffset), "datetimeoffset", precision: operandTypeMapping.Precision);
+                        break;
+                    default:
+                        Check.DebugAssert(
+                            false,
+                            $"Unknown operand type mapping '{operandTypeMapping.StoreTypeNameBase}' when translating EF.Functions.AtTimeZone");
+                        break;
+                }
+            }
+
+            if (operand is SqlConstantExpression)
+            {
+                // Our constant representation for datetime/datetimeoffset is an untyped string literal, which the AT TIME ZONE expression
+                // does not accept. Type it explicitly.
+                operand = _sqlExpressionFactory.Convert(operand, operand.Type);
+            }
+
+            return new AtTimeZoneExpression(
+                operand,
+                _sqlExpressionFactory.ApplyTypeMapping(timeZone, _typeMappingSource.FindMapping("varchar")),
+                typeof(DateTimeOffset),
+                resultTypeMapping);
+        }
+
+        return null;
     }
 }

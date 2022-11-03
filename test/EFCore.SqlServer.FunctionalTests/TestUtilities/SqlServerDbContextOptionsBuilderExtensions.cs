@@ -1,33 +1,24 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+public static class SqlServerDbContextOptionsBuilderExtensions
 {
-    public static class SqlServerDbContextOptionsBuilderExtensions
+    public static SqlServerDbContextOptionsBuilder ApplyConfiguration(this SqlServerDbContextOptionsBuilder optionsBuilder)
     {
-        public static SqlServerDbContextOptionsBuilder ApplyConfiguration(this SqlServerDbContextOptionsBuilder optionsBuilder)
+        var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
+        if (maxBatch.HasValue)
         {
-            var maxBatch = TestEnvironment.GetInt(nameof(SqlServerDbContextOptionsBuilder.MaxBatchSize));
-            if (maxBatch.HasValue)
-            {
-                optionsBuilder.MaxBatchSize(maxBatch.Value);
-            }
-
-            var offsetSupport = TestEnvironment.GetFlag(nameof(SqlServerCondition.SupportsOffset)) ?? true;
-            if (!offsetSupport)
-            {
-#pragma warning disable 618
-                optionsBuilder.UseRowNumberForPaging();
-#pragma warning restore 618
-            }
-
-            optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
-
-            optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
-
-            return optionsBuilder;
+            optionsBuilder.MaxBatchSize(maxBatch.Value);
         }
+
+        optionsBuilder.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery);
+
+        optionsBuilder.ExecutionStrategy(d => new TestSqlServerRetryingExecutionStrategy(d));
+
+        optionsBuilder.CommandTimeout(SqlServerTestStore.CommandTimeout);
+
+        return optionsBuilder;
     }
 }

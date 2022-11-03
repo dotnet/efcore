@@ -1,377 +1,700 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     A convention that manipulates names of database objects for entity types that share a table to avoid clashes.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
+/// </remarks>
+public class SharedTableConvention : IModelFinalizingConvention
 {
     /// <summary>
-    ///     A convention that manipulates names of database objects for entity types that share a table to avoid clashes.
+    ///     Creates a new instance of <see cref="SharedTableConvention" />.
     /// </summary>
-    public class SharedTableConvention : IModelFinalizedConvention
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+    public SharedTableConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        RelationalConventionSetBuilderDependencies relationalDependencies)
     {
-        /// <summary>
-        ///     Creates a new instance of <see cref="SharedTableConvention" />.
-        /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        /// <param name="relationalDependencies">  Parameter object containing relational dependencies for this convention. </param>
-        public SharedTableConvention(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies,
-            [NotNull] RelationalConventionSetBuilderDependencies relationalDependencies)
+        Dependencies = dependencies;
+        RelationalDependencies = relationalDependencies;
+    }
+
+    /// <summary>
+    ///     Dependencies for this service.
+    /// </summary>
+    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
+        var tables = new Dictionary<(string TableName, string? Schema), List<IConventionEntityType>>();
+
+        TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
+
+        var columns = new Dictionary<string, IConventionProperty>();
+        var keys = new Dictionary<string, (IConventionKey, StoreObjectIdentifier)>();
+        var foreignKeys = new Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)>();
+        var indexes = new Dictionary<string, (IConventionIndex, StoreObjectIdentifier)>();
+        var checkConstraints = new Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)>();
+        var triggers = new Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)>();
+        foreach (var ((tableName, schema), conventionEntityTypes) in tables)
         {
-            Dependencies = dependencies;
-        }
+            columns.Clear();
 
-        /// <summary>
-        ///     Parameter object containing service dependencies.
-        /// </summary>
-        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
-        {
-            var maxLength = modelBuilder.Metadata.GetMaxIdentifierLength();
-            var tables = new Dictionary<(string, string), List<IConventionEntityType>>();
-
-            TryUniquifyTableNames(modelBuilder.Metadata, tables, maxLength);
-
-            var columns = new Dictionary<string, IConventionProperty>(StringComparer.Ordinal);
-            var keys = new Dictionary<string, IConventionKey>(StringComparer.Ordinal);
-            var foreignKeys = new Dictionary<string, IConventionForeignKey>(StringComparer.Ordinal);
-            var indexes = new Dictionary<string, IConventionIndex>(StringComparer.Ordinal);
-            foreach (var entityTypes in tables.Values)
+            if (!KeysUniqueAcrossTables)
             {
-                columns.Clear();
                 keys.Clear();
-                foreignKeys.Clear();
+            }
 
-                foreach (var entityType in entityTypes)
-                {
-                    TryUniquifyColumnNames(entityType, columns, maxLength);
-                    TryUniquifyKeyNames(entityType, keys, maxLength);
-                    TryUniquifyForeignKeyNames(entityType, foreignKeys, maxLength);
-                    TryUniquifyIndexNames(entityType, indexes, maxLength);
-                }
+            if (!ForeignKeysUniqueAcrossTables)
+            {
+                foreignKeys.Clear();
+            }
+
+            if (!IndexesUniqueAcrossTables)
+            {
+                indexes.Clear();
+            }
+
+            if (!CheckConstraintsUniqueAcrossTables)
+            {
+                checkConstraints.Clear();
+            }
+
+            if (!TriggersUniqueAcrossTables)
+            {
+                triggers.Clear();
+            }
+
+            var storeObject = StoreObjectIdentifier.Table(tableName, schema);
+            foreach (var entityType in conventionEntityTypes)
+            {
+                TryUniquifyColumnNames(entityType, columns, storeObject, maxLength);
+                TryUniquifyKeyNames(entityType, keys, storeObject, maxLength);
+                TryUniquifyForeignKeyNames(entityType, foreignKeys, storeObject, maxLength);
+                TryUniquifyIndexNames(entityType, indexes, storeObject, maxLength);
+                TryUniquifyCheckConstraintNames(entityType, checkConstraints, storeObject, maxLength);
+                TryUniquifyTriggerNames(entityType, triggers, storeObject, maxLength);
             }
         }
+    }
 
-        private static void TryUniquifyTableNames(
-            IConventionModel model, Dictionary<(string, string), List<IConventionEntityType>> tables, int maxLength)
+    /// <summary>
+    ///     Gets a value indicating whether key names should be unique across tables.
+    /// </summary>
+    protected virtual bool KeysUniqueAcrossTables
+        => false;
+
+    /// <summary>
+    ///     Gets a value indicating whether foreign key names should be unique across tables.
+    /// </summary>
+    protected virtual bool ForeignKeysUniqueAcrossTables
+        => false;
+
+    /// <summary>
+    ///     Gets a value indicating whether index names should be unique across tables.
+    /// </summary>
+    protected virtual bool IndexesUniqueAcrossTables
+        => true;
+
+    /// <summary>
+    ///     Gets a value indicating whether check constraint names should be unique across tables.
+    /// </summary>
+    protected virtual bool CheckConstraintsUniqueAcrossTables
+        => true;
+
+    /// <summary>
+    ///     Gets a value indicating whether trigger names should be unique across tables.
+    /// </summary>
+    protected virtual bool TriggersUniqueAcrossTables
+        => true;
+
+    private static void TryUniquifyTableNames(
+        IConventionModel model,
+        Dictionary<(string Name, string? Schema), List<IConventionEntityType>> tables,
+        int maxLength)
+    {
+        Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>?
+            clashingTables
+                = null;
+        foreach (var entityType in model.GetEntityTypes())
         {
-            foreach (var entityType in model.GetEntityTypes())
+            var tableName = entityType.GetTableName();
+            if (tableName == null
+                || entityType.FindPrimaryKey() == null)
             {
-                var tableName = (Schema: entityType.GetSchema(), TableName: entityType.GetTableName());
-                if (!tables.TryGetValue(tableName, out var entityTypes))
-                {
-                    entityTypes = new List<IConventionEntityType>();
-                    tables[tableName] = entityTypes;
-                }
+                continue;
+            }
 
-                if (entityTypes.Count > 0)
-                {
-                    var shouldUniquifyTable = ShouldUniquify(entityType, entityTypes);
+            var table = (Name: tableName, Schema: entityType.GetSchema());
 
-                    if (shouldUniquifyTable)
-                    {
-                        if (entityType[RelationalAnnotationNames.TableName] == null)
-                        {
-                            var uniqueName = Uniquifier.Uniquify(
-                                tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
-                            if (entityType.Builder.ToTable(uniqueName) != null)
-                            {
-                                tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType> { entityType };
-                                continue;
-                            }
-                        }
+            if (!tables.TryGetValue(table, out var entityTypes))
+            {
+                entityTypes = new List<IConventionEntityType>();
+                tables[table] = entityTypes;
+            }
 
-                        if (entityTypes.Count == 1)
-                        {
-                            var otherEntityType = entityTypes.First();
-                            if (otherEntityType[RelationalAnnotationNames.TableName] == null)
-                            {
-                                var uniqueName = Uniquifier.Uniquify(
-                                    tableName.TableName, tables, n => (tableName.Schema, n), maxLength);
-                                if (otherEntityType.Builder.ToTable(uniqueName) != null)
-                                {
-                                    entityTypes.Remove(otherEntityType);
-                                    tables[(tableName.Schema, uniqueName)] = new List<IConventionEntityType> { otherEntityType };
-                                }
-                            }
-                        }
-                    }
-                }
-
+            if (entityTypes.Count > 0
+                && !entityType.FindRowInternalForeignKeys(StoreObjectIdentifier.Table(table.Name, table.Schema)).Any()
+                && !entityTypes.Any(t => t.IsAssignableFrom(entityType)))
+            {
+                entityTypes.Insert(0, entityType);
+            }
+            else
+            {
                 entityTypes.Add(entityType);
             }
-        }
 
-        private static bool ShouldUniquify(IConventionEntityType entityType, ICollection<IConventionEntityType> entityTypes)
-        {
-            var rootType = entityType.GetRootType();
-            var pkProperty = entityType.FindPrimaryKey()?.Properties[0];
-            var rootSharedTableType = pkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
-
-            foreach (var otherEntityType in entityTypes)
+            if (table.Name.Length == maxLength)
             {
-                if (rootSharedTableType == otherEntityType
-                    || rootType == otherEntityType.GetRootType())
+                var originalName = entityType.GetDefaultTableName(truncate: false)!;
+                if (originalName.Length == maxLength)
                 {
-                    return false;
+                    continue;
                 }
 
-                var otherPkProperty = otherEntityType.FindPrimaryKey()?.Properties[0];
-                var otherRootSharedTableType = otherPkProperty?.FindSharedTableRootPrimaryKeyProperty()?.DeclaringEntityType;
-                if (otherRootSharedTableType == entityType
-                    || (otherRootSharedTableType == rootSharedTableType
-                        && otherRootSharedTableType != null))
+                clashingTables ??=
+                    new Dictionary<(string Name, string? Schema), Dictionary<(string Name, string? Schema), List<IConventionEntityType>>>();
+
+                if (!clashingTables.TryGetValue(table, out var clashingSubTables))
                 {
-                    return false;
+                    clashingSubTables = new Dictionary<(string Name, string? Schema), List<IConventionEntityType>>();
+                    clashingTables[table] = clashingSubTables;
+                }
+
+                if (!clashingSubTables.TryGetValue((originalName, table.Schema), out var subTable))
+                {
+                    subTable = new List<IConventionEntityType>();
+                    clashingSubTables[(originalName, table.Schema)] = subTable;
+                }
+
+                subTable.Add(entityType);
+            }
+        }
+
+        if (clashingTables == null)
+        {
+            return;
+        }
+
+        // Some entity types might end up mapped to the same table after the table name is truncated,
+        // so we need to map them to different tables as was intended initially
+        foreach (var (table, value) in clashingTables)
+        {
+            var oldTable = tables[table];
+            foreach (var subTable in value.Values.Skip(1))
+            {
+                var uniqueName = Uniquifier.Uniquify(table.Name, tables, n => (n, table.Schema), maxLength);
+                tables[(uniqueName, table.Schema)] = subTable;
+                foreach (var entityType in subTable)
+                {
+                    entityType.Builder.ToTable(uniqueName);
+                    oldTable.Remove(entityType);
+                }
+            }
+        }
+    }
+
+    private static void TryUniquifyColumnNames(
+        IConventionEntityType entityType,
+        Dictionary<string, IConventionProperty> properties,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var property in entityType.GetDeclaredProperties())
+        {
+            var columnName = property.GetColumnName(storeObject);
+            if (columnName == null)
+            {
+                continue;
+            }
+
+            if (!properties.TryGetValue(columnName, out var otherProperty))
+            {
+                properties[columnName] = property;
+                continue;
+            }
+
+            var identifyingMemberInfo = property.PropertyInfo ?? (MemberInfo?)property.FieldInfo;
+            if ((identifyingMemberInfo != null
+                    && identifyingMemberInfo.IsSameAs(otherProperty.PropertyInfo ?? (MemberInfo?)otherProperty.FieldInfo))
+                || (property.IsPrimaryKey() && otherProperty.IsPrimaryKey())
+                || (property.IsConcurrencyToken && otherProperty.IsConcurrencyToken)
+                || (!property.Builder.CanSetColumnName(null) && !otherProperty.Builder.CanSetColumnName(null)))
+            {
+                if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                    && otherProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
+                    && (property.ValueGenerated == ValueGenerated.Never
+                        || property.ValueGenerated == ValueGenerated.OnUpdateSometimes)
+                    && (otherProperty.ValueGenerated == ValueGenerated.Never
+                        || otherProperty.ValueGenerated == ValueGenerated.OnUpdateSometimes))
+                {
+                    // Handle this with a default value convention #9329
+                    property.Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes);
+                    otherProperty.Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes);
+                }
+
+                continue;
+            }
+
+            var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType;
+            if (!usePrefix
+                || (!property.DeclaringEntityType.IsStrictlyDerivedFrom(otherProperty.DeclaringEntityType)
+                    && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
+                || property.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
+            {
+                var newColumnName = TryUniquify(property, columnName, properties, storeObject, usePrefix, maxLength);
+                if (newColumnName != null)
+                {
+                    properties[newColumnName] = property;
+                    continue;
                 }
             }
 
-            return true;
-        }
-
-        private static void TryUniquifyColumnNames(
-            IConventionEntityType entityType, Dictionary<string, IConventionProperty> properties, int maxLength)
-        {
-            foreach (var property in entityType.GetDeclaredProperties())
+            if (!usePrefix
+                || (!property.DeclaringEntityType.IsStrictlyDerivedFrom(otherProperty.DeclaringEntityType)
+                    && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
+                || otherProperty.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
             {
-                var columnName = property.GetColumnName();
-                if (!properties.TryGetValue(columnName, out var otherProperty))
+                var newOtherColumnName = TryUniquify(otherProperty, columnName, properties, storeObject, usePrefix, maxLength);
+                if (newOtherColumnName != null)
                 {
                     properties[columnName] = property;
-                    continue;
-                }
-
-                var identifyingMemberInfo = property.GetIdentifyingMemberInfo();
-                if (identifyingMemberInfo != null
-                    && identifyingMemberInfo.IsSameAs(otherProperty.GetIdentifyingMemberInfo()))
-                {
-                    continue;
-                }
-
-                var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType
-                    || property.IsPrimaryKey()
-                    || otherProperty.IsPrimaryKey();
-                if (!property.IsPrimaryKey())
-                {
-                    var newColumnName = TryUniquify(property, columnName, properties, usePrefix, maxLength);
-                    if (newColumnName != null)
-                    {
-                        properties[newColumnName] = property;
-                        continue;
-                    }
-                }
-
-                if (!otherProperty.IsPrimaryKey())
-                {
-                    var newColumnName = TryUniquify(otherProperty, columnName, properties, usePrefix, maxLength);
-                    if (newColumnName != null)
-                    {
-                        properties[columnName] = property;
-                        properties[newColumnName] = otherProperty;
-                    }
+                    properties[newOtherColumnName] = otherProperty;
                 }
             }
         }
+    }
 
-        private static string TryUniquify(
-            IConventionProperty property, string columnName, Dictionary<string, IConventionProperty> properties, bool usePrefix,
-            int maxLength)
+    private static string? TryUniquify(
+        IConventionProperty property,
+        string columnName,
+        Dictionary<string, IConventionProperty> properties,
+        in StoreObjectIdentifier storeObject,
+        bool usePrefix,
+        int maxLength)
+    {
+        if (property.Builder.CanSetColumnName(null)
+            && property.Builder.CanSetColumnName(null, storeObject))
         {
-            if (property.Builder.CanSetColumnName(null))
+            if (usePrefix)
             {
-                if (usePrefix)
+                var prefix = property.DeclaringEntityType.ShortName();
+                if (!columnName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
-                    var prefix = property.DeclaringEntityType.ShortName();
-                    if (!columnName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                    {
-                        columnName = prefix + "_" + columnName;
-                    }
+                    columnName = prefix + "_" + columnName;
                 }
-
-                columnName = Uniquifier.Uniquify(columnName, properties, maxLength);
-                property.Builder.HasColumnName(columnName);
-                properties[columnName] = property;
-                return columnName;
             }
 
-            return null;
+            columnName = Uniquifier.Uniquify(columnName, properties, maxLength);
+            if (property.Builder.HasColumnName(columnName, storeObject) == null)
+            {
+                return null;
+            }
+
+            properties[columnName] = property;
+            return columnName;
         }
 
-        private static void TryUniquifyKeyNames(IConventionEntityType entityType, Dictionary<string, IConventionKey> keys, int maxLength)
+        return null;
+    }
+
+    private void TryUniquifyKeyNames(
+        IConventionEntityType entityType,
+        Dictionary<string, (IConventionKey, StoreObjectIdentifier)> keys,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var key in entityType.GetDeclaredKeys())
         {
-            foreach (var key in entityType.GetDeclaredKeys())
+            var keyName = key.GetName(storeObject);
+            if (keyName == null)
             {
-                var keyName = key.GetName();
-                if (!keys.TryGetValue(keyName, out var otherKey))
-                {
-                    keys[keyName] = key;
-                    continue;
-                }
+                continue;
+            }
 
-                if (!key.IsPrimaryKey())
-                {
-                    var newKeyName = TryUniquify(key, keyName, keys, maxLength);
-                    if (newKeyName != null)
-                    {
-                        keys[newKeyName] = key;
-                        continue;
-                    }
-                }
+            if (!keys.TryGetValue(keyName, out var otherKeyPair))
+            {
+                keys[keyName] = (key, storeObject);
+                continue;
+            }
 
-                if (!otherKey.IsPrimaryKey())
-                {
-                    var newKeyName = TryUniquify(otherKey, keyName, keys, maxLength);
-                    if (newKeyName != null)
-                    {
-                        keys[keyName] = key;
-                        keys[newKeyName] = otherKey;
-                    }
-                }
+            var (otherKey, otherStoreObject) = otherKeyPair;
+            if (storeObject == otherStoreObject
+                && ((key.IsPrimaryKey()
+                        && otherKey.IsPrimaryKey())
+                    || AreCompatible(key, otherKey, storeObject)))
+            {
+                continue;
+            }
+
+            var newKeyName = TryUniquify(key, keyName, keys, maxLength);
+            if (newKeyName != null)
+            {
+                keys[newKeyName] = (key, storeObject);
+                continue;
+            }
+
+            var newOtherKeyName = TryUniquify(otherKey, keyName, keys, maxLength);
+            if (newOtherKeyName != null)
+            {
+                keys[keyName] = (key, storeObject);
+                keys[newOtherKeyName] = otherKeyPair;
             }
         }
+    }
 
-        private static string TryUniquify<T>(
-            IConventionKey key, string keyName, Dictionary<string, T> keys, int maxLength)
+    /// <summary>
+    ///     Gets a value indicating whether two key mapped to the same constraint are compatible.
+    /// </summary>
+    /// <param name="key">A key.</param>
+    /// <param name="duplicateKey">Another key.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatible(
+        IReadOnlyKey key,
+        IReadOnlyKey duplicateKey,
+        in StoreObjectIdentifier storeObject)
+        => key.AreCompatible(duplicateKey, storeObject, shouldThrow: false);
+
+    private static string? TryUniquify(
+        IConventionKey key,
+        string keyName,
+        Dictionary<string, (IConventionKey, StoreObjectIdentifier)> keys,
+        int maxLength)
+    {
+        if (key.Builder.CanSetName(null))
         {
-            if (key.Builder.CanSetName(null))
-            {
-                keyName = Uniquifier.Uniquify(keyName, keys, maxLength);
-                key.Builder.HasName(keyName);
-                return keyName;
-            }
-
-            return null;
+            keyName = Uniquifier.Uniquify(keyName, keys, maxLength);
+            key.Builder.HasName(keyName);
+            return keyName;
         }
 
-        private static void TryUniquifyIndexNames(
-            IConventionEntityType entityType, Dictionary<string, IConventionIndex> indexes, int maxLength)
+        return null;
+    }
+
+    private void TryUniquifyIndexNames(
+        IConventionEntityType entityType,
+        Dictionary<string, (IConventionIndex, StoreObjectIdentifier)> indexes,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var index in entityType.GetDeclaredIndexes())
         {
-            foreach (var index in entityType.GetDeclaredIndexes())
+            var indexName = index.GetDatabaseName(storeObject);
+            if (indexName == null)
             {
-                var indexName = index.GetName();
-                if (!indexes.TryGetValue(indexName, out var otherIndex))
-                {
-                    indexes[indexName] = index;
-                    continue;
-                }
+                continue;
+            }
 
-                if (index.Builder.CanSetName(null))
-                {
-                    if (index.GetConfigurationSource() == ConfigurationSource.Convention
-                        && otherIndex.GetConfigurationSource() == ConfigurationSource.Convention
-                        && otherIndex.Builder.CanSetName(null))
-                    {
-                        var associatedForeignKey = index.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
-                        var otherAssociatedForeignKey =
-                            otherIndex.DeclaringEntityType.FindDeclaredForeignKeys(index.Properties).FirstOrDefault();
-                        if (associatedForeignKey != null
-                            && otherAssociatedForeignKey != null
-                            && associatedForeignKey.GetConstraintName() == otherAssociatedForeignKey.GetConstraintName()
-                            && index.AreCompatible(otherIndex, shouldThrow: false))
-                        {
-                            continue;
-                        }
-                    }
+            if (!indexes.TryGetValue(indexName, out var otherIndexPair))
+            {
+                indexes[indexName] = (index, storeObject);
+                continue;
+            }
 
-                    var newIndexName = TryUniquify(index, indexName, indexes, maxLength);
-                    indexes[newIndexName] = index;
-                    continue;
-                }
+            var (otherIndex, otherStoreObject) = otherIndexPair;
+            if (storeObject == otherStoreObject
+                && AreCompatible(index, otherIndex, storeObject))
+            {
+                continue;
+            }
 
-                var newOtherIndexName = TryUniquify(otherIndex, indexName, indexes, maxLength);
-                if (newOtherIndexName != null)
-                {
-                    indexes[indexName] = index;
-                    indexes[newOtherIndexName] = otherIndex;
-                }
+            var newIndexName = TryUniquify(index, indexName, indexes, maxLength);
+            if (newIndexName != null)
+            {
+                indexes[newIndexName] = (index, storeObject);
+                continue;
+            }
+
+            var newOtherIndexName = TryUniquify(otherIndex, indexName, indexes, maxLength);
+            if (newOtherIndexName != null)
+            {
+                indexes[indexName] = (index, storeObject);
+                indexes[newOtherIndexName] = otherIndexPair;
             }
         }
+    }
 
-        private static string TryUniquify<T>(
-            IConventionIndex index, string indexName, Dictionary<string, T> indexes, int maxLength)
+    /// <summary>
+    ///     Gets a value indicating whether two indexes mapped to the same table index are compatible.
+    /// </summary>
+    /// <param name="index">An index.</param>
+    /// <param name="duplicateIndex">Another index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatible(
+        IReadOnlyIndex index,
+        IReadOnlyIndex duplicateIndex,
+        in StoreObjectIdentifier storeObject)
+        => index.AreCompatible(duplicateIndex, storeObject, shouldThrow: false);
+
+    private static string? TryUniquify(
+        IConventionIndex index,
+        string indexName,
+        Dictionary<string, (IConventionIndex, StoreObjectIdentifier)> indexes,
+        int maxLength)
+    {
+        if (index.Builder.CanSetDatabaseName(null))
         {
-            if (index.Builder.CanSetName(null))
-            {
-                indexName = Uniquifier.Uniquify(indexName, indexes, maxLength);
-                index.Builder.HasName(indexName);
-                return indexName;
-            }
-
-            return null;
+            indexName = Uniquifier.Uniquify(indexName, indexes, maxLength);
+            index.Builder.HasDatabaseName(indexName);
+            return indexName;
         }
 
-        private static void TryUniquifyForeignKeyNames(
-            IConventionEntityType entityType, Dictionary<string, IConventionForeignKey> foreignKeys, int maxLength)
+        return null;
+    }
+
+    private void TryUniquifyForeignKeyNames(
+        IConventionEntityType entityType,
+        Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)> foreignKeys,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var foreignKey in entityType.GetForeignKeys())
         {
-            foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
+            if (foreignKey.DeclaringEntityType != entityType
+                && StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, StoreObjectType.Table) == storeObject)
             {
-                if (foreignKey.DeclaringEntityType.GetTableName() == foreignKey.PrincipalEntityType.GetTableName()
-                    && foreignKey.DeclaringEntityType.GetSchema() == foreignKey.PrincipalEntityType.GetSchema())
-                {
-                    continue;
-                }
+                continue;
+            }
 
-                var foreignKeyName = foreignKey.GetConstraintName();
-                if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKey))
-                {
-                    foreignKeys[foreignKeyName] = foreignKey;
-                    continue;
-                }
+            var principalTable = foreignKey.PrincipalKey.IsPrimaryKey()
+                ? StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, StoreObjectType.Table)
+                : StoreObjectIdentifier.Create(foreignKey.PrincipalKey.DeclaringEntityType, StoreObjectType.Table);
+            if (principalTable == null
+                || storeObject == principalTable.Value)
+            {
+                continue;
+            }
 
-                if (foreignKey.Builder.CanSetConstraintName(null))
-                {
-                    if (otherForeignKey.Builder.CanSetConstraintName(null)
-                        && (foreignKey.PrincipalToDependent != null
-                            || foreignKey.DependentToPrincipal != null)
-                        && (foreignKey.PrincipalToDependent?.GetIdentifyingMemberInfo()).IsSameAs(
-                            otherForeignKey.PrincipalToDependent?.GetIdentifyingMemberInfo())
-                        && (foreignKey.DependentToPrincipal?.GetIdentifyingMemberInfo()).IsSameAs(
-                            otherForeignKey.DependentToPrincipal?.GetIdentifyingMemberInfo())
-                        && foreignKey.AreCompatible(otherForeignKey, shouldThrow: false))
-                    {
-                        continue;
-                    }
+            var foreignKeyName = foreignKey.GetConstraintName(storeObject, principalTable.Value);
+            if (foreignKeyName == null)
+            {
+                continue;
+            }
 
-                    var newForeignKeyName = TryUniquify(foreignKey, foreignKeyName, foreignKeys, maxLength);
-                    foreignKeys[newForeignKeyName] = foreignKey;
-                    continue;
-                }
+            if (!foreignKeys.TryGetValue(foreignKeyName, out var otherForeignKeyPair))
+            {
+                foreignKeys[foreignKeyName] = (foreignKey, storeObject);
+                continue;
+            }
 
-                var newOtherForeignKeyName = TryUniquify(otherForeignKey, foreignKeyName, foreignKeys, maxLength);
-                if (newOtherForeignKeyName != null)
-                {
-                    foreignKeys[foreignKeyName] = foreignKey;
-                    foreignKeys[newOtherForeignKeyName] = otherForeignKey;
-                }
+            var (otherForeignKey, otherStoreObject) = otherForeignKeyPair;
+            if (storeObject == otherStoreObject
+                && AreCompatible(foreignKey, otherForeignKey, storeObject))
+            {
+                continue;
+            }
+
+            var newForeignKeyName = TryUniquify(foreignKey, foreignKeyName, foreignKeys, maxLength);
+            if (newForeignKeyName != null)
+            {
+                foreignKeys[newForeignKeyName] = (foreignKey, storeObject);
+                continue;
+            }
+
+            if (!otherForeignKey.DeclaringEntityType.IsAssignableFrom(entityType)
+                && !entityType.IsAssignableFrom(otherForeignKey.DeclaringEntityType))
+            {
+                continue;
+            }
+
+            var newOtherForeignKeyName = TryUniquify(otherForeignKey, foreignKeyName, foreignKeys, maxLength);
+            if (newOtherForeignKeyName != null)
+            {
+                foreignKeys[foreignKeyName] = (foreignKey, storeObject);
+                foreignKeys[newOtherForeignKeyName] = otherForeignKeyPair;
             }
         }
+    }
 
-        private static string TryUniquify<T>(
-            IConventionForeignKey foreignKey, string foreignKeyName, Dictionary<string, T> foreignKeys, int maxLength)
+    /// <summary>
+    ///     Gets a value indicating whether two foreign keys mapped to the same foreign key constraint are compatible.
+    /// </summary>
+    /// <param name="foreignKey">A foreign key.</param>
+    /// <param name="duplicateForeignKey">Another foreign key.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatible(
+        IReadOnlyForeignKey foreignKey,
+        IReadOnlyForeignKey duplicateForeignKey,
+        in StoreObjectIdentifier storeObject)
+        => foreignKey.AreCompatible(duplicateForeignKey, storeObject, shouldThrow: false);
+
+    private static string? TryUniquify(
+        IConventionForeignKey foreignKey,
+        string foreignKeyName,
+        Dictionary<string, (IConventionForeignKey, StoreObjectIdentifier)> foreignKeys,
+        int maxLength)
+    {
+        if (foreignKey.Builder.CanSetConstraintName(null))
         {
-            if (foreignKey.Builder.CanSetConstraintName(null))
+            foreignKeyName = Uniquifier.Uniquify(foreignKeyName, foreignKeys, maxLength);
+            foreignKey.Builder.HasConstraintName(foreignKeyName);
+            return foreignKeyName;
+        }
+
+        return null;
+    }
+
+    private void TryUniquifyCheckConstraintNames(
+        IConventionEntityType entityType,
+        Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)> checkConstraints,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var checkConstraint in entityType.GetDeclaredCheckConstraints())
+        {
+            var constraintName = checkConstraint.GetName(storeObject);
+            if (constraintName == null)
             {
-                foreignKeyName = Uniquifier.Uniquify(foreignKeyName, foreignKeys, maxLength);
-                foreignKey.Builder.HasConstraintName(foreignKeyName);
-                return foreignKeyName;
+                continue;
             }
 
-            return null;
+            if (!checkConstraints.TryGetValue((constraintName, storeObject.Schema), out var otherCheckConstraintPair))
+            {
+                checkConstraints[(constraintName, storeObject.Schema)] = (checkConstraint, storeObject);
+                continue;
+            }
+
+            var (otherCheckConstraint, otherStoreObject) = otherCheckConstraintPair;
+            if (storeObject == otherStoreObject
+                && AreCompatible(checkConstraint, otherCheckConstraint, storeObject))
+            {
+                continue;
+            }
+
+            var newConstraintName = TryUniquify(checkConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
+            if (newConstraintName != null)
+            {
+                checkConstraints[(newConstraintName, storeObject.Schema)] = (checkConstraint, storeObject);
+                continue;
+            }
+
+            var newOtherConstraintName = TryUniquify(otherCheckConstraint, constraintName, storeObject.Schema, checkConstraints, maxLength);
+            if (newOtherConstraintName != null)
+            {
+                checkConstraints[(constraintName, storeObject.Schema)] = (checkConstraint, storeObject);
+                checkConstraints[(newOtherConstraintName, otherStoreObject.Schema)] = otherCheckConstraintPair;
+            }
         }
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether two check constraints with the same name are compatible.
+    /// </summary>
+    /// <param name="checkConstraint">An check constraints.</param>
+    /// <param name="duplicateCheckConstraint">Another check constraints.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatible(
+        IReadOnlyCheckConstraint checkConstraint,
+        IReadOnlyCheckConstraint duplicateCheckConstraint,
+        in StoreObjectIdentifier storeObject)
+        => CheckConstraint.AreCompatible(checkConstraint, duplicateCheckConstraint, storeObject, shouldThrow: false);
+
+    private static string? TryUniquify(
+        IConventionCheckConstraint checkConstraint,
+        string checkConstraintName,
+        string? schema,
+        Dictionary<(string, string?), (IConventionCheckConstraint, StoreObjectIdentifier)> checkConstraints,
+        int maxLength)
+    {
+        if (checkConstraint.Builder.CanSetName(null))
+        {
+            checkConstraintName = Uniquifier.Uniquify(checkConstraintName, checkConstraints, n => (n, schema), maxLength);
+            checkConstraint.Builder.HasName(checkConstraintName);
+            return checkConstraintName;
+        }
+
+        return null;
+    }
+
+    private void TryUniquifyTriggerNames(
+        IConventionEntityType entityType,
+        Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)> triggers,
+        in StoreObjectIdentifier storeObject,
+        int maxLength)
+    {
+        foreach (var trigger in entityType.GetDeclaredTriggers())
+        {
+            var triggerName = trigger.GetDatabaseName(storeObject);
+            if (triggerName == null)
+            {
+                continue;
+            }
+
+            if (!triggers.TryGetValue(triggerName, out var otherTriggerPair))
+            {
+                triggers[triggerName] = (trigger, storeObject);
+                continue;
+            }
+
+            var (otherTrigger, otherStoreObject) = otherTriggerPair;
+            if (otherStoreObject == storeObject
+                && AreCompatible(trigger, otherTrigger, storeObject))
+            {
+                continue;
+            }
+
+            var newTriggerName = TryUniquify(trigger, triggerName, triggers, maxLength);
+            if (newTriggerName != null)
+            {
+                triggers[newTriggerName] = (trigger, storeObject);
+                continue;
+            }
+
+            var newOtherTrigger = TryUniquify(otherTrigger, triggerName, triggers, maxLength);
+            if (newOtherTrigger != null)
+            {
+                triggers[triggerName] = (trigger, storeObject);
+                triggers[newOtherTrigger] = otherTriggerPair;
+            }
+        }
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether two triggers with the same name are compatible.
+    /// </summary>
+    /// <param name="trigger">A trigger.</param>
+    /// <param name="duplicateTrigger">Another trigger.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if compatible</returns>
+    protected virtual bool AreCompatible(
+        IReadOnlyTrigger trigger,
+        IReadOnlyTrigger duplicateTrigger,
+        in StoreObjectIdentifier storeObject)
+        => true;
+
+    private static string? TryUniquify(
+        IConventionTrigger trigger,
+        string triggerName,
+        Dictionary<string, (IConventionTrigger, StoreObjectIdentifier)> triggers,
+        int maxLength)
+    {
+        if (trigger.Builder.CanSetDatabaseName(null))
+        {
+            triggerName = Uniquifier.Uniquify(triggerName, triggers, n => n, maxLength);
+            trigger.Builder.HasDatabaseName(triggerName);
+            return triggerName;
+        }
+
+        return null;
     }
 }

@@ -1,89 +1,89 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
+
+/// <summary>
+///     A convention that configures the principal side of the relationship as required if the
+///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
+/// </remarks>
+public class RequiredNavigationAttributeConvention :
+    NavigationAttributeConventionBase<RequiredAttribute>,
+    INavigationAddedConvention,
+    ISkipNavigationAddedConvention,
+    IForeignKeyPrincipalEndChangedConvention
 {
     /// <summary>
-    ///     A convention that configures the principal side of the relationship as required if the
-    ///     <see cref="RequiredAttribute" /> is applied on the navigation property to the principal entity type.
+    ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.
     /// </summary>
-    public class RequiredNavigationAttributeConvention : NavigationAttributeConventionBase<RequiredAttribute>
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    public RequiredNavigationAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
+        : base(dependencies)
     {
-        /// <summary>
-        ///     Creates a new instance of <see cref="RequiredNavigationAttributeConvention" />.
-        /// </summary>
-        /// <param name="dependencies"> Parameter object containing dependencies for this convention. </param>
-        public RequiredNavigationAttributeConvention([NotNull] ProviderConventionSetBuilderDependencies dependencies)
-            : base(dependencies)
+    }
+
+    /// <inheritdoc />
+    public override void ProcessNavigationAdded(
+        IConventionNavigationBuilder navigationBuilder,
+        RequiredAttribute attribute,
+        IConventionContext<IConventionNavigationBuilder> context)
+    {
+        ProcessNavigation(navigationBuilder);
+        context.StopProcessingIfChanged(navigationBuilder.Metadata.Builder);
+    }
+
+    /// <inheritdoc />
+    public override void ProcessForeignKeyPrincipalEndChanged(
+        IConventionForeignKeyBuilder relationshipBuilder,
+        IEnumerable<RequiredAttribute>? dependentToPrincipalAttributes,
+        IEnumerable<RequiredAttribute>? principalToDependentAttributes,
+        IConventionContext<IConventionForeignKeyBuilder> context)
+    {
+        var fk = relationshipBuilder.Metadata;
+        if (dependentToPrincipalAttributes != null
+            && dependentToPrincipalAttributes.Any())
         {
+            ProcessNavigation(fk.DependentToPrincipal!.Builder);
         }
 
-        /// <summary>
-        ///     Called after a navigation property that has an attribute is added to an entity type.
-        /// </summary>
-        /// <param name="relationshipBuilder"> The builder for the relationship. </param>
-        /// <param name="navigation"> The navigation. </param>
-        /// <param name="attribute"> The attribute. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public override void ProcessNavigationAdded(
-            IConventionRelationshipBuilder relationshipBuilder,
-            IConventionNavigation navigation,
-            RequiredAttribute attribute,
-            IConventionContext<IConventionNavigation> context)
+        if (principalToDependentAttributes != null
+            && principalToDependentAttributes.Any())
         {
-            Check.NotNull(relationshipBuilder, nameof(relationshipBuilder));
-            Check.NotNull(navigation, nameof(navigation));
-            Check.NotNull(attribute, nameof(attribute));
+            ProcessNavigation(fk.PrincipalToDependent!.Builder);
+        }
 
-            if (navigation.IsCollection())
-            {
-                Dependencies.Logger.RequiredAttributeOnCollection(navigation.ForeignKey.DependentToPrincipal);
-                return;
-            }
+        context.StopProcessingIfChanged(relationshipBuilder.Metadata.Builder);
+    }
 
-            if (!navigation.IsDependentToPrincipal())
-            {
-                var inverse = navigation.FindInverse();
-                if (inverse != null)
-                {
-                    var attributes = GetAttributes<RequiredAttribute>(inverse.DeclaringEntityType, inverse);
-                    if (attributes.Any())
-                    {
-                        Dependencies.Logger.RequiredAttributeOnBothNavigations(navigation, inverse);
-                        return;
-                    }
-                }
+    private void ProcessNavigation(IConventionNavigationBuilder navigationBuilder)
+    {
+        var navigation = navigationBuilder.Metadata;
+        var foreignKey = navigation.ForeignKey;
+        if (navigation.IsCollection)
+        {
+            Dependencies.Logger.RequiredAttributeOnCollection(navigation);
+            return;
+        }
 
-                if (relationshipBuilder.Metadata.GetPrincipalEndConfigurationSource() != null)
-                {
-                    Dependencies.Logger.RequiredAttributeOnDependent(navigation.ForeignKey.PrincipalToDependent);
-                    return;
-                }
-
-                var newRelationshipBuilder = relationshipBuilder.HasEntityTypes(
-                    relationshipBuilder.Metadata.DeclaringEntityType,
-                    relationshipBuilder.Metadata.PrincipalEntityType);
-
-                if (newRelationshipBuilder == null)
-                {
-                    return;
-                }
-
-                Dependencies.Logger.RequiredAttributeInverted(newRelationshipBuilder.Metadata.DependentToPrincipal);
-                relationshipBuilder = newRelationshipBuilder;
-            }
-
-            relationshipBuilder.IsRequired(true, fromDataAnnotation: true);
-
-            context.StopProcessingIfChanged(relationshipBuilder.Metadata.DependentToPrincipal);
+        if (navigation.IsOnDependent)
+        {
+            foreignKey.Builder.IsRequired(true, fromDataAnnotation: true);
+        }
+        else
+        {
+            foreignKey.Builder.IsRequiredDependent(true, fromDataAnnotation: true);
         }
     }
+
+    /// <inheritdoc />
+    public override void ProcessSkipNavigationAdded(
+        IConventionSkipNavigationBuilder skipNavigationBuilder,
+        RequiredAttribute attribute,
+        IConventionContext<IConventionSkipNavigationBuilder> context)
+        => Dependencies.Logger.RequiredAttributeOnSkipNavigation(skipNavigationBuilder.Metadata);
 }

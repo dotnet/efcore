@@ -1,13 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Utilities;
+namespace Microsoft.EntityFrameworkCore.Storage.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Storage.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public abstract class RelationalParameterBase : IRelationalParameter
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -15,44 +17,43 @@ namespace Microsoft.EntityFrameworkCore.Storage.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public abstract class RelationalParameterBase : IRelationalParameter
+    protected RelationalParameterBase(string invariantName)
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual string InvariantName { get; }
+        InvariantName = invariantName;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public abstract void AddDbParameter(DbCommand command, object value);
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string InvariantName { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object> parameterValues)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract void AddDbParameter(DbCommand command, object? value);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddDbParameter(DbCommand command, IReadOnlyDictionary<string, object?>? parameterValues)
+    {
+        if (parameterValues is not null && parameterValues.TryGetValue(InvariantName, out var parameterValue))
         {
-            Check.NotNull(command, nameof(command));
-            Check.NotNull(parameterValues, nameof(parameterValues));
-
-            if (parameterValues.TryGetValue(InvariantName, out var parameterValue))
-            {
-                AddDbParameter(command, parameterValue);
-            }
-            else
-            {
-                throw new InvalidOperationException(
-                    RelationalStrings.MissingParameterValue(InvariantName));
-            }
+            AddDbParameter(command, parameterValue);
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                RelationalStrings.MissingParameterValue(InvariantName));
         }
     }
 }

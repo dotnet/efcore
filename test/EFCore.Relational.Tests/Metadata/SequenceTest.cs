@@ -1,182 +1,95 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Xunit;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+namespace Microsoft.EntityFrameworkCore.Metadata;
+
+public class SequenceTest
 {
-    public class SequenceTest
+    [ConditionalFact]
+    public void Can_be_created_with_default_values()
     {
-        [ConditionalFact]
-        public void Can_be_created_with_default_values()
-        {
-            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
+        IMutableModel model = new Model();
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-        }
+        var sequence = model.AddSequence("Foo");
 
-        [ConditionalFact]
-        public void Can_be_created_with_specified_values()
-        {
-            var sequence = new Model().AddSequence("Foo", "Smoo");
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Null(sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
+        Assert.False(sequence.IsCyclic);
+        Assert.Same(model, sequence.Model);
 
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-        }
+        model.SetDefaultSchema("db0");
 
-        [ConditionalFact]
-        public void Can_only_be_created_for_byte_short_int_and_long_decimal()
-        {
-            var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
-            sequence.ClrType = typeof(byte);
-            Assert.Same(typeof(byte), sequence.ClrType);
-            sequence.ClrType = typeof(short);
-            Assert.Same(typeof(short), sequence.ClrType);
-            sequence.ClrType = typeof(int);
-            Assert.Same(typeof(int), sequence.ClrType);
-            sequence.ClrType = typeof(long);
-            Assert.Same(typeof(long), sequence.ClrType);
-            sequence.ClrType = typeof(decimal);
-            Assert.Same(typeof(decimal), sequence.ClrType);
+        Assert.Equal("db0", sequence.Schema);
 
-            Assert.Equal(
-                RelationalStrings.BadSequenceType,
-                Assert.Throws<ArgumentException>(
-                    () => sequence.ClrType = typeof(bool)).Message);
-        }
+        var conventionSequence = (IConventionSequence)sequence;
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetConfigurationSource());
+        Assert.Null(conventionSequence.GetIncrementByConfigurationSource());
+        Assert.Null(conventionSequence.GetStartValueConfigurationSource());
+        Assert.Null(conventionSequence.GetMinValueConfigurationSource());
+        Assert.Null(conventionSequence.GetMaxValueConfigurationSource());
+        Assert.Null(conventionSequence.GetTypeConfigurationSource());
+        Assert.Null(conventionSequence.GetIsCyclicConfigurationSource());
+    }
 
-        [ConditionalFact]
-        public void Can_get_model()
-        {
-            IMutableModel model = new Model();
+    [ConditionalFact]
+    public void Can_be_created_with_specified_values()
+    {
+        IMutableModel model = new Model();
 
-            var sequence = model.AddSequence("Foo");
+        model.SetDefaultSchema("db0");
 
-            Assert.Same(model, sequence.Model);
-        }
+        var sequence = model.AddSequence("Foo", "Smoo");
+        sequence.StartValue = 1729;
+        sequence.IncrementBy = 11;
+        sequence.MinValue = 2001;
+        sequence.MaxValue = 2010;
+        sequence.Type = typeof(int);
+        sequence.IsCyclic = true;
 
-        [ConditionalFact]
-        public void Can_get_model_default_schema_if_sequence_schema_not_specified()
-        {
-            IMutableModel model = new Model();
+        Assert.Equal("Foo", sequence.Name);
+        Assert.Equal("Smoo", sequence.Schema);
+        Assert.Equal(11, sequence.IncrementBy);
+        Assert.Equal(1729, sequence.StartValue);
+        Assert.Equal(2001, sequence.MinValue);
+        Assert.Equal(2010, sequence.MaxValue);
+        Assert.Same(typeof(int), sequence.Type);
+        Assert.True(sequence.IsCyclic);
 
-            var sequence = model.AddSequence("Foo");
+        var conventionSequence = (IConventionSequence)sequence;
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetIncrementByConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetStartValueConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetMinValueConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetMaxValueConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetTypeConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetIsCyclicConfigurationSource());
+    }
 
-            Assert.Null(sequence.Schema);
+    [ConditionalFact]
+    public void Can_only_be_created_for_byte_short_int_and_long_decimal()
+    {
+        var sequence = ((IMutableModel)new Model()).AddSequence("Foo");
+        sequence.Type = typeof(byte);
+        Assert.Same(typeof(byte), sequence.Type);
+        sequence.Type = typeof(short);
+        Assert.Same(typeof(short), sequence.Type);
+        sequence.Type = typeof(int);
+        Assert.Same(typeof(int), sequence.Type);
+        sequence.Type = typeof(long);
+        Assert.Same(typeof(long), sequence.Type);
+        sequence.Type = typeof(decimal);
+        Assert.Same(typeof(decimal), sequence.Type);
 
-            model.SetDefaultSchema("db0");
-
-            Assert.Equal("db0", sequence.Schema);
-        }
-
-        [ConditionalFact]
-        public void Can_get_sequence_schema_if_specified_explicitly()
-        {
-            IMutableModel model = new Model();
-
-            model.SetDefaultSchema("db0");
-            var sequence = model.AddSequence("Foo", "db1");
-
-            Assert.Equal("db1", sequence.Schema);
-        }
-
-        [ConditionalFact]
-        public void Can_serialize_and_deserialize()
-        {
-            IMutableModel model = new Model();
-            var sequence = model.AddSequence("Foo", "Smoo");
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
-
-            model.FindSequence("Foo", "Smoo");
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Equal("Smoo", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Equal(2001, sequence.MinValue);
-            Assert.Equal(2010, sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-        }
-
-        [ConditionalFact]
-        public void Can_serialize_and_deserialize_with_defaults()
-        {
-            IMutableModel model = new Model();
-            model.AddSequence("Foo");
-
-            var sequence = model.FindSequence("Foo");
-
-            Assert.Equal("Foo", sequence.Name);
-            Assert.Null(sequence.Schema);
-            Assert.Equal(1, sequence.IncrementBy);
-            Assert.Equal(1, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(long), sequence.ClrType);
-        }
-
-        [ConditionalFact]
-        public void Can_serialize_and_deserialize_with_funky_names()
-        {
-            IMutableModel model = new Model();
-            var sequence = model.AddSequence("'Foo'", "''S'''m'oo'''");
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.ClrType = typeof(int);
-
-            sequence = model.FindSequence("'Foo'", "''S'''m'oo'''");
-
-            Assert.Equal("'Foo'", sequence.Name);
-            Assert.Equal("''S'''m'oo'''", sequence.Schema);
-            Assert.Equal(11, sequence.IncrementBy);
-            Assert.Equal(1729, sequence.StartValue);
-            Assert.Null(sequence.MinValue);
-            Assert.Null(sequence.MaxValue);
-            Assert.Same(typeof(int), sequence.ClrType);
-        }
-
-        [ConditionalFact]
-        public void Throws_on_bad_serialized_form()
-        {
-            IMutableModel model = new Model();
-            var sequence = model.AddSequence("Foo", "Smoo");
-            sequence.StartValue = 1729;
-            sequence.IncrementBy = 11;
-            sequence.MinValue = 2001;
-            sequence.MaxValue = 2010;
-            sequence.ClrType = typeof(int);
-
-            var annotationName = RelationalAnnotationNames.SequencePrefix + "Smoo.Foo";
-
-            model[annotationName] = ((string)model[annotationName]).Replace("1", "Z");
-
-            Assert.Equal(
-                RelationalStrings.BadSequenceString,
-                Assert.Throws<ArgumentException>(
-                    () => model.FindSequence("Foo", "Smoo").ClrType).Message);
-        }
+        Assert.Equal(
+            RelationalStrings.BadSequenceType,
+            Assert.Throws<ArgumentException>(
+                () => sequence.Type = typeof(bool)).Message);
     }
 }

@@ -1,332 +1,421 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Utilities;
 
-namespace Microsoft.EntityFrameworkCore.Update
+namespace Microsoft.EntityFrameworkCore.Update;
+
+/// <summary>
+///     <para>
+///         A base class for <see cref="ModificationCommandBatch" /> implementations that make use
+///         of a data reader.
+///     </para>
+///     <para>
+///         This type is typically used by database providers; it is generally not used in application code.
+///     </para>
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///     for more information and examples.
+/// </remarks>
+public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
 {
+    private readonly List<IReadOnlyModificationCommand> _modificationCommands = new();
+    private readonly int _batchHeaderLength;
+    private bool _requiresTransaction = true;
+    private bool _areMoreBatchesExpected;
+    private int _sqlBuilderPosition, _commandResultSetCount;
+    private int _pendingParameters;
+
     /// <summary>
-    ///     <para>
-    ///         A base class for <see cref="ModificationCommandBatch" /> implementations that make use
-    ///         of a data reader.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers; it is generally not used in application code.
-    ///     </para>
+    ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
     /// </summary>
-    public abstract class ReaderModificationCommandBatch : ModificationCommandBatch
+    /// <param name="dependencies">Service dependencies.</param>
+    /// <param name="maxBatchSize">The maximum batch size. Defaults to 1000.</param>
+    protected ReaderModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int? maxBatchSize = null)
     {
-        private readonly List<ModificationCommand> _modificationCommands = new List<ModificationCommand>();
+        Dependencies = dependencies;
 
-        /// <summary>
-        ///     Creates a new <see cref="ReaderModificationCommandBatch" /> instance.
-        /// </summary>
-        /// <param name="dependencies"> Service dependencies. </param>
-        protected ReaderModificationCommandBatch([NotNull] ModificationCommandBatchFactoryDependencies dependencies)
+        RelationalCommandBuilder = dependencies.CommandBuilderFactory.Create();
+
+        UpdateSqlGenerator = dependencies.UpdateSqlGenerator;
+        UpdateSqlGenerator.AppendBatchHeader(SqlBuilder);
+        _batchHeaderLength = SqlBuilder.Length;
+
+        MaxBatchSize = maxBatchSize ?? 1000;
+    }
+
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     The update SQL generator.
+    /// </summary>
+    protected virtual IUpdateSqlGenerator UpdateSqlGenerator { get; }
+
+    /// <summary>
+    ///     Gets the relational command builder for the commands in the batch.
+    /// </summary>
+    protected virtual IRelationalCommandBuilder RelationalCommandBuilder { get; }
+
+    /// <summary>
+    ///     The maximum number of <see cref="ModificationCommand" /> instances that can be added to a single batch.
+    /// </summary>
+    protected virtual int MaxBatchSize { get; }
+
+    /// <summary>
+    ///     Gets the command text builder for the commands in the batch.
+    /// </summary>
+    protected virtual StringBuilder SqlBuilder { get; } = new();
+
+    /// <summary>
+    ///     Gets the parameter values for the commands in the batch.
+    /// </summary>
+    protected virtual Dictionary<string, object?> ParameterValues { get; } = new();
+
+    /// <summary>
+    ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
+    /// </summary>
+    public override IReadOnlyList<IReadOnlyModificationCommand> ModificationCommands
+        => _modificationCommands;
+
+    /// <summary>
+    ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
+    /// </summary>
+    protected virtual IList<ResultSetMapping> ResultSetMappings { get; } = new List<ResultSetMapping>();
+
+    /// <summary>
+    ///     The store command generated from this batch when <see cref="Complete" /> is called.
+    /// </summary>
+    protected virtual RawSqlCommand? StoreCommand { get; set; }
+
+    /// <inheritdoc />
+    public override bool TryAddCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        if (StoreCommand is not null)
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-
-            Dependencies = dependencies;
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchAlreadyComplete);
         }
 
-        /// <summary>
-        ///     Service dependencies.
-        /// </summary>
-        public virtual ModificationCommandBatchFactoryDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     The update SQL generator.
-        /// </summary>
-        protected virtual IUpdateSqlGenerator UpdateSqlGenerator => Dependencies.UpdateSqlGenerator;
-
-        /// <summary>
-        ///     Gets or sets the cached command text for the commands in the batch.
-        /// </summary>
-        protected virtual StringBuilder CachedCommandText { get; [param: NotNull] set; }
-
-        /// <summary>
-        ///     The ordinal of the last command for which command text was built.
-        /// </summary>
-        protected virtual int LastCachedCommandIndex { get; set; }
-
-        /// <summary>
-        ///     The list of conceptual insert/update/delete <see cref="ModificationCommands" />s in the batch.
-        /// </summary>
-        public override IReadOnlyList<ModificationCommand> ModificationCommands => _modificationCommands;
-
-        /// <summary>
-        ///     The <see cref="ResultSetMapping" />s for each command in <see cref="ModificationCommands" />.
-        /// </summary>
-        protected virtual IList<ResultSetMapping> CommandResultSet { get; } = new List<ResultSetMapping>();
-
-        /// <summary>
-        ///     Adds the given insert/update/delete <see cref="ModificationCommands" /> to the batch.
-        /// </summary>
-        /// <param name="modificationCommand"> The command to add. </param>
-        /// <returns>
-        ///     <c>True</c> if the command was successfully added; <c>false</c> if there was no
-        ///     room in the current batch to add the command and it must instead be added to a new batch.
-        /// </returns>
-        public override bool AddCommand(ModificationCommand modificationCommand)
+        if (_modificationCommands.Count >= MaxBatchSize)
         {
-            Check.NotNull(modificationCommand, nameof(modificationCommand));
+            return false;
+        }
 
-            if (ModificationCommands.Count == 0)
-            {
-                ResetCommandText();
-            }
+        _sqlBuilderPosition = SqlBuilder.Length;
+        _commandResultSetCount = ResultSetMappings.Count;
+        _pendingParameters = 0;
 
-            if (!CanAddCommand(modificationCommand))
-            {
-                return false;
-            }
+        AddCommand(modificationCommand);
+        _modificationCommands.Add(modificationCommand);
 
-            _modificationCommands.Add(modificationCommand);
-            CommandResultSet.Add(ResultSetMapping.LastInResultSet);
-
-            if (!IsCommandTextValid())
-            {
-                ResetCommandText();
-                _modificationCommands.RemoveAt(_modificationCommands.Count - 1);
-                CommandResultSet.RemoveAt(CommandResultSet.Count - 1);
-                return false;
-            }
-
+        // Check if the batch is still valid after having added the command (e.g. have we bypassed a maximum CommandText size?)
+        // A batch with only one command is always considered valid (otherwise we'd get an endless loop); allow the batch to fail
+        // server-side.
+        if (IsValid() || _modificationCommands.Count == 1)
+        {
             return true;
         }
 
-        /// <summary>
-        ///     Resets the builder to start building a new batch.
-        /// </summary>
-        protected virtual void ResetCommandText()
+        Check.DebugAssert(
+            ReferenceEquals(modificationCommand, _modificationCommands[^1]),
+            "ReferenceEquals(modificationCommand, _modificationCommands[^1])");
+
+        RollbackLastCommand(modificationCommand);
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Rolls back the last command added. Used when adding a command caused the batch to become invalid (e.g. CommandText too long).
+    /// </summary>
+    protected virtual void RollbackLastCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        _modificationCommands.RemoveAt(_modificationCommands.Count - 1);
+
+        SqlBuilder.Length = _sqlBuilderPosition;
+
+        while (ResultSetMappings.Count > _commandResultSetCount)
         {
-            CachedCommandText = new StringBuilder();
-            UpdateSqlGenerator.AppendBatchHeader(CachedCommandText);
-            LastCachedCommandIndex = -1;
+            ResultSetMappings.RemoveAt(ResultSetMappings.Count - 1);
         }
 
-        /// <summary>
-        ///     Checks whether or not a new command can be added to the batch.
-        /// </summary>
-        /// <param name="modificationCommand"> The command to potentially add. </param>
-        /// <returns> <c>True</c> if the command can be added; <c>false</c> otherwise. </returns>
-        protected abstract bool CanAddCommand([NotNull] ModificationCommand modificationCommand);
-
-        /// <summary>
-        ///     Checks whether or not the command text is valid.
-        /// </summary>
-        /// <returns> <c>True</c> if the command text is valid; <c>false</c> otherwise. </returns>
-        protected abstract bool IsCommandTextValid();
-
-        /// <summary>
-        ///     Gets the command text for all the commands in the current batch and also caches it
-        ///     on <see cref="CachedCommandText" />.
-        /// </summary>
-        /// <returns> The command text. </returns>
-        protected virtual string GetCommandText()
+        for (var i = 0; i < _pendingParameters; i++)
         {
-            for (var i = LastCachedCommandIndex + 1; i < ModificationCommands.Count; i++)
-            {
-                UpdateCachedCommandText(i);
-            }
+            var parameterIndex = RelationalCommandBuilder.Parameters.Count - 1;
+            var parameter = RelationalCommandBuilder.Parameters[parameterIndex];
 
-            return CachedCommandText.ToString();
+            RelationalCommandBuilder.RemoveParameterAt(parameterIndex);
+            ParameterValues.Remove(parameter.InvariantName);
         }
 
-        /// <summary>
-        ///     Updates the command text for the command at the given position in the
-        ///     <see cref="ModificationCommands" /> list.
-        /// </summary>
-        /// <param name="commandPosition"> The position of the command to generate command text for. </param>
-        protected virtual void UpdateCachedCommandText(int commandPosition)
+        // The command's column modifications had their parameter names generated, that needs to be rolled back as well.
+        foreach (var columnModification in modificationCommand.ColumnModifications)
         {
-            var newModificationCommand = ModificationCommands[commandPosition];
+            columnModification.ResetParameterNames();
+        }
+    }
 
-            switch (newModificationCommand.EntityState)
+    /// <summary>
+    ///     Whether any SQL has already been added to the batch command text.
+    /// </summary>
+    protected virtual bool IsCommandTextEmpty
+        => SqlBuilder.Length == _batchHeaderLength;
+
+    /// <inheritdoc />
+    public override bool RequiresTransaction
+        => _requiresTransaction;
+
+    /// <inheritdoc />
+    public override bool AreMoreBatchesExpected
+        => _areMoreBatchesExpected;
+
+    /// <summary>
+    ///     Sets whether the batch requires a transaction in order to execute correctly.
+    /// </summary>
+    /// <param name="requiresTransaction">Whether the batch requires a transaction in order to execute correctly.</param>
+    protected virtual void SetRequiresTransaction(bool requiresTransaction)
+        => _requiresTransaction = requiresTransaction;
+
+    /// <summary>
+    ///     Checks whether the command text is valid.
+    /// </summary>
+    /// <returns><see langword="true" /> if the command text is valid; <see langword="false" /> otherwise.</returns>
+    protected virtual bool IsValid()
+        => true;
+
+    /// <summary>
+    ///     Adds Updates the command text for the command at the given position in the <see cref="ModificationCommands" /> list.
+    /// </summary>
+    /// <param name="modificationCommand">The command to add.</param>
+    protected virtual void AddCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        bool requiresTransaction;
+
+        var commandPosition = ResultSetMappings.Count;
+
+        if (modificationCommand.StoreStoredProcedure is not null)
+        {
+            ResultSetMappings.Add(
+                UpdateSqlGenerator.AppendStoredProcedureCall(
+                    SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
+        }
+        else
+        {
+            switch (modificationCommand.EntityState)
             {
                 case EntityState.Added:
-                    CommandResultSet[commandPosition] =
-                        UpdateSqlGenerator.AppendInsertOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    ResultSetMappings.Add(
+                        UpdateSqlGenerator.AppendInsertOperation(
+                            SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Modified:
-                    CommandResultSet[commandPosition] =
-                        UpdateSqlGenerator.AppendUpdateOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    ResultSetMappings.Add(
+                        UpdateSqlGenerator.AppendUpdateOperation(
+                            SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
                 case EntityState.Deleted:
-                    CommandResultSet[commandPosition] =
-                        UpdateSqlGenerator.AppendDeleteOperation(CachedCommandText, newModificationCommand, commandPosition);
+                    ResultSetMappings.Add(
+                        UpdateSqlGenerator.AppendDeleteOperation(
+                            SqlBuilder, modificationCommand, commandPosition, out requiresTransaction));
                     break;
-            }
 
-            LastCachedCommandIndex = commandPosition;
-        }
-
-        /// <summary>
-        ///     Gets the total number of parameters needed for the batch.
-        /// </summary>
-        /// <returns> The total parameter count. </returns>
-        protected virtual int GetParameterCount()
-            => ModificationCommands.Sum(c => c.ColumnModifications.Count);
-
-        /// <summary>
-        ///     Generates a <see cref="RawSqlCommand" /> for the batch.
-        /// </summary>
-        /// <returns> The command. </returns>
-        protected virtual RawSqlCommand CreateStoreCommand()
-        {
-            var commandBuilder = Dependencies.CommandBuilderFactory
-                .Create()
-                .Append(GetCommandText());
-
-            var parameterValues = new Dictionary<string, object>(GetParameterCount());
-
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var commandIndex = 0; commandIndex < ModificationCommands.Count; commandIndex++)
-            {
-                var command = ModificationCommands[commandIndex];
-                // ReSharper disable once ForCanBeConvertedToForeach
-                for (var columnIndex = 0; columnIndex < command.ColumnModifications.Count; columnIndex++)
-                {
-                    var columnModification = command.ColumnModifications[columnIndex];
-                    if (columnModification.UseCurrentValueParameter)
-                    {
-                        commandBuilder.AddParameter(
-                            columnModification.ParameterName,
-                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.ParameterName),
-                            columnModification.Property);
-
-                        parameterValues.Add(columnModification.ParameterName, columnModification.Value);
-                    }
-
-                    if (columnModification.UseOriginalValueParameter)
-                    {
-                        commandBuilder.AddParameter(
-                            columnModification.OriginalParameterName,
-                            Dependencies.SqlGenerationHelper.GenerateParameterName(columnModification.OriginalParameterName),
-                            columnModification.Property);
-
-                        parameterValues.Add(columnModification.OriginalParameterName, columnModification.OriginalValue);
-                    }
-                }
-            }
-
-            return new RawSqlCommand(commandBuilder.Build(), parameterValues);
-        }
-
-        /// <summary>
-        ///     Executes the command generated by <see cref="CreateStoreCommand" /> against a
-        ///     database using the given connection.
-        /// </summary>
-        /// <param name="connection"> The connection to the database to update. </param>
-        public override void Execute(IRelationalConnection connection)
-        {
-            Check.NotNull(connection, nameof(connection));
-
-            var storeCommand = CreateStoreCommand();
-
-            try
-            {
-                using (var dataReader = storeCommand.RelationalCommand.ExecuteReader(
-                    new RelationalCommandParameterObject(
-                        connection,
-                        storeCommand.ParameterValues,
-                        null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.Logger)))
-                {
-                    Consume(dataReader);
-                }
-            }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
+                default:
+                    throw new InvalidOperationException(
+                        RelationalStrings.ModificationCommandInvalidEntityState(
+                            modificationCommand.Entries[0].EntityType,
+                            modificationCommand.EntityState));
             }
         }
 
-        /// <summary>
-        ///     Executes the command generated by <see cref="CreateStoreCommand" /> against a
-        ///     database using the given connection.
-        /// </summary>
-        /// <param name="connection"> The connection to the database to update. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        public override async Task ExecuteAsync(
-            IRelationalConnection connection,
-            CancellationToken cancellationToken = default)
-        {
-            Check.NotNull(connection, nameof(connection));
+        AddParameters(modificationCommand);
 
-            var storeCommand = CreateStoreCommand();
-
-            try
-            {
-                await using (var dataReader = await storeCommand.RelationalCommand.ExecuteReaderAsync(
-                    new RelationalCommandParameterObject(
-                        connection,
-                        storeCommand.ParameterValues,
-                        null,
-                        Dependencies.CurrentContext.Context,
-                        Dependencies.Logger),
-                    cancellationToken))
-                {
-                    await ConsumeAsync(dataReader, cancellationToken);
-                }
-            }
-            catch (DbUpdateException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new DbUpdateException(RelationalStrings.UpdateStoreException, ex);
-            }
-        }
-
-        /// <summary>
-        ///     Consumes the data reader created by <see cref="Execute" />.
-        /// </summary>
-        /// <param name="reader"> The data reader. </param>
-        protected abstract void Consume([NotNull] RelationalDataReader reader);
-
-        /// <summary>
-        ///     Consumes the data reader created by <see cref="ExecuteAsync" />.
-        /// </summary>
-        /// <param name="reader"> The data reader. </param>
-        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <returns> A task that represents the asynchronous operation. </returns>
-        protected abstract Task ConsumeAsync(
-            [NotNull] RelationalDataReader reader,
-            CancellationToken cancellationToken = default);
-
-        /// <summary>
-        ///     Creates the <see cref="IRelationalValueBufferFactory" /> that will be used for creating a
-        ///     <see cref="ValueBuffer" /> to consume the data reader.
-        /// </summary>
-        /// <param name="columnModifications">
-        ///     The list of <see cref="ColumnModification" />s for all the columns
-        ///     being modified such that a ValueBuffer with appropriate slots can be created.
-        /// </param>
-        /// <returns> The factory. </returns>
-        protected virtual IRelationalValueBufferFactory CreateValueBufferFactory(
-            [NotNull] IReadOnlyList<ColumnModification> columnModifications)
-            => Dependencies.ValueBufferFactoryFactory
-                .Create(
-                    Check.NotNull(columnModifications, nameof(columnModifications))
-                        .Where(c => c.IsRead)
-                        .Select(c => new TypeMaterializationInfo(c.Property.ClrType, c.Property, null))
-                        .ToArray());
+        _requiresTransaction = commandPosition > 0 || requiresTransaction;
     }
+
+    /// <inheritdoc />
+    public override void Complete(bool moreBatchesExpected)
+    {
+        if (StoreCommand is not null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchAlreadyComplete);
+        }
+
+        _areMoreBatchesExpected = moreBatchesExpected;
+
+        // Some database have a mode where autocommit is off, and so executing a command outside of an explicit transaction implicitly
+        // creates a new transaction (which needs to be explicitly committed).
+        // The below is a hook for allowing providers to turn autocommit on, in case it's off.
+        if (!RequiresTransaction)
+        {
+            UpdateSqlGenerator.PrependEnsureAutocommit(SqlBuilder);
+        }
+
+        RelationalCommandBuilder.Append(SqlBuilder.ToString());
+
+        StoreCommand = new RawSqlCommand(RelationalCommandBuilder.Build(), ParameterValues);
+    }
+
+    /// <summary>
+    ///     Adds parameters for all column modifications in the given <paramref name="modificationCommand" /> to the relational command
+    ///     being built for this batch.
+    /// </summary>
+    /// <param name="modificationCommand">The modification command for which to add parameters.</param>
+    protected virtual void AddParameters(IReadOnlyModificationCommand modificationCommand)
+    {
+        Check.DebugAssert(
+            !modificationCommand.ColumnModifications.Any(m => m.Column is IStoreStoredProcedureReturnValue)
+            || modificationCommand.ColumnModifications[0].Column is IStoreStoredProcedureReturnValue,
+            "ResultValue column modification in non-first position");
+
+        var modifications = modificationCommand.StoreStoredProcedure is null
+            ? modificationCommand.ColumnModifications
+            : modificationCommand.ColumnModifications.Where(
+                c => c.Column is IStoreStoredProcedureParameter or IStoreStoredProcedureReturnValue);
+
+        foreach (var columnModification in modifications)
+        {
+            AddParameter(columnModification);
+        }
+    }
+
+    /// <summary>
+    ///     Adds a parameter for the given <paramref name="columnModification" /> to the relational command being built for this batch.
+    /// </summary>
+    /// <param name="columnModification">The column modification for which to add parameters.</param>
+    protected virtual void AddParameter(IColumnModification columnModification)
+    {
+        var direction = columnModification.Column switch
+        {
+            IStoreStoredProcedureParameter storedProcedureParameter => storedProcedureParameter.Direction,
+            IStoreStoredProcedureReturnValue => ParameterDirection.Output,
+            _ => ParameterDirection.Input
+        };
+
+        // For the case where the same modification has both current and original value parameters, and corresponds to an in/out parameter,
+        // we only want to add a single parameter. This will happen below.
+        if (columnModification.UseCurrentValueParameter
+            && !(columnModification.UseOriginalValueParameter && direction == ParameterDirection.InputOutput))
+        {
+            AddParameterCore(
+                columnModification.ParameterName, columnModification.UseCurrentValue
+                    ? columnModification.Value
+                    : direction == ParameterDirection.InputOutput
+                        ? DBNull.Value
+                        : null);
+        }
+
+        if (columnModification.UseOriginalValueParameter)
+        {
+            Check.DebugAssert(direction.HasFlag(ParameterDirection.Input), "direction.HasFlag(ParameterDirection.Input)");
+
+            AddParameterCore(columnModification.OriginalParameterName, columnModification.OriginalValue);
+        }
+
+        void AddParameterCore(string name, object? value)
+        {
+            RelationalCommandBuilder.AddParameter(
+                name,
+                Dependencies.SqlGenerationHelper.GenerateParameterName(name),
+                columnModification.TypeMapping!,
+                columnModification.IsNullable,
+                direction);
+
+            ParameterValues.Add(name, value);
+
+            _pendingParameters++;
+        }
+    }
+
+    /// <summary>
+    ///     Executes the command generated by this batch against a database using the given connection.
+    /// </summary>
+    /// <param name="connection">The connection to the database to update.</param>
+    public override void Execute(IRelationalConnection connection)
+    {
+        if (StoreCommand is null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchNotComplete);
+        }
+
+        try
+        {
+            using var dataReader = StoreCommand.RelationalCommand.ExecuteReader(
+                new RelationalCommandParameterObject(
+                    connection,
+                    StoreCommand.ParameterValues,
+                    null,
+                    Dependencies.CurrentContext.Context,
+                    Dependencies.Logger, CommandSource.SaveChanges));
+
+            Consume(dataReader);
+        }
+        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        {
+            throw new DbUpdateException(
+                RelationalStrings.UpdateStoreException,
+                ex,
+                ModificationCommands.SelectMany(c => c.Entries).ToList());
+        }
+    }
+
+    /// <summary>
+    ///     Executes the command generated by this batch against a database using the given connection.
+    /// </summary>
+    /// <param name="connection">The connection to the database to update.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public override async Task ExecuteAsync(
+        IRelationalConnection connection,
+        CancellationToken cancellationToken = default)
+    {
+        if (StoreCommand is null)
+        {
+            throw new InvalidOperationException(RelationalStrings.ModificationCommandBatchNotComplete);
+        }
+
+        try
+        {
+            var dataReader = await StoreCommand.RelationalCommand.ExecuteReaderAsync(
+                new RelationalCommandParameterObject(
+                    connection,
+                    StoreCommand.ParameterValues,
+                    null,
+                    Dependencies.CurrentContext.Context,
+                    Dependencies.Logger, CommandSource.SaveChanges),
+                cancellationToken).ConfigureAwait(false);
+
+            await using var _ = dataReader.ConfigureAwait(false);
+
+            await ConsumeAsync(dataReader, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        {
+            throw new DbUpdateException(
+                RelationalStrings.UpdateStoreException,
+                ex,
+                ModificationCommands.SelectMany(c => c.Entries).ToList());
+        }
+    }
+
+    /// <summary>
+    ///     Consumes the data reader created by <see cref="Execute" />.
+    /// </summary>
+    /// <param name="reader">The data reader.</param>
+    protected abstract void Consume(RelationalDataReader reader);
+
+    /// <summary>
+    ///     Consumes the data reader created by <see cref="ExecuteAsync" />.
+    /// </summary>
+    /// <param name="reader">The data reader.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    protected abstract Task ConsumeAsync(
+        RelationalDataReader reader,
+        CancellationToken cancellationToken = default);
 }

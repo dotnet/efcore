@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using SQLitePCL;
@@ -26,7 +26,7 @@ namespace Microsoft.Data.Sqlite
             var blob = value;
             if (ShouldTruncate(value.Length))
             {
-                blob = new byte[_size.Value];
+                blob = new byte[_size!.Value];
                 Array.Copy(value, blob, _size.Value);
             }
 
@@ -47,7 +47,7 @@ namespace Microsoft.Data.Sqlite
                 _stmt,
                 _index,
                 ShouldTruncate(value.Length)
-                    ? value.Substring(0, _size.Value)
+                    ? value.Substring(0, _size!.Value)
                     : value);
 
         private bool ShouldTruncate(int length)

@@ -3,43 +3,74 @@
 using System;
 using System.Reflection;
 using System.Resources;
-using JetBrains.Annotations;
+
+#nullable enable
 
 namespace Microsoft.EntityFrameworkCore.Diagnostics
 {
     /// <summary>
     ///     <para>
-    ///		    String resources used in EF exceptions, etc.
+    ///         String resources used in EF exceptions, etc.
     ///     </para>
     ///     <para>
-    ///		    These strings are exposed publicly for use by database providers and extensions.
+    ///         These strings are exposed publicly for use by database providers and extensions.
     ///         It is unusual for application code to need these strings.
     ///     </para>
     /// </summary>
     public static class AbstractionsStrings
     {
         private static readonly ResourceManager _resourceManager
-            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).GetTypeInfo().Assembly);
+            = new ResourceManager("Microsoft.EntityFrameworkCore.Properties.AbstractionsStrings", typeof(AbstractionsStrings).Assembly);
 
         /// <summary>
         ///     The string argument '{argumentName}' cannot be empty.
         /// </summary>
-        public static string ArgumentIsEmpty([CanBeNull] object argumentName)
+        public static string ArgumentIsEmpty(object? argumentName)
             => string.Format(
                 GetString("ArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
         /// <summary>
+        ///     The number argument '{argumentName}' cannot be negative number.
+        /// </summary>
+        public static string ArgumentIsNegativeNumber(object? argumentName)
+            => string.Format(
+                GetString("ArgumentIsNegativeNumber", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
+        ///     IsDescending and AllDescending cannot both be specified on the [Index] attribute.
+        /// </summary>
+        public static string CannotSpecifyBothIsDescendingAndAllDescending
+            => GetString("CannotSpecifyBothIsDescendingAndAllDescending");
+
+        /// <summary>
+        ///     The collection argument '{argumentName}' must not contain any empty elements.
+        /// </summary>
+        public static string CollectionArgumentHasEmptyElements(object? argumentName)
+            => string.Format(
+                GetString("CollectionArgumentHasEmptyElements", nameof(argumentName)),
+                argumentName);
+
+        /// <summary>
         ///     The collection argument '{argumentName}' must contain at least one element.
         /// </summary>
-        public static string CollectionArgumentIsEmpty([CanBeNull] object argumentName)
+        public static string CollectionArgumentIsEmpty(object? argumentName)
             => string.Format(
                 GetString("CollectionArgumentIsEmpty", nameof(argumentName)),
                 argumentName);
 
+        /// <summary>
+        ///     Invalid number of index sort order values: {numValues} values were provided, but the index has {numProperties} properties.
+        /// </summary>
+        public static string InvalidNumberOfIndexSortOrderValues(object? numValues, object? numProperties)
+            => string.Format(
+                GetString("InvalidNumberOfIndexSortOrderValues", nameof(numValues), nameof(numProperties)),
+                numValues, numProperties);
+
         private static string GetString(string name, params string[] formatterNames)
         {
-            var value = _resourceManager.GetString(name);
+            var value = _resourceManager.GetString(name)!;
             for (var i = 0; i < formatterNames.Length; i++)
             {
                 value = value.Replace("{" + formatterNames[i] + "}", "{" + i + "}");

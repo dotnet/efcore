@@ -1,49 +1,70 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
+public class Order
 {
-    public class Order
+    private int? _orderId;
+
+    public int OrderID
     {
-        public int OrderID { get; set; }
-        public string CustomerID { get; set; }
-        public uint? EmployeeID { get; set; }
-        public DateTime? OrderDate { get; set; }
-        public DateTime? RequiredDate { get; set; }
-        public DateTime? ShippedDate { get; set; }
-        public int? ShipVia { get; set; }
-        public decimal? Freight { get; set; }
-        public string ShipName { get; set; }
-        public string ShipAddress { get; set; }
-        public string ShipCity { get; set; }
-        public string ShipRegion { get; set; }
-        public string ShipPostalCode { get; set; }
-        public string ShipCountry { get; set; }
+        get => _orderId ?? 0;
+        set => _orderId = value;
+    }
 
-        public Customer Customer { get; set; }
+    [MaxLength(5)]
+    public string CustomerID { get; set; }
+    public uint? EmployeeID { get; set; }
+    public DateTime? OrderDate { get; set; }
+    public DateTime? RequiredDate { get; set; }
+    public DateTime? ShippedDate { get; set; }
+    public int? ShipVia { get; set; }
+    public decimal? Freight { get; set; }
 
-        public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+    [MaxLength(40)]
+    public string ShipName { get; set; }
 
-        protected bool Equals(Order other) => OrderID == other.OrderID;
+    [MaxLength(60)]
+    public string ShipAddress { get; set; }
 
-        public override bool Equals(object obj)
+    [MaxLength(15)]
+    public string ShipCity { get; set; }
+
+    [MaxLength(15)]
+    public string ShipRegion { get; set; }
+
+    [MaxLength(10)]
+    public string ShipPostalCode { get; set; }
+
+    [MaxLength(15)]
+    public string ShipCountry { get; set; }
+
+    public Customer Customer { get; set; } = new(); // Initialized to test #23851
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+
+    protected bool Equals(Order other)
+        => OrderID == other.OrderID;
+
+    public override bool Equals(object obj)
+    {
+        if (obj is null)
         {
-            if (obj is null)
-            {
-                return false;
-            }
-
-            return ReferenceEquals(this, obj)
-                ? true
-                : obj.GetType() == GetType()
-                && Equals((Order)obj);
+            return false;
         }
 
-        public override int GetHashCode() => OrderID.GetHashCode();
-
-        public override string ToString() => "Order " + OrderID;
+        return ReferenceEquals(this, obj)
+            ? true
+            : obj.GetType() == GetType()
+            && Equals((Order)obj);
     }
+
+    public override int GetHashCode()
+        => OrderID.GetHashCode();
+
+    public override string ToString()
+        => "Order " + OrderID;
 }

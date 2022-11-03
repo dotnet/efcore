@@ -1,50 +1,138 @@
-# Entity Framework Core
+# Repository
 
-Documentation on using EF Core is available at <https://docs.microsoft.com/ef/core/>.
+[![build status](https://img.shields.io/azure-devops/build/dnceng-public/public/17/main)](https://dev.azure.com/dnceng-public/public/_build?definitionId=17) [![test results](https://img.shields.io/azure-devops/tests/dnceng-public/public/17/main)](https://dev.azure.com/dnceng-public/public/_build?definitionId=17)
 
-[![Build Status](https://dnceng.visualstudio.com/public/_apis/build/status/aspnet/EntityFrameworkCore/EntityFrameworkCore-ci)](https://dnceng.visualstudio.com/public/_build/latest?definitionId=51)
+This repository is home to the following [.NET Foundation](https://dotnetfoundation.org/) projects. These projects are maintained by [Microsoft](https://github.com/microsoft) and licensed under the [MIT License](LICENSE.txt).
 
-## EF Core here, EF6 elsewhere
+* [Entity Framework Core](#entity-framework-core)
+* [Microsoft.Data.Sqlite](#microsoftdatasqlite)
 
-This project is for Entity Framework Core. Entity Framework 6 is still under active development at https://github.com/aspnet/EntityFramework6.
+## Entity Framework Core
 
-## What is EF Core?
+[![latest version](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore) [![preview version](https://img.shields.io/nuget/vpre/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/Microsoft.EntityFrameworkCore)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore)
 
-Entity Framework (EF) Core is a lightweight and extensible version of the popular Entity Framework data access technology.
+EF Core is a modern object-database mapper for .NET. It supports LINQ queries, change tracking, updates, and schema migrations. EF Core works with SQL Server, Azure SQL Database, SQLite, Azure Cosmos DB, MySQL, PostgreSQL, and other databases through a provider plugin API.
 
-EF Core is an object-relational mapper (O/RM) that enables .NET developers to work with a database using .NET objects. It eliminates the need for most of the data-access code that developers usually need to write.
+### Installation
 
-## Weekly status updates
+EF Core is available on [NuGet](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore). Install the provider package corresponding to your target database. See the [list of providers](https://docs.microsoft.com/ef/core/providers/) in the docs for additional databases.
 
-See the [weekly status updates issue](https://github.com/aspnet/EntityFrameworkCore/issues/15403) to keep up-to-date on what is happening in the world of EF Core.
+```sh
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+dotnet add package Microsoft.EntityFrameworkCore.Cosmos
+```
 
-## Database Providers
+Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore/absoluteLatest) to install.
 
-The source for SQL Server, SQLite, and InMemory providers are included in this project. Additional providers are available.
-For a complete list, see https://docs.microsoft.com/ef/core/providers/.
+### Daily builds
 
-Provider               | Package name                              | Stable                      
------------------------|-------------------------------------------|-----------------------------
-SQL Server             | `Microsoft.EntityFrameworkCore.SqlServer` | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/) 
-SQLite                 | `Microsoft.EntityFrameworkCore.SQLite`    | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.SqlServer.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite/) 
-InMemory (for testing) | `Microsoft.EntityFrameworkCore.InMemory`  | [![NuGet](https://img.shields.io/nuget/v/Microsoft.EntityFrameworkCore.InMemory.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.InMemory/) 
+We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on EF Core. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
 
-## Nightly builds
+### Basic usage
 
-[Nightly builds](https://github.com/aspnet/AspNetCore/blob/master/docs/DailyBuilds.md) are a great way to validate bugs are fixed and try out new features.
+The following code demonstrates basic usage of EF Core. For a full tutorial configuring the `DbContext`, defining the model, and creating the database, see [getting started](https://docs.microsoft.com/ef/core/get-started/) in the docs.
 
-## Project Wiki
+```cs
+using (var db = new BloggingContext())
+{
+    // Inserting data into the database
+    db.Add(new Blog { Url = "http://blogs.msdn.com/adonet" });
+    db.SaveChanges();
 
-More details about our project, like our release [roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap), or [how to get and build our code](https://github.com/aspnet/EntityFrameworkCore/wiki/getting-and-building-the-code), are located in our [project wiki](https://github.com/aspnet/EntityFrameworkCore/wiki/).
+    // Querying
+    var blog = db.Blogs
+        .OrderBy(b => b.BlogId)
+        .First();
 
-## Building from source
+    // Updating
+    blog.Url = "https://devblogs.microsoft.com/dotnet";
+    blog.Posts.Add(
+        new Post
+        {
+            Title = "Hello World",
+            Content = "I wrote an app using EF Core!"
+        });
+    db.SaveChanges();
 
-To run a complete build on command line only, execute `build.cmd` or `build.sh` without arguments.
-This will execute only the part of the build script that downloads and initializes a few required build tools and packages.
+    // Deleting
+    db.Remove(blog);
+    db.SaveChanges();
+}
+```
 
-See [developer documentation](https://github.com/aspnet/EntityFrameworkCore/wiki/Getting-and-Building-the-Code) for more details.
+### Build from source
 
-# Code of conduct
+Most people use EF Core by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).  For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+### Contributing
 
+We welcome community pull requests for bug fixes, enhancements, and documentation. See [How to contribute](./.github/CONTRIBUTING.md) for more information.
+
+### Getting support
+
+If you have a specific question about using these projects, we encourage you to [ask it on Stack Overflow](https://stackoverflow.com/questions/tagged/entity-framework-core*?tab=Votes). If you encounter a bug or would like to request a feature, [submit an issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](.github/SUPPORT.md).
+
+## Microsoft.Data.Sqlite
+
+[![latest version](https://img.shields.io/nuget/v/Microsoft.Data.Sqlite)](https://www.nuget.org/packages/Microsoft.Data.Sqlite) [![preview version](https://img.shields.io/nuget/vpre/Microsoft.Data.Sqlite)](https://www.nuget.org/packages/Microsoft.Data.Sqlite/absoluteLatest) [![downloads](https://img.shields.io/nuget/dt/Microsoft.Data.Sqlite.Core)](https://www.nuget.org/packages/Microsoft.Data.Sqlite)
+
+Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite. The EF Core provider for SQLite is built on top of this library. However, it can also be used independently or with other data access libraries.
+
+### Installation
+
+The latest stable version is available on [NuGet](https://www.nuget.org/packages/Microsoft.Data.Sqlite).
+
+```sh
+dotnet add package Microsoft.Data.Sqlite
+```
+
+Use the `--version` option to specify a [preview version](https://www.nuget.org/packages/Microsoft.Data.Sqlite/absoluteLatest) to install.
+
+### Daily builds
+
+We recommend using the [daily builds](docs/DailyBuilds.md) to get the latest code and provide feedback on Microsoft.Data.Sqlite. These builds contain latest features and bug fixes; previews and official releases lag significantly behind.
+
+### Basic usage
+
+This library implements the common [ADO.NET](https://docs.microsoft.com/dotnet/framework/data/adonet/) abstractions for connections, commands, data readers, and so on. For more information, see [Microsoft.Data.Sqlite](https://docs.microsoft.com/dotnet/standard/data/sqlite/) on Microsoft Docs.
+
+```cs
+using (var connection = new SqliteConnection("Data Source=Blogs.db"))
+{
+    connection.Open();
+
+    var command = connection.CreateCommand();
+    command.CommandText = "SELECT Url FROM Blogs";
+
+    using (var reader = command.ExecuteReader())
+    {
+        while (reader.Read())
+        {
+            var url = reader.GetString(0);
+        }
+    }
+}
+```
+
+### Build from source
+
+Most people use Microsoft.Data.Sqlite by installing pre-build NuGet packages, as shown above. Alternately, [the code can be built and packages can be created directly on your development machine](./docs/getting-and-building-the-code.md).
+
+### Contributing
+
+We welcome community pull requests for bug fixes, enhancements, and documentation. See [How to contribute](./.github/CONTRIBUTING.md) for more information.
+
+### Getting support
+
+If you have a specific question about using these projects, we encourage you to [ask it on Stack Overflow](https://stackoverflow.com/questions/tagged/microsoft.data.sqlite). If you encounter a bug or would like to request a feature, [submit an issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](.github/SUPPORT.md).
+
+## See also
+
+* [Documentation](https://docs.microsoft.com/ef/core/)
+* [Roadmap](https://docs.microsoft.com/ef/core/what-is-new/roadmap)
+* [Weekly status updates](https://github.com/dotnet/efcore/issues/23884)
+* [Release planning process](https://docs.microsoft.com/ef/core/what-is-new/release-planning)
+* [How to write an EF Core provider](https://docs.microsoft.com/ef/core/providers/writing-a-provider)
+* [Security](./docs/security.md)
+* [Code of conduct](.github/CODE_OF_CONDUCT.md)

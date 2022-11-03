@@ -1,56 +1,125 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Update
+namespace Microsoft.EntityFrameworkCore.Update;
+
+public class SqlServerModificationCommandBatchTest
 {
-    public class SqlServerModificationCommandBatchTest
+    [ConditionalTheory]
+    [InlineData(EntityState.Added)]
+    [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Modified)]
+    public void AddCommand_returns_false_when_max_batch_size_is_reached(EntityState entityState)
     {
-        [ConditionalFact]
-        public void AddCommand_returns_false_when_max_batch_size_is_reached()
+        var batch = CreateBatch(maxBatchSize: 1);
+
+        var firstCommand = CreateModificationCommand("T1", null, false);
+        firstCommand.EntityState = entityState;
+        var secondCommand = CreateModificationCommand("T1", null, false);
+        secondCommand.EntityState = entityState;
+
+        Assert.True(batch.TryAddCommand(firstCommand));
+        Assert.False(batch.TryAddCommand(secondCommand));
+
+        Assert.Same(firstCommand, Assert.Single(batch.ModificationCommands));
+    }
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Added, true)]
+    [InlineData(EntityState.Added, false)]
+    [InlineData(EntityState.Deleted, true)]
+    [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Modified, true)]
+    [InlineData(EntityState.Modified, false)]
+    public void AddCommand_returns_false_when_max_parameters_are_reached(EntityState entityState, bool withSameTable)
+    {
+        var typeMapper = CreateTypeMappingSource();
+        var intMapping = typeMapper.FindMapping(typeof(int));
+        var paramIndex = 0;
+
+        var batch = CreateBatch();
+
+        var command = CreateModificationCommand("T1", null, false);
+        command.EntityState = entityState;
+        for (var i = 0; i < 2098; i++)
         {
-            var typeMapper = new SqlServerTypeMappingSource(
-                TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
-
-            var logger = new FakeDiagnosticsLogger<DbLoggerCategory.Database.Command>();
-
-            var batch = new SqlServerModificationCommandBatch(
-                new ModificationCommandBatchFactoryDependencies(
-                    new RelationalCommandBuilderFactory(
-                        new RelationalCommandBuilderDependencies(
-                            typeMapper)),
-                    new SqlServerSqlGenerationHelper(
-                        new RelationalSqlGenerationHelperDependencies()),
-                    new SqlServerUpdateSqlGenerator(
-                        new UpdateSqlGeneratorDependencies(
-                            new SqlServerSqlGenerationHelper(
-                                new RelationalSqlGenerationHelperDependencies()),
-                            typeMapper)),
-                    new TypedRelationalValueBufferFactoryFactory(
-                        new RelationalValueBufferFactoryDependencies(
-                            typeMapper, new CoreSingletonOptions())),
-                    new CurrentDbContext(new FakeDbContext()),
-                    logger),
-                1);
-
-            Assert.True(
-                batch.AddCommand(
-                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
-            Assert.False(
-                batch.AddCommand(
-                    new ModificationCommand("T1", null, new ParameterNameGenerator().GenerateNext, false, null)));
+            command.AddColumnModification(CreateModificationParameters("col" + i));
         }
 
-        private class FakeDbContext : DbContext
+        Assert.True(batch.TryAddCommand(command));
+
+        var secondCommand = CreateModificationCommand("T2", null, false);
+        secondCommand.EntityState = entityState;
+        secondCommand.AddColumnModification(CreateModificationParameters("col"));
+        Assert.False(batch.TryAddCommand(secondCommand));
+        Assert.Same(command, Assert.Single(batch.ModificationCommands));
+        Assert.Equal(2098, batch.ParameterValues.Count);
+
+        ColumnModificationParameters CreateModificationParameters(string columnName)
+            => new()
+            {
+                ColumnName = columnName,
+                ColumnType = "integer",
+                TypeMapping = intMapping,
+                IsWrite = true,
+                OriginalValue = 8,
+                GenerateParameterName = () => "p" + paramIndex++
+            };
+    }
+
+    private class FakeDbContext : DbContext
+    {
+    }
+
+    private static TestSqlServerModificationCommandBatch CreateBatch(int maxBatchSize = 42)
+    {
+        var typeMapper = CreateTypeMappingSource();
+
+        return new TestSqlServerModificationCommandBatch(
+            new ModificationCommandBatchFactoryDependencies(
+                new RelationalCommandBuilderFactory(
+                    new RelationalCommandBuilderDependencies(
+                        typeMapper,
+                        new SqlServerExceptionDetector())),
+                new SqlServerSqlGenerationHelper(
+                    new RelationalSqlGenerationHelperDependencies()),
+                new SqlServerUpdateSqlGenerator(
+                    new UpdateSqlGeneratorDependencies(
+                        new SqlServerSqlGenerationHelper(
+                            new RelationalSqlGenerationHelperDependencies()),
+                        typeMapper)),
+                new CurrentDbContext(new FakeDbContext()),
+                new FakeRelationalCommandDiagnosticsLogger(),
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>()),
+            maxBatchSize);
+    }
+
+    private static SqlServerTypeMappingSource CreateTypeMappingSource()
+        => new(
+            TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+
+    private static INonTrackedModificationCommand CreateModificationCommand(
+        string name,
+        string schema,
+        bool sensitiveLoggingEnabled)
+        => new ModificationCommandFactory().CreateNonTrackedModificationCommand(
+            new NonTrackedModificationCommandParameters(name, schema, sensitiveLoggingEnabled));
+
+    private class TestSqlServerModificationCommandBatch : SqlServerModificationCommandBatch
+    {
+        public TestSqlServerModificationCommandBatch(ModificationCommandBatchFactoryDependencies dependencies, int maxBatchSize)
+            : base(dependencies, maxBatchSize)
         {
         }
+
+        public new Dictionary<string, object> ParameterValues
+            => base.ParameterValues;
     }
 }

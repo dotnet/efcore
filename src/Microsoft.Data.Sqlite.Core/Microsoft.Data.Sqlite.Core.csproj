@@ -4,7 +4,7 @@
     <AssemblyName>Microsoft.Data.Sqlite</AssemblyName>
     <RootNamespace>$(AssemblyName)</RootNamespace>
     <PackageId>Microsoft.Data.Sqlite.Core</PackageId>
-    <Description>SQLite implementation of the System.Data.Common provider model.
+    <Description>Microsoft.Data.Sqlite is a lightweight ADO.NET provider for SQLite. This package does not include a copy of the native SQLite library.
 
 Commonly Used Types:
 Microsoft.Data.Sqlite.SqliteCommand
@@ -15,11 +15,12 @@ Microsoft.Data.Sqlite.SqliteException
 Microsoft.Data.Sqlite.SqliteFactory
 Microsoft.Data.Sqlite.SqliteParameter
 Microsoft.Data.Sqlite.SqliteTransaction</Description>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net6.0</TargetFrameworks>
     <MinClientVersion>3.6</MinClientVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <CodeAnalysisRuleSet>Microsoft.Data.Sqlite.Core.ruleset</CodeAnalysisRuleSet>
     <PackageTags>SQLite;Data;ADO.NET</PackageTags>
+    <PackageProjectUrl>https://docs.microsoft.com/dotnet/standard/data/sqlite/</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,12 +39,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" Version="$(SQLitePCLRawCorePackageVersion)" />
-    <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersPackageVersion)" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\stylecop.json" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,24 +48,18 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.Designer.tt</DependentUpon>
     </Compile>
-    <Compile Update="SqliteCommand.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="SqliteCommand.cs" />
     <Compile Update="SqliteConnection.CreateAggregate.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateAggregate.tt</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
     <Compile Update="SqliteConnection.CreateFunction.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>SqliteConnection.CreateFunction.tt</DependentUpon>
-      <SubType>Component</SubType>
     </Compile>
-    <Compile Update="SqliteConnection.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="SqliteConnection.cs" />
   </ItemGroup>
 
   <ItemGroup>

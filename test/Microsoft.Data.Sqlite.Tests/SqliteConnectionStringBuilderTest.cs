@@ -1,5 +1,5 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,13 @@ namespace Microsoft.Data.Sqlite
 {
     public class SqliteConnectionStringBuilderTest
     {
-        [Fact]
-        public void Ctor_parses_options()
+        [Theory]
+        [InlineData("Data Source")]
+        [InlineData("Filename")]
+        [InlineData("DataSource")]
+        public void Ctor_parses_DataSource(string keyword)
         {
-            var builder = new SqliteConnectionStringBuilder("Data Source=test.db");
+            var builder = new SqliteConnectionStringBuilder($"{keyword}=test.db");
 
             Assert.Equal("test.db", builder.DataSource);
         }
@@ -31,6 +34,60 @@ namespace Microsoft.Data.Sqlite
             var builder = new SqliteConnectionStringBuilder("Mode=Memory");
 
             Assert.Equal(SqliteOpenMode.Memory, builder.Mode);
+        }
+
+        [Fact]
+        public void Ctor_parses_Password()
+        {
+            var builder = new SqliteConnectionStringBuilder("Password=key");
+
+            Assert.Equal("key", builder.Password);
+        }
+
+        [Fact]
+        public void Ctor_parses_ForeignKeys()
+        {
+            var builder = new SqliteConnectionStringBuilder("Foreign Keys=True");
+
+            Assert.True(builder.ForeignKeys);
+        }
+
+        [Fact]
+        public void Ctor_parses_RecursiveTriggers()
+        {
+            var builder = new SqliteConnectionStringBuilder("Recursive Triggers=True");
+
+            Assert.True(builder.RecursiveTriggers);
+        }
+
+        [Theory]
+        [InlineData("Default Timeout")]
+        [InlineData("Command Timeout")]
+        public void Ctor_parses_DefaultTimeout(string keyword)
+        {
+            var builder = new SqliteConnectionStringBuilder($"{keyword}=1");
+
+            Assert.Equal(1, builder.DefaultTimeout);
+        }
+
+        [Fact]
+        public void ConnectionString_defaults_to_empty()
+        {
+            var builder = new SqliteConnectionStringBuilder();
+
+            Assert.Empty(builder.ConnectionString);
+        }
+
+        [Fact]
+        public void ConnectionString_coalesces_to_empty()
+        {
+            var builder = new SqliteConnectionStringBuilder
+            {
+                ConnectionString = null
+            };
+
+            Assert.NotNull(builder.ConnectionString);
+            Assert.Empty(builder.ConnectionString);
         }
 
         [Fact]
@@ -93,18 +150,26 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void DefaultTimeout_defaults_to_30()
+        {
+            Assert.Equal(30, new SqliteConnectionStringBuilder().DefaultTimeout);
+        }
+
+        [Fact]
         public void Keys_works()
         {
             var keys = (ICollection<string>)new SqliteConnectionStringBuilder().Keys;
 
             Assert.True(keys.IsReadOnly);
-            Assert.Equal(6, keys.Count);
+            Assert.Equal(8, keys.Count);
             Assert.Contains("Data Source", keys);
             Assert.Contains("Mode", keys);
             Assert.Contains("Cache", keys);
             Assert.Contains("Password", keys);
             Assert.Contains("Foreign Keys", keys);
             Assert.Contains("Recursive Triggers", keys);
+            Assert.Contains("Default Timeout", keys);
+            Assert.Contains("Pooling", keys);
         }
 
         [Fact]
@@ -113,7 +178,7 @@ namespace Microsoft.Data.Sqlite
             var values = (ICollection<object>)new SqliteConnectionStringBuilder().Values;
 
             Assert.True(values.IsReadOnly);
-            Assert.Equal(6, values.Count);
+            Assert.Equal(8, values.Count);
         }
 
         [Fact]
@@ -216,7 +281,7 @@ namespace Microsoft.Data.Sqlite
         public void Clear_resets_everything()
         {
             var builder = new SqliteConnectionStringBuilder(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True");
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1");
 
             builder.Clear();
 
@@ -226,6 +291,7 @@ namespace Microsoft.Data.Sqlite
             Assert.Empty(builder.Password);
             Assert.Null(builder.ForeignKeys);
             Assert.False(builder.RecursiveTriggers);
+            Assert.Equal(30, builder.DefaultTimeout);
         }
 
         [Fact]
@@ -307,11 +373,12 @@ namespace Microsoft.Data.Sqlite
                 Mode = SqliteOpenMode.Memory,
                 Password = "test",
                 ForeignKeys = true,
-                RecursiveTriggers = true
+                RecursiveTriggers = true,
+                DefaultTimeout = 1
             };
 
             Assert.Equal(
-                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True",
+                "Data Source=test.db;Mode=Memory;Cache=Shared;Password=test;Foreign Keys=True;Recursive Triggers=True;Default Timeout=1",
                 builder.ToString());
         }
 

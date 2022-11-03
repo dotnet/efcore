@@ -1,26 +1,28 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Xunit;
+namespace Microsoft.EntityFrameworkCore.Design;
 
-namespace Microsoft.EntityFrameworkCore.Design
+public class DbContextActivatorTest
 {
-    public class DbContextActivatorTest
+    [ConditionalFact]
+    public void CreateInstance_works()
+        => Assert.IsType<TestContext>(DbContextActivator.CreateInstance(typeof(TestContext)));
+
+    [ConditionalFact]
+    public void CreateInstance_with_arguments_works()
+        => Assert.IsType<TestContext>(
+            DbContextActivator.CreateInstance(
+                typeof(TestContext),
+                null,
+                null,
+                new[] { "A", "B" }));
+
+    private class TestContext : DbContext
     {
-        [ConditionalFact]
-        public void CreateInstance_works()
-        {
-            var result = DbContextActivator.CreateInstance(typeof(TestContext));
-
-            Assert.IsType<TestContext>(result);
-        }
-
-        private class TestContext : DbContext
-        {
-            protected override void OnConfiguring(DbContextOptionsBuilder options)
-                => options
-                    .EnableServiceProviderCaching(false)
-                    .UseInMemoryDatabase(nameof(DbContextActivatorTest));
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+            => options
+                .EnableServiceProviderCaching(false)
+                .UseInMemoryDatabase(nameof(DbContextActivatorTest));
     }
 }

@@ -1,21 +1,18 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System.IO;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+public class SqlServerAdventureWorksTestStoreFactory : SqlServerTestStoreFactory
 {
-    public class SqlServerAdventureWorksTestStoreFactory : SqlServerTestStoreFactory
+    public static new SqlServerAdventureWorksTestStoreFactory Instance { get; } = new();
+
+    protected SqlServerAdventureWorksTestStoreFactory()
     {
-        public static new SqlServerAdventureWorksTestStoreFactory Instance { get; } = new SqlServerAdventureWorksTestStoreFactory();
-
-        protected SqlServerAdventureWorksTestStoreFactory()
-        {
-        }
-
-        public override TestStore GetOrCreate(string storeName)
-            => SqlServerTestStore.GetOrCreate(
-                "adventureworks",
-                Path.Combine("SqlAzure", "adventureworks.sql"));
     }
+
+    public override TestStore GetOrCreate(string storeName)
+        => SqlServerTestStore.GetOrCreateWithScriptPath(
+            "adventureworks",
+            Path.Combine("SqlAzure", "adventureworks.sql"));
 }

@@ -1,19 +1,28 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore.InMemory.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 
-namespace Microsoft.EntityFrameworkCore
+namespace Microsoft.EntityFrameworkCore;
+
+public class LoggingInMemoryTest : LoggingTestBase
 {
-    public class LoggingInMemoryTest : LoggingTestBase
-    {
-        protected override DbContextOptionsBuilder CreateOptionsBuilder(IServiceCollection services)
-            => new DbContextOptionsBuilder()
-                .UseInMemoryDatabase("LoggingInMemoryTest")
-                .UseInternalServiceProvider(services.AddEntityFrameworkInMemoryDatabase().BuildServiceProvider());
+    protected override DbContextOptionsBuilder CreateOptionsBuilder(IServiceCollection services)
+        => new DbContextOptionsBuilder()
+            .UseInMemoryDatabase("LoggingInMemoryTest")
+            .UseInternalServiceProvider(services.AddEntityFrameworkInMemoryDatabase().BuildServiceProvider(validateScopes: true));
 
-        protected override string ProviderName => "Microsoft.EntityFrameworkCore.InMemory";
+    protected override TestLogger CreateTestLogger()
+        => new TestLogger<InMemoryLoggingDefinitions>();
 
-        protected override string DefaultOptions => "StoreName=LoggingInMemoryTest ";
-    }
+    protected override string ProviderName
+        => "Microsoft.EntityFrameworkCore.InMemory";
+
+    protected override string ProviderVersion
+        => typeof(InMemoryOptionsExtension).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+
+    protected override string DefaultOptions
+        => "StoreName=LoggingInMemoryTest ";
 }

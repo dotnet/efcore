@@ -1,116 +1,125 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace Microsoft.EntityFrameworkCore.Tools
+namespace Microsoft.EntityFrameworkCore.Tools;
+
+internal static class Exe
 {
-    internal static class Exe
+    public static int Run(
+        string executable,
+        IReadOnlyList<string> args,
+        string? workingDirectory = null,
+        bool interceptOutput = false)
     {
-        public static int Run(
-            string executable,
-            IReadOnlyList<string> args,
-            string workingDirectory = null,
-            bool interceptOutput = false)
+        var arguments = ToArguments(args);
+
+        Reporter.WriteVerbose(executable + " " + arguments);
+
+        var startInfo = new ProcessStartInfo
         {
-            var arguments = ToArguments(args);
-
-            Reporter.WriteVerbose(executable + " " + arguments);
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = executable, Arguments = arguments, UseShellExecute = false, RedirectStandardOutput = interceptOutput
-            };
-            if (workingDirectory != null)
-            {
-                startInfo.WorkingDirectory = workingDirectory;
-            }
-
-            var process = Process.Start(startInfo);
-
-            if (interceptOutput)
-            {
-                string line;
-                while ((line = process.StandardOutput.ReadLine()) != null)
-                {
-                    Reporter.WriteVerbose(line);
-                }
-            }
-
-            process.WaitForExit();
-
-            return process.ExitCode;
+            FileName = executable,
+            Arguments = arguments,
+            UseShellExecute = false,
+            RedirectStandardOutput = interceptOutput
+        };
+        if (workingDirectory != null)
+        {
+            startInfo.WorkingDirectory = workingDirectory;
         }
 
-        private static string ToArguments(IReadOnlyList<string> args)
+        var process = Process.Start(startInfo)!;
+
+        if (interceptOutput)
         {
-            var builder = new StringBuilder();
-            for (var i = 0; i < args.Count; i++)
+            string? line;
+            while ((line = process.StandardOutput.ReadLine()) != null)
             {
-                if (i != 0)
+                Reporter.WriteVerbose(line);
+            }
+        }
+
+        process.WaitForExit();
+
+        return process.ExitCode;
+    }
+
+    private static string ToArguments(IReadOnlyList<string> args)
+    {
+        var builder = new StringBuilder();
+        for (var i = 0; i < args.Count; i++)
+        {
+            if (i != 0)
+            {
+                builder.Append(' ');
+            }
+
+            if (args[i].Length == 0)
+            {
+                builder.Append("\"\"");
+
+                continue;
+            }
+
+            if (args[i].IndexOf(' ') == -1)
+            {
+                builder.Append(args[i]);
+
+                continue;
+            }
+
+            builder.Append('"');
+
+            var pendingBackslashes = 0;
+            for (var j = 0; j < args[i].Length; j++)
+            {
+                switch (args[i][j])
                 {
-                    builder.Append(" ");
-                }
+                    case '\"':
+                        if (pendingBackslashes != 0)
+                        {
+                            builder.Append('\\', pendingBackslashes * 2);
+                            pendingBackslashes = 0;
+                        }
 
-                if (args[i].IndexOf(' ') == -1)
-                {
-                    builder.Append(args[i]);
+                        builder.Append("\\\"");
+                        break;
 
-                    continue;
-                }
+                    case '\\':
+                        pendingBackslashes++;
+                        break;
 
-                builder.Append("\"");
-
-                var pendingBackslashes = 0;
-                for (var j = 0; j < args[i].Length; j++)
-                {
-                    switch (args[i][j])
-                    {
-                        case '\"':
-                            if (pendingBackslashes != 0)
+                    default:
+                        if (pendingBackslashes != 0)
+                        {
+                            if (pendingBackslashes == 1)
+                            {
+                                builder.Append('\\');
+                            }
+                            else
                             {
                                 builder.Append('\\', pendingBackslashes * 2);
-                                pendingBackslashes = 0;
                             }
 
-                            builder.Append("\\\"");
-                            break;
+                            pendingBackslashes = 0;
+                        }
 
-                        case '\\':
-                            pendingBackslashes++;
-                            break;
-
-                        default:
-                            if (pendingBackslashes != 0)
-                            {
-                                if (pendingBackslashes == 1)
-                                {
-                                    builder.Append("\\");
-                                }
-                                else
-                                {
-                                    builder.Append('\\', pendingBackslashes * 2);
-                                }
-
-                                pendingBackslashes = 0;
-                            }
-
-                            builder.Append(args[i][j]);
-                            break;
-                    }
+                        builder.Append(args[i][j]);
+                        break;
                 }
-
-                if (pendingBackslashes != 0)
-                {
-                    builder.Append('\\', pendingBackslashes * 2);
-                }
-
-                builder.Append("\"");
             }
 
-            return builder.ToString();
+            if (pendingBackslashes != 0)
+            {
+                builder.Append('\\', pendingBackslashes * 2);
+            }
+
+            builder.Append('"');
         }
+
+        return builder.ToString();
     }
 }

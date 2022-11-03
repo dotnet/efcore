@@ -1,73 +1,71 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Proxies.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class ProxiesConventionSetPlugin : IConventionSetPlugin
 {
+    private readonly IDbContextOptions _options;
+
     /// <summary>
-    ///     <para>
-    ///         This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///         the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///         any release. You should only use it directly in your code with extreme caution and knowing that
-    ///         doing so can result in application failures when updating to a new Entity Framework Core release.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" /> and multiple registrations
-    ///         are allowed. This means that each <see cref="DbContext" /> instance will use its own
-    ///         set of instances of this service.
-    ///         The implementations may depend on other services registered with any lifetime.
-    ///         The implementations do not need to be thread-safe.
-    ///     </para>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ProxiesConventionSetPlugin : IConventionSetPlugin
+    public ProxiesConventionSetPlugin(
+        IDbContextOptions options,
+        LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
+        ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
     {
-        private readonly IDbContextOptions _options;
-        private readonly IProxyFactory _proxyFactory;
-        private readonly ProviderConventionSetBuilderDependencies _conventionSetBuilderDependencies;
-        private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
+        _options = options;
+        LazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
+        ConventionSetBuilderDependencies = conventionSetBuilderDependencies;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public ProxiesConventionSetPlugin(
-            [NotNull] IProxyFactory proxyFactory,
-            [NotNull] IDbContextOptions options,
-            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
-            [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
-        {
-            _proxyFactory = proxyFactory;
-            _options = options;
-            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
-            _conventionSetBuilderDependencies = conventionSetBuilderDependencies;
-        }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual ProviderConventionSetBuilderDependencies ConventionSetBuilderDependencies { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
-        {
-            ConventionSet.AddBefore(
-                conventionSet.ModelFinalizedConventions,
-                new ProxyBindingRewriter(
-                    _proxyFactory,
-                    _options.FindExtension<ProxiesOptionsExtension>(),
-                    _lazyLoaderParameterBindingFactoryDependencies,
-                    _conventionSetBuilderDependencies),
-                typeof(ValidatingConvention));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual LazyLoaderParameterBindingFactoryDependencies LazyLoaderParameterBindingFactoryDependencies { get; }
 
-            return conventionSet;
-        }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConventionSet ModifyConventions(ConventionSet conventionSet)
+    {
+        var extension = _options.FindExtension<ProxiesOptionsExtension>();
+
+        ConventionSet.AddAfter(
+            conventionSet.ModelInitializedConventions,
+            new ProxyChangeTrackingConvention(extension),
+            typeof(DbSetFindingConvention));
+
+        conventionSet.Add(
+            new ProxyBindingRewriter(
+                extension,
+                LazyLoaderParameterBindingFactoryDependencies,
+                ConventionSetBuilderDependencies));
+
+        return conventionSet;
     }
 }

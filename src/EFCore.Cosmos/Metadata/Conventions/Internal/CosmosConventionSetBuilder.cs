@@ -1,11 +1,15 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
+namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -13,51 +17,61 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Metadata.Conventions.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class CosmosConventionSetBuilder : ProviderConventionSetBuilder
+    public CosmosConventionSetBuilder(
+        ProviderConventionSetBuilderDependencies dependencies)
+        : base(dependencies)
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public CosmosConventionSetBuilder(
-            [NotNull] ProviderConventionSetBuilderDependencies dependencies)
-            : base(dependencies)
-        {
-        }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public override ConventionSet CreateConventionSet()
-        {
-            var conventionSet = base.CreateConventionSet();
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override ConventionSet CreateConventionSet()
+    {
+        var conventionSet = base.CreateConventionSet();
 
-            conventionSet.ModelInitializedConventions.Add(new ContextContainerConvention(Dependencies));
+        conventionSet.Add(new ContextContainerConvention(Dependencies));
+        conventionSet.Add(new ETagPropertyConvention());
+        conventionSet.Add(new StoreKeyConvention(Dependencies));
 
-            var discriminatorConvention = new CosmosDiscriminatorConvention(Dependencies);
-            var storeKeyConvention = new StoreKeyConvention(Dependencies);
-            conventionSet.EntityTypeAddedConventions.Add(storeKeyConvention);
-            conventionSet.EntityTypeAddedConventions.Add(discriminatorConvention);
+        conventionSet.Replace<ValueGenerationConvention>(new CosmosValueGenerationConvention(Dependencies));
+        conventionSet.Replace<KeyDiscoveryConvention>(new CosmosKeyDiscoveryConvention(Dependencies));
+        conventionSet.Replace<InversePropertyAttributeConvention>(new CosmosInversePropertyAttributeConvention(Dependencies));
+        conventionSet.Replace<RelationshipDiscoveryConvention>(new CosmosRelationshipDiscoveryConvention(Dependencies));
+        conventionSet.Replace<DiscriminatorConvention>(new CosmosDiscriminatorConvention(Dependencies));
+        conventionSet.Replace<ManyToManyJoinEntityTypeConvention>(new CosmosManyToManyJoinEntityTypeConvention(Dependencies));
+        conventionSet.Replace<RuntimeModelConvention>(new CosmosRuntimeModelConvention(Dependencies));
 
-            ReplaceConvention(conventionSet.EntityTypeRemovedConventions, (DiscriminatorConvention)discriminatorConvention);
+        return conventionSet;
+    }
 
-            conventionSet.EntityTypeBaseTypeChangedConventions.Add(storeKeyConvention);
-            ReplaceConvention(conventionSet.EntityTypeBaseTypeChangedConventions, (DiscriminatorConvention)discriminatorConvention);
+    /// <summary>
+    ///     Call this method to build a <see cref="ModelBuilder" /> for Cosmos outside of <see cref="DbContext.OnModelCreating" />.
+    /// </summary>
+    /// <remarks>
+    ///     Note that it is unusual to use this method. Consider using <see cref="DbContext" /> in the normal way instead.
+    /// </remarks>
+    /// <returns>The convention set.</returns>
+    public static ModelBuilder CreateModelBuilder()
+    {
+        using var serviceScope = CreateServiceScope();
+        using var context = serviceScope.ServiceProvider.GetRequiredService<DbContext>();
+        return new ModelBuilder(ConventionSet.CreateConventionSet(context), context.GetService<ModelDependencies>());
+    }
 
-            conventionSet.ForeignKeyRemovedConventions.Add(discriminatorConvention);
-            conventionSet.ForeignKeyRemovedConventions.Add(storeKeyConvention);
+    private static IServiceScope CreateServiceScope()
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddEntityFrameworkCosmos()
+            .AddDbContext<DbContext>(
+                (p, o) =>
+                    o.UseCosmos("localhost", "_", "_")
+                        .UseInternalServiceProvider(p))
+            .BuildServiceProvider();
 
-            conventionSet.ForeignKeyOwnershipChangedConventions.Add(discriminatorConvention);
-            conventionSet.ForeignKeyOwnershipChangedConventions.Add(storeKeyConvention);
-
-            conventionSet.EntityTypeAnnotationChangedConventions.Add(storeKeyConvention);
-
-            return conventionSet;
-        }
+        return serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
     }
 }

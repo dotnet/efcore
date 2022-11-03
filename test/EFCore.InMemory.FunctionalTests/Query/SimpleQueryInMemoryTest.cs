@@ -1,200 +1,36 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
-using Xunit.Abstractions;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+public class SimpleQueryInMemoryTest : SimpleQueryTestBase
 {
-    public class SimpleQueryInMemoryTest : SimpleQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
+    public override async Task Multiple_nested_reference_navigations(bool async)
     {
-        public SimpleQueryInMemoryTest(
-            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
-#pragma warning disable IDE0060 // Remove unused parameter
-            ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
-            : base(fixture)
-        {
-            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
+        var contextFactory = await InitializeAsync<Context24368>();
+        using var context = contextFactory.CreateContext();
+        var id = 1;
+        var staff = await context.Staff.FindAsync(3);
 
-        // InMemory can throw server side exception
-        public override void Average_no_data_subquery()
-        {
-            Assert.Throws<InvalidOperationException>(() => base.Average_no_data_subquery());
-        }
+        Assert.Equal(1, staff.ManagerId);
 
-        public override void Max_no_data_subquery()
-        {
-            Assert.Throws<InvalidOperationException>(() => base.Max_no_data_subquery());
-        }
+        var query = context.Appraisals
+            .Include(ap => ap.Staff).ThenInclude(s => s.Manager)
+            .Include(ap => ap.Staff).ThenInclude(s => s.SecondaryManager)
+            .Where(ap => ap.Id == id);
 
-        public override void Min_no_data_subquery()
-        {
-            Assert.Throws<InvalidOperationException>(() => base.Min_no_data_subquery());
-        }
+        var appraisal = async
+            ? await query.SingleOrDefaultAsync()
+            : query.SingleOrDefault();
 
-        public override Task Where_query_composition_entity_equality_one_element_Single(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Where_query_composition_entity_equality_one_element_Single(isAsync));
-        }
+        Assert.Equal(1, staff.ManagerId); // InMemory has different behavior
 
-        public override Task Where_query_composition_entity_equality_one_element_First(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Where_query_composition_entity_equality_one_element_First(isAsync));
-        }
-
-        public override Task Where_query_composition_entity_equality_no_elements_Single(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Where_query_composition_entity_equality_no_elements_Single(isAsync));
-        }
-
-        public override Task Where_query_composition_entity_equality_no_elements_First(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Where_query_composition_entity_equality_no_elements_First(isAsync));
-        }
-
-        public override Task Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Where_query_composition_entity_equality_multiple_elements_SingleOrDefault(isAsync));
-        }
-
-        public override Task Where_query_composition_entity_equality_multiple_elements_Single(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Where_query_composition_entity_equality_multiple_elements_Single(isAsync));
-        }
-
-        public override Task Collection_Last_member_access_in_projection_translated(bool isAsync)
-        {
-            return Assert.ThrowsAsync<InvalidOperationException>(
-                () => base.Collection_Last_member_access_in_projection_translated(isAsync));
-        }
-
-        // Sending client code to server
-        [ConditionalFact(Skip = "Issue#17050")]
-        public override void Client_code_using_instance_in_anonymous_type()
-        {
-            base.Client_code_using_instance_in_anonymous_type();
-        }
-
-        [ConditionalFact(Skip = "Issue#17050")]
-        public override void Client_code_using_instance_in_static_method()
-        {
-            base.Client_code_using_instance_in_static_method();
-        }
-
-        [ConditionalFact(Skip = "Issue#17050")]
-        public override void Client_code_using_instance_method_throws()
-        {
-            base.Client_code_using_instance_method_throws();
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Contains_with_local_tuple_array_closure(bool isAsync)
-        {
-            return base.Contains_with_local_tuple_array_closure(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Last_when_no_order_by(bool isAsync)
-        {
-            return base.Last_when_no_order_by(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task OrderBy_multiple_queries(bool isAsync)
-        {
-            return base.OrderBy_multiple_queries(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_1(bool isAsync)
-        {
-            return base.Random_next_is_not_funcletized_1(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_2(bool isAsync)
-        {
-            return base.Random_next_is_not_funcletized_2(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_3(bool isAsync)
-        {
-            return base.Random_next_is_not_funcletized_3(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_4(bool isAsync)
-        {
-            return base.Random_next_is_not_funcletized_4(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_5(bool isAsync)
-        {
-            return base.Random_next_is_not_funcletized_5(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Random_next_is_not_funcletized_6(bool isAsync)
-        {
-            return base.Random_next_is_not_funcletized_6(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Select_bool_closure_with_order_by_property_with_cast_to_nullable(bool isAsync)
-        {
-            return base.Select_bool_closure_with_order_by_property_with_cast_to_nullable(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Where_bool_client_side_negated(bool isAsync)
-        {
-            return base.Where_bool_client_side_negated(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Projection_when_arithmetic_mixed_subqueries(bool isAsync)
-        {
-            return base.Projection_when_arithmetic_mixed_subqueries(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17386")]
-        public override Task Where_equals_method_string_with_ignore_case(bool isAsync)
-        {
-            return base.Where_equals_method_string_with_ignore_case(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "Issue#17536")]
-        public override Task SelectMany_correlated_with_outer_3(bool isAsync)
-        {
-            return base.SelectMany_correlated_with_outer_3(isAsync);
-        }
-
-        [ConditionalTheory]
-        public override Task DefaultIfEmpty_in_subquery_nested(bool isAsync)
-        {
-            return base.DefaultIfEmpty_in_subquery_nested(isAsync);
-        }
-
-        [ConditionalTheory(Skip = "issue #17386")]
-        public override Task Where_equals_on_null_nullable_int_types(bool isAsync)
-        {
-            return base.Where_equals_on_null_nullable_int_types(isAsync);
-        }
-
-        // Casting int to object to string is invalid for InMemory
-        public override Task Like_with_non_string_column_using_double_cast(bool isAsync) => Task.CompletedTask;
+        Assert.NotNull(appraisal);
+        Assert.Same(staff, appraisal.Staff);
+        Assert.NotNull(appraisal.Staff.SecondaryManager);
+        Assert.Equal(2, appraisal.Staff.SecondaryManagerId);
     }
+
+    protected override ITestStoreFactory TestStoreFactory
+        => InMemoryTestStoreFactory.Instance;
 }

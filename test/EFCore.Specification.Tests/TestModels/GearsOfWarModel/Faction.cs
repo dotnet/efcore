@@ -1,14 +1,16 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel
+using System.Net;
+
+namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
+
+public abstract class Faction
 {
-    public abstract class Faction
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public IPAddress ServerAddress { get; set; }
 
-        public string CapitalName { get; set; }
-        public City Capital { get; set; }
-    }
+    public string CapitalName { get; set; }
+    public City Capital { get; set; }
 }

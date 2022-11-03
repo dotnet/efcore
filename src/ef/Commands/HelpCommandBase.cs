@@ -1,26 +1,25 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal class HelpCommandBase : EFCommandBase
 {
-    internal class HelpCommandBase : EFCommandBase
+    private CommandLineApplication? _command;
+
+    public override void Configure(CommandLineApplication command)
     {
-        private CommandLineApplication _command;
+        _command = command;
 
-        public override void Configure(CommandLineApplication command)
-        {
-            _command = command;
+        base.Configure(command);
+    }
 
-            base.Configure(command);
-        }
+    protected override int Execute(string[] args)
+    {
+        _command!.ShowHelp();
 
-        protected override int Execute()
-        {
-            _command.ShowHelp();
-
-            return base.Execute();
-        }
+        return base.Execute(args);
     }
 }

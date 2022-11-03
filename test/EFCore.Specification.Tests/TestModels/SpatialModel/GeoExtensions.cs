@@ -1,20 +1,19 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using NetTopologySuite.Geometries;
 
-namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel
+namespace Microsoft.EntityFrameworkCore.TestModels.SpatialModel;
+
+public static class GeoExtensions
 {
-    public static class GeoExtensions
+    public static double Distance(this GeoPoint x, GeoPoint y)
     {
-        public static double Distance(this GeoPoint x, GeoPoint y)
-        {
-            var converter = new GeoPointConverter();
+        var converter = new GeoPointConverter();
 
-            var xPoint = (Point)converter.ConvertToProvider(x);
-            var yPoint = (Point)converter.ConvertToProvider(y);
+        var xPoint = (Point)converter.ConvertToProvider(x);
+        var yPoint = (Point)converter.ConvertToProvider(y);
 
-            return yPoint.Distance(xPoint);
-        }
+        return yPoint.Distance(xPoint);
     }
 }

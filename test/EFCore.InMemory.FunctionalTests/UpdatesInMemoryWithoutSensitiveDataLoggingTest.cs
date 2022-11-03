@@ -1,18 +1,30 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.InMemory.Internal;
 
-namespace Microsoft.EntityFrameworkCore
-{
-    public class UpdatesInMemoryWithoutSensitiveDataLoggingTest : UpdatesInMemoryTestBase<UpdatesInMemoryWithoutSensitiveDataLoggingFixture>
-    {
-        public UpdatesInMemoryWithoutSensitiveDataLoggingTest(UpdatesInMemoryWithoutSensitiveDataLoggingFixture fixture)
-            : base(fixture)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore;
 
-        protected override string UpdateConcurrencyTokenMessage
-            => InMemoryStrings.UpdateConcurrencyTokenException("Product", "{'Price'}");
+public class UpdatesInMemoryWithoutSensitiveDataLoggingTest
+    : UpdatesInMemoryTestBase<UpdatesInMemoryWithoutSensitiveDataLoggingTest.UpdatesInMemoryWithoutSensitiveDataLoggingFixture>
+{
+    public UpdatesInMemoryWithoutSensitiveDataLoggingTest(UpdatesInMemoryWithoutSensitiveDataLoggingFixture fixture)
+        : base(fixture)
+    {
+    }
+
+    protected override string UpdateConcurrencyTokenMessage
+        => InMemoryStrings.UpdateConcurrencyTokenException("Product", "{'Price'}");
+
+    public class UpdatesInMemoryWithoutSensitiveDataLoggingFixture : UpdatesInMemoryFixtureBase
+    {
+        protected override string StoreName
+            => "UpdateTestInsensitive";
+
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).EnableSensitiveDataLogging(false);
     }
 }

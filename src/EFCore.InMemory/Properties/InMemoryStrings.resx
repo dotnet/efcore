@@ -117,6 +117,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DefaultIfEmptyAppliedAfterProjection" xml:space="preserve">
+    <value>Cannot apply 'DefaultIfEmpty' after a client-evaluated projection. Consider applying 'DefaultIfEmpty' before last 'Select' or use 'AsEnumerable' before 'DefaultIfEmpty' to apply it on client-side.</value>
+  </data>
+  <data name="DistinctOnSubqueryNotSupported" xml:space="preserve">
+    <value>Using 'Distinct' operation on a projection containing a subquery is not supported.</value>
+  </data>
+  <data name="InvalidDerivedTypeInEntityProjection" xml:space="preserve">
+    <value>The specified entity type '{derivedType}' is not derived from '{entityType}'.</value>
+  </data>
   <data name="LogSavedChanges" xml:space="preserve">
     <value>Saved {count} entities to in-memory store.</value>
     <comment>Information InMemoryEventId.ChangesSaved int</comment>
@@ -124,6 +133,24 @@
   <data name="LogTransactionsNotSupported" xml:space="preserve">
     <value>Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
     <comment>Warning InMemoryEventId.TransactionIgnoredWarning</comment>
+  </data>
+  <data name="NonComposedGroupByNotSupported" xml:space="preserve">
+    <value>A 'GroupBy' operation which is not composed into aggregate or projection of elements is not supported.</value>
+  </data>
+  <data name="NoQueryStrings" xml:space="preserve">
+    <value>There is no query string because the in-memory provider does not use a string-based query language.</value>
+  </data>
+  <data name="NullabilityErrorException" xml:space="preserve">
+    <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the entity key value.</value>
+  </data>
+  <data name="NullabilityErrorExceptionSensitive" xml:space="preserve">
+    <value>Required properties '{requiredProperties}' are missing for the instance of entity type '{entityType}' with the key value '{keyValue}'.</value>
+  </data>
+  <data name="SetOperationsNotAllowedAfterClientEvaluation" xml:space="preserve">
+    <value>Unable to translate set operation after client projection has been applied. Consider moving the set operation before the last 'Select' call.</value>
+  </data>
+  <data name="UnableToBindMemberToEntityProjection" xml:space="preserve">
+    <value>Unable to bind '{memberType}' '{member}' to entity projection of '{entityType}'.</value>
   </data>
   <data name="UpdateConcurrencyException" xml:space="preserve">
     <value>Attempted to update or delete an entity that does not exist in the store.</value>

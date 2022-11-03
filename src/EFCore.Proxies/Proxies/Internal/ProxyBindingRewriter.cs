@@ -1,137 +1,190 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using JetBrains.Annotations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Proxies.Internal
+namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class ProxyBindingRewriter : IModelFinalizingConvention
 {
+    private static readonly PropertyInfo LazyLoaderProperty
+        = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader))!;
+
+    private readonly ProxiesOptionsExtension? _options;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class ProxyBindingRewriter : IModelFinalizedConvention
+    public ProxyBindingRewriter(
+        ProxiesOptionsExtension? options,
+        LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
+        ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
     {
-        private static readonly MethodInfo _createLazyLoadingProxyMethod
-            = typeof(IProxyFactory).GetTypeInfo().GetDeclaredMethod(nameof(IProxyFactory.CreateLazyLoadingProxy));
+        _options = options;
+        LazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
+        ConventionSetBuilderDependencies = conventionSetBuilderDependencies;
+    }
 
-        private static readonly PropertyInfo _lazyLoaderProperty
-            = typeof(IProxyLazyLoader).GetProperty(nameof(IProxyLazyLoader.LazyLoader));
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual ProviderConventionSetBuilderDependencies ConventionSetBuilderDependencies { get; }
 
-        private readonly ConstructorBindingConvention _directBindingConvention;
-        private readonly LazyLoaderParameterBindingFactoryDependencies _lazyLoaderParameterBindingFactoryDependencies;
-        private readonly IProxyFactory _proxyFactory;
-        private readonly ProxiesOptionsExtension _options;
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual LazyLoaderParameterBindingFactoryDependencies LazyLoaderParameterBindingFactoryDependencies { get; }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public ProxyBindingRewriter(
-            [NotNull] IProxyFactory proxyFactory,
-            [CanBeNull] ProxiesOptionsExtension options,
-            [NotNull] LazyLoaderParameterBindingFactoryDependencies lazyLoaderParameterBindingFactoryDependencies,
-            [NotNull] ProviderConventionSetBuilderDependencies conventionSetBuilderDependencies)
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        if (_options?.UseProxies == true)
         {
-            _proxyFactory = proxyFactory;
-            _options = options;
-            _lazyLoaderParameterBindingFactoryDependencies = lazyLoaderParameterBindingFactoryDependencies;
-            _directBindingConvention = new ConstructorBindingConvention(conventionSetBuilderDependencies);
-        }
+            modelBuilder.HasAnnotation(ProxyAnnotationNames.LazyLoading, _options.UseLazyLoadingProxies);
+            modelBuilder.HasAnnotation(ProxyAnnotationNames.ChangeTracking, _options.UseChangeTrackingProxies);
+            modelBuilder.HasAnnotation(ProxyAnnotationNames.CheckEquality, _options.CheckEquality);
 
-        /// <summary>
-        ///     Called after a model is finalized.
-        /// </summary>
-        /// <param name="modelBuilder"> The builder for the model. </param>
-        /// <param name="context"> Additional information associated with convention execution. </param>
-        public virtual void ProcessModelFinalized(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
-        {
-            if (_options?.UseLazyLoadingProxies == true)
+            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
-                foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+                var clrType = entityType.ClrType;
+                if (clrType.IsAbstract)
                 {
-                    if (entityType.ClrType?.IsAbstract == false)
+                    continue;
+                }
+
+                if (clrType.IsSealed)
+                {
+                    throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
+                }
+
+                foreach (var navigationBase in entityType.GetDeclaredNavigations()
+                             .Concat<IConventionNavigationBase>(entityType.GetDeclaredSkipNavigations()))
+                {
+                    if (!navigationBase.IsShadowProperty())
                     {
-                        if (entityType.ClrType.IsSealed)
+                        if (navigationBase.PropertyInfo == null)
                         {
-                            throw new InvalidOperationException(ProxiesStrings.ItsASeal(entityType.DisplayName()));
+                            throw new InvalidOperationException(
+                                ProxiesStrings.FieldProperty(navigationBase.Name, entityType.DisplayName()));
                         }
 
-                        var proxyType = _proxyFactory.CreateLazyLoadingProxyType(entityType);
-
-                        foreach (var conflictingProperty in entityType.GetDerivedTypes()
-                            .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
-                            .ToList())
+                        if (_options.UseChangeTrackingProxies
+                            && navigationBase.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
                         {
-                            conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
+                            throw new InvalidOperationException(
+                                ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
                         }
 
-                        var serviceProperty = entityType.GetServiceProperties().FirstOrDefault(e => e.ClrType == typeof(ILazyLoader));
-                        if (serviceProperty == null)
+                        if (_options.UseLazyLoadingProxies)
                         {
-                            serviceProperty = entityType.AddServiceProperty(_lazyLoaderProperty);
-                            serviceProperty.SetParameterBinding(
-                                (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(
-                                        _lazyLoaderParameterBindingFactoryDependencies)
-                                    .Bind(
-                                        entityType,
-                                        typeof(ILazyLoader),
-                                        nameof(IProxyLazyLoader.LazyLoader)));
+                            if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual()
+                                && (!(navigationBase is INavigation navigation
+                                    && navigation.ForeignKey.IsOwnership)))
+                            {
+                                throw new InvalidOperationException(
+                                    ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                            }
+
+                            navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                        }
+                    }
+                }
+
+                if (_options.UseLazyLoadingProxies)
+                {
+                    foreach (var conflictingProperty in entityType.GetDerivedTypes()
+                                 .SelectMany(e => e.GetDeclaredServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
+                                 .ToList())
+                    {
+                        if (!ConfigurationSource.Convention.Overrides(conflictingProperty.GetConfigurationSource()))
+                        {
+                            break;
                         }
 
-                        // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
-                        var binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
-                        if (binding == null)
+                        conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
+                    }
+
+                    var serviceProperty = entityType.GetServiceProperties()
+                        .FirstOrDefault(e => e.ClrType == typeof(ILazyLoader));
+                    if (serviceProperty == null)
+                    {
+                        serviceProperty = entityType.AddServiceProperty(LazyLoaderProperty);
+                        serviceProperty.SetParameterBinding(
+                            (ServiceParameterBinding)new LazyLoaderParameterBindingFactory(
+                                    LazyLoaderParameterBindingFactoryDependencies)
+                                .Bind(
+                                    entityType,
+                                    typeof(ILazyLoader),
+                                    nameof(IProxyLazyLoader.LazyLoader)));
+                    }
+                }
+
+                if (_options.UseChangeTrackingProxies)
+                {
+                    var indexerChecked = false;
+                    foreach (var property in entityType.GetDeclaredProperties()
+                                 .Where(p => !p.IsShadowProperty()))
+                    {
+                        if (property.IsIndexerProperty())
                         {
-                            _directBindingConvention.ProcessModelFinalized(modelBuilder, context);
-                        }
+                            if (!indexerChecked)
+                            {
+                                indexerChecked = true;
 
-                        // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
-                        binding = (InstantiationBinding)entityType[CoreAnnotationNames.ConstructorBinding];
-
-                        entityType.SetAnnotation(
-                            // WARNING: This code is EF internal; it should not be copied. See #10789 #14554
-                            CoreAnnotationNames.ConstructorBinding,
-                            new FactoryMethodBinding(
-                                _proxyFactory,
-                                _createLazyLoadingProxyMethod,
-                                new List<ParameterBinding>
+                                if (!property.PropertyInfo!.SetMethod!.IsReallyVirtual())
                                 {
-                                    new EntityTypeParameterBinding(),
-                                    new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), serviceProperty),
-                                    new ObjectArrayParameterBinding(binding.ParameterBindings)
-                                },
-                                proxyType));
-
-                        foreach (var navigation in entityType.GetNavigations())
+                                    if (clrType.IsGenericType
+                                        && clrType.GetGenericTypeDefinition() == typeof(Dictionary<,>)
+                                        && clrType.GenericTypeArguments[0] == typeof(string))
+                                    {
+                                        if (entityType.GetProperties().Any(p => !p.IsPrimaryKey()))
+                                        {
+                                            throw new InvalidOperationException(
+                                                ProxiesStrings.DictionaryCannotBeProxied(
+                                                    clrType.ShortDisplayName(),
+                                                    entityType.DisplayName(),
+                                                    typeof(IDictionary<,>).MakeGenericType(clrType.GenericTypeArguments)
+                                                        .ShortDisplayName()));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        throw new InvalidOperationException(
+                                            ProxiesStrings.NonVirtualIndexerProperty(entityType.DisplayName()));
+                                    }
+                                }
+                            }
+                        }
+                        else
                         {
-                            if (navigation.PropertyInfo == null)
+                            if (property.PropertyInfo == null)
                             {
                                 throw new InvalidOperationException(
-                                    ProxiesStrings.FieldNavigation(navigation.Name, entityType.DisplayName()));
+                                    ProxiesStrings.FieldProperty(property.Name, entityType.DisplayName()));
                             }
 
-                            if (!navigation.PropertyInfo.GetMethod.IsVirtual)
+                            if (property.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
                             {
                                 throw new InvalidOperationException(
-                                    ProxiesStrings.NonVirtualNavigation(navigation.Name, entityType.DisplayName()));
+                                    ProxiesStrings.NonVirtualProperty(property.Name, entityType.DisplayName()));
                             }
-
-                            navigation.SetPropertyAccessMode(PropertyAccessMode.Field);
                         }
                     }
                 }

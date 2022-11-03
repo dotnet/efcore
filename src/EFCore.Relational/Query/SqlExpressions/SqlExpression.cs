@@ -1,40 +1,74 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Storage;
+namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions
+/// <summary>
+///     <para>
+///         An expression that represents a scalar value or a SQL token in a SQL tree.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+#if DEBUG
+[DebuggerDisplay("{new Microsoft.EntityFrameworkCore.Query.ExpressionPrinter().Print(this), nq}")]
+#endif
+public abstract class SqlExpression : Expression, IPrintableExpression
 {
-    public abstract class SqlExpression : Expression, IPrintableExpression
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SqlExpression" /> class.
+    /// </summary>
+    /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
+    protected SqlExpression(Type type, RelationalTypeMapping? typeMapping)
     {
-        protected SqlExpression(Type type, RelationalTypeMapping typeMapping)
-        {
-            Type = type;
-            TypeMapping = typeMapping;
-        }
+        Check.DebugAssert(!type.IsNullableValueType(), "SqlExpression.Type must be reference type or non-nullable value type");
 
-        public override Type Type { get; }
-        public virtual RelationalTypeMapping TypeMapping { get; }
+        Type = type;
+        TypeMapping = typeMapping;
+    }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => throw new InvalidOperationException("VisitChildren must be overridden in class deriving from SqlExpression");
+    /// <inheritdoc />
+    public override Type Type { get; }
 
-        public sealed override ExpressionType NodeType => ExpressionType.Extension;
-        public abstract void Print(ExpressionPrinter expressionPrinter);
+    /// <summary>
+    ///     The <see cref="RelationalTypeMapping" /> associated with this expression.
+    /// </summary>
+    public virtual RelationalTypeMapping? TypeMapping { get; }
 
-        public override bool Equals(object obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is SqlExpression sqlExpression
-                    && Equals(sqlExpression));
+    /// <inheritdoc />
+    protected override Expression VisitChildren(ExpressionVisitor visitor)
+        => throw new InvalidOperationException(RelationalStrings.VisitChildrenMustBeOverridden);
 
-        private bool Equals(SqlExpression sqlExpression)
-            => Type == sqlExpression.Type
-               && ((TypeMapping == null && sqlExpression.TypeMapping == null)
+    /// <inheritdoc />
+    public sealed override ExpressionType NodeType
+        => ExpressionType.Extension;
+
+    /// <summary>
+    ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
+    /// </summary>
+    /// <param name="expressionPrinter">The expression printer to use.</param>
+    protected abstract void Print(ExpressionPrinter expressionPrinter);
+
+    /// <inheritdoc />
+    void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
+        => Print(expressionPrinter);
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => obj != null
+            && (ReferenceEquals(this, obj)
+                || obj is SqlExpression sqlExpression
+                && Equals(sqlExpression));
+
+    private bool Equals(SqlExpression sqlExpression)
+        => Type == sqlExpression.Type
+            && ((TypeMapping == null && sqlExpression.TypeMapping == null)
                 || TypeMapping?.Equals(sqlExpression.TypeMapping) == true);
 
-        public override int GetHashCode() => HashCode.Combine(Type, TypeMapping);
-    }
+    /// <inheritdoc />
+    public override int GetHashCode()
+        => HashCode.Combine(Type, TypeMapping);
 }

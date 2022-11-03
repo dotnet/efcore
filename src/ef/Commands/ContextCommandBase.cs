@@ -1,20 +1,19 @@
-// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal class ContextCommandBase : ProjectCommandBase
 {
-    internal class ContextCommandBase : ProjectCommandBase
+    protected CommandOption? Context { get; private set; }
+
+    public override void Configure(CommandLineApplication command)
     {
-        protected CommandOption Context { get; private set; }
+        Context = command.Option("-c|--context <DBCONTEXT>", Resources.ContextDescription);
 
-        public override void Configure(CommandLineApplication command)
-        {
-            Context = command.Option("-c|--context <DBCONTEXT>", Resources.ContextDescription);
-
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

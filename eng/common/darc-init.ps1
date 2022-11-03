@@ -10,7 +10,8 @@ param (
 function InstallDarcCli ($darcVersion, $toolpath) {
   $darcCliPackageName = 'microsoft.dotnet.darc'
 
-  $dotnet = "dotnet"
+  $dotnetRoot = InitializeDotNetCli -install:$true
+  $dotnet = "$dotnetRoot\dotnet.exe"
   $toolList = & "$dotnet" tool list -g
 
   if ($toolList -like "*$darcCliPackageName*") {
