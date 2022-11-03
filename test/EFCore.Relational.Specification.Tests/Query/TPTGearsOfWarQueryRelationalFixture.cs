@@ -2,35 +2,37 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
-using Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
 {
-    public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
+    protected override string StoreName
+        => "TPTGearsOfWarQueryTest";
+
+    public new RelationalTestStore TestStore
+        => (RelationalTestStore)base.TestStore;
+
+    public TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
+
+    protected override bool ShouldLogCategory(string logCategory)
+        => logCategory == DbLoggerCategory.Query.Name;
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
-        protected override string StoreName { get; } = "TPTGearsOfWarQueryTest";
+        base.OnModelCreating(modelBuilder, context);
 
-        public new RelationalTestStore TestStore
-            => (RelationalTestStore)base.TestStore;
+        modelBuilder.Entity<Gear>().UseTptMappingStrategy();
 
-        public TestSqlLoggerFactory TestSqlLoggerFactory
-            => (TestSqlLoggerFactory)ListLoggerFactory;
+        modelBuilder.Entity<LocustHorde>().ToTable("LocustHordes");
 
-        protected override bool ShouldLogCategory(string logCategory)
-            => logCategory == DbLoggerCategory.Query.Name;
+        modelBuilder.Entity<LocustCommander>().ToTable("LocustCommanders");
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
-        {
-            base.OnModelCreating(modelBuilder, context);
-
-            modelBuilder.Entity<Gear>().ToTable("Gears");
-            modelBuilder.Entity<Officer>().ToTable("Officers");
-
-            modelBuilder.Entity<Faction>().ToTable("Factions");
-            modelBuilder.Entity<LocustHorde>().ToTable("LocustHordes");
-
-            modelBuilder.Entity<LocustLeader>().ToTable("LocustLeaders");
-            modelBuilder.Entity<LocustCommander>().ToTable("LocustCommanders");
-        }
+        modelBuilder.Entity<Squad>()
+            .HasMany(s => s.Members)
+            .WithOne(g => g.Squad)
+            .HasForeignKey(g => g.SquadId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

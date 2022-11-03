@@ -7,8 +7,8 @@ using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.Data.Sqlite.Properties;
-using Microsoft.Data.Sqlite.Utilities;
 using SQLitePCL;
 using static SQLitePCL.raw;
 
@@ -22,6 +22,9 @@ namespace Microsoft.Data.Sqlite
     public partial class SqliteConnection : DbConnection
     {
         internal const string MainDatabaseName = "main";
+
+        private const int SQLITE_WIN32_DATA_DIRECTORY_TYPE = 1;
+        private const int SQLITE_WIN32_TEMP_DIRECTORY_TYPE = 2;
 
         private readonly List<WeakReference<SqliteCommand>> _commands = new();
 
@@ -40,8 +43,46 @@ namespace Microsoft.Data.Sqlite
         private bool _extensionsEnabled;
         private int? _defaultTimeout;
 
+        private static readonly StateChangeEventArgs _fromClosedToOpenEventArgs = new StateChangeEventArgs(ConnectionState.Closed, ConnectionState.Open);
+        private static readonly StateChangeEventArgs _fromOpenToClosedEventArgs = new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed);
+
         static SqliteConnection()
-            => BundleInitializer.Initialize();
+        {
+            Type.GetType("SQLitePCL.Batteries_V2, SQLitePCLRaw.batteries_v2")
+                ?.GetRuntimeMethod("Init", Type.EmptyTypes)
+                ?.Invoke(null, null);
+
+            try
+            {
+                var currentAppData = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                    ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET")
+                    ?.GetRuntimeProperty("Current")?.GetValue(null);
+
+                var localFolder = currentAppData?.GetType()
+                    .GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                var localFolderPath = (string?)localFolder?.GetType()
+                    .GetRuntimeProperty("Path")?.GetValue(localFolder);
+                if (localFolderPath != null)
+                {
+                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
+                    Debug.Assert(rc == SQLITE_OK);
+                }
+
+                var tempFolder = currentAppData?.GetType()
+                    .GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                var tempFolderPath = (string?)tempFolder?.GetType()
+                    .GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                if (tempFolderPath != null)
+                {
+                    var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
+                    Debug.Assert(rc == SQLITE_OK);
+                }
+            }
+            catch
+            {
+                // Ignore "The process has no package identity."
+            }
+        }
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="SqliteConnection" /> class.
@@ -236,13 +277,11 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                var extensionsEnabledForLoad = false;
                 if (_extensions != null
                     && _extensions.Count != 0)
                 {
-                    rc = sqlite3_enable_load_extension(Handle, 1);
+                    rc = sqlite3_db_config(Handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, out _);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
-                    extensionsEnabledForLoad = true;
 
                     foreach (var item in _extensions)
                     {
@@ -250,7 +289,7 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                if (_extensionsEnabled != extensionsEnabledForLoad)
+                if (_extensionsEnabled)
                 {
                     rc = sqlite3_enable_load_extension(Handle, _extensionsEnabled ? 1 : 0);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
@@ -266,7 +305,7 @@ namespace Microsoft.Data.Sqlite
                 throw;
             }
 
-            OnStateChange(new StateChangeEventArgs(ConnectionState.Closed, ConnectionState.Open));
+            OnStateChange(_fromClosedToOpenEventArgs);
         }
 
         /// <summary>
@@ -301,7 +340,7 @@ namespace Microsoft.Data.Sqlite
             _innerConnection = null;
 
             _state = ConnectionState.Closed;
-            OnStateChange(new StateChangeEventArgs(ConnectionState.Open, ConnectionState.Closed));
+            OnStateChange(_fromOpenToClosedEventArgs);
         }
 
         internal void Deactivate()
@@ -554,21 +593,13 @@ namespace Microsoft.Data.Sqlite
             {
                 int rc;
 
-                var extensionsEnabledForLoad = false;
                 if (!_extensionsEnabled)
                 {
-                    rc = sqlite3_enable_load_extension(Handle, 1);
+                    rc = sqlite3_db_config(Handle, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 1, out _);
                     SqliteException.ThrowExceptionForRC(rc, Handle);
-                    extensionsEnabledForLoad = true;
                 }
 
                 LoadExtensionCore(file, proc);
-
-                if (extensionsEnabledForLoad)
-                {
-                    rc = sqlite3_enable_load_extension(Handle, 0);
-                    SqliteException.ThrowExceptionForRC(rc, Handle);
-                }
             }
 
             _extensions ??= new HashSet<(string, string?)>();
@@ -577,19 +608,10 @@ namespace Microsoft.Data.Sqlite
 
         private void LoadExtensionCore(string file, string? proc)
         {
-            if (proc == null)
+            var rc = sqlite3_load_extension(Handle, utf8z.FromString(file), utf8z.FromString(proc), out var errmsg);
+            if (rc != SQLITE_OK)
             {
-                // NB: SQLitePCL.raw doesn't expose sqlite3_load_extension()
-                this.ExecuteNonQuery(
-                    "SELECT load_extension($file);",
-                    new SqliteParameter("$file", file));
-            }
-            else
-            {
-                this.ExecuteNonQuery(
-                    "SELECT load_extension($file, $proc);",
-                    new SqliteParameter("$file", file),
-                    new SqliteParameter("$proc", proc));
+                throw new SqliteException(Resources.SqliteNativeError(rc, errmsg.utf8_to_string()), rc, rc);
             }
         }
 

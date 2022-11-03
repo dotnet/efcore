@@ -1,136 +1,154 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
-using Microsoft.EntityFrameworkCore.Utilities;
+namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
-namespace Microsoft.EntityFrameworkCore.Metadata.Conventions
+/// <summary>
+///     A convention that configures the table name based on the <see cref="DbSet{TEntity}" /> property name.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
+/// </remarks>
+public class TableNameFromDbSetConvention :
+    IEntityTypeAddedConvention,
+    IEntityTypeBaseTypeChangedConvention,
+    IEntityTypeAnnotationChangedConvention,
+    IModelFinalizingConvention
 {
+    private readonly IDictionary<Type, string> _sets;
+
     /// <summary>
-    ///     A convention that configures the table name based on the <see cref="DbSet{TEntity}" /> property name.
+    ///     Creates a new instance of <see cref="TableNameFromDbSetConvention" />.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information.
-    /// </remarks>
-    public class TableNameFromDbSetConvention : IEntityTypeAddedConvention, IEntityTypeBaseTypeChangedConvention, IModelFinalizingConvention
+    /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
+    /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
+    public TableNameFromDbSetConvention(
+        ProviderConventionSetBuilderDependencies dependencies,
+        RelationalConventionSetBuilderDependencies relationalDependencies)
     {
-        private readonly IDictionary<Type, string> _sets;
-
-        /// <summary>
-        ///     Creates a new instance of <see cref="TableNameFromDbSetConvention" />.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-        /// <param name="relationalDependencies"> Parameter object containing relational dependencies for this convention.</param>
-        public TableNameFromDbSetConvention(
-            ProviderConventionSetBuilderDependencies dependencies,
-            RelationalConventionSetBuilderDependencies relationalDependencies)
+        _sets = new Dictionary<Type, string>();
+        List<Type>? ambiguousTypes = null;
+        foreach (var set in dependencies.SetFinder.FindSets(dependencies.ContextType))
         {
-            Check.NotNull(dependencies, nameof(dependencies));
-            Check.NotNull(relationalDependencies, nameof(relationalDependencies));
-
-            _sets = new Dictionary<Type, string>();
-            List<Type>? ambiguousTypes = null;
-            foreach (var set in dependencies.SetFinder.FindSets(dependencies.ContextType))
+            if (!_sets.ContainsKey(set.Type))
             {
-                if (!_sets.ContainsKey(set.Type))
-                {
-                    _sets.Add(set.Type, set.Name);
-                }
-                else
-                {
-                    if (ambiguousTypes == null)
-                    {
-                        ambiguousTypes = new List<Type>();
-                    }
-
-                    ambiguousTypes.Add(set.Type);
-                }
+                _sets.Add(set.Type, set.Name);
             }
-
-            if (ambiguousTypes != null)
+            else
             {
-                foreach (var type in ambiguousTypes)
-                {
-                    _sets.Remove(type);
-                }
-            }
+                ambiguousTypes ??= new List<Type>();
 
-            Dependencies = dependencies;
-            RelationalDependencies = relationalDependencies;
-        }
-
-        /// <summary>
-        ///     Dependencies for this service.
-        /// </summary>
-        protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
-
-        /// <summary>
-        ///     Relational provider-specific dependencies for this service.
-        /// </summary>
-        protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
-
-        /// <summary>
-        ///     Called after the base type of an entity type changes.
-        /// </summary>
-        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
-        /// <param name="newBaseType">The new base entity type.</param>
-        /// <param name="oldBaseType">The old base entity type.</param>
-        /// <param name="context">Additional information associated with convention execution.</param>
-        public virtual void ProcessEntityTypeBaseTypeChanged(
-            IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionEntityType? newBaseType,
-            IConventionEntityType? oldBaseType,
-            IConventionContext<IConventionEntityType> context)
-        {
-            var entityType = entityTypeBuilder.Metadata;
-
-            if (oldBaseType == null
-                && newBaseType != null)
-            {
-                entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
-            }
-            else if (oldBaseType != null
-                && newBaseType == null
-                && !entityType.HasSharedClrType
-                && _sets.TryGetValue(entityType.ClrType, out var setName))
-            {
-                entityTypeBuilder.ToTable(setName);
+                ambiguousTypes.Add(set.Type);
             }
         }
 
-        /// <summary>
-        ///     Called after an entity type is added to the model.
-        /// </summary>
-        /// <param name="entityTypeBuilder">The builder for the entity type.</param>
-        /// <param name="context">Additional information associated with convention execution.</param>
-        public virtual void ProcessEntityTypeAdded(
-            IConventionEntityTypeBuilder entityTypeBuilder,
-            IConventionContext<IConventionEntityTypeBuilder> context)
+        if (ambiguousTypes != null)
         {
-            var entityType = entityTypeBuilder.Metadata;
-            if (entityType.BaseType == null
-                && !entityType.HasSharedClrType
-                && _sets.TryGetValue(entityType.ClrType, out var setName))
+            foreach (var type in ambiguousTypes)
             {
-                entityTypeBuilder.ToTable(setName);
+                _sets.Remove(type);
             }
         }
 
-        /// <inheritdoc />
-        public virtual void ProcessModelFinalizing(
-            IConventionModelBuilder modelBuilder,
-            IConventionContext<IConventionModelBuilder> context)
+        Dependencies = dependencies;
+        RelationalDependencies = relationalDependencies;
+    }
+
+    /// <summary>
+    ///     Dependencies for this service.
+    /// </summary>
+    protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+    /// <summary>
+    ///     Relational provider-specific dependencies for this service.
+    /// </summary>
+    protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
+
+    /// <inheritdoc />
+    public virtual void ProcessEntityTypeBaseTypeChanged(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionEntityType? newBaseType,
+        IConventionEntityType? oldBaseType,
+        IConventionContext<IConventionEntityType> context)
+    {
+        var entityType = entityTypeBuilder.Metadata;
+
+        if (oldBaseType == null
+            && newBaseType != null
+            && (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+            == RelationalAnnotationNames.TphMappingStrategy)
         {
-            foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+            entityTypeBuilder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+        }
+        else if (oldBaseType != null
+                 && newBaseType == null
+                 && !entityType.HasSharedClrType
+                 && _sets.TryGetValue(entityType.ClrType, out var setName))
+        {
+            entityTypeBuilder.ToTable(setName);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessEntityTypeAdded(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionContext<IConventionEntityTypeBuilder> context)
+    {
+        var entityType = entityTypeBuilder.Metadata;
+        if (!entityType.HasSharedClrType
+            && (entityType.BaseType == null
+                || (entityType.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+                != RelationalAnnotationNames.TphMappingStrategy)
+            && _sets.TryGetValue(entityType.ClrType, out var setName))
+        {
+            entityTypeBuilder.ToTable(setName);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessEntityTypeAnnotationChanged(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        string name,
+        IConventionAnnotation? annotation,
+        IConventionAnnotation? oldAnnotation,
+        IConventionContext<IConventionAnnotation> context)
+    {
+        if (name == RelationalAnnotationNames.MappingStrategy
+            && annotation != null
+            && (entityTypeBuilder.Metadata.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
+            != RelationalAnnotationNames.TphMappingStrategy)
+        {
+            foreach (var deriverEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                if (entityType.GetTableName() != null
-                    && entityType.GetViewNameConfigurationSource() != null
-                    && _sets.ContainsKey(entityType.ClrType))
+                if (!deriverEntityType.HasSharedClrType
+                    && _sets.TryGetValue(deriverEntityType.ClrType, out var setName))
+                {
+                    deriverEntityType.Builder.ToTable(setName);
+                }
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void ProcessModelFinalizing(
+        IConventionModelBuilder modelBuilder,
+        IConventionContext<IConventionModelBuilder> context)
+    {
+        foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
+        {
+            if (entityType.GetTableName() != null
+                && _sets.ContainsKey(entityType.ClrType))
+            {
+                if (entityType.GetViewNameConfigurationSource() != null)
                 {
                     // Undo the convention change if the entity type is mapped to a view
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                }
+
+                if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                    && entityType.IsAbstract())
+                {
+                    // Undo the convention change if the entity type is mapped using TPC
                     entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
             }

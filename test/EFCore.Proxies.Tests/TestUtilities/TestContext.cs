@@ -1,72 +1,67 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.DependencyInjection;
+namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-namespace Microsoft.EntityFrameworkCore.TestUtilities
+internal abstract class TestContext<TEntity> : DbContext
+    where TEntity : class
 {
-    internal abstract class TestContext<TEntity> : DbContext
-        where TEntity : class
+    private static readonly InMemoryDatabaseRoot _dbRoot = new();
+
+    private readonly IServiceProvider _internalServiceProvider;
+    private readonly string _dbName;
+    private readonly bool _useLazyLoadingProxies;
+    private readonly bool _useChangeDetectionProxies;
+    private readonly bool _checkEquality;
+    private readonly ChangeTrackingStrategy? _changeTrackingStrategy;
+
+    protected TestContext(
+        string dbName = null,
+        bool useLazyLoading = false,
+        bool useChangeDetection = false,
+        bool checkEquality = true,
+        ChangeTrackingStrategy? changeTrackingStrategy = null)
     {
-        private static readonly InMemoryDatabaseRoot _dbRoot = new();
+        _internalServiceProvider
+            = new ServiceCollection()
+                .AddEntityFrameworkInMemoryDatabase()
+                .AddEntityFrameworkProxies()
+                .BuildServiceProvider(validateScopes: true);
 
-        private readonly IServiceProvider _internalServiceProvider;
-        private readonly string _dbName;
-        private readonly bool _useLazyLoadingProxies;
-        private readonly bool _useChangeDetectionProxies;
-        private readonly bool _checkEquality;
-        private readonly ChangeTrackingStrategy? _changeTrackingStrategy;
+        _dbName = dbName;
+        _useLazyLoadingProxies = useLazyLoading;
+        _useChangeDetectionProxies = useChangeDetection;
+        _checkEquality = checkEquality;
+        _changeTrackingStrategy = changeTrackingStrategy;
+    }
 
-        protected TestContext(
-            string dbName = null,
-            bool useLazyLoading = false,
-            bool useChangeDetection = false,
-            bool checkEquality = true,
-            ChangeTrackingStrategy? changeTrackingStrategy = null)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (_useLazyLoadingProxies)
         {
-            _internalServiceProvider
-                = new ServiceCollection()
-                    .AddEntityFrameworkInMemoryDatabase()
-                    .AddEntityFrameworkProxies()
-                    .BuildServiceProvider(validateScopes: true);
-
-            _dbName = dbName;
-            _useLazyLoadingProxies = useLazyLoading;
-            _useChangeDetectionProxies = useChangeDetection;
-            _checkEquality = checkEquality;
-            _changeTrackingStrategy = changeTrackingStrategy;
+            optionsBuilder.UseLazyLoadingProxies();
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        if (_useChangeDetectionProxies)
         {
-            if (_useLazyLoadingProxies)
-            {
-                optionsBuilder.UseLazyLoadingProxies();
-            }
-
-            if (_useChangeDetectionProxies)
-            {
-                optionsBuilder.UseChangeTrackingProxies(checkEquality: _checkEquality);
-            }
-
-            if (_internalServiceProvider != null)
-            {
-                optionsBuilder.UseInternalServiceProvider(_internalServiceProvider);
-            }
-
-            optionsBuilder.UseInMemoryDatabase(_dbName ?? "TestContext", _dbRoot);
+            optionsBuilder.UseChangeTrackingProxies(checkEquality: _checkEquality);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        if (_internalServiceProvider != null)
         {
-            if (_changeTrackingStrategy.HasValue)
-            {
-                modelBuilder.HasChangeTrackingStrategy(_changeTrackingStrategy.Value);
-            }
-
-            modelBuilder.Entity<TEntity>();
+            optionsBuilder.UseInternalServiceProvider(_internalServiceProvider);
         }
+
+        optionsBuilder.UseInMemoryDatabase(_dbName ?? "TestContext", _dbRoot);
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        if (_changeTrackingStrategy.HasValue)
+        {
+            modelBuilder.HasChangeTrackingStrategy(_changeTrackingStrategy.Value);
+        }
+
+        modelBuilder.Entity<TEntity>();
     }
 }

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 #if !NET461
-
 namespace System.Runtime.Remoting.Messaging
 {
     internal static class CallContext
