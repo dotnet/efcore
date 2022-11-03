@@ -33,38 +33,3 @@
     <SqlitePCLRawVersion>2.1.1-pre20220822172036</SqlitePCLRawVersion>
   </PropertyGroup>
 </Project>
-<Project>
-  <PropertyGroup Label="Version settings">
-    <VersionPrefix>8.0.0</VersionPrefix>
-    <PreReleaseVersionLabel>alpha</PreReleaseVersionLabel>
-    <PreReleaseVersionIteration>1</PreReleaseVersionIteration>
-    <IncludeSourceRevisionInInformationalVersion>False</IncludeSourceRevisionInInformationalVersion>
-    <IsServicingBuild Condition="'$(PreReleaseVersionLabel)' == 'servicing'">true</IsServicingBuild>
-    <!--
-        When StabilizePackageVersion is set to 'true', this branch will produce stable outputs for 'Shipping' packages
-    -->
-    <StabilizePackageVersion Condition="'$(StabilizePackageVersion)' == ''">false</StabilizePackageVersion>
-    <DotNetFinalVersionKind Condition="'$(StabilizePackageVersion)' == 'true'">release</DotNetFinalVersionKind>
-  </PropertyGroup>
-  <PropertyGroup Label="Arcade settings">
-    <UsingToolXliff>False</UsingToolXliff>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/runtime">
-    <MicrosoftExtensionsCachingMemoryVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsCachingMemoryVersion>
-    <MicrosoftExtensionsConfigurationVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsConfigurationVersion>
-    <MicrosoftExtensionsConfigurationAbstractionsVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsConfigurationAbstractionsVersion>
-    <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
-    <MicrosoftExtensionsConfigurationJsonVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsDependencyInjectionVersion>
-    <MicrosoftExtensionsDependencyModelVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsDependencyModelVersion>
-    <MicrosoftExtensionsHostFactoryResolverSourcesVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
-    <MicrosoftExtensionsLoggingVersion>8.0.0-alpha.1.22530.1</MicrosoftExtensionsLoggingVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Dependencies from dotnet/arcade">
-    <MicrosoftDotNetBuildTasksTemplatingVersion>8.0.0-beta.22524.5</MicrosoftDotNetBuildTasksTemplatingVersion>
-  </PropertyGroup>
-  <PropertyGroup Label="Other dependencies">
-    <MicrosoftCodeAnalysisVersion>4.2.0</MicrosoftCodeAnalysisVersion>
-    <SqlitePCLRawVersion>2.1.1-pre20220822172036</SqlitePCLRawVersion>
-  </PropertyGroup>
-</Project>
