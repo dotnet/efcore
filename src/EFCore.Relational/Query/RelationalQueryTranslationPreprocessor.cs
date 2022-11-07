@@ -37,6 +37,7 @@ public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocess
         expression = new RelationalQueryMetadataExtractingExpressionVisitor(_relationalQueryCompilationContext).Visit(expression);
         expression = base.NormalizeQueryableMethod(expression);
         expression = new TableValuedFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
+        expression = new CollectionIndexerToElementAtNormalizingExpressionVisitor().Visit(expression);
 
         return expression;
     }

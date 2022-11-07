@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -1668,7 +1669,176 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     ?? methodCallExpression.Update(null!, new[] { source, methodCallExpression.Arguments[1] });
             }
 
+            // TODO: issue #28688
+            // when implementing collection of primitives, make sure EAOD is translated correctly for them
+            if (methodCallExpression.Method.IsGenericMethod
+                && (methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAt
+                    || methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.ElementAtOrDefault))
+            {
+                source = methodCallExpression.Arguments[0];
+                var selectMethodCallExpression = default(MethodCallExpression);
+
+                if (source is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } sourceMethodCall
+                    && sourceMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
+                {
+                    selectMethodCallExpression = sourceMethodCall;
+                    source = sourceMethodCall.Arguments[0];
+                }
+
+                var asQueryableMethodCallExpression = default(MethodCallExpression);
+                if (source is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } maybeAsQueryableMethodCall
+                    && maybeAsQueryableMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+                {
+                    asQueryableMethodCallExpression = maybeAsQueryableMethodCall;
+                    source = maybeAsQueryableMethodCall.Arguments[0];
+                }
+
+                source = Visit(source);
+
+                if (source is JsonQueryExpression jsonQueryExpression)
+                {
+                    var collectionIndexExpression = _sqlTranslator.Translate(methodCallExpression.Arguments[1]!);
+                    if (collectionIndexExpression == null)
+                    {
+                        // before we return from failed translation
+                        // we need to bring back methods we may have trimmed above (AsQueryable/Select)
+                        // we translate what we can (source) and rest is the original tree
+                        // so that sql translation can fail later (as the tree will be in unexpected shape)
+                        return PrepareFailedTranslationResult(
+                            source,
+                            asQueryableMethodCallExpression,
+                            selectMethodCallExpression,
+                            methodCallExpression);
+                    }
+
+                    var newJsonQuery = jsonQueryExpression.BindCollectionElement(collectionIndexExpression!);
+
+                    var entityShaper = new RelationalEntityShaperExpression(
+                        jsonQueryExpression.EntityType,
+                        newJsonQuery,
+                        nullable: true);
+
+                    if (selectMethodCallExpression == null)
+                    {
+                        return entityShaper;
+                    }
+
+                    var selectorLambda = selectMethodCallExpression.Arguments[1].UnwrapLambdaFromQuote();
+
+                    // short circuit what we know is wrong without a closer look
+                    if (selectorLambda.Body is NewExpression or MemberInitExpression)
+                    {
+                        return PrepareFailedTranslationResult(
+                            source,
+                            asQueryableMethodCallExpression,
+                            selectMethodCallExpression,
+                            methodCallExpression);
+                    }
+
+                    var replaced = ReplacingExpressionVisitor.Replace(selectorLambda.Parameters[0], entityShaper, selectorLambda.Body);
+                    var result = Visit(replaced);
+
+                    return IsValidSelectorForJsonArrayElementAccess(result, newJsonQuery)
+                        ? result
+                        : PrepareFailedTranslationResult(
+                            source,
+                            asQueryableMethodCallExpression,
+                            selectMethodCallExpression,
+                            methodCallExpression);
+                }
+            }
+
             return base.VisitMethodCall(methodCallExpression);
+
+            static Expression PrepareFailedTranslationResult(
+                Expression source,
+                MethodCallExpression? asQueryable,
+                MethodCallExpression? select,
+                MethodCallExpression elementAt)
+            {
+                var result = source;
+                if (asQueryable != null)
+                {
+                    result = asQueryable.Update(null, new[] { result });
+                }
+
+                if (select != null)
+                {
+                    result = select.Update(null, new[] { result, select.Arguments[1] });
+                }
+
+                return elementAt.Update(null, new[] { result, elementAt.Arguments[1] });
+            }
+
+            static bool IsValidSelectorForJsonArrayElementAccess(Expression expression, JsonQueryExpression baselineJsonQuery)
+            {
+                // JSON_QUERY($[0]).Property
+                if (expression is MemberExpression 
+                    {
+                        Expression: RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
+                    } memberExpression
+                    && JsonQueryExpressionIsRootedIn(memberJqe, baselineJsonQuery))
+                {
+                    return true;
+                }
+
+                // MCNE(JSON_QUERY($[0].Collection))
+                // MCNE(JSON_QUERY($[0].Collection).AsQueryable())
+                // MCNE(JSON_QUERY($[0].Collection).Select(xx => xx.Includes())
+                // MCNE(JSON_QUERY($[0].Collection).AsQueryable().Select(xx => xx.Includes())
+                if (expression is MaterializeCollectionNavigationExpression mcne)
+                {
+                    var subquery = mcne.Subquery;
+                    if (subquery is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } selectMethodCall
+                        && selectMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select
+                        && selectMethodCall.Arguments[1].UnwrapLambdaFromQuote() is LambdaExpression selectorLambda
+                        && StripIncludes(selectorLambda.Body) == selectorLambda.Parameters[0])
+                    {
+                        subquery = selectMethodCall.Arguments[0];
+                    }
+
+                    if (subquery is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } asQueryableMethodCall
+                        && asQueryableMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+                    {
+                        subquery = asQueryableMethodCall.Arguments[0];
+                    }
+
+                    if (subquery is JsonQueryExpression subqueryJqe
+                        && JsonQueryExpressionIsRootedIn(subqueryJqe, baselineJsonQuery))
+                    {
+                        return true;
+                    }
+                }
+
+                // JSON_QUERY($[0]).Includes()
+                // JSON_QUERY($[0].Reference).Includes()
+                // JSON_QUERY($[0])
+                // JSON_QUERY($[0].Reference)
+                expression = StripIncludes(expression);
+                if (expression is RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression reseJqe }
+                    && JsonQueryExpressionIsRootedIn(reseJqe, baselineJsonQuery))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            static bool JsonQueryExpressionIsRootedIn(JsonQueryExpression expressionToTest, JsonQueryExpression root)
+                => expressionToTest.JsonColumn == root.JsonColumn
+                    && expressionToTest.Path.Count >= root.Path.Count
+                    && expressionToTest.Path.Take(root.Path.Count).SequenceEqual(root.Path);
+
+            static Expression StripIncludes(Expression expression)
+            {
+                var current = expression;
+                while (current is IncludeExpression includeExpression)
+                {
+                    current = includeExpression.EntityExpression;
+                }
+
+                return current;
+            }
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)

@@ -1408,6 +1408,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("PendingAmbientTransaction");
 
         /// <summary>
+        ///     The query projects an entity mapped to JSON and accesses a JSON collection element. Such queries require 'AsNoTracking' option, even when the parent entity is projected.
+        /// </summary>
+        public static string ProjectingJsonCollectionElementRequiresNoTracking
+            => GetString("ProjectingJsonCollectionElementRequiresNoTracking");
+
+        /// <summary>
         ///     Unable to translate set operations when both sides don't assign values to the same properties in the nominal type. Please make sure that the same properties are included on both sides, and consider assigning default values if a property doesn't require a specific value.
         /// </summary>
         public static string ProjectionMappingCountMismatch

@@ -1529,15 +1529,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         remappedConstant = Constant(newDictionary);
                     }
-                    else if (constantValue is ValueTuple<int, List<ValueTuple<IProperty, int>>, string[]> tuple)
+                    else if (constantValue is ValueTuple<int, List<(IProperty, int)>, string[], int> tuple)
                     {
-                        var newList = new List<ValueTuple<IProperty, int>>();
+                        var newList = new List<(IProperty, int)>();
                         foreach (var item in tuple.Item2)
                         {
                             newList.Add((item.Item1, projectionIndexMap[item.Item2]));
                         }
 
-                        remappedConstant = Constant((projectionIndexMap[tuple.Item1], newList, tuple.Item3));
+                        remappedConstant = Constant((projectionIndexMap[tuple.Item1], newList, tuple.Item3, tuple.Item4));
                     }
                     else
                     {
@@ -1590,7 +1590,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var ordered = projections
                     .OrderBy(x => $"{x.JsonColumn.TableAlias}.{x.JsonColumn.Name}")
-                    .ThenBy(x => x.Path.Count);
+                    .ThenBy(x => x.Path.Count)
+                    .ThenBy(x => x.Path[^1].ArrayIndex != null);
 
                 var needed = new List<JsonScalarExpression>();
                 foreach (var orderedElement in ordered)
@@ -1638,12 +1639,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         ConstantExpression AddJsonProjection(JsonQueryExpression jsonQueryExpression, JsonScalarExpression jsonScalarToAdd)
         {
-            var additionalPath = new string[0];
+            var additionalPath = Array.Empty<string>();
 
-            // this will be more tricky once we support more complicated json path options
+            // TODO: change this when implementing #29513
+            // deduplication doesn't happen currently if the additional path contains indexes
+            Debug.Assert(jsonQueryExpression.Path.Skip(jsonScalarToAdd.Path.Count).All(x => x.PropertyName != null));
+
             additionalPath = jsonQueryExpression.Path
                 .Skip(jsonScalarToAdd.Path.Count)
-                .Select(x => x.Key)
+                .Select(x => x.PropertyName!)
                 .ToArray();
 
             var jsonColumnIndex = AddToProjection(jsonScalarToAdd);
@@ -1656,7 +1660,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                 keyInfo.Add((keyProperty, AddToProjection(keyColumn)));
             }
 
-            return Constant((jsonColumnIndex, keyInfo, additionalPath));
+            var specifiedCollectionIndexesCount = jsonScalarToAdd.Path.Count(x => x.ArrayIndex != null);
+
+            return Constant((jsonColumnIndex, keyInfo, additionalPath, specifiedCollectionIndexesCount));
         }
 
         static IReadOnlyList<IProperty> GetMappedKeyProperties(IKey key)
@@ -1697,7 +1703,15 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return false;
             }
 
-            return sourcePath.SequenceEqual(targetPath.Take(sourcePath.Count));
+            if (!sourcePath.SequenceEqual(targetPath.Take(sourcePath.Count)))
+            {
+                return false;
+            }
+
+            // we can only perform deduplication if there additional path doesn't contain any collection indexes
+            // collection indexes can only be part of the source path
+            // see issue #29513
+            return targetPath.Skip(sourcePath.Count).All(x => x.ArrayIndex == null);
         }
     }
 

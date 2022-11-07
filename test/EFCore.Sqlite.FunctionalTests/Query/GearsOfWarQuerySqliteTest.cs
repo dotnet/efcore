@@ -9433,6 +9433,17 @@ WHERE (
 """);
     }
 
+    public override async Task Using_indexer_on_byte_array_and_string_in_projection(bool async)
+    {
+        await base.Using_indexer_on_byte_array_and_string_in_projection(async);
+
+        AssertSql(
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Name"
+FROM "Squads" AS "s"
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

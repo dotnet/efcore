@@ -43,4 +43,56 @@ public class JsonQueryAdHocSqlServerTest : JsonQueryAdHocTestBase
         ctx.Database.ExecuteSqlRaw(@"INSERT INTO [Entities] ([Id], [Reference], [Collection])
 VALUES(3, N'{{ ""NonNullableScalar"" : 30 }}', N'[{{ ""NonNullableScalar"" : 10001 }}]')");
     }
+
+    protected override void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx)
+    {
+        var entity1 = new MyEntityArrayOfPrimitives
+        {
+            Id = 1,
+            Reference = new MyJsonEntityArrayOfPrimitives
+            {
+                IntArray = new int[] { 1, 2, 3 },
+                ListOfString = new List<string> { "Foo", "Bar", "Baz" }
+            },
+            Collection = new List<MyJsonEntityArrayOfPrimitives>
+            {
+                new MyJsonEntityArrayOfPrimitives
+                {
+                    IntArray = new int[] { 111, 112, 113 },
+                    ListOfString = new List<string> { "Foo11", "Bar11" }
+                },
+                new MyJsonEntityArrayOfPrimitives
+                {
+                    IntArray = new int[] { 211, 212, 213 },
+                    ListOfString = new List<string> { "Foo12", "Bar12" }
+                },
+            }
+        };
+
+        var entity2 = new MyEntityArrayOfPrimitives
+        {
+            Id = 2,
+            Reference = new MyJsonEntityArrayOfPrimitives
+            {
+                IntArray = new int[] { 10, 20, 30 },
+                ListOfString = new List<string> { "A", "B", "C" }
+            },
+            Collection = new List<MyJsonEntityArrayOfPrimitives>
+            {
+                new MyJsonEntityArrayOfPrimitives
+                {
+                    IntArray = new int[] { 110, 120, 130 },
+                    ListOfString = new List<string> { "A1", "Z1" }
+                },
+                new MyJsonEntityArrayOfPrimitives
+                {
+                    IntArray = new int[] { 210, 220, 230 },
+                    ListOfString = new List<string> { "A2", "Z2" }
+                },
+            }
+        };
+
+        ctx.Entities.AddRange(entity1, entity2);
+        ctx.SaveChanges();
+    }
 }

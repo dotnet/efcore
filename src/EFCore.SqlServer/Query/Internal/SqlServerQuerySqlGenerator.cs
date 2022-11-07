@@ -321,7 +321,36 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         Visit(jsonScalarExpression.JsonColumn);
 
-        Sql.Append($",'{string.Join("", jsonScalarExpression.Path.Select(e => e.ToString()))}')");
+        Sql.Append(",'");
+        foreach (var pathSegment in jsonScalarExpression.Path)
+        {
+            if (pathSegment.PropertyName != null)
+            {
+                Sql.Append((pathSegment.PropertyName == "$" ? "" : ".") + pathSegment.PropertyName);
+            }
+
+            if (pathSegment.ArrayIndex != null)
+            {
+                Sql.Append("[");
+
+                if (pathSegment.ArrayIndex is SqlConstantExpression)
+                {
+                    Visit(pathSegment.ArrayIndex);
+                }
+                else
+                {
+                    Sql.Append("' + CAST(");
+                    Visit(pathSegment.ArrayIndex);
+                    Sql.Append(" AS ");
+                    Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
+                    Sql.Append(") + '");
+                }
+
+                Sql.Append("]");
+            }
+        }
+
+        Sql.Append("')");
 
         if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
         {

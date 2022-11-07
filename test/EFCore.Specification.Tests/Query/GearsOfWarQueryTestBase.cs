@@ -8224,6 +8224,20 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAt(s.Id).Nickname == "Cole Train"),
             ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAtOrDefault(s.Id).Nickname == "Cole Train"));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Using_indexer_on_byte_array_and_string_in_projection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Squad>().Select(x => new { x.Id, ByteArray = x.Banner[0], String = x.Name[1] }),
+            elementSorter: e => e.Id,
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id, a.Id);
+                Assert.Equal(e.ByteArray, a.ByteArray);
+                Assert.Equal(e.String, a.String);
+            });
+
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();
 
