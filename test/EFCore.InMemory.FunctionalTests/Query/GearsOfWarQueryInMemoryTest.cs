@@ -94,4 +94,19 @@ public class GearsOfWarQueryInMemoryTest : GearsOfWarQueryTestBase<GearsOfWarQue
         // Null protection. Issue #13721.
         => Assert.ThrowsAsync<InvalidOperationException>(
             () => base.Null_semantics_is_correctly_applied_for_function_comparisons_that_take_arguments_from_optional_navigation(async));
+
+    public override Task ElementAt_basic_with_OrderBy(bool async)
+        => Task.CompletedTask;
+
+    public override Task ElementAtOrDefault_basic_with_OrderBy(bool async)
+        => Task.CompletedTask;
+
+    public override Task ElementAtOrDefault_basic_with_OrderBy_parameter(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_subquery_with_ElementAtOrDefault_equality_to_null_with_composite_key(bool async)
+        => Task.CompletedTask;
+
+    public override Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
+        => Task.CompletedTask;
 }

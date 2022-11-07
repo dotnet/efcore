@@ -35,9 +35,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         QueryableMethods.LastWithPredicate,
         QueryableMethods.LastWithoutPredicate,
         QueryableMethods.LastOrDefaultWithPredicate,
-        QueryableMethods.LastOrDefaultWithoutPredicate
-        //QueryableMethodProvider.ElementAtMethodInfo,
-        //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
+        QueryableMethods.LastOrDefaultWithoutPredicate,
+        QueryableMethods.ElementAt,
+        QueryableMethods.ElementAtOrDefault
     };
 
     private static readonly List<MethodInfo> PredicateAggregateMethodInfos = new()
@@ -346,10 +346,26 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 && SingleResultMethodInfos.Contains(nonNullMethodCallExpression.Method.GetGenericMethodDefinition()))
             {
                 var source = nonNullMethodCallExpression.Arguments[0];
-                if (nonNullMethodCallExpression.Arguments.Count == 2)
+                var genericMethod = nonNullMethodCallExpression.Method.GetGenericMethodDefinition();
+                if (genericMethod == QueryableMethods.FirstWithPredicate
+                    || genericMethod == QueryableMethods.FirstOrDefaultWithPredicate
+                    || genericMethod == QueryableMethods.SingleWithPredicate
+                    || genericMethod == QueryableMethods.SingleOrDefaultWithPredicate
+                    || genericMethod == QueryableMethods.LastWithPredicate
+                    || genericMethod == QueryableMethods.LastOrDefaultWithPredicate)
                 {
                     source = Expression.Call(
                         QueryableMethods.Where.MakeGenericMethod(source.Type.GetSequenceType()),
+                        source,
+                        nonNullMethodCallExpression.Arguments[1]);
+                }
+                else if ((genericMethod == QueryableMethods.ElementAt || genericMethod == QueryableMethods.ElementAtOrDefault)
+                    && (nonNullMethodCallExpression.Arguments[1] is not ConstantExpression constantIndex
+                        || constantIndex.Value is not int constantInt
+                        || constantInt != 0))
+                {
+                    source = Expression.Call(
+                        QueryableMethods.Skip.MakeGenericMethod(source.Type.GetSequenceType()),
                         source,
                         nonNullMethodCallExpression.Arguments[1]);
                 }

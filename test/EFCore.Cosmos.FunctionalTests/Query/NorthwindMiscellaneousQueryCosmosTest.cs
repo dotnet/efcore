@@ -4584,6 +4584,27 @@ WHERE (c["Discriminator"] = "Customer")
         AssertSql();
     }
 
+    public override async Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(bool async)
+    {
+        await AssertTranslationFailed(() => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(async));
+
+        AssertSql();
+    }
+
+    public override async Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(bool async)
+    {
+        await AssertTranslationFailed(() => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(async));
+
+        AssertSql();
+    }
+
+    public override async Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(bool async)
+    {
+        await AssertTranslationFailed(() => base.Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(async));
+
+        AssertSql();
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

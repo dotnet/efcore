@@ -8181,6 +8181,49 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             async,
             ss => ss.Set<Gear>().Where(s => s.Weapons.OrderBy(e => e.Name).FirstOrDefault() == null));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAt_basic_with_OrderBy(bool async)
+        => AssertElementAt(
+            async,
+            ss => ss.Set<Gear>().OrderBy(g => g.FullName),
+            () => 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAtOrDefault_basic_with_OrderBy(bool async)
+        => AssertElementAtOrDefault(
+            async,
+            ss => ss.Set<Gear>().OrderBy(g => g.FullName),
+            () => 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAtOrDefault_basic_with_OrderBy_parameter(bool async)
+    {
+        var prm = 2;
+
+        return AssertElementAtOrDefault(
+            async,
+            ss => ss.Set<Gear>().OrderBy(g => g.FullName),
+            () => prm);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_subquery_with_ElementAtOrDefault_equality_to_null_with_composite_key(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(e => e.Nickname).ElementAtOrDefault(2) == null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAt(s.Id).Nickname == "Cole Train"),
+            ss => ss.Set<Squad>().Where(s => s.Members.OrderBy(m => m.Nickname).ElementAtOrDefault(s.Id).Nickname == "Cole Train"));
+
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();
 

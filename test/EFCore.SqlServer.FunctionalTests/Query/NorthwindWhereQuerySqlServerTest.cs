@@ -2799,6 +2799,40 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task ElementAt_over_custom_projection_compared_to_not_null(bool async)
+    {
+        await base.ElementAt_over_custom_projection_compared_to_not_null(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY (SELECT 1)
+    OFFSET 3 ROWS)
+""");
+    }
+
+    public override async Task ElementAtOrDefault_over_custom_projection_compared_to_null(bool async)
+    {
+        await base.ElementAtOrDefault_over_custom_projection_compared_to_null(async);
+
+        AssertSql(
+"""
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Orders] AS [o]
+    WHERE [c].[CustomerID] = [o].[CustomerID]
+    ORDER BY (SELECT 1)
+    OFFSET 7 ROWS))
+""");
+    }
+
     public override async Task Single_over_custom_projection_compared_to_null(bool async)
     {
         await base.Single_over_custom_projection_compared_to_null(async);

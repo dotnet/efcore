@@ -20,7 +20,11 @@ public abstract class
                 () => base.SelectMany_with_navigation_and_Distinct_projecting_columns_including_join_key(async))).Message);
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
-        => new SplitQueryRewritingExpressionVisitor().Visit(serverQueryExpression);
+    {
+        serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
+
+        return new SplitQueryRewritingExpressionVisitor().Visit(serverQueryExpression);
+    }
 
     private class SplitQueryRewritingExpressionVisitor : ExpressionVisitor
     {

@@ -20,6 +20,8 @@ public class TemporalComplexNavigationsCollectionsQuerySqlServerTest
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
     {
+        serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
+
         var temporalEntityTypes = new List<Type>
         {
             typeof(Level1),

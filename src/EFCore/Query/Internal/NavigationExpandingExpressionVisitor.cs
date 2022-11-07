@@ -433,6 +433,16 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                             methodCallExpression.Arguments[1].UnwrapLambdaFromQuote(),
                             methodCallExpression.Type);
 
+                    case nameof(Queryable.ElementAt)
+                        when genericMethod == QueryableMethods.ElementAt:
+                    case nameof(Queryable.ElementAtOrDefault)
+                        when genericMethod == QueryableMethods.ElementAtOrDefault:
+                        return ProcessElementAt(
+                            source,
+                            genericMethod,
+                            methodCallExpression.Arguments[1],
+                            methodCallExpression.Type);
+
                     case nameof(Queryable.Join)
                         when genericMethod == QueryableMethods.Join:
                     {
@@ -978,6 +988,22 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         }
 
         source.ConvertToSingleResult(genericMethod);
+
+        return source;
+    }
+
+    private NavigationExpansionExpression ProcessElementAt(
+        NavigationExpansionExpression source,
+        MethodInfo genericMethod,
+        Expression index,
+        Type returnType)
+    {
+        if (source.PendingSelector.Type != returnType)
+        {
+            source.ApplySelector(Expression.Convert(source.PendingSelector, returnType));
+        }
+
+        source.ConvertToSingleResult(genericMethod, index);
 
         return source;
     }

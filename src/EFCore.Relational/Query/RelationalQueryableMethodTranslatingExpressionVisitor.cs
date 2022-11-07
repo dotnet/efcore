@@ -395,7 +395,24 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         ShapedQueryExpression source,
         Expression index,
         bool returnDefault)
-        => null;
+    {
+        var selectExpression = (SelectExpression)source.QueryExpression;
+        var translation = TranslateExpression(index);
+        if (translation == null)
+        {
+            return null;
+        }
+
+        if (selectExpression.Orderings.Count == 0)
+        {
+            _queryCompilationContext.Logger.RowLimitingOperationWithoutOrderByWarning();
+        }
+
+        selectExpression.ApplyOffset(translation);
+        selectExpression.ApplyLimit(TranslateExpression(Expression.Constant(1))!);
+
+        return source;
+    }
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
