@@ -429,6 +429,21 @@ public abstract partial class ModelBuilderTest
             Assert.Null(model["foo"]);
         }
 
+		[ConditionalFact]
+        public virtual void Conventions_can_be_removed_by_generic_method()
+		{
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Conventions.Add(s => new TestConvention());
+                    c.Conventions.Remove<TestConvention>();
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Null(model["foo"]);
+        }
+
         [ConditionalFact]
         public virtual void Conventions_can_be_replaced()
         {
