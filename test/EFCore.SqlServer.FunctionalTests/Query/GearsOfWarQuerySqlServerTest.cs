@@ -4095,6 +4095,15 @@ ORDER BY [g].[SquadId], [g].[Nickname]
 """);
     }
 
+    public override async Task ToString_string_property_projection(bool async)
+    {
+        await base.ToString_string_property_projection(async);
+
+        AssertSql(@"SELECT [w].[Name]
+FROM [Weapons] AS [w]");
+    }
+
+
     public override async Task ToString_boolean_property_non_nullable(bool async)
     {
         await base.ToString_boolean_property_non_nullable(async);
