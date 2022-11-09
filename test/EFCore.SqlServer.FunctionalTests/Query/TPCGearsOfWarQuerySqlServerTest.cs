@@ -12499,8 +12499,11 @@ ORDER BY [t].[Id], [t2].[Nickname], [t2].[FullName], [t2].[HasSoulPatch]
     {
         await base.ToString_string_property_projection(async);
 
-        AssertSql(@"SELECT [w].[Name]
-FROM [Weapons] AS [w]");
+        AssertSql(
+"""
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+""");
     }
 
     public override async Task ToString_boolean_property_non_nullable(bool async)

@@ -4099,8 +4099,11 @@ ORDER BY [g].[SquadId], [g].[Nickname]
     {
         await base.ToString_string_property_projection(async);
 
-        AssertSql(@"SELECT [w].[Name]
-FROM [Weapons] AS [w]");
+        AssertSql(
+"""
+SELECT [w].[Name]
+FROM [Weapons] AS [w]
+""");
     }
 
 

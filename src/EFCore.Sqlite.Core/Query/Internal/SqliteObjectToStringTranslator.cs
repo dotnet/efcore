@@ -66,7 +66,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
             return null;
         }
 
-        if (instance.TypeMapping is not null && instance.TypeMapping.ClrType == typeof(string))
+        if (instance.TypeMapping?.ClrType == typeof(string))
         {
             return instance;
         }
