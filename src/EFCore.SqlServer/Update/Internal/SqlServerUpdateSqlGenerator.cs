@@ -767,12 +767,15 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
     private static string GetTypeNameForCopy(IProperty property)
     {
         var typeName = property.GetColumnType();
+        var collation = property[RelationalAnnotationNames.Collation]?.ToString();
 
-        return property.ClrType == typeof(byte[])
+        typeName = property.ClrType == typeof(byte[])
             && (typeName.Equals("rowversion", StringComparison.OrdinalIgnoreCase)
                 || typeName.Equals("timestamp", StringComparison.OrdinalIgnoreCase))
                 ? property.IsNullable ? "varbinary(8)" : "binary(8)"
                 : typeName;
+
+        return collation is not null ? $"{typeName} COLLATE {collation}" : typeName;
     }
 
     /// <summary>

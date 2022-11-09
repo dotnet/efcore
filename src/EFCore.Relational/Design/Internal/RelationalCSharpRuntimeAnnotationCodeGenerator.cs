@@ -570,7 +570,6 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
         {
             annotations.Remove(RelationalAnnotationNames.ColumnOrder);
             annotations.Remove(RelationalAnnotationNames.Comment);
-            annotations.Remove(RelationalAnnotationNames.Collation);
 
             if (annotations.TryGetAndRemove(
                     RelationalAnnotationNames.RelationalOverrides,

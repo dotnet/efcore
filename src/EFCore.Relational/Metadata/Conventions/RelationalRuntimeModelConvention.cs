@@ -354,7 +354,6 @@ public class RelationalRuntimeModelConvention : RuntimeModelConvention
         {
             annotations.Remove(RelationalAnnotationNames.ColumnOrder);
             annotations.Remove(RelationalAnnotationNames.Comment);
-            annotations.Remove(RelationalAnnotationNames.Collation);
 
             if (annotations.TryGetValue(RelationalAnnotationNames.RelationalOverrides, out var relationalOverrides))
             {

@@ -1250,9 +1250,7 @@ public static class RelationalPropertyExtensions
     /// <param name="property">The property.</param>
     /// <returns>The collation for the column this property is mapped to.</returns>
     public static string? GetCollation(this IReadOnlyProperty property)
-        => (property is RuntimeProperty)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)property.FindAnnotation(RelationalAnnotationNames.Collation)?.Value;
+        => (string?)property.FindAnnotation(RelationalAnnotationNames.Collation)?.Value;
 
     /// <summary>
     ///     Returns the collation to be used for the column.
@@ -1262,11 +1260,6 @@ public static class RelationalPropertyExtensions
     /// <returns>The collation for the column this property is mapped to.</returns>
     public static string? GetCollation(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        if (property is RuntimeProperty)
-        {
-            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-        }
-
         var annotation = property.FindAnnotation(RelationalAnnotationNames.Collation);
         return annotation != null
             ? (string?)annotation.Value
