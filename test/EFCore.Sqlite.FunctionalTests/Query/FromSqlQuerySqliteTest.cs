@@ -13,22 +13,18 @@ public class FromSqlQuerySqliteTest : FromSqlQueryTestBase<NorthwindQuerySqliteF
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
-    public override async Task<string> FromSqlRaw_queryable_composed(bool async)
+    public override async Task FromSqlRaw_queryable_composed(bool async)
     {
-        var queryString = await base.FromSqlRaw_queryable_composed(async);
+        await base.FromSqlRaw_queryable_composed(async);
 
-        var expected =
+        AssertSql(
 """
 SELECT "m"."CustomerID", "m"."Address", "m"."City", "m"."CompanyName", "m"."ContactName", "m"."ContactTitle", "m"."Country", "m"."Fax", "m"."Phone", "m"."PostalCode", "m"."Region"
 FROM (
     SELECT * FROM "Customers"
 ) AS "m"
 WHERE 'z' = '' OR instr("m"."ContactName", 'z') > 0
-""";
-
-        Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
-
-        return queryString;
+""");
     }
 
     public override async Task<string> FromSqlRaw_queryable_with_parameters_and_closure(bool async)

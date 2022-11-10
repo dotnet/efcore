@@ -43,18 +43,9 @@ SELECT "Region", "PostalCode", "PostalCode" AS "Foo", "Phone", "Fax", "CustomerI
 """);
     }
 
-    public override async Task<string> FromSqlRaw_queryable_composed(bool async)
+    public override async Task FromSqlRaw_queryable_composed(bool async)
     {
-        var queryString = await base.FromSqlRaw_queryable_composed(async);
-
-        var expected =
-"""
-SELECT [m].[CustomerID], [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[Fax], [m].[Phone], [m].[PostalCode], [m].[Region]
-FROM (
-    SELECT * FROM "Customers"
-) AS [m]
-WHERE [m].[ContactName] LIKE N'%z%'
-""";
+        await base.FromSqlRaw_queryable_composed(async);
 
         AssertSql(
 """
@@ -64,9 +55,6 @@ FROM (
 ) AS [m]
 WHERE [m].[ContactName] LIKE N'%z%'
 """);
-        Assert.Equal(expected, queryString, ignoreLineEndingDifferences: true);
-
-        return null;
     }
 
     public override async Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
