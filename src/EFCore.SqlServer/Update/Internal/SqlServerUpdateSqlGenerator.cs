@@ -775,7 +775,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
                 ? property.IsNullable ? "varbinary(8)" : "binary(8)"
                 : typeName;
 
-        return collation is not null ? $"{typeName} COLLATE {collation}" : typeName;
+        return collation is null ? typeName : $"{typeName} COLLATE {collation}";
     }
 
     /// <summary>
