@@ -67,6 +67,11 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
             {
                 annotations[SqlServerAnnotationNames.ValueGenerationStrategy] = property.GetValueGenerationStrategy();
             }
+
+            if (!annotations.ContainsKey(RelationalAnnotationNames.Collation))
+            {
+                annotations[RelationalAnnotationNames.Collation] = property.GetCollation();
+            }
         }
     }
 

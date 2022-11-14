@@ -58,6 +58,11 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             {
                 annotations[SqlServerAnnotationNames.ValueGenerationStrategy] = property.GetValueGenerationStrategy();
             }
+
+            if (!annotations.ContainsKey(RelationalAnnotationNames.Collation))
+            {
+                annotations[RelationalAnnotationNames.Collation] = property.GetCollation();
+            }
         }
 
         base.Generate(property, parameters);

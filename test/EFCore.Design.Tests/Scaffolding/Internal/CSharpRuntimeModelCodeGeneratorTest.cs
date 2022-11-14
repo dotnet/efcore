@@ -1290,7 +1290,6 @@ namespace TestNamespace
             overrides0.Add(StoreObjectIdentifier.Table(""Details"", null), detailsDetails);
             details.AddAnnotation(""Relational:RelationalOverrides"", overrides0);
 
-            details.AddAnnotation(""Relational:Collation"", ""Latin1_General_CI_AI"");
             details.AddAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
 
             var number = runtimeEntityType.AddProperty(
@@ -1904,7 +1903,7 @@ namespace TestNamespace
                     Assert.Equal(
                         CoreStrings.RuntimeModelMissingData,
                         Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
-                    Assert.Equal("Latin1_General_CI_AI", detailsProperty.GetCollation());
+                    Assert.Null(detailsProperty[RelationalAnnotationNames.Collation]);
 
                     var ownedFragment = referenceOwnedType.GetMappingFragments().Single();
                     Assert.Equal(nameof(OwnedType.Details), detailsProperty.GetColumnName(ownedFragment.StoreObject));
