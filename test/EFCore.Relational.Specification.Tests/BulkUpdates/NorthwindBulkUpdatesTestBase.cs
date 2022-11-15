@@ -1075,6 +1075,19 @@ WHERE [CustomerID] LIKE 'A%'"))
                     }
                 }));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_two_inner_joins(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss
+                .Set<OrderDetail>()
+                .Where(od => od.Product.Discontinued && od.Order.OrderDate > new DateTime(1990, 1, 1)),
+            e => e,
+            s => s.SetProperty(od => od.Quantity, 1),
+            rowsAffectedCount: 228,
+            (b, a) => Assert.All(a, od => Assert.Equal(1, od.Quantity)));
+
     protected string NormalizeDelimitersInRawString(string sql)
         => Fixture.TestStore.NormalizeDelimitersInRawString(sql);
 

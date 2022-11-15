@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
@@ -1365,6 +1366,17 @@ SET "City" = CAST(CAST(strftime('%Y', (
     ORDER BY "o"."OrderDate" DESC
     LIMIT 1)) AS INTEGER) AS TEXT)
 WHERE "c"."CustomerID" LIKE 'F%'
+""");
+    }
+
+    [ConditionalTheory(Skip = "Issue#28886")]
+    public override async Task Update_with_two_inner_joins(bool async)
+    {
+        await base.Update_with_two_inner_joins(async);
+
+        AssertExecuteUpdateSql(
+"""
+
 """);
     }
 
