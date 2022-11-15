@@ -841,6 +841,55 @@ FROM [JsonEntitiesAllTypes] AS [j]
 """);
     }
 
+    public override async Task Json_boolean_predicate(bool async)
+    {
+        await base.Json_boolean_predicate(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) = CAST(1 AS bit)
+""");
+    }
+
+    public override async Task Json_boolean_predicate_negated(bool async)
+    {
+        await base.Json_boolean_predicate_negated(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) = CAST(0 AS bit)
+""");
+    }
+
+    public override async Task Json_boolean_projection(bool async)
+    {
+        await base.Json_boolean_projection(async);
+
+        AssertSql(
+"""
+SELECT CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit)
+FROM [JsonEntitiesAllTypes] AS [j]
+""");
+    }
+
+    public override async Task Json_boolean_projection_negated(bool async)
+    {
+        await base.Json_boolean_projection_negated(async);
+
+        AssertSql(
+"""
+SELECT CASE
+    WHEN CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) = CAST(0 AS bit) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+FROM [JsonEntitiesAllTypes] AS [j]
+""");
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public override async Task FromSql_on_entity_with_json_basic(bool async)
