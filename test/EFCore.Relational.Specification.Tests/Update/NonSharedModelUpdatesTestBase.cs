@@ -110,6 +110,41 @@ public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
         public Author? Author { get; set; }
     }
 
+    [ConditionalTheory] // Issue #29379
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new Blog { Name = "Blog2" });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                context.Add(new Blog { Name = "Blog1" });
+                context.Add(new Blog { Name = "Blog2" });
+                context.Add(new Blog { Name = "Blog3" });
+
+                var exception = async
+                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+                var entry = Assert.Single(exception.Entries);
+
+                Assert.Equal("Blog2", ((Blog)entry.Entity).Name);
+            });
+    }
+
+    public class Blog
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
+    }
+
     protected virtual void ExecuteWithStrategyInTransaction(
         ContextFactory<DbContext> contextFactory,
         Action<DbContext> testOperation,

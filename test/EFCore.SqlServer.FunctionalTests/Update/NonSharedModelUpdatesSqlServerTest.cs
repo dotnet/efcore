@@ -130,6 +130,67 @@ WHERE [Id] = @p5;
         public User User { get; set; }
     }
 
+    public override async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
+    {
+        // SQL Server's bulk insert support makes it impossible to populate the entry which caused the exception, since the position
+        // used to find the entry is returned as an output column, but the row is never received in case of an exception.
+        // Instead we make sure Entries contains all entries.
+        var contextFactory = await InitializeAsync<DbContext>(onModelCreating: mb => mb.Entity<Blog>().HasIndex(b => b.Name).IsUnique());
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                context.Add(new Blog { Name = "Blog2" });
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                context.Add(new Blog { Name = "Blog1" });
+                context.Add(new Blog { Name = "Blog2" });
+                context.Add(new Blog { Name = "Blog3" });
+
+                var exception = async
+                    ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
+                    : Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+
+                Assert.Collection(
+                    exception.Entries.Select(e => (Blog)e.Entity).OrderBy(b => b.Name),
+                    b => Assert.Equal("Blog1", b.Name),
+                    b => Assert.Equal("Blog2", b.Name),
+                    b => Assert.Equal("Blog3", b.Name));
+            });
+
+        AssertSql(
+"""
+@p0='Blog2' (Size = 450)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+INSERT INTO [Blog] ([Name])
+OUTPUT INSERTED.[Id]
+VALUES (@p0);
+""",
+        //
+"""
+@p0='Blog1' (Size = 450)
+@p1='Blog2' (Size = 450)
+@p2='Blog3' (Size = 450)
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+MERGE [Blog] USING (
+VALUES (@p0, 0),
+(@p1, 1),
+(@p2, 2)) AS i ([Name], _Position) ON 1=0
+WHEN NOT MATCHED THEN
+INSERT ([Name])
+VALUES (i.[Name])
+OUTPUT INSERTED.[Id], i._Position;
+""");
+    }
+
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 

@@ -1234,12 +1234,7 @@ END");
         // inner exception for details.
         // SqlException : Cannot insert explicit value for identity column in table
         // 'Blog' when IDENTITY_INSERT is set to OFF.
-        context.Database.CreateExecutionStrategy().Execute(
-            context, c =>
-            {
-                var updateException = Assert.Throws<DbUpdateException>(() => c.SaveChanges());
-                Assert.Single(updateException.Entries);
-            });
+        context.Database.CreateExecutionStrategy().Execute(context, c => Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
     }
 
     [ConditionalFact]

@@ -270,43 +270,58 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
     /// <returns>The ordinal of the next result set that must be consumed.</returns>
     protected virtual int ConsumeResultSet(int startCommandIndex, RelationalDataReader reader)
     {
-        var commandIndex = startCommandIndex;
-        var rowsAffected = 0;
-        do
+        IReadOnlyModificationCommand? command = null;
+
+        try
         {
-            if (!reader.Read())
+
+            var commandIndex = startCommandIndex;
+            var rowsAffected = 0;
+            do
             {
-                var expectedRowsAffected = rowsAffected + 1;
-                while (++commandIndex < ResultSetMappings.Count
-                       && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
+                if (!reader.Read())
                 {
-                    expectedRowsAffected++;
+                    var expectedRowsAffected = rowsAffected + 1;
+                    while (++commandIndex < ResultSetMappings.Count
+                           && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
+                    {
+                        expectedRowsAffected++;
+                    }
+
+                    ThrowAggregateUpdateConcurrencyException(reader, commandIndex, expectedRowsAffected, rowsAffected);
+                }
+                else
+                {
+                    var resultSetMapping = ResultSetMappings[commandIndex];
+
+                    command = ModificationCommands[
+                        resultSetMapping.HasFlag(ResultSetMapping.IsPositionalResultMappingEnabled)
+                            ? startCommandIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
+                            : commandIndex];
+
+                    Check.DebugAssert(
+                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
+                        "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+
+                    command.PropagateResults(reader);
+
+                    command = null;
                 }
 
-                ThrowAggregateUpdateConcurrencyException(reader, commandIndex, expectedRowsAffected, rowsAffected);
+                rowsAffected++;
             }
-            else
-            {
-                var resultSetMapping = ResultSetMappings[commandIndex];
+            while (++commandIndex < ResultSetMappings.Count
+                   && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet));
 
-                var command = ModificationCommands[
-                    resultSetMapping.HasFlag(ResultSetMapping.IsPositionalResultMappingEnabled)
-                        ? startCommandIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
-                        : commandIndex];
-
-                Check.DebugAssert(
-                    !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                    "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
-
-                command.PropagateResults(reader);
-            }
-
-            rowsAffected++;
+            return commandIndex - 1;
         }
-        while (++commandIndex < ResultSetMappings.Count
-               && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet));
-
-        return commandIndex - 1;
+        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        {
+            throw new DbUpdateException(
+                RelationalStrings.UpdateStoreException,
+                ex,
+                command?.Entries ?? ModificationCommands.SelectMany(c => c.Entries).ToList());
+        }
     }
 
     /// <summary>
@@ -326,44 +341,58 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
         RelationalDataReader reader,
         CancellationToken cancellationToken)
     {
-        var commandIndex = startCommandIndex;
-        var rowsAffected = 0;
-        do
+        IReadOnlyModificationCommand? command = null;
+
+        try
         {
-            if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            var commandIndex = startCommandIndex;
+            var rowsAffected = 0;
+            do
             {
-                var expectedRowsAffected = rowsAffected + 1;
-                while (++commandIndex < ResultSetMappings.Count
-                       && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
+                if (!await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                 {
-                    expectedRowsAffected++;
+                    var expectedRowsAffected = rowsAffected + 1;
+                    while (++commandIndex < ResultSetMappings.Count
+                           && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet))
+                    {
+                        expectedRowsAffected++;
+                    }
+
+                    await ThrowAggregateUpdateConcurrencyExceptionAsync(
+                        reader, commandIndex, expectedRowsAffected, rowsAffected, cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    var resultSetMapping = ResultSetMappings[commandIndex];
+
+                    command = ModificationCommands[
+                        resultSetMapping.HasFlag(ResultSetMapping.IsPositionalResultMappingEnabled)
+                            ? startCommandIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
+                            : commandIndex];
+
+                    Check.DebugAssert(
+                        !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
+                        "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
+
+                    command.PropagateResults(reader);
+
+                    command = null;
                 }
 
-                await ThrowAggregateUpdateConcurrencyExceptionAsync(
-                    reader, commandIndex, expectedRowsAffected, rowsAffected, cancellationToken).ConfigureAwait(false);
+                rowsAffected++;
             }
-            else
-            {
-                var resultSetMapping = ResultSetMappings[commandIndex];
+            while (++commandIndex < ResultSetMappings.Count
+                   && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet));
 
-                var command = ModificationCommands[
-                    resultSetMapping.HasFlag(ResultSetMapping.IsPositionalResultMappingEnabled)
-                        ? startCommandIndex + reader.DbDataReader.GetInt32(reader.DbDataReader.FieldCount - 1)
-                        : commandIndex];
-
-                Check.DebugAssert(
-                    !resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly),
-                    "!resultSetMapping.HasFlag(ResultSetMapping.ResultSetWithRowsAffectedOnly)");
-
-                command.PropagateResults(reader);
-            }
-
-            rowsAffected++;
+            return commandIndex - 1;
         }
-        while (++commandIndex < ResultSetMappings.Count
-               && ResultSetMappings[commandIndex - 1].HasFlag(ResultSetMapping.NotLastInResultSet));
-
-        return commandIndex - 1;
+        catch (Exception ex) when (ex is not DbUpdateException and not OperationCanceledException)
+        {
+            throw new DbUpdateException(
+                RelationalStrings.UpdateStoreException,
+                ex,
+                command?.Entries ?? ModificationCommands.SelectMany(c => c.Entries).ToList());
+        }
     }
 
     /// <summary>
