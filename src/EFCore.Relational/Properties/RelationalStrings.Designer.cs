@@ -280,6 +280,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 function);
 
         /// <summary>
+        ///     The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return null.
+        /// </summary>
+        public static string DbFunctionNullableValueReturnType(object? function, object? type)
+            => string.Format(
+                GetString("DbFunctionNullableValueReturnType", nameof(function), nameof(type)),
+                function, type);
+
+        /// <summary>
         ///     The default value SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.
         /// </summary>
         public static string DefaultValueSqlUnspecified(object? table, object? column)

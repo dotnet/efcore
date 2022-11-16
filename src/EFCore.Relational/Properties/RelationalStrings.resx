@@ -217,6 +217,9 @@
   <data name="DbFunctionNonScalarCustomTranslation" xml:space="preserve">
     <value>Cannot set custom translation on the DbFunction '{function}' since it is not a scalar function.</value>
   </data>
+  <data name="DbFunctionNullableValueReturnType" xml:space="preserve">
+    <value>The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return null.</value>
+  </data>
   <data name="DefaultValueSqlUnspecified" xml:space="preserve">
     <value>The default value SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
   </data>
