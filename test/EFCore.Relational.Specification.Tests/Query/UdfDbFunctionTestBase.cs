@@ -224,6 +224,9 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         public static string IdentityStringNonNullableFluent(string s)
             => throw new Exception();
 
+        public static int? NullableValueReturnType()
+            => throw new NotImplementedException();
+
         public string StringLength(string s)
             => throw new Exception();
 
@@ -308,6 +311,14 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                             typeMapping: null),
                         new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
                         negated: false,
+                        typeMapping: null));
+
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), Array.Empty<Type>()))
+                .HasTranslation(
+                    _ => new SqlFunctionExpression(
+                        "foo",
+                        nullable: true,
+                        typeof(int?),
                         typeMapping: null));
 
             //Instance
@@ -1008,6 +1019,23 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.Equal(4, query.Count);
     }
+
+#if RELEASE
+    [ConditionalFact]
+    public virtual void Scalar_Function_with_nullable_value_return_type_throws()
+    {
+        using var context = CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Customers.Where(c => c.Id == UDFSqlContext.NullableValueReturnType()).ToList());
+
+        Assert.Equal(
+            RelationalStrings.DbFunctionNullableValueReturnType(
+                "Microsoft.EntityFrameworkCore.Query.UdfDbFunctionTestBase<Microsoft.EntityFrameworkCore.Query.UdfDbFunctionSqlServerTests+SqlServer>+UDFSqlContext.NullableValueReturnType()",
+                "int?"),
+            exception.Message);
+    }
+#endif
 
     #endregion
 
