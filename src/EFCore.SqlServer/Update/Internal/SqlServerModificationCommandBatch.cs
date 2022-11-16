@@ -116,9 +116,11 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             ResultSetMappings.Add(resultSetMapping);
         }
 
-        if (resultSetMapping != ResultSetMapping.NoResults)
+        // All result mappings are marked as "not last", mark the last one as "last".
+        if (resultSetMapping.HasFlag(ResultSetMapping.HasResultRow))
         {
-            ResultSetMappings[^1] = ResultSetMapping.LastInResultSet;
+            ResultSetMappings[^1] &= ~ResultSetMapping.NotLastInResultSet;
+            ResultSetMappings[^1] |= ResultSetMapping.LastInResultSet;
         }
     }
 

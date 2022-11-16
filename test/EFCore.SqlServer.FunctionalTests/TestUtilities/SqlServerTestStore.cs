@@ -29,8 +29,12 @@ public class SqlServerTestStore : RelationalTestStore
     public static SqlServerTestStore GetOrCreateWithInitScript(string name, string initScript)
         => new(name, initScript: initScript);
 
-    public static SqlServerTestStore GetOrCreateWithScriptPath(string name, string scriptPath, bool? multipleActiveResultSets = null)
-        => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets);
+    public static SqlServerTestStore GetOrCreateWithScriptPath(
+        string name,
+        string scriptPath,
+        bool? multipleActiveResultSets = null,
+        bool shared = true)
+        => new(name, scriptPath: scriptPath, multipleActiveResultSets: multipleActiveResultSets, shared: shared);
 
     public static SqlServerTestStore Create(string name, bool useFileName = false)
         => new(name, useFileName, shared: false);
