@@ -25,6 +25,9 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
 
     private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
 
+    private static readonly bool QuirkEnabled29502
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29502", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -116,9 +119,21 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             ResultSetMappings.Add(resultSetMapping);
         }
 
-        if (resultSetMapping != ResultSetMapping.NoResults)
+        // All result mappings are marked as "not last", mark the last one as "last".
+        if (QuirkEnabled29502)
         {
-            ResultSetMappings[^1] = ResultSetMapping.LastInResultSet;
+            if (resultSetMapping != ResultSetMapping.NoResults)
+            {
+                ResultSetMappings[^1] = ResultSetMapping.LastInResultSet;
+            }
+        }
+        else
+        {
+            if (resultSetMapping.HasFlag(ResultSetMapping.HasResultRow))
+            {
+                ResultSetMappings[^1] &= ~ResultSetMapping.NotLastInResultSet;
+                ResultSetMappings[^1] |= ResultSetMapping.LastInResultSet;
+            }
         }
     }
 
