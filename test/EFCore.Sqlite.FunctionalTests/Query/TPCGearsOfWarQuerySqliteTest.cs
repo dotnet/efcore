@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -393,6 +394,32 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
     public override Task Where_TimeOnly_subtract_TimeOnly(bool async)
         // TimeSpan. Issue #18844.
         => AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
+
+    public override async Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<SqliteException>(
+            () => base.Where_subquery_with_ElementAt_using_column_as_index(async))).Message;
+
+        Assert.Equal("SQLite Error 1: 'no such column: s.Id'.", message);
+
+        AssertSql(
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE (
+    SELECT "t"."Nickname"
+    FROM (
+        SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", 'Gear' AS "Discriminator"
+        FROM "Gears" AS "g"
+        UNION ALL
+        SELECT "o"."Nickname", "o"."SquadId", "o"."AssignedCityName", "o"."CityOfBirthName", "o"."FullName", "o"."HasSoulPatch", "o"."LeaderNickname", "o"."LeaderSquadId", "o"."Rank", 'Officer' AS "Discriminator"
+        FROM "Officers" AS "o"
+    ) AS "t"
+    WHERE "s"."Id" = "t"."SquadId"
+    ORDER BY "t"."Nickname"
+    LIMIT 1 OFFSET "s"."Id") = 'Cole Train'
+""");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

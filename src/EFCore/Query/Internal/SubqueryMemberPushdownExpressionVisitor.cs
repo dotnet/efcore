@@ -24,9 +24,9 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         QueryableMethods.LastWithPredicate,
         QueryableMethods.LastWithoutPredicate,
         QueryableMethods.LastOrDefaultWithPredicate,
-        QueryableMethods.LastOrDefaultWithoutPredicate
-        //QueryableMethodProvider.ElementAtMethodInfo,
-        //QueryableMethodProvider.ElementAtOrDefaultMethodInfo
+        QueryableMethods.LastOrDefaultWithoutPredicate,
+        QueryableMethods.ElementAt,
+        QueryableMethods.ElementAtOrDefault
     };
 
     private static readonly IDictionary<MethodInfo, MethodInfo> PredicateLessMethodInfo = new Dictionary<MethodInfo, MethodInfo>
@@ -163,7 +163,13 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         var source = methodCallExpression.Arguments[0];
         var queryableType = source.Type.GetSequenceType();
         var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
-        if (methodCallExpression.Arguments.Count == 2)
+
+        if (genericMethod == QueryableMethods.FirstWithPredicate
+            || genericMethod == QueryableMethods.FirstOrDefaultWithPredicate
+            || genericMethod == QueryableMethods.SingleWithPredicate
+            || genericMethod == QueryableMethods.SingleOrDefaultWithPredicate
+            || genericMethod == QueryableMethods.LastWithPredicate
+            || genericMethod == QueryableMethods.LastOrDefaultWithPredicate)
         {
             // Move predicate to Where so that we can change shape before operator
             source = Expression.Call(
@@ -203,7 +209,16 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
                 Expression.Quote(Expression.Lambda(memberAccessExpression, parameter)));
         }
 
-        source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.GetSequenceType()), source);
+        if (genericMethod == QueryableMethods.ElementAt
+            || genericMethod == QueryableMethods.ElementAtOrDefault)
+        {
+            var index = Visit(methodCallExpression.Arguments[1]);
+            source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.GetSequenceType()), source, index);
+        }
+        else
+        {
+            source = Expression.Call(genericMethod.MakeGenericMethod(source.Type.GetSequenceType()), source);
+        }
 
         return source.Type != returnType
             ? Expression.Convert(source, returnType)

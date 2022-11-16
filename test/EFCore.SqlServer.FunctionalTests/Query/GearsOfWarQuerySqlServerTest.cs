@@ -9952,6 +9952,86 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname]
 """);
     }
 
+    public override async Task ElementAt_basic_with_OrderBy(bool async)
+    {
+        await base.ElementAt_basic_with_OrderBy(async);
+
+        AssertSql(
+"""
+@__p_0='0'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+ORDER BY [g].[FullName]
+OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+""");
+    }
+
+    public override async Task ElementAtOrDefault_basic_with_OrderBy(bool async)
+    {
+        await base.ElementAtOrDefault_basic_with_OrderBy(async);
+
+        AssertSql(
+"""
+@__p_0='1'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+ORDER BY [g].[FullName]
+OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+""");
+    }
+
+    public override async Task ElementAtOrDefault_basic_with_OrderBy_parameter(bool async)
+    {
+        await base.ElementAtOrDefault_basic_with_OrderBy_parameter(async);
+
+        AssertSql(
+"""
+@__p_0='2'
+
+SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
+FROM [Gears] AS [g]
+ORDER BY [g].[FullName]
+OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
+""");
+    }
+
+
+    public override async Task Where_subquery_with_ElementAtOrDefault_equality_to_null_with_composite_key(bool async)
+    {
+        await base.Where_subquery_with_ElementAtOrDefault_equality_to_null_with_composite_key(async);
+
+        AssertSql(
+"""
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [Gears] AS [g]
+    WHERE [s].[Id] = [g].[SquadId]
+    ORDER BY [g].[Nickname]
+    OFFSET 2 ROWS))
+""");
+    }
+
+    public override async Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
+    {
+        await base.Where_subquery_with_ElementAt_using_column_as_index(async);
+
+        AssertSql(
+"""
+SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
+FROM [Squads] AS [s]
+WHERE (
+    SELECT [g].[Nickname]
+    FROM [Gears] AS [g]
+    WHERE [s].[Id] = [g].[SquadId]
+    ORDER BY [g].[Nickname]
+    OFFSET [s].[Id] ROWS FETCH NEXT 1 ROWS ONLY) = N'Cole Train'
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

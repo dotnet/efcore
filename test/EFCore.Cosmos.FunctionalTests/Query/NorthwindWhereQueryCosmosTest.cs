@@ -2413,6 +2413,22 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
         AssertSql();
     }
 
+    public override async Task ElementAt_over_custom_projection_compared_to_not_null(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.ElementAt_over_custom_projection_compared_to_not_null(async));
+
+        AssertSql();
+    }
+
+    public override async Task ElementAtOrDefault_over_custom_projection_compared_to_null(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.ElementAtOrDefault_over_custom_projection_compared_to_null(async));
+
+        AssertSql();
+    }
+
     public override async Task Single_over_custom_projection_compared_to_null(bool async)
     {
         // Cosmos client evaluation. Issue #17246.
