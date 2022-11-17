@@ -78,6 +78,36 @@ RETURNING 1;
 """);
     }
 
+    public override async Task DbUpdateException_Entries_is_correct_with_multiple_inserts(bool async)
+    {
+        await base.DbUpdateException_Entries_is_correct_with_multiple_inserts(async);
+
+        AssertSql(
+"""
+@p0='Blog2' (Size = 5)
+
+INSERT INTO "Blog" ("Name")
+VALUES (@p0)
+RETURNING "Id";
+""",
+            //
+"""
+@p0='Blog1' (Size = 5)
+
+INSERT INTO "Blog" ("Name")
+VALUES (@p0)
+RETURNING "Id";
+""",
+            //
+"""
+@p0='Blog2' (Size = 5)
+
+INSERT INTO "Blog" ("Name")
+VALUES (@p0)
+RETURNING "Id";
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
