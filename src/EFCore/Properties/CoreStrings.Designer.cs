@@ -4593,7 +4593,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated a temporary value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        ///     '{contextType}' generated a temporary value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string, string> LogTempValueGenerated(IDiagnosticsLogger logger)
         {
@@ -4618,7 +4618,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated temporary value '{keyValue}' for the property '{3_entityType}.{2_property}'.
+        ///     '{contextType}' generated temporary value '{keyValue}' for the property '{entityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, object?, string, string> LogTempValueGeneratedSensitive(IDiagnosticsLogger logger)
         {
@@ -4643,7 +4643,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated a value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        ///     '{contextType}' generated a value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string, string> LogValueGenerated(IDiagnosticsLogger logger)
         {
@@ -4668,7 +4668,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated value '{keyValue}' for the property '{3_entityType}.{2_property}'.
+        ///     '{contextType}' generated value '{keyValue}' for the property '{entityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, object?, string, string> LogValueGeneratedSensitive(IDiagnosticsLogger logger)
         {
