@@ -314,7 +314,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) AND [a].[CountryId] = 1
+WHERE [k].[Id] IS NOT NULL AND [a].[CountryId] = 1
 """);
     }
 
@@ -350,7 +350,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL)
+WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL
 ORDER BY [a].[Species]
 """);
     }
@@ -369,7 +369,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL)
+WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL
 ORDER BY [a].[Species]
 """);
     }
@@ -388,7 +388,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE [a].[CountryId] = 1 AND (([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL))
+WHERE [a].[CountryId] = 1 AND ([k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL)
 ORDER BY [a].[Species]
 """);
     }
@@ -404,7 +404,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) OR ([e].[Id] IS NOT NULL)
+WHERE [k].[Id] IS NOT NULL OR [e].[Id] IS NOT NULL
 """);
     }
 
@@ -436,7 +436,7 @@ END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) AND [k].[FoundOn] = CAST(0 AS tinyint)
+WHERE [k].[Id] IS NOT NULL AND [k].[FoundOn] = CAST(0 AS tinyint)
 """);
     }
 
@@ -452,7 +452,7 @@ END AS [Discriminator]
 FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) AND [k].[FoundOn] = CAST(1 AS tinyint)
+WHERE [k].[Id] IS NOT NULL AND [k].[FoundOn] = CAST(1 AS tinyint)
 """);
     }
 
@@ -698,7 +698,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) AND ([e].[Id] IS NOT NULL)
+WHERE [k].[Id] IS NOT NULL AND [e].[Id] IS NOT NULL
 """);
     }
 
@@ -715,7 +715,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
 LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
 LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-WHERE ([k].[Id] IS NOT NULL) AND ([e].[Id] IS NOT NULL)
+WHERE [k].[Id] IS NOT NULL AND [e].[Id] IS NOT NULL
 """);
     }
 

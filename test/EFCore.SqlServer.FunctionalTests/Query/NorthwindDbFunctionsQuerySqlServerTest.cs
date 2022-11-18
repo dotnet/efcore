@@ -1288,7 +1288,7 @@ FROM [Orders] AS [o]
 """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE ([o].[OrderID] % 10) = DATALENGTH([o].[OrderDate])
+WHERE [o].[OrderID] % 10 = DATALENGTH([o].[OrderDate])
 """);
     }
 

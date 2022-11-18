@@ -12,7 +12,7 @@ public class JsonQuerySqlServerTest : JsonQueryTestBase<JsonQuerySqlServerFixtur
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Basic_json_projection_owner_entity(bool async)
@@ -608,7 +608,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Number') AS int) <> CAST(LEN(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name')) AS int) OR (JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') IS NULL)
+WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Number') AS int) <> CAST(LEN(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name')) AS int) OR JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') IS NULL
 """);
     }
 
@@ -620,7 +620,7 @@ WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Number') AS int) <> CAST(LEN(J
 """
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') = JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') OR ((JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') IS NULL) AND (JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NULL))
+WHERE JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') = JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') OR (JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') IS NULL AND JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NULL)
 """);
     }
 
@@ -747,7 +747,7 @@ SELECT (
         SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot] AS [c], [j0].[OwnedReferenceRoot] AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [Key]
         FROM [JsonEntitiesBasic] AS [j0]
     ) AS [t0]
-    WHERE [t].[Key] = [t0].[Key] OR (([t].[Key] IS NULL) AND ([t0].[Key] IS NULL)))
+    WHERE [t].[Key] = [t0].[Key] OR ([t].[Key] IS NULL AND [t0].[Key] IS NULL))
 FROM (
     SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS [Key]
     FROM [JsonEntitiesBasic] AS [j]

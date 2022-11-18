@@ -498,13 +498,13 @@ WHERE EXISTS (
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CASE
+WHERE CASE
     WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END | CASE
     WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END) = CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -516,13 +516,13 @@ END) = CAST(1 AS bit)
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CASE
+WHERE CASE
     WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END & CASE
     WHEN [c].[CustomerID] = N'ANATR' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
-END) = CAST(1 AS bit)
+END = CAST(1 AS bit)
 """);
     }
 
@@ -569,10 +569,10 @@ FROM [Employees] AS [e]
 WHERE [e].[Title] = (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[Title]) OR (([e].[Title] IS NULL) AND ((
+    ORDER BY [e0].[Title]) OR ([e].[Title] IS NULL AND (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    ORDER BY [e0].[Title]) IS NULL))
+    ORDER BY [e0].[Title]) IS NULL)
 """);
     }
 
@@ -801,7 +801,7 @@ WHERE CAST(LEN([c].[City]) AS int) = 6
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(N'Sea', [c].[City]) - 1) <> -1 OR ([c].[City] IS NULL)
+WHERE CHARINDEX(N'Sea', [c].[City]) - 1 <> -1 OR [c].[City] IS NULL
 """);
     }
 
@@ -1119,7 +1119,7 @@ FROM [Customers] AS [c]
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] = [c].[City] OR ([c].[City] IS NULL)
+WHERE [c].[City] = [c].[City] OR [c].[City] IS NULL
 """);
     }
 
@@ -1145,7 +1145,7 @@ WHERE [c].[City] IN (N'London', N'Berlin') OR [c].[CustomerID] = N'ALFKI' OR [c]
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE ([c].[City] <> N'London' OR ([c].[City] IS NULL)) AND ([e].[City] <> N'London' OR ([e].[City] IS NULL))
+WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND ([e].[City] <> N'London' OR [e].[City] IS NULL)
 """);
     }
 
@@ -1158,7 +1158,7 @@ WHERE ([c].[City] <> N'London' OR ([c].[City] IS NULL)) AND ([e].[City] <> N'Lon
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] NOT IN (N'London', N'Berlin') OR ([c].[City] IS NULL)
+WHERE [c].[City] NOT IN (N'London', N'Berlin') OR [c].[City] IS NULL
 """);
     }
 
@@ -1171,7 +1171,7 @@ WHERE [c].[City] NOT IN (N'London', N'Berlin') OR ([c].[City] IS NULL)
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR ([c].[City] IS NULL)
+WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR [c].[City] IS NULL
 """);
     }
 
@@ -1184,7 +1184,7 @@ WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle') OR ([c].[City] IS NUL
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], [e].[EmployeeID], [e].[City], [e].[Country], [e].[FirstName], [e].[ReportsTo], [e].[Title]
 FROM [Customers] AS [c]
 CROSS JOIN [Employees] AS [e]
-WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle', N'Lisboa') OR ([c].[City] IS NULL)
+WHERE [c].[City] NOT IN (N'London', N'Berlin', N'Seattle', N'Lisboa') OR [c].[City] IS NULL
 """);
     }
 
@@ -1554,7 +1554,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]
+WHERE [c].[CustomerID] + CAST(@__i_0 AS nchar(5)) = [c].[CompanyName]
 """);
     }
 
@@ -1568,7 +1568,7 @@ WHERE ([c].[CustomerID] + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]
+WHERE CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] = [c].[CompanyName]
 """);
     }
 
@@ -1583,7 +1583,7 @@ WHERE (CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) = [c].[CompanyName]
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))) + CAST(42 AS nchar(5))) = [c].[CompanyName]
+WHERE CAST(@__p_0 AS nchar(5)) + [c].[CustomerID] + CAST(@__j_1 AS nchar(5)) + CAST(42 AS nchar(5)) = [c].[CompanyName]
 """);
     }
 
@@ -1595,7 +1595,7 @@ WHERE (((CAST(@__p_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__j_1 AS nchar(5))
 """
 SELECT [o].[CustomerID]
 FROM [Orders] AS [o]
-WHERE (CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'')) = [o].[CustomerID]
+WHERE CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'') = [o].[CustomerID]
 """);
     }
 
@@ -1609,7 +1609,7 @@ WHERE (CAST([o].[OrderID] AS nchar(5)) + COALESCE([o].[CustomerID], N'')) = [o].
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]
+WHERE @__i_0 + [c].[CustomerID] = [c].[CompanyName]
 """);
     }
 
@@ -1623,7 +1623,7 @@ WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]
+WHERE @__i_0 + [c].[CustomerID] = [c].[CompanyName]
 """);
     }
 
@@ -1638,7 +1638,7 @@ WHERE (@__i_0 + [c].[CustomerID]) = [c].[CompanyName]
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + (@__j_1 + [c].[CustomerID])) = [c].[CompanyName]
+WHERE @__i_0 + @__j_1 + [c].[CustomerID] = [c].[CompanyName]
 """);
     }
 
@@ -1654,7 +1654,7 @@ WHERE (@__i_0 + (@__j_1 + [c].[CustomerID])) = [c].[CompanyName]
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE (@__i_0 + (@__j_1 + (@__k_2 + [c].[CustomerID]))) = [c].[CompanyName]
+WHERE @__i_0 + @__j_1 + @__k_2 + [c].[CustomerID] = [c].[CompanyName]
 """);
     }
 
@@ -1800,7 +1800,7 @@ WHERE 0 = 1
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] IS NULL) AND [c].[Country] = N'UK'
+WHERE [c].[City] IS NULL AND [c].[Country] = N'UK'
 """);
     }
 
@@ -2136,7 +2136,7 @@ WHERE CAST([o].[OrderID] AS nvarchar(max)) LIKE N'%20%'
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE ((CAST(@__i_0 AS nchar(5)) + [c].[CustomerID]) + CAST(@__i_0 AS nchar(5))) = [c].[CompanyName]
+WHERE CAST(@__i_0 AS nchar(5)) + [c].[CustomerID] + CAST(@__i_0 AS nchar(5)) = [c].[CompanyName]
 """);
     }
 
@@ -2479,7 +2479,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IN (N'WA', N'OR', N'BC') OR ([c].[Region] IS NULL)
+WHERE [c].[Region] IN (N'WA', N'OR', N'BC') OR [c].[Region] IS NULL
 """);
     }
 
@@ -2570,7 +2570,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR [c].[CustomerID] = N'ANTON'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IN (N'WA', N'OR') OR ([c].[Region] IS NULL) OR [c].[Region] = N'BC'
+WHERE [c].[Region] IN (N'WA', N'OR') OR [c].[Region] IS NULL OR [c].[Region] = N'BC'
 """);
     }
 
@@ -2621,7 +2621,7 @@ WHERE [c].[CustomerID] = N'ANATR'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] <> N'WA' AND ([c].[Region] IS NOT NULL)
+WHERE [c].[Region] <> N'WA' AND [c].[Region] IS NOT NULL
 """);
     }
 
@@ -2925,7 +2925,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'FISSA') OR [c].[City] = N'Seattle'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'F%') AND [c].[City] = N'Seattle'
+WHERE [c].[CustomerID] LIKE N'F%' AND [c].[City] = N'Seattle'
 """);
     }
 
@@ -2937,7 +2937,7 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND [c].[City] = N'Seattle'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'F%') OR [c].[City] = N'Seattle'
+WHERE [c].[CustomerID] LIKE N'F%' OR [c].[City] = N'Seattle'
 """);
     }
 

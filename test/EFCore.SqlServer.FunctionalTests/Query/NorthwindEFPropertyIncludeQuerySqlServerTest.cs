@@ -97,7 +97,7 @@ SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[Unit
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -136,7 +136,7 @@ ORDER BY [t].[c] DESC, [t].[CustomerID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice]
 FROM [Orders] AS [o]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [o0].[OrderID]
 """);
     }
@@ -235,7 +235,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID]
 """);
     }
@@ -591,7 +591,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -783,7 +783,7 @@ INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 ORDER BY [o].[OrderID], [o].[ProductID], [p].[ProductID], [o0].[OrderID], [c].[CustomerID]
 """);
     }
@@ -801,7 +801,7 @@ LEFT JOIN (
     FROM [Order Details] AS [o]
     INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [p].[ProductID] = [t].[ProductID]
-WHERE ([p].[ProductID] % 17) = 5
+WHERE [p].[ProductID] % 17 = 5
 ORDER BY [p].[ProductID], [t].[OrderID], [t].[ProductID]
 """);
     }
@@ -983,7 +983,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13 AND [o].[UnitPrice] < 10.0
+WHERE [o].[OrderID] % 23 = 13 AND [o].[UnitPrice] < 10.0
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]
 """);
     }
@@ -1013,7 +1013,7 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(5) [o].[OrderID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] <> [c].[CustomerID] OR ([o].[CustomerID] IS NULL)
+    WHERE [o].[CustomerID] <> [c].[CustomerID] OR [o].[CustomerID] IS NULL
     ORDER BY [c].[CustomerID]
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
@@ -1054,7 +1054,7 @@ SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[Unit
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -1117,7 +1117,7 @@ ORDER BY [t].[c], [t].[c0], [t].[OrderID], [t].[CustomerID0], [o0].[OrderID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 """);
     }
 
@@ -1143,7 +1143,7 @@ WHERE [o].[OrderID] = -1
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice], [o0].[OrderID], [o0].[CustomerID], [o0].[EmployeeID], [o0].[OrderDate]
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -1173,7 +1173,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o].[ProductID] % 23) = 17 AND [o].[Quantity] < CAST(10 AS smallint)
+WHERE [o].[ProductID] % 23 = 17 AND [o].[Quantity] < CAST(10 AS smallint)
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID]
 """);
     }
@@ -1257,7 +1257,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [p].[ProductID]
 """);
     }
@@ -1494,7 +1494,7 @@ ORDER BY [t1].[CustomerID], [t1].[CustomerID0], [o].[OrderID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 """);
     }
 
@@ -1510,7 +1510,7 @@ INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 ORDER BY [o].[OrderID], [o].[ProductID], [p].[ProductID], [o0].[OrderID], [c].[CustomerID]
 """);
     }
@@ -1724,7 +1724,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID]
 """);
     }
@@ -1740,7 +1740,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -1838,7 +1838,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -1852,7 +1852,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID], [o0].[OrderID]
 """);
     }
@@ -1923,7 +1923,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID]
 """);
     }
@@ -1969,7 +1969,7 @@ FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -2023,7 +2023,7 @@ INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
 LEFT JOIN [Orders] AS [o1] ON [c].[CustomerID] = [o1].[CustomerID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 ORDER BY [o].[OrderID], [o].[ProductID], [o0].[OrderID], [c].[CustomerID], [p].[ProductID]
 """);
     }
@@ -2079,7 +2079,7 @@ SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[Unit
 FROM [Order Details] AS [o]
 INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 INNER JOIN [Products] AS [p] ON [o].[ProductID] = [p].[ProductID]
-WHERE ([o].[OrderID] % 23) = 13
+WHERE [o].[OrderID] % 23 = 13
 """);
     }
 
@@ -2096,7 +2096,7 @@ LEFT JOIN (
     FROM [Order Details] AS [o]
     INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
 ) AS [t] ON [p].[ProductID] = [t].[ProductID]
-WHERE ([p].[ProductID] % 17) = 5 AND [p].[UnitPrice] < 20.0
+WHERE [p].[ProductID] % 17 = 5 AND [p].[UnitPrice] < 20.0
 ORDER BY [p].[ProductID], [t].[OrderID], [t].[ProductID]
 """);
     }

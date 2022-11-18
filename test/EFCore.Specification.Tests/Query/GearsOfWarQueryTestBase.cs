@@ -50,13 +50,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Double_negate_on_column(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Squad>().Where(s => -(-s.Id) == s.Id));
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Negate_on_like_expression(bool async)
         => AssertQuery(
             async,

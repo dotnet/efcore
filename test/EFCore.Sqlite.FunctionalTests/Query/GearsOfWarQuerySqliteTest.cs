@@ -3585,18 +3585,6 @@ FROM (
 """);
     }
 
-    public override async Task Double_negate_on_column(bool async)
-    {
-        await base.Double_negate_on_column(async);
-
-        AssertSql(
-"""
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE -(-"s"."Id") = "s"."Id"
-""");
-    }
-
     public override async Task Join_on_entity_qsre_keys_inner_key_is_nested_navigation(bool async)
     {
         await base.Join_on_entity_qsre_keys_inner_key_is_nested_navigation(async);

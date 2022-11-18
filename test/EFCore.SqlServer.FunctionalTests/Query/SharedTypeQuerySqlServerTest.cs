@@ -19,7 +19,7 @@ FROM [ViewQuery24601] AS [v]
 WHERE EXISTS (
     SELECT 1
     FROM [STET] AS [s]
-    WHERE [s].[Value] = [v].[Value] OR (([s].[Value] IS NULL) AND ([v].[Value] IS NULL)))
+    WHERE [s].[Value] = [v].[Value] OR ([s].[Value] IS NULL AND [v].[Value] IS NULL))
 """);
     }
 
@@ -36,7 +36,7 @@ WHERE EXISTS (
     FROM (
         Select * from STET
     ) AS [s]
-    WHERE [s].[Value] = [v].[Value] OR (([s].[Value] IS NULL) AND ([v].[Value] IS NULL)))
+    WHERE [s].[Value] = [v].[Value] OR ([s].[Value] IS NULL AND [v].[Value] IS NULL))
 """);
     }
 }

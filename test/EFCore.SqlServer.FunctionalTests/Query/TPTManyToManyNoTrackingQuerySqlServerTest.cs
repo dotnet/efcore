@@ -48,7 +48,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[OneId] AND ([e0].[Name] LIKE N'%B%'))
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Name] LIKE N'%B%')
 """);
     }
 
@@ -64,7 +64,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [EntityOneEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
-    WHERE [e].[Id] = [e0].[OneSkipSharedId] AND ([e1].[Name] LIKE N'%B%'))
+    WHERE [e].[Id] = [e0].[OneSkipSharedId] AND [e1].[Name] LIKE N'%B%')
 """);
     }
 
@@ -119,7 +119,7 @@ ORDER BY (
         INNER JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
         LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
-    WHERE [e].[Id] = [j].[EntityOneId] AND ([t].[Name] IS NOT NULL) AND ([t].[Name] LIKE N'L%')), [e].[Id]
+    WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] IS NOT NULL AND [t].[Name] LIKE N'L%'), [e].[Id]
 """);
     }
 
@@ -151,7 +151,7 @@ ORDER BY (
     SELECT COUNT_BIG(*)
     FROM [EntityTwoEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
-    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND ([e1].[Name] IS NOT NULL) AND ([e1].[Name] LIKE N'L%')) DESC, [e].[Id]
+    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND [e1].[Name] IS NOT NULL AND [e1].[Name] LIKE N'L%') DESC, [e].[Id]
 """);
     }
 
@@ -1957,7 +1957,7 @@ LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Branch2s] AS [b0] ON [r].[Id] = [b0].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN [Leaf2s] AS [l0] ON [r].[Id] = [l0].[Id]
-WHERE ([l0].[Id] IS NULL) AND ([l].[Id] IS NULL) AND ([b].[Id] IS NULL)
+WHERE [l0].[Id] IS NULL AND [l].[Id] IS NULL AND [b].[Id] IS NULL
 """);
     }
 
@@ -1977,7 +1977,7 @@ LEFT JOIN [Branches] AS [b] ON [r].[Id] = [b].[Id]
 LEFT JOIN [Branch2s] AS [b0] ON [r].[Id] = [b0].[Id]
 LEFT JOIN [Leaves] AS [l] ON [r].[Id] = [l].[Id]
 LEFT JOIN [Leaf2s] AS [l0] ON [r].[Id] = [l0].[Id]
-WHERE ([l].[Id] IS NULL) AND ([b].[Id] IS NOT NULL)
+WHERE [l].[Id] IS NULL AND [b].[Id] IS NOT NULL
 """);
     }
 
@@ -2103,7 +2103,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [UnidirectionalEntityOneUnidirectionalEntityTwo] AS [u0]
     INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoSkipSharedId] = [u1].[Id]
-    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND ([u1].[Name] LIKE N'%B%'))
+    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND [u1].[Name] LIKE N'%B%')
 """);
     }
 
@@ -2158,7 +2158,7 @@ ORDER BY (
         INNER JOIN [UnidirectionalBranches] AS [u2] ON [u1].[Id] = [u2].[Id]
         LEFT JOIN [UnidirectionalLeaves] AS [u3] ON [u1].[Id] = [u3].[Id]
     ) AS [t] ON [u0].[UnidirectionalEntityBranchId] = [t].[Id]
-    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND ([t].[Name] IS NOT NULL) AND ([t].[Name] LIKE N'L%')), [u].[Id]
+    WHERE [u].[Id] = [u0].[UnidirectionalEntityOneId] AND [t].[Name] IS NOT NULL AND [t].[Name] LIKE N'L%'), [u].[Id]
 """);
     }
 
@@ -2690,7 +2690,7 @@ END AS [Discriminator]
 FROM [UnidirectionalRoots] AS [u]
 LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
 LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
-WHERE ([u1].[Id] IS NULL) AND ([u0].[Id] IS NULL)
+WHERE [u1].[Id] IS NULL AND [u0].[Id] IS NULL
 """);
     }
 
@@ -2707,7 +2707,7 @@ END AS [Discriminator]
 FROM [UnidirectionalRoots] AS [u]
 LEFT JOIN [UnidirectionalBranches] AS [u0] ON [u].[Id] = [u0].[Id]
 LEFT JOIN [UnidirectionalLeaves] AS [u1] ON [u].[Id] = [u1].[Id]
-WHERE ([u1].[Id] IS NULL) AND ([u0].[Id] IS NOT NULL)
+WHERE [u1].[Id] IS NULL AND [u0].[Id] IS NOT NULL
 """);
     }
 
