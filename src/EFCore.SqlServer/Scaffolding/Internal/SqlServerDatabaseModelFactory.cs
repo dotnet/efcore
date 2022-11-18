@@ -220,7 +220,7 @@ WHERE name = '{connection.Database}';";
     {
         using var command = connection.CreateCommand();
         command.CommandText = @"
-SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
+SELECT HAS_PERMS_BY_NAME(QUOTENAME(DB_NAME()), 'DATABASE', 'VIEW DEFINITION');";
         var hasAccess = (int)command.ExecuteScalar()!;
 
         if (hasAccess == 0)
