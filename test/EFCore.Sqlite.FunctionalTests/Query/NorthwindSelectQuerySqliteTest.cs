@@ -135,7 +135,7 @@ FROM "Orders" AS "o"
 
         AssertSql(
 """
-SELECT CAST(((julianday("o"."OrderDate") - 1721425.5) * 864000000000.0) AS INTEGER)
+SELECT CAST((julianday("o"."OrderDate") - 1721425.5) * 864000000000.0 AS INTEGER)
 FROM "Orders" AS "o"
 """);
     }

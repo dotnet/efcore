@@ -209,9 +209,9 @@ LEFT JOIN [OwnedReferenceExtras1] AS [o0] ON [e].[Id] = [o0].[EntityOneId]
         AssertSql(
 """
 SELECT [e].[Id], CASE
-    WHEN ([e].[OwnedReference_Id] IS NOT NULL) AND ([e].[OwnedReference_OwnedIntValue1] IS NOT NULL) AND ([e].[OwnedReference_OwnedIntValue2] IS NOT NULL) AND ([o0].[OwnedIntValue3] IS NOT NULL) AND ([o].[OwnedIntValue4] IS NOT NULL) THEN [o].[OwnedIntValue4]
+    WHEN [e].[OwnedReference_Id] IS NOT NULL AND [e].[OwnedReference_OwnedIntValue1] IS NOT NULL AND [e].[OwnedReference_OwnedIntValue2] IS NOT NULL AND [o0].[OwnedIntValue3] IS NOT NULL AND [o].[OwnedIntValue4] IS NOT NULL THEN [o].[OwnedIntValue4]
 END AS [OwnedIntValue4], CASE
-    WHEN ([e].[OwnedReference_Id] IS NOT NULL) AND ([e].[OwnedReference_OwnedIntValue1] IS NOT NULL) AND ([e].[OwnedReference_OwnedIntValue2] IS NOT NULL) AND ([o0].[OwnedIntValue3] IS NOT NULL) AND ([o].[OwnedIntValue4] IS NOT NULL) THEN [o].[OwnedStringValue4]
+    WHEN [e].[OwnedReference_Id] IS NOT NULL AND [e].[OwnedReference_OwnedIntValue1] IS NOT NULL AND [e].[OwnedReference_OwnedIntValue2] IS NOT NULL AND [o0].[OwnedIntValue3] IS NOT NULL AND [o].[OwnedIntValue4] IS NOT NULL THEN [o].[OwnedStringValue4]
 END AS [OwnedStringValue4]
 FROM [EntityOnes] AS [e]
 LEFT JOIN [OwnedReferenceExtras2] AS [o] ON [e].[Id] = [o].[EntityOneId]

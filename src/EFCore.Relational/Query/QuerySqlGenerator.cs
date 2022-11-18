@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -964,62 +965,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         => OperatorMap[binaryExpression.OperatorType];
 
     /// <summary>
-    ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis
-    ///     when generating SQL for outer SQL expression.
-    /// </summary>
-    /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
-    /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
-    /// <returns>A bool value indicating that parenthesis is required or not. </returns>
-    protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
-    {
-        switch (innerExpression)
-        {
-            case AtTimeZoneExpression or LikeExpression:
-                return true;
-
-            case SqlUnaryExpression sqlUnaryExpression:
-            {
-                // Wrap IS (NOT) NULL operation
-                if (sqlUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
-                {
-                    return true;
-                }
-
-                if (sqlUnaryExpression.OperatorType == ExpressionType.Negate
-                    && outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Negate })
-                {
-                    // double negative sign is interpreted as a comment in SQL, so we need to enclose it in brackets
-                    return true;
-                }
-
-                return false;
-            }
-
-            case SqlBinaryExpression sqlBinaryExpression:
-            {
-                if (outerExpression is SqlBinaryExpression outerBinary)
-                {
-                    // Math, bitwise, comparison and equality operators have higher precedence
-                    if (outerBinary.OperatorType == ExpressionType.AndAlso)
-                    {
-                        return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
-                    }
-
-                    if (outerBinary.OperatorType == ExpressionType.OrElse)
-                    {
-                        // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
-                        return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
     ///     Generates a TOP construct in the relational command
     /// </summary>
     /// <param name="selectExpression">A select expression to use.</param>
@@ -1370,4 +1315,125 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
         => throw new InvalidOperationException(
             RelationalStrings.JsonNodeMustBeHandledByProviderSpecificVisitor);
+
+    /// <summary>
+    ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis when generating SQL for outer
+    ///     SQL expression.
+    /// </summary>
+    /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
+    /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
+    /// <returns>A bool value indicating that parenthesis is required or not. </returns>
+    protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
+    {
+        int outerPrecedence, innerPrecedence;
+
+        // Convert is rendered as a function (CAST()) and not as an operator, so we never need to add parentheses around the inner
+        if (outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Convert })
+        {
+            return false;
+        }
+
+        switch (innerExpression)
+        {
+            case SqlUnaryExpression innerUnaryExpression:
+            {
+                // If the same unary operator is used in both outer and inner (e.g. NOT NOT), no parentheses are needed
+                if (outerExpression is SqlUnaryExpression outerUnary
+                    && innerUnaryExpression.OperatorType == outerUnary.OperatorType)
+                {
+                    // ... except for double negative (--), which is interpreted as a comment in SQL
+                    return innerUnaryExpression.OperatorType == ExpressionType.Negate;
+                }
+
+                // If the provider defined precedence for the two expression, use that
+                if (TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
+                    && TryGetOperatorInfo(innerExpression, out innerPrecedence, out _))
+                {
+                    return outerPrecedence >= innerPrecedence;
+                }
+
+                // Otherwise, wrap IS (NOT) NULL operation, except if it's in a logical operator
+                if (innerUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+                    && outerExpression is not SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.Not
+                    })
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            case SqlBinaryExpression innerBinaryExpression:
+            {
+                // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
+                if (innerBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.And
+                    && outerExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse or ExpressionType.Or })
+                {
+                    return true;
+                }
+
+                // If the provider defined precedence for the two expression, use that
+                if (TryGetOperatorInfo(outerExpression, out outerPrecedence, out var isOuterAssociative)
+                    && TryGetOperatorInfo(innerExpression, out innerPrecedence, out _))
+                {
+                    return outerPrecedence.CompareTo(innerPrecedence) switch
+                    {
+                        > 0 => true,
+                        < 0 => false,
+
+                        // If both operators have the same precedence, add parentheses unless they're the same operator, and
+                        // that operator is associative (e.g. a + b + c)
+                        0 => outerExpression is not SqlBinaryExpression outerBinary
+                            || outerBinary.OperatorType != innerBinaryExpression.OperatorType
+                            || !isOuterAssociative
+                            // Arithmetic operators on floating points aren't associative, because of rounding errors.
+                            || outerExpression.Type == typeof(float)
+                            || outerExpression.Type == typeof(double)
+                            || innerExpression.Type == typeof(float)
+                            || innerExpression.Type == typeof(double)
+                    };
+                }
+
+                // Otherwise always parenthesize for safety
+                return true;
+            }
+
+            case CollateExpression or LikeExpression or AtTimeZoneExpression:
+                return !TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
+                    || !TryGetOperatorInfo(innerExpression, out innerPrecedence, out _)
+                    || outerPrecedence >= innerPrecedence;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    ///     Returns a numeric value representing the precedence of the given <paramref name="expression" />, as well as its associativity.
+    ///     These control whether parentheses are generated around the expression.
+    /// </summary>
+    /// <param name="expression">The expression for which to get the precedence and associativity.</param>
+    /// <param name="precedence">
+    ///     If the method returned <see langword="true" />, contains the precedence of the provided <paramref name="expression" />.
+    ///     Otherwise, contains default values.
+    /// </param>
+    /// <param name="isAssociative">
+    ///     If the method returned <see langword="true" />, contains the associativity of the provided <paramref name="expression" />.
+    ///     Otherwise, contains default values.
+    /// </param>
+    /// <returns>
+    ///     <see langword="true" /> if the expression operator info is known and was returned in <paramref name="precedence" /> and
+    ///     <paramref name="isAssociative" />. Otherwise, <see langword="false" />.
+    /// </returns>
+    /// <remarks>
+    ///     The default implementation always returns false, so that parentheses almost always get added. Providers can override this method
+    ///     to remove parentheses where they aren't necessary.
+    /// </remarks>
+    protected virtual bool TryGetOperatorInfo(SqlExpression expression, out int precedence, out bool isAssociative)
+    {
+        (precedence, isAssociative) = (default, default);
+        return false;
+    }
 }

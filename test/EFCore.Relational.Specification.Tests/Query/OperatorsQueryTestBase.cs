@@ -117,7 +117,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         }
     }
 
-    [ConditionalFact(Skip = "issue #30277")]
+    [ConditionalFact]
     public virtual async Task Projection_with_not_and_negation_on_integer()
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
@@ -135,6 +135,97 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                       orderby e3.Id, e4.Id, e5.Id
                       select ((~(-(-((e5.Value + e3.Value) + 2))) % (-(e4.Value + e4.Value) - e3.Value)))).ToList();
        
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i], actual[i]);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Negate_on_column(bool async)
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e in ExpectedData.OperatorEntitiesInt
+                        where e.Id == -e.Value
+                        select e.Id).ToList();
+
+        var actual = (from e in context.Set<OperatorEntityInt>()
+                      where e.Id == -e.Value
+                      select e.Id).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i], actual[i]);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual async Task Double_negate_on_column()
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e in ExpectedData.OperatorEntitiesInt
+                        where -(-e.Value) == e.Value
+                        select e.Id).ToList();
+
+        var actual = (from e in context.Set<OperatorEntityInt>()
+                      where -(-e.Value) == e.Value
+                      select e.Id).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i], actual[i]);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Negate_on_binary_expression(bool async)
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e1 in ExpectedData.OperatorEntitiesInt
+                        from e2 in ExpectedData.OperatorEntitiesInt
+                        where -e1.Value == -(e1.Id + e2.Value)
+                        select new { Id1 = e1.Id, Id2 = e2.Id }).ToList();
+
+        var actual = (from e1 in context.Set<OperatorEntityInt>()
+                      from e2 in context.Set<OperatorEntityInt>()
+                      where -e1.Value == -(e1.Id + e2.Value)
+                      select new { Id1 = e1.Id, Id2 = e2.Id }).ToList();
+
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i].Id1, actual[i].Id1);
+            Assert.Equal(expected[i].Id2, actual[i].Id2);
+        }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Negate_on_like_expression(bool async)
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e in ExpectedData.OperatorEntitiesString
+                        where !e.Value.StartsWith("A")
+                        select e.Id).ToList();
+
+        var actual = (from e in context.Set<OperatorEntityString>()
+                      where !e.Value.StartsWith("A")
+                      select e.Id).ToList();
+
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
         {

@@ -44,7 +44,7 @@ WHERE [o].[OrderDate] = @__myDatetime_0
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR ([o].[OrderDate] IS NULL)
+WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
 """,
             //
 """
@@ -88,7 +88,7 @@ WHERE [o].[OrderDate] <= @__myDatetime_0
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'M%')
+WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'M%'
 """);
     }
 
@@ -100,7 +100,7 @@ WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'M%')
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
 """);
     }
 
@@ -112,7 +112,7 @@ WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND LEFT([c].[
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
 """);
     }
 
@@ -124,7 +124,7 @@ WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND LEFT([c].[
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'M%')
+WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'M%'
 """);
     }
 
@@ -136,7 +136,7 @@ WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'M%')
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'%b')
+WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'%b'
 """);
     }
 
@@ -148,7 +148,7 @@ WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'%b')
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
 """);
     }
 
@@ -160,7 +160,7 @@ WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND RIGHT([c].
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
 """);
     }
 
@@ -172,7 +172,7 @@ WHERE [c].[ContactName] = N'' OR (([c].[ContactName] IS NOT NULL) AND RIGHT([c].
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] IS NOT NULL) AND ([c].[ContactName] LIKE N'%m')
+WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'%m'
 """);
     }
 
@@ -200,7 +200,7 @@ WHERE [c].[ContactName] LIKE N'%M%'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] LIKE N'') OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0
+WHERE [c].[ContactName] LIKE N'' OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0
 """);
     }
 
@@ -212,7 +212,7 @@ WHERE ([c].[ContactName] LIKE N'') OR CHARINDEX([c].[ContactName], [c].[ContactN
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[ContactName] LIKE N'') OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0
+WHERE [c].[ContactName] LIKE N'' OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0
 """);
     }
 
@@ -238,7 +238,7 @@ WHERE [c].[ContactName] LIKE N'%     %'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (@__pattern_0 LIKE N'') OR CHARINDEX(@__pattern_0, [c].[ContactName]) > 0
+WHERE @__pattern_0 LIKE N'' OR CHARINDEX(@__pattern_0, [c].[ContactName]) > 0
 """);
     }
 
@@ -531,7 +531,7 @@ END
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (N'M' + [c].[CustomerID])
+WHERE [c].[CustomerID] = N'M' + [c].[CustomerID]
 """,
             //
 """
@@ -549,7 +549,7 @@ WHERE [c].[CustomerID] > REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <= (N'M' + [c].[CustomerID])
+WHERE [c].[CustomerID] <= N'M' + [c].[CustomerID]
 """,
             //
 """
@@ -579,7 +579,7 @@ WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR ([c].[Country] IS NULL))
+WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)
 """);
     }
 
@@ -765,7 +765,7 @@ END
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (N'M' + [c].[CustomerID])
+WHERE [c].[CustomerID] = N'M' + [c].[CustomerID]
 """,
             //
 """
@@ -783,7 +783,7 @@ WHERE [c].[CustomerID] > REPLACE(N'ALFKI', N'ALF', [c].[CustomerID])
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] <= (N'M' + [c].[CustomerID])
+WHERE [c].[CustomerID] <= N'M' + [c].[CustomerID]
 """,
             //
 """
@@ -813,7 +813,7 @@ WHERE [c].[CustomerID] >= N'ALFKI' AND [c].[CustomerID] < N'CACTU'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR ([c].[Country] IS NULL))
+WHERE [c].[ContactTitle] = N'Owner' AND ([c].[Country] <> N'USA' OR [c].[Country] IS NULL)
 """);
     }
 
@@ -835,7 +835,7 @@ WHERE [o].[OrderDate] = @__myDatetime_0
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderDate] <> @__myDatetime_0 OR ([o].[OrderDate] IS NULL)
+WHERE [o].[OrderDate] <> @__myDatetime_0 OR [o].[OrderDate] IS NULL
 """,
             //
 """
@@ -2125,7 +2125,7 @@ WHERE [o].[CustomerID] = N'ALFKI' AND CONVERT(nvarchar(max), CONVERT(nvarchar(ma
 """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] = N'ALFKI' AND ((CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%') OR (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%'))
+WHERE [o].[CustomerID] = N'ALFKI' AND (CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1997%' OR CONVERT(nvarchar(max), [o].[OrderDate]) LIKE N'%1998%')
 """);
     }
 
@@ -2148,7 +2148,7 @@ FROM [Customers] AS [c]
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(N'a', [c].[ContactName]) - 1) = 1
+WHERE CHARINDEX(N'a', [c].[ContactName]) - 1 = 1
 """);
     }
 
@@ -2177,7 +2177,7 @@ END = 1
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(N'a', [c].[ContactName], 3) - 1) = 4
+WHERE CHARINDEX(N'a', [c].[ContactName], 3) - 1 = 4
 """);
     }
 
@@ -2191,7 +2191,7 @@ WHERE (CHARINDEX(N'a', [c].[ContactName], 3) - 1) = 4
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE (CHARINDEX(N'a', [c].[ContactName], @__start_0 + 1) - 1) = 4
+WHERE CHARINDEX(N'a', [c].[ContactName], @__start_0 + 1) - 1 = 4
 """);
     }
 
@@ -2327,7 +2327,7 @@ WHERE [c].[CustomerID] = N'ALFKI'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[Region] IS NULL) OR ([c].[Region] LIKE N'')
+WHERE [c].[Region] IS NULL OR [c].[Region] LIKE N''
 """);
     }
 
@@ -2338,7 +2338,7 @@ WHERE ([c].[Region] IS NULL) OR ([c].[Region] LIKE N'')
         AssertSql(
 """
 SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN ([c].[Region] IS NULL) OR ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NULL OR [c].[Region] LIKE N'' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
@@ -2353,7 +2353,7 @@ FROM [Customers] AS [c]
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[Region] IS NOT NULL) AND NOT ([c].[Region] LIKE N'')
+WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')
 """);
     }
 
@@ -2364,7 +2364,7 @@ WHERE ([c].[Region] IS NOT NULL) AND NOT ([c].[Region] LIKE N'')
         AssertSql(
 """
 SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN ([c].[Region] IS NOT NULL) AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]
@@ -2379,7 +2379,7 @@ FROM [Customers] AS [c]
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[Region] IS NULL) OR [c].[Region] = N''
+WHERE [c].[Region] IS NULL OR [c].[Region] = N''
 """);
     }
 

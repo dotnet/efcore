@@ -179,4 +179,58 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
         return jsonScalarExpression;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool TryGetOperatorInfo(SqlExpression expression, out int precedence, out bool isAssociative)
+    {
+        // See https://sqlite.org/lang_expr.html#operators_and_parse_affecting_attributes
+        (precedence, isAssociative) = expression switch
+        {
+            SqlBinaryExpression sqlBinaryExpression => sqlBinaryExpression.OperatorType switch
+            {
+                ExpressionType.Multiply => (900, true),
+                ExpressionType.Divide => (900, false),
+                ExpressionType.Modulo => (900, false),
+                ExpressionType.Add when sqlBinaryExpression.Type == typeof(string) => (1100, true),
+                ExpressionType.Add when sqlBinaryExpression.Type != typeof(string) => (800, true),
+                ExpressionType.Subtract => (800, false),
+                ExpressionType.And => (600, true),
+                ExpressionType.Or => (600, true),
+                ExpressionType.LessThan => (500, false),
+                ExpressionType.LessThanOrEqual => (500, false),
+                ExpressionType.GreaterThan => (500, false),
+                ExpressionType.GreaterThanOrEqual => (500, false),
+                ExpressionType.Equal => (500, false),
+                ExpressionType.NotEqual => (500, false),
+                ExpressionType.AndAlso => (200, true),
+                ExpressionType.OrElse => (100, true),
+
+                _ => default,
+            },
+
+            SqlUnaryExpression sqlUnaryExpression => sqlUnaryExpression.OperatorType switch
+            {
+                ExpressionType.Convert => (1300, false),
+                ExpressionType.Not when sqlUnaryExpression.Type != typeof(bool) => (1200, false),
+                ExpressionType.Negate => (1200, false),
+                ExpressionType.Equal => (500, false), // IS NULL
+                ExpressionType.NotEqual => (500, false), // IS NOT NULL
+                ExpressionType.Not when sqlUnaryExpression.Type == typeof(bool) => (300, false),
+
+                _ => default,
+            },
+
+            CollateExpression => (1100, false),
+            LikeExpression => (500, false),
+
+            _ => default,
+        };
+
+        return precedence != default;
+    }
 }

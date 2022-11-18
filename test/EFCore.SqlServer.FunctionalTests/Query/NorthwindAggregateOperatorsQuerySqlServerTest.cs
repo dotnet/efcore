@@ -119,7 +119,7 @@ WHERE [o].[OrderID] = 42
 
         AssertSql(
 """
-SELECT AVG(CAST(([o].[OrderID] - 10248) AS float))
+SELECT AVG(CAST([o].[OrderID] - 10248 AS float))
 FROM [Orders] AS [o]
 WHERE [o].[OrderID] = 10248
 """);
@@ -617,7 +617,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [o].[CustomerID] <> N'ALFKI' OR ([o].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        WHERE [o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -805,7 +805,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
 """
-SELECT AVG(CAST(([o].[OrderID] * 2) AS float))
+SELECT AVG(CAST([o].[OrderID] * 2 AS float))
 FROM [Orders] AS [o]
 """);
     }
@@ -827,7 +827,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
 """
-SELECT AVG(CAST(([o].[OrderID] + [o].[OrderID]) AS float))
+SELECT AVG(CAST([o].[OrderID] + [o].[OrderID] AS float))
 FROM [Orders] AS [o]
 """);
     }
@@ -924,10 +924,10 @@ FROM (
 @__p_0='3'
 
 SELECT AVG(CAST((
-    SELECT AVG(CAST((5 + (
+    SELECT AVG(CAST(5 + (
         SELECT MAX([o0].[ProductID])
         FROM [Order Details] AS [o0]
-        WHERE [o].[OrderID] = [o0].[OrderID])) AS float))
+        WHERE [o].[OrderID] = [o0].[OrderID]) AS float))
     FROM [Orders] AS [o]
     WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
 FROM (
@@ -1248,7 +1248,7 @@ WHERE [o].[CustomerID] = N'ALFKI'
 """
 SELECT COUNT(*)
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] > 10 AND ([o].[CustomerID] <> N'ALFKI' OR ([o].[CustomerID] IS NULL))
+WHERE [o].[OrderID] > 10 AND ([o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL)
 """);
     }
 
@@ -1397,11 +1397,11 @@ FROM [Customers] AS [c]
 OUTER APPLY (
     SELECT TOP(1) [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
     FROM [Order Details] AS [o]
-    WHERE ((
+    WHERE (
         SELECT TOP(1) [o0].[OrderID]
         FROM [Orders] AS [o0]
         WHERE [c].[CustomerID] = [o0].[CustomerID]
-        ORDER BY [o0].[OrderID]) IS NOT NULL) AND (
+        ORDER BY [o0].[OrderID]) IS NOT NULL AND (
         SELECT TOP(1) [o1].[OrderID]
         FROM [Orders] AS [o1]
         WHERE [c].[CustomerID] = [o1].[CustomerID]
@@ -1422,11 +1422,11 @@ ORDER BY [c].[CustomerID]
 SELECT (
     SELECT TOP(1) [o].[ProductID]
     FROM [Order Details] AS [o]
-    WHERE ((
+    WHERE (
         SELECT TOP(1) [o0].[OrderID]
         FROM [Orders] AS [o0]
         WHERE [c].[CustomerID] = [o0].[CustomerID]
-        ORDER BY [o0].[OrderID]) IS NOT NULL) AND (
+        ORDER BY [o0].[OrderID]) IS NOT NULL AND (
         SELECT TOP(1) [o1].[OrderID]
         FROM [Orders] AS [o1]
         WHERE [c].[CustomerID] = [o1].[CustomerID]
@@ -1873,7 +1873,7 @@ ORDER BY [o].[OrderID]
 """
 SELECT AVG(CAST(CAST([o].[OrderID] AS bigint) AS float))
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 """);
     }
 
@@ -1885,7 +1885,7 @@ WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
 """
 SELECT MAX(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 """);
     }
 
@@ -1897,7 +1897,7 @@ WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
 """
 SELECT MIN(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 """);
     }
 
@@ -2120,7 +2120,7 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = N'VINET' AND ([o0].[CustomerID] IS NULL))
+    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL)
 """);
     }
 
@@ -2135,7 +2135,7 @@ FROM [Orders] AS [o]
 WHERE NOT (EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = N'VINET' AND ([o0].[CustomerID] IS NULL)))
+    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL))
 """);
     }
 
@@ -2151,13 +2151,13 @@ WHERE CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = N'VINET' AND ([o0].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE ([o1].[CustomerID] <> N'VINET' OR ([o1].[CustomerID] IS NULL)) AND ([o1].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        WHERE ([o1].[CustomerID] <> N'VINET' OR [o1].[CustomerID] IS NULL) AND [o1].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2173,7 +2173,7 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = N'VINET' AND ([o0].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Orders] AS [o]
@@ -2398,7 +2398,7 @@ LEFT JOIN [Products] AS [p] ON 1 = 1
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'F%') AND (
+WHERE [c].[CustomerID] LIKE N'F%' AND (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
@@ -2414,7 +2414,7 @@ WHERE ([c].[CustomerID] LIKE N'F%') AND (
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[CustomerID] LIKE N'F%') AND (
+WHERE [c].[CustomerID] LIKE N'F%' AND (
     SELECT TOP(1) [o].[CustomerID]
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]

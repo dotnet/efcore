@@ -61,7 +61,7 @@ WHERE EXISTS (
     SELECT 1
     FROM "Posts" AS "p0"
     LEFT JOIN "Blogs" AS "b" ON "p0"."BlogId" = "b"."Id"
-    WHERE ("b"."Title" IS NOT NULL) AND ("b"."Title" LIKE 'Arthur%') AND "p0"."Id" = "p"."Id")
+    WHERE "b"."Title" IS NOT NULL AND "b"."Title" LIKE 'Arthur%' AND "p0"."Id" = "p"."Id")
 """);
     }
 
