@@ -109,11 +109,12 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     private static bool HasGeometryColumns(DbConnection connection)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = new StringBuilder()
-            .AppendLine("SELECT COUNT(*)")
-            .AppendLine("FROM \"sqlite_master\"")
-            .AppendLine("WHERE \"name\" = 'geometry_columns' AND \"type\" = 'table';")
-            .ToString();
+        command.CommandText =
+"""
+SELECT COUNT(*)
+FROM "sqlite_master"
+WHERE "name" = 'geometry_columns' AND "type" = 'table'
+""";
 
         return (long)command.ExecuteScalar()! != 0L;
     }
@@ -136,21 +137,22 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = new StringBuilder()
-                .AppendLine("SELECT \"name\", \"type\"")
-                .AppendLine("FROM \"sqlite_master\"")
-                .Append("WHERE \"type\" IN ('table', 'view') AND instr(\"name\", 'sqlite_') <> 1 AND \"name\" NOT IN ('")
-                .Append(HistoryRepository.DefaultTableName)
-                .Append("', 'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth', ")
-                .Append("'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time', ")
-                .Append("'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history', ")
-                .Append("'sql_statements_log', 'vector_layers', 'vector_layers_auth', 'vector_layers_statistics', ")
-                .Append("'vector_layers_field_infos', 'views_geometry_columns', 'views_geometry_columns_auth', ")
-                .Append("'views_geometry_columns_field_infos', 'views_geometry_columns_statistics', ")
-                .Append("'virts_geometry_columns', 'virts_geometry_columns_auth', ")
-                .Append("'geom_cols_ref_sys', 'spatial_ref_sys_all', ")
-                .AppendLine("'virts_geometry_columns_field_infos', 'virts_geometry_columns_statistics');")
-                .ToString();
+            command.CommandText =
+$"""
+SELECT "name", "type"
+FROM "sqlite_master"
+WHERE "type" IN ('table', 'view') AND instr("name", 'sqlite_') <> 1 AND "name" NOT IN (
+'{HistoryRepository.DefaultTableName}',
+'ElementaryGeometries', 'geometry_columns', 'geometry_columns_auth',
+'geometry_columns_field_infos', 'geometry_columns_statistics', 'geometry_columns_time',
+'spatial_ref_sys', 'spatial_ref_sys_aux', 'SpatialIndex', 'spatialite_history',
+'sql_statements_log', 'vector_layers', 'vector_layers_auth', 'vector_layers_statistics',
+'vector_layers_field_infos', 'views_geometry_columns', 'views_geometry_columns_auth',
+'views_geometry_columns_field_infos', 'views_geometry_columns_statistics',
+'virts_geometry_columns', 'virts_geometry_columns_auth',
+'geom_cols_ref_sys', 'spatial_ref_sys_all',
+'virts_geometry_columns_field_infos', 'virts_geometry_columns_statistics')
+""";
 
             using var reader = command.ExecuteReader();
             while (reader.Read())
@@ -202,12 +204,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     private void GetColumns(DbConnection connection, DatabaseTable table)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = new StringBuilder()
-            .AppendLine("SELECT \"name\", \"type\", \"notnull\", \"dflt_value\", \"hidden\"")
-            .AppendLine("FROM pragma_table_xinfo(@table)")
-            .AppendLine("WHERE \"hidden\" IN (0, 2, 3)")
-            .AppendLine("ORDER BY \"cid\";")
-            .ToString();
+        command.CommandText =
+"""
+SELECT "name", "type", "notnull", "dflt_value", "hidden"
+FROM pragma_table_xinfo(@table)
+WHERE "hidden" IN (0, 2, 3)
+ORDER BY "cid"
+""";
 
         var parameter = command.CreateParameter();
         parameter.ParameterName = "@table";
@@ -237,10 +240,10 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
                     connection.Database,
                     table.Name,
                     columnName,
-                    out var _,
-                    out var _,
-                    out var _,
-                    out var _,
+                    out _,
+                    out _,
+                    out _,
+                    out _,
                     out autoIncrement);
                 SqliteException.ThrowExceptionForRC(rc, db);
             }
@@ -286,12 +289,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     private void GetPrimaryKey(DbConnection connection, DatabaseTable table)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = new StringBuilder()
-            .AppendLine("SELECT \"name\"")
-            .AppendLine("FROM pragma_index_list(@table)")
-            .AppendLine("WHERE \"origin\" = 'pk'")
-            .AppendLine("ORDER BY \"seq\";")
-            .ToString();
+        command.CommandText =
+"""
+SELECT "name"
+FROM pragma_index_list(@table)
+WHERE "origin" = 'pk'
+ORDER BY "seq"
+""";
 
         var parameter = command.CreateParameter();
         parameter.ParameterName = "@table";
@@ -312,11 +316,12 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
         _logger.PrimaryKeyFound(name, table.Name);
 
-        command.CommandText = new StringBuilder()
-            .AppendLine("SELECT \"name\"")
-            .AppendLine("FROM pragma_index_info(@index)")
-            .AppendLine("ORDER BY \"seqno\";")
-            .ToString();
+        command.CommandText =
+"""
+SELECT "name"
+FROM pragma_index_info(@index)
+ORDER BY "seqno"
+""";
 
         parameter.ParameterName = "@index";
         parameter.Value = name;
@@ -340,11 +345,12 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
         DatabaseTable table)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = new StringBuilder()
-            .AppendLine("SELECT \"name\"")
-            .AppendLine("FROM pragma_table_info(@table)")
-            .AppendLine("WHERE \"pk\" = 1;")
-            .ToString();
+        command.CommandText =
+"""
+SELECT "name"
+FROM pragma_table_info(@table)
+WHERE "pk" = 1
+""";
 
         var parameter = command.CreateParameter();
         parameter.ParameterName = "@table";
@@ -375,12 +381,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     private void GetUniqueConstraints(DbConnection connection, DatabaseTable table)
     {
         using var command1 = connection.CreateCommand();
-        command1.CommandText = new StringBuilder()
-            .AppendLine("SELECT \"name\"")
-            .AppendLine("FROM pragma_index_list(@table)")
-            .AppendLine("WHERE \"origin\" = 'u'")
-            .AppendLine("ORDER BY \"seq\";")
-            .ToString();
+        command1.CommandText =
+"""
+SELECT "name"
+FROM pragma_index_list(@table)
+WHERE "origin" = 'u'
+ORDER BY "seq"
+""";
 
         var parameter1 = command1.CreateParameter();
         parameter1.ParameterName = "@table";
@@ -400,11 +407,12 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
             using (var command2 = connection.CreateCommand())
             {
-                command2.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"name\"")
-                    .AppendLine("FROM pragma_index_info(@index)")
-                    .AppendLine("ORDER BY \"seqno\";")
-                    .ToString();
+                command2.CommandText =
+"""
+SELECT "name"
+FROM pragma_index_info(@index)
+ORDER BY "seqno"
+""";
 
                 var parameter2 = command2.CreateParameter();
                 parameter2.ParameterName = "@index";
@@ -431,12 +439,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     private void GetIndexes(DbConnection connection, DatabaseTable table)
     {
         using var command1 = connection.CreateCommand();
-        command1.CommandText = new StringBuilder()
-            .AppendLine("SELECT \"name\", \"unique\"")
-            .AppendLine("FROM pragma_index_list(@table)")
-            .AppendLine("WHERE \"origin\" = 'c' AND instr(\"name\", 'sqlite_') <> 1")
-            .AppendLine("ORDER BY \"seq\";")
-            .ToString();
+        command1.CommandText =
+"""
+SELECT "name", "unique"
+FROM pragma_index_list(@table)
+WHERE "origin" = 'c' AND instr("name", 'sqlite_') <> 1
+ORDER BY "seq"
+""";
 
         var parameter1 = command1.CreateParameter();
         parameter1.ParameterName = "@table";
@@ -457,12 +466,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
 
             using (var command2 = connection.CreateCommand())
             {
-                command2.CommandText = new StringBuilder()
-                    .AppendLine("SELECT \"name\", \"desc\"")
-                    .AppendLine("FROM pragma_index_xinfo(@index)")
-                    .AppendLine("WHERE key = 1")
-                    .AppendLine("ORDER BY \"seqno\";")
-                    .ToString();
+                command2.CommandText =
+"""
+SELECT "name", "desc"
+FROM pragma_index_xinfo(@index)
+WHERE key = 1
+ORDER BY "seqno"
+""";
 
                 var parameter2 = command2.CreateParameter();
                 parameter2.ParameterName = "@index";
@@ -489,11 +499,12 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     private void GetForeignKeys(DbConnection connection, DatabaseTable table, IList<DatabaseTable> tables)
     {
         using var command1 = connection.CreateCommand();
-        command1.CommandText = new StringBuilder()
-            .AppendLine("SELECT DISTINCT \"id\", \"table\", \"on_delete\"")
-            .AppendLine("FROM pragma_foreign_key_list(@table)")
-            .AppendLine("ORDER BY \"id\";")
-            .ToString();
+        command1.CommandText =
+"""
+SELECT DISTINCT "id", "table", "on_delete"
+FROM pragma_foreign_key_list(@table)
+ORDER BY "id"
+""";
 
         var parameter1 = command1.CreateParameter();
         parameter1.ParameterName = "@table";
@@ -527,12 +538,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
             };
 
             using var command2 = connection.CreateCommand();
-            command2.CommandText = new StringBuilder()
-                .AppendLine("SELECT \"seq\", \"from\", \"to\"")
-                .AppendLine("FROM pragma_foreign_key_list(@table)")
-                .AppendLine("WHERE \"id\" = @id")
-                .AppendLine("ORDER BY \"seq\";")
-                .ToString();
+            command2.CommandText =
+"""
+SELECT "seq", "from", "to"
+FROM pragma_foreign_key_list(@table)
+WHERE "id" = @id
+ORDER BY "seq"
+""";
 
             var parameter2 = command2.CreateParameter();
             parameter2.ParameterName = "@table";
@@ -592,27 +604,13 @@ public class SqliteDatabaseModelFactory : DatabaseModelFactory
     }
 
     private static ReferentialAction? ConvertToReferentialAction(string value)
-    {
-        switch (value)
+        => value switch
         {
-            case "RESTRICT":
-                return ReferentialAction.Restrict;
-
-            case "CASCADE":
-                return ReferentialAction.Cascade;
-
-            case "SET NULL":
-                return ReferentialAction.SetNull;
-
-            case "SET DEFAULT":
-                return ReferentialAction.SetDefault;
-
-            case "NO ACTION":
-                return ReferentialAction.NoAction;
-
-            default:
-                Check.DebugAssert(value == "NONE", "Unexpected value: " + value);
-                return null;
-        }
-    }
+            "RESTRICT" => ReferentialAction.Restrict,
+            "CASCADE" => ReferentialAction.Cascade,
+            "SET NULL" => ReferentialAction.SetNull,
+            "SET DEFAULT" => ReferentialAction.SetDefault,
+            "NO ACTION" => ReferentialAction.NoAction,
+            _ => null
+        };
 }
