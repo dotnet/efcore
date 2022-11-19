@@ -691,7 +691,7 @@ SELECT
     [c].[is_sparse]
 FROM
 (";
-        if (SupportsViewsAndIndexes())
+        if (SupportsViews())
         {
             commandText += @"
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
