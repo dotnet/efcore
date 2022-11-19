@@ -592,7 +592,7 @@ AND "
 WHERE "
             + viewFilter;
 
-        command.CommandText = SupportsViewsAndIndexes() ? commandText + viewCommandText : commandText;
+        command.CommandText = SupportsViews() ? commandText + viewCommandText : commandText;
 
         using (var reader = command.ExecuteReader())
         {
@@ -647,7 +647,7 @@ WHERE "
         // This is done separately due to MARS property may be turned off
         GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseCollation);
 
-        if (SupportsViewsAndIndexes())
+        if (SupportsIndexes())
         {
             GetIndexes(connection, tables, filter);
         }
@@ -1168,7 +1168,7 @@ SELECT
     [f].[name],
 	SCHEMA_NAME(tab2.[schema_id]) AS [principal_table_schema],
 	[tab2].name AS [principal_table_name],	
-	[f].[delete_referential_action_desc] AS [delete_referential_action_desc],
+	[f].[delete_referential_action_desc],
     [col1].[name] AS [column_name],
     [col2].[name] AS [referenced_column_name]
 FROM [sys].[foreign_keys] AS [f] 
@@ -1356,7 +1356,10 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
     private bool SupportsSequences()
         => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
 
-    private bool SupportsViewsAndIndexes()
+    private bool SupportsIndexes()
+        => _engineEdition != 1000;
+
+    private bool SupportsViews()
         => _engineEdition != 1000;
 
     private static string DisplayName(string? schema, string name)
