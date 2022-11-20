@@ -306,7 +306,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     public virtual int? SetMaxLength(int? maxLength, ConfigurationSource configurationSource)
     {
         if (maxLength != null
-            && maxLength < 0)
+            && maxLength < -1)
         {
             throw new ArgumentOutOfRangeException(nameof(maxLength));
         }

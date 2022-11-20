@@ -76,12 +76,12 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     {
         if (parameters.Unicode)
         {
-            _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= UnicodeMax ? parameters.Size.Value : UnicodeMax;
+            _maxSpecificSize = parameters.Size is > 0 and <= UnicodeMax ? parameters.Size.Value : UnicodeMax;
             _maxSize = UnicodeMax;
         }
         else
         {
-            _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= AnsiMax ? parameters.Size.Value : AnsiMax;
+            _maxSpecificSize = parameters.Size is > 0 and <= AnsiMax ? parameters.Size.Value : AnsiMax;
             _maxSize = AnsiMax;
         }
 
