@@ -632,6 +632,8 @@ public class JsonQueryData : ISetSource
     {
         var r1 = new JsonOwnedAllTypes
         {
+            TestDefaultString = "MyDefaultStringInReference1",
+            TestMaxLengthString = "Foo",
             TestInt16 = -1234,
             TestInt32 = -123456789,
             TestInt64 = -1234567890123456789L,
@@ -659,6 +661,8 @@ public class JsonQueryData : ISetSource
 
         var r2 = new JsonOwnedAllTypes
         {
+            TestDefaultString = "MyDefaultStringInReference2",
+            TestMaxLengthString = "Bar",
             TestInt16 = -123,
             TestInt32 = -12356789,
             TestInt64 = -123567890123456789L,
@@ -686,6 +690,8 @@ public class JsonQueryData : ISetSource
 
         var c1 = new JsonOwnedAllTypes
         {
+            TestDefaultString = "MyDefaultStringInCollection1",
+            TestMaxLengthString = "Baz",
             TestInt16 = -12,
             TestInt32 = -12345,
             TestInt64 = -1234567890L,
@@ -713,6 +719,8 @@ public class JsonQueryData : ISetSource
 
         var c2 = new JsonOwnedAllTypes
         {
+            TestDefaultString = "MyDefaultStringInCollection2",
+            TestMaxLengthString = "Qux",
             TestInt16 = -1,
             TestInt32 = -1245,
             TestInt64 = -123567890L,

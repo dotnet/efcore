@@ -331,6 +331,8 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
 
     public static void AssertAllTypes(JsonOwnedAllTypes expected, JsonOwnedAllTypes actual)
     {
+        Assert.Equal(expected.TestDefaultString, actual.TestDefaultString);
+        Assert.Equal(expected.TestMaxLengthString, actual.TestMaxLengthString);
         Assert.Equal(expected.TestBoolean, actual.TestBoolean);
         Assert.Equal(expected.TestCharacter, actual.TestCharacter);
         Assert.Equal(expected.TestDateTime, actual.TestDateTime);
@@ -502,6 +504,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             x => x.Reference, b =>
             {
                 b.ToJson();
+                b.Property(x => x.TestMaxLengthString).HasMaxLength(5);
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
                 b.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
                 b.Property(x => x.TestNullableEnumWithIntConverter).HasConversion<int>();
@@ -529,6 +532,7 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             x => x.Collection, b =>
             {
                 b.ToJson();
+                b.Property(x => x.TestMaxLengthString).HasMaxLength(5);
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
             });
     }
