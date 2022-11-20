@@ -592,7 +592,7 @@ AND "
 WHERE "
             + viewFilter;
 
-        command.CommandText = commandText + viewCommandText;
+        command.CommandText = SupportsViews() ? commandText + viewCommandText : commandText;
 
         using (var reader = command.ExecuteReader())
         {
@@ -646,7 +646,12 @@ WHERE "
 
         // This is done separately due to MARS property may be turned off
         GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseCollation);
-        GetIndexes(connection, tables, filter);
+
+        if (SupportsIndexes())
+        {
+            GetIndexes(connection, tables, filter);
+        }
+
         GetForeignKeys(connection, tables, filter);
         GetTriggers(connection, tables, filter);
 
@@ -685,14 +690,19 @@ SELECT
     [c].[collation_name],
     [c].[is_sparse]
 FROM
-(
+(";
+        if (SupportsViews())
+        {
+            commandText += @"
     SELECT[v].[name], [v].[object_id], [v].[schema_id]
     FROM [sys].[views] v WHERE ";
 
-        commandText += viewFilter;
+            commandText += viewFilter;
 
+            commandText += @"
+UNION ALL";
+        }
         commandText += @"
-UNION ALL
     SELECT [t].[name], [t].[object_id], [t].[schema_id]
     FROM [sys].[tables] t WHERE ";
 
@@ -1156,14 +1166,17 @@ SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
     [f].[name],
-    OBJECT_SCHEMA_NAME([f].[referenced_object_id]) AS [principal_table_schema],
-    OBJECT_NAME([f].[referenced_object_id]) AS [principal_table_name],
-    [f].[delete_referential_action_desc],
-    col_name([fc].[parent_object_id], [fc].[parent_column_id]) AS [column_name],
-    col_name([fc].[referenced_object_id], [fc].[referenced_column_id]) AS [referenced_column_name]
-FROM [sys].[foreign_keys] AS [f]
-JOIN [sys].[tables] AS [t] ON [f].[parent_object_id] = [t].[object_id]
-JOIN [sys].[foreign_key_columns] AS [fc] ON [f].[object_id] = [fc].[constraint_object_id]
+	SCHEMA_NAME(tab2.[schema_id]) AS [principal_table_schema],
+	[tab2].name AS [principal_table_name],	
+	[f].[delete_referential_action_desc],
+    [col1].[name] AS [column_name],
+    [col2].[name] AS [referenced_column_name]
+FROM [sys].[foreign_keys] AS [f] 
+JOIN [sys].[foreign_key_columns] AS fc ON [fc].[constraint_object_id] = [f].[object_id]
+JOIN [sys].[tables] AS [t] ON [t].[object_id] = [fc].[parent_object_id]
+JOIN [sys].[columns] AS [col1] ON [col1].[column_id] = [fc].[parent_column_id] AND [col1].[object_id] = [t].[object_id]
+JOIN [sys].[tables] AS [tab2] ON [tab2].[object_id] = [fc].[referenced_object_id]
+JOIN [sys].[columns] AS [col2] ON [col2].[column_id] = [fc].[referenced_column_id] AND [col2].[object_id] = [tab2].[object_id]
 WHERE "
             + tableFilter
             + @"
@@ -1335,13 +1348,19 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
     }
 
     private bool SupportsTemporalTable()
-        => _compatibilityLevel >= 130 && _engineEdition != 6;
+        => _compatibilityLevel >= 130 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsMemoryOptimizedTable()
-        => _compatibilityLevel >= 120 && _engineEdition != 6;
+        => _compatibilityLevel >= 120 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && _engineEdition != 6;
+        => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
+
+    private bool SupportsIndexes()
+        => _engineEdition != 1000;
+
+    private bool SupportsViews()
+        => _engineEdition != 1000;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
