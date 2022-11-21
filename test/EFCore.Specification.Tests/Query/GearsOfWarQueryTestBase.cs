@@ -8240,6 +8240,17 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                     .FirstOrDefault() == null));
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Set_operator_with_navigation_in_projection_groupby_aggregate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                .Where(x => ss.Set<Gear>().Concat(ss.Set<Gear>()).Select(x => x.Nickname).Contains("Marcus"))
+                .Select(x => new { x.Squad.Name, x.CityOfBirth.Location })
+                .GroupBy(x => new { x.Name })
+                .Select(x => new { x.Key.Name, SumOfLengths = x.Sum(xx => xx.Location.Length) }));
+
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();
 

@@ -2134,6 +2134,52 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
+    public virtual void TVF_with_navigation_in_projection_groupby_aggregate()
+    {
+        using (var context = CreateContext())
+        {
+            var query = context.Orders
+                .Where(c => !context.Set<TopSellingProduct>().Select(x => x.ProductId).Contains(25))
+                .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
+                .GroupBy(x => new { x.LastName })
+                .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
+                .ToList();
+
+            Assert.Equal(3, query.Count);
+            var orderedResult = query.OrderBy(x => x.LastName).ToList();
+            Assert.Equal("One", orderedResult[0].LastName);
+            Assert.Equal(24, orderedResult[0].SumOfLengths);
+            Assert.Equal("Three", orderedResult[1].LastName);
+            Assert.Equal(8, orderedResult[1].SumOfLengths);
+            Assert.Equal("Two", orderedResult[2].LastName);
+            Assert.Equal(16, orderedResult[2].SumOfLengths);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate()
+    {
+        using (var context = CreateContext())
+        {
+            var query = context.Orders
+                .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id).Select(x => x.CustomerId).Contains(25))
+                .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
+                .GroupBy(x => new { x.LastName })
+                .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
+                .ToList();
+
+            Assert.Equal(3, query.Count);
+            var orderedResult = query.OrderBy(x => x.LastName).ToList();
+            Assert.Equal("One", orderedResult[0].LastName);
+            Assert.Equal(24, orderedResult[0].SumOfLengths);
+            Assert.Equal("Three", orderedResult[1].LastName);
+            Assert.Equal(8, orderedResult[1].SumOfLengths);
+            Assert.Equal("Two", orderedResult[2].LastName);
+            Assert.Equal(16, orderedResult[2].SumOfLengths);
+        }
+    }
+
+    [ConditionalFact]
     public virtual void TVF_backing_entity_type_mapped_to_view()
     {
         using (var context = CreateContext())
