@@ -369,7 +369,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
             }
 
-            builder
+            var updateBuilder = new StringBuilder()
                 .Append("UPDATE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
                 .Append(" SET ")
@@ -378,8 +378,21 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 .Append(defaultValueSql)
                 .Append(" WHERE ")
                 .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" IS NULL")
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+                .Append(" IS NULL");
+
+            if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
+            {
+                builder
+                    .Append("EXEC(N'")
+                    .Append(updateBuilder.ToString().TrimEnd('\n', '\r', ';').Replace("'", "''"))
+                    .Append("')");
+            }
+            else
+            {
+                builder.Append(updateBuilder.ToString());
+            }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         if (alterStatementNeeded)
