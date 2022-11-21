@@ -750,6 +750,9 @@ public abstract class MigrationsSqlGeneratorTestBase
         ContextOptions = options;
     }
 
+    protected virtual void Generate(MigrationOperation operation, MigrationsSqlGenerationOptions options)
+        => Generate(null, new[] { operation }, options);
+
     protected virtual void Generate(params MigrationOperation[] operation)
         => Generate(null, operation);
 

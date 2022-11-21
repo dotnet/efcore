@@ -35,6 +35,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
     private readonly ICommandBatchPreparer _commandBatchPreparer;
 
+    private static readonly bool QuirkEnabled29619
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29619", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
     /// </summary>
@@ -369,17 +372,46 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                 defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
             }
 
-            builder
-                .Append("UPDATE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                .Append(" SET ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" = ")
-                .Append(defaultValueSql)
-                .Append(" WHERE ")
-                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                .Append(" IS NULL")
-                .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+            if (QuirkEnabled29619)
+            {
+                builder
+                    .Append("UPDATE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" SET ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" = ")
+                    .Append(defaultValueSql)
+                    .Append(" WHERE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" IS NULL");
+            }
+            else
+            {
+                var updateBuilder = new StringBuilder()
+                    .Append("UPDATE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                    .Append(" SET ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" = ")
+                    .Append(defaultValueSql)
+                    .Append(" WHERE ")
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                    .Append(" IS NULL");
+
+                if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
+                {
+                    builder
+                        .Append("EXEC(N'")
+                        .Append(updateBuilder.ToString().TrimEnd('\n', '\r', ';').Replace("'", "''"))
+                        .Append("')");
+                }
+                else
+                {
+                    builder.Append(updateBuilder.ToString());
+                }
+            }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
         }
 
         if (alterStatementNeeded)
