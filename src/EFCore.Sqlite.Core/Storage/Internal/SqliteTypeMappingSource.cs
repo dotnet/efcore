@@ -140,7 +140,8 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
 
         var storeTypeName = mappingInfo.StoreTypeName;
         if (storeTypeName != null
-            && _storeTypeMappings.TryGetValue(storeTypeName, out mapping))
+            && _storeTypeMappings.TryGetValue(storeTypeName, out mapping)
+            && (clrType == null || mapping.ClrType.UnwrapNullableType() == clrType))
         {
             return mapping;
         }
@@ -149,15 +150,16 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         {
             var affinityTypeMapping = _typeRules.Select(r => r(storeTypeName)).FirstOrDefault(r => r != null);
 
-            if (affinityTypeMapping == null)
+            if (affinityTypeMapping != null)
             {
-                return Blob;
+                return clrType == null || affinityTypeMapping.ClrType.UnwrapNullableType() == clrType
+                    ? affinityTypeMapping
+                    : null;
             }
 
-            if (clrType == null
-                || affinityTypeMapping.ClrType.UnwrapNullableType() == clrType)
+            if (clrType == null || clrType == typeof(byte[]))
             {
-                return affinityTypeMapping;
+                return Blob;
             }
         }
 
