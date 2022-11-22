@@ -2903,7 +2903,7 @@ WHERE "m"."Timeline" = '1902-01-02 10:00:00.1234567+01:30'
 
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
-WHERE "c"."Nation" = @__place_0 OR "c"."Location" = @__place_0
+WHERE "c"."Nation" = @__place_0 OR "c"."Location" = @__place_0 OR "c"."Location" = @__place_0
 """);
     }
 
