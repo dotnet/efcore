@@ -1195,8 +1195,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         foreach (var (propertyExpression, _) in propertyValueLambdaExpressions)
         {
             var left = RemapLambdaBody(source, propertyExpression);
-            left = left.UnwrapTypeConversion(out _);
-            if (!IsValidPropertyAccess(RelationalDependencies.Model, left, out var ese))
+
+            if (!TryProcessPropertyAccess(RelationalDependencies.Model, ref left, out var ese))
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
                 return null;
@@ -1399,13 +1399,21 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        static bool IsValidPropertyAccess(
+        static bool TryProcessPropertyAccess(
             IModel model,
-            Expression expression,
+            ref Expression expression,
             [NotNullWhen(true)] out EntityShaperExpression? entityShaperExpression)
         {
-            if (expression is MemberExpression { Expression: EntityShaperExpression ese })
+            // Unwrap any object/base-type Convert nodes around the property access expression
+            expression = expression.UnwrapTypeConversion(out _);
+
+            // Identify property access (direct, EF.Property...), while also unwrapping object/base-type Convert nodes on the expression
+            // being accessed.
+            if (expression is MemberExpression memberExpression
+                && memberExpression.Expression.UnwrapTypeConversion(out _) is EntityShaperExpression ese)
             {
+                expression = memberExpression.Update(ese);
+
                 entityShaperExpression = ese;
                 return true;
             }
@@ -1413,15 +1421,24 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             if (expression is MethodCallExpression mce)
             {
                 if (mce.TryGetEFPropertyArguments(out var source, out _)
-                    && source is EntityShaperExpression ese1)
+                    && source.UnwrapTypeConversion(out _) is EntityShaperExpression ese1)
                 {
+                    if (source != ese1)
+                    {
+                        var rewrittenArguments = mce.Arguments.ToArray();
+                        rewrittenArguments[0] = ese1;
+                        expression = mce.Update(mce.Object, rewrittenArguments);
+                    }
+
                     entityShaperExpression = ese1;
                     return true;
                 }
 
                 if (mce.TryGetIndexerArguments(model, out var source2, out _)
-                    && source2 is EntityShaperExpression ese2)
+                    && source2.UnwrapTypeConversion(out _) is EntityShaperExpression ese2)
                 {
+                    expression = mce.Update(ese2, mce.Arguments);
+
                     entityShaperExpression = ese2;
                     return true;
                 }
