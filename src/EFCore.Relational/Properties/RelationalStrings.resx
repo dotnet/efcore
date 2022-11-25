@@ -130,6 +130,9 @@
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
+  <data name="CannotConfigureTriggerNonRootTphEntity" xml:space="preserve">
+    <value>Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.</value>
+  </data>
   <data name="ClientGroupByNotSupported" xml:space="preserve">
     <value>Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.</value>
   </data>

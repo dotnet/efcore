@@ -158,6 +158,16 @@ public class ConventionSet
     public virtual List<ISkipNavigationRemovedConvention> SkipNavigationRemovedConventions { get; } = new();
 
     /// <summary>
+    ///     Conventions to run when a trigger property is added.
+    /// </summary>
+    public virtual List<ITriggerAddedConvention> TriggerAddedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when a trigger property is removed.
+    /// </summary>
+    public virtual List<ITriggerRemovedConvention> TriggerRemovedConventions { get; } = new();
+
+    /// <summary>
     ///     Conventions to run when a key is added.
     /// </summary>
     public virtual List<IKeyAddedConvention> KeyAddedConventions { get; } = new();
@@ -677,6 +687,16 @@ public class ConventionSet
             SkipNavigationRemovedConventions.Add(skipNavigationRemovedConvention);
         }
 
+        if (convention is ITriggerAddedConvention triggerAddedConvention)
+        {
+            TriggerAddedConventions.Add(triggerAddedConvention);
+        }
+
+        if (convention is ITriggerRemovedConvention triggerRemovedConvention)
+        {
+            TriggerRemovedConventions.Add(triggerRemovedConvention);
+        }
+
         if (convention is IKeyAddedConvention keyAddedConvention)
         {
             KeyAddedConventions.Add(keyAddedConvention);
@@ -948,6 +968,16 @@ public class ConventionSet
         if (typeof(ISkipNavigationRemovedConvention).IsAssignableFrom(conventionType))
         {
             Remove(SkipNavigationRemovedConventions, conventionType);
+        }
+
+        if (typeof(ITriggerAddedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(TriggerAddedConventions, conventionType);
+        }
+
+        if (typeof(ITriggerRemovedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(TriggerRemovedConventions, conventionType);
         }
 
         if (typeof(IKeyAddedConvention).IsAssignableFrom(conventionType))

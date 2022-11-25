@@ -29,6 +29,8 @@ public partial class ConventionDispatcher
         private readonly ConventionContext<IConventionPropertyBuilder> _propertyBuilderConventionContext;
         private readonly ConventionContext<IConventionProperty> _propertyConventionContext;
         private readonly ConventionContext<IConventionModelBuilder> _modelBuilderConventionContext;
+        private readonly ConventionContext<IConventionTriggerBuilder> _triggerBuilderConventionContext;
+        private readonly ConventionContext<IConventionTrigger> _triggerConventionContext;
         private readonly ConventionContext<IConventionAnnotation> _annotationConventionContext;
         private readonly ConventionContext<IReadOnlyList<IConventionProperty>> _propertyListConventionContext;
         private readonly ConventionContext<string> _stringConventionContext;
@@ -55,6 +57,8 @@ public partial class ConventionDispatcher
             _propertyBuilderConventionContext = new ConventionContext<IConventionPropertyBuilder>(dispatcher);
             _propertyConventionContext = new ConventionContext<IConventionProperty>(dispatcher);
             _modelBuilderConventionContext = new ConventionContext<IConventionModelBuilder>(dispatcher);
+            _triggerBuilderConventionContext = new ConventionContext<IConventionTriggerBuilder>(dispatcher);
+            _triggerConventionContext = new ConventionContext<IConventionTrigger>(dispatcher);
             _annotationConventionContext = new ConventionContext<IConventionAnnotation>(dispatcher);
             _propertyListConventionContext = new ConventionContext<IReadOnlyList<IConventionProperty>>(dispatcher);
             _stringConventionContext = new ConventionContext<string>(dispatcher);
@@ -929,6 +933,56 @@ public partial class ConventionDispatcher
             }
 
             return navigation;
+        }
+
+        public override IConventionTriggerBuilder? OnTriggerAdded(IConventionTriggerBuilder triggerBuilder)
+        {
+            if (!triggerBuilder.Metadata.EntityType.IsInModel)
+            {
+                return null;
+            }
+
+            using (_dispatcher.DelayConventions())
+            {
+                _triggerBuilderConventionContext.ResetState(triggerBuilder);
+                foreach (var triggerConvention in _conventionSet.TriggerAddedConventions)
+                {
+                    if (!triggerBuilder.Metadata.IsInModel)
+                    {
+                        return null;
+                    }
+
+                    triggerConvention.ProcessTriggerAdded(triggerBuilder, _triggerBuilderConventionContext);
+                    if (_triggerBuilderConventionContext.ShouldStopProcessing())
+                    {
+                        return _triggerBuilderConventionContext.Result;
+                    }
+#if DEBUG
+                    Check.DebugAssert(triggerBuilder.Metadata.IsInModel,
+                        $"Convention {triggerConvention.GetType().Name} changed value without terminating");
+#endif
+                }
+            }
+
+            return !triggerBuilder.Metadata.IsInModel ? null : triggerBuilder;
+        }
+
+        public override IConventionTrigger? OnTriggerRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionTrigger trigger)
+        {
+            using (_dispatcher.DelayConventions())
+            {
+                _triggerConventionContext.ResetState(trigger);
+                foreach (var triggerConvention in _conventionSet.TriggerRemovedConventions)
+                {
+                    triggerConvention.ProcessTriggerRemoved(entityTypeBuilder, trigger, _triggerConventionContext);
+                    if (_triggerConventionContext.ShouldStopProcessing())
+                    {
+                        return _triggerConventionContext.Result;
+                    }
+                }
+            }
+
+            return trigger;
         }
 
         public override IConventionKeyBuilder? OnKeyAdded(IConventionKeyBuilder keyBuilder)

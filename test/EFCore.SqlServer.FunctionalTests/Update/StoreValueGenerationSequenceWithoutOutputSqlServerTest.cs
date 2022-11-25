@@ -7,11 +7,11 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class StoreValueGenerationSequenceTriggerSqlServerTest : StoreValueGenerationTriggerSqlServerTestBase<
-    StoreValueGenerationSequenceTriggerSqlServerTest.StoreValueGenerationSequenceWithTriggerSqlServerFixture>
+public class StoreValueGenerationSequenceWithoutOutputSqlServerTest : StoreValueGenerationWithoutOutputSqlServerTestBase<
+    StoreValueGenerationSequenceWithoutOutputSqlServerTest.StoreValueGenerationSequenceWithWithoutOutputSqlServerFixture>
 {
-    public StoreValueGenerationSequenceTriggerSqlServerTest(
-        StoreValueGenerationSequenceWithTriggerSqlServerFixture fixture,
+    public StoreValueGenerationSequenceWithoutOutputSqlServerTest(
+        StoreValueGenerationSequenceWithWithoutOutputSqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -481,7 +481,7 @@ ORDER BY [i].[_Position];
         }
     }
 
-    public class StoreValueGenerationSequenceWithTriggerSqlServerFixture : StoreValueGenerationTriggerSqlServerFixture
+    public class StoreValueGenerationSequenceWithWithoutOutputSqlServerFixture : StoreValueGenerationWithoutOutputSqlServerFixture
     {
         protected override string StoreName
             => "StoreValueGenerationSequenceWithTriggerTest";

@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 // ReSharper disable once CheckNamespace
-
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -10,6 +9,8 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 public static class SqlServerTableBuilderExtensions
 {
+    #region IsTemporal
+
     /// <summary>
     ///     Configures the table as temporal.
     /// </summary>
@@ -183,6 +184,10 @@ public static class SqlServerTableBuilderExtensions
         return tableBuilder;
     }
 
+    #endregion IsTemporal
+
+    #region IsMemoryOptimized
+
     /// <summary>
     ///     Configures the table that the entity maps to when targeting SQL Server as memory-optimized.
     /// </summary>
@@ -264,4 +269,141 @@ public static class SqlServerTableBuilderExtensions
 
         return tableBuilder;
     }
+
+    #endregion IsMemoryOptimized
+
+    #region UseSqlOutputClause
+
+    /// <summary>
+    ///     Configures whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause">Using the SQL OUTPUT clause with SQL Server</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="tableBuilder">The builder for the table being configured.</param>
+    /// <param name="useSqlOutputClause">A value indicating whether to use the OUTPUT clause when saving changes to the table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static TableBuilder UseSqlOutputClause(
+        this TableBuilder tableBuilder,
+        bool useSqlOutputClause = true)
+    {
+        UseSqlOutputClause(tableBuilder.Metadata, tableBuilder.Name, tableBuilder.Schema, useSqlOutputClause);
+
+        return tableBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause">Using the SQL OUTPUT clause with SQL Server</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+    /// <param name="tableBuilder">The builder for the table being configured.</param>
+    /// <param name="useSqlOutputClause">A value indicating whether to use the OUTPUT clause when saving changes to the table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static TableBuilder<TEntity> UseSqlOutputClause<TEntity>(
+        this TableBuilder<TEntity> tableBuilder,
+        bool useSqlOutputClause = true)
+        where TEntity : class
+        => (TableBuilder<TEntity>)((TableBuilder)tableBuilder).UseSqlOutputClause(useSqlOutputClause);
+
+    /// <summary>
+    ///     Configures whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause">Using the SQL OUTPUT clause with SQL Server</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="tableBuilder">The builder for the table being configured.</param>
+    /// <param name="useSqlOutputClause">A value indicating whether to use the OUTPUT clause when saving changes to the table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static SplitTableBuilder UseSqlOutputClause(
+        this SplitTableBuilder tableBuilder,
+        bool useSqlOutputClause = true)
+    {
+        UseSqlOutputClause(tableBuilder.Metadata, tableBuilder.Name, tableBuilder.Schema, useSqlOutputClause);
+
+        return tableBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause">Using the SQL OUTPUT clause with SQL Server</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TEntity">The entity type being configured.</typeparam>
+    /// <param name="tableBuilder">The builder for the table being configured.</param>
+    /// <param name="useSqlOutputClause">A value indicating whether to use the OUTPUT clause when saving changes to the table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static SplitTableBuilder<TEntity> UseSqlOutputClause<TEntity>(
+        this SplitTableBuilder<TEntity> tableBuilder,
+        bool useSqlOutputClause = true)
+        where TEntity : class
+        => (SplitTableBuilder<TEntity>)((SplitTableBuilder)tableBuilder).UseSqlOutputClause(useSqlOutputClause);
+
+    /// <summary>
+    ///     Configures whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause">Using the SQL OUTPUT clause with SQL Server</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="tableBuilder">The builder for the table being configured.</param>
+    /// <param name="useSqlOutputClause">A value indicating whether to use the OUTPUT clause when saving changes to the table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnedNavigationTableBuilder UseSqlOutputClause(
+        this OwnedNavigationTableBuilder tableBuilder,
+        bool useSqlOutputClause = true)
+    {
+        UseSqlOutputClause(tableBuilder.Metadata, tableBuilder.Name, tableBuilder.Schema, useSqlOutputClause);
+
+        return tableBuilder;
+    }
+
+    /// <summary>
+    ///     Configures whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause">Using the SQL OUTPUT clause with SQL Server</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <typeparam name="TOwnerEntity">The entity type owning the relationship.</typeparam>
+    /// <typeparam name="TDependentEntity">The dependent entity type of the relationship.</typeparam>
+    /// <param name="tableBuilder">The builder for the table being configured.</param>
+    /// <param name="useSqlOutputClause">A value indicating whether to use the OUTPUT clause when saving changes to the table.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public static OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> UseSqlOutputClause<TOwnerEntity, TDependentEntity>(
+        this OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> tableBuilder,
+        bool useSqlOutputClause = true)
+        where TOwnerEntity : class
+        where TDependentEntity : class
+        => (OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>)
+            ((OwnedNavigationTableBuilder)tableBuilder).UseSqlOutputClause(useSqlOutputClause);
+
+    private static void UseSqlOutputClause(IMutableEntityType entityType, string? tableName, string? tableSchema, bool useSqlOutputClause)
+    {
+        if (tableName is null)
+        {
+            entityType.UseSqlOutputClause(useSqlOutputClause);
+        }
+        else
+        {
+            entityType.UseSqlOutputClause(
+                useSqlOutputClause,
+                StoreObjectIdentifier.Table(tableName, tableSchema));
+        }
+    }
+
+    #endregion UseSqlOutputClause
 }

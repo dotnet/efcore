@@ -71,8 +71,7 @@ public class SqlServerValueGenerationConvention : RelationalValueGenerationConve
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if ((name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
-                || name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName)
+        if (name is SqlServerAnnotationNames.TemporalPeriodStartPropertyName or SqlServerAnnotationNames.TemporalPeriodEndPropertyName
             && annotation?.Value is string propertyName)
         {
             var periodProperty = entityTypeBuilder.Metadata.FindProperty(propertyName);

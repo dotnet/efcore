@@ -3010,7 +3010,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         _triggers.Add(modelName, trigger);
 
-        return trigger;
+        return (Trigger?)Model.ConventionDispatcher.OnTriggerAdded(trigger.Builder)?.Metadata;
     }
 
     /// <summary>
@@ -3058,7 +3058,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
 
         trigger.SetRemovedFromModel();
 
-        return trigger;
+        return (Trigger?)Model.ConventionDispatcher.OnTriggerRemoved(Builder, trigger);
     }
 
     #endregion

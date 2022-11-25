@@ -315,11 +315,33 @@ public class SqlServerModelValidator : RelationalModelValidator
             }
         }
 
+        bool? firstSqlOutputSetting = null;
+        firstMappedType = null;
+        foreach (var mappedType in mappedTypes)
+        {
+            if (((IConventionEntityType)mappedType).GetUseSqlOutputClauseConfigurationSource() is null)
+            {
+                continue;
+            }
+
+            if (firstSqlOutputSetting is null)
+            {
+                (firstSqlOutputSetting, firstMappedType) = (mappedType.IsSqlOutputClauseUsed(), mappedType);
+            }
+            else if (mappedType.IsSqlOutputClauseUsed() != firstSqlOutputSetting)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.IncompatibleSqlOutputClauseMismatch(
+                        storeObject.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
+                        firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName(),
+                        !firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName()));
+            }
+        }
+
         if (mappedTypes.Any(t => t.IsTemporal())
             && mappedTypes.Select(t => t.GetRootType()).Distinct().Count() > 1)
         {
-            // table splitting is only supported when all entites mapped to this table
-            // have consistent temporal period mappings also
+            // table splitting is only supported when all entities mapped to this table have consistent temporal period mappings also
             var expectedPeriodStartColumnName = default(string);
             var expectedPeriodEndColumnName = default(string);
 
