@@ -665,6 +665,32 @@ EXEC [Child1_Insert] @p0 OUTPUT, @p1, @p2;
 """);
     }
 
+    public override async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async)
+    {
+        await base.Non_sproc_followed_by_sproc_commands_in_the_same_batch(
+            async,
+"""
+CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
+AS BEGIN
+    INSERT INTO [Entity] ([Name]) VALUES (@Name);
+    SET @Id = SCOPE_IDENTITY();
+END
+""");
+
+        AssertSql(
+"""
+@p0='1'
+@p1='Entity2' (Size = 4000)
+@p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+
+SET NOCOUNT ON;
+DELETE FROM [Entity]
+OUTPUT 1
+WHERE [Id] = @p0;
+EXEC [Entity_Insert] @p1, @p2 OUTPUT;
+""");
+    }
+
     protected override void ConfigureStoreGeneratedConcurrencyToken(EntityTypeBuilder entityTypeBuilder, string propertyName)
         => entityTypeBuilder.Property<byte[]>(propertyName).IsRowVersion();
 

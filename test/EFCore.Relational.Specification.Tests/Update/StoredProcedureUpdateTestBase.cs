@@ -1028,6 +1028,45 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
         }
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public abstract Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async);
+
+    protected async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
+
+        // Prepare by adding an entity
+        var entity1 = new Entity { Name = "Entity1" };
+        context.Set<Entity>().Add(entity1);
+
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            await SaveChanges(context, async);
+        }
+
+        // Now add a second entity and delete the first one. Deletion gets ordered first, and doesn't use a sproc, and then the insertion
+        // does.
+        var entity2 = new Entity { Name = "Entity2" };
+        context.Set<Entity>().Add(entity2);
+        context.Set<Entity>().Remove(entity1);
+        await SaveChanges(context, async);
+
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal("Entity2", context.Set<Entity>().Single(b => b.Id == entity2.Id).Name);
+        }
+    }
+
     /// <summary>
     ///     A method to be implement by the provider, to set up a store-generated concurrency token shadow property with the given name.
     /// </summary>

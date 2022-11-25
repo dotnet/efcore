@@ -93,9 +93,13 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
                 for (commandIndex = 0;
                      commandIndex < ResultSetMappings.Count;
-                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
+                     commandIndex++, parameterCounter += command.ColumnModifications.Count)
                 {
                     command = ModificationCommands[commandIndex];
+
+                    Check.DebugAssert(
+                        command.ColumnModifications.All(c => c.UseParameter),
+                        "This code assumes all column modifications involve a DbParameter (see counting above)");
 
                     if (!ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
                     {
@@ -212,9 +216,13 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
 
                 for (commandIndex = 0;
                      commandIndex < ResultSetMappings.Count;
-                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
+                     commandIndex++, parameterCounter += command.ColumnModifications.Count)
                 {
                     command = ModificationCommands[commandIndex];
+
+                    Check.DebugAssert(
+                        command.ColumnModifications.All(c => c.UseParameter),
+                        "This code assumes all column modifications involve a DbParameter (see counting above)");
 
                     if (!ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
                     {
