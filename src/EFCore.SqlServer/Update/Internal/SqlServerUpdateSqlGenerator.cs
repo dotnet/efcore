@@ -201,7 +201,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
             int commandPosition,
             out bool requiresTransaction)
         // We normally do a simple DELETE, with an OUTPUT clause emitting "1" for concurrency checking.
-        // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do UPDATE+SELECT.
+        // However, if there are triggers defined, OUTPUT (without INTO) is not supported, so we do DELETE+SELECT.
         => HasAnyTriggers(command)
             ? AppendDeleteAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
             : AppendDeleteReturningOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
