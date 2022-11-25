@@ -103,10 +103,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
-        if (!(expression is NewExpression
-                || expression is MemberInitExpression
-                || expression is EntityShaperExpression
-                || expression is IncludeExpression))
+        if (expression is not NewExpression and not MemberInitExpression and not EntityShaperExpression and not IncludeExpression)
         {
             if (_indexBasedBinding)
             {

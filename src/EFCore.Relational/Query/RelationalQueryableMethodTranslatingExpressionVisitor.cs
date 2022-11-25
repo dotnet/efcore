@@ -18,6 +18,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
 
+    private UpdatePropertySelectorUnwrappingExpressionVisitor? _updatePropertySelectorUnwrappingExpressionVisitor;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -1196,7 +1198,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         {
             var left = RemapLambdaBody(source, propertyExpression);
 
-            if (!TryProcessPropertyAccess(RelationalDependencies.Model, ref left, out var ese))
+            _updatePropertySelectorUnwrappingExpressionVisitor ??= new UpdatePropertySelectorUnwrappingExpressionVisitor();
+            left = _updatePropertySelectorUnwrappingExpressionVisitor.Visit(left);
+
+            if (!IsValidPropertyAccess(RelationalDependencies.Model, left, out var ese))
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
                 return null;
@@ -1399,21 +1404,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        static bool TryProcessPropertyAccess(
+        static bool IsValidPropertyAccess(
             IModel model,
-            ref Expression expression,
+            Expression expression,
             [NotNullWhen(true)] out EntityShaperExpression? entityShaperExpression)
         {
-            // Unwrap any object/base-type Convert nodes around the property access expression
-            expression = expression.UnwrapTypeConversion(out _);
-
-            // Identify property access (direct, EF.Property...), while also unwrapping object/base-type Convert nodes on the expression
-            // being accessed.
-            if (expression is MemberExpression memberExpression
-                && memberExpression.Expression.UnwrapTypeConversion(out _) is EntityShaperExpression ese)
+            if (expression is MemberExpression { Expression: EntityShaperExpression ese })
             {
-                expression = memberExpression.Update(ese);
-
                 entityShaperExpression = ese;
                 return true;
             }
@@ -1421,24 +1418,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             if (expression is MethodCallExpression mce)
             {
                 if (mce.TryGetEFPropertyArguments(out var source, out _)
-                    && source.UnwrapTypeConversion(out _) is EntityShaperExpression ese1)
+                    && source is EntityShaperExpression ese1)
                 {
-                    if (source != ese1)
-                    {
-                        var rewrittenArguments = mce.Arguments.ToArray();
-                        rewrittenArguments[0] = ese1;
-                        expression = mce.Update(mce.Object, rewrittenArguments);
-                    }
-
                     entityShaperExpression = ese1;
                     return true;
                 }
 
                 if (mce.TryGetIndexerArguments(model, out var source2, out _)
-                    && source2.UnwrapTypeConversion(out _) is EntityShaperExpression ese2)
+                    && source2 is EntityShaperExpression ese2)
                 {
-                    expression = mce.Update(ese2, mce.Arguments);
-
                     entityShaperExpression = ese2;
                     return true;
                 }
@@ -1465,6 +1453,29 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
 
             return ((MemberExpression)propertyAccessExpression).Expression!;
+        }
+    }
+
+    // For property setter selectors in ExecuteUpdate, this unwraps casts to interface/base class (#29618), as well as IncludeExpressions
+    // (which occur when the target entity has owned entities, #28727).
+    private sealed class UpdatePropertySelectorUnwrappingExpressionVisitor : ExpressionVisitor
+    {
+        [return: NotNullIfNotNull(nameof(node))]
+        public override Expression? Visit(Expression? node)
+        {
+            if (node is null)
+            {
+                return node;
+            }
+
+            node = node.UnwrapTypeConversion(out _);
+
+            if (node is IncludeExpression includeExpression)
+            {
+                node = Visit(includeExpression.EntityExpression);
+            }
+
+            return base.Visit(node);
         }
     }
 
@@ -1662,11 +1673,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression
-                || extensionExpression is ShapedQueryExpression
-                || extensionExpression is GroupByShaperExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+            => extensionExpression is EntityShaperExpression or ShapedQueryExpression or GroupByShaperExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
 
         private Expression? TryExpand(Expression? source, MemberIdentity member)
         {
