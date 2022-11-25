@@ -43,7 +43,7 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
         IReadOnlyModificationCommand command,
         int commandPosition,
         out bool requiresTransaction)
-        => AppendInsertAndSelectOperations(commandStringBuilder, command, commandPosition, out requiresTransaction);
+        => AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction);
 
     /// <summary>
     ///     Appends SQL for inserting a row to the commands being built, via an INSERT followed by an optional SELECT to retrieve any
@@ -54,7 +54,7 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
     /// <param name="commandPosition">The ordinal of this command in the batch.</param>
     /// <param name="requiresTransaction">Returns whether the SQL appended must be executed in a transaction to work correctly.</param>
     /// <returns>The <see cref="ResultSetMapping" /> for the command.</returns>
-    protected virtual ResultSetMapping AppendInsertAndSelectOperations(
+    protected virtual ResultSetMapping AppendInsertAndSelectOperation(
         StringBuilder commandStringBuilder,
         IReadOnlyModificationCommand command,
         int commandPosition,

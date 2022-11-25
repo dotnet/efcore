@@ -64,7 +64,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
                 !o.IsKey
                 || !o.IsRead
                 || o.Property?.GetValueGenerationStrategy(table) == SqlServerValueGenerationStrategy.IdentityColumn)
-            ? AppendInsertAndSelectOperations(commandStringBuilder, command, commandPosition, out requiresTransaction)
+            ? AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition, out requiresTransaction)
             : AppendInsertSingleRowWithOutputInto(
                 commandStringBuilder,
                 command,
@@ -353,7 +353,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
             foreach (var command in modificationCommands)
             {
-                AppendInsertAndSelectOperations(commandStringBuilder, command, commandPosition++, out _);
+                AppendInsertAndSelectOperation(commandStringBuilder, command, commandPosition++, out _);
             }
 
             return ResultSetMapping.LastInResultSet;
