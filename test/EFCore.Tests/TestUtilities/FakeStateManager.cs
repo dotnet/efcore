@@ -95,6 +95,9 @@ public class FakeStateManager : IStateManager
     public IEnumerable<IUpdateEntry> GetDependents(IUpdateEntry principalEntry, IForeignKey foreignKey)
         => throw new NotImplementedException();
 
+    public IEnumerable<IUpdateEntry> GetDependents(IEnumerable<object> keyValues, IForeignKey foreignKey)
+        => throw new NotImplementedException();
+
     public IEnumerable<IUpdateEntry> GetDependentsUsingRelationshipSnapshot(
         IUpdateEntry principalEntry,
         IForeignKey foreignKey)
@@ -126,6 +129,12 @@ public class FakeStateManager : IStateManager
         IEntityType baseEntityType,
         object entity,
         in ValueBuffer valueBuffer)
+        => throw new NotImplementedException();
+
+    public InternalEntityEntry TryGetEntry(IKey key, IEnumerable<object> keyValues)
+        => throw new NotImplementedException();
+
+    public InternalEntityEntry TryGetEntryTyped<TKey>(IKey key, TKey keyValue)
         => throw new NotImplementedException();
 
     public InternalEntityEntry TryGetEntry(IKey key, object[] keyValues)

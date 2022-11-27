@@ -370,8 +370,17 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalEntityEntry? TryGetEntry(IKey key, object?[] keyValues)
+    public virtual InternalEntityEntry? TryGetEntry(IKey key, IEnumerable<object?> keyValues)
         => FindIdentityMap(key)?.TryGetEntry(keyValues);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? TryGetEntryTyped<TKey>(IKey key, TKey keyValue)
+        => ((IIdentityMap<TKey>?)FindIdentityMap(key))?.TryGetEntryTyped(keyValue);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -953,6 +962,21 @@ public class StateManager : IStateManager
         return dependentIdentityMap != null && foreignKey.PrincipalEntityType.IsAssignableFrom(principalEntry.EntityType)
             ? dependentIdentityMap.GetDependentsMap(foreignKey).GetDependents(principalEntry)
             : Enumerable.Empty<IUpdateEntry>();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<IUpdateEntry> GetDependents(
+        IEnumerable<object> keyValues,
+        IForeignKey foreignKey)
+    {
+        GetOrCreateIdentityMap(foreignKey.PrincipalKey);
+        return GetOrCreateIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey()!)
+            .GetDependentsMap(foreignKey).GetDependents(keyValues);
     }
 
     /// <summary>

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
+public class CompositeValueFactory : IDependentKeyValueFactory<IEnumerable<object?>>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +31,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEqualityComparer<object[]> EqualityComparer { get; }
+    public virtual IEqualityComparer<IEnumerable<object?>> EqualityComparer { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -47,9 +47,9 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out object[]? key)
+    public virtual bool TryCreateFromBuffer(in ValueBuffer valueBuffer, [NotNullWhen(true)] out IEnumerable<object?>? key)
     {
-        key = new object[Properties.Count];
+        var keyArray = new object[Properties.Count];
         var index = 0;
 
         foreach (var property in Properties)
@@ -61,9 +61,10 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
                 return false;
             }
 
-            key[index++] = value;
+            keyArray[index++] = value;
         }
 
+        key = keyArray;
         return true;
     }
 
@@ -73,7 +74,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
+    public virtual bool TryCreateFromCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out IEnumerable<object?>? key)
         => TryCreateFromEntry(entry, (e, p) => e.GetCurrentValue(p), out key);
 
     /// <summary>
@@ -82,7 +83,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
+    public virtual bool TryCreateFromPreStoreGeneratedCurrentValues(IUpdateEntry entry, [NotNullWhen(true)] out IEnumerable<object?>? key)
         => TryCreateFromEntry(entry, (e, p) => e.GetPreStoreGeneratedCurrentValue(p), out key);
 
     /// <summary>
@@ -91,7 +92,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
+    public virtual bool TryCreateFromOriginalValues(IUpdateEntry entry, [NotNullWhen(true)] out IEnumerable<object?>? key)
         => TryCreateFromEntry(entry, (e, p) => e.GetOriginalValue(p), out key);
 
     /// <summary>
@@ -100,7 +101,7 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out object[]? key)
+    public virtual bool TryCreateFromRelationshipSnapshot(IUpdateEntry entry, [NotNullWhen(true)] out IEnumerable<object?>? key)
         => TryCreateFromEntry(entry, (e, p) => e.GetRelationshipSnapshotValue(p), out key);
 
     /// <summary>
@@ -112,9 +113,9 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     protected virtual bool TryCreateFromEntry(
         IUpdateEntry entry,
         Func<IUpdateEntry, IProperty, object?> getValue,
-        [NotNullWhen(true)] out object[]? key)
+        [NotNullWhen(true)] out IEnumerable<object?>? key)
     {
-        key = new object[Properties.Count];
+        var keyArray = new object[Properties.Count];
         var index = 0;
 
         foreach (var property in Properties)
@@ -126,9 +127,10 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
                 return false;
             }
 
-            key[index++] = value;
+            keyArray[index++] = value;
         }
 
+        key = keyArray;
         return true;
     }
 
@@ -156,21 +158,23 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected static IEqualityComparer<object[]> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
+    protected static IEqualityComparer<IEnumerable<object?>> CreateEqualityComparer(IReadOnlyList<IProperty> properties)
         => new CompositeCustomComparer(properties.Select(p => p.GetKeyValueComparer()).ToList());
 
-    private sealed class CompositeCustomComparer : IEqualityComparer<object[]>
+    private sealed class CompositeCustomComparer : IEqualityComparer<IEnumerable<object?>>
     {
+        private readonly int _valueCount;
         private readonly Func<object, object, bool>[] _equals;
         private readonly Func<object, int>[] _hashCodes;
 
         public CompositeCustomComparer(IList<ValueComparer> comparers)
         {
+            _valueCount = comparers.Count;
             _equals = comparers.Select(c => (Func<object, object, bool>)c.Equals).ToArray();
             _hashCodes = comparers.Select(c => (Func<object, int>)c.GetHashCode).ToArray();
         }
 
-        public bool Equals(object[]? x, object[]? y)
+        public bool Equals(IEnumerable<object?>? x, IEnumerable<object?>? y)
         {
             if (ReferenceEquals(x, y))
             {
@@ -187,14 +191,44 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
                 return false;
             }
 
-            if (x.Length != y.Length)
+            if (x is IReadOnlyList<object> xList
+                && y is IReadOnlyList<object> yList)
             {
-                return false;
-            }
+                if (xList.Count != _valueCount
+                    || yList.Count != _valueCount)
+                {
+                    return false;
+                }
 
-            for (var i = 0; i < x.Length; i++)
+                for (var i = 0; i < _valueCount; i++)
+                {
+                    if (!_equals[i](xList[i], yList[i]))
+                    {
+                        return false;
+                    }
+                }
+            }
+            else
             {
-                if (!_equals[i](x[i], y[i]))
+                using var xEnumerator = x.GetEnumerator();
+                using var yEnumerator = y.GetEnumerator();
+
+                for (var i = 0; i < _valueCount; i++)
+                {
+                    if (!xEnumerator.MoveNext()
+                        || !yEnumerator.MoveNext())
+                    {
+                        return false;
+                    }
+
+                    if (!_equals[i++](xEnumerator.Current!, yEnumerator.Current!))
+                    {
+                        return false;
+                    }
+                }
+
+                if (xEnumerator.MoveNext()
+                    || yEnumerator.MoveNext())
                 {
                     return false;
                 }
@@ -203,15 +237,14 @@ public class CompositeValueFactory : IDependentKeyValueFactory<object[]>
             return true;
         }
 
-        public int GetHashCode(object[] obj)
+        public int GetHashCode(IEnumerable<object?> obj)
         {
             var hashCode = new HashCode();
 
-            // ReSharper disable once ForCanBeConvertedToForeach
-            // ReSharper disable once LoopCanBeConvertedToQuery
-            for (var i = 0; i < obj.Length; i++)
+            using var enumerator = obj.GetEnumerator();
+            for (var i = 0; i < _valueCount && enumerator.MoveNext(); i++)
             {
-                hashCode.Add(_hashCodes[i](obj[i]));
+                hashCode.Add(_hashCodes[i](enumerator.Current!));
             }
 
             return hashCode.ToHashCode();

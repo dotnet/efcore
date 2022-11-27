@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class IdentityMap<TKey> : IIdentityMap
+public class IdentityMap<TKey> : IIdentityMap<TKey>
     where TKey : notnull
 {
     private readonly bool _sensitiveLoggingEnabled;
@@ -103,11 +103,20 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalEntityEntry? TryGetEntry(object?[] keyValues)
+    public virtual InternalEntityEntry? TryGetEntry(IEnumerable<object?> keyValues)
     {
         var key = PrincipalKeyValueFactory.CreateFromKeyValues(keyValues);
         return key != null && _identityMap.TryGetValue((TKey)key, out var entry) ? entry : null;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? TryGetEntryTyped(TKey keyValue)
+        => _identityMap.TryGetValue(keyValue, out var entry) ? entry : null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

@@ -963,6 +963,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 index, entityType, valueType, propertyType);
 
         /// <summary>
+        ///     {values} value(s) were passed to the 'FindEntry' or 'GetEntries" method for {properties} properties. The number of values must match the number of properties.
+        /// </summary>
+        public static string FindWrongCount(object? values, object? properties)
+            => string.Format(
+                GetString("FindWrongCount", nameof(values), nameof(properties)),
+                values, properties);
+
+        /// <summary>
+        ///     The 'FindEntry' or 'GetEntries" method was passed a '{valueType}' value for the '{propertyName}' property, when a '{propertyType}' value was expected.
+        /// </summary>
+        public static string FindWrongType(object? valueType, object? propertyName, object? propertyType)
+            => string.Format(
+                GetString("FindWrongType", nameof(valueType), nameof(propertyName), nameof(propertyType)),
+                valueType, propertyName, propertyType);
+
+        /// <summary>
         ///     The [ForeignKey] attribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the [ForeignKey] attribute to a property on '{dependentType}'.
         /// </summary>
         public static string FkAttributeOnNonUniquePrincipal(object? navigation, object? principalType, object? dependentType)

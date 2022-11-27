@@ -28,7 +28,7 @@ public interface IKey : IReadOnlyKey, IAnnotatable
     /// </summary>
     /// <returns>The key type.</returns>
     Type GetKeyType()
-        => Properties.Count > 1 ? typeof(object[]) : Properties.First().ClrType;
+        => Properties.Count > 1 ? typeof(IEnumerable<object>) : Properties.First().ClrType;
 
     /// <summary>
     ///     Gets all foreign keys that target a given primary or alternate key.

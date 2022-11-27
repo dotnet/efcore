@@ -56,7 +56,7 @@ public class KeyValueFactoryFactory
             SetFactories(
                 foreignKey,
                 dependentKeyValueFactory,
-                () => new DependentsMap<object[]>(foreignKey, principalKeyValueFactory, dependentKeyValueFactory));
+                () => new DependentsMap<IEnumerable<object?>>(foreignKey, principalKeyValueFactory, dependentKeyValueFactory));
         }
 
         return principalKeyValueFactory;
