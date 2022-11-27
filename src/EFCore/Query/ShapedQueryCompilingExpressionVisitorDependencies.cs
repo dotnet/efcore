@@ -51,12 +51,16 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
         IEntityMaterializerSource entityMaterializerSource,
         ITypeMappingSource typeMappingSource,
         IMemoryCache memoryCache,
-        ICoreSingletonOptions coreSingletonOptions)
+        ICoreSingletonOptions coreSingletonOptions,
+        IModel model,
+        ILiftableConstantFactory liftableConstantFactory)
     {
         EntityMaterializerSource = entityMaterializerSource;
         TypeMappingSource = typeMappingSource;
         MemoryCache = memoryCache;
         CoreSingletonOptions = coreSingletonOptions;
+        Model = model;
+        LiftableConstantFactory = liftableConstantFactory;
     }
 
     /// <summary>
@@ -78,4 +82,14 @@ public sealed record ShapedQueryCompilingExpressionVisitorDependencies
     ///     Core singleton options.
     /// </summary>
     public ICoreSingletonOptions CoreSingletonOptions { get; init; }
+
+    /// <summary>
+    ///     The model.
+    /// </summary>
+    public IModel Model { get; init; }
+
+    /// <summary>
+    ///     The liftable constant factory.
+    /// </summary>
+    public ILiftableConstantFactory LiftableConstantFactory { get; init; }
 }

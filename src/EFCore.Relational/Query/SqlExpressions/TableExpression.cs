@@ -28,6 +28,27 @@ public sealed class TableExpression : TableExpressionBase, IClonableTableExpress
         Table = table;
     }
 
+    // Constructor to be used solely for instantiation of the expression from AOT-generated code.
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public TableExpression(
+        string alias,
+        string name,
+        string? schema,
+        ITableBase table)
+        : base(alias, annotations: null) // TODO: Annotations
+    {
+        Name = table.Name;
+        Schema = table.Schema;
+        Table = table;
+    }
+
     /// <summary>
     ///     The alias assigned to this table source.
     /// </summary>

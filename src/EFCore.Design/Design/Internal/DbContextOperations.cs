@@ -3,6 +3,7 @@
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
 
@@ -119,52 +120,55 @@ public class DbContextOperations
     /// </summary>
     public virtual void Optimize(string? outputDir, string? modelNamespace, string? contextTypeName)
     {
-        using var context = CreateContext(contextTypeName);
-        var contextType = context.GetType();
+        // TODO: Temporary hack mode, replace precompiled model with precompiled queries
+        PrecompileQueries(outputDir, contextTypeName);
 
-        var services = _servicesBuilder.Build(context);
-        var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
-
-        if (outputDir == null)
-        {
-            var contextSubNamespace = contextType.Namespace ?? "";
-            if (!string.IsNullOrEmpty(_rootNamespace)
-                && contextSubNamespace.StartsWith(_rootNamespace, StringComparison.Ordinal))
-            {
-                contextSubNamespace = contextSubNamespace[_rootNamespace.Length..];
-            }
-
-            outputDir = Path.Combine(contextSubNamespace.Replace('.', Path.DirectorySeparatorChar), "CompiledModels");
-        }
-
-        outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
-
-        var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
-
-        scaffolder.ScaffoldModel(
-            context.GetService<IDesignTimeModel>().Model,
-            outputDir,
-            new CompiledModelCodeGenerationOptions
-            {
-                ContextType = contextType,
-                ModelNamespace = finalModelNamespace,
-                Language = _language,
-                UseNullableReferenceTypes = _nullable
-            });
-
-        var fullName = contextType.ShortDisplayName() + "Model";
-        if (!string.IsNullOrEmpty(modelNamespace))
-        {
-            fullName = modelNamespace + "." + fullName;
-        }
-
-        _reporter.WriteInformation(DesignStrings.CompiledModelGenerated($"options.UseModel({fullName}.Instance)"));
-
-        var cacheKeyFactory = context.GetService<IModelCacheKeyFactory>();
-        if (!(cacheKeyFactory is ModelCacheKeyFactory))
-        {
-            _reporter.WriteWarning(DesignStrings.CompiledModelCustomCacheKeyFactory(cacheKeyFactory.GetType().ShortDisplayName()));
-        }
+        // using var context = CreateContext(contextTypeName);
+        // var contextType = context.GetType();
+        //
+        // var services = _servicesBuilder.Build(context);
+        // var scaffolder = services.GetRequiredService<ICompiledModelScaffolder>();
+        //
+        // if (outputDir == null)
+        // {
+        //     var contextSubNamespace = contextType.Namespace ?? "";
+        //     if (!string.IsNullOrEmpty(_rootNamespace)
+        //         && contextSubNamespace.StartsWith(_rootNamespace, StringComparison.Ordinal))
+        //     {
+        //         contextSubNamespace = contextSubNamespace[_rootNamespace.Length..];
+        //     }
+        //
+        //     outputDir = Path.Combine(contextSubNamespace.Replace('.', Path.DirectorySeparatorChar), "CompiledModels");
+        // }
+        //
+        // outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir));
+        //
+        // var finalModelNamespace = modelNamespace ?? GetNamespaceFromOutputPath(outputDir) ?? "";
+        //
+        // scaffolder.ScaffoldModel(
+        //     context.GetService<IDesignTimeModel>().Model,
+        //     outputDir,
+        //     new CompiledModelCodeGenerationOptions
+        //     {
+        //         ContextType = contextType,
+        //         ModelNamespace = finalModelNamespace,
+        //         Language = _language,
+        //         UseNullableReferenceTypes = _nullable
+        //     });
+        //
+        // var fullName = contextType.ShortDisplayName() + "Model";
+        // if (!string.IsNullOrEmpty(modelNamespace))
+        // {
+        //     fullName = modelNamespace + "." + fullName;
+        // }
+        //
+        // _reporter.WriteInformation(DesignStrings.CompiledModelGenerated($"options.UseModel({fullName}.Instance)"));
+        //
+        // var cacheKeyFactory = context.GetService<IModelCacheKeyFactory>();
+        // if (!(cacheKeyFactory is ModelCacheKeyFactory))
+        // {
+        //     _reporter.WriteWarning(DesignStrings.CompiledModelCustomCacheKeyFactory(cacheKeyFactory.GetType().ShortDisplayName()));
+        // }
     }
 
     private string? GetNamespaceFromOutputPath(string directoryPath)
@@ -195,6 +199,29 @@ public class DbContextOperations
                 subPath.Split(
                     new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries))
             : null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void PrecompileQueries(string? outputDir, string? contextTypeName)
+    {
+        using var context = CreateContext(contextTypeName);
+
+        var services = _servicesBuilder.Build(context);
+        var generator = services.GetRequiredService<IPrecompiledQueryCodeGenerator>();
+
+        outputDir = Path.GetFullPath(Path.Combine(_projectDir, outputDir ?? ""));
+
+        // TODO: Need the project csproj. For now hacking an assumption that the csproj is the same as the assembly name.
+        var csprojName = _assembly.GetName().Name;
+        var csprojPath = Path.Combine(_projectDir, csprojName + ".csproj");
+
+        // TODO: Async, cancellation token?
+        generator.GeneratePrecompiledQueries(csprojPath, context, outputDir).GetAwaiter().GetResult();
     }
 
     /// <summary>

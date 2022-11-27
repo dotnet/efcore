@@ -185,7 +185,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
     public virtual bool IsNullable { get; }
 
     /// <summary>
-    ///     The materilization condition to use for shaping this entity.
+    ///     The materialization condition to use for shaping this entity.
     /// </summary>
     public virtual LambdaExpression MaterializationCondition { get; }
 

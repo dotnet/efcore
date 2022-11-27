@@ -313,11 +313,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         }
         else
         {
-
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
-            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
-                shapedQueryExpression.ShaperExpression,
-                out var relationalCommandCache, out var readerColumns, out var relatedDataLoaders, ref collectionCount);
+            var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql)
+                .ProcessShaper(
+                    shapedQueryExpression.ShaperExpression, out var relationalCommandCache, out var readerColumns,
+                    out var relatedDataLoaders, ref collectionCount);
 
             if (querySplittingBehavior == null
                 && collectionCount > 1)
@@ -368,12 +368,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     Expression.Constant(_threadSafetyChecksEnabled));
             }
 
-            return Expression.New(
-                typeof(SingleQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
+            // TODO: Do the same for the other QueryingEnumerables
+            return Expression.Call(
+                typeof(SingleQueryingEnumerable).GetMethods()
+                    .Single(m => m.Name == nameof(SingleQueryingEnumerable.Create))
+                    .MakeGenericMethod(shaper.ReturnType),
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                Expression.Constant(relationalCommandCache),
+                relationalCommandCache,
                 Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
-                Expression.Constant(shaper.Compile()),
+                shaper,
                 Expression.Constant(_contextType),
                 Expression.Constant(
                     QueryCompilationContext.QueryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution),

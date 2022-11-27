@@ -55,4 +55,8 @@ public interface IDatabase
     /// <param name="async">A value indicating whether this is an async query.</param>
     /// <returns>A <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of the query.</returns>
     Func<QueryContext, TResult> CompileQuery<TResult>(Expression query, bool async);
+
+#pragma warning disable CS1591
+    Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async);
+#pragma warning restore CS1591
 }

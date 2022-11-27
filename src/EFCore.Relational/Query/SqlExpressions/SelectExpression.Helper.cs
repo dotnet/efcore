@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -408,63 +409,6 @@ public sealed partial class SelectExpression
         }
     }
 
-    private sealed class TableReferenceExpression : Expression
-    {
-        private SelectExpression _selectExpression;
-
-        public TableReferenceExpression(SelectExpression selectExpression, string alias)
-        {
-            _selectExpression = selectExpression;
-            Alias = alias;
-        }
-
-        public TableExpressionBase Table
-            => _selectExpression.Tables.Single(
-                e => string.Equals((e as JoinExpressionBase)?.Table.Alias ?? e.Alias, Alias, StringComparison.OrdinalIgnoreCase));
-
-        public string Alias { get; internal set; }
-
-        public override Type Type
-            => typeof(object);
-
-        public override ExpressionType NodeType
-            => ExpressionType.Extension;
-
-        public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
-        {
-            if (ReferenceEquals(oldSelect, _selectExpression))
-            {
-                _selectExpression = newSelect;
-            }
-        }
-
-        internal void Verify(SelectExpression selectExpression)
-        {
-            if (!ReferenceEquals(selectExpression, _selectExpression))
-            {
-                throw new InvalidOperationException("Dangling TableReferenceExpression.");
-            }
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is TableReferenceExpression tableReferenceExpression
-                    && Equals(tableReferenceExpression));
-
-        // Since table reference is owned by SelectExpression, the select expression should be the same reference if they are matching.
-        // That means we also don't need to compute the hashcode for it.
-        // This allows us to break the cycle in computation when traversing this graph.
-        private bool Equals(TableReferenceExpression tableReferenceExpression)
-            => string.Equals(Alias, tableReferenceExpression.Alias, StringComparison.OrdinalIgnoreCase)
-                && ReferenceEquals(_selectExpression, tableReferenceExpression._selectExpression);
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-            => 0;
-    }
-
     private sealed class TpcTablesExpression : TableExpressionBase
     {
         public TpcTablesExpression(
@@ -553,95 +497,6 @@ public sealed partial class SelectExpression
         /// <inheritdoc />
         public override int GetHashCode()
             => HashCode.Combine(base.GetHashCode(), EntityType);
-    }
-
-    private sealed class ConcreteColumnExpression : ColumnExpression
-    {
-        private readonly TableReferenceExpression _table;
-
-        public ConcreteColumnExpression(IProperty property, IColumnBase column, TableReferenceExpression table, bool nullable)
-            : this(
-                column.Name,
-                table,
-                property.ClrType.UnwrapNullableType(),
-                column.PropertyMappings.First(m => m.Property == property).TypeMapping,
-                nullable || column.IsNullable)
-        {
-        }
-
-        public ConcreteColumnExpression(ProjectionExpression subqueryProjection, TableReferenceExpression table)
-            : this(
-                subqueryProjection.Alias, table,
-                subqueryProjection.Type, subqueryProjection.Expression.TypeMapping!,
-                IsNullableProjection(subqueryProjection))
-        {
-        }
-
-        private static bool IsNullableProjection(ProjectionExpression projectionExpression)
-            => projectionExpression.Expression switch
-            {
-                ColumnExpression columnExpression => columnExpression.IsNullable,
-                SqlConstantExpression sqlConstantExpression => sqlConstantExpression.Value == null,
-                _ => true
-            };
-
-        public ConcreteColumnExpression(
-            string name,
-            TableReferenceExpression table,
-            Type type,
-            RelationalTypeMapping typeMapping,
-            bool nullable)
-            : base(type, typeMapping)
-        {
-            Name = name;
-            _table = table;
-            IsNullable = nullable;
-        }
-
-        public override string Name { get; }
-
-        public override TableExpressionBase Table
-            => _table.Table;
-
-        public override string TableAlias
-            => _table.Alias;
-
-        public override bool IsNullable { get; }
-
-        /// <inheritdoc />
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-            => this;
-
-        public override ConcreteColumnExpression MakeNullable()
-            => IsNullable ? this : new ConcreteColumnExpression(Name, _table, Type, TypeMapping!, true);
-
-        public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
-            => _table.UpdateTableReference(oldSelect, newSelect);
-
-        internal void Verify(IReadOnlyList<TableReferenceExpression> tableReferences)
-        {
-            if (!tableReferences.Contains(_table, ReferenceEqualityComparer.Instance))
-            {
-                throw new InvalidOperationException("Dangling column.");
-            }
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj != null
-                && (ReferenceEquals(this, obj)
-                    || obj is ConcreteColumnExpression concreteColumnExpression
-                    && Equals(concreteColumnExpression));
-
-        private bool Equals(ConcreteColumnExpression concreteColumnExpression)
-            => base.Equals(concreteColumnExpression)
-                && Name == concreteColumnExpression.Name
-                && _table.Equals(concreteColumnExpression._table)
-                && IsNullable == concreteColumnExpression.IsNullable;
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-            => HashCode.Combine(base.GetHashCode(), Name, _table, IsNullable);
     }
 
     private struct SingleCollectionInfo

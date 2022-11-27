@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -98,7 +97,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
     }
 
-    private SelectExpression(string? alias)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public SelectExpression(string? alias)
         : base(alias)
     {
     }
@@ -488,6 +494,42 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
             }
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public void PopulateClauses(
+        IReadOnlyList<TableExpressionBase> tables,
+        SqlExpression predicate,
+        SqlExpression? limit,
+        SqlExpression? offset,
+        IReadOnlyList<SqlExpression> groupBy,
+        SqlExpression? having,
+        IReadOnlyList<OrderingExpression> orderings,
+        bool isDistinct,
+        IReadOnlyList<ProjectionExpression> projection)
+        // TODO
+        // ISet<string> tags,
+        // SortedDictionary<string, IAnnotation> annotations)
+    {
+        _tables.AddRange(tables);
+        Predicate = predicate;
+        Limit = limit;
+        Offset = offset;
+        _groupBy.AddRange(groupBy);
+        Having = having;
+        _orderings.AddRange(orderings);
+        IsDistinct = isDistinct;
+        _projection.AddRange(projection);
+        // Tags = tags;
+        // _annotations = annotations;
+
+        _mutable = false;
     }
 
     private void AddJsonNavigationBindings(
@@ -4636,6 +4678,20 @@ public sealed partial class SelectExpression : TableExpressionBase
             expressionPrinter.AppendLine().Append(") AS " + Alias);
         }
     }
+
+    // TODO: Uh oh, we may have referential integrity issues... we get the tables from the relational model so that's fine, but the
+    // expressions are created each time. If *expressions* reference each other, we need to some instantiate beforehand and reference
+    // them...
+    // Expression IQuotableExpression.Quote()
+    //     => New(
+    //         _quoteConstructor ??= typeof(SelectExpression).GetConstructor(new[]
+    //         {
+    //             typeof(string), typeof(IReadOnlyList<TableExpressionBase>), typeof(SqlExpression), typeof(IReadOnlyList<ProjectionExpression>)
+    //         })!,
+    //         Constant(Alias, typeof(string)),
+    //         NewArrayInit(typeof(TableExpressionBase), initializers: Tables.Select(t => ((IQuotableExpression)t).Quote())),
+    //         Predicate is null ? Constant(null, typeof(SqlExpression)) : ((IQuotableExpression)Predicate).Quote(),
+    //         NewArrayInit(typeof(ProjectionExpression), initializers: Projection.Select(t => ((IQuotableExpression)t).Quote())));
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

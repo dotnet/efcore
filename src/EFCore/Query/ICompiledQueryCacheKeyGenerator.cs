@@ -32,4 +32,8 @@ public interface ICompiledQueryCacheKeyGenerator
     /// <param name="async"><see langword="true" /> if the query will be executed asynchronously.</param>
     /// <returns>An object representing a query cache key.</returns>
     object GenerateCacheKey(Expression query, bool async);
+
+#pragma warning disable CS1591
+    Expression GenerateCacheKeyExpression(Expression query, Expression model, bool async);
+#pragma warning restore CS1591
 }

@@ -192,6 +192,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("DbContextOptimizeDescription");
 
         /// <summary>
+        ///     Pre-compiles EF LINQ queries used by the DbContext.
+        /// </summary>
+        public static string DbContextPrecompileQueriesDescription
+            => GetString("DbContextPrecompileQueriesDescription");
+
+        /// <summary>
         ///     Scaffolds a DbContext and entity types for a database.
         /// </summary>
         public static string DbContextScaffoldDescription

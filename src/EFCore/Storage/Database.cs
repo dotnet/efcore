@@ -66,4 +66,10 @@ public abstract class Database : IDatabase
         => Dependencies.QueryCompilationContextFactory
             .Create(async)
             .CreateQueryExecutor<TResult>(query);
+
+    /// <inheritdoc />
+    public virtual Expression<Func<QueryContext, TResult>> CompileQueryExpression<TResult>(Expression query, bool async)
+        => Dependencies.QueryCompilationContextFactory
+            .Create(async)
+            .CreateQueryExecutorExpression<TResult>(query);
 }

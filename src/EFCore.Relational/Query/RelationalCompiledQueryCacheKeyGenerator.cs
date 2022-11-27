@@ -28,14 +28,26 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
     public override object GenerateCacheKey(Expression query, bool async)
         => GenerateCacheKeyCore(query, async);
 
+    /// <inheritdoc />
+    public override Expression GenerateCacheKeyExpression(Expression query, Expression model, bool async)
+    {
+        var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
+
+        return Expression.New(
+            typeof(RelationalCompiledQueryCacheKey).GetConstructor(new[] { typeof(CompiledQueryCacheKey), typeof(bool), typeof(QuerySplittingBehavior?), typeof(bool) })!,
+            base.GenerateCacheKeyExpression(query, model, async),
+            Expression.Constant(relationalOptions.UseRelationalNulls),
+            Expression.Constant(relationalOptions.QuerySplittingBehavior, typeof(QuerySplittingBehavior?)),
+            Expression.Constant(ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy));
+    }
+
     /// <summary>
     ///     Generates the cache key for the given query.
     /// </summary>
     /// <param name="query">The query to get the cache key for.</param>
     /// <param name="async">A value indicating whether the query will be executed asynchronously.</param>
     /// <returns>The cache key.</returns>
-    protected new RelationalCompiledQueryCacheKey
-        GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
+    protected new RelationalCompiledQueryCacheKey GenerateCacheKeyCore(Expression query, bool async) // Intentionally non-virtual
     {
         var relationalOptions = RelationalOptionsExtension.Extract(RelationalDependencies.ContextOptions);
 
@@ -45,58 +57,58 @@ public class RelationalCompiledQueryCacheKeyGenerator : CompiledQueryCacheKeyGen
             relationalOptions.QuerySplittingBehavior,
             shouldBuffer: ExecutionStrategy.Current?.RetriesOnFailure ?? Dependencies.IsRetryingExecutionStrategy);
     }
+}
+
+/// <summary>
+///     <para>
+///         A key that uniquely identifies a query. This is used to store and lookup
+///         compiled versions of a query in a cache.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+public readonly struct RelationalCompiledQueryCacheKey : IEquatable<RelationalCompiledQueryCacheKey>
+{
+    private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
+    private readonly bool _useRelationalNulls;
+    private readonly QuerySplittingBehavior? _querySplittingBehavior;
+    private readonly bool _shouldBuffer;
 
     /// <summary>
-    ///     <para>
-    ///         A key that uniquely identifies a query. This is used to store and lookup
-    ///         compiled versions of a query in a cache.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
+    ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
     /// </summary>
-    protected readonly struct RelationalCompiledQueryCacheKey : IEquatable<RelationalCompiledQueryCacheKey>
+    /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
+    /// <param name="useRelationalNulls">True to use relational null logic.</param>
+    /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
+    /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
+    public RelationalCompiledQueryCacheKey(
+        CompiledQueryCacheKey compiledQueryCacheKey,
+        bool useRelationalNulls,
+        QuerySplittingBehavior? querySplittingBehavior,
+        bool shouldBuffer)
     {
-        private readonly CompiledQueryCacheKey _compiledQueryCacheKey;
-        private readonly bool _useRelationalNulls;
-        private readonly QuerySplittingBehavior? _querySplittingBehavior;
-        private readonly bool _shouldBuffer;
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalCompiledQueryCacheKey" /> class.
-        /// </summary>
-        /// <param name="compiledQueryCacheKey">The non-relational cache key.</param>
-        /// <param name="useRelationalNulls">True to use relational null logic.</param>
-        /// <param name="querySplittingBehavior"><see cref="QuerySplittingBehavior" /> to use when loading related collections.</param>
-        /// <param name="shouldBuffer"><see langword="true" /> if the query should be buffered.</param>
-        public RelationalCompiledQueryCacheKey(
-            CompiledQueryCacheKey compiledQueryCacheKey,
-            bool useRelationalNulls,
-            QuerySplittingBehavior? querySplittingBehavior,
-            bool shouldBuffer)
-        {
-            _compiledQueryCacheKey = compiledQueryCacheKey;
-            _useRelationalNulls = useRelationalNulls;
-            _querySplittingBehavior = querySplittingBehavior;
-            _shouldBuffer = shouldBuffer;
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-            => obj is RelationalCompiledQueryCacheKey key
-                && Equals(key);
-
-        /// <inheritdoc />
-        public bool Equals(RelationalCompiledQueryCacheKey other)
-            => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
-                && _useRelationalNulls == other._useRelationalNulls
-                && _querySplittingBehavior == other._querySplittingBehavior
-                && _shouldBuffer == other._shouldBuffer;
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-            => HashCode.Combine(
-                _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
+        _compiledQueryCacheKey = compiledQueryCacheKey;
+        _useRelationalNulls = useRelationalNulls;
+        _querySplittingBehavior = querySplittingBehavior;
+        _shouldBuffer = shouldBuffer;
     }
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj)
+        => obj is RelationalCompiledQueryCacheKey key
+            && Equals(key);
+
+    /// <inheritdoc />
+    public bool Equals(RelationalCompiledQueryCacheKey other)
+        => _compiledQueryCacheKey.Equals(other._compiledQueryCacheKey)
+            && _useRelationalNulls == other._useRelationalNulls
+            && _querySplittingBehavior == other._querySplittingBehavior
+            && _shouldBuffer == other._shouldBuffer;
+
+    /// <inheritdoc />
+    public override int GetHashCode()
+        => HashCode.Combine(
+            _compiledQueryCacheKey, _useRelationalNulls, _querySplittingBehavior, _shouldBuffer);
 }

@@ -150,6 +150,14 @@ internal abstract class OperationExecutorBase : IOperationExecutor
                 ["contextType"] = contextType
             });
 
+    public void PrecompileQueries(string? outputDir)
+        => InvokeOperation(
+            "PrecompileQueries",
+            new Dictionary<string, object?>
+            {
+                ["outputDir"] = outputDir
+            });
+
     public IDictionary ScaffoldContext(
         string provider,
         string connectionString,

@@ -530,6 +530,42 @@ public class OperationExecutor : MarshalByRefObject
         => ContextOperations.Optimize(outputDir, modelNamespace, contextType);
 
     /// <summary>
+    ///     Represents an operation to precompile LINQ queries.
+    /// </summary>
+    public class PrecompileQueries : OperationBase
+    {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="PrecompileQueries" /> class.
+        /// </summary>
+        /// <remarks>
+        ///     <para>The arguments supported by <paramref name="args" /> are:</para>
+        ///     <para><c>outputDir</c>--The directory to put files in. Paths are relative to the project directory.</para>
+        ///     <para><c>modelNamespace</c>--Specify to override the namespace of the generated model.</para>
+        ///     <para><c>contextType</c>--The <see cref="DbContext" /> to use.</para>
+        /// </remarks>
+        /// <param name="executor">The operation executor.</param>
+        /// <param name="resultHandler">The <see cref="IOperationResultHandler" />.</param>
+        /// <param name="args">The operation arguments.</param>
+        public PrecompileQueries(
+            OperationExecutor executor,
+            IOperationResultHandler resultHandler,
+            IDictionary args)
+            : base(resultHandler)
+        {
+            Check.NotNull(executor, nameof(executor));
+            Check.NotNull(args, nameof(args));
+
+            var outputDir = (string?)args["outputDir"];
+            var contextType = (string?)args["contextType"];
+
+            Execute(() => executor.PrecompileQueriesImpl(outputDir, contextType));
+        }
+    }
+
+    private void PrecompileQueriesImpl(string? outputDir, string? contextType)
+        => ContextOperations.PrecompileQueries(outputDir, contextType);
+
+    /// <summary>
     ///     Represents an operation to scaffold a <see cref="DbContext" /> and entity types for a database.
     /// </summary>
     public class ScaffoldContext : OperationBase

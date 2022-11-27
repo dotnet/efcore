@@ -158,6 +158,33 @@ public class QueryCompilationContext
     /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
     public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
     {
+        var queryExecutorExpression = CreateQueryExecutorExpression<TResult>(query);
+
+        // The materializer expression tree has liftable constant nodes, pointing to various constants that should eb the same instances
+        // across invocations of the query.
+        // In normal mode, these nodes should simply be evaluated, and a ConstantExpression to those instances embedded directly in the
+        // tree (for precompiled queries we generate C# code for resolving those instances instead).
+        var queryExecutorAfterLiftingExpression =
+            (Expression<Func<QueryContext, TResult>>)Dependencies.LiftableConstantProcessor.InlineConstants(queryExecutorExpression);
+
+        try
+        {
+            return queryExecutorAfterLiftingExpression.Compile();
+        }
+        finally
+        {
+            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
+        }
+    }
+
+    /// <summary>
+    ///     Creates the query executor func which gives results for this query.
+    /// </summary>
+    /// <typeparam name="TResult">The result type of this query.</typeparam>
+    /// <param name="query">The query to generate executor for.</param>
+    /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
+    public virtual Expression<Func<QueryContext, TResult>> CreateQueryExecutorExpression<TResult>(Expression query)
+    {
         var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
         query = queryAndEventData.Query;
 
@@ -178,14 +205,7 @@ public class QueryCompilationContext
             query,
             QueryContextParameter);
 
-        try
-        {
-            return queryExecutorExpression.Compile();
-        }
-        finally
-        {
-            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
-        }
+        return queryExecutorExpression;
     }
 
     /// <summary>

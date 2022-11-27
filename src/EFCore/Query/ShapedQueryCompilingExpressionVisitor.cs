@@ -54,6 +54,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         _entityMaterializerInjectingExpressionVisitor =
             new EntityMaterializerInjectingExpressionVisitor(
                 dependencies.EntityMaterializerSource,
+                dependencies.LiftableConstantFactory,
                 queryCompilationContext.QueryTrackingBehavior);
 
         _constantVerifyingExpressionVisitor = new ConstantVerifyingExpressionVisitor(dependencies.TypeMappingSource);
@@ -127,7 +128,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             .GetDeclaredMethods(nameof(SingleOrDefaultAsync))
             .Single(mi => mi.GetParameters().Length == 2);
 
-    private static async Task<TSource> SingleAsync<TSource>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static async Task<TSource> SingleAsync<TSource>(
         IAsyncEnumerable<TSource> asyncEnumerable,
         CancellationToken cancellationToken = default)
     {
@@ -149,7 +157,14 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         return result;
     }
 
-    private static async Task<TSource?> SingleOrDefaultAsync<TSource>(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static async Task<TSource?> SingleOrDefaultAsync<TSource>(
         IAsyncEnumerable<TSource> asyncEnumerable,
         CancellationToken cancellationToken = default)
     {
@@ -299,6 +314,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                 .GetTypeInfo().GetDeclaredMethod(nameof(CreateNullKeyValueInNoTrackingQuery))!;
 
         private readonly IEntityMaterializerSource _entityMaterializerSource;
+        private readonly ILiftableConstantFactory _liftableConstantFactory;
         private readonly QueryTrackingBehavior _queryTrackingBehavior;
         private readonly bool _queryStateManager;
         private readonly ISet<IEntityType> _visitedEntityTypes = new HashSet<IEntityType>();
@@ -306,9 +322,11 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
         public EntityMaterializerInjectingExpressionVisitor(
             IEntityMaterializerSource entityMaterializerSource,
+            ILiftableConstantFactory liftableConstantFactory,
             QueryTrackingBehavior queryTrackingBehavior)
         {
             _entityMaterializerSource = entityMaterializerSource;
+            _liftableConstantFactory = liftableConstantFactory;
             _queryTrackingBehavior = queryTrackingBehavior;
             _queryStateManager = queryTrackingBehavior == QueryTrackingBehavior.TrackAll
                 || queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
@@ -393,7 +411,12 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         Expression.Call(
                             QueryCompilationContext.QueryContextParameter,
                             TryGetEntryMethodInfo,
-                            Expression.Constant(primaryKey),
+                            _liftableConstantFactory.CreateLiftableConstant(
+                                // TODO: Owned, STET
+                                c => c.Dependencies.Model.FindEntityType(entityType.Name)!.FindPrimaryKey()!,
+                                "key",
+                                typeof(IKey)),
+                            // Expression.Constant(primaryKey),
                             Expression.NewArrayInit(
                                 typeof(object),
                                 primaryKey.Properties
@@ -504,27 +527,47 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             expressions.Add(
                 Expression.Assign(
                     shadowValuesVariable,
-                    Expression.Constant(ValueBuffer.Empty)));
+                    // Expression.Constant(ValueBuffer.Empty),
+                    _liftableConstantFactory.CreateLiftableConstant(
+                        _ => ValueBuffer.Empty,
+                        "emptyValueBuffer",
+                        typeof(ValueBuffer))));
 
             var returnType = entityType.ClrType;
             var valueBufferExpression = Expression.Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
+
+            var materializationConditionBody = ReplacingExpressionVisitor.Replace(
+                entityShaperExpression.MaterializationCondition.Parameters[0],
+                valueBufferExpression,
+                entityShaperExpression.MaterializationCondition.Body);
+
+            // TODO: We probably need to recurse, looking for constant references to entity types.
+            if (materializationConditionBody is ConstantExpression { Value: IEntityType materializedEntityType })
+            {
+                materializationConditionBody = _liftableConstantFactory.CreateLiftableConstant(
+                    c => c.Dependencies.Model.FindEntityType(materializedEntityType.Name)!,
+                    "entityType",
+                    typeof(IEntityType));
+            }
+
             var expressionContext = (returnType, materializationContextVariable, concreteEntityTypeVariable, shadowValuesVariable);
             expressions.Add(
-                Expression.Assign(
-                    concreteEntityTypeVariable,
-                    ReplacingExpressionVisitor.Replace(
-                        entityShaperExpression.MaterializationCondition.Parameters[0],
-                        valueBufferExpression,
-                        entityShaperExpression.MaterializationCondition.Body)));
+                Expression.Assign(concreteEntityTypeVariable, materializationConditionBody));
 
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToArray();
 
             var switchCases = new SwitchCase[concreteEntityTypes.Length];
             for (var i = 0; i < concreteEntityTypes.Length; i++)
             {
+                var concreteEntityType = concreteEntityTypes[i];
+
                 switchCases[i] = Expression.SwitchCase(
                     CreateFullMaterializeExpression(concreteEntityTypes[i], expressionContext),
-                    Expression.Constant(concreteEntityTypes[i], typeof(IEntityType)));
+                    // Expression.Constant(concreteEntityTypes[i], typeof(IEntityType))
+                    _liftableConstantFactory.CreateLiftableConstant(
+                        c => c.Dependencies.Model.FindEntityType(concreteEntityType.Name)!,
+                        "entityType",
+                        typeof(IEntityType)));
             }
 
             var materializationExpression = Expression.Switch(

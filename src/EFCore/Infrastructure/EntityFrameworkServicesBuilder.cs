@@ -82,6 +82,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IMemoryCache), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IEvaluatableExpressionFilter), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(INavigationExpansionExtensibilityHelper), new ServiceCharacteristics(ServiceLifetime.Singleton) },
+            { typeof(ILiftableConstantFactory), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IExceptionDetector), new ServiceCharacteristics(ServiceLifetime.Singleton) },
             { typeof(IProviderConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IConventionSetBuilder), new ServiceCharacteristics(ServiceLifetime.Scoped) },
@@ -122,6 +123,7 @@ public class EntityFrameworkServicesBuilder
             { typeof(IQueryTranslationPostprocessorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IShapedQueryCompilingExpressionVisitorFactory), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(IDbContextLogger), new ServiceCharacteristics(ServiceLifetime.Scoped) },
+            { typeof(ILiftableConstantProcessor), new ServiceCharacteristics(ServiceLifetime.Scoped) },
             { typeof(ILazyLoader), new ServiceCharacteristics(ServiceLifetime.Transient) },
             { typeof(IParameterBindingFactory), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
             { typeof(ITypeMappingSourcePlugin), new ServiceCharacteristics(ServiceLifetime.Singleton, multipleRegistrations: true) },
@@ -301,6 +303,8 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IQueryTranslationPostprocessorFactory, QueryTranslationPostprocessorFactory>();
         TryAdd<INavigationExpansionExtensibilityHelper, NavigationExpansionExtensibilityHelper>();
         TryAdd<IExceptionDetector, ExceptionDetector>();
+        TryAdd<ILiftableConstantFactory, LiftableConstantFactory>();
+        TryAdd<ILiftableConstantProcessor, LiftableConstantProcessor>();
 
         TryAdd(
             p => p.GetService<IDbContextOptions>()?.FindExtension<CoreOptionsExtension>()?.DbContextLogger
@@ -321,7 +325,6 @@ public class EntityFrameworkServicesBuilder
             .AddDependencySingleton<ModelCacheKeyFactoryDependencies>()
             .AddDependencySingleton<ValueConverterSelectorDependencies>()
             .AddDependencySingleton<EntityMaterializerSourceDependencies>()
-            .AddDependencySingleton<ShapedQueryCompilingExpressionVisitorDependencies>()
             .AddDependencySingleton<EvaluatableExpressionFilterDependencies>()
             .AddDependencySingleton<RuntimeModelDependencies>()
             .AddDependencySingleton<ModelRuntimeInitializerDependencies>()
@@ -335,6 +338,7 @@ public class EntityFrameworkServicesBuilder
             .AddDependencyScoped<QueryableMethodTranslatingExpressionVisitorDependencies>()
             .AddDependencyScoped<QueryTranslationPreprocessorDependencies>()
             .AddDependencyScoped<QueryTranslationPostprocessorDependencies>()
+            .AddDependencyScoped<ShapedQueryCompilingExpressionVisitorDependencies>()
             .AddDependencyScoped<ValueGeneratorSelectorDependencies>()
             .AddDependencyScoped<DatabaseDependencies>()
             .AddDependencyScoped<ModelDependencies>()

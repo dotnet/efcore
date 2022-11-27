@@ -113,9 +113,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
 
     private bool PreserveConvertNode(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        if (expression is UnaryExpression { NodeType : ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression)
         {
             if (unaryExpression.Type == typeof(object)
                 || unaryExpression.Type == typeof(Enum)
@@ -151,8 +149,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
         var newTestExpression = TryGetConstantValue(conditionalExpression.Test) ?? Visit(conditionalExpression.Test);
 
-        if (newTestExpression is ConstantExpression constantTestExpression
-            && constantTestExpression.Value is bool constantTestValue)
+        if (newTestExpression is ConstantExpression { Value: bool constantTestValue })
         {
             return constantTestValue
                 ? Visit(conditionalExpression.IfTrue)
@@ -363,16 +360,9 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     }
 
     private static Expression RemoveConvert(Expression expression)
-    {
-        if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
-        {
-            return RemoveConvert(unaryExpression.Operand);
-        }
-
-        return expression;
-    }
+        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+            ? RemoveConvert(unaryExpression.Operand)
+            : expression;
 
     private object? GetValue(Expression? expression, out string? parameterName)
     {
@@ -436,19 +426,24 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
                 parameterName = methodCallExpression.Method.Name;
                 break;
 
-            case UnaryExpression unaryExpression
-                when (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
-                && (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
+            case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+                when (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
                 return GetValue(unaryExpression.Operand, out parameterName);
         }
 
         try
         {
-            return Expression.Lambda<Func<object>>(
-                    Expression.Convert(expression, typeof(object)))
-                .Compile()
-                .Invoke();
+            if (RuntimeFeature.IsDynamicCodeSupported)
+            {
+                // TODO: Temporary for development time - emulate AOT mode without AOT
+                throw new NotSupportedException("Can't do this in AOT");
+                // return Expression.Lambda<Func<object>>(
+                //         Expression.Convert(expression, typeof(object)))
+                //     .Compile()
+                //     .Invoke();
+            }
+
+            throw new NotSupportedException("Can't do this in AOT");
         }
         catch (Exception exception)
         {

@@ -269,6 +269,29 @@ public class ValueComparer
         return v1Null || v2Null ? v1Null && v2Null : Equals((T?)left, (T?)right);
     }
 
+    public override LambdaExpression ObjectEqualsExpression
+    {
+        get
+        {
+            // TODO: Cache this
+            var left = Expression.Parameter(typeof(object), "left");
+            var right = Expression.Parameter(typeof(object), "right");
+
+            return Expression.Lambda<Func<object?, object?, bool>>(
+                Expression.Condition(
+                    Expression.Equal(left, Expression.Constant(null)),
+                    Expression.Equal(right, Expression.Constant(null)),
+                    Expression.AndAlso(
+                        Expression.NotEqual(right, Expression.Constant(null)),
+                        Expression.Invoke(
+                            EqualsExpression,
+                            Expression.Convert(left, typeof(T)),
+                            Expression.Convert(right, typeof(T))))),
+                left,
+                right);
+        }
+    }
+
     /// <summary>
     ///     Returns the hash code for the given instance.
     /// </summary>

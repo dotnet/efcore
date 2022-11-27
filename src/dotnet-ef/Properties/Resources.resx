@@ -177,6 +177,9 @@
   <data name="DbContextOptimizeDescription" xml:space="preserve">
     <value>Generates a compiled version of the model used by the DbContext.</value>
   </data>
+  <data name="DbContextPrecompileQueriesDescription" xml:space="preserve">
+    <value>Pre-compiles EF LINQ queries used by the DbContext.</value>
+  </data>
   <data name="DbContextScaffoldDescription" xml:space="preserve">
     <value>Scaffolds a DbContext and entity types for a database.</value>
   </data>

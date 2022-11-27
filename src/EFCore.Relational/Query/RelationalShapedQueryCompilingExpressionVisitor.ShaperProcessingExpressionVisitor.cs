@@ -13,7 +13,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
-    private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         /// <summary>
         ///     Reading database values 
@@ -227,7 +233,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         public LambdaExpression ProcessRelationalGroupingResult(
             RelationalGroupByResultExpression relationalGroupByResultExpression,
-            out RelationalCommandCache relationalCommandCache,
+            out Expression relationalCommandCache,
             out IReadOnlyList<ReaderColumn?>? readerColumns,
             out LambdaExpression keySelector,
             out LambdaExpression keyIdentifier,
@@ -256,7 +262,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         public LambdaExpression ProcessShaper(
             Expression shaperExpression,
-            out RelationalCommandCache? relationalCommandCache,
+            out Expression relationalCommandCache,
             out IReadOnlyList<ReaderColumn?>? readerColumns,
             out LambdaExpression? relatedDataLoaders,
             ref int collectionId)
@@ -270,12 +276,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _expressions.Add(result);
                 result = Expression.Block(_variables, _expressions);
 
-                relationalCommandCache = new RelationalCommandCache(
-                    _parentVisitor.Dependencies.MemoryCache,
-                    _parentVisitor.RelationalDependencies.QuerySqlGeneratorFactory,
-                    _parentVisitor.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                    _selectExpression,
-                    _parentVisitor._useRelationalNulls);
+                relationalCommandCache = CreateRelationalCommandCache();
                 readerColumns = _readerColumns;
 
                 return Expression.Lambda(
@@ -297,13 +298,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 result = Expression.Block(_variables, _expressions);
 
                 relationalCommandCache = _generateCommandCache
-                    ? new RelationalCommandCache(
-                        _parentVisitor.Dependencies.MemoryCache,
-                        _parentVisitor.RelationalDependencies.QuerySqlGeneratorFactory,
-                        _parentVisitor.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                        _selectExpression,
-                        _parentVisitor._useRelationalNulls)
-                    : null;
+                    ? CreateRelationalCommandCache()
+                    : Expression.Constant(null, typeof(RelationalCommandCache));
                 readerColumns = _readerColumns;
 
                 return Expression.Lambda(
@@ -385,13 +381,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
 
                 relationalCommandCache = _generateCommandCache
-                    ? new RelationalCommandCache(
-                        _parentVisitor.Dependencies.MemoryCache,
-                        _parentVisitor.RelationalDependencies.QuerySqlGeneratorFactory,
-                        _parentVisitor.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                        _selectExpression,
-                        _parentVisitor._useRelationalNulls)
-                    : null;
+                    ? CreateRelationalCommandCache()
+                    : Expression.Constant(null, typeof(RelationalCommandCache));;
                 readerColumns = _readerColumns;
 
                 collectionId = _collectionId;
@@ -403,6 +394,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     _resultContextParameter,
                     _resultCoordinatorParameter);
             }
+
+            LiftableConstantExpression CreateRelationalCommandCache()
+                => _parentVisitor.RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
+                    c => new RelationalCommandCache(
+                        c.Dependencies.MemoryCache,
+                        c.RelationalDependencies.QuerySqlGeneratorFactory,
+                        c.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+                        _selectExpression,
+                        _parentVisitor._useRelationalNulls),
+                    "relationalCommandCache",
+                    typeof(RelationalCommandCache));
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
@@ -425,7 +427,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             : propertyMap.Values.Max() + 1;
 
                     var updatedExpression = newExpression.Update(
-                        new[] { Expression.Constant(ValueBuffer.Empty), newExpression.Arguments[1] });
+                        new[]
+                        {
+                            _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                _ => ValueBuffer.Empty,
+                                "emptyValueBuffer",
+                                typeof(ValueBuffer)),
+                            newExpression.Arguments[1]
+                        });
 
                     return Expression.Assign(binaryExpression.Left, updatedExpression);
                 }
@@ -487,7 +496,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         }
                         else
                         {
-                            var entityParameter = Expression.Parameter(entityShaperExpression.Type);
+                            var entityParameter = Expression.Parameter(entityShaperExpression.Type, "entity");
                             _variables.Add(entityParameter);
                             if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                             {
@@ -552,9 +561,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return entityMaterializationExpression;
                 }
 
-                case CollectionResultExpression collectionResultExpression
-                    when collectionResultExpression.Navigation is INavigation navigation
-                    && GetProjectionIndex(collectionResultExpression.ProjectionBindingExpression)
+                case CollectionResultExpression { Navigation: INavigation navigation } collectionResultExpression
+                    when GetProjectionIndex(collectionResultExpression.ProjectionBindingExpression)
                         is JsonProjectionInfo jsonProjectionInfo:
                 {
                     // json entity collection at the root
@@ -602,7 +610,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var projection = _selectExpression.Projection[projectionIndex];
                     var nullable = IsNullableProjection(projection);
 
-                    var valueParameter = Expression.Parameter(projectionBindingExpression.Type);
+                    var valueParameter = Expression.Parameter(projectionBindingExpression.Type, "value" + (_variables.Count + 1));
                     _variables.Add(valueParameter);
 
                     _expressions.Add(
@@ -653,13 +661,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 _readerColumns)
                             .ProcessShaper(relationalCollectionShaperExpression.InnerShaper, out _, out _, out _, ref _collectionId);
 
-                        var entityType = entity.Type;
+                        var entityClrType = entity.Type;
                         var navigation = includeExpression.Navigation;
-                        var includingEntityType = navigation.DeclaringEntityType.ClrType;
-                        if (includingEntityType != entityType
-                            && includingEntityType.IsAssignableFrom(entityType))
+                        var includingEntityClrType = navigation.DeclaringEntityType.ClrType;
+                        if (includingEntityClrType != entityClrType
+                            && includingEntityClrType.IsAssignableFrom(entityClrType))
                         {
-                            includingEntityType = entityType;
+                            includingEntityClrType = entityClrType;
                         }
 
                         _inline = true;
@@ -683,50 +691,69 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                         _includeExpressions.Add(
                             Expression.Call(
-                                InitializeIncludeCollectionMethodInfo.MakeGenericMethod(entityType, includingEntityType),
+                                InitializeIncludeCollectionMethodInfo.MakeGenericMethod(entityClrType, includingEntityClrType),
                                 collectionIdConstant,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
                                 _resultCoordinatorParameter,
                                 entity,
-                                Expression.Constant(parentIdentifierLambda.Compile()),
-                                Expression.Constant(outerIdentifierLambda.Compile()),
-                                Expression.Constant(navigation),
-                                Expression.Constant(navigation.IsShadowProperty()
-                                    ? null
-                                    : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
+                                parentIdentifierLambda,
+                                outerIdentifierLambda,
+                                // Expression.Constant(navigation),
+                                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                    c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!,
+                                    "navigation",
+                                    typeof(INavigationBase)),
+                                // Expression.Constant(navigation.IsShadowProperty()
+                                //     ? null
+                                //     : navigation.GetCollectionAccessor(), typeof(IClrCollectionAccessor)),
+                                navigation.IsShadowProperty()
+                                    ? Expression.Constant(null, typeof(IClrCollectionAccessor))
+                                    : _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                        c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!
+                                            .GetCollectionAccessor()!,
+                                        "navigationCollectionAccessor",
+                                        typeof(IClrCollectionAccessor)),
                                 Expression.Constant(_isTracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
                                 Expression.Constant(includeExpression.SetLoaded)));
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
-                        var relatedEntityType = innerShaper.ReturnType;
+                        var relatedEntityClrType = innerShaper.ReturnType;
                         var inverseNavigation = navigation.Inverse;
 
                         _collectionPopulatingExpressions!.Add(
                             Expression.Call(
-                                PopulateIncludeCollectionMethodInfo.MakeGenericMethod(includingEntityType, relatedEntityType),
+                                PopulateIncludeCollectionMethodInfo.MakeGenericMethod(includingEntityClrType, relatedEntityClrType),
                                 collectionIdConstant,
                                 QueryCompilationContext.QueryContextParameter,
                                 _dataReaderParameter,
                                 _resultCoordinatorParameter,
-                                Expression.Constant(parentIdentifierLambda.Compile()),
-                                Expression.Constant(outerIdentifierLambda.Compile()),
-                                Expression.Constant(selfIdentifierLambda.Compile()),
-                                Expression.Constant(
-                                    relationalCollectionShaperExpression.ParentIdentifierValueComparers,
-                                    typeof(IReadOnlyList<ValueComparer>)),
-                                Expression.Constant(
-                                    relationalCollectionShaperExpression.OuterIdentifierValueComparers,
-                                    typeof(IReadOnlyList<ValueComparer>)),
-                                Expression.Constant(
-                                    relationalCollectionShaperExpression.SelfIdentifierValueComparers,
-                                    typeof(IReadOnlyList<ValueComparer>)),
-                                Expression.Constant(innerShaper.Compile()),
-                                Expression.Constant(inverseNavigation, typeof(INavigationBase)),
-                                Expression.Constant(
-                                    GenerateFixup(
-                                        includingEntityType, relatedEntityType, navigation, inverseNavigation).Compile()),
+                                parentIdentifierLambda,
+                                outerIdentifierLambda,
+                                selfIdentifierLambda,
+                                Expression.NewArrayInit(typeof(Func<object, object, bool>), relationalCollectionShaperExpression.ParentIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                Expression.NewArrayInit(typeof(Func<object, object, bool>), relationalCollectionShaperExpression.OuterIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                Expression.NewArrayInit(typeof(Func<object, object, bool>), relationalCollectionShaperExpression.SelfIdentifierValueComparers.Select(vc => vc.ObjectEqualsExpression)),
+                                // Expression.Constant(
+                                //     relationalCollectionShaperExpression.ParentIdentifierValueComparers,
+                                //     typeof(IReadOnlyList<ValueComparer>)),
+                                // Expression.Constant(
+                                //     relationalCollectionShaperExpression.OuterIdentifierValueComparers,
+                                //     typeof(IReadOnlyList<ValueComparer>)),
+                                // Expression.Constant(
+                                //     relationalCollectionShaperExpression.SelfIdentifierValueComparers,
+                                //     typeof(IReadOnlyList<ValueComparer>)),
+                                innerShaper,
+                                // Expression.Constant(inverseNavigation, typeof(INavigationBase)),
+                                inverseNavigation is null
+                                    ? Expression.Constant(null, typeof(INavigationBase))
+                                    : _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                                        c => c.Dependencies.Model.FindEntityType(inverseNavigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!,
+                                        "inverseNavigation",
+                                        typeof(INavigationBase)),
+                                GenerateFixup(
+                                    includingEntityClrType, relatedEntityClrType, navigation, inverseNavigation),
                                 Expression.Constant(_isTracking)));
                     }
                     else if (includeExpression.NavigationExpression is RelationalSplitCollectionShaperExpression
@@ -1052,6 +1079,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 case GroupByShaperExpression:
                     throw new InvalidOperationException(RelationalStrings.ClientGroupByNotSupported);
+
+                case LiftableConstantExpression:
+                    return extensionExpression;
             }
 
             return base.VisitExtension(extensionExpression);
@@ -1515,7 +1545,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static LambdaExpression GenerateFixup(
+        private LambdaExpression GenerateFixup(
             Type entityType,
             Type relatedEntityType,
             INavigationBase navigation,
@@ -1551,12 +1581,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             INavigationBase navigation)
             => entity.MakeMemberAccess(navigation.GetMemberInfo(forMaterialization: true, forSet: true)).Assign(relatedEntity);
 
-        private static Expression AddToCollectionNavigation(
+        private Expression AddToCollectionNavigation(
             ParameterExpression entity,
             ParameterExpression relatedEntity,
             INavigationBase navigation)
             => Expression.Call(
-                Expression.Constant(navigation.GetCollectionAccessor()),
+                // Expression.Constant(navigation.GetCollectionAccessor()),
+
+                // // TODO: Very temporary hack. This is bad for perf.
+                // Expression.Call(Expression.Constant(navigation), typeof(INavigationBase).GetMethod(nameof(INavigationBase.GetCollectionAccessor), Array.Empty<Type>())!),
+
+                _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
+                        c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!
+                            .GetCollectionAccessor()!,
+                        "navigationCollectionAccessor",
+                        typeof(IClrCollectionAccessor)),
+
                 CollectionAccessorAddMethodInfo,
                 entity,
                 relatedEntity,
