@@ -225,8 +225,8 @@
     <comment>Debug SqlServerEventId.PrimaryKeyFound string string</comment>
   </data>
   <data name="LogFoundSequence" xml:space="preserve">
-    <value>Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}.</value>
-    <comment>Debug SqlServerEventId.SequenceFound string string bool int long long long</comment>
+    <value>Found sequence with '{name}', data type: {dataType}, cyclic: {isCyclic}, increment: {increment}, start: {start}, minimum: {min}, maximum: {max}, cached: {cached}, cacheSize: {cacheSize}.</value>
+    <comment>Debug SqlServerEventId.SequenceFound string string bool int long long long bool int?</comment>
   </data>
   <data name="LogFoundTable" xml:space="preserve">
     <value>Found table with name '{name}'.</value>

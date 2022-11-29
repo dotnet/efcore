@@ -804,6 +804,19 @@ public static class ScaffoldingModelExtensions
             root = root?.Chain(isCyclic) ?? isCyclic;
         }
 
+        if (sequence.IsCached != Sequence.DefaultIsCached)
+        {
+            var useNoCache = new FluentApiCodeFragment(nameof(SequenceBuilder.UseNoCache));
+
+            root = root?.Chain(useNoCache) ?? useNoCache;
+        }
+        else
+        {
+            var useCache = new FluentApiCodeFragment(nameof(SequenceBuilder.UseCache)) { Arguments = { sequence.CacheSize } };
+
+            root = root?.Chain(useCache) ?? useCache;
+        }
+
         return root;
     }
 

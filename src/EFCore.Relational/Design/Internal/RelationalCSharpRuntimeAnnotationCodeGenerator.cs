@@ -285,6 +285,24 @@ public class RelationalCSharpRuntimeAnnotationCodeGenerator : CSharpRuntimeAnnot
                 .Append("maxValue: ").Append(code.Literal(sequence.MaxValue));
         }
 
+        if (sequence.IsCached && sequence.CacheSize.HasValue)
+        {
+            mainBuilder
+                .AppendLine(",")
+                .Append("cached: ")
+                .Append(code.Literal(sequence.IsCached))
+                .AppendLine(",")
+                .Append("cacheSize: ")
+                .Append(code.Literal(sequence.CacheSize));
+        }
+        else if (!sequence.IsCached)
+        {
+            mainBuilder
+                .AppendLine(",")
+                .Append("cached: ")
+                .Append(code.Literal(sequence.IsCached));
+        }
+
         if (sequence.ModelSchema is null && sequence.Schema is not null)
         {
             mainBuilder.AppendLine(",")

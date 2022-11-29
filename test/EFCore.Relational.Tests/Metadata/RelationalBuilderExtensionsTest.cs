@@ -1019,6 +1019,9 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -1032,7 +1035,9 @@ public class RelationalBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
 
@@ -1049,7 +1054,9 @@ public class RelationalBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
 
@@ -1068,7 +1075,9 @@ public class RelationalBuilderExtensionsTest
                     b.IncrementsBy(11)
                         .StartsAt(1729)
                         .HasMin(111)
-                        .HasMax(2222);
+                        .HasMax(2222)
+                        .IsCyclic(false)
+                        .UseCache(20);
                 });
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
@@ -1088,7 +1097,9 @@ public class RelationalBuilderExtensionsTest
                     b.IncrementsBy(11)
                         .StartsAt(1729)
                         .HasMin(111)
-                        .HasMax(2222);
+                        .HasMax(2222)
+                        .IsCyclic(false)
+                        .UseCache(20);
                 });
 
         var sequence = modelBuilder.Model.FindSequence("Snook");
@@ -1105,6 +1116,9 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(111, sequence.MinValue);
         Assert.Equal(2222, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Equal(20, sequence.CacheSize);
     }
 
     [ConditionalFact]
@@ -1117,7 +1131,9 @@ public class RelationalBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         var sequence = modelBuilder.Model.FindSequence("Snook", "Tasty");
 
@@ -1134,7 +1150,9 @@ public class RelationalBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         var sequence = modelBuilder.Model.FindSequence("Snook", "Tasty");
 
@@ -1147,7 +1165,7 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222));
+            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20));
 
         var sequence = modelBuilder.Model.FindSequence("Snook", "Tasty");
 
@@ -1160,7 +1178,7 @@ public class RelationalBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .HasSequence(typeof(int), "Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222));
+            .HasSequence(typeof(int), "Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20));
 
         var sequence = modelBuilder.Model.FindSequence("Snook", "Tasty");
 
@@ -1458,6 +1476,9 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal(1729, sequence.StartValue);
         Assert.Equal(111, sequence.MinValue);
         Assert.Equal(2222, sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Equal(20, sequence.CacheSize);
         Assert.Same(typeof(int), sequence.Type);
     }
 

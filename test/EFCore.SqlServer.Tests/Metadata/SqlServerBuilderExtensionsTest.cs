@@ -279,6 +279,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -305,6 +308,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -318,7 +324,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder.UseHiLo("Snook", "Tasty");
 
@@ -343,7 +351,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder.UseHiLo("Snook", "Tasty");
 
@@ -417,6 +427,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -430,7 +443,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder.UseKeySequences("Snook", "Tasty");
 
@@ -455,7 +470,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder.UseKeySequences("Snook", "Tasty");
 
@@ -478,6 +495,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1729, sequence.StartValue);
         Assert.Equal(111, sequence.MinValue);
         Assert.Equal(2222, sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Equal(20, sequence.CacheSize);
         Assert.Same(typeof(int), sequence.Type);
     }
 
@@ -582,6 +602,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -612,6 +635,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -625,7 +651,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder
             .Entity<Customer>()
@@ -650,7 +678,7 @@ public class SqlServerBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
+            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222).IsCyclic(false).UseCache(20))
             .Entity<Customer>()
             .Property(e => e.Id)
             .UseHiLo("Snook", "Tasty");
@@ -677,7 +705,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder
             .Entity<Customer>()
@@ -707,7 +737,9 @@ public class SqlServerBuilderExtensionsTest
                     b.IncrementsBy(11)
                         .StartsAt(1729)
                         .HasMin(111)
-                        .HasMax(2222);
+                        .HasMax(2222)
+                        .IsCyclic(false)
+                        .UseCache(20);
                 });
 
         modelBuilder
@@ -777,6 +809,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -809,6 +844,9 @@ public class SqlServerBuilderExtensionsTest
         Assert.Equal(1, sequence.StartValue);
         Assert.Null(sequence.MinValue);
         Assert.Null(sequence.MaxValue);
+        Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(typeof(long), sequence.Type);
     }
 
@@ -822,7 +860,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder
             .Entity<Customer>()
@@ -847,7 +887,8 @@ public class SqlServerBuilderExtensionsTest
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder
-            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
+            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222)
+            .IsCyclic(false).UseCache(20))
             .Entity<Customer>()
             .Property(e => e.Id)
             .UseSequence("Snook", "Tasty");
@@ -874,7 +915,9 @@ public class SqlServerBuilderExtensionsTest
             .IncrementsBy(11)
             .StartsAt(1729)
             .HasMin(111)
-            .HasMax(2222);
+            .HasMax(2222)
+            .IsCyclic(false)
+            .UseCache(20);
 
         modelBuilder
             .Entity<Customer>()
@@ -904,7 +947,9 @@ public class SqlServerBuilderExtensionsTest
                     b.IncrementsBy(11)
                         .StartsAt(1729)
                         .HasMin(111)
-                        .HasMax(2222);
+                        .HasMax(2222)
+                        .IsCyclic(false)
+                        .UseCache(20);
                 });
 
         modelBuilder

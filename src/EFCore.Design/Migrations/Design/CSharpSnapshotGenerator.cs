@@ -391,6 +391,21 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".IsCyclic()");
         }
 
+        if (sequence.IsCached != Sequence.DefaultIsCached)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".UseNoCache()");
+        }
+        else if (sequence.CacheSize != Sequence.DefaultCacheSize)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".UseCache(")
+                .Append(Code.Literal(sequence.CacheSize))
+                .Append(")");
+        }
+
         GenerateSequenceAnnotations(sequenceBuilderName, sequence, stringBuilder);
     }
 

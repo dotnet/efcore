@@ -845,10 +845,14 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Null(o.MinValue);
                 Assert.Null(o.MaxValue);
                 Assert.False(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Null(o.CacheSize);
                 Assert.Equal(1, o.OldSequence.IncrementBy);
                 Assert.Null(o.OldSequence.MinValue);
                 Assert.Null(o.OldSequence.MaxValue);
                 Assert.False(o.OldSequence.IsCyclic);
+                Assert.True(o.OldSequence.IsCached);
+                Assert.Null(o.OldSequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -862,12 +866,16 @@ public class CSharpMigrationOperationGeneratorTest
                 MinValue = 2,
                 MaxValue = 4,
                 IsCyclic = true,
+                IsCached = true,
+                CacheSize = 20,
                 OldSequence =
                 {
                     IncrementBy = 4,
                     MinValue = 3,
                     MaxValue = 5,
-                    IsCyclic = true
+                    IsCyclic = true,
+                    IsCached = true,
+                    CacheSize = 2
                 }
             },
             "mb.AlterSequence("
@@ -884,13 +892,21 @@ public class CSharpMigrationOperationGeneratorTest
             + _eol
             + "    cyclic: true,"
             + _eol
+            + "    cached: true,"
+            + _eol
+            + "    cacheSize: 20,"
+            + _eol
             + "    oldIncrementBy: 4,"
             + _eol
             + "    oldMinValue: 3L,"
             + _eol
             + "    oldMaxValue: 5L,"
             + _eol
-            + "    oldCyclic: true);",
+            + "    oldCyclic: true,"
+            + _eol
+            + "    oldCached: true,"
+            + _eol
+            + "    oldCacheSize: 2);",
             o =>
             {
                 Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -899,10 +915,14 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Equal(2, o.MinValue);
                 Assert.Equal(4, o.MaxValue);
                 Assert.True(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Equal(20, o.CacheSize);
                 Assert.Equal(4, o.OldSequence.IncrementBy);
                 Assert.Equal(3, o.OldSequence.MinValue);
                 Assert.Equal(5, o.OldSequence.MaxValue);
                 Assert.True(o.OldSequence.IsCyclic);
+                Assert.True(o.OldSequence.IsCached);
+                Assert.Equal(2, o.OldSequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -1071,7 +1091,9 @@ public class CSharpMigrationOperationGeneratorTest
                 IncrementBy = 5,
                 MinValue = 2,
                 MaxValue = 4,
-                IsCyclic = true
+                IsCyclic = true,
+                IsCached = true,
+                CacheSize = 20
             },
             "mb.CreateSequence("
             + _eol
@@ -1087,7 +1109,11 @@ public class CSharpMigrationOperationGeneratorTest
             + _eol
             + "    maxValue: 4L,"
             + _eol
-            + "    cyclic: true);",
+            + "    cyclic: true,"
+            + _eol
+            + "    cached: true,"
+            + _eol
+            + "    cacheSize: 20);",
             o =>
             {
                 Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -1098,6 +1124,8 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Equal(2, o.MinValue);
                 Assert.Equal(4, o.MaxValue);
                 Assert.True(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Equal(20, o.CacheSize);
             });
 
     [ConditionalFact]
@@ -1112,7 +1140,9 @@ public class CSharpMigrationOperationGeneratorTest
                 IncrementBy = 5,
                 MinValue = 2,
                 MaxValue = 4,
-                IsCyclic = true
+                IsCyclic = true,
+                IsCached = true,
+                CacheSize = 20
             },
             "mb.CreateSequence<int>("
             + _eol
@@ -1128,7 +1158,11 @@ public class CSharpMigrationOperationGeneratorTest
             + _eol
             + "    maxValue: 4L,"
             + _eol
-            + "    cyclic: true);",
+            + "    cyclic: true,"
+            + _eol
+            + "    cached: true,"
+            + _eol
+            + "    cacheSize: 20);",
             o =>
             {
                 Assert.Equal("EntityFrameworkHiLoSequence", o.Name);
@@ -1139,6 +1173,8 @@ public class CSharpMigrationOperationGeneratorTest
                 Assert.Equal(2, o.MinValue);
                 Assert.Equal(4, o.MaxValue);
                 Assert.True(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Equal(20, o.CacheSize);
             });
 
     [ConditionalFact]

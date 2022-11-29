@@ -115,4 +115,34 @@ public interface IConventionSequence : IReadOnlySequence, IConventionAnnotatable
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlySequence.IsCyclic" />.</returns>
     ConfigurationSource? GetIsCyclicConfigurationSource();
+
+    /// <summary>
+    ///     Sets whether the sequence use preallocated values.
+    /// </summary>
+    /// <param name="cached">
+    ///     If <see langword="true" />, then the sequence use preallocated values.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    bool? SetIsCached(bool? cached, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Gets the configuration source for <see cref="IReadOnlySequence.IsCached" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlySequence.IsCached" />.</returns>
+    ConfigurationSource? GetIsCachedConfigurationSource();
+
+    /// <summary>
+    ///     Sets the amount of preallocated values.
+    /// </summary>
+    /// <param name="cacheSize">The amount of preallocated values.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    int? SetCacheSize(int? cacheSize, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Gets the configuration source for <see cref="IReadOnlySequence.CacheSize" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlySequence.CacheSize" />.</returns>
+    ConfigurationSource? GetCacheSizeConfigurationSource();
 }

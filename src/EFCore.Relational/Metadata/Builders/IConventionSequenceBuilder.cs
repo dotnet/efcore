@@ -130,4 +130,40 @@ public interface IConventionSequenceBuilder : IConventionAnnotatableBuilder
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns><see langword="true" /> if the given cyclicity can be set for the sequence.</returns>
     bool CanSetIsCyclic(bool? cyclic, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Sets that sequence does not use preallocated values.
+    /// </summary>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionSequenceBuilder? UseNoCache(bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating nocache can be set for the sequence.
+    /// </summary>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if nocache can be set for the sequence.</returns>
+    bool CanSetNoCache(bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Sets amount of preallocated values.
+    /// </summary>
+    /// <param name="cacheSize">The amount of preallocated values.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     The same builder instance if the configuration was applied,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionSequenceBuilder? UseCache(int? cacheSize, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given cache size can be set for the sequence.
+    /// </summary>
+    /// <param name="cacheSize">The cache size for the sequence.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the given cache size can be set for the sequence.</returns>
+    bool CanSetCache(int? cacheSize, bool fromDataAnnotation = false);
 }

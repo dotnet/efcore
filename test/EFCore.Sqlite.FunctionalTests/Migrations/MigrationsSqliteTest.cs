@@ -1720,6 +1720,33 @@ CREATE TABLE "Person" (
     public override Task Alter_sequence_increment_by()
         => AssertNotSupportedAsync(base.Alter_sequence_increment_by, SqliteStrings.SequencesNotSupported);
 
+    public override Task Alter_sequence_cache_to_default_cache()
+        => AssertNotSupportedAsync(base.Alter_sequence_cache_to_default_cache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Alter_sequence_cache_to_nocache()
+        => AssertNotSupportedAsync(base.Alter_sequence_cache_to_nocache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Alter_sequence_default_cache_to_cache()
+        => AssertNotSupportedAsync(base.Alter_sequence_default_cache_to_cache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Alter_sequence_default_cache_to_nocache()
+        => AssertNotSupportedAsync(base.Alter_sequence_default_cache_to_nocache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Alter_sequence_nocache_to_cache()
+        => AssertNotSupportedAsync(base.Alter_sequence_nocache_to_cache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Alter_sequence_nocache_to_default_cache()
+        => AssertNotSupportedAsync(base.Alter_sequence_nocache_to_default_cache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Create_sequence_cache()
+        => AssertNotSupportedAsync(base.Create_sequence_cache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Create_sequence_default_cache()
+        => AssertNotSupportedAsync(base.Create_sequence_default_cache, SqliteStrings.SequencesNotSupported);
+
+    public override Task Create_sequence_nocache()
+        => AssertNotSupportedAsync(base.Create_sequence_nocache, SqliteStrings.SequencesNotSupported);
+
     public override Task Drop_sequence()
         => AssertNotSupportedAsync(base.Drop_sequence, SqliteStrings.SequencesNotSupported);
 

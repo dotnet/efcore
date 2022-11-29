@@ -57,6 +57,16 @@ public class DatabaseSequence : Annotatable
     /// </summary>
     public virtual bool? IsCyclic { get; set; }
 
+    /// <summary>
+    ///     Indicates whether the sequence use preallocated values, or <see langword="null" /> if not set.
+    /// </summary>
+    public virtual bool? IsCached { get; set; }
+
+    /// <summary>
+    ///     The amount of preallocated values, or <see langword="null" /> if none has been set.
+    /// </summary>
+    public virtual int? CacheSize { get; set; }
+
     /// <inheritdoc />
     public override string ToString()
     {

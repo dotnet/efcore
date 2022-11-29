@@ -31,4 +31,14 @@ public abstract class SequenceOperation : MigrationOperation
     ///     Indicates whether or not the sequence will re-start when the maximum value is reached.
     /// </summary>
     public virtual bool IsCyclic { get; set; }
+
+    /// <summary>
+    ///     Indicates whether the sequence use preallocated values.
+    /// </summary>
+    public virtual bool IsCached { get; set; } = true;
+
+    /// <summary>
+    ///     The amount of preallocated values of the sequence, or <see langword="null" /> if not specified.
+    /// </summary>
+    public virtual int? CacheSize { get; set; }
 }

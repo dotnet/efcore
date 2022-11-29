@@ -486,7 +486,9 @@ public static class SqlServerLoggerExtensions
         int increment,
         long start,
         long min,
-        long max)
+        long max,
+        bool cached,
+        int? cacheSize)
     {
         // No DiagnosticsSource events because these are purely design-time messages
         var definition = SqlServerResources.LogFoundSequence(diagnostics);
@@ -505,7 +507,9 @@ public static class SqlServerLoggerExtensions
                     increment,
                     start,
                     min,
-                    max));
+                    max,
+                    cached,
+                    cacheSize));
         }
     }
 

@@ -188,6 +188,60 @@ public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionM
         => configurationSource.Overrides(Metadata.GetIsCyclicConfigurationSource())
             || Metadata.IsCyclic == cyclic;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IConventionSequenceBuilder? UseNoCache(ConfigurationSource configurationSource)
+    {
+        if (CanSetNoCache(configurationSource))
+        {
+            Metadata.SetIsCached(false, configurationSource);
+            Metadata.SetCacheSize(null, configurationSource);
+            return this;
+        }
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetNoCache(ConfigurationSource configurationSource)
+                => configurationSource.Overrides(Metadata.GetIsCachedConfigurationSource())
+            || Metadata.IsCached == false;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IConventionSequenceBuilder? UseCache(int? cacheSize, ConfigurationSource configurationSource)
+    {
+        if (CanSetCacheSize(cacheSize, configurationSource))
+        {
+            Metadata.SetIsCached(true, configurationSource);
+            Metadata.SetCacheSize(cacheSize, configurationSource);
+            return this;
+        }
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetCacheSize(long? cacheSize, ConfigurationSource configurationSource)
+        => configurationSource.Overrides(Metadata.GetCacheSizeConfigurationSource())
+            || Metadata.CacheSize == cacheSize;
+
     /// <inheritdoc />
     IConventionSequence IConventionSequenceBuilder.Metadata
     {
@@ -254,4 +308,24 @@ public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionM
     [DebuggerStepThrough]
     bool IConventionSequenceBuilder.CanSetIsCyclic(bool? cyclic, bool fromDataAnnotation)
         => CanSetIsCyclic(cyclic, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionSequenceBuilder? IConventionSequenceBuilder.UseNoCache(bool fromDataAnnotation)
+        => UseNoCache(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionSequenceBuilder.CanSetNoCache(bool fromDataAnnotation)
+        => CanSetNoCache(fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionSequenceBuilder? IConventionSequenceBuilder.UseCache(int? cacheSize, bool fromDataAnnotation)
+        => UseCache(cacheSize, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionSequenceBuilder.CanSetCache(int? cacheSize, bool fromDataAnnotation)
+        => CanSetCacheSize(cacheSize, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

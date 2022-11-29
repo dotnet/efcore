@@ -1552,6 +1552,22 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         }
 
         builder.Append(operation.IsCyclic ? " CYCLE" : " NO CYCLE");
+
+        if (!operation.IsCached)
+        {
+            builder.Append(" NO CACHE");
+        }
+        else if (operation.CacheSize.HasValue)
+        {
+            builder
+            .Append(" CACHE ")
+                .Append(IntegerConstant(operation.CacheSize.Value));
+        }
+        else
+        {
+            builder
+                .Append(" CACHE");
+        }
     }
 
     /// <summary>

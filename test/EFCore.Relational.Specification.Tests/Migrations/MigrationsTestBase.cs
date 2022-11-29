@@ -1593,6 +1593,46 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("TestSequence", sequence.Name);
             });
 
+
+    [ConditionalFact]
+    public virtual Task Create_sequence_nocache()
+    => Test(
+        builder => { },
+        builder => builder.HasSequence("Alpha").UseNoCache(),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.Equal("Alpha", sequence.Name);
+            Assert.False(sequence.IsCached);
+        });
+
+
+    [ConditionalFact]
+    public virtual Task Create_sequence_cache()
+    => Test(
+        builder => { },
+        builder => builder.HasSequence("Beta").UseCache(20),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.Equal("Beta", sequence.Name);
+            Assert.True(sequence.IsCached);
+            Assert.Equal(20, sequence.CacheSize);
+        });
+
+    [ConditionalFact]
+    public virtual Task Create_sequence_default_cache()
+    => Test(
+        builder => { },
+        builder => builder.HasSequence("Gamma").UseCache(),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.Equal("Gamma", sequence.Name);
+            Assert.True(sequence.IsCached);
+            Assert.Null(sequence.CacheSize);
+        });
+
     [ConditionalFact]
     public virtual Task Create_sequence_all_settings()
         => Test(
@@ -1602,7 +1642,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 .IncrementsBy(2)
                 .HasMin(2)
                 .HasMax(916)
-                .IsCyclic(),
+                .IsCyclic()
+                .UseCache(20),
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
@@ -1613,6 +1654,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(2, sequence.MinValue);
                 Assert.Equal(916, sequence.MaxValue);
                 Assert.True(sequence.IsCyclic);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -1625,7 +1668,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 .IncrementsBy(2)
                 .HasMin(-5)
                 .HasMax(10)
-                .IsCyclic(),
+                .IsCyclic()
+                .UseCache(20),
             model =>
             {
                 var sequence = Assert.Single(model.Sequences);
@@ -1634,6 +1678,8 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(-5, sequence.MinValue);
                 Assert.Equal(10, sequence.MaxValue);
                 Assert.True(sequence.IsCyclic);
+                Assert.True(sequence.IsCached);
+                Assert.Equal(20, sequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -1647,6 +1693,85 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 var sequence = Assert.Single(model.Sequences);
                 Assert.Equal(2, sequence.IncrementBy);
             });
+
+    [ConditionalFact]
+    public virtual Task Alter_sequence_default_cache_to_cache()
+    => Test(
+        builder => builder.HasSequence<int>("Delta").UseCache(),
+        builder => { },
+        builder => builder.HasSequence<int>("Delta").UseCache(20),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.True(sequence.IsCached);
+            Assert.Equal(20, sequence.CacheSize);
+        });
+
+
+    [ConditionalFact]
+    public virtual Task Alter_sequence_default_cache_to_nocache()
+    => Test(
+        builder => builder.HasSequence<int>("Epsilon").UseCache(),
+        builder => { },
+        builder => builder.HasSequence<int>("Epsilon").UseNoCache(),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.False(sequence.IsCached);
+            Assert.Null(sequence.CacheSize);
+        });
+
+    [ConditionalFact]
+    public virtual Task Alter_sequence_cache_to_nocache()
+    => Test(
+        builder => builder.HasSequence<int>("Zeta").UseCache(20),
+        builder => { },
+        builder => builder.HasSequence<int>("Zeta").UseNoCache(),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.False(sequence.IsCached);
+            Assert.Null(sequence.CacheSize);
+        });
+
+    [ConditionalFact]
+    public virtual Task Alter_sequence_cache_to_default_cache()
+    => Test(
+        builder => builder.HasSequence<int>("Eta").UseCache(20),
+        builder => { },
+        builder => builder.HasSequence<int>("Eta").UseCache(),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.True(sequence.IsCached);
+            Assert.Null(sequence.CacheSize);
+        });
+
+    [ConditionalFact]
+    public virtual Task Alter_sequence_nocache_to_cache()
+    => Test(
+        builder => builder.HasSequence<int>("Theta").UseNoCache(),
+        builder => { },
+        builder => builder.HasSequence<int>("Theta").UseCache(20),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.True(sequence.IsCached);
+            Assert.Equal(20, sequence.CacheSize);
+        });
+
+    [ConditionalFact]
+    public virtual Task Alter_sequence_nocache_to_default_cache()
+    => Test(
+        builder => builder.HasSequence<int>("Iota").UseNoCache(),
+        builder => { },
+        builder => builder.HasSequence<int>("Iota").UseCache(),
+        model =>
+        {
+            var sequence = Assert.Single(model.Sequences);
+            Assert.True(sequence.IsCached);
+            Assert.Null(sequence.CacheSize);
+        });
 
     [ConditionalFact]
     public virtual Task Drop_sequence()

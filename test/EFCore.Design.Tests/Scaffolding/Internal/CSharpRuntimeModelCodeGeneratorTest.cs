@@ -3669,7 +3669,9 @@ namespace TestNamespace
                 incrementBy: 2,
                 cyclic: true,
                 minValue: -2L,
-                maxValue: 2L);
+                maxValue: 2L,
+                cached: true,
+                cacheSize: 20);
 
             sequences[(""Long"", null)] = @long;
 
@@ -3756,6 +3758,8 @@ namespace TestNamespace
                     Assert.Equal(-2, longSequence.MinValue);
                     Assert.Equal(2, longSequence.MaxValue);
                     Assert.Equal(2, longSequence.IncrementBy);
+                    Assert.True(longSequence.IsCached);
+                    Assert.Equal(20, longSequence.CacheSize);
                     Assert.NotNull(longSequence.ToString());
 
                     var hiLo = model.FindSequence("HL", "S");
@@ -3767,6 +3771,8 @@ namespace TestNamespace
                     Assert.Null(hiLo.MinValue);
                     Assert.Null(hiLo.MaxValue);
                     Assert.Equal(10, hiLo.IncrementBy);
+                    Assert.True(hiLo.IsCached);
+                    Assert.Null(hiLo.CacheSize);
                     Assert.NotNull(hiLo.ToString());
 
                     Assert.Single((IEnumerable)model.GetEntityTypes());
@@ -3785,7 +3791,8 @@ namespace TestNamespace
                     .HasMax(2)
                     .IsCyclic()
                     .IncrementsBy(2)
-                    .StartsAt(-4);
+                    .StartsAt(-4)
+                    .UseCache(20);
 
                 modelBuilder.Entity<Data>(
                     eb =>
@@ -3951,6 +3958,8 @@ namespace TestNamespace
                     Assert.Null(keySequence.MinValue);
                     Assert.Null(keySequence.MaxValue);
                     Assert.Equal(1, keySequence.IncrementBy);
+                    Assert.True(keySequence.IsCached);
+                    Assert.Null(keySequence.CacheSize);
                     Assert.NotNull(keySequence.ToString());
 
                     Assert.Single((IEnumerable)model.GetEntityTypes());

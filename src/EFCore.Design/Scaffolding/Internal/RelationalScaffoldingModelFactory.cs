@@ -263,6 +263,19 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             builder.IsCyclic(sequence.IsCyclic.Value);
         }
 
+        if (sequence.IsCached.HasValue && !sequence.IsCached.Value)
+        {
+            builder.UseNoCache();
+        }
+        else if (sequence.IsCached.HasValue && sequence.CacheSize.HasValue)
+        {
+            builder.UseCache(sequence.CacheSize);
+        }
+        else
+        {
+            builder.UseCache();
+        }
+
         return builder;
     }
 
