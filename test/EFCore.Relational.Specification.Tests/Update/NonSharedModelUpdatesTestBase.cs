@@ -12,8 +12,7 @@ public abstract class NonSharedModelUpdatesTestBase : NonSharedModelTestBase
         => "NonSharedModelUpdatesTestBase";
 
     [ConditionalTheory] // Issue #29356
-    [InlineData(false)]
-    [InlineData(true)]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Principal_and_dependent_roundtrips_with_cycle_breaking(bool async)
     {
         var contextFactory = await InitializeAsync<DbContext>(

@@ -84,6 +84,52 @@ WHERE [Id] = @p5;
 """);
     }
 
+    [ConditionalFact] // Issue #29502
+    public virtual async Task Bulk_insert_result_set_mapping()
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<User>().ToTable("Users");
+                mb.Entity<DailyDigest>().ToTable("DailyDigests");
+            },
+            createTestStore: () => SqlServerTestStore.GetOrCreateWithScriptPath(
+                "Issue29502",
+                Path.Combine("Update", "Issue29502.sql"),
+                shared: false));
+
+        await ExecuteWithStrategyInTransactionAsync(
+            contextFactory,
+            async context =>
+            {
+                var digests = await context.Set<User>()
+                    .OrderBy(u => u.TimeCreatedUtc)
+                    .Take(23)
+                    .Select(u => new DailyDigest { User = u })
+                    .ToListAsync();
+
+                foreach (var digest in digests)
+                {
+                    context.Set<DailyDigest>().Add(digest);
+                }
+
+                await context.SaveChangesAsync();
+            });
+    }
+
+    public class User
+    {
+        public string Id { get; set; } = null!;
+        public DateTime TimeCreatedUtc { get; set; }
+        public ICollection<DailyDigest> DailyDigests { get; set; } = null!;
+    }
+
+    public class DailyDigest
+    {
+        public int Id { get; set; }
+        public User User { get; set; }
+    }
+
     private void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);
 
