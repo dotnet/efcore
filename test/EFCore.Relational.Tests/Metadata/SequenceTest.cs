@@ -22,6 +22,8 @@ public class SequenceTest
         Assert.Null(sequence.MaxValue);
         Assert.Same(typeof(long), sequence.Type);
         Assert.False(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Null(sequence.CacheSize);
         Assert.Same(model, sequence.Model);
 
         model.SetDefaultSchema("db0");
@@ -36,6 +38,8 @@ public class SequenceTest
         Assert.Null(conventionSequence.GetMaxValueConfigurationSource());
         Assert.Null(conventionSequence.GetTypeConfigurationSource());
         Assert.Null(conventionSequence.GetIsCyclicConfigurationSource());
+        Assert.Null(conventionSequence.GetIsCachedConfigurationSource());
+        Assert.Null(conventionSequence.GetCacheSizeConfigurationSource());
     }
 
     [ConditionalFact]
@@ -52,6 +56,8 @@ public class SequenceTest
         sequence.MaxValue = 2010;
         sequence.Type = typeof(int);
         sequence.IsCyclic = true;
+        sequence.IsCached = true;
+        sequence.CacheSize = 20;
 
         Assert.Equal("Foo", sequence.Name);
         Assert.Equal("Smoo", sequence.Schema);
@@ -61,6 +67,8 @@ public class SequenceTest
         Assert.Equal(2010, sequence.MaxValue);
         Assert.Same(typeof(int), sequence.Type);
         Assert.True(sequence.IsCyclic);
+        Assert.True(sequence.IsCached);
+        Assert.Equal(20, sequence.CacheSize);
 
         var conventionSequence = (IConventionSequence)sequence;
         Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetConfigurationSource());
@@ -70,6 +78,8 @@ public class SequenceTest
         Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetMaxValueConfigurationSource());
         Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetTypeConfigurationSource());
         Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetIsCyclicConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetIsCachedConfigurationSource());
+        Assert.Equal(ConfigurationSource.Explicit, conventionSequence.GetCacheSizeConfigurationSource());
     }
 
     [ConditionalFact]

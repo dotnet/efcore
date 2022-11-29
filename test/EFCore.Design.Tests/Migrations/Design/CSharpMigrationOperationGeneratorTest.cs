@@ -791,10 +791,14 @@ mb.AlterSequence(
                 Assert.Null(o.MinValue);
                 Assert.Null(o.MaxValue);
                 Assert.False(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Null(o.CacheSize);
                 Assert.Equal(1, o.OldSequence.IncrementBy);
                 Assert.Null(o.OldSequence.MinValue);
                 Assert.Null(o.OldSequence.MaxValue);
                 Assert.False(o.OldSequence.IsCyclic);
+                Assert.True(o.OldSequence.IsCached);
+                Assert.Null(o.OldSequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -808,12 +812,16 @@ mb.AlterSequence(
                 MinValue = 2,
                 MaxValue = 4,
                 IsCyclic = true,
+                IsCached = true,
+                CacheSize = 20,
                 OldSequence =
                 {
                     IncrementBy = 4,
                     MinValue = 3,
                     MaxValue = 5,
-                    IsCyclic = true
+                    IsCyclic = true,
+                    IsCached = true,
+                    CacheSize = 2
                 }
             },
             """
@@ -837,10 +845,14 @@ mb.AlterSequence(
                 Assert.Equal(2, o.MinValue);
                 Assert.Equal(4, o.MaxValue);
                 Assert.True(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Equal(20, o.CacheSize);
                 Assert.Equal(4, o.OldSequence.IncrementBy);
                 Assert.Equal(3, o.OldSequence.MinValue);
                 Assert.Equal(5, o.OldSequence.MaxValue);
                 Assert.True(o.OldSequence.IsCyclic);
+                Assert.True(o.OldSequence.IsCached);
+                Assert.Equal(2, o.OldSequence.CacheSize);
             });
 
     [ConditionalFact]
@@ -1012,7 +1024,9 @@ mb.CreateSequence<int>(
                 IncrementBy = 5,
                 MinValue = 2,
                 MaxValue = 4,
-                IsCyclic = true
+                IsCyclic = true,
+                IsCached = true,
+                CacheSize = 20
             },
             """
 mb.CreateSequence(
@@ -1022,7 +1036,11 @@ mb.CreateSequence(
     incrementBy: 5,
     minValue: 2L,
     maxValue: 4L,
-    cyclic: true);
+    cyclic: true,"
+            + _eol
+            + "    cached: true,"
+            + _eol
+            + "    cacheSize: 20);
 """,
             o =>
             {
@@ -1034,7 +1052,80 @@ mb.CreateSequence(
                 Assert.Equal(2, o.MinValue);
                 Assert.Equal(4, o.MaxValue);
                 Assert.True(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Equal(20, o.CacheSize);
             });
+
+    [ConditionalFact]
+    public void CreateSequenceOperationCache()
+    => Test(
+        new CreateSequenceOperation
+        {
+            Name = "EntityFrameworkHiLoSequence",
+            Schema = "dbo",
+            ClrType = typeof(long),
+            IsCached = true,
+            CacheSize = 20
+        },
+        "mb.CreateSequence("
+        + _eol
+        + "    name: \"EntityFrameworkHiLoSequence\","
+        + _eol
+        + "    schema: \"dbo\","
+        + _eol
+        + "    cached: true,"
+        + _eol
+        + "    cacheSize: 20);",
+        o =>
+        {
+            Assert.True(o.IsCached);
+            Assert.Equal(20, o.CacheSize);
+        });
+
+    [ConditionalFact]
+    public void CreateSequenceOperationNoCache()
+    => Test(
+        new CreateSequenceOperation
+        {
+            Name = "EntityFrameworkHiLoSequence",
+            Schema = "dbo",
+            ClrType = typeof(long),
+            IsCached = false,
+        },
+        "mb.CreateSequence("
+        + _eol
+        + "    name: \"EntityFrameworkHiLoSequence\","
+        + _eol
+        + "    schema: \"dbo\","
+        + _eol
+        + "    cached: false);",
+        o =>
+        {
+            Assert.False(o.IsCached);
+            Assert.Null(o.CacheSize);
+        });
+
+    [ConditionalFact]
+    public void CreateSequenceOperationDefaultCache()
+    => Test(
+        new CreateSequenceOperation
+        {
+            Name = "EntityFrameworkHiLoSequence",
+            Schema = "dbo",
+            ClrType = typeof(long),
+            IsCached = true
+        },
+        "mb.CreateSequence("
+        + _eol
+        + "    name: \"EntityFrameworkHiLoSequence\","
+        + _eol
+        + "    schema: \"dbo\");",
+        o =>
+        {
+            Assert.True(o.IsCached);
+            Assert.Null(o.CacheSize);
+        });
+
 
     [ConditionalFact]
     public void CreateSequenceOperation_all_args_not_long()
@@ -1048,7 +1139,9 @@ mb.CreateSequence(
                 IncrementBy = 5,
                 MinValue = 2,
                 MaxValue = 4,
-                IsCyclic = true
+                IsCyclic = true,
+                IsCached = true,
+                CacheSize = 20
             },
             """
 mb.CreateSequence<int>(
@@ -1058,7 +1151,11 @@ mb.CreateSequence<int>(
     incrementBy: 5,
     minValue: 2L,
     maxValue: 4L,
-    cyclic: true);
+    cyclic: true,"
+            + _eol
+            + "    cached: true,"
+            + _eol
+            + "    cacheSize: 20);
 """,
             o =>
             {
@@ -1070,6 +1167,8 @@ mb.CreateSequence<int>(
                 Assert.Equal(2, o.MinValue);
                 Assert.Equal(4, o.MaxValue);
                 Assert.True(o.IsCyclic);
+                Assert.True(o.IsCached);
+                Assert.Equal(20, o.CacheSize);
             });
 
     [ConditionalFact]

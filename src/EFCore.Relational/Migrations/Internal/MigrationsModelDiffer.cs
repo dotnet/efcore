@@ -1721,6 +1721,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             || source.MaxValue != target.MaxValue
             || source.MinValue != target.MinValue
             || source.IsCyclic != target.IsCyclic
+            || source.IsCached != target.IsCached
+            || source.CacheSize != target.CacheSize
             || HasDifferences(sourceMigrationsAnnotations, targetMigrationsAnnotations))
         {
             var alterSequenceOperation = new AlterSequenceOperation { Schema = target.Schema, Name = target.Name };
@@ -1774,6 +1776,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         sequenceOperation.MinValue = sequence.MinValue;
         sequenceOperation.MaxValue = sequence.MaxValue;
         sequenceOperation.IsCyclic = sequence.IsCyclic;
+        sequenceOperation.IsCached = sequence.IsCached;
+        sequenceOperation.CacheSize = sequence.CacheSize;
         sequenceOperation.AddAnnotations(migrationsAnnotations);
 
         return sequenceOperation;
