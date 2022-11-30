@@ -414,9 +414,10 @@ SELECT
     CAST(CASE
         WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
         WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
+        ELSE [s].[maximum_value]
         END AS bigint) AS maximum_value,
-	  [s].[is_cached],
-	  [s].[cache_size]
+    [s].[is_cached],
+    [s].[cache_size]
 FROM [sys].[sequences] AS [s]
 JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]
 """;
