@@ -31,21 +31,17 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="storeTypeName">The provider-specific relational type name for which mapping is needed.</param>
     /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
     /// <param name="fallbackUnicode">
-    ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
-    ///     level, or <see langword="null" /> for default.
+    ///     Specifies Unicode or ANSI for the mapping or <see langword="null" /> for default.
     /// </param>
     /// <param name="fixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
     /// <param name="fallbackSize">
-    ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
-    ///     default.
+    ///     Specifies a size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackPrecision">
-    ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <see langword="null" />
-    ///     for default.
+    ///     Specifies a precision for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackScale">
-    ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
-    ///     default.
+    ///     Specifies a scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     public RelationalTypeMappingInfo(
         IReadOnlyList<IProperty> principals,

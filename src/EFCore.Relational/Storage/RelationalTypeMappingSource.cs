@@ -215,7 +215,11 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             isFixedLength ??= principal.IsFixedLength();
         }
 
-        var storeTypeNameBase = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
+        bool? unicode = null;
+        int? size = null;
+        int? precision = null;
+        int? scale = null;
+        var storeTypeNameBase = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
 
         return FindMappingWithConversion(
             new RelationalTypeMappingInfo(principals, storeTypeName, storeTypeNameBase, unicode, isFixedLength, size, precision, scale),
@@ -275,13 +279,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
             string? storeTypeBaseName = null;
             if (storeTypeName != null)
             {
-                storeTypeBaseName = ParseStoreTypeName(
-                    storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
-
-                size ??= parsedSize;
-                precision ??= parsedPrecision;
-                scale ??= parsedScale;
-                isUnicode ??= parsedUnicode;
+                storeTypeBaseName = ParseStoreTypeName(storeTypeName, ref isUnicode, ref size, ref precision, ref scale);
             }
 
             var isFixedLength = (bool?)typeConfiguration[RelationalAnnotationNames.IsFixedLength];
@@ -322,8 +320,12 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
         if (member.GetCustomAttribute<ColumnAttribute>(true) is ColumnAttribute attribute)
         {
             var storeTypeName = attribute.TypeName;
+            bool? unicode = null;
+            int? size = null;
+            int? precision = null;
+            int? scale = null;
             var storeTypeNameBase = ParseStoreTypeName(
-                attribute.TypeName, out var unicode, out var size, out var precision, out var scale);
+                attribute.TypeName, ref unicode, ref size, ref precision, ref scale);
 
             return FindMappingWithConversion(
                 new RelationalTypeMappingInfo(member, storeTypeName, storeTypeNameBase, unicode, size, precision, scale), null);
@@ -348,7 +350,11 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     /// <returns>The type mapping, or <see langword="null" /> if none was found.</returns>
     public virtual RelationalTypeMapping? FindMapping(string storeTypeName)
     {
-        var storeTypeBaseName = ParseStoreTypeName(storeTypeName, out var unicode, out var size, out var precision, out var scale);
+        bool? unicode = null;
+        int? size = null;
+        int? precision = null;
+        int? scale = null;
+        var storeTypeBaseName = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
 
         return FindMappingWithConversion(
             new RelationalTypeMappingInfo(storeTypeName, storeTypeBaseName, unicode, size, precision, scale), null);
@@ -391,13 +397,7 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
 
         if (storeTypeName != null)
         {
-            storeTypeBaseName = ParseStoreTypeName(
-                storeTypeName, out var parsedUnicode, out var parsedSize, out var parsedPrecision, out var parsedScale);
-
-            size ??= parsedSize;
-            precision ??= parsedPrecision;
-            scale ??= parsedScale;
-            unicode ??= parsedUnicode;
+            storeTypeBaseName = ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
         }
 
         return FindMappingWithConversion(
@@ -427,16 +427,11 @@ public abstract class RelationalTypeMappingSource : TypeMappingSourceBase, IRela
     [return: NotNullIfNotNull("storeTypeName")]
     protected virtual string? ParseStoreTypeName(
         string? storeTypeName,
-        out bool? unicode,
-        out int? size,
-        out int? precision,
-        out int? scale)
+        ref bool? unicode,
+        ref int? size,
+        ref int? precision,
+        ref int? scale)
     {
-        unicode = null;
-        size = null;
-        precision = null;
-        scale = null;
-
         if (storeTypeName != null)
         {
             var openParen = storeTypeName.IndexOf("(", StringComparison.Ordinal);

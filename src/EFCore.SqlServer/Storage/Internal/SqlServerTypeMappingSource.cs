@@ -300,7 +300,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 var maxSize = isAnsi ? 8000 : 4000;
 
                 var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
-                if (size > maxSize)
+                if (size < 0 || size > maxSize)
                 {
                     size = isFixedLength ? maxSize : null;
                 }
@@ -334,7 +334,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 var isFixedLength = mappingInfo.IsFixedLength == true;
 
                 var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
-                if (size > 8000)
+                if (size < 0 || size > 8000)
                 {
                     size = isFixedLength ? 8000 : null;
                 }
@@ -371,19 +371,28 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     protected override string? ParseStoreTypeName(
         string? storeTypeName,
-        out bool? unicode,
-        out int? size,
-        out int? precision,
-        out int? scale)
+        ref bool? unicode,
+        ref int? size,
+        ref int? precision,
+        ref int? scale)
     {
-        var parsedName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
+        if (storeTypeName == null)
+        {
+            return null;
+        }
+
+        var originalSize = size;
+        var parsedName = base.ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
 
         if (size.HasValue
-            && storeTypeName != null
             && NameBasesUsingPrecision.Any(n => storeTypeName.StartsWith(n, StringComparison.OrdinalIgnoreCase)))
         {
             precision = size;
-            size = null;
+            size = originalSize;
+        }
+        else if (storeTypeName.Trim().EndsWith("(max)", StringComparison.OrdinalIgnoreCase))
+        {
+            size = -1;
         }
 
         return parsedName;

@@ -124,7 +124,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, inferred: true, maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -260,7 +260,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("nvarchar(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, inferred: true, maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -277,7 +277,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, inferred: true, maxLength: -1, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -327,7 +327,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("nchar(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, inferred: true, maxLength: -1, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -344,7 +344,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("char(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, inferred: true, maxLength: -1, unicode: false, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]

@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
@@ -259,11 +260,11 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         var ulongAsDecimal200 = ulong.MaxValue;
         var uShortAsInt = ushort.MaxValue;
         var sByteAsSmallint = sbyte.MinValue;
-        var charAsVarcharMax = 'A';
-        var charAsAsCharVaryingMax = 'B';
+        var CharAsVarchar = 'A';
+        var CharAsAsCharVarying = 'B';
         var charAsCharacterVaryingMax = 'C';
-        var charAsNvarcharMax = 'D';
-        var charAsNationalCharVaryingMax = 'E';
+        var CharAsNvarchar = 'D';
+        var CharAsNationalCharVarying = 'E';
         var charAsNationalCharacterVaryingMax = 'F';
         var charAsText = 'G';
         var charAsNtext = 'H';
@@ -317,11 +318,11 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
                 UlongAsDecimal200 = ulongAsDecimal200,
                 UShortAsInt = uShortAsInt,
                 SByteAsSmallint = sByteAsSmallint,
-                CharAsVarcharMax = charAsVarcharMax,
-                CharAsAsCharVaryingMax = charAsAsCharVaryingMax,
+                CharAsVarchar = CharAsVarchar,
+                CharAsAsCharVarying = CharAsAsCharVarying,
                 CharAsCharacterVaryingMax = charAsCharacterVaryingMax,
-                CharAsNvarcharMax = charAsNvarcharMax,
-                CharAsNationalCharVaryingMax = charAsNationalCharVaryingMax,
+                CharAsNvarchar = CharAsNvarchar,
+                CharAsNationalCharVarying = CharAsNationalCharVarying,
                 CharAsNationalCharacterVaryingMax = charAsNationalCharacterVaryingMax,
                 CharAsText = charAsText,
                 CharAsNtext = charAsNtext,
@@ -375,11 +376,11 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UlongAsDecimal200 == ulongAsDecimal200));
         ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UShortAsInt == uShortAsInt));
         ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.SByteAsSmallint == sByteAsSmallint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsVarcharMax == charAsVarcharMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVaryingMax == charAsAsCharVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsVarchar == CharAsVarchar));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVarying == CharAsAsCharVarying));
         ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVaryingMax == charAsCharacterVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNvarcharMax == charAsNvarcharMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVaryingMax == charAsNationalCharVaryingMax));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNvarchar == CharAsNvarchar));
+        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVarying == CharAsNationalCharVarying));
         ExecuteQuerySting(
             context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVaryingMax == charAsNationalCharacterVaryingMax));
         ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsInt == charAsInt));
@@ -877,11 +878,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
                     UlongAsDecimal200 = ulong.MaxValue,
                     UShortAsInt = ushort.MaxValue,
                     SByteAsSmallint = sbyte.MinValue,
-                    CharAsVarcharMax = 'A',
-                    CharAsAsCharVaryingMax = 'B',
+                    CharAsVarchar = 'A',
+                    CharAsAsCharVarying = 'B',
                     CharAsCharacterVaryingMax = 'C',
-                    CharAsNvarcharMax = 'D',
-                    CharAsNationalCharVaryingMax = 'E',
+                    CharAsNvarchar = 'D',
+                    CharAsNationalCharVarying = 'E',
                     CharAsNationalCharacterVaryingMax = 'F',
                     CharAsText = 'G',
                     CharAsNtext = 'H',
@@ -1016,22 +1017,22 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.GuidAsUniqueidentifier == param49));
 
             char? param50 = 'A';
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsVarcharMax == param50));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsVarchar == param50));
 
             char? param51 = 'B';
             Assert.Same(
-                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsAsCharVaryingMax == param51));
+                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsAsCharVarying == param51));
 
             char? param52 = 'C';
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsCharacterVaryingMax == param52));
 
             char? param53 = 'D';
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNvarcharMax == param53));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNvarchar == param53));
 
             char? param54 = 'E';
             Assert.Same(
-                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNationalCharVaryingMax == param54));
+                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 999 && e.CharAsNationalCharVarying == param54));
 
             char? param55 = 'F';
             Assert.Same(
@@ -1205,22 +1206,22 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.GuidAsUniqueidentifier == param49));
 
             char? param50 = null;
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsVarcharMax == param50));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsVarchar == param50));
 
             char? param51 = null;
             Assert.Same(
-                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsAsCharVaryingMax == param51));
+                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsAsCharVarying == param51));
 
             char? param52 = null;
             Assert.Same(
                 entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsCharacterVaryingMax == param52));
 
             char? param53 = null;
-            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNvarcharMax == param53));
+            Assert.Same(entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNvarchar == param53));
 
             char? param54 = null;
             Assert.Same(
-                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNationalCharVaryingMax == param54));
+                entity, context.Set<MappedNullableDataTypes>().Single(e => e.Int == 911 && e.CharAsNationalCharVarying == param54));
 
             char? param55 = null;
             Assert.Same(
@@ -1269,10 +1270,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 @p4='0x61626364' (Nullable = false) (Size = 8000)
 @p5='0x595A5B5C' (Nullable = false) (Size = 8000)
 @p6='B' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p7='C' (Nullable = false) (Size = 1) (DbType = AnsiString)
+@p7='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p8='73'
 @p9='E' (Nullable = false) (Size = 1)
-@p10='F' (Nullable = false) (Size = 1)
+@p10='F' (Nullable = false) (Size = 4000)
 @p11='H' (Nullable = false) (Size = 1)
 @p12='D' (Nullable = false) (Size = 1)
 @p13='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
@@ -1382,11 +1383,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Equal(ulong.MaxValue, entity.UlongAsDecimal200);
         Assert.Equal(ushort.MaxValue, entity.UShortAsInt);
         Assert.Equal(sbyte.MinValue, entity.SByteAsSmallint);
-        Assert.Equal('A', entity.CharAsVarcharMax);
-        Assert.Equal('B', entity.CharAsAsCharVaryingMax);
+        Assert.Equal('A', entity.CharAsVarchar);
+        Assert.Equal('B', entity.CharAsAsCharVarying);
         Assert.Equal('C', entity.CharAsCharacterVaryingMax);
-        Assert.Equal('D', entity.CharAsNvarcharMax);
-        Assert.Equal('E', entity.CharAsNationalCharVaryingMax);
+        Assert.Equal('D', entity.CharAsNvarchar);
+        Assert.Equal('E', entity.CharAsNationalCharVarying);
         Assert.Equal('F', entity.CharAsNationalCharacterVaryingMax);
         Assert.Equal('G', entity.CharAsText);
         Assert.Equal('H', entity.CharAsNtext);
@@ -1442,11 +1443,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             UlongAsDecimal200 = ulong.MaxValue,
             UShortAsInt = ushort.MaxValue,
             SByteAsSmallint = sbyte.MinValue,
-            CharAsVarcharMax = 'A',
-            CharAsAsCharVaryingMax = 'B',
+            CharAsVarchar = 'A',
+            CharAsAsCharVarying = 'B',
             CharAsCharacterVaryingMax = 'C',
-            CharAsNvarcharMax = 'D',
-            CharAsNationalCharVaryingMax = 'E',
+            CharAsNvarchar = 'D',
+            CharAsNationalCharVarying = 'E',
             CharAsNationalCharacterVaryingMax = 'F',
             CharAsText = 'G',
             CharAsNtext = 'H',
@@ -1563,8 +1564,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Equal(ulong.MaxValue, entity.UlongAsDecimal200);
         Assert.Equal(ushort.MaxValue, entity.UShortAsInt);
         Assert.Equal(sbyte.MinValue, entity.SByteAsSmallint);
-        Assert.Equal('A', entity.CharAsVarcharMax);
-        Assert.Equal('D', entity.CharAsNvarcharMax);
+        Assert.Equal('A', entity.CharAsVarchar);
+        Assert.Equal('D', entity.CharAsNvarchar);
         Assert.Equal('G', entity.CharAsText);
         Assert.Equal('H', entity.CharAsNtext);
         Assert.Equal('I', entity.CharAsInt);
@@ -1610,8 +1611,8 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             UlongAsDecimal200 = ulong.MaxValue,
             UShortAsInt = ushort.MaxValue,
             SByteAsSmallint = sbyte.MinValue,
-            CharAsVarcharMax = 'A',
-            CharAsNvarcharMax = 'D',
+            CharAsVarchar = 'A',
+            CharAsNvarchar = 'D',
             CharAsText = 'G',
             CharAsNtext = 'H',
             CharAsInt = 'I',
@@ -1640,10 +1641,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 @p4='0x61626364' (Size = 8000)
 @p5='0x595A5B5C' (Size = 8000)
 @p6='B' (Size = 1) (DbType = AnsiString)
-@p7='C' (Size = 1) (DbType = AnsiString)
+@p7='C' (Size = 8000) (DbType = AnsiString)
 @p8='73' (Nullable = true)
 @p9='E' (Size = 1)
-@p10='F' (Size = 1)
+@p10='F' (Size = 4000)
 @p11='H' (Size = 1)
 @p12='D' (Size = 1)
 @p13='G' (Size = 1) (DbType = AnsiString)
@@ -1740,11 +1741,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Equal(ulong.MaxValue, entity.UlongAsDecimal200);
         Assert.Equal(ushort.MaxValue, entity.UShortAsInt);
         Assert.Equal(sbyte.MinValue, entity.SByteAsSmallint);
-        Assert.Equal('A', entity.CharAsVarcharMax);
-        Assert.Equal('B', entity.CharAsAsCharVaryingMax);
+        Assert.Equal('A', entity.CharAsVarchar);
+        Assert.Equal('B', entity.CharAsAsCharVarying);
         Assert.Equal('C', entity.CharAsCharacterVaryingMax);
-        Assert.Equal('D', entity.CharAsNvarcharMax);
-        Assert.Equal('E', entity.CharAsNationalCharVaryingMax);
+        Assert.Equal('D', entity.CharAsNvarchar);
+        Assert.Equal('E', entity.CharAsNationalCharVarying);
         Assert.Equal('F', entity.CharAsNationalCharacterVaryingMax);
         Assert.Equal('G', entity.CharAsText);
         Assert.Equal('H', entity.CharAsNtext);
@@ -1800,11 +1801,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             UlongAsDecimal200 = ulong.MaxValue,
             UShortAsInt = ushort.MaxValue,
             SByteAsSmallint = sbyte.MinValue,
-            CharAsVarcharMax = 'A',
-            CharAsAsCharVaryingMax = 'B',
+            CharAsVarchar = 'A',
+            CharAsAsCharVarying = 'B',
             CharAsCharacterVaryingMax = 'C',
-            CharAsNvarcharMax = 'D',
-            CharAsNationalCharVaryingMax = 'E',
+            CharAsNvarchar = 'D',
+            CharAsNationalCharVarying = 'E',
             CharAsNationalCharacterVaryingMax = 'F',
             CharAsText = 'G',
             CharAsNtext = 'H',
@@ -1834,10 +1835,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 @p4=NULL (Size = 8000) (DbType = Binary)
 @p5=NULL (Size = 8000) (DbType = Binary)
 @p6=NULL (Size = 1) (DbType = AnsiString)
-@p7=NULL (Size = 1) (DbType = AnsiString)
+@p7=NULL (Size = 8000) (DbType = AnsiString)
 @p8=NULL (DbType = Int32)
 @p9=NULL (Size = 1)
-@p10=NULL (Size = 1)
+@p10=NULL (Size = 4000)
 @p11=NULL (Size = 1)
 @p12=NULL (Size = 1)
 @p13=NULL (Size = 1) (DbType = AnsiString)
@@ -1932,11 +1933,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Null(entity.UlongAsDecimal200);
         Assert.Null(entity.UShortAsInt);
         Assert.Null(entity.SByteAsSmallint);
-        Assert.Null(entity.CharAsVarcharMax);
-        Assert.Null(entity.CharAsAsCharVaryingMax);
+        Assert.Null(entity.CharAsVarchar);
+        Assert.Null(entity.CharAsAsCharVarying);
         Assert.Null(entity.CharAsCharacterVaryingMax);
-        Assert.Null(entity.CharAsNvarcharMax);
-        Assert.Null(entity.CharAsNationalCharVaryingMax);
+        Assert.Null(entity.CharAsNvarchar);
+        Assert.Null(entity.CharAsNationalCharVarying);
         Assert.Null(entity.CharAsNationalCharacterVaryingMax);
         Assert.Null(entity.CharAsText);
         Assert.Null(entity.CharAsNtext);
@@ -2497,10 +2498,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 @p3='0x61626364' (Nullable = false) (Size = 8000)
 @p4='0x595A5B5C' (Nullable = false) (Size = 8000)
 @p5='B' (Nullable = false) (Size = 1) (DbType = AnsiString)
-@p6='C' (Nullable = false) (Size = 1) (DbType = AnsiString)
+@p6='C' (Nullable = false) (Size = 8000) (DbType = AnsiString)
 @p7='73'
 @p8='E' (Nullable = false) (Size = 1)
-@p9='F' (Nullable = false) (Size = 1)
+@p9='F' (Nullable = false) (Size = 4000)
 @p10='H' (Nullable = false) (Size = 1)
 @p11='D' (Nullable = false) (Size = 1)
 @p12='G' (Nullable = false) (Size = 1) (DbType = AnsiString)
@@ -2601,11 +2602,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Equal(ulong.MaxValue, entity.UlongAsDecimal200);
         Assert.Equal(ushort.MaxValue, entity.UShortAsInt);
         Assert.Equal(sbyte.MinValue, entity.SByteAsSmallint);
-        Assert.Equal('A', entity.CharAsVarcharMax);
-        Assert.Equal('B', entity.CharAsAsCharVaryingMax);
+        Assert.Equal('A', entity.CharAsVarchar);
+        Assert.Equal('B', entity.CharAsAsCharVarying);
         Assert.Equal('C', entity.CharAsCharacterVaryingMax);
-        Assert.Equal('D', entity.CharAsNvarcharMax);
-        Assert.Equal('E', entity.CharAsNationalCharVaryingMax);
+        Assert.Equal('D', entity.CharAsNvarchar);
+        Assert.Equal('E', entity.CharAsNationalCharVarying);
         Assert.Equal('F', entity.CharAsNationalCharacterVaryingMax);
         Assert.Equal('G', entity.CharAsText);
         Assert.Equal('H', entity.CharAsNtext);
@@ -2661,11 +2662,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             UlongAsDecimal200 = ulong.MaxValue,
             UShortAsInt = ushort.MaxValue,
             SByteAsSmallint = sbyte.MinValue,
-            CharAsVarcharMax = 'A',
-            CharAsAsCharVaryingMax = 'B',
+            CharAsVarchar = 'A',
+            CharAsAsCharVarying = 'B',
             CharAsCharacterVaryingMax = 'C',
-            CharAsNvarcharMax = 'D',
-            CharAsNationalCharVaryingMax = 'E',
+            CharAsNvarchar = 'D',
+            CharAsNationalCharVarying = 'E',
             CharAsNationalCharacterVaryingMax = 'F',
             CharAsText = 'G',
             CharAsNtext = 'H',
@@ -2694,10 +2695,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 @p3='0x595A5B5C' (Size = 8000)
 @p4='0x5D5E5F60' (Size = 8000)
 @p5='B' (Size = 1) (DbType = AnsiString)
-@p6='C' (Size = 1) (DbType = AnsiString)
+@p6='C' (Size = 8000) (DbType = AnsiString)
 @p7='73' (Nullable = true)
 @p8='E' (Size = 1)
-@p9='F' (Size = 1)
+@p9='F' (Size = 4000)
 @p10='H' (Size = 1)
 @p11='D' (Size = 1)
 @p12='G' (Size = 1) (DbType = AnsiString)
@@ -2795,11 +2796,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Equal(ulong.MaxValue, entity.UlongAsDecimal200);
         Assert.Equal(ushort.MaxValue, entity.UShortAsInt);
         Assert.Equal(sbyte.MinValue, entity.SByteAsSmallint);
-        Assert.Equal('A', entity.CharAsVarcharMax);
-        Assert.Equal('B', entity.CharAsAsCharVaryingMax);
+        Assert.Equal('A', entity.CharAsVarchar);
+        Assert.Equal('B', entity.CharAsAsCharVarying);
         Assert.Equal('C', entity.CharAsCharacterVaryingMax);
-        Assert.Equal('D', entity.CharAsNvarcharMax);
-        Assert.Equal('E', entity.CharAsNationalCharVaryingMax);
+        Assert.Equal('D', entity.CharAsNvarchar);
+        Assert.Equal('E', entity.CharAsNationalCharVarying);
         Assert.Equal('F', entity.CharAsNationalCharacterVaryingMax);
         Assert.Equal('G', entity.CharAsText);
         Assert.Equal('H', entity.CharAsNtext);
@@ -2855,11 +2856,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
             UlongAsDecimal200 = ulong.MaxValue,
             UShortAsInt = ushort.MaxValue,
             SByteAsSmallint = sbyte.MinValue,
-            CharAsVarcharMax = 'A',
-            CharAsAsCharVaryingMax = 'B',
+            CharAsVarchar = 'A',
+            CharAsAsCharVarying = 'B',
             CharAsCharacterVaryingMax = 'C',
-            CharAsNvarcharMax = 'D',
-            CharAsNationalCharVaryingMax = 'E',
+            CharAsNvarchar = 'D',
+            CharAsNationalCharVarying = 'E',
             CharAsNationalCharacterVaryingMax = 'F',
             CharAsText = 'G',
             CharAsNtext = 'H',
@@ -2888,10 +2889,10 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
 @p3=NULL (Size = 8000) (DbType = Binary)
 @p4=NULL (Size = 8000) (DbType = Binary)
 @p5=NULL (Size = 1) (DbType = AnsiString)
-@p6=NULL (Size = 1) (DbType = AnsiString)
+@p6=NULL (Size = 8000) (DbType = AnsiString)
 @p7=NULL (DbType = Int32)
 @p8=NULL (Size = 1)
-@p9=NULL (Size = 1)
+@p9=NULL (Size = 4000)
 @p10=NULL (Size = 1)
 @p11=NULL (Size = 1)
 @p12=NULL (Size = 1) (DbType = AnsiString)
@@ -2990,11 +2991,11 @@ WHERE DATEDIFF(nanosecond, [m].[TimeSpanAsTime], @__timeSpan_1) = 0
         Assert.Null(entity.UlongAsDecimal200);
         Assert.Null(entity.UShortAsInt);
         Assert.Null(entity.SByteAsSmallint);
-        Assert.Null(entity.CharAsVarcharMax);
-        Assert.Null(entity.CharAsAsCharVaryingMax);
+        Assert.Null(entity.CharAsVarchar);
+        Assert.Null(entity.CharAsAsCharVarying);
         Assert.Null(entity.CharAsCharacterVaryingMax);
-        Assert.Null(entity.CharAsNvarcharMax);
-        Assert.Null(entity.CharAsNationalCharVaryingMax);
+        Assert.Null(entity.CharAsNvarchar);
+        Assert.Null(entity.CharAsNationalCharVarying);
         Assert.Null(entity.CharAsNationalCharacterVaryingMax);
         Assert.Null(entity.CharAsText);
         Assert.Null(entity.CharAsNtext);
@@ -3722,15 +3723,15 @@ MappedDataTypes.ByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 0]
 MappedDataTypes.BytesAsBinaryVaryingMax ---> [varbinary] [MaxLength = -1]
 MappedDataTypes.BytesAsImage ---> [image] [MaxLength = 2147483647]
 MappedDataTypes.BytesAsVarbinaryMax ---> [varbinary] [MaxLength = -1]
-MappedDataTypes.CharAsAsCharVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypes.CharAsAsCharVarying ---> [varchar] [MaxLength = 1]
 MappedDataTypes.CharAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypes.CharAsInt ---> [int] [Precision = 10 Scale = 0]
 MappedDataTypes.CharAsNationalCharacterVaryingMax ---> [nvarchar] [MaxLength = -1]
-MappedDataTypes.CharAsNationalCharVaryingMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypes.CharAsNationalCharVarying ---> [nvarchar] [MaxLength = 1]
 MappedDataTypes.CharAsNtext ---> [ntext] [MaxLength = 1073741823]
-MappedDataTypes.CharAsNvarcharMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypes.CharAsNvarchar ---> [nvarchar] [MaxLength = 1]
 MappedDataTypes.CharAsText ---> [text] [MaxLength = 2147483647]
-MappedDataTypes.CharAsVarcharMax ---> [varchar] [MaxLength = -1]
+MappedDataTypes.CharAsVarchar ---> [varchar] [MaxLength = 1]
 MappedDataTypes.DateTimeAsDate ---> [date] [Precision = 0]
 MappedDataTypes.DateTimeAsDatetime ---> [datetime] [Precision = 3]
 MappedDataTypes.DateTimeAsDatetime2 ---> [datetime2] [Precision = 7]
@@ -3777,15 +3778,15 @@ MappedDataTypesWithIdentity.ByteAsTinyint ---> [tinyint] [Precision = 3 Scale = 
 MappedDataTypesWithIdentity.BytesAsBinaryVaryingMax ---> [varbinary] [MaxLength = -1]
 MappedDataTypesWithIdentity.BytesAsImage ---> [image] [MaxLength = 2147483647]
 MappedDataTypesWithIdentity.BytesAsVarbinaryMax ---> [varbinary] [MaxLength = -1]
-MappedDataTypesWithIdentity.CharAsAsCharVaryingMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.CharAsAsCharVarying ---> [varchar] [MaxLength = 1]
 MappedDataTypesWithIdentity.CharAsCharacterVaryingMax ---> [varchar] [MaxLength = -1]
 MappedDataTypesWithIdentity.CharAsInt ---> [int] [Precision = 10 Scale = 0]
 MappedDataTypesWithIdentity.CharAsNationalCharacterVaryingMax ---> [nvarchar] [MaxLength = -1]
-MappedDataTypesWithIdentity.CharAsNationalCharVaryingMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.CharAsNationalCharVarying ---> [nvarchar] [MaxLength = 1]
 MappedDataTypesWithIdentity.CharAsNtext ---> [ntext] [MaxLength = 1073741823]
-MappedDataTypesWithIdentity.CharAsNvarcharMax ---> [nvarchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.CharAsNvarchar ---> [nvarchar] [MaxLength = 1]
 MappedDataTypesWithIdentity.CharAsText ---> [text] [MaxLength = 2147483647]
-MappedDataTypesWithIdentity.CharAsVarcharMax ---> [varchar] [MaxLength = -1]
+MappedDataTypesWithIdentity.CharAsVarchar ---> [varchar] [MaxLength = 1]
 MappedDataTypesWithIdentity.DateTimeAsDate ---> [date] [Precision = 0]
 MappedDataTypesWithIdentity.DateTimeAsDatetime ---> [datetime] [Precision = 3]
 MappedDataTypesWithIdentity.DateTimeAsDatetime2 ---> [datetime2] [Precision = 7]
@@ -3833,15 +3834,15 @@ MappedNullableDataTypes.ByteAsTinyint ---> [nullable tinyint] [Precision = 3 Sca
 MappedNullableDataTypes.BytesAsBinaryVaryingMax ---> [nullable varbinary] [MaxLength = -1]
 MappedNullableDataTypes.BytesAsImage ---> [nullable image] [MaxLength = 2147483647]
 MappedNullableDataTypes.BytesAsVarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
-MappedNullableDataTypes.CharAsAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypes.CharAsAsCharVarying ---> [nullable varchar] [MaxLength = 1]
 MappedNullableDataTypes.CharAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypes.CharAsInt ---> [nullable int] [Precision = 10 Scale = 0]
 MappedNullableDataTypes.CharAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
-MappedNullableDataTypes.CharAsNationalCharVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypes.CharAsNationalCharVarying ---> [nullable nvarchar] [MaxLength = 1]
 MappedNullableDataTypes.CharAsNtext ---> [nullable ntext] [MaxLength = 1073741823]
-MappedNullableDataTypes.CharAsNvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypes.CharAsNvarchar ---> [nullable nvarchar] [MaxLength = 1]
 MappedNullableDataTypes.CharAsText ---> [nullable text] [MaxLength = 2147483647]
-MappedNullableDataTypes.CharAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypes.CharAsVarchar ---> [nullable varchar] [MaxLength = 1]
 MappedNullableDataTypes.DateTimeAsDate ---> [nullable date] [Precision = 0]
 MappedNullableDataTypes.DateTimeAsDatetime ---> [nullable datetime] [Precision = 3]
 MappedNullableDataTypes.DateTimeAsDatetime2 ---> [nullable datetime2] [Precision = 7]
@@ -3888,15 +3889,15 @@ MappedNullableDataTypesWithIdentity.ByteAsTinyint ---> [nullable tinyint] [Preci
 MappedNullableDataTypesWithIdentity.BytesAsImage ---> [nullable image] [MaxLength = 2147483647]
 MappedNullableDataTypesWithIdentity.BytesAsVarbinaryMax ---> [nullable varbinary] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.BytesAsVaryingMax ---> [nullable varbinary] [MaxLength = -1]
-MappedNullableDataTypesWithIdentity.CharAsAsCharVaryingMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.CharAsAsCharVarying ---> [nullable varchar] [MaxLength = 1]
 MappedNullableDataTypesWithIdentity.CharAsCharacterVaryingMax ---> [nullable varchar] [MaxLength = -1]
 MappedNullableDataTypesWithIdentity.CharAsInt ---> [nullable int] [Precision = 10 Scale = 0]
 MappedNullableDataTypesWithIdentity.CharAsNationalCharacterVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
-MappedNullableDataTypesWithIdentity.CharAsNationalCharVaryingMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.CharAsNationalCharVarying ---> [nullable nvarchar] [MaxLength = 1]
 MappedNullableDataTypesWithIdentity.CharAsNtext ---> [nullable ntext] [MaxLength = 1073741823]
-MappedNullableDataTypesWithIdentity.CharAsNvarcharMax ---> [nullable nvarchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.CharAsNvarchar ---> [nullable nvarchar] [MaxLength = 1]
 MappedNullableDataTypesWithIdentity.CharAsText ---> [nullable text] [MaxLength = 2147483647]
-MappedNullableDataTypesWithIdentity.CharAsVarcharMax ---> [nullable varchar] [MaxLength = -1]
+MappedNullableDataTypesWithIdentity.CharAsVarchar ---> [nullable varchar] [MaxLength = 1]
 MappedNullableDataTypesWithIdentity.DateTimeAsDate ---> [nullable date] [Precision = 0]
 MappedNullableDataTypesWithIdentity.DateTimeAsDatetime ---> [nullable datetime] [Precision = 3]
 MappedNullableDataTypesWithIdentity.DateTimeAsDatetime2 ---> [nullable datetime2] [Precision = 7]
@@ -4068,9 +4069,9 @@ MappedSquareDataTypes.BytesAsImage ---> [image] [MaxLength = 2147483647]
 MappedSquareDataTypes.BytesAsVarbinaryMax ---> [varbinary] [MaxLength = -1]
 MappedSquareDataTypes.CharAsInt ---> [int] [Precision = 10 Scale = 0]
 MappedSquareDataTypes.CharAsNtext ---> [ntext] [MaxLength = 1073741823]
-MappedSquareDataTypes.CharAsNvarcharMax ---> [nvarchar] [MaxLength = 1]
+MappedSquareDataTypes.CharAsNvarchar ---> [nvarchar] [MaxLength = 1]
 MappedSquareDataTypes.CharAsText ---> [text] [MaxLength = 2147483647]
-MappedSquareDataTypes.CharAsVarcharMax ---> [varchar] [MaxLength = 1]
+MappedSquareDataTypes.CharAsVarchar ---> [varchar] [MaxLength = 1]
 MappedSquareDataTypes.DateTimeAsDate ---> [date] [Precision = 0]
 MappedSquareDataTypes.DateTimeAsDatetime ---> [datetime] [Precision = 3]
 MappedSquareDataTypes.DateTimeAsDatetime2 ---> [datetime2] [Precision = 7]
@@ -4304,6 +4305,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
                     b.Property(e => e.StringAsVarcharMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
                     b.Property(e => e.StringAsCharVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
                     b.Property(e => e.StringAsCharacterVaryingMaxUtf8).UseCollation("LATIN1_GENERAL_100_CI_AS_SC_UTF8");
+                    b.Property(e => e.StringAsNationalCharacterVaryingMax).HasMaxLength(100);
                 });
 
             modelBuilder.Entity<MappedSquareDataTypes>(
@@ -4327,27 +4329,38 @@ FROM INFORMATION_SCHEMA.COLUMNS
                 .Property(e => e.Id)
                 .ValueGeneratedNever();
 
-            modelBuilder.Entity<MappedScaledDataTypes>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
+            modelBuilder.Entity<MappedScaledDataTypes>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(5);
+                    b.Property(e => e.FloatAsDoublePrecision3).HasPrecision(5);
+                    b.Property(e => e.DecimalAsDec3).HasPrecision(5);
+                    b.Property(e => e.TimeSpanAsTime3).HasPrecision(5);
+                });
 
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>()
-                .Property(e => e.Id)
-                .ValueGeneratedNever();
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>(
+                b =>
+                {
+                    b.Property(e => e.Id).ValueGeneratedNever();
+                    b.Property(e => e.DecimalAsDec52).HasPrecision(7, 3);
+                });
 
             MakeRequired<MappedDataTypes>(modelBuilder);
             MakeRequired<MappedSquareDataTypes>(modelBuilder);
             MakeRequired<MappedDataTypesWithIdentity>(modelBuilder);
 
-            modelBuilder.Entity<MappedSizedDataTypes>();
-            modelBuilder.Entity<MappedScaledDataTypes>();
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypes>();
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
             modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>();
             modelBuilder.Entity<MappedSizedDataTypesWithIdentity>();
             modelBuilder.Entity<MappedScaledDataTypesWithIdentity>();
-            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>();
+
+            modelBuilder.Entity<MappedPrecisionAndScaledDataTypesWithIdentity>(
+                b =>
+                {
+                    b.Property(e => e.DecimalAsDecimal52).HasPrecision(7, 3);
+                });
 
             modelBuilder.Entity<MappedSizedSeparatelyDataTypes>(
                 b =>
@@ -4576,20 +4589,20 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "smallint")]
         public sbyte SByteAsSmallint { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        public char CharAsVarcharMax { get; set; }
+        [Column(TypeName = "varchar")]
+        public char CharAsVarchar { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        public char CharAsAsCharVaryingMax { get; set; }
+        [Column(TypeName = "char varying(1)")]
+        public char CharAsAsCharVarying { get; set; }
 
         [Column(TypeName = "character varying(max)")]
         public char CharAsCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public char CharAsNvarcharMax { get; set; }
+        [Column(TypeName = "nvarchar")]
+        public char CharAsNvarchar { get; set; }
 
-        [Column(TypeName = "national char varying(max)")]
-        public char CharAsNationalCharVaryingMax { get; set; }
+        [Column(TypeName = "national char varying(1)")]
+        public char CharAsNationalCharVarying { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
         public char CharAsNationalCharacterVaryingMax { get; set; }
@@ -4717,11 +4730,11 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "[smallint]")]
         public sbyte SByteAsSmallint { get; set; }
 
-        [Column(TypeName = "[varchar](max)")]
-        public char CharAsVarcharMax { get; set; }
+        [Column(TypeName = "[varchar](1)")]
+        public char CharAsVarchar { get; set; }
 
-        [Column(TypeName = "[nvarchar](max)")]
-        public char CharAsNvarcharMax { get; set; }
+        [Column(TypeName = "[nvarchar]")]
+        public char CharAsNvarchar { get; set; }
 
         [Column(TypeName = "[text]")]
         public char CharAsText { get; set; }
@@ -4909,30 +4922,36 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public int Id { get; set; }
 
         [Column(TypeName = "float(3)")]
+        [Precision(5)]
         public float FloatAsFloat3 { get; set; }
 
         [Column(TypeName = "double precision(3)")]
         public float FloatAsDoublePrecision3 { get; set; }
 
         [Column(TypeName = "float(25)")]
+        [Precision(5)]
         public float FloatAsFloat25 { get; set; }
 
         [Column(TypeName = "double precision(25)")]
         public float FloatAsDoublePrecision25 { get; set; }
 
         [Column(TypeName = "datetimeoffset(3)")]
+        [Precision(5)]
         public DateTimeOffset DateTimeOffsetAsDatetimeoffset3 { get; set; }
 
         [Column(TypeName = "datetime2(3)")]
+        [Precision(5)]
         public DateTime DateTimeAsDatetime23 { get; set; }
 
         [Column(TypeName = "decimal(3)")]
+        [Precision(5)]
         public decimal DecimalAsDecimal3 { get; set; }
 
         [Column(TypeName = "dec(3)")]
         public decimal DecimalAsDec3 { get; set; }
 
         [Column(TypeName = "numeric(3)")]
+        [Precision(5)]
         public decimal DecimalAsNumeric3 { get; set; }
 
         [Column(TypeName = "time(3)")]
@@ -4987,6 +5006,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public int Id { get; set; }
 
         [Column(TypeName = "decimal(5,2)")]
+        [Precision(7, 3)]
         public decimal DecimalAsDecimal52 { get; set; }
 
         [Column(TypeName = "dec(5,2)")]
@@ -5085,9 +5105,11 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public string StringAsNvarcharMax { get; set; }
 
         [Column(TypeName = "national char varying(max)")]
+        [MaxLength(100)]
         public string StringAsNationalCharVaryingMax { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
+        [StringLength(100)]
         public string StringAsNationalCharacterVaryingMax { get; set; }
 
         [Column(TypeName = "varchar(max)")]
@@ -5141,20 +5163,20 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "smallint")]
         public sbyte? SByteAsSmallint { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        public char? CharAsVarcharMax { get; set; }
+        [Column(TypeName = "varchar(1)")]
+        public char? CharAsVarchar { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        public char? CharAsAsCharVaryingMax { get; set; }
+        [Column(TypeName = "char varying")]
+        public char? CharAsAsCharVarying { get; set; }
 
         [Column(TypeName = "character varying(max)")]
         public char? CharAsCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public char? CharAsNvarcharMax { get; set; }
+        [Column(TypeName = "nvarchar")]
+        public char? CharAsNvarchar { get; set; }
 
-        [Column(TypeName = "national char varying(max)")]
-        public char? CharAsNationalCharVaryingMax { get; set; }
+        [Column(TypeName = "national char varying(1)")]
+        public char? CharAsNationalCharVarying { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
         public char? CharAsNationalCharacterVaryingMax { get; set; }
@@ -5314,20 +5336,20 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "smallint")]
         public sbyte SByteAsSmallint { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        public char CharAsVarcharMax { get; set; }
+        [Column(TypeName = "varchar(1)")]
+        public char CharAsVarchar { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        public char CharAsAsCharVaryingMax { get; set; }
+        [Column(TypeName = "char varying")]
+        public char CharAsAsCharVarying { get; set; }
 
         [Column(TypeName = "character varying(max)")]
         public char CharAsCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public char CharAsNvarcharMax { get; set; }
+        [Column(TypeName = "nvarchar")]
+        public char CharAsNvarchar { get; set; }
 
-        [Column(TypeName = "national char varying(max)")]
-        public char CharAsNationalCharVaryingMax { get; set; }
+        [Column(TypeName = "national char varying(1)")]
+        public char CharAsNationalCharVarying { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
         public char CharAsNationalCharacterVaryingMax { get; set; }
@@ -5482,6 +5504,7 @@ FROM INFORMATION_SCHEMA.COLUMNS
         public decimal DecimalAsDecimal52 { get; set; }
 
         [Column(TypeName = "dec(5,2)")]
+        [Precision(7, 3)]
         public decimal DecimalAsDec52 { get; set; }
 
         [Column(TypeName = "numeric(5,2)")]
@@ -5621,20 +5644,20 @@ FROM INFORMATION_SCHEMA.COLUMNS
         [Column(TypeName = "smallint")]
         public sbyte? SByteAsSmallint { get; set; }
 
-        [Column(TypeName = "varchar(max)")]
-        public char? CharAsVarcharMax { get; set; }
+        [Column(TypeName = "varchar")]
+        public char? CharAsVarchar { get; set; }
 
-        [Column(TypeName = "char varying(max)")]
-        public char? CharAsAsCharVaryingMax { get; set; }
+        [Column(TypeName = "char varying(1)")]
+        public char? CharAsAsCharVarying { get; set; }
 
         [Column(TypeName = "character varying(max)")]
         public char? CharAsCharacterVaryingMax { get; set; }
 
-        [Column(TypeName = "nvarchar(max)")]
-        public char? CharAsNvarcharMax { get; set; }
+        [Column(TypeName = "nvarchar(1)")]
+        public char? CharAsNvarchar { get; set; }
 
-        [Column(TypeName = "national char varying(max)")]
-        public char? CharAsNationalCharVaryingMax { get; set; }
+        [Column(TypeName = "national char varying")]
+        public char? CharAsNationalCharVarying { get; set; }
 
         [Column(TypeName = "national character varying(max)")]
         public char? CharAsNationalCharacterVaryingMax { get; set; }
