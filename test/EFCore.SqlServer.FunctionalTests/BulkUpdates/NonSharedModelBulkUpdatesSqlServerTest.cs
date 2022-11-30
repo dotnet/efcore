@@ -41,6 +41,18 @@ FROM [Owner] AS [o]
         AssertSql();
     }
 
+    public override async Task Update_non_owned_property_on_entity_with_owned(bool async)
+    {
+        await base.Update_non_owned_property_on_entity_with_owned(async);
+
+        AssertSql(
+"""
+UPDATE [o]
+SET [o].[Title] = N'SomeValue'
+FROM [Owner] AS [o]
+""");
+    }
+
     public override async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         await base.Delete_predicate_based_on_optional_navigation(async);

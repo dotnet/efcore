@@ -1195,8 +1195,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         foreach (var (propertyExpression, _) in propertyValueLambdaExpressions)
         {
             var left = RemapLambdaBody(source, propertyExpression);
-            left = left.UnwrapTypeConversion(out _);
-            if (!IsValidPropertyAccess(RelationalDependencies.Model, left, out var ese))
+
+            if (!TryProcessPropertyAccess(RelationalDependencies.Model, ref left, out var ese))
             {
                 AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
                 return null;
@@ -1399,13 +1399,20 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        static bool IsValidPropertyAccess(
+        // For property setter selectors in ExecuteUpdate, we support only simple member access, EF.Function, etc.
+        // We also unwrap casts to interface/base class (#29618), as well as IncludeExpressions (which occur when the target entity has
+        // owned entities, #28727).
+        static bool TryProcessPropertyAccess(
             IModel model,
-            Expression expression,
+            ref Expression expression,
             [NotNullWhen(true)] out EntityShaperExpression? entityShaperExpression)
         {
-            if (expression is MemberExpression { Expression: EntityShaperExpression ese })
+            expression = expression.UnwrapTypeConversion(out _);
+
+            if (expression is MemberExpression { Expression : not null } memberExpression
+                && Unwrap(memberExpression.Expression) is EntityShaperExpression ese)
             {
+                expression = memberExpression.Update(ese);
                 entityShaperExpression = ese;
                 return true;
             }
@@ -1413,15 +1420,23 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             if (expression is MethodCallExpression mce)
             {
                 if (mce.TryGetEFPropertyArguments(out var source, out _)
-                    && source is EntityShaperExpression ese1)
+                    && Unwrap(source) is EntityShaperExpression ese1)
                 {
+                    if (source != ese1)
+                    {
+                        var rewrittenArguments = mce.Arguments.ToArray();
+                        rewrittenArguments[0] = ese1;
+                        expression = mce.Update(mce.Object, rewrittenArguments);
+                    }
+
                     entityShaperExpression = ese1;
                     return true;
                 }
 
                 if (mce.TryGetIndexerArguments(model, out var source2, out _)
-                    && source2 is EntityShaperExpression ese2)
+                    && Unwrap(source2) is EntityShaperExpression ese2)
                 {
+                    expression = mce.Update(ese2, mce.Arguments);
                     entityShaperExpression = ese2;
                     return true;
                 }
@@ -1429,6 +1444,18 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             entityShaperExpression = null;
             return false;
+
+            static Expression Unwrap(Expression expression)
+            {
+                expression = expression.UnwrapTypeConversion(out _);
+
+                while (expression is IncludeExpression includeExpression)
+                {
+                    expression = includeExpression.EntityExpression;
+                }
+
+                return expression;
+            }
         }
 
         static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
@@ -1645,11 +1672,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression
-                || extensionExpression is ShapedQueryExpression
-                || extensionExpression is GroupByShaperExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+            => extensionExpression is EntityShaperExpression or ShapedQueryExpression or GroupByShaperExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
 
         private Expression? TryExpand(Expression? source, MemberIdentity member)
         {
