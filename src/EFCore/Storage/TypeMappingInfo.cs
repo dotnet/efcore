@@ -35,7 +35,7 @@ public readonly record struct TypeMappingInfo
     ///     Specifies a precision for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackScale">
-    ///     Specifies a  scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
+    ///     Specifies a scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     public TypeMappingInfo(
         IReadOnlyList<IProperty> principals,
