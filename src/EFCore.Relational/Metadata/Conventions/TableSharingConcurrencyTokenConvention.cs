@@ -103,17 +103,38 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
 
                 foreach (var (conventionEntityType, exampleProperty) in entityTypesMissingConcurrencyColumn)
                 {
-                    var providerType = exampleProperty.GetProviderClrType()
-                        ?? (exampleProperty.GetValueConverter() ?? exampleProperty.FindTypeMapping()?.Converter)?.ProviderClrType
-                        ?? exampleProperty.ClrType;
-                    conventionEntityType.Builder.CreateUniqueProperty(
-                            providerType,
+                    var propertyBuilder = conventionEntityType.Builder.CreateUniqueProperty(
+                            exampleProperty.ClrType,
                             ConcurrencyPropertyPrefix + exampleProperty.Name,
                             !exampleProperty.IsNullable)!
                         .HasColumnName(concurrencyColumnName)!
                         .HasColumnType(exampleProperty.GetColumnType())!
                         .IsConcurrencyToken(true)!
-                        .ValueGenerated(exampleProperty.ValueGenerated);
+                        .ValueGenerated(exampleProperty.ValueGenerated)!;
+
+                    var typeMapping = exampleProperty.FindTypeMapping();
+                    if (typeMapping != null)
+                    {
+                        propertyBuilder = propertyBuilder.HasTypeMapping(typeMapping)!;
+                    }
+
+                    var converter = exampleProperty.GetValueConverter();
+                    if (converter != null)
+                    {
+                        propertyBuilder = propertyBuilder.HasConversion(converter)!;
+                    }
+
+                    var providerType = exampleProperty.GetProviderClrType();
+                    if (providerType != propertyBuilder.Metadata.GetProviderClrType())
+                    {
+                        propertyBuilder = propertyBuilder.HasConversion(providerType)!;
+                    }
+
+                    var comparer = exampleProperty.GetValueComparer();
+                    if (comparer != null)
+                    {
+                        propertyBuilder.HasValueComparer(comparer);
+                    }
                 }
             }
         }
