@@ -313,14 +313,17 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
         else
         {
-            Sql.Append("CAST(JSON_VALUE(");
+            // JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
+            // so we cast the result to the expected type - except if it's a string (since the cast interferes with indexes over
+            // the JSON property).
+            Sql.Append(jsonScalarExpression.TypeMapping is StringTypeMapping ? "JSON_VALUE(" : "CAST(JSON_VALUE(");
         }
 
         Visit(jsonScalarExpression.JsonColumn);
 
         Sql.Append($",'{string.Join("", jsonScalarExpression.Path.Select(e => e.ToString()))}')");
 
-        if (jsonScalarExpression.Type != typeof(JsonElement))
+        if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
         {
             Sql.Append(" AS ");
             Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);

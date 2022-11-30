@@ -965,19 +965,19 @@
     <comment>Debug CoreEventId.StateChanged string string string EntityState EntityState</comment>
   </data>
   <data name="LogTempValueGenerated" xml:space="preserve">
-    <value>'{contextType}' generated a temporary value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <value>'{contextType}' generated a temporary value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
     <comment>Debug CoreEventId.ValueGenerated string string string</comment>
   </data>
   <data name="LogTempValueGeneratedSensitive" xml:space="preserve">
-    <value>'{contextType}' generated temporary value '{keyValue}' for the property '{3_entityType}.{2_property}'.</value>
+    <value>'{contextType}' generated temporary value '{keyValue}' for the property '{entityType}.{property}'.</value>
     <comment>Debug CoreEventId.ValueGenerated string object? string string</comment>
   </data>
   <data name="LogValueGenerated" xml:space="preserve">
-    <value>'{contextType}' generated a value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
+    <value>'{contextType}' generated a value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.</value>
     <comment>Debug CoreEventId.ValueGenerated string string string</comment>
   </data>
   <data name="LogValueGeneratedSensitive" xml:space="preserve">
-    <value>'{contextType}' generated value '{keyValue}' for the property '{3_entityType}.{2_property}'.</value>
+    <value>'{contextType}' generated value '{keyValue}' for the property '{entityType}.{property}'.</value>
     <comment>Debug CoreEventId.ValueGenerated string object? string string</comment>
   </data>
   <data name="ManyToManyOneNav" xml:space="preserve">

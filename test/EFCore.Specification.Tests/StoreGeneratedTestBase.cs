@@ -2198,6 +2198,145 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             });
     }
 
+    protected class LongToIntPrincipal
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public ICollection<LongToIntDependentShadow> Dependents { get; } = new List<LongToIntDependentShadow>();
+        public ICollection<LongToIntDependentRequired> RequiredDependents { get; } = new List<LongToIntDependentRequired>();
+        public ICollection<LongToIntDependentOptional> OptionalDependents { get; } = new List<LongToIntDependentOptional>();
+    }
+
+    protected class LongToIntDependentShadow
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public LongToIntPrincipal? Principal { get; set; }
+    }
+
+    protected class LongToIntDependentRequired
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public long PrincipalId { get; set; }
+        public LongToIntPrincipal Principal { get; set; } = null!;
+    }
+
+    protected class LongToIntDependentOptional
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public long? PrincipalId { get; set; }
+        public LongToIntPrincipal? Principal { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Insert_update_and_delete_with_long_to_int_conversion()
+    {
+        var id1 = 0L;
+        ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var principal1 = context.Add(
+                    new LongToIntPrincipal
+                    {
+                        Dependents = { new LongToIntDependentShadow(), new LongToIntDependentShadow() },
+                        OptionalDependents = { new LongToIntDependentOptional(), new LongToIntDependentOptional() },
+                        RequiredDependents = { new LongToIntDependentRequired(), new LongToIntDependentRequired() }
+                    }).Entity;
+
+                context.SaveChanges();
+
+                id1 = principal1.Id;
+                Assert.NotEqual(0L, id1);
+                foreach (var dependent in principal1.Dependents)
+                {
+                    Assert.NotEqual(0L, dependent.Id);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, context.Entry(dependent).Property<long?>("PrincipalId").CurrentValue!.Value);
+                }
+
+                foreach (var dependent in principal1.OptionalDependents)
+                {
+                    Assert.NotEqual(0L, dependent.Id);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId);
+                }
+
+                foreach (var dependent in principal1.RequiredDependents)
+                {
+                    Assert.NotEqual(0L, dependent.Id);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId);
+                }
+            },
+            context =>
+            {
+                var principal1 = context.Set<LongToIntPrincipal>()
+                    .Include(e => e.Dependents)
+                    .Include(e => e.OptionalDependents)
+                    .Include(e => e.RequiredDependents)
+                    .Single();
+
+                Assert.Equal(principal1.Id, id1);
+                foreach (var dependent in principal1.Dependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, context.Entry(dependent).Property<long?>("PrincipalId").CurrentValue!.Value);
+                }
+
+                foreach (var dependent in principal1.OptionalDependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId!.Value);
+                }
+
+                foreach (var dependent in principal1.RequiredDependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId);
+                }
+
+                principal1.Dependents.Remove(principal1.Dependents.First());
+                principal1.OptionalDependents.Remove(principal1.OptionalDependents.First());
+                principal1.RequiredDependents.Remove(principal1.RequiredDependents.First());
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var dependents1 = context.Set<LongToIntDependentShadow>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, dependents1.Count);
+                Assert.Null(
+                    context.Entry(dependents1.Single(e => e.Principal == null))
+                        .Property<long?>("PrincipalId").CurrentValue);
+
+                var optionalDependents1 = context.Set<LongToIntDependentOptional>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, optionalDependents1.Count);
+                Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
+
+                var requiredDependents1 = context.Set<LongToIntDependentRequired>().Include(e => e.Principal).ToList();
+                Assert.Single(requiredDependents1);
+
+                context.Remove(dependents1.Single(e => e.Principal != null));
+                context.Remove(optionalDependents1.Single(e => e.Principal != null));
+                context.Remove(requiredDependents1.Single());
+                context.Remove(requiredDependents1.Single().Principal);
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                Assert.Equal(1, context.Set<LongToIntDependentShadow>().Count());
+                Assert.Equal(1, context.Set<LongToIntDependentOptional>().Count());
+                Assert.Equal(0, context.Set<LongToIntDependentRequired>().Count());
+            });
+    }
+
     protected class WrappedStringClass
     {
         public string? Value { get; set; }
@@ -4577,6 +4716,16 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
                 entity =>
                 {
                     entity.Property(e => e.NonKey).HasValueGenerator<WrappedIntRecordValueGenerator>();
+                });
+
+            modelBuilder.Entity<LongToIntPrincipal>(
+                entity =>
+                {
+                    var keyConverter = new ValueConverter<long, int>(
+                        v => (int)v,
+                        v => (long)v);
+
+                    entity.Property(e => e.Id).HasConversion(keyConverter);
                 });
 
             modelBuilder.Entity<WrappedGuidClassPrincipal>(

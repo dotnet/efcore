@@ -3252,7 +3252,7 @@ FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
 
 SELECT [c].[Name], [c].[Location], [c].[Nation], [c].[PeriodEnd], [c].[PeriodStart]
 FROM [Cities] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [c]
-WHERE [c].[Nation] = @__place_0 OR [c].[Location] = @__place_0_1
+WHERE [c].[Nation] = @__place_0 OR [c].[Location] = @__place_0_1 OR [c].[Location] = @__place_0_1
 """);
     }
 
@@ -9794,7 +9794,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname]
 """);
     }
 
-    // Sequence contains no elements due to temporal filter 
+    // Sequence contains no elements due to temporal filter
     public override Task ElementAt_basic_with_OrderBy(bool async)
         => Task.CompletedTask;
 

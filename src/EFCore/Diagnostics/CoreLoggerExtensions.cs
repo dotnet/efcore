@@ -2785,8 +2785,8 @@ public static class CoreLoggerExtensions
             definition.Log(
                 diagnostics,
                 internalEntityEntry.Context.GetType().ShortDisplayName(),
-                property.Name,
-                internalEntityEntry.EntityType.ShortName());
+                internalEntityEntry.EntityType.ShortName(),
+                property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2808,8 +2808,8 @@ public static class CoreLoggerExtensions
         var p = (PropertyValueEventData)payload;
         return d.GenerateMessage(
             p.EntityEntry.Context.GetType().ShortDisplayName(),
-            p.Property.Name,
-            p.EntityEntry.Metadata.ShortName());
+            p.EntityEntry.Metadata.ShortName(),
+            p.Property.Name);
     }
 
     /// <summary>
@@ -2837,8 +2837,8 @@ public static class CoreLoggerExtensions
                 diagnostics,
                 internalEntityEntry.Context.GetType().ShortDisplayName(),
                 value,
-                property.Name,
-                internalEntityEntry.EntityType.ShortName());
+                internalEntityEntry.EntityType.ShortName(),
+                property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2861,8 +2861,8 @@ public static class CoreLoggerExtensions
         return d.GenerateMessage(
             p.EntityEntry.Context.GetType().ShortDisplayName(),
             p.Value,
-            p.Property.Name,
-            p.EntityEntry.Metadata.ShortName());
+            p.EntityEntry.Metadata.ShortName(),
+            p.Property.Name);
     }
 
     /// <summary>
