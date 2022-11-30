@@ -670,24 +670,28 @@ EXEC [Child1_Insert] @p0 OUTPUT, @p1, @p2;
         await base.Non_sproc_followed_by_sproc_commands_in_the_same_batch(
             async,
 """
-CREATE PROCEDURE Entity_Insert(@Name varchar(max), @Id int OUT)
+CREATE PROCEDURE EntityWithAdditionalProperty_Insert(@Name varchar(max), @Id int OUT, @AdditionalProperty int)
 AS BEGIN
-    INSERT INTO [Entity] ([Name]) VALUES (@Name);
+    INSERT INTO [EntityWithAdditionalProperty] ([Name], [AdditionalProperty]) VALUES (@Name, @AdditionalProperty);
     SET @Id = SCOPE_IDENTITY();
 END
 """);
 
         AssertSql(
 """
-@p0='1'
-@p1='Entity2' (Size = 4000)
-@p2=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+@p2='1'
+@p0='2'
+@p3='1'
+@p1='Entity1_Modified' (Size = 4000)
+@p4='Entity2' (Size = 4000)
+@p5=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
+@p6='0'
 
 SET NOCOUNT ON;
-DELETE FROM [Entity]
+UPDATE [EntityWithAdditionalProperty] SET [AdditionalProperty] = @p0, [Name] = @p1
 OUTPUT 1
-WHERE [Id] = @p0;
-EXEC [Entity_Insert] @p1, @p2 OUTPUT;
+WHERE [Id] = @p2 AND [AdditionalProperty] = @p3;
+EXEC [EntityWithAdditionalProperty_Insert] @p4, @p5 OUTPUT, @p6;
 """);
     }
 

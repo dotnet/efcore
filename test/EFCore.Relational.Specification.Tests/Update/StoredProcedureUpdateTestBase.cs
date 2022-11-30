@@ -1035,35 +1035,38 @@ public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
     protected async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async, string createSprocSql)
     {
         var contextFactory = await InitializeAsync<DbContext>(
-            modelBuilder => modelBuilder.Entity<Entity>()
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>()
                 .InsertUsingStoredProcedure(
-                    nameof(Entity) + "_Insert",
+                    nameof(EntityWithAdditionalProperty) + "_Insert",
                     spb => spb
                         .HasParameter(w => w.Name)
-                        .HasParameter(w => w.Id, pb => pb.IsOutput())),
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())
+                        .HasParameter(w => w.AdditionalProperty))
+                .Property(e => e.AdditionalProperty).IsConcurrencyToken(),
             seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
 
         await using var context = contextFactory.CreateContext();
 
         // Prepare by adding an entity
-        var entity1 = new Entity { Name = "Entity1" };
-        context.Set<Entity>().Add(entity1);
+        var entity1 = new EntityWithAdditionalProperty { Name = "Entity1", AdditionalProperty = 1 };
+        context.Set<EntityWithAdditionalProperty>().Add(entity1);
 
         using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
             await SaveChanges(context, async);
         }
 
-        // Now add a second entity and delete the first one. Deletion gets ordered first, and doesn't use a sproc, and then the insertion
+        // Now add a second entity and update the first one. The update gets ordered first, and doesn't use a sproc, and then the insertion
         // does.
-        var entity2 = new Entity { Name = "Entity2" };
-        context.Set<Entity>().Add(entity2);
-        context.Set<Entity>().Remove(entity1);
+        var entity2 = new EntityWithAdditionalProperty { Name = "Entity2" };
+        context.Set<EntityWithAdditionalProperty>().Add(entity2);
+        entity1.Name = "Entity1_Modified";
+        entity1.AdditionalProperty = 2;
         await SaveChanges(context, async);
 
         using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Entity2", context.Set<Entity>().Single(b => b.Id == entity2.Id).Name);
+            Assert.Equal("Entity2", context.Set<EntityWithAdditionalProperty>().Single(b => b.Id == entity2.Id).Name);
         }
     }
 
