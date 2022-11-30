@@ -963,7 +963,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 index, entityType, valueType, propertyType);
 
         /// <summary>
-        ///     {values} value(s) were passed to the 'FindEntry' or 'GetEntries" method for {properties} properties. The number of values must match the number of properties.
+        ///     {values} value(s) were passed to the 'FindEntry' or 'GetEntries' method for {properties} properties. The number of values must match the number of properties.
         /// </summary>
         public static string FindWrongCount(object? values, object? properties)
             => string.Format(
@@ -971,7 +971,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 values, properties);
 
         /// <summary>
-        ///     The 'FindEntry' or 'GetEntries" method was passed a '{valueType}' value for the '{propertyName}' property, when a '{propertyType}' value was expected.
+        ///     The 'FindEntry' or 'GetEntries' method was passed a '{valueType}' value for the '{propertyName}' property, when a '{propertyType}' value was expected.
         /// </summary>
         public static string FindWrongType(object? valueType, object? propertyName, object? propertyType)
             => string.Format(
