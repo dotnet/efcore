@@ -1575,7 +1575,7 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
-    public Task ForeignKeyAttribute_InversePropertyAttribute_is_not_generated_for_alternate_key()
+    public Task ForeignKeyAttribute_InversePropertyAttribute_when_composite_alternate_key()
         => TestAsync(
             modelBuilder => modelBuilder
                 .Entity(
@@ -1618,6 +1618,8 @@ public partial class Post
 
     public int? BlogId2 { get; set; }
 
+    [ForeignKey("BlogId1, BlogId2")]
+    [InverseProperty("Posts")]
     public virtual Blog BlogNavigation { get; set; }
 }
 """,
@@ -1728,6 +1730,7 @@ public partial class Color
 
     public string ColorCode { get; set; } = null!;
 
+    [InverseProperty("Color")]
     public virtual ICollection<Car> Cars { get; } = new List<Car>();
 }
 """,
@@ -1750,6 +1753,8 @@ public partial class Car
 
     public string? ColorCode { get; set; }
 
+    [ForeignKey("ColorCode")]
+    [InverseProperty("Cars")]
     public virtual Color? Color { get; set; }
 }
 """,
@@ -2797,6 +2802,8 @@ public partial class Blog
 
     public int Key { get; set; }
 
+    [ForeignKey("BlogsKey")]
+    [InverseProperty("Blogs")]
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
 }
 """,
