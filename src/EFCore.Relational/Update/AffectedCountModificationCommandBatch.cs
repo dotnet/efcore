@@ -91,11 +91,13 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 var parameterCounter = 0;
                 IReadOnlyModificationCommand command;
 
-                for (commandIndex = 0;
-                     commandIndex < ResultSetMappings.Count;
-                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
+                for (commandIndex = 0; commandIndex < ResultSetMappings.Count; commandIndex++, parameterCounter += ParameterCount(command))
                 {
                     command = ModificationCommands[commandIndex];
+
+                    Check.DebugAssert(
+                        command.ColumnModifications.All(c => c.UseParameter),
+                        "This code assumes all column modifications involve a DbParameter (see counting above)");
 
                     if (!ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
                     {
@@ -210,11 +212,13 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
                 var parameterCounter = 0;
                 IReadOnlyModificationCommand command;
 
-                for (commandIndex = 0;
-                     commandIndex < ResultSetMappings.Count;
-                     commandIndex++, parameterCounter += command.StoreStoredProcedure!.Parameters.Count)
+                for (commandIndex = 0; commandIndex < ResultSetMappings.Count; commandIndex++, parameterCounter += ParameterCount(command))
                 {
                     command = ModificationCommands[commandIndex];
+
+                    Check.DebugAssert(
+                        command.ColumnModifications.All(c => c.UseParameter),
+                        "This code assumes all column modifications involve a DbParameter (see counting above)");
 
                     if (!ResultSetMappings[commandIndex].HasFlag(ResultSetMapping.HasOutputParameters))
                     {
@@ -475,6 +479,35 @@ public abstract class AffectedCountModificationCommandBatch : ReaderModification
         }
 
         return commandIndex - 1;
+    }
+
+    private static int ParameterCount(IReadOnlyModificationCommand command)
+    {
+        // As a shortcut, if the command uses a stored procedure, return the number of parameters directly from it.
+        if (command.StoreStoredProcedure is { } storedProcedure)
+        {
+            return storedProcedure.Parameters.Count;
+        }
+
+        // Otherwise we need to count the total parameters used by all column modifications
+        var parameterCount = 0;
+
+        for (var i = 0; i < command.ColumnModifications.Count; i++)
+        {
+            var columnModification = command.ColumnModifications[i];
+
+            if (columnModification.UseCurrentValueParameter)
+            {
+                parameterCount++;
+            }
+
+            if (columnModification.UseOriginalValueParameter)
+            {
+                parameterCount++;
+            }
+        }
+
+        return parameterCount;
     }
 
     private IReadOnlyList<IUpdateEntry> AggregateEntries(int endIndex, int commandCount)
