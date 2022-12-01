@@ -79,7 +79,7 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost();
 
-        _engine.ProcessTemplateAsync(
+        _ = _engine.ProcessTemplateAsync(
             @"<# Error(""Hello, Error!""); #>",
             host).Result;
 
@@ -95,7 +95,7 @@ public class TextTemplatingEngineHostTest
         var ex = Assert.Throws<FileNotFoundException>(
             () => _engine.ProcessTemplateAsync(
                 @"<#@ test processor=""TestDirectiveProcessor"" #>",
-                host)).Result;
+                host).Result);
 
         Assert.Equal(DesignStrings.UnknownDirectiveProcessor("TestDirectiveProcessor"), ex.Message);
     }
@@ -120,7 +120,7 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost();
 
-        _engine.ProcessTemplateAsync(
+        _ = _engine.ProcessTemplateAsync(
             @"<#@ output extension="".txt"" encoding=""us-ascii"" #>",
             host).Result;
 
