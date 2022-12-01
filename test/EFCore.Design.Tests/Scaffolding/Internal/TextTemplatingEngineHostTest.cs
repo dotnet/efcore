@@ -22,9 +22,9 @@ public class TextTemplatingEngineHostTest
                 .AddSingleton("Hello, Services!")
                 .BuildServiceProvider());
 
-        var result = _engine.ProcessTemplate(
+        var result = _engine.ProcessTemplateAsync(
             @"<#@ template hostSpecific=""true"" #><#= ((IServiceProvider)Host).GetService(typeof(string)) #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal("Hello, Services!", result);
@@ -35,9 +35,9 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost { Session = new TextTemplatingSession { ["Value"] = "Hello, Session!" } };
 
-        var result = _engine.ProcessTemplate(
+        var result = _engine.ProcessTemplateAsync(
             @"<#= Session[""Value""] #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal("Hello, Session!", result);
@@ -48,9 +48,9 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost { Session = new TextTemplatingSession { ["Value"] = "Hello, Session!" } };
 
-        var result = _engine.ProcessTemplate(
+        var result = _engine.ProcessTemplateAsync(
             @"<#@ parameter name=""Value"" type=""System.String"" #><#= Value #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal("Hello, Session!", result);
@@ -66,9 +66,9 @@ public class TextTemplatingEngineHostTest
 
         var host = new TextTemplatingEngineHost { TemplateFile = Path.Combine(dir, "test.tt") };
 
-        var result = _engine.ProcessTemplate(
+        var result = _engine.ProcessTemplateAsync(
             @"<#@ include file=""test.ttinclude"" #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal("Hello, Include!", result);
@@ -79,9 +79,9 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost();
 
-        _engine.ProcessTemplate(
+        _engine.ProcessTemplateAsync(
             @"<# Error(""Hello, Error!""); #>",
-            host);
+            host).Result;
 
         var error = Assert.Single(host.Errors.Cast<CompilerError>());
         Assert.Equal("Hello, Error!", error.ErrorText);
@@ -93,9 +93,9 @@ public class TextTemplatingEngineHostTest
         var host = new TextTemplatingEngineHost();
 
         var ex = Assert.Throws<FileNotFoundException>(
-            () => _engine.ProcessTemplate(
+            () => _engine.ProcessTemplateAsync(
                 @"<#@ test processor=""TestDirectiveProcessor"" #>",
-                host));
+                host)).Result;
 
         Assert.Equal(DesignStrings.UnknownDirectiveProcessor("TestDirectiveProcessor"), ex.Message);
     }
@@ -107,9 +107,9 @@ public class TextTemplatingEngineHostTest
 
         var host = new TextTemplatingEngineHost { TemplateFile = Path.Combine(dir, "test.tt") };
 
-        var result = _engine.ProcessTemplate(
+        var result = _engine.ProcessTemplateAsync(
             @"<#@ template hostSpecific=""true"" #><#= Host.ResolvePath(""data.json"") #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal(Path.Combine(dir, "data.json"), result);
@@ -120,9 +120,9 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost();
 
-        _engine.ProcessTemplate(
+        _engine.ProcessTemplateAsync(
             @"<#@ output extension="".txt"" encoding=""us-ascii"" #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal(".txt", host.Extension);
@@ -134,9 +134,9 @@ public class TextTemplatingEngineHostTest
     {
         var host = new TextTemplatingEngineHost();
 
-        var result = _engine.ProcessTemplate(
+        var result = _engine.ProcessTemplateAsync(
             @"<#@ assembly name=""Microsoft.EntityFrameworkCore"" #><#= nameof(Microsoft.EntityFrameworkCore.DbContext) #>",
-            host);
+            host).Result;
 
         Assert.Empty(host.Errors);
         Assert.Equal("DbContext", result);
