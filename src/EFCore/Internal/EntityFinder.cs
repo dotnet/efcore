@@ -1,9 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Immutable;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
 
@@ -43,7 +41,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         _entityType = entityType;
         _primaryKey = entityType.FindPrimaryKey()!;
         _primaryKeyPropertiesCount = _primaryKey.Properties.Count;
-        _primaryKeyType = _primaryKeyPropertiesCount == 1 ? _primaryKey.Properties[0].ClrType : typeof(IEnumerable<object?>);
+        _primaryKeyType = _primaryKeyPropertiesCount == 1 ? _primaryKey.Properties[0].ClrType : typeof(IReadOnlyList<object?>);
         _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(entityType);
     }
 
@@ -125,9 +123,15 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         var comparer = (ValueComparer<TProperty>)property.GetValueComparer();
 
-        return _stateManager.Entries.FirstOrDefault(
-                e => e.EntityType == _entityType
-                    && comparer.Equals(e.GetCurrentValue<TProperty>(property), propertyValue));
+        foreach (var candidate in _stateManager.GetEntries(_primaryKey))
+        {
+            if (comparer.Equals(candidate.GetCurrentValue<TProperty>(property), propertyValue))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -154,9 +158,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
 
         var comparer = (ValueComparer<TProperty>)property.GetValueComparer();
 
-        return _stateManager.Entries.Where(
-            e => e.EntityType == _entityType
-                && comparer.Equals(e.GetCurrentValue<TProperty>(property), propertyValue));
+        return _stateManager.GetEntries(_primaryKey).Where(e => comparer.Equals(e.GetCurrentValue<TProperty>(property), propertyValue));
     }
 
     /// <summary>
@@ -225,25 +227,21 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         return GetEntriesByScan(propertiesList, valuesList);
     }
 
-    private IEnumerable<InternalEntityEntry> GetEntriesByScan(IReadOnlyList<IProperty> propertiesList, IList<object?> valuesList)
+    private IEnumerable<InternalEntityEntry> GetEntriesByScan(IReadOnlyList<IProperty> propertiesList, IReadOnlyList<object?> valuesList)
     {
         var comparers = propertiesList.Select(p => p.GetValueComparer()).ToList();
 
-        foreach (var entry in _stateManager.Entries)
+        foreach (var entry in _stateManager.GetEntries(_primaryKey))
         {
-            if (entry.EntityType == _entityType)
+            for (var i = 0; i < comparers.Count; i++)
             {
-                for (var i = 0; i < comparers.Count; i++)
+                if (!comparers[i].Equals(entry[propertiesList[i]], valuesList[i]))
                 {
-                    if (!comparers[i].Equals(entry[propertiesList[i]], valuesList[i]))
-                    {
-                        goto next;
-                    }
+                    goto next;
                 }
-
-                yield return entry;
             }
 
+            yield return entry;
             next: ;
         }
     }
@@ -252,10 +250,10 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         IEnumerable<IProperty> properties,
         IEnumerable<object?> propertyValues,
         out IReadOnlyList<IProperty> propertiesList,
-        out IList<object?> valuesList)
+        out IReadOnlyList<object?> valuesList)
     {
         propertiesList = (properties as IReadOnlyList<IProperty>) ?? properties.ToList();
-        valuesList = (propertyValues as IList<object?>) ?? propertyValues.ToList();
+        valuesList = (propertyValues as IReadOnlyList<object?>) ?? propertyValues.ToList();
 
         if (propertiesList.Count != valuesList.Count)
         {
@@ -266,7 +264,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         {
             var value = valuesList[i];
             if (value != null
-                && propertiesList[i].ClrType.UnwrapNullableType() != value.GetType())
+                && !propertiesList[i].ClrType.UnwrapNullableType().IsInstanceOfType(value))
             {
                 throw new ArgumentException(
                     CoreStrings.FindWrongType(
@@ -278,7 +276,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     private static void ValidateProperty<TProperty>(IProperty property, TProperty value)
     {
         if (value != null
-            && property.ClrType.UnwrapNullableType() != value.GetType())
+            && !property.ClrType.UnwrapNullableType().IsInstanceOfType(value))
         {
             throw new ArgumentException(
                 CoreStrings.FindWrongType(
@@ -325,7 +323,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         return true;
     }
 
-    private bool TryFindByKey(IReadOnlyList<IProperty> properties, IList<object?> propertyValues, out InternalEntityEntry? entry)
+    private bool TryFindByKey(IReadOnlyList<IProperty> properties, IReadOnlyList<object?> propertyValues, out InternalEntityEntry? entry)
     {
         var key = _entityType.FindKey(properties);
         if (key != null)
@@ -339,7 +337,9 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     }
 
     private bool TryGetByForeignKey(
-        IReadOnlyList<IProperty> properties, IList<object?> propertyValues, out IEnumerable<InternalEntityEntry>? entries)
+        IReadOnlyList<IProperty> properties,
+        IReadOnlyList<object?> propertyValues,
+        out IEnumerable<InternalEntityEntry>? entries)
     {
         var foreignKeys = _entityType.FindForeignKeys(properties).ToList();
         if (foreignKeys.Count == 0
@@ -603,7 +603,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         {
             var valueType = keyValues[i].GetType();
             var propertyType = keyProperties[i].ClrType;
-            if (valueType != propertyType.UnwrapNullableType())
+            if (!propertyType.UnwrapNullableType().IsAssignableFrom(valueType))
             {
                 throw new ArgumentException(
                     CoreStrings.FindValueTypeMismatch(

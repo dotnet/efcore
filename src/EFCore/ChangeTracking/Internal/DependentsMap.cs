@@ -136,7 +136,7 @@ public class DependentsMap<TKey> : IDependentsMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<IUpdateEntry> GetDependents(IEnumerable<object> keyValues)
+    public virtual IEnumerable<IUpdateEntry> GetDependents(IReadOnlyList<object?> keyValues)
         => _map.TryGetValue((TKey)_principalKeyValueFactory.CreateFromKeyValues(keyValues)!, out var dependents)
             ? dependents
             : Enumerable.Empty<IUpdateEntry>();

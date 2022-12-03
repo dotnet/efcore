@@ -24,7 +24,7 @@ public interface IPrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory
     /// </summary>
     /// <param name="keyValues">The key values.</param>
     /// <returns>The key object, or null if any of the key values were null.</returns>
-    object? CreateFromKeyValues(IEnumerable<object?> keyValues);
+    object? CreateFromKeyValues(IReadOnlyList<object?> keyValues);
 
     /// <summary>
     ///     Creates a key object from key values obtained from their indexed position in the given <see cref="ValueBuffer" />.
@@ -38,7 +38,7 @@ public interface IPrincipalKeyValueFactory<TKey> : IPrincipalKeyValueFactory
     /// </summary>
     /// <param name="keyValues">The key values.</param>
     /// <returns>The associated property.</returns>
-    IProperty? FindNullPropertyInKeyValues(object?[] keyValues);
+    IProperty? FindNullPropertyInKeyValues(IReadOnlyList<object?> keyValues);
 
     /// <summary>
     ///     Creates a key object from the key values in the given entry.

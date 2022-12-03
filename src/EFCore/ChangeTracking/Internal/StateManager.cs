@@ -370,7 +370,7 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalEntityEntry? TryGetEntry(IKey key, IEnumerable<object?> keyValues)
+    public virtual InternalEntityEntry? TryGetEntry(IKey key, IReadOnlyList<object?> keyValues)
         => FindIdentityMap(key)?.TryGetEntry(keyValues);
 
     /// <summary>
@@ -970,11 +970,25 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual IEnumerable<InternalEntityEntry> GetEntries(IKey key)
+    {
+        var identityMap = FindIdentityMap(key);
+        return identityMap == null
+            ? Enumerable.Empty<InternalEntityEntry>()
+            : identityMap.All();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IEnumerable<IUpdateEntry> GetDependents(
-        IEnumerable<object> keyValues,
+        IReadOnlyList<object?> keyValues,
         IForeignKey foreignKey)
     {
-        GetOrCreateIdentityMap(foreignKey.PrincipalKey);
+        GetOrCreateIdentityMap(foreignKey.PrincipalKey); // Ensure the identity map is created even if principal not tracked.
         return GetOrCreateIdentityMap(foreignKey.DeclaringEntityType.FindPrimaryKey()!)
             .GetDependentsMap(foreignKey).GetDependents(keyValues);
     }

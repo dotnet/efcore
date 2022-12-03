@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincipalKeyValueFactory<IEnumerable<object?>>
+public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincipalKeyValueFactory<IReadOnlyList<object?>>
 {
     private readonly IKey _key;
 
@@ -31,12 +31,18 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object? CreateFromKeyValues(IEnumerable<object?> keyValues)
-        // ReSharper disable once PossibleMultipleEnumeration
-        => keyValues.Any(v => v == null)
-            ? null
-            // ReSharper disable once PossibleMultipleEnumeration
-            : keyValues;
+    public virtual object? CreateFromKeyValues(IReadOnlyList<object?> keyValues) // ReSharper disable once PossibleMultipleEnumeration
+    {
+        for (var i = 0; i < keyValues.Count; i++)
+        {
+            if (keyValues[i] == null)
+            {
+                return null;
+            }
+        }
+
+        return keyValues;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,10 +59,10 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IProperty FindNullPropertyInKeyValues(object?[] keyValues)
+    public virtual IProperty FindNullPropertyInKeyValues(IReadOnlyList<object?> keyValues)
     {
         var index = -1;
-        for (var i = 0; i < keyValues.Length; i++)
+        for (var i = 0; i < keyValues.Count; i++)
         {
             if (keyValues[i] == null)
             {
@@ -74,7 +80,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<object?> CreateFromCurrentValues(IUpdateEntry entry)
+    public virtual IReadOnlyList<object?> CreateFromCurrentValues(IUpdateEntry entry)
         => CreateFromEntry(entry, (e, p) => e.GetCurrentValue(p));
 
     /// <summary>
@@ -92,7 +98,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<object?> CreateFromOriginalValues(IUpdateEntry entry)
+    public virtual IReadOnlyList<object?> CreateFromOriginalValues(IUpdateEntry entry)
         => CreateFromEntry(entry, (e, p) => e.GetOriginalValue(p));
 
     /// <summary>
@@ -101,7 +107,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<object?> CreateFromRelationshipSnapshot(IUpdateEntry entry)
+    public virtual IReadOnlyList<object?> CreateFromRelationshipSnapshot(IUpdateEntry entry)
         => CreateFromEntry(entry, (e, p) => e.GetRelationshipSnapshotValue(p));
 
     private object[] CreateFromEntry(
@@ -109,17 +115,15 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
         Func<IUpdateEntry, IProperty, object?> getValue)
     {
         var values = new object[Properties.Count];
-        var index = 0;
-
-        foreach (var property in Properties)
+        for (var i = 0; i < values.Length; i++)
         {
-            var value = getValue(entry, property);
+            var value = getValue(entry, Properties[i]);
             if (value == null)
             {
                 return default!;
             }
 
-            values[index++] = value;
+            values[i] = value;
         }
 
         return values;
@@ -132,7 +136,7 @@ public class CompositePrincipalKeyValueFactory : CompositeValueFactory, IPrincip
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual object CreateEquatableKey(IUpdateEntry entry, bool fromOriginalValues)
-        => new EquatableKeyValue<IEnumerable<object?>>(
+        => new EquatableKeyValue<IReadOnlyList<object?>>(
             _key,
             fromOriginalValues
                 ? CreateFromOriginalValues(entry)

@@ -28,6 +28,7 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     private IEntityType? _entityType;
     private EntityQueryable<TEntity>? _entityQueryable;
     private LocalView<TEntity>? _localView;
+    private IEntityFinder<TEntity>? _finder;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -448,7 +449,22 @@ public class InternalDbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAc
     }
 
     private IEntityFinder<TEntity> Finder
-        => (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);
+    {
+        get
+        {
+            if (_finder == null)
+            {
+                if (EntityType.FindPrimaryKey() == null)
+                {
+                    throw new InvalidOperationException(CoreStrings.InvalidSetKeylessOperation(EntityType.DisplayName()));
+                }
+
+                _finder = (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(EntityType);
+            }
+
+            return _finder;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
