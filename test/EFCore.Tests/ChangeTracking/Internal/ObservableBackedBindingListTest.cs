@@ -513,8 +513,7 @@ public class ObservableBackedBindingListTest
     }
 
     [ConditionalFact]
-    public void
-        Attempt_to_AddNew_on_set_for_type_without_parameterless_constructor_works_if_AddingNew_event_is_used_to_create_new_object()
+    public void Attempt_to_AddNew_on_set_for_type_without_parameterless_constructor_works_if_AddingNew_event_is_used_to_create_new_object()
     {
         var obbl = new ObservableBackedBindingList<NotXText>(new ObservableHashSet<NotXText>());
         var item = new NotXText("Some Value");

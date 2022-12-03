@@ -8,8 +8,8 @@ root = true
 [*]
 indent_style = space
 trim_trailing_whitespace = true
-guidelines = 140
-max_line_length = 140
+guidelines = 155
+max_line_length = 155
 
 # Code files
 [*.{cs,csx,vb,vbx}]

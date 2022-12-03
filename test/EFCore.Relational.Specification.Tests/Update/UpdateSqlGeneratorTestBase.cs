@@ -50,8 +50,7 @@ public abstract class UpdateSqlGeneratorTestBase
     protected abstract void AppendInsertOperation_insert_if_store_generated_columns_exist_verification(StringBuilder stringBuilder);
 
     [ConditionalFact]
-    public virtual void
-        AppendInsertOperation_appends_insert_and_select_rowcount_if_no_store_generated_columns_exist_or_conditions_exist()
+    public virtual void AppendInsertOperation_appends_insert_and_select_rowcount_if_no_store_generated_columns_exist_or_conditions_exist()
     {
         var stringBuilder = new StringBuilder();
         var command = CreateInsertCommand(false, false);

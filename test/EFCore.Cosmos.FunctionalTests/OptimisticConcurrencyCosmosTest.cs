@@ -36,8 +36,7 @@ public class OptimisticConcurrencyCosmosTest : OptimisticConcurrencyTestBase<F1C
     public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException()
         => Task.CompletedTask;
 
-    public override Task
-        Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    public override Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => Task.CompletedTask;
 
     public override Task Attempting_to_delete_same_relationship_twice_for_many_to_many_results_in_independent_association_exception()

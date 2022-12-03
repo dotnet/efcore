@@ -24,8 +24,7 @@ public abstract class
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Multiple_complex_includes_self_ref_EF_Property(async))).Message);
 
-    public override Task
-        Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
+    public override Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
         => AssertTranslationFailed(
             () => base
                 .Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(

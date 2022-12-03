@@ -1047,8 +1047,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task
-        Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
+    public virtual Task Project_single_element_from_collection_with_multiple_OrderBys_Take_and_FirstOrDefault_followed_by_projection_of_length_property(
             bool async)
         => AssertQueryScalar(
             async,
@@ -1523,8 +1522,7 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task
-        SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool async)
+    public virtual Task SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<Customer>().SelectMany(

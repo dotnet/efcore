@@ -17,8 +17,8 @@ public class NorthwindSelectQueryInMemoryTest : NorthwindSelectQueryTestBase<Nor
         //TestLoggerFactory.TestOutputHelper = testOutputHelper;
     }
 
-    public override Task
-        SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(bool async)
+    public override Task SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(
+        bool async)
         => Assert.ThrowsAsync<NotImplementedException>(
             () => base
                 .SelectMany_with_collection_being_correlated_subquery_which_references_non_mapped_properties_from_inner_and_outer_entity(

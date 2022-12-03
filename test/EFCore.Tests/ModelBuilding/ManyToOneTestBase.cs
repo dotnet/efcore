@@ -1913,8 +1913,7 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void
-            Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
+        public virtual void Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
         {
             var modelBuilder = CreateModelBuilder();
             var gamma = modelBuilder.Entity<Gamma>().Metadata;

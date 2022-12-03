@@ -240,8 +240,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             null);
 
     [ConditionalFact]
-    public virtual Task
-        Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
+    public virtual Task Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         => ConcurrencyTestAsync(
             c => c.Teams.Single(t => t.Id == Team.Ferrari).FastestLaps = 0,
             c =>
@@ -369,8 +368,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             c => Assert.Equal(1, c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins));
 
     [ConditionalFact]
-    public virtual Task
-        Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    public virtual Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => ConcurrencyTestAsync(
             c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,
             c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
@@ -401,8 +399,7 @@ public abstract class OptimisticConcurrencyTestBase<TFixture, TRowVersion> : ICl
             c => Assert.Null(c.Drivers.SingleOrDefault(d => d.Name == "Fernando Alonso")));
 
     [ConditionalFact]
-    public virtual Task
-        Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    public virtual Task Deleting_then_updating_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => ConcurrencyTestAsync(
             c => c.Drivers.Remove(c.Drivers.Single(d => d.Name == "Fernando Alonso")),
             c => c.Drivers.Single(d => d.Name == "Fernando Alonso").Wins = 1,

@@ -2252,8 +2252,7 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void
-            Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
+        public virtual void Creates_shadow_property_for_foreign_key_according_to_target_type_when_navigation_to_principal_name_not_present()
         {
             var modelBuilder = CreateModelBuilder();
             var gamma = modelBuilder.Entity<Gamma>().Metadata;
@@ -2414,8 +2413,7 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void
-            Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_no_matching_properties_either_side()
+        public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_no_matching_properties_either_side()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<OneToOnePrincipalEntity>(
@@ -2502,8 +2500,7 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        public virtual void
-            Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_properties_are_on_both_sides()
+        public virtual void Creates_one_to_many_relationship_with_single_ref_as_dependent_to_principal_if_matching_properties_are_on_both_sides()
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<OneToOnePrincipalEntity>(b => b.Ignore(e => e.NavOneToOneDependentEntityId));

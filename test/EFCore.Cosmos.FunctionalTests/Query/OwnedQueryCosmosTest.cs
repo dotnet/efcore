@@ -154,8 +154,7 @@ WHERE (c["Discriminator"] = "LeafA")
         => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_property(async);
 
     [ConditionalTheory(Skip = "LeftJoin #17314")]
-    public override Task
-        Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
+    public override Task Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(bool async)
         => base.Navigation_rewrite_on_owned_reference_followed_by_regular_entity_and_another_reference_in_predicate_and_projection(
             async);
 

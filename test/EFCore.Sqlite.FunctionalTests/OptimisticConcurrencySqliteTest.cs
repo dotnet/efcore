@@ -79,13 +79,11 @@ RETURNING 1;
         => Task.FromResult(true);
 
     [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
-    public override Task
-        Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
+    public override Task Updating_then_deleting_the_same_entity_results_in_DbUpdateConcurrencyException_which_can_be_resolved_with_store_values()
         => Task.FromResult(true);
 
     [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]
-    public override Task
-        Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
+    public override Task Change_in_independent_association_after_change_in_different_concurrency_token_results_in_independent_association_exception()
         => Task.FromResult(true);
 
     [ConditionalFact(Skip = "Optimistic Offline Lock #2195")]

@@ -30,8 +30,7 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task
-        Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
+    public virtual Task Complex_SelectMany_with_nested_navigations_and_explicit_DefaultIfEmpty_with_other_query_operators_composed_on_top(bool async)
         => AssertQuery(
             async,
             ss => from l4 in ss.Set<Level1>().SelectMany(
