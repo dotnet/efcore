@@ -376,7 +376,11 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var person = new Person("1", null) { Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini" };
+                var person = new Person("1", null)
+                {
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
+                };
 
                 context.Add(person);
 
@@ -385,8 +389,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             context =>
             {
                 var person = context.Set<Person>().Single();
-                person.Address = new Address { Country = Country.Türkiye, City = "Konya" };
+                person.Address = new Address { Country = Country.Türkiye, City = "Konya", ZipCode = 42100 };
                 person.Country = "Türkiye";
+                person.ZipCode = "42100";
 
                 context.SaveChanges();
             },
@@ -396,7 +401,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 Assert.Equal(Country.Türkiye, person.Address!.Country);
                 Assert.Equal("Konya", person.Address.City);
+                Assert.Equal(42100, person.Address.ZipCode);
                 Assert.Equal("Türkiye", person.Country);
+                Assert.Equal("42100", person.ZipCode);
             });
 
     [ConditionalFact]
@@ -644,15 +651,17 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
 
-            modelBuilder.Entity<Person>()
-                .HasOne(p => p.Parent)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Person>()
-                .OwnsOne(p => p.Address)
-                .Property(p => p.Country)
-                .HasConversion<string>();
+            modelBuilder.Entity<Person>(pb =>
+                {
+                    pb.HasOne(p => p.Parent)
+                        .WithMany()
+                        .OnDelete(DeleteBehavior.Restrict);
+                    pb.OwnsOne(p => p.Address)
+                        .Property(p => p.Country)
+                        .HasConversion<string>();
+                    pb.Property(p => p.ZipCode)
+                        .HasConversion<int?>(v => v == null ? null : int.Parse(v), v => v == null ? null : v.ToString()!);
+                });
 
             modelBuilder.Entity<Category>().HasMany(e => e.ProductCategories).WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId);

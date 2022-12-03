@@ -421,22 +421,26 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Passes_on_not_configured_shared_columns_with_shared_table()
+    public virtual void Passes_on_shared_columns_with_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
         modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+        modelBuilder.Entity<A>().Property(a => a.P3).HasColumnName(nameof(A.P3))
+            .HasConversion(e => (long?)e, e => (int?)e);
         modelBuilder.Entity<A>().Property(a => a.P1).IsRequired();
         modelBuilder.Entity<A>().ToTable("Table");
         modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().Property(b => b.P3).HasColumnName(nameof(A.P3))
+            .HasConversion(e => (long)e, e => (int?)e);
         modelBuilder.Entity<B>().ToTable("Table");
 
         Validate(modelBuilder);
     }
 
     [ConditionalFact]
-    public virtual void Throws_on_not_configured_shared_columns_with_shared_table_with_dependents()
+    public virtual void Throws_on_nullable_shared_columns_with_shared_table_with_dependents()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -450,7 +454,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Warns_on_not_configured_shared_columns_with_shared_table()
+    public virtual void Warns_on_no_required_columns_with_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
 

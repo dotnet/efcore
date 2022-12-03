@@ -787,8 +787,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         => FindAnnotation(CoreAnnotationNames.ProviderClrType)?.GetConfigurationSource();
 
     private Type GetEffectiveProviderClrType()
-        => TypeMapping?.Converter?.ProviderClrType
-            ?? ClrType.UnwrapNullableType();
+        => (TypeMapping?.Converter?.ProviderClrType
+            ?? ClrType).UnwrapNullableType();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -997,7 +997,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual ValueComparer? GetProviderValueComparer()
         => GetProviderValueComparer(null)
-            ?? (GetEffectiveProviderClrType() == ClrType
+            ?? (GetEffectiveProviderClrType() == ClrType.UnwrapNullableType()
                 ? GetKeyValueComparer()
                 : TypeMapping?.ProviderValueComparer);
 
