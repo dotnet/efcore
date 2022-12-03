@@ -746,9 +746,9 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     {
                         Assert.Same(
                             entity,
-                            stateManager.TryGetEntry(
+                            stateManager.TryGetEntryTyped(
                                 key,
-                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue })!.Entity);
+                                context.Entry(entity).Property(p => p.Id).CurrentValue)!.Entity);
                     }
 
                     // DbUpdateException : An error occurred while updating the entries. See the
@@ -787,9 +787,9 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     {
                         Assert.Same(
                             entity,
-                            stateManager.TryGetEntry(
+                            stateManager.TryGetEntryTyped(
                                 key,
-                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue })!.Entity);
+                                context.Entry(entity).Property(p => p.Id).CurrentValue)!.Entity);
                     }
                 });
         }

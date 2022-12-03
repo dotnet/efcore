@@ -477,6 +477,12 @@
   <data name="FindValueTypeMismatch" xml:space="preserve">
     <value>The key value at position {index} of the call to 'DbSet&lt;{entityType}&gt;.Find' was of type '{valueType}', which does not match the property type of '{propertyType}'.</value>
   </data>
+  <data name="FindWrongCount" xml:space="preserve">
+    <value>{values} value(s) were passed to the 'FindEntry' or 'GetEntries' method for {properties} properties. The number of values must match the number of properties.</value>
+  </data>
+  <data name="FindWrongType" xml:space="preserve">
+    <value>The 'FindEntry' or 'GetEntries' method was passed a '{valueType}' value for the '{propertyName}' property, when a '{propertyType}' value was expected.</value>
+  </data>
   <data name="FkAttributeOnNonUniquePrincipal" xml:space="preserve">
     <value>The [ForeignKey] attribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the [ForeignKey] attribute to a property on '{dependentType}'.</value>
   </data>

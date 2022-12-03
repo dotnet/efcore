@@ -80,9 +80,9 @@ public class DbContext :
     ///     for more information and examples.
     /// </remarks>
     [RequiresUnreferencedCode(
-        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. " +
-        "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for " +
-        "more details.")]
+        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
+        + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
+        + "more details.")]
     protected DbContext()
         : this(new DbContextOptions<DbContext>())
     {
@@ -99,9 +99,9 @@ public class DbContext :
     /// </remarks>
     /// <param name="options">The options for this context.</param>
     [RequiresUnreferencedCode(
-        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. " +
-        "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for " +
-        "more details.")]
+        "EF Core isn't fully compatible with trimming, and running the application may generate unexpected runtime failures. "
+        + "Some specific coding pattern are usually required to make trimming work properly, see https://aka.ms/efcore-docs-trimming for "
+        + "more details.")]
     public DbContext(DbContextOptions options)
     {
         Check.NotNull(options, nameof(options));
@@ -2127,7 +2127,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).Find(keyValues);
+        return Set<TEntity>().Find(keyValues);
     }
 
     /// <summary>
@@ -2158,7 +2158,7 @@ public class DbContext :
     {
         CheckDisposed();
 
-        return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues);
+        return Set<TEntity>().FindAsync(keyValues);
     }
 
     /// <summary>
@@ -2186,12 +2186,13 @@ public class DbContext :
     /// <returns>The entity found, or <see langword="null" />.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
     public virtual ValueTask<TEntity?> FindAsync<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(
-        object?[]? keyValues, CancellationToken cancellationToken)
+        object?[]? keyValues,
+        CancellationToken cancellationToken)
         where TEntity : class
     {
         CheckDisposed();
 
-        return ((IEntityFinder<TEntity>)Finder(typeof(TEntity))).FindAsync(keyValues, cancellationToken);
+        return Set<TEntity>().FindAsync(keyValues, cancellationToken);
     }
 
     /// <summary>

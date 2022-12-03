@@ -25,6 +25,14 @@ public interface IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    IEnumerable<InternalEntityEntry> All();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     bool Contains(in ValueBuffer valueBuffer);
 
     /// <summary>
@@ -49,7 +57,7 @@ public interface IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    InternalEntityEntry? TryGetEntry(object?[] keyValues);
+    InternalEntityEntry? TryGetEntry(IReadOnlyList<object?> keyValues);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -57,7 +65,7 @@ public interface IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    InternalEntityEntry? TryGetEntry(object?[] keyValues, bool throwOnNullKey, out bool hasNullKey);
+    InternalEntityEntry? TryGetEntry(IReadOnlyList<object?> keyValues, bool throwOnNullKey, out bool hasNullKey);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -109,7 +117,7 @@ public interface IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    void Add(object[] keyValues, InternalEntityEntry entry);
+    void Add(IReadOnlyList<object?> keyValues, InternalEntityEntry entry);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
