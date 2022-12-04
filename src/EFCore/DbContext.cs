@@ -882,8 +882,12 @@ public class DbContext :
             || _configurationSnapshot.HasChangeTrackerConfiguration)
         {
             var changeTracker = ChangeTracker;
+            ((IResettableService)changeTracker).ResetState();
             changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
-            changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior;
+            if (_configurationSnapshot.QueryTrackingBehavior.HasValue)
+            {
+                changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
+            }
             changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
             changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
             changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;
@@ -940,7 +944,7 @@ public class DbContext :
             _changeTracker != null,
             changeDetectorEvents != null,
             _changeTracker?.AutoDetectChangesEnabled ?? true,
-            _changeTracker?.QueryTrackingBehavior ?? QueryTrackingBehavior.TrackAll,
+            _changeTracker?.QueryTrackingBehavior,
             _database?.AutoTransactionBehavior ?? AutoTransactionBehavior.WhenNeeded,
             _database?.AutoSavepointsEnabled ?? true,
             _changeTracker?.LazyLoadingEnabled ?? true,
