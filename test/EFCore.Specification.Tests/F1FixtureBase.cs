@@ -192,6 +192,33 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
                     eb.Property<TRowVersion>("Version").IsRowVersion();
                     eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
                 });
+
+        modelBuilder.Entity<Fan>();
+        modelBuilder.Entity<SuperFan>();
+        modelBuilder.Entity<MegaFan>();
+
+        modelBuilder.Entity<FanTpt>();
+        modelBuilder.Entity<SuperFanTpt>();
+        modelBuilder.Entity<MegaFanTpt>();
+
+        modelBuilder.Entity<FanTpc>();
+        modelBuilder.Entity<SuperFanTpc>();
+        modelBuilder.Entity<MegaFanTpc>();
+
+        modelBuilder.Entity<Circuit>();
+        modelBuilder.Entity<StreetCircuit>().HasOne(e => e.City).WithOne().HasForeignKey<City>(e => e.Id);
+        modelBuilder.Entity<OvalCircuit>();
+        modelBuilder.Entity<City>();
+
+        modelBuilder.Entity<CircuitTpt>();
+        modelBuilder.Entity<StreetCircuitTpt>().HasOne(e => e.City).WithOne().HasForeignKey<CityTpt>(e => e.Id);
+        modelBuilder.Entity<OvalCircuitTpt>();
+        modelBuilder.Entity<CityTpt>();
+
+        modelBuilder.Entity<CircuitTpc>();
+        modelBuilder.Entity<StreetCircuitTpc>().HasOne(e => e.City).WithOne().HasForeignKey<CityTpc>(e => e.Id);
+        modelBuilder.Entity<OvalCircuitTpc>();
+        modelBuilder.Entity<CityTpc>();
     }
 
     private static void ConfigureConstructorBinding<TEntity>(IMutableEntityType mutableEntityType, params string[] propertyNames)

@@ -25,5 +25,62 @@ public abstract class F1RelationalFixture<TRowVersion> : F1FixtureBase<TRowVersi
         modelBuilder.Entity<EngineSupplier>().ToTable("EngineSuppliers");
         modelBuilder.Entity<Gearbox>().ToTable("Gearboxes");
         modelBuilder.Entity<Sponsor>().ToTable("Sponsors");
+
+        modelBuilder.Entity<FanTpt>().UseTptMappingStrategy();
+        modelBuilder.Entity<FanTpc>().UseTpcMappingStrategy();
+
+        modelBuilder.Entity<Circuit>(
+            b =>
+            {
+                b.ToTable("Circuits");
+                b.Property(e => e.Name).HasColumnName("Name");
+            });
+
+        modelBuilder.Entity<City>(
+            b =>
+            {
+                b.ToTable("Circuits");
+                b.Property(e => e.Name).HasColumnName("Name");
+            });
+
+        modelBuilder.Entity<CircuitTpt>(
+            b =>
+            {
+                b.UseTptMappingStrategy();
+                b.Property(e => e.Name).HasColumnName("Name");
+            });
+
+        modelBuilder.Entity<StreetCircuitTpt>(
+            b =>
+            {
+                b.ToTable("StreetCircuitsTpt");
+            });
+
+        modelBuilder.Entity<CityTpt>(
+            b =>
+            {
+                b.ToTable("StreetCircuitsTpt");
+                b.Property(e => e.Name).HasColumnName("Name");
+            });
+
+        modelBuilder.Entity<CircuitTpc>(
+            b =>
+            {
+                b.UseTpcMappingStrategy();
+                b.Property(e => e.Name).HasColumnName("Name");
+            });
+
+        modelBuilder.Entity<StreetCircuitTpc>(
+            b =>
+            {
+                b.ToTable("StreetCircuitsTpc");
+            });
+
+        modelBuilder.Entity<CityTpc>(
+            b =>
+            {
+                b.ToTable("StreetCircuitsTpc");
+                b.Property(e => e.Name).HasColumnName("Name");
+            });
     }
 }

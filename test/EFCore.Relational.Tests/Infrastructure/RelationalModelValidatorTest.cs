@@ -1834,7 +1834,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var personType = model.FindEntityType(typeof(Person))!;
         var concurrencyProperty = personType.GetDeclaredProperties().Single(p => p.IsConcurrencyToken);
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
-        Assert.Equal(typeof(byte[]), concurrencyProperty.ClrType);
+        Assert.Equal(typeof(ulong), concurrencyProperty.ClrType);
     }
 
     [ConditionalFact]

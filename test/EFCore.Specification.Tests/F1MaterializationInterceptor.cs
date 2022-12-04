@@ -84,6 +84,38 @@ public class F1MaterializationInterceptor : IMaterializationInterceptor
             nameof(TitleSponsor) => InterceptionResult<object>.SuppressWithResult(
                 new TitleSponsor.TitleSponsorProxy(
                     materializationData.GetPropertyValue<ILazyLoader>("_loader"))),
+            nameof(SuperFan) => InterceptionResult<object>.SuppressWithResult(
+                new SuperFan.SuperFanProxy()),
+            nameof(MegaFan) => InterceptionResult<object>.SuppressWithResult(
+                new MegaFan.MegaFanProxy()),
+            nameof(SuperFanTpt) => InterceptionResult<object>.SuppressWithResult(
+                new SuperFanTpt.SuperFanTptProxy()),
+            nameof(MegaFanTpt) => InterceptionResult<object>.SuppressWithResult(
+                new MegaFanTpt.MegaFanTptProxy()),
+            nameof(SuperFanTpc) => InterceptionResult<object>.SuppressWithResult(
+                new SuperFanTpc.SuperFanTpcProxy()),
+            nameof(MegaFanTpc) => InterceptionResult<object>.SuppressWithResult(
+                new MegaFanTpc.MegaFanTpcProxy()),
+            nameof(SwagBag) => InterceptionResult<object>.SuppressWithResult(
+                new SwagBag.SwagBagProxy()),
+            nameof(StreetCircuit) => InterceptionResult<object>.SuppressWithResult(
+                new StreetCircuit.StreetCircuitProxy()),
+            nameof(OvalCircuit) => InterceptionResult<object>.SuppressWithResult(
+                new OvalCircuit.OvalCircuitProxy()),
+            nameof(City) => InterceptionResult<object>.SuppressWithResult(
+                new City.CityProxy()),
+            nameof(StreetCircuitTpt) => InterceptionResult<object>.SuppressWithResult(
+                new StreetCircuitTpt.StreetCircuitTptProxy()),
+            nameof(OvalCircuitTpt) => InterceptionResult<object>.SuppressWithResult(
+                new OvalCircuitTpt.OvalCircuitTptProxy()),
+            nameof(CityTpt) => InterceptionResult<object>.SuppressWithResult(
+                new CityTpt.CityTptProxy()),
+            nameof(StreetCircuitTpc) => InterceptionResult<object>.SuppressWithResult(
+                new StreetCircuitTpc.StreetCircuitTpcProxy()),
+            nameof(OvalCircuitTpc) => InterceptionResult<object>.SuppressWithResult(
+                new OvalCircuit.OvalCircuitProxy()),
+            nameof(CityTpc) => InterceptionResult<object>.SuppressWithResult(
+                new CityTpc.CityTpcProxy()),
             _ => result
         };
 
