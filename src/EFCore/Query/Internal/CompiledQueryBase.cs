@@ -16,7 +16,19 @@ public abstract class CompiledQueryBase<TContext, TResult>
 {
     private readonly LambdaExpression _queryExpression;
 
-    private Func<QueryContext, TResult>? _executor;
+    private ExecutorAndModel? _executor;
+
+    private sealed class ExecutorAndModel
+    {
+        public ExecutorAndModel(Func<QueryContext, TResult> executor, IModel model)
+        {
+            Executor = executor;
+            Model = model;
+        }
+
+        public Func<QueryContext, TResult> Executor { get; }
+        public IModel Model { get; }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -51,7 +63,13 @@ public abstract class CompiledQueryBase<TContext, TResult>
         CancellationToken cancellationToken,
         params object?[] parameters)
     {
-        var executor = EnsureExecutor(context);
+        EnsureExecutor(context);
+
+        if (_executor!.Model != context.Model)
+        {
+            throw new InvalidOperationException(CoreStrings.CompiledQueryDifferentModel(_queryExpression.Print()));
+        }
+
         var queryContextFactory = context.GetService<IQueryContextFactory>();
         var queryContext = queryContextFactory.Create();
 
@@ -64,7 +82,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
                 parameters[i]);
         }
 
-        return executor(queryContext);
+        return _executor.Executor(queryContext);
     }
 
     /// <summary>
@@ -77,7 +95,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
         IQueryCompiler queryCompiler,
         Expression expression);
 
-    private Func<QueryContext, TResult> EnsureExecutor(TContext context)
+    private void EnsureExecutor(TContext context)
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _executor,
             this,
@@ -88,7 +106,7 @@ public abstract class CompiledQueryBase<TContext, TResult>
                 var queryCompiler = c.GetService<IQueryCompiler>();
                 var expression = new QueryExpressionRewriter(c, q.Parameters).Visit(q.Body);
 
-                return t.CreateCompiledQuery(queryCompiler, expression);
+                return new ExecutorAndModel(t.CreateCompiledQuery(queryCompiler, expression), c.Model);
             });
 
     private sealed class QueryExpressionRewriter : ExpressionVisitor
