@@ -119,8 +119,7 @@ public class ValueComparer
             || unwrappedType == typeof(Guid)
             || unwrappedType == typeof(bool)
             || unwrappedType == typeof(decimal)
-            || unwrappedType == typeof(object)
-           )
+            || unwrappedType == typeof(object))
         {
             return Expression.Lambda<Func<T?, T?, bool>>(
                 Expression.Equal(param1, param2),

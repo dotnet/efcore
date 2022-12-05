@@ -981,7 +981,14 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     || entry.EntityState == EntityState.Added)
                 {
-                    entry.SetStoreGeneratedValue(property, _currentValue);
+                    var value = _currentValue;
+                    var converter = property.GetTypeMapping().Converter;
+                    if (converter != null)
+                    {
+                        value = converter.ConvertFromProvider(value);
+                    }
+
+                    entry.SetStoreGeneratedValue(property, value);
                 }
 
                 return false;
