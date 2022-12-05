@@ -644,15 +644,17 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 .HasForeignKey(e => e.DependentId)
                 .HasPrincipalKey(e => e.PrincipalId);
 
-            modelBuilder.Entity<Person>()
-                .HasOne(p => p.Parent)
-                .WithMany()
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Person>()
-                .OwnsOne(p => p.Address)
-                .Property(p => p.Country)
-                .HasConversion<string>();
+            modelBuilder.Entity<Person>(pb =>
+            {
+                pb.HasOne(p => p.Parent)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+                pb.OwnsOne(p => p.Address)
+                    .Property(p => p.Country)
+                    .HasConversion<string>();
+                pb.Property(p => p.ZipCode)
+                    .HasConversion<int?>(v => v == null ? null : int.Parse(v), v => v == null ? null : v.ToString()!);
+            });
 
             modelBuilder.Entity<Category>().HasMany(e => e.ProductCategories).WithOne(e => e.Category)
                 .HasForeignKey(e => e.CategoryId);
