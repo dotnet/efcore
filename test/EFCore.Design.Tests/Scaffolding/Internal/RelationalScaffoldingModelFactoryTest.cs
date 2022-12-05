@@ -2600,4 +2600,231 @@ public class RelationalScaffoldingModelFactoryTest
             }
         );
     }
+
+    [ConditionalFact]
+    public void Unusual_navigation_name() // Issue #14278
+    {
+        var bookDetailsTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Book_Details"
+        };
+
+        bookDetailsTable.Columns.Add(new DatabaseColumn
+        {
+            Table = bookDetailsTable,
+            Name = "ID",
+            StoreType = "int"
+        });
+
+        bookDetailsTable.Columns.Add(new DatabaseColumn
+        {
+            Table = bookDetailsTable,
+            Name = "Book_Name",
+            StoreType = "nvarchar(50)"
+        });
+
+        bookDetailsTable.Columns.Add(new DatabaseColumn
+        {
+            Table = bookDetailsTable,
+            Name = "Student_Id",
+            StoreType = "int"
+        });
+
+        bookDetailsTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = bookDetailsTable,
+            Name = "PK_Book_Details",
+            Columns = { bookDetailsTable.Columns.Single(c => c.Name == "ID") }
+        };
+
+        var studentDetailsTable = new DatabaseTable
+        {
+            Database = Database,
+            Name = "Student_Details"
+        };
+
+        studentDetailsTable.Columns.Add(new DatabaseColumn
+        {
+            Table = studentDetailsTable,
+            Name = "ID",
+            StoreType = "int"
+        });
+
+        studentDetailsTable.Columns.Add(new DatabaseColumn
+        {
+            Table = studentDetailsTable,
+            Name = "Student_Name",
+            StoreType = "nvarchar(256)"
+        });
+
+        studentDetailsTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = studentDetailsTable,
+            Name = "PK_Student_Details",
+            Columns = { studentDetailsTable.Columns.Single(c => c.Name == "ID") }
+        };
+
+        bookDetailsTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = bookDetailsTable,
+                Name = "FK_Foo",
+                Columns = { bookDetailsTable.Columns.Single(c => c.Name == "Student_Id") },
+                PrincipalTable = studentDetailsTable,
+                PrincipalColumns = { studentDetailsTable.Columns.Single(c => c.Name == "ID") },
+                OnDelete = ReferentialAction.Cascade
+            });
+
+        var info = new DatabaseModel { Tables = { bookDetailsTable, studentDetailsTable } };
+
+        var model = _factory.Create(info, new ModelReverseEngineerOptions());
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            entity =>
+            {
+                Assert.Equal("BookDetail", entity.Name);
+                Assert.Equal("Student", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("StudentDetail", entity.Name);
+                Assert.Equal("BookDetails", entity.GetNavigations().Single().Name);
+            }
+        );
+
+        model = _factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true });
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+            entity =>
+            {
+                Assert.Equal("Book_Detail", entity.Name);
+                Assert.Equal("Student", entity.GetNavigations().Single().Name);
+            },
+            entity =>
+            {
+                Assert.Equal("Student_Detail", entity.Name);
+                Assert.Equal("Book_Details", entity.GetNavigations().Single().Name);
+            }
+        );
+    }
+
+    [ConditionalFact]
+    public void Interesting_navigation_name() // Issue #27832
+    {
+        var seasonTable = new DatabaseTable { Database = Database, Name = "TmTvSeason" };
+
+        seasonTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = seasonTable,
+                Name = "Id",
+                StoreType = "int"
+            });
+
+        seasonTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = seasonTable,
+                Name = "ShowId",
+                StoreType = "int"
+            });
+
+        seasonTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = seasonTable,
+                Name = "Name",
+                StoreType = "nvarchar(300)"
+            });
+
+        seasonTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = seasonTable,
+            Name = "PK_TmTvSeason",
+            Columns = { seasonTable.Columns.Single(c => c.Name == "ShowId"), seasonTable.Columns.Single(c => c.Name == "Id") }
+        };
+
+        var episodeTable = new DatabaseTable { Database = Database, Name = "TmTvEpisode" };
+
+        episodeTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = episodeTable,
+                Name = "Id",
+                StoreType = "int"
+            });
+
+        episodeTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = episodeTable,
+                Name = "SeasonId",
+                StoreType = "int"
+            });
+
+        episodeTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = episodeTable,
+                Name = "ShowId",
+                StoreType = "int"
+            });
+
+        episodeTable.Columns.Add(
+            new DatabaseColumn
+            {
+                Table = episodeTable,
+                Name = "Name",
+                StoreType = "nvarchar(300)"
+            });
+
+        episodeTable.PrimaryKey = new DatabasePrimaryKey
+        {
+            Table = episodeTable,
+            Name = "PK_TmTvEpisode",
+            Columns =
+            {
+                episodeTable.Columns.Single(c => c.Name == "ShowId"),
+                episodeTable.Columns.Single(c => c.Name == "SeasonId"),
+                episodeTable.Columns.Single(c => c.Name == "Id")
+            }
+        };
+
+        episodeTable.ForeignKeys.Add(
+            new DatabaseForeignKey
+            {
+                Table = episodeTable,
+                Name = "FK_TmTvEpisode_TmTvSeason",
+                Columns = { episodeTable.Columns.Single(c => c.Name == "ShowId"), episodeTable.Columns.Single(c => c.Name == "SeasonId") },
+                PrincipalTable = seasonTable,
+                PrincipalColumns = { seasonTable.Columns.Single(c => c.Name == "ShowId"), seasonTable.Columns.Single(c => c.Name == "Id") },
+                OnDelete = ReferentialAction.Cascade
+            });
+
+        var info = new DatabaseModel { Tables = { seasonTable, episodeTable } };
+
+        var model = _factory.Create(info, new ModelReverseEngineerOptions());
+        AssertNavigations();
+
+        model = _factory.Create(info, new ModelReverseEngineerOptions { UseDatabaseNames = true });
+        AssertNavigations();
+
+        void AssertNavigations()
+            => Assert.Collection(
+                model.GetEntityTypes().OrderBy(t => t.Name).Cast<EntityType>(),
+                entity =>
+                {
+                    Assert.Equal("TmTvEpisode", entity.Name);
+                    Assert.Equal("TmTvSeason", entity.GetNavigations().Single().Name);
+                },
+                entity =>
+                {
+                    Assert.Equal("TmTvSeason", entity.Name);
+                    Assert.Equal("TmTvEpisodes", entity.GetNavigations().Single().Name);
+                }
+            );
+    }
 }
