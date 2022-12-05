@@ -73,6 +73,66 @@ DROP SEQUENCE DefaultFacetsSequence;
 DROP SEQUENCE db2.CustomFacetsSequence");
 
     [ConditionalFact]
+    public void Create_sequences_caches()
+    => Test(
+        @"
+CREATE SEQUENCE db2.DefaultCacheSequence
+    CACHE;
+
+CREATE SEQUENCE db2.NoCacheSequence
+    NO CACHE;
+
+CREATE SEQUENCE db2.CacheSequence
+    CACHE 20;",
+        Enumerable.Empty<string>(),
+        Enumerable.Empty<string>(),
+        dbModel =>
+        {
+            var defaultCacheSequence = dbModel.Sequences.First(ds => ds.Name == "DefaultCacheSequence");
+            Assert.Equal("db2", defaultCacheSequence.Schema);
+            Assert.Equal("DefaultCacheSequence", defaultCacheSequence.Name);
+            Assert.Equal("bigint", defaultCacheSequence.StoreType);
+            Assert.False(defaultCacheSequence.IsCyclic);
+            Assert.Equal(1, defaultCacheSequence.IncrementBy);
+            Assert.Null(defaultCacheSequence.StartValue);
+            Assert.Null(defaultCacheSequence.MinValue);
+            Assert.Null(defaultCacheSequence.MaxValue);
+            Assert.True(defaultCacheSequence.IsCached);
+            Assert.Null(defaultCacheSequence.CacheSize);
+
+            var noCacheSequence = dbModel.Sequences.First(ds => ds.Name == "NoCacheSequence");
+            Assert.Equal("db2", noCacheSequence.Schema);
+            Assert.Equal("NoCacheSequence", noCacheSequence.Name);
+            Assert.Equal("bigint", noCacheSequence.StoreType);
+            Assert.False(noCacheSequence.IsCyclic);
+            Assert.Equal(1, noCacheSequence.IncrementBy);
+            Assert.Null(noCacheSequence.StartValue);
+            Assert.Null(noCacheSequence.MinValue);
+            Assert.Null(noCacheSequence.MaxValue);
+            Assert.False(noCacheSequence.IsCached);
+            Assert.Null(noCacheSequence.CacheSize);
+
+            var cacheSequence = dbModel.Sequences.First(ds => ds.Name == "CacheSequence");
+            Assert.Equal("db2", cacheSequence.Schema);
+            Assert.Equal("CacheSequence", cacheSequence.Name);
+            Assert.Equal("bigint", cacheSequence.StoreType);
+            Assert.False(cacheSequence.IsCyclic);
+            Assert.Equal(1, cacheSequence.IncrementBy);
+            Assert.Null(cacheSequence.StartValue);
+            Assert.Null(cacheSequence.MinValue);
+            Assert.Null(cacheSequence.MaxValue);
+            Assert.True(cacheSequence.IsCached);
+            Assert.Equal(20, cacheSequence.CacheSize);
+        },
+        @"
+DROP SEQUENCE db2.DefaultCacheSequence;
+
+DROP SEQUENCE db2.NoCacheSequence;
+
+DROP SEQUENCE db2.CacheSequence;");
+
+
+    [ConditionalFact]
     public void Sequence_min_max_start_values_are_null_if_default()
         => Test(
             @"

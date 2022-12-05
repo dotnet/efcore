@@ -1268,7 +1268,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         {
             builder
                 .Append(" CACHE ")
-                .Append(longTypeMapping.GenerateSqlLiteral(operation.CacheSize.Value));
+                .Append(intTypeMapping.GenerateSqlLiteral(operation.CacheSize.Value));
         }
         else
         {

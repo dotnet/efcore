@@ -1129,6 +1129,77 @@ public class CSharpMigrationOperationGeneratorTest
             });
 
     [ConditionalFact]
+    public void CreateSequenceOperationCache()
+    => Test(
+        new CreateSequenceOperation
+        {
+            Name = "EntityFrameworkHiLoSequence",
+            Schema = "dbo",
+            ClrType = typeof(long),
+            IsCached = true,
+            CacheSize = 20
+        },
+        "mb.CreateSequence("
+        + _eol
+        + "    name: \"EntityFrameworkHiLoSequence\","
+        + _eol
+        + "    schema: \"dbo\","
+        + _eol
+        + "    cached: true,"
+        + _eol
+        + "    cacheSize: 20);",
+        o =>
+        {
+            Assert.True(o.IsCached);
+            Assert.Equal(20, o.CacheSize);
+        });
+
+    [ConditionalFact]
+    public void CreateSequenceOperationNoCache()
+    => Test(
+        new CreateSequenceOperation
+        {
+            Name = "EntityFrameworkHiLoSequence",
+            Schema = "dbo",
+            ClrType = typeof(long),
+            IsCached = false,
+        },
+        "mb.CreateSequence("
+        + _eol
+        + "    name: \"EntityFrameworkHiLoSequence\","
+        + _eol
+        + "    schema: \"dbo\","
+        + _eol
+        + "    cached: false);",
+        o =>
+        {
+            Assert.False(o.IsCached);
+            Assert.Null(o.CacheSize);
+        });
+
+    [ConditionalFact]
+    public void CreateSequenceOperationDefaultCache()
+    => Test(
+        new CreateSequenceOperation
+        {
+            Name = "EntityFrameworkHiLoSequence",
+            Schema = "dbo",
+            ClrType = typeof(long),
+            IsCached = true
+        },
+        "mb.CreateSequence("
+        + _eol
+        + "    name: \"EntityFrameworkHiLoSequence\","
+        + _eol
+        + "    schema: \"dbo\");",
+        o =>
+        {
+            Assert.True(o.IsCached);
+            Assert.Null(o.CacheSize);
+        });
+
+
+    [ConditionalFact]
     public void CreateSequenceOperation_all_args_not_long()
         => Test(
             new CreateSequenceOperation

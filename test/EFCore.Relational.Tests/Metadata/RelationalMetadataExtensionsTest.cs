@@ -569,6 +569,7 @@ public class RelationalMetadataExtensionsTest
         Assert.False(sequence.IsCyclic);
         Assert.True(sequence.IsCached);
         Assert.Null(sequence.CacheSize);
+
         model.SetDefaultSchema("Smoo");
 
         Assert.Same(sequence, model.FindSequence("Foo"));

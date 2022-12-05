@@ -63,7 +63,7 @@ public class DatabaseSequence : Annotatable
     public virtual bool? IsCached { get; set; }
 
     /// <summary>
-    ///     The amount of preallocated values, or <see langword="null" /> if none has been set.
+    ///     The amount of preallocated values, or <see langword="null" /> if not set.
     /// </summary>
     public virtual int? CacheSize { get; set; }
 

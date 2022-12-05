@@ -1160,7 +1160,7 @@ public partial class TestDbContext : DbContext
                     + "            .HasMax(100L)"
                     + _nl
                     + "            .IsCyclic()"
-                    +_nl
+                    + _nl
                     + "            .UseCache(20);",
 
                     code.ContextFile.Code),

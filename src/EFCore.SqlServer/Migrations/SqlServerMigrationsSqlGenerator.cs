@@ -2278,6 +2278,9 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private static string IntegerConstant(long value)
         => string.Format(CultureInfo.InvariantCulture, "{0}", value);
 
+    private static string IntegerConstant(int value)
+        => string.Format(CultureInfo.InvariantCulture, "{0}", value);
+
     private static bool IsMemoryOptimized(Annotatable annotatable, IModel? model, string? schema, string tableName)
         => annotatable[SqlServerAnnotationNames.MemoryOptimized] as bool?
             ?? model?.GetRelationalModel().FindTable(tableName, schema)?[SqlServerAnnotationNames.MemoryOptimized] as bool? == true;
