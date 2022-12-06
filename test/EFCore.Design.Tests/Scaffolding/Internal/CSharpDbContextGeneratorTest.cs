@@ -394,12 +394,7 @@ optionsBuilder
                 new ModelCodeGenerationOptions(),
                 code =>
                 {
-                    AssertContains(
-"""
-Property(e => e.ValueGeneratedOnAdd)
-                .ValueGeneratedOnAdd()
-""",
-                        code.ContextFile.Code);
+                    Assert.Contains("Property(e => e.ValueGeneratedOnAdd).ValueGeneratedOnAdd()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnUpdate).ValueGeneratedOnUpdate()", code.ContextFile.Code);
@@ -593,8 +588,6 @@ public partial class TestDbContext : DbContext
             entity.HasIndex(e => new { e.B, e.C }, "IndexOnBAndC")
                 .HasFilter("Filter SQL")
                 .HasAnnotation("AnnotationName", "AnnotationValue");
-
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -663,8 +656,6 @@ public partial class TestDbContext : DbContext
             entity.HasIndex(e => new { e.B, e.C }, "IndexOnBAndC")
                 .HasFilter("Filter SQL")
                 .HasAnnotation("AnnotationName", "AnnotationValue");
-
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -742,8 +733,6 @@ public partial class TestDbContext : DbContext
             entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_mixed").IsDescending(false, true, false);
 
             entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_unspecified");
-
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -835,8 +824,6 @@ public partial class TestDbContext : DbContext
         {
             entity.HasIndex(e => e.DependentId, "IX_DependentEntity_DependentId").IsUnique();
 
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasOne(d => d.NavigationToPrincipal).WithOne(p => p.NavigationToDependent)
                 .HasPrincipalKey<PrincipalEntity>(p => p.PrincipalId)
                 .HasForeignKey<DependentEntity>(d => d.DependentId);
@@ -845,8 +832,6 @@ public partial class TestDbContext : DbContext
         modelBuilder.Entity<PrincipalEntity>(entity =>
         {
             entity.HasKey(e => e.AlternateId);
-
-            entity.Property(e => e.AlternateId).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -902,7 +887,6 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
             entity.Property(e => e.HireDate)
                 .HasColumnType("date")
                 .HasColumnName("hiring_date");
@@ -1116,8 +1100,6 @@ public partial class TestDbContext : DbContext
                             .HasPeriodEnd("PeriodEnd")
                             .HasColumnName("PeriodEnd");
                     }));
-
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -1219,8 +1201,6 @@ public partial class TestDbContext : DbContext
                     tb.HasTrigger("Trigger1");
                     tb.HasTrigger("Trigger2");
                 });
-
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
