@@ -91,6 +91,12 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     private Expression VisitGlob(GlobExpression globExpression)
     {
         Visit(globExpression.Match);
+
+        if (globExpression.IsNegated)
+        {
+            Sql.Append(" NOT");
+        }
+
         Sql.Append(" GLOB ");
         Visit(globExpression.Pattern);
 
@@ -100,6 +106,12 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     private Expression VisitRegexp(RegexpExpression regexpExpression)
     {
         Visit(regexpExpression.Match);
+
+        if (regexpExpression.IsNegated)
+        {
+            Sql.Append(" NOT");
+        }
+
         Sql.Append(" REGEXP ");
         Visit(regexpExpression.Pattern);
 

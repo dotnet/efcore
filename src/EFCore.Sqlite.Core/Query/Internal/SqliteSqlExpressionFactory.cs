@@ -117,7 +117,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual GlobExpression Glob(SqlExpression match, SqlExpression pattern)
+    public virtual GlobExpression Glob(SqlExpression match, SqlExpression pattern, bool negated = false)
     {
         var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(match, pattern)
             ?? Dependencies.TypeMappingSource.FindMapping(match.Type, Dependencies.Model);
@@ -125,7 +125,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         match = ApplyTypeMapping(match, inferredTypeMapping);
         pattern = ApplyTypeMapping(pattern, inferredTypeMapping);
 
-        return new GlobExpression(match, pattern, _boolTypeMapping);
+        return new GlobExpression(match, pattern, negated, _boolTypeMapping);
     }
 
     /// <summary>
@@ -134,7 +134,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RegexpExpression Regexp(SqlExpression match, SqlExpression pattern)
+    public virtual RegexpExpression Regexp(SqlExpression match, SqlExpression pattern, bool negated = false)
     {
         var inferredTypeMapping = ExpressionExtensions.InferTypeMapping(match, pattern)
             ?? Dependencies.TypeMappingSource.FindMapping(match.Type, Dependencies.Model);
@@ -142,7 +142,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         match = ApplyTypeMapping(match, inferredTypeMapping);
         pattern = ApplyTypeMapping(pattern, inferredTypeMapping);
 
-        return new RegexpExpression(match, pattern, _boolTypeMapping);
+        return new RegexpExpression(match, pattern, negated, _boolTypeMapping);
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         var pattern = ApplyTypeMapping(globExpression.Pattern, inferredTypeMapping);
 
         return match != globExpression.Match || pattern != globExpression.Pattern || globExpression.TypeMapping != _boolTypeMapping
-            ? new GlobExpression(match, pattern, _boolTypeMapping)
+            ? new GlobExpression(match, pattern, globExpression.IsNegated, _boolTypeMapping)
             : globExpression;
     }
 
@@ -184,7 +184,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         var pattern = ApplyTypeMapping(regexpExpression.Pattern, inferredTypeMapping);
 
         return match != regexpExpression.Match || pattern != regexpExpression.Pattern || regexpExpression.TypeMapping != _boolTypeMapping
-            ? new RegexpExpression(match, pattern, _boolTypeMapping)
+            ? new RegexpExpression(match, pattern, regexpExpression.IsNegated, _boolTypeMapping)
             : regexpExpression;
     }
 }

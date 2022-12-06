@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<
@@ -825,6 +828,23 @@ WHERE "c"."CustomerID" REGEXP '^T'
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
 WHERE 'ALFKI' REGEXP "c"."CustomerID"
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Regex_IsMatch_MethodCall_negated(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(o => !Regex.IsMatch(o.CustomerID, "^[^T]")),
+            entryCount: 6);
+
+        AssertSql(
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" NOT REGEXP '^[^T]'
 """);
     }
 
