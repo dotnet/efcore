@@ -1529,15 +1529,19 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         remappedConstant = Constant(newDictionary);
                     }
-                    else if (constantValue is ValueTuple<int, List<(IProperty, int)>, string[], int> tuple)
+                    else if (constantValue is JsonProjectionInfo jsonProjectionInfo)
                     {
-                        var newList = new List<(IProperty, int)>();
-                        foreach (var item in tuple.Item2)
+                        var newKeyAccessInfo = new List<(IProperty?, int?, int?)>();
+                        foreach (var (keyProperty, constantKeyValue, keyProjectionIndex) in jsonProjectionInfo.KeyAccessInfo)
                         {
-                            newList.Add((item.Item1, projectionIndexMap[item.Item2]));
+                            newKeyAccessInfo.Add((keyProperty, constantKeyValue, keyProjectionIndex != null ? projectionIndexMap[keyProjectionIndex.Value] : null));
                         }
 
-                        remappedConstant = Constant((projectionIndexMap[tuple.Item1], newList, tuple.Item3, tuple.Item4));
+                        remappedConstant = Constant(
+                            new JsonProjectionInfo(
+                                jsonProjectionInfo.JsonColumnIndex,
+                                newKeyAccessInfo,
+                                jsonProjectionInfo.AdditionalPath));
                     }
                     else
                     {
@@ -1639,30 +1643,54 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         ConstantExpression AddJsonProjection(JsonQueryExpression jsonQueryExpression, JsonScalarExpression jsonScalarToAdd)
         {
-            var additionalPath = Array.Empty<string>();
-
-            // TODO: change this when implementing #29513
-            // deduplication doesn't happen currently if the additional path contains indexes
-            Debug.Assert(jsonQueryExpression.Path.Skip(jsonScalarToAdd.Path.Count).All(x => x.PropertyName != null));
-
-            additionalPath = jsonQueryExpression.Path
+            var additionalPath = jsonQueryExpression.Path
                 .Skip(jsonScalarToAdd.Path.Count)
-                .Select(x => x.PropertyName!)
                 .ToArray();
 
             var jsonColumnIndex = AddToProjection(jsonScalarToAdd);
 
-            var keyInfo = new List<(IProperty, int)>();
+            var keyAccessInfo = new List<(IProperty?, int?, int?)>();
             var keyProperties = GetMappedKeyProperties(jsonQueryExpression.EntityType.FindPrimaryKey()!);
             foreach (var keyProperty in keyProperties)
             {
                 var keyColumn = jsonQueryExpression.BindProperty(keyProperty);
-                keyInfo.Add((keyProperty, AddToProjection(keyColumn)));
+                keyAccessInfo.Add((keyProperty, null, AddToProjection(keyColumn)));
             }
 
-            var specifiedCollectionIndexesCount = jsonScalarToAdd.Path.Count(x => x.ArrayIndex != null);
+            foreach (var elementAccessSegment in jsonScalarToAdd.Path.Where(x => x.ArrayIndex != null))
+            {
+                if (elementAccessSegment.ArrayIndex is SqlConstantExpression { Value: int intValue })
+                {
+                    keyAccessInfo.Add((null, intValue, null));
+                }
+                else
+                {
+                    keyAccessInfo.Add((null, null, AddToProjection(elementAccessSegment.ArrayIndex!)));
+                }
+            }
 
-            return Constant((jsonColumnIndex, keyInfo, additionalPath, specifiedCollectionIndexesCount));
+            var additionalPathList = new List<(string?, int?, int?)>();
+            foreach (var additionalPathSegment in additionalPath)
+            {
+                if (additionalPathSegment.PropertyName is not null)
+                {
+                    additionalPathList.Add((additionalPathSegment.PropertyName, null, null));
+                }
+                else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue } sqlConstant)
+                {
+                    additionalPathList.Add((null, intValue, null));
+                }
+                else
+                {
+                    additionalPathList.Add((null, null, AddToProjection(additionalPathSegment.ArrayIndex!)));
+                }
+            }
+
+            return Constant(
+                new JsonProjectionInfo(
+                    jsonColumnIndex,
+                    keyAccessInfo,
+                    additionalPathList.ToArray()));
         }
 
         static IReadOnlyList<IProperty> GetMappedKeyProperties(IKey key)
@@ -1703,15 +1731,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return false;
             }
 
-            if (!sourcePath.SequenceEqual(targetPath.Take(sourcePath.Count)))
-            {
-                return false;
-            }
-
-            // we can only perform deduplication if there additional path doesn't contain any collection indexes
-            // collection indexes can only be part of the source path
-            // see issue #29513
-            return targetPath.Skip(sourcePath.Count).All(x => x.ArrayIndex == null);
+            return sourcePath.SequenceEqual(targetPath.Take(sourcePath.Count));
         }
     }
 
