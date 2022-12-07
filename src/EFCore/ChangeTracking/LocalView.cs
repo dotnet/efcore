@@ -8,7 +8,6 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -59,7 +58,6 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
     private readonly IEntityType _entityType;
-    private readonly bool _skipDetectChanges;
     private int _countChanges;
     private IEntityFinder<TEntity>? _finder;
     private int? _count;
@@ -78,7 +76,6 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     {
         _context = set.GetService<ICurrentDbContext>().Context;
         _entityType = set.EntityType;
-        _skipDetectChanges = ((IRuntimeModel)_context.Model).SkipDetectChanges;
 
         set.GetService<ILocalViewListener>().RegisterView(StateManagerChangedHandler);
     }
@@ -529,7 +526,16 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     This method never queries the database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TKey">The type of the primary key property.</typeparam>
     /// <param name="keyValue">The value of the primary key for the entity to be found.</param>
@@ -538,7 +544,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     {
         var internalEntityEntry = Finder.FindEntry(keyValue);
 
-        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(TryDetectChanges(internalEntityEntry));
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
     }
 
     /// <summary>
@@ -547,7 +553,16 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     This method never queries the database.
     /// </summary>
     /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
     /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
@@ -557,7 +572,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
         var internalEntityEntry = Finder.FindEntry(keyValues);
 
-        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(TryDetectChanges(internalEntityEntry));
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
     }
 
     /// <summary>
@@ -565,8 +580,20 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     given property matches the given value. The entry provide access to change tracking information and operations for the entity.
     /// </summary>
     /// <remarks>
-    ///     This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key value.
-    ///     Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key value.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="propertyName">The name of the property to match.</param>
     /// <param name="propertyValue">The value of the property to match.</param>
@@ -580,8 +607,20 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     given property matches the given values. The entry provide access to change tracking information and operations for the entity.
     /// </summary>
     /// <remarks>
-    ///     This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key values.
-    ///     Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="propertyNames">The name of the properties to match.</param>
     /// <param name="propertyValues">The values of the properties to match.</param>
@@ -603,13 +642,19 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///         Lookups using a key property like this are more efficient than lookups on other property values.
     ///     </para>
     ///     <para>
-    ///         Call <see cref="ChangeTracker.DetectChanges" /> before calling this method to ensure all entries returned reflect
-    ///         up-to-date state.
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Note that modification of entity state while iterating over the returned enumeration may result in
     ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
     ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="propertyName">The name of the property to match.</param>
@@ -629,13 +674,19 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///         Lookups using a key property like this are more efficient than lookups on other property values.
     ///     </para>
     ///     <para>
-    ///         Call <see cref="ChangeTracker.DetectChanges" /> before calling this method to ensure all entries returned reflect
-    ///         up-to-date state.
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Note that modification of entity state while iterating over the returned enumeration may result in
     ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
     ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="propertyNames">The name of the properties to match.</param>
@@ -653,8 +704,20 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     given property matches the given value. The entry provide access to change tracking information and operations for the entity.
     /// </summary>
     /// <remarks>
-    ///     This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key value.
-    ///     Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key value.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="property">The property to match.</param>
     /// <param name="propertyValue">The value of the property to match.</param>
@@ -666,7 +729,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
         var internalEntityEntry = Finder.FindEntry(property, propertyValue);
 
-        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(TryDetectChanges(internalEntityEntry));
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
     }
 
     /// <summary>
@@ -674,8 +737,20 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///     given property matches the given values. The entry provide access to change tracking information and operations for the entity.
     /// </summary>
     /// <remarks>
-    ///     This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key values.
-    ///     Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="properties">The properties to match.</param>
     /// <param name="propertyValues">The values of the properties to match.</param>
@@ -687,7 +762,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
         var internalEntityEntry = Finder.FindEntry(properties, propertyValues);
 
-        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(TryDetectChanges(internalEntityEntry));
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
     }
 
     /// <summary>
@@ -700,13 +775,19 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///         Lookups using a key property like this are more efficient than lookups on other property values.
     ///     </para>
     ///     <para>
-    ///         Call <see cref="ChangeTracker.DetectChanges" /> before calling this method to ensure all entries returned reflect
-    ///         up-to-date state.
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Note that modification of entity state while iterating over the returned enumeration may result in
     ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
     ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="property">The property to match.</param>
@@ -730,13 +811,19 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     ///         Lookups using a key property like this are more efficient than lookups on other property values.
     ///     </para>
     ///     <para>
-    ///         Call <see cref="ChangeTracker.DetectChanges" /> before calling this method to ensure all entries returned reflect
-    ///         up-to-date state.
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
     ///     </para>
     ///     <para>
     ///         Note that modification of entity state while iterating over the returned enumeration may result in
     ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
     ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="properties">The the properties to match.</param>
@@ -771,15 +858,4 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
 
     private IEntityFinder<TEntity> Finder
         => _finder ??= (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(_entityType);
-
-    private InternalEntityEntry TryDetectChanges(InternalEntityEntry internalEntityEntry)
-    {
-        if (!_skipDetectChanges
-            && _context.ChangeTracker.AutoDetectChangesEnabled)
-        {
-            _context.GetDependencies().ChangeDetector.DetectChanges(internalEntityEntry);
-        }
-
-        return internalEntityEntry;
-    }
 }
