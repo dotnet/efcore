@@ -144,14 +144,14 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         => BatchingTopologicalSort(null, null);
 
     public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? canBreakEdges,
         Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
         Func<string, string>? formatException = null)
-        => TopologicalSortCore(withBatching: true, tryBreakEdge, formatCycle, formatException);
+        => TopologicalSortCore(withBatching: true, canBreakEdges, formatCycle, formatException);
 
     private IReadOnlyList<List<TVertex>> TopologicalSortCore(
         bool withBatching,
-        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? canBreakEdges,
         Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
         Func<string, string>? formatException = null)
     {
@@ -238,7 +238,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
                 while ((candidateIndex < candidateVertices.Count)
                        && !broken
-                       && tryBreakEdge != null)
+                       && canBreakEdges != null)
                 {
                     var candidateVertex = candidateVertices[candidateIndex];
                     if (predecessorCounts[candidateVertex] == 0)
@@ -253,7 +253,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                             neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
                                 && neighborPredecessors > 0);
 
-                    if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
+                    if (canBreakEdges(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                     {
                         var removed = _successorMap[incomingNeighbor].Remove(candidateVertex);
                         Check.DebugAssert(removed, "Candidate vertex not found in successor map");

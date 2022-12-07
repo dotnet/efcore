@@ -205,7 +205,7 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
             modelBuilder.Entity<ProductTableWithView>().HasBaseType((string)null).ToView("ProductView").ToTable("ProductTable");
             modelBuilder.Entity<ProductTableView>().HasBaseType((string)null).ToView("ProductTable");
 
-            modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique().HasFilter("Name IS NOT NULL");
+            modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique();
 
             modelBuilder.Entity<Person>(pb =>
             {

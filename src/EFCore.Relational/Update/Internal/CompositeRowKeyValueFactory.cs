@@ -73,15 +73,15 @@ public class CompositeRowKeyValueFactory : CompositeRowValueFactory, IRowKeyValu
     /// </summary>
     public virtual object?[] CreateKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
     {
-        if (!TryCreateDependentKeyValue(command, fromOriginalValues, out var key))
+        if (!TryCreateDependentKeyValue(command, fromOriginalValues, out var keyValue))
         {
             throw new InvalidOperationException(
                 RelationalStrings.NullKeyValue(
                     _constraint.Table.SchemaQualifiedName,
-                    FindNullColumnInKeyValues(key).Name));
+                    FindNullColumnInKeyValues(keyValue).Name));
         }
 
-        return key;
+        return keyValue;
     }
 
     private IColumn FindNullColumnInKeyValues(object?[]? keyValues)

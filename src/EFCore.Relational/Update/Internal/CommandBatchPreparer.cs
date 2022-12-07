@@ -17,7 +17,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     private readonly int _minBatchSize;
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
-    private readonly Multigraph<IReadOnlyModificationCommand, IAnnotatable> _modificationCommandGraph;
+    private readonly Multigraph<IReadOnlyModificationCommand, CommandDependency> _modificationCommandGraph;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +31,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             dependencies.Options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault()?.MinBatchSize
             ?? 1;
 
-        _modificationCommandGraph = new Multigraph<IReadOnlyModificationCommand, IAnnotatable>(dependencies.ModificationCommandComparer);
+        _modificationCommandGraph = new Multigraph<IReadOnlyModificationCommand, CommandDependency>(dependencies.ModificationCommandComparer);
         Dependencies = dependencies;
 
         if (dependencies.LoggingOptions.IsSensitiveDataLoggingEnabled)
@@ -337,22 +337,19 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         _modificationCommandGraph.Clear();
         _modificationCommandGraph.AddVertices(commands);
 
-        AddForeignKeyEdges(_modificationCommandGraph);
+        AddForeignKeyEdges();
 
-        AddUniqueValueEdges(_modificationCommandGraph);
+        AddUniqueValueEdges();
 
-        AddSameTableEdges(_modificationCommandGraph);
+        AddSameTableEdges();
 
         return _modificationCommandGraph.BatchingTopologicalSort(
-            static (_, _, edges) => edges.All(
-                e =>
-                    e is ITable
-                    || (e is ITableIndex index && index.Filter != null)),
+            static (_, _, edges) => edges.All(e => e.Breakable),
             FormatCycle);
     }
 
     private string FormatCycle(
-        IReadOnlyList<Tuple<IReadOnlyModificationCommand, IReadOnlyModificationCommand, IEnumerable<IAnnotatable>>> data)
+        IReadOnlyList<Tuple<IReadOnlyModificationCommand, IReadOnlyModificationCommand, IEnumerable<CommandDependency>>> data)
     {
         var builder = new StringBuilder();
         for (var i = 0; i < data.Count; i++)
@@ -360,7 +357,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             var (command1, command2, edges) = data[i];
             Format(command1, builder);
 
-            switch (edges.First())
+            switch (edges.First().Metadata)
             {
                 case IForeignKey foreignKey:
                     Format(foreignKey, command1, command2, builder);
@@ -565,8 +562,8 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         var rowForeignKeyValueFactory = ((TableIndex)index).GetRowIndexValueFactory();
         var dependentCommand = reverseDependency ? target : source;
-        var values = rowForeignKeyValueFactory.CreateIndexValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
-        FormatValues(values, index.Columns, dependentCommand, builder);
+        var indexValue = rowForeignKeyValueFactory.CreateIndexValue(dependentCommand, fromOriginalValues: !reverseDependency)!;
+        FormatValues(indexValue.Value!, index.Columns, dependentCommand, builder);
 
         builder.Append(" } ");
 
@@ -577,7 +574,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     }
 
     private void FormatValues(
-        object[] values,
+        object?[] values,
         IReadOnlyList<IColumn> columns,
         IReadOnlyModificationCommand dependentCommand,
         StringBuilder builder)
@@ -591,7 +588,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             if (_sensitiveLoggingEnabled)
             {
                 builder.Append(": ");
-                builder.Append(values[i]);
+                var value = values[i];
+                if (value != null)
+                {
+                    builder.Append(values[i]);
+                }
+                else
+                {
+                    builder.Append("NULL");
+                }
             }
 
             if (i != columns.Count - 1)
@@ -601,12 +606,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    private void AddForeignKeyEdges(
-        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
+    private void AddForeignKeyEdges()
     {
         var predecessorsMap = new Dictionary<object, List<IReadOnlyModificationCommand>>();
         var originalPredecessorsMap = new Dictionary<object, List<IReadOnlyModificationCommand>>();
-        foreach (var command in commandGraph.Vertices)
+        foreach (var command in _modificationCommandGraph.Vertices)
         {
             if (command.EntityState is EntityState.Modified or EntityState.Added)
             {
@@ -717,7 +721,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
         }
 
-        foreach (var command in commandGraph.Vertices)
+        foreach (var command in _modificationCommandGraph.Vertices)
         {
             if (command.EntityState is EntityState.Modified or EntityState.Added)
             {
@@ -738,7 +742,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         }
 
                         AddMatchingPredecessorEdge(
-                            predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey, checkStoreGenerated: true);
+                            predecessorsMap, dependentKeyValue, command, foreignKey, checkStoreGenerated: true);
                     }
                 }
 
@@ -762,7 +766,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         }
 
                         AddMatchingPredecessorEdge(
-                            predecessorsMap, dependentKeyValue, commandGraph, command, foreignKey, checkStoreGenerated: true);
+                            predecessorsMap, dependentKeyValue, command, foreignKey, checkStoreGenerated: true);
                     }
                 }
             }
@@ -782,7 +786,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             .CreatePrincipalEquatableKeyValue(command, fromOriginalValues: true);
                         Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
                         AddMatchingPredecessorEdge(
-                            originalPredecessorsMap, principalKeyValue, commandGraph, command, foreignKey);
+                            originalPredecessorsMap, principalKeyValue, command, foreignKey);
                     }
                 }
                 else
@@ -802,7 +806,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                                 .CreatePrincipalEquatableKey(entry, fromOriginalValues: true);
                             Check.DebugAssert(principalKeyValue != null, "null principalKeyValue");
                             AddMatchingPredecessorEdge(
-                                originalPredecessorsMap, principalKeyValue, commandGraph, command, foreignKey);
+                                originalPredecessorsMap, principalKeyValue, command, foreignKey);
                         }
                     }
                 }
@@ -993,10 +997,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         return false;
     }
 
-    private static void AddMatchingPredecessorEdge<T>(
+    private void AddMatchingPredecessorEdge<T>(
         Dictionary<T, List<IReadOnlyModificationCommand>> predecessorsMap,
         T keyValue,
-        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
         IReadOnlyModificationCommand command,
         IForeignKey foreignKey,
         bool checkStoreGenerated = false)
@@ -1028,16 +1031,15 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     }
 
                     AfterLoop:
-                    commandGraph.AddEdge(predecessor, command, foreignKey, requiresBatchingBoundary);
+                    _modificationCommandGraph.AddEdge(predecessor, command, new CommandDependency(foreignKey), requiresBatchingBoundary);
                 }
             }
         }
     }
 
-    private static void AddMatchingPredecessorEdge<T>(
+    private void AddMatchingPredecessorEdge<T>(
         Dictionary<T, List<IReadOnlyModificationCommand>> predecessorsMap,
         T keyValue,
-        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
         IReadOnlyModificationCommand command,
         IForeignKeyConstraint foreignKey,
         bool checkStoreGenerated = false)
@@ -1074,18 +1076,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                     }
 
                     AfterLoop:
-                    commandGraph.AddEdge(predecessor, command, foreignKey, requiresBatchingBoundary);
+                    _modificationCommandGraph.AddEdge(predecessor, command, new CommandDependency(foreignKey), requiresBatchingBoundary);
                 }
             }
         }
     }
 
-    private static void AddMatchingPredecessorEdge<T>(
+    private void AddMatchingPredecessorEdge<T>(
         Dictionary<T, List<IReadOnlyModificationCommand>> predecessorsMap,
         T keyValue,
-        Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph,
         IReadOnlyModificationCommand command,
-        IAnnotatable edgeAnnotatable)
+        CommandDependency edge)
         where T : notnull
     {
         if (predecessorsMap.TryGetValue(keyValue, out var predecessorCommands))
@@ -1094,17 +1095,17 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             {
                 if (predecessor != command)
                 {
-                    commandGraph.AddEdge(predecessor, command, edgeAnnotatable);
+                    _modificationCommandGraph.AddEdge(predecessor, command, edge);
                 }
             }
         }
     }
 
-    private void AddUniqueValueEdges(Multigraph<IReadOnlyModificationCommand, IAnnotatable> commandGraph)
+    private void AddUniqueValueEdges()
     {
         Dictionary<object, List<IReadOnlyModificationCommand>>? indexPredecessorsMap = null;
         var keyPredecessorsMap = new Dictionary<object, List<IReadOnlyModificationCommand>>();
-        foreach (var command in commandGraph.Vertices)
+        foreach (var command in _modificationCommandGraph.Vertices)
         {
             if (command.EntityState is EntityState.Added)
             {
@@ -1123,13 +1124,13 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                     var indexValue = ((TableIndex)index).GetRowIndexValueFactory()
                         .CreateEquatableIndexValue(command, fromOriginalValues: true);
-                    if (indexValue != null)
+                    if (indexValue.Value != null)
                     {
                         indexPredecessorsMap ??= new Dictionary<object, List<IReadOnlyModificationCommand>>();
-                        if (!indexPredecessorsMap.TryGetValue(indexValue, out var predecessorCommands))
+                        if (!indexPredecessorsMap.TryGetValue(indexValue.Value, out var predecessorCommands))
                         {
                             predecessorCommands = new List<IReadOnlyModificationCommand>();
-                            indexPredecessorsMap.Add(indexValue, predecessorCommands);
+                            indexPredecessorsMap.Add(indexValue.Value, predecessorCommands);
                         }
 
                         predecessorCommands.Add(command);
@@ -1187,7 +1188,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         if (indexPredecessorsMap != null)
         {
-            foreach (var command in commandGraph.Vertices)
+            foreach (var command in _modificationCommandGraph.Vertices)
             {
                 if (command.EntityState is EntityState.Deleted
                     || command.Table == null)
@@ -1205,10 +1206,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
                     var indexValue = ((TableIndex)index).GetRowIndexValueFactory()
                         .CreateEquatableIndexValue(command);
-                    if (indexValue != null)
+                    if (indexValue.Value != null)
                     {
-                        AddMatchingPredecessorEdge(
-                            indexPredecessorsMap, indexValue, commandGraph, command, index);
+                        AddMatchingPredecessorEdge(indexPredecessorsMap, indexValue.Value, command,
+                            new CommandDependency(index, breakable: index.Filter != null || indexValue.HasNullValue));
                     }
                 }
             }
@@ -1216,7 +1217,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
 
         if (keyPredecessorsMap != null)
         {
-            foreach (var command in commandGraph.Vertices)
+            foreach (var command in _modificationCommandGraph.Vertices)
             {
                 if (command.EntityState is not EntityState.Added)
                 {
@@ -1231,8 +1232,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             .CreateEquatableKeyValue(command, fromOriginalValues: true);
                         Check.DebugAssert(keyValue != null, "null keyValue");
 
-                        AddMatchingPredecessorEdge(
-                            keyPredecessorsMap, keyValue, commandGraph, command, key);
+                        AddMatchingPredecessorEdge(keyPredecessorsMap, keyValue, command, new CommandDependency(key));
                     }
                 }
                 else
@@ -1251,8 +1251,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                                 .CreateEquatableKey(entry, fromOriginalValues: true);
                             Check.DebugAssert(keyValue != null, "null keyValue");
 
-                            AddMatchingPredecessorEdge(
-                                keyPredecessorsMap, keyValue, commandGraph, command, key);
+                            AddMatchingPredecessorEdge(keyPredecessorsMap, keyValue, command, new CommandDependency(key));
                         }
                     }
                 }
@@ -1260,11 +1259,11 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         }
     }
 
-    private static void AddSameTableEdges(Multigraph<IReadOnlyModificationCommand, IAnnotatable> modificationCommandGraph)
+    private void AddSameTableEdges()
     {
         var deletedDictionary = new Dictionary<(string, string?), (List<IReadOnlyModificationCommand> List, bool EdgesAdded)>();
 
-        foreach (var command in modificationCommandGraph.Vertices)
+        foreach (var command in _modificationCommandGraph.Vertices)
         {
             if (command.EntityState == EntityState.Deleted)
             {
@@ -1279,7 +1278,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
             }
         }
 
-        foreach (var command in modificationCommandGraph.Vertices)
+        foreach (var command in _modificationCommandGraph.Vertices)
         {
             if (command.EntityState == EntityState.Added)
             {
@@ -1292,15 +1291,27 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                         for (var i = 0; i < deletedCommands.List.Count - 1; i++)
                         {
                             var deleted = deletedCommands.List[i];
-                            modificationCommandGraph.AddEdge(deleted, lastDelete, deleted.Table!);
+                            _modificationCommandGraph.AddEdge(deleted, lastDelete, new CommandDependency(deleted.Table!, breakable: true));
                         }
 
                         deletedDictionary[table] = (deletedCommands.List, true);
                     }
 
-                    modificationCommandGraph.AddEdge(lastDelete, command, command.Table!);
+                    _modificationCommandGraph.AddEdge(lastDelete, command, new CommandDependency(command.Table!, breakable: true));
                 }
             }
         }
+    }
+
+    private sealed record class CommandDependency
+    {
+        public CommandDependency(IAnnotatable metadata, bool breakable = false)
+        {
+            Metadata = metadata;
+            Breakable = breakable;
+        }
+
+        public IAnnotatable Metadata { get; init; }
+        public bool Breakable { get; init; }
     }
 }
