@@ -401,7 +401,8 @@ public static class ScaffoldingModelExtensions
         var toTableArguments = new List<object?>();
 
         if (explicitSchema
-            || tableName != null && tableName != entityType.GetDbSetName())
+            || tableName != null && (tableName != entityType.GetDbSetName()
+                || (entityType.IsSimpleManyToManyJoinEntityType() && tableName != entityType.ShortName())))
         {
             toTableHandledByConventions = false;
 
