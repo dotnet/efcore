@@ -267,6 +267,9 @@
   <data name="ComparerPropertyMismatch" xml:space="preserve">
     <value>The comparer for type '{type}' cannot be used for '{entityType}.{propertyName}' because its type is '{propertyType}'.</value>
   </data>
+  <data name="CompiledQueryDifferentModel" xml:space="preserve">
+    <value>The compiled query '{queryExpression}' was executed with a different model than it was compiled against. Compiled queries can only be used with a single model.</value>
+  </data>
   <data name="CompositeFkOnProperty" xml:space="preserve">
     <value>There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.</value>
   </data>
