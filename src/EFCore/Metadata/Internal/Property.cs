@@ -613,7 +613,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         }
 
         RemoveAnnotation(CoreAnnotationNames.ValueConverterType);
-        return (ValueConverter?)SetOrRemoveAnnotation(CoreAnnotationNames.ValueConverter, converter, configurationSource)?.Value;
+        return (ValueConverter?)SetAnnotation(CoreAnnotationNames.ValueConverter, converter, configurationSource)?.Value;
     }
 
     /// <summary>
@@ -648,7 +648,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         }
 
         SetValueConverter(converter, configurationSource);
-        SetOrRemoveAnnotation(CoreAnnotationNames.ValueConverterType, converterType, configurationSource);
+        SetAnnotation(CoreAnnotationNames.ValueConverterType, converterType, configurationSource);
 
         return converterType;
     }
@@ -661,15 +661,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual ValueConverter? GetValueConverter()
     {
-        var converter = (ValueConverter?)this[CoreAnnotationNames.ValueConverter];
-        if (converter != null)
+        var annotation = FindAnnotation(CoreAnnotationNames.ValueConverter);
+        if (annotation != null)
         {
-            return converter;
+            return (ValueConverter?)annotation.Value;
         }
 
         var property = this;
-        for (var i = 0; i < 10000; i++)
+        var i = 0;
+        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
         {
+            Property? nextProperty = null;
             foreach (var foreignKey in property.GetContainingForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
@@ -683,19 +685,29 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                             break;
                         }
 
-                        property = principalProperty;
-
-                        converter = (ValueConverter?)property[CoreAnnotationNames.ValueConverter];
-                        if (converter != null)
+                        annotation = principalProperty.FindAnnotation(CoreAnnotationNames.ValueConverter);
+                        if (annotation != null)
                         {
-                            return converter;
+                            return (ValueConverter?)annotation.Value;
                         }
+
+                        nextProperty = principalProperty;
                     }
                 }
             }
+
+            if (nextProperty == null)
+            {
+                break;
+            }
+
+            property = nextProperty;
         }
 
-        return null;
+        return i == ForeignKey.LongestFkChainAllowedLength
+            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
+                DeclaringEntityType.DisplayName(), Name, "ValueConverter"))
+            : null;
     }
 
     /// <summary>
@@ -730,7 +742,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Type? SetProviderClrType(Type? providerClrType, ConfigurationSource configurationSource)
-        => (Type?)SetOrRemoveAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType, configurationSource)?.Value;
+        => (Type?)SetAnnotation(CoreAnnotationNames.ProviderClrType, providerClrType, configurationSource)?.Value;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -740,15 +752,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual Type? GetProviderClrType()
     {
-        var type = (Type?)this[CoreAnnotationNames.ProviderClrType];
-        if (type != null)
+        var annotation = FindAnnotation(CoreAnnotationNames.ProviderClrType);
+        if (annotation != null)
         {
-            return type;
+            return (Type?)annotation.Value;
         }
 
         var property = this;
-        for (var i = 0; i < 10000; i++)
+        var i = 0;
+        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
         {
+            Property? nextProperty = null;
             foreach (var foreignKey in property.GetContainingForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
@@ -762,19 +776,29 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                             break;
                         }
 
-                        property = principalProperty;
-
-                        type = (Type?)property[CoreAnnotationNames.ProviderClrType];
-                        if (type != null)
+                        annotation = principalProperty.FindAnnotation(CoreAnnotationNames.ProviderClrType);
+                        if (annotation != null)
                         {
-                            return type;
+                            return (Type?)annotation.Value;
                         }
+
+                        nextProperty = principalProperty;
                     }
                 }
             }
+
+            if (nextProperty == null)
+            {
+                break;
+            }
+
+            property = nextProperty;
         }
 
-        return null;
+        return i == ForeignKey.LongestFkChainAllowedLength
+            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
+                DeclaringEntityType.DisplayName(), Name, "ProviderClrType"))
+            : null;
     }
 
     /// <summary>

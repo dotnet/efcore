@@ -1396,7 +1396,13 @@ public class SqlServerEndToEndTest : IClassFixture<SqlServerFixture>
                     eb.HasKey(l => new { l.GameId, l.Id });
                 });
 
-            modelBuilder.Entity<Container>();
+            modelBuilder.Entity<Container>(
+                eb =>
+                {
+                    eb.HasMany(c => c.Items)
+                        .WithOne()
+                        .HasForeignKey("GameId", "ContainerId");
+                });
 
             modelBuilder.Entity<Game>(
                 eb =>

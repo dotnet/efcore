@@ -429,7 +429,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string CompiledQueryDifferentModel(object? queryExpression)
             => string.Format(
-                GetString("CompiledQueryDifferentModel", "queryExpression"),
+                GetString("CompiledQueryDifferentModel", nameof(queryExpression)),
                 queryExpression);
 
         /// <summary>
@@ -2354,6 +2354,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("RelationshipConceptualNullSensitive", nameof(firstType), nameof(secondType), nameof(secondKeyValue)),
                 firstType, secondType, secondKeyValue);
+
+        /// <summary>
+        ///     A relationship cycle involving the property '{entityType}.{property}' was detected. This prevents Entity Framework from determining the correct configuration. Review the foreign keys defined on the property and the corresponding principal property and either remove one of them or specify '{configuration}' explicitly on one of the properties.
+        /// </summary>
+        public static string RelationshipCycle(object? entityType, object? property, object? configuration)
+            => string.Format(
+                GetString("RelationshipCycle", nameof(entityType), nameof(property), nameof(configuration)),
+                entityType, property, configuration);
 
         /// <summary>
         ///     '{entityType}.{navigation}' cannot be configured as required since it represents a skip navigation.
