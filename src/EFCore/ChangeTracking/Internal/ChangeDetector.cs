@@ -334,7 +334,7 @@ public class ChangeDetector : IChangeDetector
             var snapshotCollection = (IEnumerable?)snapshotValue;
             var currentCollection = (IEnumerable?)currentValue;
 
-            var removed = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
+            var removed = new HashSet<object>(ReferenceEqualityComparer.Instance);
             if (snapshotCollection != null)
             {
                 foreach (var entity in snapshotCollection)
@@ -343,7 +343,7 @@ public class ChangeDetector : IChangeDetector
                 }
             }
 
-            var added = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
+            var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
             if (currentCollection != null)
             {
                 foreach (var entity in currentCollection)

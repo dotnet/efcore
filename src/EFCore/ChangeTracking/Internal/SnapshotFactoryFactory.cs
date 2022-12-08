@@ -268,5 +268,5 @@ public abstract class SnapshotFactoryFactory
     private static HashSet<object>? SnapshotCollection(IEnumerable<object>? collection)
         => collection == null
             ? null
-            : new HashSet<object>(collection, LegacyReferenceEqualityComparer.Instance);
+            : new HashSet<object>(collection, ReferenceEqualityComparer.Instance);
 }

@@ -695,7 +695,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 {
                     newParent = new Optional1
                     {
-                        CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
+                        CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                     };
 
                     context.Set<Optional1>().Add(newParent);
@@ -1120,7 +1120,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     {
                         Id = 3,
                         Parent = context.Set<Root>().Single(IsTheRoot),
-                        CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                        CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                         {
                             new() { Id = 5 }, new() { Id = 6 }
                         }

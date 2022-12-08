@@ -57,7 +57,7 @@ public abstract class NorthwindSplitIncludeNoTrackingQueryTestBase<TFixture> : N
                     .AsNoTracking()
                     .Single(c => c.CustomerID == "ALFKI");
 
-        Assert.NotEqual(orders, customer.Orders, LegacyReferenceEqualityComparer.Instance);
+        Assert.NotEqual(orders, customer.Orders, ReferenceEqualityComparer.Instance);
         Assert.Equal(6, customer.Orders.Count);
         Assert.True(customer.Orders.All(e => ReferenceEquals(e.Customer, customer)));
 

@@ -740,7 +740,7 @@ public class StateManager : IStateManager
         InternalEntityEntry referencedFromEntry)
     {
         _referencedUntrackedEntities ??=
-            new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(LegacyReferenceEqualityComparer.Instance);
+            new Dictionary<object, IList<Tuple<INavigationBase, InternalEntityEntry>>>(ReferenceEqualityComparer.Instance);
 
         if (!_referencedUntrackedEntities.TryGetValue(referencedEntity, out var danglers))
         {

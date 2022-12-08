@@ -544,28 +544,28 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             {
                 AlternateId = RootAK,
                 RequiredChildren =
-                    new ObservableHashSet<Required1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
-                            Children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                            Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         },
-                        new() { Children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance) { new(), new() } }
+                        new() { Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() } }
                     },
                 OptionalChildren =
-                    new ObservableHashSet<Optional1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
-                            Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance) { new(), new() },
+                            Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance) { new(), new() },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                         },
                         new()
                         {
-                            Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance) { new(), new() },
+                            Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance) { new(), new() },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                         }
                     },
                 RequiredSingle = new RequiredSingle1 { Single = new RequiredSingle2() },
@@ -583,51 +583,51 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                         DerivedRoot = new Root()
                     },
                 RequiredChildrenAk =
-                    new ObservableHashSet<RequiredAk1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         },
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         }
                     },
                 OptionalChildrenAk =
-                    new ObservableHashSet<OptionalAk1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         },
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         }
                     },
                 RequiredSingleAk =
@@ -674,13 +674,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                         Root = new Root(),
                         DerivedRoot = new Root()
                     },
-                RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(LegacyReferenceEqualityComparer.Instance)
+                RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
                 {
                     new()
                     {
                         Id = 1,
                         CompositeChildren =
-                            new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { Id = 1 }, new() { Id = 2 }
                             }
@@ -689,7 +689,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     {
                         Id = 2,
                         CompositeChildren =
-                            new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { Id = 3 }, new() { Id = 4 }
                             }
@@ -1146,8 +1146,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     {
         private int _id;
         private Guid _alternateId;
-        private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>(LegacyReferenceEqualityComparer.Instance);
-        private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance);
+        private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
         private RequiredSingle1 _requiredSingle;
         private RequiredNonPkSingle1 _requiredNonPkSingle;
         private RequiredNonPkSingle1Derived _requiredNonPkSingleDerived;
@@ -1157,10 +1157,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private OptionalSingle1MoreDerived _optionalSingleMoreDerived;
 
         private IEnumerable<RequiredAk1> _requiredChildrenAk =
-            new ObservableHashSet<RequiredAk1>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance);
 
         private IEnumerable<OptionalAk1> _optionalChildrenAk =
-            new ObservableHashSet<OptionalAk1>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
 
         private RequiredSingleAk1 _requiredSingleAk;
         private RequiredNonPkSingleAk1 _requiredNonPkSingleAk;
@@ -1171,7 +1171,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private OptionalSingleAk1MoreDerived _optionalSingleAkMoreDerived;
 
         private IEnumerable<RequiredComposite1> _requiredCompositeChildren
-            = new ObservableHashSet<RequiredComposite1>(LegacyReferenceEqualityComparer.Instance);
+            = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -1314,7 +1314,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private int _id;
         private int _parentId;
         private Root _parent;
-        private IEnumerable<Required2> _children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Required2> _children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -1425,10 +1425,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private int _id;
         private int? _parentId;
         private Root _parent;
-        private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
 
         private ICollection<OptionalComposite2> _compositeChildren =
-            new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -1926,10 +1926,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private Guid _alternateId;
         private Guid _parentId;
         private Root _parent;
-        private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
 
         private IEnumerable<RequiredComposite2> _compositeChildren =
-            new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -2043,7 +2043,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private Root _parent;
 
         private ICollection<OptionalOverlapping2> _compositeChildren =
-            new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -2192,10 +2192,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private Guid _alternateId;
         private Guid? _parentId;
         private Root _parent;
-        private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
 
         private ICollection<OptionalComposite2> _compositeChildren =
-            new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -2874,7 +2874,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     {
         private int _id;
         private int _status;
-        private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>(LegacyReferenceEqualityComparer.Instance);
+        private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -3007,7 +3007,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
     protected abstract class TaskWithChoices : QuestTask
     {
-        private ICollection<TaskChoice> _choices = new ObservableHashSet<TaskChoice>(LegacyReferenceEqualityComparer.Instance);
+        private ICollection<TaskChoice> _choices = new ObservableHashSet<TaskChoice>(ReferenceEqualityComparer.Instance);
 
         public ICollection<TaskChoice> Choices
         {
@@ -3044,7 +3044,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     protected class Bloog : NotifyingEntity
     {
         private int _id;
-        private IEnumerable<Poost> _poosts = new ObservableHashSet<Poost>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Poost> _poosts = new ObservableHashSet<Poost>(ReferenceEqualityComparer.Instance);
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -3091,10 +3091,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private long _id;
 
         private ICollection<SharedFkDependant> _dependants
-            = new ObservableHashSet<SharedFkDependant>(LegacyReferenceEqualityComparer.Instance);
+            = new ObservableHashSet<SharedFkDependant>(ReferenceEqualityComparer.Instance);
 
         private ICollection<SharedFkParent> _parents
-            = new ObservableHashSet<SharedFkParent>(LegacyReferenceEqualityComparer.Instance);
+            = new ObservableHashSet<SharedFkParent>(ReferenceEqualityComparer.Instance);
 
         public long Id
         {

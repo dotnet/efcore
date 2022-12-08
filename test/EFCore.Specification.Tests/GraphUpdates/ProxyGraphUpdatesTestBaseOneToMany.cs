@@ -463,7 +463,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 if (!useExistingParent)
                 {
                     newParent = context.CreateProxy<Optional1>(
-                        e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance));
+                        e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance));
 
                     context.Set<Optional1>().Add(newParent);
                     context.SaveChanges();
@@ -607,7 +607,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                         {
                             e.Id = 3;
                             e.Parent = context.Set<Root>().Single(IsTheRoot);
-                            e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                            e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
                                 context.CreateProxy<OptionalOverlapping2>(e => e.Id = 5),
                                 context.CreateProxy<OptionalOverlapping2>(e => e.Id = 6)
