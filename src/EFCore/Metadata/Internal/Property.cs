@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -27,6 +26,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
     private ConfigurationSource? _valueGeneratedConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
+
+    private static readonly bool QuirkEnabled29642
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29642", out var enabled) && enabled;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -670,6 +672,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         var property = this;
         for (var i = 0; i < 10000; i++)
         {
+            var currentProperty = property;
             foreach (var foreignKey in property.GetContainingForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
@@ -692,6 +695,12 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                         }
                     }
                 }
+            }
+
+            if (!QuirkEnabled29642
+                && currentProperty == property)
+            {
+                break;
             }
         }
 
@@ -749,6 +758,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         var property = this;
         for (var i = 0; i < 10000; i++)
         {
+            var currentProperty = property;
             foreach (var foreignKey in property.GetContainingForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
@@ -771,6 +781,12 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                         }
                     }
                 }
+            }
+
+            if (!QuirkEnabled29642
+                && currentProperty == property)
+            {
+                break;
             }
         }
 
