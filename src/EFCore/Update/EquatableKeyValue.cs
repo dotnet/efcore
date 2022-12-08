@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public sealed class EquatableKeyValue<TKey>
 {
     private readonly IAnnotatable _metadata;
-    private readonly TKey _keyValue;
+    private readonly TKey? _keyValue;
     private readonly IEqualityComparer<TKey> _keyComparer;
 
     /// <summary>
@@ -22,7 +22,7 @@ public sealed class EquatableKeyValue<TKey>
     /// <param name="keyComparer">The key comparer.</param>
     public EquatableKeyValue(
         IAnnotatable metadata,
-        TKey keyValue,
+        TKey? keyValue,
         IEqualityComparer<TKey> keyComparer)
     {
         _metadata = metadata;
@@ -44,7 +44,11 @@ public sealed class EquatableKeyValue<TKey>
     {
         var hash = new HashCode();
         hash.Add(_metadata);
-        hash.Add(_keyValue, _keyComparer);
+        if (_keyValue != null)
+        {
+            hash.Add(_keyValue, _keyComparer);
+        }
+
         return hash.ToHashCode();
     }
 }
