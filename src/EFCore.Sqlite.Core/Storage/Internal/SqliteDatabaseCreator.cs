@@ -132,10 +132,9 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
             Dependencies.Connection.Close();
         }
 
-        SqliteConnection.ClearPool(new SqliteConnection(Dependencies.Connection.ConnectionString));
-
         if (!string.IsNullOrEmpty(path))
         {
+            SqliteConnection.ClearPool(new SqliteConnection(Dependencies.Connection.ConnectionString));
             // See issues #25797 and #26016
             // SqliteConnection.ClearAllPools();
             File.Delete(path);
@@ -143,6 +142,7 @@ public class SqliteDatabaseCreator : RelationalDatabaseCreator
         else if (dbConnection.State == ConnectionState.Open)
         {
             dbConnection.Close();
+            SqliteConnection.ClearPool(new SqliteConnection(Dependencies.Connection.ConnectionString));
             dbConnection.Open();
         }
     }
