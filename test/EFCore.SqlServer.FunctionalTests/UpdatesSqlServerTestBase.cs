@@ -245,6 +245,8 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
 
             modelBuilder.Entity<ProductBase>()
                 .Property(p => p.Id).HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).HasFilter("Name IS NOT NULL");
         }
         public virtual void ResetIdentity()
         {
