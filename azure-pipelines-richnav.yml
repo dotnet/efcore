@@ -8,8 +8,6 @@ stages:
   displayName: Build
   jobs:
     - template: eng/common/templates/jobs/jobs.yml
-      variables:
-        system.debug: true
       parameters:
         enableMicrobuild: true
         enableRichCodeNavigation: true
@@ -17,6 +15,8 @@ stages:
         helixRepo: dotnet/efcore
         jobs:
           - job: Windows
+            variables:
+              system.debug: true
             timeoutInMinutes: 90
             enablePublishTestResults: true
             pool:
