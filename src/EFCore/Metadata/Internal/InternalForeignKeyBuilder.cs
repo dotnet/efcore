@@ -3610,7 +3610,7 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
             }
         }
 
-        if (dependentEntityType.GetForeignKeys().Contains(Metadata, LegacyReferenceEqualityComparer.Instance))
+        if (dependentEntityType.GetForeignKeys().Contains(Metadata, ReferenceEqualityComparer.Instance))
         {
             Check.DebugAssert(Metadata.IsInModel, "Metadata isn't in the model");
 

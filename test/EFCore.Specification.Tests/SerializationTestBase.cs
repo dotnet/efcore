@@ -140,7 +140,7 @@ public abstract class SerializationTestBase<TFixture> : IClassFixture<TFixture>
             ReferenceLoopHandling = ignoreLoops
                 ? ReferenceLoopHandling.Ignore
                 : ReferenceLoopHandling.Error,
-            EqualityComparer = LegacyReferenceEqualityComparer.Instance,
+            EqualityComparer = ReferenceEqualityComparer.Instance,
             Formatting = writeIndented
                 ? Formatting.Indented
                 : Formatting.None
