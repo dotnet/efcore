@@ -9,13 +9,11 @@ namespace Microsoft.EntityFrameworkCore;
 /// </summary>
 /// <remarks>
 ///     <para>
-///         Behaviors in the database are dependent on the database schema being created
-///         appropriately. Using Entity Framework Migrations or
-///         <c>EnsureCreated()</c> will create the appropriate schema.
-///     </para>
-///     <para>
-///         Note that the in-memory behavior for entities that are currently tracked by
-///         the context can be different from the behavior that happens in the database.
+///         Behaviors in the database are dependent on the database schema being created appropriately. The database is created appropriately
+///         when using Entity Framework Migrations or using one of
+///         <see href="https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreated" /> or
+///         <see href="https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.infrastructure.databasefacade.ensurecreatedasync" />
+///         .
 ///     </para>
 ///     <para>
 ///         See <see href="https://aka.ms/efcore-docs-cascading">Cascade delete and deleting orphans in EF Core</see> for more information and
@@ -25,116 +23,120 @@ namespace Microsoft.EntityFrameworkCore;
 public enum DeleteBehavior
 {
     /// <summary>
-    ///     For entities being tracked by the context, the values of foreign key properties in
-    ///     dependent entities are set to null when the related principal is deleted.
-    ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
-    ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
-    ///     it is not a nullable type, then an exception will be thrown when
-    ///     <c>SaveChanges()</c> is called.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a non-cascading foreign key constraint in the database. This is the default for optional relationships.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the database has been created from the model using Entity Framework Migrations or the
-    ///         <c>EnsureCreated()</c> method, then the behavior in the database
-    ///         is to generate an error if a foreign key constraint is violated.
+    ///         <see cref="ClientSetNull" />, <see cref="Restrict" />, and <see cref="NoAction" /> all have essentially the same behavior, except
+    ///         that <see cref="Restrict" /> and <see cref="NoAction" /> will configure the foreign key constraint as "RESTRICT" or "NO ACTION"
+    ///         respectively for databases that support this, while <see cref="ClientSetNull" /> uses the default database setting for foreign
+    ///         key constraints.
     ///     </para>
     ///     <para>
-    ///         This is the default for optional relationships. That is, for relationships that have
-    ///         nullable foreign keys.
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
     ///     </para>
     /// </remarks>
     ClientSetNull,
 
     /// <summary>
-    ///     For entities being tracked by the context, the values of foreign key properties in dependent entities
-    ///     are set to null when the related principal is deleted.
-    ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
-    ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
-    ///     it is not a nullable type, then an exception will be thrown when
-    ///     <c>SaveChanges()</c> is called.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
-    ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///     <para>
+    ///         <see cref="ClientSetNull" />, <see cref="Restrict" />, and <see cref="NoAction" /> all have essentially the same behavior, except
+    ///         that <see cref="Restrict" /> and <see cref="NoAction" /> will configure the foreign key constraint as "RESTRICT" or "NO ACTION"
+    ///         respectively for databases that support this, while <see cref="ClientSetNull" /> uses the default database setting for foreign
+    ///         key constraints.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
+    ///     </para>
     /// </remarks>
     Restrict,
 
     /// <summary>
-    ///     For entities being tracked by the context, the values of foreign key properties in
-    ///     dependent entities are set to null when the related principal is deleted.
-    ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
-    ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
-    ///     it is not a nullable type, then an exception will be thrown when
-    ///     <c>SaveChanges()</c> is called.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a foreign key constraint in the database that propagates <see langword="null" /> values from principals to dependents.
     /// </summary>
     /// <remarks>
-    ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <c>EnsureCreated()</c> method, then the behavior in the database is
-    ///     the same as is described above for tracked entities. Keep in mind that some databases cannot easily
-    ///     support this behavior, especially if there are cycles in relationships, in which case it may
-    ///     be better to use <see cref="ClientSetNull" /> which will allow EF to cascade null values
-    ///     on loaded entities even if the database does not support this.
+    ///     <para>
+    ///         Not all database support propagation of <see langword="null" /> values, and some databases that do have restrictions
+    ///         on when it can be used. For example, when using SQL Server, it is difficult to use <see langword="null" /> propagation
+    ///         without creating multiple cascade paths.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
+    ///     </para>
     /// </remarks>
     SetNull,
 
     /// <summary>
-    ///     For entities being tracked by the context, dependent entities
-    ///     will be deleted when the related principal is deleted.
+    ///     Automatically deletes dependent entities when the principal is deleted or the relationship to the principal is severed,
+    ///     and creates creates a foreign key constraint in the database with cascading deletes enabled. This is the default for
+    ///     required relationships.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the database has been created from the model using Entity Framework Migrations or the
-    ///         <c>EnsureCreated()</c> method, then the behavior in the database is
-    ///         the same as is described above for tracked entities. Keep in mind that some databases cannot easily
-    ///         support this behavior, especially if there are cycles in relationships, in which case it may
-    ///         be better to use <see cref="ClientCascade" /> which will allow EF to perform cascade deletes
-    ///         on loaded entities even if the database does not support this.
+    ///         Some databases have restrictions on when cascading deletes can be used. For example, SQL Server has limited
+    ///         support for multiple cascade paths. Consider using <see cref="ClientCascade" /> instead for these cases.
     ///     </para>
     ///     <para>
-    ///         This is the default for required relationships. That is, for relationships that have
-    ///         non-nullable foreign keys.
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
     ///     </para>
     /// </remarks>
     Cascade,
 
     /// <summary>
-    ///     For entities being tracked by the context, dependent entities
-    ///     will be deleted when the related principal is deleted.
+    ///     Automatically deletes dependent entities when the principal is deleted or the relationship to the principal is severed,
+    ///     but creates a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
-    ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///     <para>
+    ///         Consider using this option when database restrictions prevent the use of <see cref="Cascade" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
+    ///     </para>
     /// </remarks>
     ClientCascade,
 
     /// <summary>
-    ///     For entities being tracked by the context, the values of foreign key properties in dependent entities are set to null when the related
-    ///     principal is deleted.
-    ///     This helps keep the graph of entities in a consistent state while they are being tracked, such that a
-    ///     fully consistent graph can then be written to the database. If a property cannot be set to null because
-    ///     it is not a nullable type, then an exception will be thrown when
-    ///     <c>SaveChanges()</c> is called.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
-    ///     If the database has been created from the model using Entity Framework Migrations or the
-    ///     <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///     <para>
+    ///         <see cref="ClientSetNull" />, <see cref="Restrict" />, and <see cref="NoAction" /> all have essentially the same behavior, except
+    ///         that <see cref="Restrict" /> and <see cref="NoAction" /> will configure the foreign key constraint as "RESTRICT" or "NO ACTION"
+    ///         respectively for databases that support this, while <see cref="ClientSetNull" /> uses the default database setting for foreign
+    ///         key constraints.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
+    ///     </para>
     /// </remarks>
     NoAction,
 
     /// <summary>
-    ///     Note: it is unusual to use this value. Consider using <see cref="ClientSetNull" /> instead to match
-    ///     the behavior of EF6 with cascading deletes disabled.
+    ///     Tracked dependents are not deleted and their foreign key values are not set to <see langword="null" /> when deleting
+    ///     principal entities. A non-cascading foreign key constraint is created in the database.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         For entities being tracked by the context, the values of foreign key properties in dependent entities are not changed when the
-    ///         related principal entity is deleted.
-    ///         This can result in an inconsistent graph of entities where the values of foreign key properties do
-    ///         not match the relationships in the graph.
+    ///         It is unusual to use this option and will often result in exceptions when saving changes to the database unless
+    ///         additional work is done.
     ///     </para>
     ///     <para>
-    ///         If the database has been created from the model using Entity Framework Migrations or the
-    ///         <c>EnsureCreated()</c> method, then the behavior in the database is to generate an error if a foreign key constraint is violated.
+    ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
+    ///         and examples.
     ///     </para>
     /// </remarks>
     ClientNoAction
