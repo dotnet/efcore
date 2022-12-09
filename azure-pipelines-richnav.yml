@@ -8,8 +8,6 @@ stages:
   displayName: Build
   jobs:
     - template: eng/common/templates/jobs/jobs.yml
-      variables:
-        system.debug: true
       parameters:
         enableMicrobuild: true
         enableRichCodeNavigation: true
