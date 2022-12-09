@@ -1505,7 +1505,9 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
 
     private static ConstantExpression GetValue(Expression expression)
         => Expression.Constant(
-            Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke(),
+            Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
+                .Compile(preferInterpretation: true)
+                .Invoke(),
             expression.Type);
 
     private static bool CanEvaluate(Expression expression)
@@ -1518,7 +1520,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
                 return true;
 
             case NewExpression newExpression:
-                return newExpression.Arguments.All(e => CanEvaluate(e));
+                return newExpression.Arguments.All(CanEvaluate);
 
             case MemberInitExpression memberInitExpression:
                 return CanEvaluate(memberInitExpression.NewExpression)

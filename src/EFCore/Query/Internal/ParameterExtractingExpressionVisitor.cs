@@ -151,8 +151,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     {
         var newTestExpression = TryGetConstantValue(conditionalExpression.Test) ?? Visit(conditionalExpression.Test);
 
-        if (newTestExpression is ConstantExpression constantTestExpression
-            && constantTestExpression.Value is bool constantTestValue)
+        if (newTestExpression is ConstantExpression { Value: bool constantTestValue })
         {
             return constantTestValue
                 ? Visit(conditionalExpression.IfTrue)
@@ -227,8 +226,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     }
 
     private static bool ShortCircuitLogicalExpression(Expression expression, ExpressionType nodeType)
-        => expression is ConstantExpression constantExpression
-            && constantExpression.Value is bool constantValue
+        => expression is ConstantExpression { Value: bool constantValue }
             && ((constantValue && nodeType == ExpressionType.OrElse)
                 || (!constantValue && nodeType == ExpressionType.AndAlso));
 
@@ -265,7 +263,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
 
         return constantExpression.Type != returnType
             ? Expression.Convert(constantExpression, returnType)
-            : (Expression)constantExpression;
+            : constantExpression;
     }
 
     private Expression Evaluate(Expression expression, bool generateParameter)
@@ -365,8 +363,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     private static Expression RemoveConvert(Expression expression)
     {
         if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
+            && expression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked)
         {
             return RemoveConvert(unaryExpression.Operand);
         }
@@ -436,10 +433,8 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
                 parameterName = methodCallExpression.Method.Name;
                 break;
 
-            case UnaryExpression unaryExpression
-                when (unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.ConvertChecked)
-                && (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
+            case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+                when (unaryExpression.Type.UnwrapNullableType() == unaryExpression.Operand.Type):
                 return GetValue(unaryExpression.Operand, out parameterName);
         }
 
@@ -447,7 +442,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         {
             return Expression.Lambda<Func<object>>(
                     Expression.Convert(expression, typeof(object)))
-                .Compile()
+                .Compile(preferInterpretation: true)
                 .Invoke();
         }
         catch (Exception exception)
@@ -611,7 +606,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         protected override Expression VisitMember(MemberExpression memberExpression)
         {
             _containsClosure = memberExpression.Expression != null
-                || !(memberExpression.Member is FieldInfo fieldInfo && fieldInfo.IsInitOnly);
+                || !(memberExpression.Member is FieldInfo { IsInitOnly: true });
             return base.VisitMember(memberExpression);
         }
 
