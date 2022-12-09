@@ -707,7 +707,7 @@ public class NavigationFixer : INavigationFixer
             var dependentEntries = stateManager.GetDependents(entry, foreignKey);
             foreach (InternalEntityEntry dependentEntry in dependentEntries.ToList())
             {
-                if (foreignKey.IsOwnership)
+                if (foreignKey.DeleteBehavior != DeleteBehavior.ClientNoAction)
                 {
                     ConditionallyNullForeignKeyProperties(dependentEntry, entry, foreignKey);
                 }
