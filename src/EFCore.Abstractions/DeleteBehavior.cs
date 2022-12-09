@@ -23,8 +23,8 @@ namespace Microsoft.EntityFrameworkCore;
 public enum DeleteBehavior
 {
     /// <summary>
-    ///     Sets foreign key values to null as appropriate when changes are made to tracked entities, and creates a normal, non-cascading
-    ///     foreign key constraint in the database. This is the default for optional relationships.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a non-cascading foreign key constraint in the database. This is the default for optional relationships.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -41,8 +41,8 @@ public enum DeleteBehavior
     ClientSetNull,
 
     /// <summary>
-    ///     Sets foreign key values to null as appropriate when changes are made to tracked entities, and creates a normal, non-cascading
-    ///     foreign key constraint in the database.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -59,13 +59,14 @@ public enum DeleteBehavior
     Restrict,
 
     /// <summary>
-    ///     Sets foreign key values to null as appropriate when changes are made to tracked entities, and creates a foreign key constraint
-    ///     in the database that propagates null values from principals to dependents.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a foreign key constraint in the database that propagates <see langword="null" /> values from principals to dependents.
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         Not all database support propagation of null values, and some databases that do have restrictions on when it can be used.
-    ///         For example, when using SQL Server, it is difficult to use null propagation without creating multiple cascade paths.
+    ///         Not all database support propagation of <see langword="null" /> values, and some databases that do have restrictions
+    ///         on when it can be used. For example, when using SQL Server, it is difficult to use <see langword="null" /> propagation
+    ///         without creating multiple cascade paths.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-cascading">EF Core cascade deletes and deleting orphans</see> for more information
@@ -93,7 +94,7 @@ public enum DeleteBehavior
 
     /// <summary>
     ///     Automatically deletes dependent entities when the principal is deleted or the relationship to the principal is severed,
-    ///     but creates a normal, non-cascading foreign key constraint in the database.
+    ///     but creates a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -107,8 +108,8 @@ public enum DeleteBehavior
     ClientCascade,
 
     /// <summary>
-    ///     Sets foreign key values to null as appropriate when changes are made to tracked entities, and creates a normal, non-cascading
-    ///     foreign key constraint in the database.
+    ///     Sets foreign key values to <see langword="null" /> as appropriate when changes are made to tracked entities, and creates
+    ///     a non-cascading foreign key constraint in the database.
     /// </summary>
     /// <remarks>
     ///     <para>
@@ -125,8 +126,8 @@ public enum DeleteBehavior
     NoAction,
 
     /// <summary>
-    ///     Tracked dependents are not deleted and their foreign key values are not set to null when deleting principal entities.
-    ///     A normal, non-cascading foreign key constraint is created in the database.
+    ///     Tracked dependents are not deleted and their foreign key values are not set to <see langword="null" /> when deleting
+    ///     principal entities. A non-cascading foreign key constraint is created in the database.
     /// </summary>
     /// <remarks>
     ///     <para>

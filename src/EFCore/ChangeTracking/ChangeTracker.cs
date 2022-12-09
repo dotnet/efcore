@@ -160,8 +160,8 @@ public class ChangeTracker : IResettableService
     ///     </para>
     ///     <para>
     ///         This method calls <see cref="DetectChanges" /> to ensure all entries returned reflect up-to-date state.
-    ///         Since detecting changes cane be slow, consider using <see cref="AutoDetectChangesEnabled" /> to prevent detecting changes
-    ///         in situations where the state is known to be up-to-date.
+    ///         Since detecting changes can be slow, consider temporarily setting <see cref="AutoDetectChangesEnabled" /> to prevent
+    ///         detecting changes in situations where the state is known to be up-to-date.
     ///     </para>
     ///     <para>
     ///         Note that modification of entity state while iterating over the returned enumeration may result in
@@ -191,8 +191,8 @@ public class ChangeTracker : IResettableService
     ///     </para>
     ///     <para>
     ///         This method calls <see cref="DetectChanges" /> to ensure all entries returned reflect up-to-date state.
-    ///         Since detecting changes cane be slow, consider using <see cref="AutoDetectChangesEnabled" /> to prevent detecting changes
-    ///         in situations where the state is known to be up-to-date.
+    ///         Since detecting changes can be slow, consider temporarily setting <see cref="AutoDetectChangesEnabled" /> to prevent
+    ///         detecting changes in situations where the state is known to be up-to-date.
     ///     </para>
     ///     <para>
     ///         Note that modification of entity state while iterating over the returned enumeration may result in
@@ -231,8 +231,8 @@ public class ChangeTracker : IResettableService
     /// <remarks>
     ///     <para>
     ///         This method calls <see cref="DetectChanges" /> to ensure the returned value is accurate.
-    ///         Since detecting changes cane be slow, consider using <see cref="AutoDetectChangesEnabled" /> to prevent detecting changes
-    ///         in situations where the state is known to be up-to-date.
+    ///         Since detecting changes can be slow, consider temporarily setting <see cref="AutoDetectChangesEnabled" /> to prevent
+    ///         detecting changes in situations where the state is known to be up-to-date.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
@@ -552,8 +552,8 @@ public class ChangeTracker : IResettableService
     ///     </para>
     ///     <para>
     ///         This method calls <see cref="DetectChanges" /> to ensure the returned value is accurate.
-    ///         Since detecting changes cane be slow, consider using <see cref="AutoDetectChangesEnabled" /> to prevent detecting changes
-    ///         in situations where the state is known to be up-to-date.
+    ///         Since detecting changes can be slow, consider temporarily setting <see cref="AutoDetectChangesEnabled" /> to prevent
+    ///         detecting changes in situations where the state is known to be up-to-date.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
