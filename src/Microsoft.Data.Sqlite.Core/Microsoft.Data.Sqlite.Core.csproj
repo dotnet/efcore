@@ -39,7 +39,7 @@ Microsoft.Data.Sqlite.SqliteTransaction</Description>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.2" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.1.3" />
   </ItemGroup>
 
   <ItemGroup>
