@@ -1510,10 +1510,11 @@ public class CSharpHelper : ICSharpHelper
     {
         if (ch < 'a')
         {
-            return ch < 'A'
+            return (ch < 'A'
                 ? ch >= '0'
                 && ch <= '9'
-                : ch <= 'Z';
+                : ch <= 'Z')
+                || ch == '_';
         }
 
         if (ch <= 'z')

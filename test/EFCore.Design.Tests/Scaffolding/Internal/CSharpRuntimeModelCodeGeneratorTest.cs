@@ -2520,12 +2520,12 @@ namespace TestNamespace
                 afterSaveBehavior: PropertySaveBehavior.Throw);
 
             var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
-            var idDerivedInsert = new RuntimeRelationalPropertyOverrides(
+            var idDerived_Insert = new RuntimeRelationalPropertyOverrides(
                 id,
                 StoreObjectIdentifier.InsertStoredProcedure(""Derived_Insert"", ""TPC""),
                 true,
                 ""DerivedId"");
-            overrides.Add(StoreObjectIdentifier.InsertStoredProcedure(""Derived_Insert"", ""TPC""), idDerivedInsert);
+            overrides.Add(StoreObjectIdentifier.InsertStoredProcedure(""Derived_Insert"", ""TPC""), idDerived_Insert);
             var idPrincipalBaseView = new RuntimeRelationalPropertyOverrides(
                 id,
                 StoreObjectIdentifier.View(""PrincipalBaseView"", ""TPC""),
@@ -4579,23 +4579,23 @@ namespace TestNamespace
                 nullable: true);
             blob.AddAnnotation(""Cosmos:PropertyName"", ""JsonBlob"");
 
-            var id0 = runtimeEntityType.AddProperty(
+            var __id = runtimeEntityType.AddProperty(
                 ""__id"",
                 typeof(string),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 valueGeneratorFactory: new IdValueGeneratorFactory().Create);
-            id0.AddAnnotation(""Cosmos:PropertyName"", ""id"");
+            __id.AddAnnotation(""Cosmos:PropertyName"", ""id"");
 
-            var jObject = runtimeEntityType.AddProperty(
+            var __jObject = runtimeEntityType.AddProperty(
                 ""__jObject"",
                 typeof(JObject),
                 nullable: true,
                 valueGenerated: ValueGenerated.OnAddOrUpdate,
                 beforeSaveBehavior: PropertySaveBehavior.Ignore,
                 afterSaveBehavior: PropertySaveBehavior.Ignore);
-            jObject.AddAnnotation(""Cosmos:PropertyName"", """");
+            __jObject.AddAnnotation(""Cosmos:PropertyName"", """");
 
-            var etag = runtimeEntityType.AddProperty(
+            var _etag = runtimeEntityType.AddProperty(
                 ""_etag"",
                 typeof(string),
                 nullable: true,
@@ -4609,7 +4609,7 @@ namespace TestNamespace
             runtimeEntityType.SetPrimaryKey(key);
 
             var key0 = runtimeEntityType.AddKey(
-                new[] { id0, partitionId });
+                new[] { __id, partitionId });
 
             return runtimeEntityType;
         }
