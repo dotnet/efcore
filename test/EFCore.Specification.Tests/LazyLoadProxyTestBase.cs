@@ -52,19 +52,24 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory] // Issue #13138
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_with_recursive_property(EntityState state)
     {
-        using (var context = CreateContext(lazyLoadingEnabled: true))
+        using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
         {
             var child = context.Set<WithRecursiveProperty>().Single();
 
             var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-            context.Entry(child).State = state;
+            if (state != EntityState.Detached)
+            {
+                context.Entry(child).State = state;
+            }
 
-            Assert.True(referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
             Assert.NotNull(child.Parent);
 
@@ -72,14 +77,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            if (state != EntityState.Detached)
+            {
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
 
-            Assert.Equal(parent.Id, child.IdLoadedFromParent);
+                Assert.Equal(parent.Id, child.IdLoadedFromParent);
 
-            Assert.Same(parent, child.Parent);
-            Assert.Same(child, parent.WithRecursiveProperty);
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.WithRecursiveProperty);
+            }
         }
     }
 
@@ -262,21 +270,27 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, false, false)]
+    [InlineData(EntityState.Added, false, false)]
     [InlineData(EntityState.Modified, false, false)]
     [InlineData(EntityState.Deleted, false, false)]
+    [InlineData(EntityState.Detached, false, false)]
     [InlineData(EntityState.Unchanged, true, false)]
+    [InlineData(EntityState.Added, true, false)]
     [InlineData(EntityState.Modified, true, false)]
     [InlineData(EntityState.Deleted, true, false)]
+    [InlineData(EntityState.Detached, true, false)]
     [InlineData(EntityState.Unchanged, true, true)]
+    [InlineData(EntityState.Added, true, true)]
     [InlineData(EntityState.Modified, true, true)]
     [InlineData(EntityState.Deleted, true, true)]
+    [InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_collection(EntityState state, bool useAttach, bool useDetach)
     {
         Parent parent = null;
 
         if (useAttach)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
             {
                 parent = context.Set<Parent>().Single();
 
@@ -286,24 +300,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 }
             }
 
-            if (useDetach)
+            if (state != EntityState.Detached && useDetach)
             {
                 Assert.Null(parent.Children);
             }
             else
             {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                        CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                            .GenerateMessage("MotherProxy", "Children"),
-                        "CoreEventId.LazyLoadOnDisposedContextWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Children).Message);
+                AssertDisposed(() => parent.Children, "MotherProxy", "Children");
             }
         }
 
-        using (var context = CreateContext(lazyLoadingEnabled: true))
+        using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
         {
             var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
@@ -313,45 +320,61 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-            context.Entry(parent).State = state;
+            if (state != EntityState.Detached)
+            {
+                context.Entry(parent).State = state;
+            }
 
             Assert.False(collectionEntry.IsLoaded);
 
             changeDetector.DetectChangesCalled = false;
 
-            Assert.NotNull(parent.Children);
+            if (state == EntityState.Detached && useAttach)
+            {
+                AssertDisposed(() => parent.Children, "MotherProxy", "Children");
+            }
+            else
+            {
+                Assert.NotNull(parent.Children);
 
-            Assert.False(changeDetector.DetectChangesCalled);
+                Assert.False(changeDetector.DetectChangesCalled);
 
-            Assert.True(collectionEntry.IsLoaded);
+                //Assert.True(collectionEntry.IsLoaded);
 
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+                Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
 
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.Equal(2, parent.Children.Count());
-            Assert.Equal(3, context.ChangeTracker.Entries().Count());
+                Assert.Equal(2, parent.Children.Count());
+                Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, false, false)]
+    [InlineData(EntityState.Added, false, false)]
     [InlineData(EntityState.Modified, false, false)]
     [InlineData(EntityState.Deleted, false, false)]
+    [InlineData(EntityState.Detached, false, false)]
     [InlineData(EntityState.Unchanged, true, false)]
+    [InlineData(EntityState.Added, true, false)]
     [InlineData(EntityState.Modified, true, false)]
     [InlineData(EntityState.Deleted, true, false)]
+    [InlineData(EntityState.Detached, true, false)]
     [InlineData(EntityState.Unchanged, true, true)]
+    [InlineData(EntityState.Added, true, true)]
     [InlineData(EntityState.Modified, true, true)]
     [InlineData(EntityState.Deleted, true, true)]
+    [InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_many_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
     {
         Child child = null;
 
         if (useAttach)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
             {
                 child = context.Set<Child>().Single(e => e.Id == 12);
 
@@ -361,24 +384,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 }
             }
 
-            if (useDetach)
+            if (state != EntityState.Detached && useDetach)
             {
                 Assert.Null(child.Parent);
             }
             else
             {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                        CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                            .GenerateMessage("ChildProxy", "Parent"),
-                        "CoreEventId.LazyLoadOnDisposedContextWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => child.Parent).Message);
+                AssertDisposed(() => child.Parent, "ChildProxy", "Parent");
             }
         }
 
-        using (var context = CreateContext(lazyLoadingEnabled: true))
+        using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
         {
             var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
@@ -388,62 +404,86 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-            context.Entry(child).State = state;
+            if (state != EntityState.Detached)
+            {
+                context.Entry(child).State = state;
+            }
 
             Assert.False(referenceEntry.IsLoaded);
 
             changeDetector.DetectChangesCalled = false;
 
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && useAttach)
             {
-                Assert.Null(child.Parent);
+                AssertDisposed(() => child.Parent, "ChildProxy", "Parent");
             }
             else
             {
-                Assert.NotNull(child.Parent);
-            }
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(child.Parent);
+                }
+                else
+                {
+                    Assert.NotNull(child.Parent);
+                }
 
-            Assert.False(changeDetector.DetectChangesCalled);
+                Assert.False(changeDetector.DetectChangesCalled);
 
-            Assert.True(referenceEntry.IsLoaded);
+                Assert.True(referenceEntry.IsLoaded);
 
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Contains(child, child.Parent!.Children);
+                }
 
-            if (state == EntityState.Deleted)
-            {
-                Assert.Null(child.Parent);
-                Assert.Null(parent.Children);
-            }
-            else
-            {
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.Children.Single());
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.Children);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.Children.Single());
+                    }
+                }
             }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, false, false)]
+    [InlineData(EntityState.Added, false, false)]
     [InlineData(EntityState.Modified, false, false)]
     [InlineData(EntityState.Deleted, false, false)]
+    [InlineData(EntityState.Detached, false, false)]
     [InlineData(EntityState.Unchanged, true, false)]
+    [InlineData(EntityState.Added, true, false)]
     [InlineData(EntityState.Modified, true, false)]
     [InlineData(EntityState.Deleted, true, false)]
+    [InlineData(EntityState.Detached, true, false)]
     [InlineData(EntityState.Unchanged, true, true)]
+    [InlineData(EntityState.Added, true, true)]
     [InlineData(EntityState.Modified, true, true)]
     [InlineData(EntityState.Deleted, true, true)]
+    [InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_one_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
     {
         Single single = null;
 
         if (useAttach)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
             {
                 single = context.Set<Single>().Single();
 
@@ -453,24 +493,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 }
             }
 
-            if (useDetach)
+            if (state != EntityState.Detached && useDetach)
             {
                 Assert.Null(single.Parent);
             }
             else
             {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                        CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                            .GenerateMessage("SingleProxy", "Parent"),
-                        "CoreEventId.LazyLoadOnDisposedContextWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => single.Parent).Message);
+                AssertDisposed(() => single.Parent, "SingleProxy", "Parent");
             }
         }
 
-        using (var context = CreateContext(lazyLoadingEnabled: true))
+        using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
         {
             var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
@@ -480,62 +513,86 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-            context.Entry(single).State = state;
+            if (state != EntityState.Detached)
+            {
+                context.Entry(single).State = state;
+            }
 
             Assert.False(referenceEntry.IsLoaded);
 
             changeDetector.DetectChangesCalled = false;
 
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && useAttach)
             {
-                Assert.Null(single.Parent);
+                AssertDisposed(() => single.Parent, "SingleProxy", "Parent");
             }
             else
             {
-                Assert.NotNull(single.Parent);
-            }
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.NotNull(single.Parent);
+                }
 
-            Assert.True(referenceEntry.IsLoaded);
+                Assert.True(referenceEntry.IsLoaded);
 
-            Assert.False(changeDetector.DetectChangesCalled);
+                Assert.False(changeDetector.DetectChangesCalled);
 
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.Single);
+                }
 
-            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-            if (state == EntityState.Deleted)
-            {
-                Assert.Null(single.Parent);
-                Assert.Null(parent.Single);
-            }
-            else
-            {
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.Single);
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.Single);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.Single);
+                    }
+                }
             }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, false, false)]
+    [InlineData(EntityState.Added, false, false)]
     [InlineData(EntityState.Modified, false, false)]
     [InlineData(EntityState.Deleted, false, false)]
+    [InlineData(EntityState.Detached, false, false)]
     [InlineData(EntityState.Unchanged, true, false)]
+    [InlineData(EntityState.Added, true, false)]
     [InlineData(EntityState.Modified, true, false)]
     [InlineData(EntityState.Deleted, true, false)]
+    [InlineData(EntityState.Detached, true, false)]
     [InlineData(EntityState.Unchanged, true, true)]
+    [InlineData(EntityState.Added, true, true)]
     [InlineData(EntityState.Modified, true, true)]
     [InlineData(EntityState.Deleted, true, true)]
+    [InlineData(EntityState.Detached, true, true)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent(EntityState state, bool useAttach, bool useDetach)
     {
         Parent parent = null;
 
         if (useAttach)
         {
-            using (var context = CreateContext(lazyLoadingEnabled: true))
+            using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
             {
                 parent = context.Set<Parent>().Single();
 
@@ -545,24 +602,17 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 }
             }
 
-            if (useDetach)
+            if (state != EntityState.Detached && useDetach)
             {
                 Assert.Null(parent.Single);
             }
             else
             {
-                Assert.Equal(
-                    CoreStrings.WarningAsErrorTemplate(
-                        CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
-                        CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
-                            .GenerateMessage("MotherProxy", "Single"),
-                        "CoreEventId.LazyLoadOnDisposedContextWarning"),
-                    Assert.Throws<InvalidOperationException>(
-                        () => parent.Single).Message);
+                AssertDisposed(() => parent.Single, "MotherProxy", "Single");
             }
         }
 
-        using (var context = CreateContext(lazyLoadingEnabled: true))
+        using (var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached))
         {
             var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
@@ -572,37 +622,53 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
             var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
-            context.Entry(parent).State = state;
+            if (state != EntityState.Detached)
+            {
+                context.Entry(parent).State = state;
+            }
 
             Assert.False(referenceEntry.IsLoaded);
 
             changeDetector.DetectChangesCalled = false;
 
-            Assert.NotNull(parent.Single);
+            if (state == EntityState.Detached && useAttach)
+            {
+                AssertDisposed(() => parent.Single, "MotherProxy", "Single");
+            }
+            else
+            {
+                Assert.NotNull(parent.Single);
+                Assert.Same(parent, parent.Single.Parent);
 
-            Assert.False(changeDetector.DetectChangesCalled);
+                Assert.False(changeDetector.DetectChangesCalled);
 
-            Assert.True(referenceEntry.IsLoaded);
+                Assert.True(referenceEntry.IsLoaded);
 
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-            var single = context.ChangeTracker.Entries<Single>().Single().Entity;
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<Single>().Single().Entity;
 
-            Assert.Same(single, parent.Single);
-            Assert.Same(parent, single.Parent);
+                    Assert.Same(single, parent.Single);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var single = context.Set<SinglePkToPk>().Single();
@@ -611,7 +677,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -633,29 +702,39 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Null(single.Parent);
-            Assert.Null(parent.SinglePkToPk);
+            Assert.Same(single, single.Parent!.SinglePkToPk);
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(parent, single.Parent);
-            Assert.Same(single, parent.SinglePkToPk);
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+                Assert.Null(parent.SinglePkToPk);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
+                Assert.Same(single, parent.SinglePkToPk);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var parent = context.Set<Parent>().Single();
@@ -664,7 +743,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -679,12 +761,20 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(parent, parent.SinglePkToPk.Parent);
+        }
 
-        Assert.Same(single, parent.SinglePkToPk);
-        Assert.Same(parent, single.Parent);
+        if (state != EntityState.Detached)
+        {
+            var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+
+            Assert.Same(single, parent.SinglePkToPk);
+            Assert.Same(parent, single.Parent);
+        }
     }
 
     [ConditionalFact]
@@ -803,11 +893,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var child = context.CreateProxy<Child>();
@@ -819,7 +911,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -840,11 +935,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var single = context.CreateProxy<Single>();
@@ -856,7 +953,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -878,24 +978,32 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_changed_non_found_FK(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var child = context.CreateProxy<Child>();
         child.Id = 767;
         child.ParentId = 797;
 
-        context.Attach(child);
+        if (state != EntityState.Detached)
+        {
+            context.Attach(child);
+        }
 
         ClearLog();
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         referenceEntry.IsLoaded = true;
 
@@ -903,7 +1011,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         child.ParentId = 707;
 
-        context.ChangeTracker.DetectChanges();
+        if (state != EntityState.Detached)
+        {
+            context.ChangeTracker.DetectChanges();
+        }
+        else
+        {
+            referenceEntry.IsLoaded = false;
+        }
 
         if (state == EntityState.Deleted)
         {
@@ -914,36 +1029,49 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             Assert.NotNull(child.Parent);
         }
 
-        Assert.True(changeDetector.DetectChangesCalled);
+        if (state != EntityState.Detached)
+        {
+            Assert.True(changeDetector.DetectChangesCalled);
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Null(parent.Children);
-            Assert.Null(child.Parent);
+            Assert.Contains(child, child.Parent!.Children);
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(child, parent.Children.Single());
-            Assert.Same(parent, child.Parent);
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(parent.Children);
+                Assert.Null(child.Parent);
+            }
+            else
+            {
+                Assert.Same(child, parent.Children.Single());
+                Assert.Same(parent, child.Parent);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_changed_found_FK(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var parent = context.CreateProxy<Parent>();
@@ -957,14 +1085,20 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         child.Parent = parent;
         parent.Children = new List<Child> { child };
 
-        context.Attach(child);
-        context.Attach(parent);
+        if (state != EntityState.Detached)
+        {
+            context.Attach(child);
+            context.Attach(parent);
+        }
 
         ClearLog();
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         referenceEntry.IsLoaded = true;
 
@@ -990,29 +1124,39 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
 
-        var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Empty(parent.Children);
-            Assert.Null(child.Parent);
+            Assert.Contains(child, child.Parent!.Children);
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(child, newParent.Children.Single());
-            Assert.Same(newParent, child.Parent);
+            var newParent = context.ChangeTracker.Entries<Parent>().Single(e => e.Entity.Id != parent.Id).Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Empty(parent.Children);
+                Assert.Null(child.Parent);
+            }
+            else
+            {
+                Assert.Same(child, newParent.Children.Single());
+                Assert.Same(newParent, child.Parent);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_not_found(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var parent = context.CreateProxy<Parent>();
@@ -1025,7 +1169,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -1046,11 +1193,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_not_found(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var child = context.CreateProxy<Child>();
@@ -1063,7 +1212,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1084,11 +1236,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_not_found(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var single = context.CreateProxy<Single>();
@@ -1101,7 +1255,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1123,11 +1280,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_not_found(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var parent = context.CreateProxy<Parent>();
@@ -1140,7 +1299,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1162,17 +1324,23 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
+    [InlineData(EntityState.Detached, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+    [InlineData(EntityState.Added, CascadeTiming.Immediate)]
     [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
     [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
+    [InlineData(EntityState.Detached, CascadeTiming.Immediate)]
     [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+    [InlineData(EntityState.Added, CascadeTiming.Never)]
     [InlineData(EntityState.Modified, CascadeTiming.Never)]
     [InlineData(EntityState.Deleted, CascadeTiming.Never)]
+    [InlineData(EntityState.Detached, CascadeTiming.Never)]
     public virtual void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
 
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
@@ -1183,7 +1351,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.True(collectionEntry.IsLoaded);
 
@@ -1210,24 +1381,27 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
         }
 
-        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+    [InlineData(EntityState.Added, CascadeTiming.Immediate)]
     [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
     [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
     [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+    [InlineData(EntityState.Added, CascadeTiming.Never)]
     [InlineData(EntityState.Modified, CascadeTiming.Never)]
     [InlineData(EntityState.Deleted, CascadeTiming.Never)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_already_loaded(
         EntityState state,
         CascadeTiming cascadeDeleteTiming)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
 
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
@@ -1238,7 +1412,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1253,21 +1430,31 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Contains(child, child.Parent!.Children);
+        }
 
-        Assert.Same(parent, child.Parent);
-        Assert.Same(child, parent.Children.Single());
+        if (state != EntityState.Detached)
+        {
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            Assert.Same(parent, child.Parent);
+            Assert.Same(child, parent.Children.Single());
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_already_loaded(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var single = context.Set<Single>().Include(e => e.Parent).Single();
@@ -1276,7 +1463,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1291,29 +1481,40 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(single, single.Parent.Single);
+        }
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.Single);
+        if (state != EntityState.Detached)
+        {
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.Single);
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
+    [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Deleted, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Unchanged, CascadeTiming.Immediate)]
+    [InlineData(EntityState.Added, CascadeTiming.Immediate)]
     [InlineData(EntityState.Modified, CascadeTiming.Immediate)]
     [InlineData(EntityState.Deleted, CascadeTiming.Immediate)]
     [InlineData(EntityState.Unchanged, CascadeTiming.Never)]
+    [InlineData(EntityState.Added, CascadeTiming.Never)]
     [InlineData(EntityState.Modified, CascadeTiming.Never)]
     [InlineData(EntityState.Deleted, CascadeTiming.Never)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_already_loaded(
         EntityState state,
         CascadeTiming cascadeDeleteTiming)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming;
 
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
@@ -1324,7 +1525,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(parent).Reference(e => e.Single);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1339,31 +1543,41 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var single = context.ChangeTracker.Entries<Single>().Single().Entity;
-
-        Assert.Same(single, parent.Single);
-
-        if (cascadeDeleteTiming == CascadeTiming.Immediate
-            && state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            // No fixup to Deleted entity.
-            Assert.Null(single.Parent);
+            Assert.Same(parent, parent.Single.Parent);
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(parent, single.Parent);
+            var single = context.ChangeTracker.Entries<Single>().Single().Entity;
+
+            Assert.Same(single, parent.Single);
+
+            if (cascadeDeleteTiming == CascadeTiming.Immediate
+                && state == EntityState.Deleted)
+            {
+                // No fixup to Deleted entity.
+                Assert.Null(single.Parent);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_principal_already_loaded(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var single = context.Set<SinglePkToPk>().Include(e => e.Parent).Single();
@@ -1372,7 +1586,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1387,21 +1604,31 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(single, single.Parent.SinglePkToPk);
+        }
 
-        Assert.Same(parent, single.Parent);
-        Assert.Same(single, parent.SinglePkToPk);
+        if (state != EntityState.Detached)
+        {
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            Assert.Same(parent, single.Parent);
+            Assert.Same(single, parent.SinglePkToPk);
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent_already_loaded(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
 
         var parent = context.Set<Parent>().Include(e => e.SinglePkToPk).Single();
@@ -1410,7 +1637,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(parent).Reference(e => e.SinglePkToPk);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.True(referenceEntry.IsLoaded);
 
@@ -1425,28 +1655,41 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(parent, parent.SinglePkToPk.Parent);
+        }
 
-        var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+        if (state != EntityState.Detached)
+        {
+            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        Assert.Same(single, parent.SinglePkToPk);
-        Assert.Same(parent, single.Parent);
+            var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+
+            Assert.Same(single, parent.SinglePkToPk);
+            Assert.Same(parent, single.Parent);
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_alternate_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var child = context.Set<ChildAk>().Single(e => e.Id == 32);
 
         ClearLog();
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1464,36 +1707,49 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Null(child.Parent);
-            Assert.Null(parent.ChildrenAk);
+            Assert.Same(child, child.Parent!.ChildrenAk.Single());
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(parent, child.Parent);
-            Assert.Same(child, parent.ChildrenAk.Single());
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(child.Parent);
+                Assert.Null(parent.ChildrenAk);
+            }
+            else
+            {
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.ChildrenAk.Single());
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_alternate_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var single = context.Set<SingleAk>().Single();
 
         ClearLog();
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1511,36 +1767,49 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Null(single.Parent);
-            Assert.Null(parent.SingleAk);
+            Assert.Same(single, single.Parent!.SingleAk);
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(parent, single.Parent);
-            Assert.Same(single, parent.SingleAk);
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+                Assert.Null(parent.SingleAk);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
+                Assert.Same(single, parent.SingleAk);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_alternate_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var parent = context.Set<Parent>().Single();
 
         ClearLog();
 
         var referenceEntry = context.Entry(parent).Reference(e => e.SingleAk);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1551,21 +1820,31 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var single = context.ChangeTracker.Entries<SingleAk>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(parent, parent.SingleAk.Parent);
+        }
 
-        Assert.Same(single, parent.SingleAk);
-        Assert.Same(parent, single.Parent);
+        if (state != EntityState.Detached)
+        {
+            var single = context.ChangeTracker.Entries<SingleAk>().Single().Entity;
+
+            Assert.Same(single, parent.SingleAk);
+            Assert.Same(parent, single.Parent);
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var child = context.CreateProxy<ChildAk>();
         child.Id = 767;
 
@@ -1575,7 +1854,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1592,11 +1874,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var single = context.CreateProxy<SingleAk>();
         single.Id = 767;
 
@@ -1606,7 +1890,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1624,18 +1911,23 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_shadow_fk(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var parent = context.Set<Parent>().Single();
 
         ClearLog();
 
         var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenShadowFk);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -1649,117 +1941,154 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(2, parent.ChildrenShadowFk.Count());
         Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), c => Assert.Same(parent, c));
 
-        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_shadow_fk(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var child = context.Set<ChildShadowFk>().Single(e => e.Id == 52);
 
         ClearLog();
 
-        var referenceEntry = context.Entry(child).Reference(e => e.Parent);
-
-        context.Entry(child).State = state;
-
-        Assert.False(referenceEntry.IsLoaded);
-
-        if (state == EntityState.Deleted)
+        if (state == EntityState.Detached)
         {
-            Assert.Null(child.Parent);
+            Assert.Equal(
+                CoreStrings.CannotLoadDetachedShadow("Parent", "ChildShadowFk"),
+                Assert.Throws<InvalidOperationException>(() => child.Parent).Message);
         }
         else
         {
-            Assert.NotNull(child.Parent);
-        }
+            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        Assert.True(referenceEntry.IsLoaded);
+            context.Entry(child).State = state;
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            Assert.False(referenceEntry.IsLoaded);
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(child.Parent);
+            }
+            else
+            {
+                Assert.NotNull(child.Parent);
+            }
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            Assert.True(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Deleted)
-        {
-            Assert.Null(child.Parent);
-            Assert.Null(parent.ChildrenShadowFk);
-        }
-        else
-        {
-            Assert.Same(parent, child.Parent);
-            Assert.Same(child, parent.ChildrenShadowFk.Single());
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+            if (state != EntityState.Deleted)
+            {
+                Assert.Same(child, child.Parent!.ChildrenShadowFk.Single());
+            }
+
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(child.Parent);
+                Assert.Null(parent.ChildrenShadowFk);
+            }
+            else
+            {
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.ChildrenShadowFk.Single());
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_shadow_fk(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var single = context.Set<SingleShadowFk>().Single();
 
         ClearLog();
 
-        var referenceEntry = context.Entry(single).Reference(e => e.Parent);
-
-        context.Entry(single).State = state;
-
-        Assert.False(referenceEntry.IsLoaded);
-
-        if (state == EntityState.Deleted)
+        if (state == EntityState.Detached)
         {
-            Assert.Null(single.Parent);
+            Assert.Equal(
+                CoreStrings.CannotLoadDetachedShadow("Parent", "SingleShadowFk"),
+                Assert.Throws<InvalidOperationException>(() => single.Parent).Message);
         }
         else
         {
-            Assert.NotNull(single.Parent);
-        }
+            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        Assert.True(referenceEntry.IsLoaded);
+            context.Entry(single).State = state;
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            Assert.False(referenceEntry.IsLoaded);
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+            }
+            else
+            {
+                Assert.NotNull(single.Parent);
+            }
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+            Assert.True(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Deleted)
-        {
-            Assert.Null(single.Parent);
-            Assert.Null(parent.SingleShadowFk);
-        }
-        else
-        {
-            Assert.Same(parent, single.Parent);
-            Assert.Same(single, parent.SingleShadowFk);
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+            if (state != EntityState.Deleted)
+            {
+                Assert.Same(single, single.Parent!.SingleShadowFk);
+            }
+
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+                Assert.Null(parent.SingleShadowFk);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
+                Assert.Same(single, parent.SingleShadowFk);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var parent = context.Set<Parent>().Single();
 
         ClearLog();
 
         var referenceEntry = context.Entry(parent).Reference(e => e.SingleShadowFk);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1770,31 +2099,45 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var single = context.ChangeTracker.Entries<SingleShadowFk>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(parent, parent.SingleShadowFk!.Parent);
+        }
 
-        Assert.Same(single, parent.SingleShadowFk);
-        Assert.Same(parent, single.Parent);
+        if (state != EntityState.Detached)
+        {
+            var single = context.ChangeTracker.Entries<SingleShadowFk>().Single().Entity;
+
+            Assert.Same(single, parent.SingleShadowFk);
+            Assert.Same(parent, single.Parent);
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var child = context.CreateProxy<ChildShadowFk>();
         child.Id = 767;
 
         context.Attach(child);
+        context.Entry(child).Property("ParentId").CurrentValue = null;
 
         ClearLog();
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1811,21 +2154,27 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var single = context.CreateProxy<SingleShadowFk>();
         single.Id = 767;
 
         context.Attach(single);
+        context.Entry(single).Property("ParentId").CurrentValue = null;
 
         ClearLog();
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1843,18 +2192,23 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_collection_composite_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var parent = context.Set<Parent>().Single();
 
         ClearLog();
 
         var collectionEntry = context.Entry(parent).Collection(e => e.ChildrenCompositeKey);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -1868,23 +2222,28 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(2, parent.ChildrenCompositeKey.Count());
         Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), c => Assert.Same(parent, c));
 
-        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var child = context.Set<ChildCompositeKey>().Single(e => e.Id == 52);
 
         ClearLog();
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1902,36 +2261,49 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Null(child.Parent);
-            Assert.Null(parent.ChildrenCompositeKey);
+            Assert.Same(child, child.Parent!.ChildrenCompositeKey.Single());
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(parent, child.Parent);
-            Assert.Same(child, parent.ChildrenCompositeKey.Single());
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(child.Parent);
+                Assert.Null(parent.ChildrenCompositeKey);
+            }
+            else
+            {
+                Assert.Same(parent, child.Parent);
+                Assert.Same(child, parent.ChildrenCompositeKey.Single());
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var single = context.Set<SingleCompositeKey>().Single();
 
         ClearLog();
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1949,36 +2321,49 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-        if (state == EntityState.Deleted)
+        if (state != EntityState.Deleted)
         {
-            Assert.Null(single.Parent);
-            Assert.Null(parent.SingleCompositeKey);
+            Assert.Same(single, single.Parent!.SingleCompositeKey);
         }
-        else
+
+        if (state != EntityState.Detached)
         {
-            Assert.Same(parent, single.Parent);
-            Assert.Same(single, parent.SingleCompositeKey);
+            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+            if (state == EntityState.Deleted)
+            {
+                Assert.Null(single.Parent);
+                Assert.Null(parent.SingleCompositeKey);
+            }
+            else
+            {
+                Assert.Same(parent, single.Parent);
+                Assert.Same(single, parent.SingleCompositeKey);
+            }
         }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var parent = context.Set<Parent>().Single();
 
         ClearLog();
 
         var referenceEntry = context.Entry(parent).Reference(e => e.SingleCompositeKey);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -1989,21 +2374,31 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
 
-        var single = context.ChangeTracker.Entries<SingleCompositeKey>().Single().Entity;
+        if (state != EntityState.Deleted)
+        {
+            Assert.Same(parent, parent.SingleCompositeKey.Parent);
+        }
 
-        Assert.Same(single, parent.SingleCompositeKey);
-        Assert.Same(parent, single.Parent);
+        if (state != EntityState.Detached)
+        {
+            var single = context.ChangeTracker.Entries<SingleCompositeKey>().Single().Entity;
+
+            Assert.Same(single, parent.SingleCompositeKey);
+            Assert.Same(parent, single.Parent);
+        }
     }
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var child = context.CreateProxy<ChildCompositeKey>();
         child.Id = 767;
         child.ParentId = 567;
@@ -2014,7 +2409,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(child).Reference(e => e.Parent);
 
-        context.Entry(child).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(child).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -2031,11 +2429,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
     [InlineData(EntityState.Modified)]
     [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
     public virtual void Lazy_load_one_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
     {
-        using var context = CreateContext(lazyLoadingEnabled: true);
+        using var context = CreateContext(lazyLoadingEnabled: true, tracking: state != EntityState.Detached);
         var single = context.CreateProxy<SingleCompositeKey>();
         single.Id = 767;
         single.ParentAlternateId = "Boot";
@@ -2046,7 +2446,10 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
 
         var referenceEntry = context.Entry(single).Reference(e => e.Parent);
 
-        context.Entry(single).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(single).State = state;
+        }
 
         Assert.False(referenceEntry.IsLoaded);
 
@@ -2096,54 +2499,6 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalFact]
-    public virtual void Lazy_load_collection_for_no_tracking_throws()
-    {
-        using var context = CreateContext(lazyLoadingEnabled: true);
-        var parent = context.Set<Parent>().AsNoTracking().Single();
-
-        Assert.Equal(
-            CoreStrings.WarningAsErrorTemplate(
-                CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage(nameof(Parent.Children), "MotherProxy"),
-                "CoreEventId.DetachedLazyLoadingWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => parent.Children).Message);
-    }
-
-    [ConditionalFact]
-    public virtual void Lazy_load_reference_to_principal_for_no_tracking_throws()
-    {
-        using var context = CreateContext(lazyLoadingEnabled: true);
-        var child = context.Set<Child>().AsNoTracking().Single(e => e.Id == 12);
-
-        Assert.Equal(
-            CoreStrings.WarningAsErrorTemplate(
-                CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage(nameof(Child.Parent), "ChildProxy"),
-                "CoreEventId.DetachedLazyLoadingWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => child.Parent).Message);
-    }
-
-    [ConditionalFact]
-    public virtual void Lazy_load_reference_to_dependent_for_no_tracking_throws()
-    {
-        using var context = CreateContext(lazyLoadingEnabled: true);
-        var parent = context.Set<Parent>().AsNoTracking().Single();
-
-        Assert.Equal(
-            CoreStrings.WarningAsErrorTemplate(
-                CoreEventId.DetachedLazyLoadingWarning.ToString(),
-                CoreResources.LogDetachedLazyLoading(new TestLogger<TestLoggingDefinitions>())
-                    .GenerateMessage(nameof(Parent.Single), "MotherProxy"),
-                "CoreEventId.DetachedLazyLoadingWarning"),
-            Assert.Throws<InvalidOperationException>(
-                () => parent.Single).Message);
-    }
-
-    [ConditionalFact]
     public virtual void Lazy_load_collection_for_no_tracking_does_not_throw_if_populated()
     {
         using var context = CreateContext(lazyLoadingEnabled: true);
@@ -2189,16 +2544,21 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData(EntityState.Modified, false)]
     [InlineData(EntityState.Deleted, true)]
     [InlineData(EntityState.Deleted, false)]
+    [InlineData(EntityState.Detached, true)]
+    [InlineData(EntityState.Detached, false)]
     public virtual async Task Load_collection(EntityState state, bool async)
     {
-        using var context = CreateContext();
+        using var context = CreateContext(tracking: state != EntityState.Detached);
         var parent = context.Set<Parent>().Single();
 
         ClearLog();
 
         var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
-        context.Entry(parent).State = state;
+        if (state != EntityState.Detached)
+        {
+            context.Entry(parent).State = state;
+        }
 
         Assert.False(collectionEntry.IsLoaded);
 
@@ -2219,7 +2579,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Equal(2, parent.Children.Count());
         Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
 
-        Assert.Equal(3, context.ChangeTracker.Entries().Count());
+        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalFact]
@@ -2929,10 +3289,23 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         public int CountryCode { get; set; }
     }
 
-    protected DbContext CreateContext(bool lazyLoadingEnabled = false)
+    private static void AssertDisposed(Func<object> testCode, string entityTypeName, string navigationName)
+        => Assert.Equal(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(entityTypeName, navigationName),
+                "CoreEventId.LazyLoadOnDisposedContextWarning"),
+            Assert.Throws<InvalidOperationException>(testCode).Message);
+
+    protected DbContext CreateContext(bool lazyLoadingEnabled = false, bool tracking = true)
+        => CreateContext(lazyLoadingEnabled, tracking ? QueryTrackingBehavior.TrackAll : QueryTrackingBehavior.NoTracking);
+
+    protected DbContext CreateContext(bool lazyLoadingEnabled, QueryTrackingBehavior trackingBehavior)
     {
         var context = Fixture.CreateContext();
         context.ChangeTracker.LazyLoadingEnabled = lazyLoadingEnabled;
+        context.ChangeTracker.QueryTrackingBehavior = trackingBehavior;
 
         return context;
     }

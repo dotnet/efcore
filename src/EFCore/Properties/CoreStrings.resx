@@ -204,8 +204,8 @@
   <data name="CannotCreateValueGenerator" xml:space="preserve">
     <value>Cannot create an instance of value generator type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.</value>
   </data>
-  <data name="CannotLoadDetached" xml:space="preserve">
-    <value>The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.</value>
+  <data name="CannotLoadDetachedShadow" xml:space="preserve">
+    <value>The navigation '{1_entityType}.{0_navigation}' cannot be loaded because one or more of the key or foreign key properties are shadow properties and the entity is not being tracked. Relationships using shadow values can only be loaded for tracked entities.</value>
   </data>
   <data name="CannotMarkNonShared" xml:space="preserve">
     <value>The type '{type}' cannot be marked as a non-shared type since a shared type entity type with this CLR type exists in the model.</value>
@@ -810,7 +810,7 @@
     <comment>Error CoreEventId.InvalidIncludePathError object object</comment>
   </data>
   <data name="LogLazyLoadOnDisposedContext" xml:space="preserve">
-    <value>An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.</value>
+    <value>An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed or returned to the pool, or the entity was explicitly detached from the context.</value>
     <comment>Warning CoreEventId.LazyLoadOnDisposedContextWarning string string</comment>
   </data>
   <data name="LogManyServiceProvidersCreated" xml:space="preserve">

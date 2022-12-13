@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
@@ -12,10 +13,12 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class LazyLoader : ILazyLoader
+public class LazyLoader : ILazyLoader, IInjectableService
 {
     private bool _disposed;
+    private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
+    private List<(object Entity, string NavigationName)>? _isLoading;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,6 +56,17 @@ public class LazyLoader : ILazyLoader
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool IsLoaded(object entity, string navigationName = "")
+        => _loadedStates != null
+            && _loadedStates.TryGetValue(navigationName, out var loaded)
+            && loaded;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected virtual IDiagnosticsLogger<DbLoggerCategory.Infrastructure> Logger { get; }
 
     /// <summary>
@@ -61,7 +75,7 @@ public class LazyLoader : ILazyLoader
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual DbContext Context { get; }
+    protected virtual DbContext? Context { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,16 +89,28 @@ public class LazyLoader : ILazyLoader
         Check.NotNull(entity, nameof(entity));
         Check.NotEmpty(navigationName, nameof(navigationName));
 
-        if (ShouldLoad(entity, navigationName, out var entry))
+        var navEntry = (entity, navigationName);
+        if (!(_isLoading ??= new List<(object Entity, string NavigationName)>()).Contains(navEntry))
         {
             try
             {
-                entry.Load();
+                _isLoading.Add(navEntry);
+                if (ShouldLoad(entity, navigationName, out var entry))
+                {
+                    try
+                    {
+                        entry.Load();
+                    }
+                    catch
+                    {
+                        entry.IsLoaded = false;
+                        throw;
+                    }
+                }
             }
-            catch
+            finally
             {
-                SetLoaded(entity, navigationName, false);
-                throw;
+                _isLoading.Remove(navEntry);
             }
         }
     }
@@ -103,53 +129,49 @@ public class LazyLoader : ILazyLoader
         Check.NotNull(entity, nameof(entity));
         Check.NotEmpty(navigationName, nameof(navigationName));
 
-        if (ShouldLoad(entity, navigationName, out var entry))
+        var navEntry = (entity, navigationName);
+        if (!(_isLoading ??= new List<(object Entity, string NavigationName)>()).Contains(navEntry))
         {
             try
             {
-                await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
+                _isLoading.Add(navEntry);
+                if (ShouldLoad(entity, navigationName, out var entry))
+                {
+                    try
+                    {
+                        await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
+                    }
+                    catch
+                    {
+                        entry.IsLoaded = false;
+                        throw;
+                    }
+                }
             }
-            catch
+            finally
             {
-                SetLoaded(entity, navigationName, false);
-                throw;
+                _isLoading.Remove(navEntry);
             }
         }
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)
     {
-        if (_loadedStates != null
-            && _loadedStates.TryGetValue(navigationName, out var loaded)
-            && loaded)
+        if (!_detached && !IsLoaded(entity, navigationName))
         {
-            navigationEntry = null;
-            return false;
-        }
-
-        if (_disposed)
-        {
-            Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
-        }
-        else if (Context.ChangeTracker.LazyLoadingEnabled)
-        {
-            // Set early to avoid recursive loading overflow
-            SetLoaded(entity, navigationName, loaded: true);
-
-            var entityEntry = Context.Entry(entity); // Will use local-DetectChanges, if enabled.
-            var tempNavigationEntry = entityEntry.Navigation(navigationName);
-
-            if (entityEntry.State == EntityState.Detached)
+            if (_disposed)
             {
-                Logger.DetachedLazyLoadingWarning(Context, entity, navigationName);
+                Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
             }
-            else if (!tempNavigationEntry.IsLoaded)
+            else if (Context!.ChangeTracker.LazyLoadingEnabled) // Check again because the nav may be loaded without the loader knowing
             {
-                Logger.NavigationLazyLoading(Context, entity, navigationName);
+                navigationEntry = Context.Entry(entity).Navigation(navigationName); // Will use local-DetectChanges, if enabled.
+                if (!navigationEntry.IsLoaded)
+                {
+                    Logger.NavigationLazyLoading(Context, entity, navigationName);
 
-                navigationEntry = tempNavigationEntry;
-
-                return true;
+                    return true;
+                }
             }
         }
 
@@ -164,5 +186,35 @@ public class LazyLoader : ILazyLoader
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void Dispose()
-        => _disposed = true;
+    {
+        Context = null;
+        _disposed = true;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool Detaching(DbContext context, object entity)
+    {
+        _detached = true;
+        Dispose();
+        return false;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IInjectableService? Attaching(DbContext context, object entity, IInjectableService? existingService)
+    {
+        _disposed = false;
+        _detached = false;
+        Context = context;
+        return this;
+    }
 }

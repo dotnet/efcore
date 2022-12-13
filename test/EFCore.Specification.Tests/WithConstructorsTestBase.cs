@@ -486,22 +486,17 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
         using (var context = CreateContext())
         {
             post = context.Set<LazyPropertyPost>().OrderBy(e => e.Id).First();
-
             Assert.NotNull(post.GetLoader());
-
             context.Entry(post).State = EntityState.Detached;
-
-            Assert.Null(post.GetLoader());
         }
 
+        Assert.NotNull(post.GetLoader());
         Assert.Null(post.LazyPropertyBlog);
 
         using (var context = CreateContext())
         {
             context.Attach(post);
-
             Assert.NotNull(post.GetLoader());
-
             Assert.NotNull(post.LazyPropertyBlog);
             Assert.Contains(post, post.LazyPropertyBlog.LazyPropertyPosts);
         }
@@ -560,22 +555,17 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
         using (var context = CreateContext())
         {
             post = context.Set<LazyFieldPost>().OrderBy(e => e.Id).First();
-
             Assert.NotNull(post.GetLoader());
-
             context.Entry(post).State = EntityState.Detached;
-
-            Assert.Null(post.GetLoader());
         }
 
+        Assert.NotNull(post.GetLoader());
         Assert.Null(post.LazyFieldBlog);
 
         using (var context = CreateContext())
         {
             context.Attach(post);
-
             Assert.NotNull(post.GetLoader());
-
             Assert.NotNull(post.LazyFieldBlog);
             Assert.Contains(post, post.LazyFieldBlog.LazyFieldPosts);
         }
@@ -1665,26 +1655,9 @@ public abstract class WithConstructorsTestBase<TFixture> : IClassFixture<TFixtur
             modelBuilder.Entity<LazyPsBlog>();
             modelBuilder.Entity<LazyAsyncPsBlog>();
             modelBuilder.Entity<LazyPcsBlog>();
-
             modelBuilder.Entity<BlogAsImmutableRecord>();
-
-            // Manually configure service fields since there is no public API yet
-
-            var bindingFactories = context.GetService<IParameterBindingFactories>();
-
-            var blogServiceProperty = modelBuilder.Entity<LazyFieldBlog>().Metadata.AddServiceProperty(
-                typeof(LazyFieldBlog).GetRuntimeFields().Single(f => f.Name == "_loader"));
-
-            blogServiceProperty.ParameterBinding =
-                (ServiceParameterBinding)bindingFactories.FindFactory(typeof(ILazyLoader), "_loader")
-                    .Bind(blogServiceProperty.DeclaringEntityType, typeof(ILazyLoader), "_loader");
-
-            var postServiceProperty = modelBuilder.Entity<LazyFieldPost>().Metadata.AddServiceProperty(
-                typeof(LazyFieldPost).GetRuntimeFields().Single(f => f.Name == "_loader"));
-
-            postServiceProperty.ParameterBinding =
-                (ServiceParameterBinding)bindingFactories.FindFactory(typeof(ILazyLoader), "_loader")
-                    .Bind(postServiceProperty.DeclaringEntityType, typeof(ILazyLoader), "_loader");
+            modelBuilder.Entity<LazyFieldBlog>();
+            modelBuilder.Entity<LazyFieldPost>();
         }
 
         protected override void Seed(WithConstructorsContext context)

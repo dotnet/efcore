@@ -419,16 +419,37 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     /// </summary>
     public virtual void Load(INavigation navigation, InternalEntityEntry entry)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
-        }
-
         var keyValues = GetLoadValues(navigation, entry);
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            Query(navigation, keyValues).Load();
+            var queryable = Query(navigation, keyValues, entry);
+            if (entry.EntityState == EntityState.Detached)
+            {
+                var inverse = navigation.Inverse;
+                if (navigation.IsCollection)
+                {
+                    foreach (var loaded in queryable)
+                    {
+                        Fixup(entry, navigation, inverse, loaded);
+                    }
+                }
+                else
+                {
+                    Fixup(entry, navigation, inverse, queryable.FirstOrDefault());
+                }
+            }
+            else
+            {
+                if (navigation.IsCollection)
+                {
+                    queryable.Load();
+                }
+                else
+                {
+                    _ = queryable.FirstOrDefault();
+                }
+            }
         }
 
         entry.SetIsLoaded(navigation);
@@ -445,20 +466,67 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         InternalEntityEntry entry,
         CancellationToken cancellationToken = default)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
-        }
-
-        // Short-circuit for any null key values for perf and because of #6129
         var keyValues = GetLoadValues(navigation, entry);
+        // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            await Query(navigation, keyValues).LoadAsync(cancellationToken)
-                .ConfigureAwait(false);
+            var queryable = Query(navigation, keyValues, entry);
+            if (entry.EntityState == EntityState.Detached)
+            {
+                var inverse = navigation.Inverse;
+                if (navigation.IsCollection)
+                {
+                    await foreach (var loaded in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
+                    {
+                        Fixup(entry, navigation, inverse, loaded);
+                    }
+                }
+                else
+                {
+                    Fixup(
+                        entry, navigation, inverse,
+                        await queryable.FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false));
+                }
+            }
+            else
+            {
+                if (navigation.IsCollection)
+                {
+                    await Query(navigation, keyValues, entry).LoadAsync(cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    _ = await queryable.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
         }
 
         entry.SetIsLoaded(navigation);
+    }
+
+    private void Fixup(InternalEntityEntry parentEntry, INavigation beingLoaded, INavigation? inverse, object? loaded)
+    {
+        SetValue(parentEntry, beingLoaded, loaded);
+
+        if (inverse != null && loaded != null)
+        {
+            SetValue(_stateManager.GetOrCreateEntry(loaded), inverse, parentEntry.Entity);
+        }
+
+        void SetValue(InternalEntityEntry entry, INavigation navigation, object? value)
+        {
+            if (navigation.IsCollection)
+            {
+                if (value != null)
+                {
+                    entry.AddToCollection(navigation, value, forMaterialization: true);
+                }
+            }
+            else
+            {
+                entry.SetProperty(navigation, value, isMaterialization: true, setModified: false);
+            }
+        }
     }
 
     /// <summary>
@@ -469,11 +537,6 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     /// </summary>
     public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
-        }
-
         var keyValues = GetLoadValues(navigation, entry);
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues == null)
@@ -483,7 +546,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return _queryRoot.Where(e => false);
         }
 
-        return Query(navigation, keyValues);
+        return Query(navigation, keyValues, entry);
     }
 
     /// <summary>
@@ -528,8 +591,11 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             .Select(BuildProjection(entityType));
     }
 
-    private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-        => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
+    private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues, InternalEntityEntry entry)
+    {
+        var queryable = _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+        return entry.EntityState == EntityState.Detached ? queryable.AsNoTrackingWithIdentityResolution() : queryable.AsTracking();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -547,10 +613,18 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             : navigation.ForeignKey.PrincipalKey.Properties;
 
         var values = new object[properties.Count];
+        var detached = entry.EntityState == EntityState.Detached;
 
         for (var i = 0; i < values.Length; i++)
         {
-            var value = entry[properties[i]];
+            var property = properties[i];
+            if (property.IsShadowProperty() && (detached || entry.IsUnknown(property)))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CannotLoadDetachedShadow(navigation.Name, entry.EntityType.DisplayName()));
+            }
+
+            var value = entry[property];
             if (value == null)
             {
                 return null;

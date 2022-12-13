@@ -234,10 +234,7 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
 
         if (loaderField != null)
         {
-            var loaderProperty = typeof(TLoaderEntity) == typeof(TEntity)
-                ? entityType.AddServiceProperty(loaderField!, ConfigurationSource.Explicit)
-                : entityType.FindServiceProperty(loaderField.Name)!;
-
+            var loaderProperty = entityType.FindServiceProperty(loaderField.Name)!;
             parameterBindings.Add(new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), loaderProperty));
         }
 

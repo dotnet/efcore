@@ -62,21 +62,33 @@ public class ServicePropertyDiscoveryConvention :
     {
         var entityType = entityTypeBuilder.Metadata;
         var model = entityType.Model;
-        foreach (var propertyInfo in entityType.GetRuntimeProperties().Values)
+        DiscoverServiceProperties(entityType.GetRuntimeProperties().Values);
+        DiscoverServiceProperties(entityType.GetRuntimeFields().Values);
+
+        void DiscoverServiceProperties(IEnumerable<MemberInfo> members)
         {
-            if (!entityTypeBuilder.CanHaveServiceProperty(propertyInfo))
+            foreach (var memberInfo in members)
             {
-                continue;
-            }
+                if (!entityTypeBuilder.CanHaveServiceProperty(memberInfo))
+                {
+                    continue;
+                }
 
-            var factory = Dependencies.MemberClassifier.FindServicePropertyCandidateBindingFactory(propertyInfo, model);
-            if (factory == null)
-            {
-                continue;
-            }
+                var factory = Dependencies.MemberClassifier.FindServicePropertyCandidateBindingFactory(memberInfo, model);
+                if (factory == null)
+                {
+                    continue;
+                }
 
-            entityTypeBuilder.ServiceProperty(propertyInfo)?.HasParameterBinding(
-                (ServiceParameterBinding)factory.Bind(entityType, propertyInfo.PropertyType, propertyInfo.GetSimpleMemberName()));
+                var memberType = memberInfo.GetMemberType();
+                if (entityType.GetServiceProperties().Any(p => p.ClrType == memberType))
+                {
+                    continue;
+                }
+
+                entityTypeBuilder.ServiceProperty(memberInfo)?.HasParameterBinding(
+                    (ServiceParameterBinding)factory.Bind(entityType, memberType, memberInfo.GetSimpleMemberName()));
+            }
         }
     }
 }
