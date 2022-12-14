@@ -769,7 +769,7 @@ WHERE [OrderID] < 10300"))
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Update_with_invalid_lambda_in_set_property_throws(bool async)
         => AssertTranslationFailed(
-            RelationalStrings.InvalidPropertyInSetProperty(new ExpressionPrinter().Print((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
+            RelationalStrings.InvalidPropertyInSetProperty(new ExpressionPrinter().PrintExpression((OrderDetail e) => e.MaybeScalar(e => e.OrderID))),
             () => AssertUpdate(
                 async,
                 ss => ss.Set<OrderDetail>().Where(od => od.OrderID < 10250),

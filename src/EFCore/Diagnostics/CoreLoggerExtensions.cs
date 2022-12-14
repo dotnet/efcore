@@ -462,7 +462,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.Print(queryExpression));
+            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.PrintExpression(queryExpression));
         }
 
         if (diagnostics.NeedsEventData<IQueryExpressionInterceptor>(
@@ -490,7 +490,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (QueryExpressionEventData)payload;
-        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.Print(p.Expression));
+        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.PrintExpression(p.Expression));
     }
 
     /// <summary>
@@ -668,7 +668,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.Print(queryExecutorExpression));
+            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.PrintExpression(queryExecutorExpression));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -688,7 +688,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (QueryExpressionEventData)payload;
-        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.Print(p.Expression));
+        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.PrintExpression(p.Expression));
     }
 
     /// <summary>

@@ -125,7 +125,7 @@ public abstract class QueryExpressionInterceptionTestBase : InterceptionTestBase
         {
             QueryCompilationStartingCalled = true;
             Context = eventData.Context;
-            QueryExpression = eventData.ExpressionPrinter.Print(queryExpression);
+            QueryExpression = eventData.ExpressionPrinter.PrintExpression(queryExpression);
 
             return queryExpression;
         }
