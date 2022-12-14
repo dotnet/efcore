@@ -230,6 +230,7 @@ ORDER BY "cid"
 
             _logger.ColumnFound(table.Name, columnName, dataType, notNull, defaultValue);
 
+            string? collation = null;
             var autoIncrement = 0;
             if (connection is SqliteConnection sqliteConnection
                 && !(table is DatabaseView))
@@ -241,7 +242,7 @@ ORDER BY "cid"
                     table.Name,
                     columnName,
                     out _,
-                    out _,
+                    out collation,
                     out _,
                     out _,
                     out autoIncrement);
@@ -264,7 +265,10 @@ ORDER BY "cid"
                         : string.Empty,
                     IsStored = hidden != 3L
                         ? default(bool?)
-                        : true
+                        : true,
+                    Collation = string.Equals(collation, "BINARY", StringComparison.OrdinalIgnoreCase)
+                        ? null
+                        : collation
                 });
         }
     }
