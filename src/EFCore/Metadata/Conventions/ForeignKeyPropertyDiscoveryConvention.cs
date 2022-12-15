@@ -309,7 +309,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                 : relationshipBuilder;
         }
 
-        if (conflictingFKCount == 0)
+        if (conflictingFKCount >= 0)
         {
             return ((ForeignKey)foreignKey).Builder.ReuniquifyImplicitProperties(false);
         }
