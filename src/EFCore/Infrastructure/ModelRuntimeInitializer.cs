@@ -55,8 +55,7 @@ public class ModelRuntimeInitializer : IModelRuntimeInitializer
         bool designTime = true,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation>? validationLogger = null)
     {
-        if (model is Model mutableModel
-            && !mutableModel.IsReadOnly)
+        if (model is Model { IsReadOnly: false } mutableModel)
         {
             lock (SyncObject)
             {

@@ -278,9 +278,6 @@
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.</value>
   </data>
-  <data name="NonKeyValueGeneration" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.</value>
-  </data>
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
