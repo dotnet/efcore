@@ -385,7 +385,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         foreach (var entry in _entries.Where(x => !x.EntityType.IsMappedToJson()))
         {
-            var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
+            var nonMainEntry = (!_mainEntryAdded || entry != _entries[0])
+                || (updating
+                    && (entry.EntityState == EntityState.Deleted
+                        || entry.EntityState == EntityState.Added));
 
             var optionalDependentWithAllNull = false;
 
