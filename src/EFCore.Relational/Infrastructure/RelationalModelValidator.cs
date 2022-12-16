@@ -1410,7 +1410,13 @@ public class RelationalModelValidator : ModelValidator
             ?? typeMapping.ClrType;
         var previousProviderType = duplicateTypeMapping.Converter?.ProviderClrType.UnwrapNullableType()
             ?? duplicateTypeMapping.ClrType;
-        if (currentProviderType != previousProviderType)
+        if (currentProviderType != previousProviderType
+            && (property.IsKey()
+                || duplicateProperty.IsKey()
+                || property.IsForeignKey()
+                || duplicateProperty.IsForeignKey()
+                || (property.IsIndex() && property.GetContainingIndexes().Any(i => i.IsUnique))
+                || (duplicateProperty.IsIndex() && duplicateProperty.GetContainingIndexes().Any(i => i.IsUnique))))
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
