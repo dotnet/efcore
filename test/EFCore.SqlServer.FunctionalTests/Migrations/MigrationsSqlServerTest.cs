@@ -956,6 +956,54 @@ ALTER TABLE [Animal] ADD [IdentityColumn] int NOT NULL DEFAULT 0;
 """);
     }
 
+    [ConditionalFact]
+    public virtual async Task Add_column_sequence()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<string>("Id"),
+            builder => { },
+            builder => builder.Entity("People").Property<int>("SequenceColumn").UseSequence(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "SequenceColumn");
+
+                // Note: #29863 tracks recognizing sequence columns as such
+                Assert.Equal("(NEXT VALUE FOR [PeopleSequence])", column.DefaultValueSql);
+            });
+
+        AssertSql(
+"""
+CREATE SEQUENCE [PeopleSequence] START WITH 1 INCREMENT BY 1 NO MINVALUE NO MAXVALUE NO CYCLE;
+""",
+            //
+"""
+ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT (NEXT VALUE FOR [PeopleSequence]);
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Add_column_hilo()
+    {
+        await Test(
+            builder => builder.Entity("People").Property<string>("Id"),
+            builder => { },
+            builder => builder.Entity("People").Property<int>("SequenceColumn").UseHiLo(),
+            _ =>
+            {
+                // Reverse-engineering of hilo columns isn't supported
+            });
+
+        AssertSql(
+"""
+CREATE SEQUENCE [EntityFrameworkHiLoSequence] START WITH 1 INCREMENT BY 10 NO MINVALUE NO MAXVALUE NO CYCLE;
+""",
+            //
+"""
+ALTER TABLE [People] ADD [SequenceColumn] int NOT NULL DEFAULT 0;
+""");
+    }
+
     public override async Task Alter_column_change_type()
     {
         await base.Alter_column_change_type();

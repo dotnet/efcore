@@ -615,15 +615,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
-    public void Detects_non_key_SequenceHiLo()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().Property(c => c.Type).UseHiLo();
-
-        VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder);
-    }
-
-    [ConditionalFact]
     public void Passes_for_non_key_SequenceHiLo_on_model()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -633,15 +624,6 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
         modelBuilder.Entity<Dog>().Property(c => c.Type).ValueGeneratedOnAdd();
 
         Validate(modelBuilder);
-    }
-
-    [ConditionalFact]
-    public void Detects_non_key_KeySequence()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-        modelBuilder.Entity<Dog>().Property(c => c.Type).UseSequence();
-
-        VerifyError(SqlServerStrings.NonKeyValueGeneration(nameof(Dog.Type), nameof(Dog)), modelBuilder);
     }
 
     [ConditionalFact]

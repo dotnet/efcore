@@ -198,14 +198,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoInitialCatalog");
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
-        /// </summary>
-        public static string NonKeyValueGeneration(object? property, object? entityType)
-            => string.Format(
-                GetString("NonKeyValueGeneration", nameof(property), nameof(entityType)),
-                property, entityType);
-
-        /// <summary>
         ///     SQL Server does not support releasing a savepoint.
         /// </summary>
         public static string NoSavepointRelease
