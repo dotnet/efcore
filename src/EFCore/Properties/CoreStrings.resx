@@ -1307,6 +1307,9 @@
   <data name="RelationshipConceptualNullSensitive" xml:space="preserve">
     <value>The association between entities '{firstType}' and '{secondType}' with the key value '{secondKeyValue}' has been severed, but the relationship is either marked as required or is implicitly required because the foreign key is not nullable. If the dependent/child entity should be deleted when a required relationship is severed, configure the relationship to use cascade deletes.</value>
   </data>
+  <data name="RelationshipCycle" xml:space="preserve">
+    <value>A relationship cycle involving the property '{entityType}.{property}' was detected. This prevents Entity Framework from determining the correct configuration. Review the foreign keys defined on the property and the corresponding principal property and either remove one of them or specify '{configuration}' explicitly on one of the properties.</value>
+  </data>
   <data name="RequiredSkipNavigation" xml:space="preserve">
     <value>'{entityType}.{navigation}' cannot be configured as required since it represents a skip navigation.</value>
   </data>

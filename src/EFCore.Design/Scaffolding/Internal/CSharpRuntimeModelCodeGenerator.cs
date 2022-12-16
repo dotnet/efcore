@@ -849,15 +849,17 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
     private static Type? GetValueConverterType(IProperty property)
     {
-        var type = (Type?)property[CoreAnnotationNames.ValueConverterType];
-        if (type != null)
+        var annotation = property.FindAnnotation(CoreAnnotationNames.ValueConverterType);
+        if (annotation != null)
         {
-            return type;
+            return (Type?)annotation.Value;
         }
 
         var principalProperty = property;
-        for (var i = 0; i < 10000; i++)
+        var i = 0;
+        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
         {
+            IProperty? nextProperty = null;
             foreach (var foreignKey in principalProperty.GetContainingForeignKeys())
             {
                 for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
@@ -865,25 +867,35 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     if (principalProperty == foreignKey.Properties[propertyIndex])
                     {
                         var newPrincipalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
-                        if (property == principalProperty
+                        if (newPrincipalProperty == property
                             || newPrincipalProperty == principalProperty)
                         {
                             break;
                         }
 
-                        principalProperty = newPrincipalProperty;
-
-                        type = (Type?)principalProperty[CoreAnnotationNames.ValueConverterType];
-                        if (type != null)
+                        annotation = newPrincipalProperty.FindAnnotation(CoreAnnotationNames.ValueConverterType);
+                        if (annotation != null)
                         {
-                            return type;
+                            return (Type?)annotation.Value;
                         }
+
+                        nextProperty = newPrincipalProperty;
                     }
                 }
             }
+
+            if (nextProperty == null)
+            {
+                break;
+            }
+
+            principalProperty = nextProperty;
         }
 
-        return null;
+        return i == ForeignKey.LongestFkChainAllowedLength
+            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
+                property.DeclaringEntityType.DisplayName(), property.Name, "ValueConverterType"))
+            : null;
     }
 
     private void PropertyBaseParameters(

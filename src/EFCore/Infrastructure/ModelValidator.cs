@@ -464,7 +464,7 @@ public class ModelValidator : IModelValidator
         graph.TopologicalSort(
             tryBreakEdge: null,
             formatCycle: c => c.Select(d => d.Item1.DisplayName()).Join(" -> "),
-            c => CoreStrings.IdentifyingRelationshipCycle(c));
+            CoreStrings.IdentifyingRelationshipCycle);
     }
 
     /// <summary>
