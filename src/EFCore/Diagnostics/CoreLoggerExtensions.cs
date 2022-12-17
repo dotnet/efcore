@@ -1108,7 +1108,7 @@ public static class CoreLoggerExtensions
     /// <param name="navigationName">The name of the navigation property.</param>
     public static void LazyLoadOnDisposedContextWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-        DbContext context,
+        DbContext? context,
         object entityType,
         string navigationName)
     {
@@ -1188,7 +1188,7 @@ public static class CoreLoggerExtensions
     /// <param name="navigationName">The name of the navigation property.</param>
     public static void DetachedLazyLoadingWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-        DbContext context,
+        DbContext? context,
         object entityType,
         string navigationName)
     {

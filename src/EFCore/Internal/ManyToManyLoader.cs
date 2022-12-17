@@ -17,6 +17,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     where TSourceEntity : class
 {
     private readonly ISkipNavigation _skipNavigation;
+    private readonly ISkipNavigation? _inverseSkipNavigation;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -27,6 +28,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     public ManyToManyLoader(ISkipNavigation skipNavigation)
     {
         _skipNavigation = skipNavigation;
+        _inverseSkipNavigation = skipNavigation.Inverse;
     }
 
     /// <summary>
@@ -42,7 +44,20 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            Query(entry.Context, keyValues).Load();
+            var queryable = Query(entry.Context, keyValues, entry);
+
+            if (entry.EntityState == EntityState.Detached)
+            {
+                var inverse = _skipNavigation.Inverse;
+                foreach (var loaded in queryable)
+                {
+                    Fixup(entry, loaded);
+                }
+            }
+            else
+            {
+                queryable.Load();
+            }
         }
 
         entry.SetIsLoaded(_skipNavigation);
@@ -61,10 +76,41 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            await Query(entry.Context, keyValues).LoadAsync(cancellationToken).ConfigureAwait(false);
+            var queryable = Query(entry.Context, keyValues, entry);
+
+            if (entry.EntityState == EntityState.Detached)
+            {
+                var inverse = _skipNavigation.Inverse;
+                foreach (var loaded in queryable)
+                {
+                    Fixup(entry, loaded);
+                }
+            }
+            else
+            {
+                await queryable.LoadAsync(cancellationToken).ConfigureAwait(false);
+            }
         }
 
         entry.SetIsLoaded(_skipNavigation);
+    }
+
+    private void Fixup(InternalEntityEntry parentEntry, object? loaded)
+    {
+        SetValue(parentEntry, _skipNavigation, loaded);
+
+        if (_inverseSkipNavigation != null && loaded != null)
+        {
+            SetValue(parentEntry.StateManager.GetOrCreateEntry(loaded), _inverseSkipNavigation, parentEntry.Entity);
+        }
+
+        void SetValue(InternalEntityEntry entry, ISkipNavigation navigation, object? value)
+        {
+            if (value != null)
+            {
+                entry.AddToCollection(navigation, value, forMaterialization: true);
+            }
+        }
     }
 
     /// <summary>
@@ -89,20 +135,24 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             return queryRoot.Where(e => false);
         }
 
-        return Query(context, keyValues);
+        return Query(context, keyValues, entry);
     }
 
     private object[]? PrepareForLoad(InternalEntityEntry entry)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(_skipNavigation.Name, entry.EntityType.DisplayName()));
-        }
-
         var properties = _skipNavigation.ForeignKey.PrincipalKey.Properties;
         var values = new object[properties.Count];
+        var detached = entry.EntityState == EntityState.Detached;
+
         for (var i = 0; i < values.Length; i++)
         {
+            var property = properties[i];
+            if (property.IsShadowProperty() && (detached || entry.IsUnknown(property)))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CannotLoadDetachedShadow(_skipNavigation.Name, entry.EntityType.DisplayName()));
+            }
+
             var value = entry[properties[i]];
             if (value == null)
             {
@@ -124,9 +174,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     IQueryable ICollectionLoader.Query(InternalEntityEntry entry)
         => Query(entry);
 
-    private IQueryable<TEntity> Query(
-        DbContext context,
-        object[] keyValues)
+    private IQueryable<TEntity> Query(DbContext context, object[] keyValues, InternalEntityEntry entry)
     {
         var loadProperties = _skipNavigation.ForeignKey.PrincipalKey.Properties;
 
@@ -143,12 +191,12 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             ? context.Set<TSourceEntity>(_skipNavigation.DeclaringEntityType.Name)
             : context.Set<TSourceEntity>();
 
-        return queryRoot
-            .AsTracking()
+        var queryable = queryRoot
             .Where(BuildWhereLambda(loadProperties, new ValueBuffer(keyValues)))
             .SelectMany(BuildSelectManyLambda(_skipNavigation))
-            .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)))
-            .AsQueryable();
+            .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)));
+
+        return entry.EntityState == EntityState.Detached ? queryable.AsNoTrackingWithIdentityResolution() : queryable.AsTracking();
     }
 
     private static Expression<Func<TEntity, IEnumerable<TSourceEntity>>> BuildIncludeLambda(

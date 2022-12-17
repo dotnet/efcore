@@ -257,11 +257,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 generatorType, method);
 
         /// <summary>
-        ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.
+        ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because one or more of the key or foreign key properties are shadow properties and the entity is not being tracked. Relationships using shadow values can only be loaded for tracked entities.
         /// </summary>
-        public static string CannotLoadDetached(object? navigation, object? entityType)
+        public static string CannotLoadDetachedShadow(object? navigation, object? entityType)
             => string.Format(
-                GetString("CannotLoadDetached", "0_navigation", "1_entityType"),
+                GetString("CannotLoadDetachedShadow", "0_navigation", "1_entityType"),
                 navigation, entityType);
 
         /// <summary>
@@ -3600,7 +3600,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.
+        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed or returned to the pool, or the entity was explicitly detached from the context.
         /// </summary>
         public static EventDefinition<string, string> LogLazyLoadOnDisposedContext(IDiagnosticsLogger logger)
         {

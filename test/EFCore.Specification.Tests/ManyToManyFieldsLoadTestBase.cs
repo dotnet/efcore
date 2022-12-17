@@ -643,20 +643,14 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
             context.Entry(left).State = EntityState.Detached;
         }
 
-        Assert.Equal(
-            CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () =>
-                {
-                    if (async)
-                    {
-                        await collectionEntry.LoadAsync();
-                    }
-                    else
-                    {
-                        collectionEntry.Load();
-                    }
-                })).Message);
+        if (async)
+        {
+            await collectionEntry.LoadAsync();
+        }
+        else
+        {
+            collectionEntry.Load();
+        }
     }
 
     [ConditionalTheory]
@@ -676,9 +670,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
             context.Entry(left).State = EntityState.Detached;
         }
 
-        Assert.Equal(
-            CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
-            Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+        var query = collectionEntry.Query();
     }
 
     [ConditionalTheory]
