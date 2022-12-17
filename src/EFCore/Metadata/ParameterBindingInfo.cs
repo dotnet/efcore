@@ -24,6 +24,22 @@ public readonly struct ParameterBindingInfo
         Check.NotNull(entityType, nameof(materializationContextExpression));
 
         EntityType = entityType;
+        EntityInstanceName = "instance";
+        MaterializationContextExpression = materializationContextExpression;
+    }
+
+    /// <summary>
+    ///     Creates a new <see cref="ParameterBindingInfo" /> to define a parameter binding.
+    /// </summary>
+    /// <param name="materializerSourceParameters">Parameters for the materialization that is happening.</param>
+    /// <param name="materializationContextExpression">The expression tree from which the parameter value will come.</param>
+    public ParameterBindingInfo(
+        EntityMaterializerSourceParameters materializerSourceParameters,
+        Expression materializationContextExpression)
+    {
+        EntityType = materializerSourceParameters.EntityType;
+        QueryTrackingBehavior = materializerSourceParameters.QueryTrackingBehavior;
+        EntityInstanceName = materializerSourceParameters.EntityInstanceName;
         MaterializationContextExpression = materializationContextExpression;
     }
 
@@ -31,6 +47,16 @@ public readonly struct ParameterBindingInfo
     ///     The entity type for this binding.
     /// </summary>
     public IEntityType EntityType { get; }
+
+    /// <summary>
+    ///     The name of the instance being materialized.
+    /// </summary>
+    public string EntityInstanceName { get; }
+
+    /// <summary>
+    ///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
+    /// </summary>
+    public QueryTrackingBehavior? QueryTrackingBehavior { get; }
 
     /// <summary>
     ///     The expression tree from which the parameter value will come.

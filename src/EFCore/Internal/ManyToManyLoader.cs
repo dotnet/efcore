@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -17,7 +18,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     where TSourceEntity : class
 {
     private readonly ISkipNavigation _skipNavigation;
-    private readonly ISkipNavigation? _inverseSkipNavigation;
+    private readonly ISkipNavigation _inverseSkipNavigation;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,21 +38,31 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Load(InternalEntityEntry entry)
+    public virtual void Load(InternalEntityEntry entry, bool forceIdentityResolution)
     {
         var keyValues = PrepareForLoad(entry);
 
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            var queryable = Query(entry.Context, keyValues, entry);
+            var queryable = Query(entry.Context, keyValues, entry, forceIdentityResolution);
 
             if (entry.EntityState == EntityState.Detached)
             {
-                var inverse = _skipNavigation.Inverse;
-                foreach (var loaded in queryable)
+                var stateManager = GetOrCreateStateManager(entry, forceIdentityResolution);
+                try
                 {
-                    Fixup(entry, loaded);
+                    foreach (var loaded in queryable)
+                    {
+                        Fixup(stateManager, entry.Entity, forceIdentityResolution, loaded);
+                    }
+                }
+                finally
+                {
+                    if (stateManager != entry.StateManager)
+                    {
+                        stateManager.ResetState();
+                    }
                 }
             }
             else
@@ -69,21 +80,34 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual async Task LoadAsync(InternalEntityEntry entry, CancellationToken cancellationToken = default)
+    public virtual async Task LoadAsync(
+        InternalEntityEntry entry,
+        bool forceIdentityResolution,
+        CancellationToken cancellationToken = default)
     {
         var keyValues = PrepareForLoad(entry);
 
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            var queryable = Query(entry.Context, keyValues, entry);
+            var queryable = Query(entry.Context, keyValues, entry, forceIdentityResolution);
 
             if (entry.EntityState == EntityState.Detached)
             {
-                var inverse = _skipNavigation.Inverse;
-                foreach (var loaded in queryable)
+                var stateManager = GetOrCreateStateManager(entry, forceIdentityResolution);
+                try
                 {
-                    Fixup(entry, loaded);
+                    await foreach (var loaded in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
+                    {
+                        Fixup(stateManager, entry.Entity, forceIdentityResolution, loaded);
+                    }
+                }
+                finally
+                {
+                    if (stateManager != entry.StateManager)
+                    {
+                        await stateManager.ResetStateAsync(cancellationToken).ConfigureAwait(false);
+                    }
                 }
             }
             else
@@ -95,22 +119,59 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         entry.SetIsLoaded(_skipNavigation);
     }
 
-    private void Fixup(InternalEntityEntry parentEntry, object? loaded)
+    private void Fixup(IStateManager stateManager, object entity, bool forceIdentityResolution, object loaded)
     {
-        SetValue(parentEntry, _skipNavigation, loaded);
+        var entry = stateManager.GetOrCreateEntry(entity);
+        var relatedEntry = stateManager.GetOrCreateEntry(loaded);
 
-        if (_inverseSkipNavigation != null && loaded != null)
+        if (forceIdentityResolution
+            && TryGetTracked(out var existing))
         {
-            SetValue(parentEntry.StateManager.GetOrCreateEntry(loaded), _inverseSkipNavigation, parentEntry.Entity);
+            entry.AddToCollection(_skipNavigation, existing!, forMaterialization: true);
+        }
+        else
+        {
+            entry.AddToCollection(_skipNavigation, loaded, forMaterialization: true);
+            relatedEntry.AddToCollection(_inverseSkipNavigation, entity, forMaterialization: true);
         }
 
-        void SetValue(InternalEntityEntry entry, ISkipNavigation navigation, object? value)
+        bool TryGetTracked(out object? tracked)
         {
-            if (value != null)
+            var key = relatedEntry.EntityType.FindPrimaryKey();
+            if (key == null)
             {
-                entry.AddToCollection(navigation, value, forMaterialization: true);
+                tracked = null;
+                return false;
+            }
+
+            tracked = stateManager.TryGetExistingEntry(relatedEntry.Entity, key)?.Entity;
+            return tracked != null;
+        }
+    }
+
+    private IStateManager GetOrCreateStateManager(InternalEntityEntry entry, bool forceIdentityResolution)
+    {
+        if (!forceIdentityResolution)
+        {
+            return entry.StateManager;
+        }
+
+        var stateManager = new StateManager(entry.StateManager.Dependencies);
+        StartTracking(entry.Entity);
+
+        var navigationValue = entry[_skipNavigation];
+        if (navigationValue != null)
+        {
+            foreach (var related in (IEnumerable)navigationValue)
+            {
+                StartTracking(related);
             }
         }
+
+        return stateManager;
+
+        void StartTracking(object entity)
+            => stateManager.StartTracking(stateManager.GetOrCreateEntry(entity)).MarkUnchangedFromQuery();
     }
 
     /// <summary>
@@ -135,7 +196,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             return queryRoot.Where(e => false);
         }
 
-        return Query(context, keyValues, entry);
+        return Query(context, keyValues, entry, forceIdentityResolution: false);
     }
 
     private object[]? PrepareForLoad(InternalEntityEntry entry)
@@ -174,7 +235,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     IQueryable ICollectionLoader.Query(InternalEntityEntry entry)
         => Query(entry);
 
-    private IQueryable<TEntity> Query(DbContext context, object[] keyValues, InternalEntityEntry entry)
+    private IQueryable<TEntity> Query(DbContext context, object[] keyValues, InternalEntityEntry entry, bool forceIdentityResolution)
     {
         var loadProperties = _skipNavigation.ForeignKey.PrincipalKey.Properties;
 
@@ -196,7 +257,11 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             .SelectMany(BuildSelectManyLambda(_skipNavigation))
             .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)));
 
-        return entry.EntityState == EntityState.Detached ? queryable.AsNoTrackingWithIdentityResolution() : queryable.AsTracking();
+        return entry.EntityState == EntityState.Detached
+            ? forceIdentityResolution
+                ? queryable.AsNoTrackingWithIdentityResolution()
+                : queryable.AsNoTracking()
+            : queryable.AsTracking();
     }
 
     private static Expression<Func<TEntity, IEnumerable<TSourceEntity>>> BuildIncludeLambda(

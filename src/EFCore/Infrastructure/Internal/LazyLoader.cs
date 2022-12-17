@@ -15,6 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 /// </summary>
 public class LazyLoader : ILazyLoader, IInjectableService
 {
+    private QueryTrackingBehavior? _queryTrackingBehavior;
     private bool _disposed;
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
@@ -33,6 +34,15 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Context = currentContext.Context;
         Logger = logger;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ServiceObtained(DbContext context, ParameterBindingInfo bindingInfo)
+        => _queryTrackingBehavior = bindingInfo.QueryTrackingBehavior;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -100,7 +110,14 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 {
                     try
                     {
-                        entry.Load();
+                        if (_queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                        {
+                            entry.LoadWithIdentityResolution();
+                        }
+                        else
+                        {
+                            entry.Load();
+                        }
                     }
                     catch
                     {
@@ -141,7 +158,14 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 {
                     try
                     {
-                        await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
+                        if (_queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+                        {
+                            await entry.LoadWithIdentityResolutionAsync(cancellationToken).ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
+                        }
                     }
                     catch
                     {

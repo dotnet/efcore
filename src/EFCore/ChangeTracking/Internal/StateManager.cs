@@ -418,6 +418,37 @@ public class StateManager : IStateManager
                 : entry
             : null;
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? TryGetExistingEntry(object entity, IKey key)
+    {
+        var keyValues = GetKeyValues();
+        return keyValues == null ? null : TryGetEntry(key, keyValues);
+
+        object[]? GetKeyValues()
+        {
+            var entry = GetOrCreateEntry(entity);
+            var properties = key.Properties;
+            var propertyValues = new object[properties.Count];
+            for (var i = 0; i < propertyValues.Length; i++)
+            {
+                var propertyValue = entry[properties[i]];
+                if (propertyValue == null)
+                {
+                    return null;
+                }
+
+                propertyValues[i] = propertyValue;
+            }
+
+            return propertyValues;
+        }
+    }
+
     private IIdentityMap GetOrCreateIdentityMap(IKey key)
     {
         if (_identityMap0 == null)

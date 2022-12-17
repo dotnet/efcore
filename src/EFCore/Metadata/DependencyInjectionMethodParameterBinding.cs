@@ -43,14 +43,14 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
     ///     materialization expression to a parameter of the constructor, factory method, etc.
     /// </summary>
     /// <param name="materializationExpression">The expression representing the materialization context.</param>
-    /// <param name="entityTypeExpression">The expression representing the <see cref="IEntityType" /> constant.</param>
+    /// <param name="bindingInfoExpression">The expression representing the <see cref="ParameterBindingInfo" /> constant.</param>
     /// <returns>The expression tree.</returns>
     public override Expression BindToParameter(
         Expression materializationExpression,
-        Expression entityTypeExpression)
+        Expression bindingInfoExpression)
     {
         Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(entityTypeExpression, nameof(entityTypeExpression));
+        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
 
         var parameters = Method.GetParameters().Select(
             (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
@@ -64,7 +64,7 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
             {
                 Expression.Assign(
                     serviceVariable,
-                    base.BindToParameter(materializationExpression, entityTypeExpression)),
+                    base.BindToParameter(materializationExpression, bindingInfoExpression)),
                 Expression.Assign(
                     delegateVariable,
                     Expression.Condition(

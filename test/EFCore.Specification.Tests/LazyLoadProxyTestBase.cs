@@ -1385,6 +1385,101 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
     }
 
     [ConditionalTheory]
+    [InlineData(EntityState.Unchanged)]
+    [InlineData(EntityState.Added)]
+    [InlineData(EntityState.Modified)]
+    [InlineData(EntityState.Deleted)]
+    [InlineData(EntityState.Detached)]
+    public virtual void Lazy_load_collection_already_partially_loaded(EntityState state)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var child = context.Set<Child>().OrderBy(e => e.Id).First();
+        var parent = context.Set<Parent>().Single();
+        if (parent.Children == null)
+        {
+            parent.Children = new List<Child> { child };
+            child.Parent = parent;
+        }
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+        if (state != EntityState.Unchanged)
+        {
+            context.Entry(child).State = state;
+            context.Entry(parent).State = state;
+        }
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        changeDetector.DetectChangesCalled = false;
+
+        Assert.NotNull(parent.Children);
+
+        Assert.False(changeDetector.DetectChangesCalled);
+        Assert.Equal(state != EntityState.Detached, collectionEntry.IsLoaded);
+
+        RecordLog();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        Assert.Equal(state == EntityState.Detached ? 1 : 2, parent.Children.Count());
+        Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
+    }
+
+    [ConditionalTheory]
+    [InlineData(QueryTrackingBehavior.NoTracking)]
+    [InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public virtual void Lazy_load_collection_already_partially_loaded_no_tracking(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
+        var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var child = context.Set<Child>().OrderBy(e => e.Id).First();
+        var parent = context.Set<Parent>().Single();
+        if (parent.Children == null)
+        {
+            parent.Children = new List<Child> { child };
+            child.Parent = parent;
+        }
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        changeDetector.DetectChangesCalled = false;
+
+        Assert.NotNull(parent.Children);
+
+        Assert.False(changeDetector.DetectChangesCalled);
+
+        Assert.True(collectionEntry.IsLoaded);
+
+        RecordLog();
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        Assert.Equal(queryTrackingBehavior == QueryTrackingBehavior.NoTracking ? 3 : 2, parent.Children.Count());
+
+        Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
+
+    [ConditionalTheory]
     [InlineData(EntityState.Unchanged, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Added, CascadeTiming.OnSaveChanges)]
     [InlineData(EntityState.Modified, CascadeTiming.OnSaveChanges)]

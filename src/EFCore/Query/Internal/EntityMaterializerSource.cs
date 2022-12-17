@@ -46,11 +46,27 @@ public class EntityMaterializerSource : IEntityMaterializerSource
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [Obsolete("Use the overload that accepts an EntityMaterializerSourceParameters object.")]
     public virtual Expression CreateMaterializeExpression(
         IEntityType entityType,
         string entityInstanceName,
         Expression materializationContextExpression)
+        => ((IEntityMaterializerSource)this).CreateMaterializeExpression(
+            new EntityMaterializerSourceParameters(entityType, entityInstanceName, null), materializationContextExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    Expression IEntityMaterializerSource.CreateMaterializeExpression(
+        EntityMaterializerSourceParameters parameters,
+        Expression materializationContextExpression)
     {
+        var (entityType, entityInstanceName, queryTrackingBehavior)
+            = (parameters.EntityType, parameters.EntityInstanceName, parameters.QueryTrackingBehavior);
+
         if (entityType.IsAbstract())
         {
             throw new InvalidOperationException(CoreStrings.CannotMaterializeAbstractType(entityType.DisplayName()));
@@ -58,9 +74,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
 
         var constructorBinding = ModifyBindings(entityType, entityType.ConstructorBinding!);
 
-        var bindingInfo = new ParameterBindingInfo(
-            entityType,
-            materializationContextExpression);
+        var bindingInfo = new ParameterBindingInfo(parameters, materializationContextExpression);
 
         var properties = new HashSet<IPropertyBase>(
             entityType.GetServiceProperties().Cast<IPropertyBase>()
@@ -371,7 +385,8 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                     = Expression.Parameter(typeof(MaterializationContext), "materializationContext");
 
                 return Expression.Lambda<Func<MaterializationContext, object>>(
-                        self.CreateMaterializeExpression(e, "instance", materializationContextParameter),
+                        ((IEntityMaterializerSource)self).CreateMaterializeExpression(
+                            new EntityMaterializerSourceParameters(e, "instance", null), materializationContextParameter),
                         materializationContextParameter)
                     .Compile();
             },
@@ -408,7 +423,9 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                 binding = self.ModifyBindings(e, binding);
 
                 var materializationContextExpression = Expression.Parameter(typeof(MaterializationContext), "mc");
-                var bindingInfo = new ParameterBindingInfo(e, materializationContextExpression);
+                var bindingInfo = new ParameterBindingInfo(
+                    new EntityMaterializerSourceParameters(e, "instance", null), materializationContextExpression);
+
                 var constructorExpression = binding.CreateConstructorExpression(bindingInfo);
 
                 return Expression.Lambda<Func<MaterializationContext, object>>(

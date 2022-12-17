@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -17,6 +18,9 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
 {
     private static readonly MethodInfo GetServiceMethod
         = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService))!;
+
+    private static readonly MethodInfo InjectableServiceServiceObtainedMethod
+        = typeof(IInjectableService).GetMethod(nameof(IInjectableService.ServiceObtained))!;
 
     /// <summary>
     ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.
@@ -37,22 +41,31 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
     ///     materialization expression to a parameter of the constructor, factory method, etc.
     /// </summary>
     /// <param name="materializationExpression">The expression representing the materialization context.</param>
-    /// <param name="entityTypeExpression">The expression representing the <see cref="IEntityType" /> constant.</param>
+    /// <param name="bindingInfoExpression">The expression representing the <see cref="ParameterBindingInfo" /> constant.</param>
     /// <returns>The expression tree.</returns>
     public override Expression BindToParameter(
         Expression materializationExpression,
-        Expression entityTypeExpression)
+        Expression bindingInfoExpression)
     {
         Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(entityTypeExpression, nameof(entityTypeExpression));
+        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
 
-        return Expression.Call(
-            GetServiceMethod.MakeGenericMethod(ServiceType),
-            Expression.Convert(
-                Expression.Property(
-                    materializationExpression,
-                    MaterializationContext.ContextProperty),
-                typeof(IInfrastructure<IServiceProvider>)));
+        var serviceVariable = Expression.Variable(ServiceType);
+        var getContext = Expression.Property(materializationExpression, MaterializationContext.ContextProperty);
+        return Expression.Block(
+            variables: new[] { serviceVariable },
+            Expression.Assign(
+                serviceVariable, Expression.Call(
+                    GetServiceMethod.MakeGenericMethod(ServiceType),
+                    Expression.Convert(getContext, typeof(IInfrastructure<IServiceProvider>)))),
+            Expression.IfThen(
+                Expression.TypeIs(serviceVariable, typeof(IInjectableService)),
+                Expression.Call(
+                    Expression.Convert(serviceVariable, typeof(IInjectableService)),
+                    InjectableServiceServiceObtainedMethod,
+                    getContext,
+                    bindingInfoExpression)),
+            serviceVariable);
     }
 
     /// <summary>

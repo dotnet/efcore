@@ -29,14 +29,14 @@ public class ContextParameterBinding : ServiceParameterBinding
     ///     materialization expression to a parameter of the constructor, factory method, etc.
     /// </summary>
     /// <param name="materializationExpression">The expression representing the materialization context.</param>
-    /// <param name="entityTypeExpression">The expression representing the <see cref="IEntityType" /> constant.</param>
+    /// <param name="bindingInfoExpression">The expression representing the <see cref="ParameterBindingInfo" /> constant.</param>
     /// <returns>The expression tree.</returns>
     public override Expression BindToParameter(
         Expression materializationExpression,
-        Expression entityTypeExpression)
+        Expression bindingInfoExpression)
     {
         Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(entityTypeExpression, nameof(entityTypeExpression));
+        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
 
         var propertyExpression
             = Expression.Property(
@@ -44,7 +44,7 @@ public class ContextParameterBinding : ServiceParameterBinding
                 MaterializationContext.ContextProperty);
 
         return ServiceType != typeof(DbContext)
-            ? (Expression)Expression.TypeAs(propertyExpression, ServiceType)
+            ? Expression.TypeAs(propertyExpression, ServiceType)
             : propertyExpression;
     }
 

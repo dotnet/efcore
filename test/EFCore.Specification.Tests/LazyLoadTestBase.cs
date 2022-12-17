@@ -68,7 +68,7 @@ public abstract partial class LoadTestBase<TFixture>
 
             Assert.True(collectionEntry.IsLoaded);
 
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -1003,7 +1003,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
         else
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
     }
 
@@ -1076,7 +1076,7 @@ public abstract partial class LoadTestBase<TFixture>
             Assert.False(collectionEntry.IsLoaded); // Explicitly detached
             Assert.Equal(1, parent.Children.Count());
 
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
         else
         {
@@ -1085,9 +1085,12 @@ public abstract partial class LoadTestBase<TFixture>
             context.ChangeTracker.LazyLoadingEnabled = false;
 
             // Note that when detached there is no identity resolution, so loading results in duplicates
-            Assert.Equal(state == EntityState.Detached ? 3 : 2, parent.Children.Count());
+            Assert.Equal(
+                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? 3
+                    : 2, parent.Children.Count());
 
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
     }
 
@@ -1831,7 +1834,7 @@ public abstract partial class LoadTestBase<TFixture>
             context.ChangeTracker.LazyLoadingEnabled = false;
 
             Assert.Equal(2, parent.ChildrenShadowFk.Count());
-            Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
 
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
@@ -2223,7 +2226,7 @@ public abstract partial class LoadTestBase<TFixture>
             context.ChangeTracker.LazyLoadingEnabled = false;
 
             Assert.Equal(2, parent.ChildrenCompositeKey.Count());
-            Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
 
         Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
@@ -2593,7 +2596,7 @@ public abstract partial class LoadTestBase<TFixture>
 
             Assert.True(collectionEntry.IsLoaded);
 
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -3387,7 +3390,7 @@ public abstract partial class LoadTestBase<TFixture>
         }
         else
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
     }
 
@@ -3673,6 +3676,80 @@ public abstract partial class LoadTestBase<TFixture>
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public virtual void Lazy_load_collection_already_partially_loaded_full_loader_constructor_injection(
+        EntityState state,
+        QueryTrackingBehavior queryTrackingBehavior)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
+
+        var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var child = context.Set<ChildFullLoaderByConstructor>().OrderBy(e => e.Id).First();
+        var parent = context.Set<ParentFullLoaderByConstructor>().Single();
+        if (parent.Children == null)
+        {
+            parent.Children = new List<ChildFullLoaderByConstructor> { child };
+            child.Parent = parent;
+        }
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        ClearLog();
+
+        SetState(context, child, state, queryTrackingBehavior);
+        SetState(context, parent, state, queryTrackingBehavior);
+
+        var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        changeDetector.DetectChangesCalled = false;
+
+        Assert.NotNull(parent.Children);
+
+        Assert.False(changeDetector.DetectChangesCalled);
+
+        RecordLog();
+
+        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        {
+            Assert.False(collectionEntry.IsLoaded); // Explicitly detached
+            Assert.Equal(1, parent.Children.Count());
+
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+        }
+        else
+        {
+            Assert.True(collectionEntry.IsLoaded);
+
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            // Note that when detached there is no identity resolution, so loading results in duplicates
+            Assert.Equal(
+                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? 3
+                    : 2, parent.Children.Count());
+
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
@@ -3711,7 +3788,7 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.True(collectionEntry.IsLoaded);
 
-        Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
 
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
@@ -4275,7 +4352,16 @@ public abstract partial class LoadTestBase<TFixture>
 
         ClearLog();
 
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        foreach (var child in parent.Children)
+        {
+            SetState(context, child, state, queryTrackingBehavior);
+        }
+
         SetState(context, parent, state, queryTrackingBehavior);
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
 
         var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
@@ -4287,24 +4373,18 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(changeDetector.DetectChangesCalled);
 
-        // Loader delegate has no way of recording loader state for untracked queries or detached entities
-        Assert.Equal(queryTrackingBehavior == QueryTrackingBehavior.TrackAll && state != EntityState.Detached, collectionEntry.IsLoaded);
+        Assert.True(collectionEntry.IsLoaded);
 
         RecordLog();
         context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, parent.Children.Count());
+        // Note that when detached there is no identity resolution, so loading results in duplicates
+        Assert.Equal(
+            state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                ? 4
+                : 2, parent.Children.Count());
 
-        if (queryTrackingBehavior == QueryTrackingBehavior.TrackAll
-            && state == EntityState.Deleted
-            && deleteOrphansTiming != CascadeTiming.Never)
-        {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
-        }
-        else
-        {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
-        }
+        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
     }
 
     [ConditionalTheory]
@@ -4528,6 +4608,70 @@ public abstract partial class LoadTestBase<TFixture>
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public virtual void Lazy_load_collection_already_partially_loaded_delegate_loader_constructor_injection(
+        EntityState state,
+        QueryTrackingBehavior queryTrackingBehavior)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
+
+        var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var child = context.Set<ChildDelegateLoaderByConstructor>().OrderBy(e => e.Id).First();
+        var parent = context.Set<ParentDelegateLoaderByConstructor>().Single();
+        if (parent.Children == null)
+        {
+            parent.Children = new List<ChildDelegateLoaderByConstructor> { child };
+            child.Parent = parent;
+        }
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        ClearLog();
+
+        SetState(context, child, state, queryTrackingBehavior);
+        SetState(context, parent, state, queryTrackingBehavior);
+
+        var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        changeDetector.DetectChangesCalled = false;
+
+        Assert.NotNull(parent.Children);
+
+        Assert.False(changeDetector.DetectChangesCalled);
+
+        RecordLog();
+
+        Assert.True(collectionEntry.IsLoaded);
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        // Note that when detached there is no identity resolution, so loading results in duplicates
+        Assert.Equal(
+            state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                ? 3
+                : 2, parent.Children.Count());
+
+        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+    }
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Deleted, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
     [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
@@ -4572,7 +4716,7 @@ public abstract partial class LoadTestBase<TFixture>
 
             Assert.True(collectionEntry.IsLoaded);
 
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
 
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
@@ -5164,7 +5308,16 @@ public abstract partial class LoadTestBase<TFixture>
 
         ClearLog();
 
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        foreach (var child in parent.Children)
+        {
+            SetState(context, child, state, queryTrackingBehavior);
+        }
+
         SetState(context, parent, state, queryTrackingBehavior);
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
 
         var collectionEntry = context.Entry(parent).Collection(e => e.Children);
 
@@ -5177,24 +5330,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(changeDetector.DetectChangesCalled);
 
-        // Loader delegate has no way of recording loader state for untracked queries or detached entities
-        Assert.Equal(queryTrackingBehavior == QueryTrackingBehavior.TrackAll && state != EntityState.Detached, collectionEntry.IsLoaded);
-
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
-
-        Assert.Equal(2, parent.Children.Count());
-
-        if (queryTrackingBehavior == QueryTrackingBehavior.TrackAll
-            && state == EntityState.Deleted
-            && deleteOrphansTiming != CascadeTiming.Never)
+        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Null(c));
+            Assert.False(collectionEntry.IsLoaded); // Explicitly detached
+            Assert.Equal(2, parent.Children.Count());
         }
         else
         {
-            Assert.All(parent.Children.Select(e => e.Parent), c => Assert.Same(parent, c));
+            Assert.True(collectionEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            // Note that when detached there is no identity resolution, so loading results in duplicates
+            Assert.Equal(
+                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? 4
+                    : 2, parent.Children.Count());
         }
+
+        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
     }
 
     [ConditionalTheory]
@@ -5409,6 +5564,80 @@ public abstract partial class LoadTestBase<TFixture>
 
             Assert.Same(single, parent.Single);
             Assert.Same(parent, single.Parent);
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.TrackAll)]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTracking)]
+    [InlineData(EntityState.Unchanged, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Added, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Modified, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(EntityState.Detached, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public virtual void Lazy_load_collection_already_partially_loaded_delegate_loader_property_injection(
+        EntityState state,
+        QueryTrackingBehavior queryTrackingBehavior)
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+        context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
+
+        var changeDetector = (ChangeDetectorProxy)context.GetService<IChangeDetector>();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var child = context.Set<ChildDelegateLoaderByProperty>().OrderBy(e => e.Id).First();
+        var parent = context.Set<ParentDelegateLoaderByProperty>().Single();
+        if (parent.Children == null)
+        {
+            parent.Children = new List<ChildDelegateLoaderByProperty> { child };
+            child.Parent = parent;
+        }
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        ClearLog();
+
+        SetState(context, child, state, queryTrackingBehavior);
+        SetState(context, parent, state, queryTrackingBehavior);
+
+        var collectionEntry = context.Entry(parent).Collection(e => e.Children);
+
+        Assert.False(collectionEntry.IsLoaded);
+
+        changeDetector.DetectChangesCalled = false;
+
+        Assert.NotNull(parent.Children);
+
+        Assert.False(changeDetector.DetectChangesCalled);
+
+        RecordLog();
+
+        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        {
+            Assert.False(collectionEntry.IsLoaded); // Explicitly detached
+            Assert.Equal(1, parent.Children.Count());
+
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+        }
+        else
+        {
+            Assert.True(collectionEntry.IsLoaded);
+
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            // Note that when detached there is no identity resolution, so loading results in duplicates
+            Assert.Equal(
+                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? 3
+                    : 2, parent.Children.Count());
+
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
     }
 

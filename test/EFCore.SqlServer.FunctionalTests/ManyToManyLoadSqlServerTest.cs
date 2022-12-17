@@ -17,7 +17,27 @@ public class ManyToManyLoadSqlServerTest : ManyToManyLoadTestBase<ManyToManyLoad
         await base.Load_collection(state, queryTrackingBehavior, async);
 
         AssertSql(
+            state == EntityState.Detached
+                ? """
+@__p_0='3'
+
+SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t0].[Id], [t0].[Name], [t0].[OneId], [t0].[TwoId]
+FROM [EntityOnes] AS [e]
+INNER JOIN (
+    SELECT [e0].[Id], [e0].[CollectionInverseId], [e0].[ExtraId], [e0].[Name], [e0].[ReferenceInverseId], [j].[OneId], [j].[TwoId]
+    FROM [JoinOneToTwo] AS [j]
+    INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
+) AS [t] ON [e].[Id] = [t].[OneId]
+LEFT JOIN (
+    SELECT [e1].[Id], [e1].[Name], [j0].[OneId], [j0].[TwoId]
+    FROM [JoinOneToTwo] AS [j0]
+    INNER JOIN [EntityOnes] AS [e1] ON [j0].[OneId] = [e1].[Id]
+    WHERE [e1].[Id] = @__p_0
+) AS [t0] ON [t].[Id] = [t0].[TwoId]
+WHERE [e].[Id] = @__p_0
+ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId]
 """
+                : """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t0].[OneId], [t0].[TwoId], [t0].[JoinOneToTwoExtraId], [t0].[Id], [t0].[Name]
@@ -43,7 +63,7 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId
         await base.Load_collection_using_Query_with_Include_for_inverse(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name]
@@ -69,7 +89,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_Include_for_same_collection(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0], [t0].[Id0], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId]
@@ -100,7 +120,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_Include(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
@@ -131,7 +151,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_filtered_Include(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
@@ -163,7 +183,7 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_filtered_Include_and_projection(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[Name], (
@@ -191,7 +211,7 @@ ORDER BY [t].[Id]
         await base.Load_collection_using_Query_with_join(async);
 
         AssertSql(
-"""
+            """
 @__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[ExtraId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId], [t2].[Id], [t2].[Name], [t0].[CollectionInverseId], [t0].[ExtraId], [t0].[Name0], [t0].[ReferenceInverseId]
