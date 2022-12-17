@@ -90,11 +90,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (!(_isLoading ??= new List<(object Entity, string NavigationName)>()).Contains(navEntry))
+        if (!IsLoading(navEntry))
         {
             try
             {
-                _isLoading.Add(navEntry);
+                _isLoading!.Add(navEntry);
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
                     try
@@ -110,7 +110,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             }
             finally
             {
-                _isLoading.Remove(navEntry);
+                DoneLoading(navEntry);
             }
         }
     }
@@ -130,11 +130,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
         Check.NotEmpty(navigationName, nameof(navigationName));
 
         var navEntry = (entity, navigationName);
-        if (!(_isLoading ??= new List<(object Entity, string NavigationName)>()).Contains(navEntry))
+        if (!IsLoading(navEntry))
         {
             try
             {
-                _isLoading.Add(navEntry);
+                _isLoading!.Add(navEntry);
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
                     try
@@ -150,9 +150,41 @@ public class LazyLoader : ILazyLoader, IInjectableService
             }
             finally
             {
-                _isLoading.Remove(navEntry);
+                DoneLoading(navEntry);
             }
         }
+    }
+
+    private bool IsLoading((object Entity, string NavigationName) navEntry)
+        => (_isLoading ??= new List<(object Entity, string NavigationName)>())
+            .Contains(navEntry, EntityNavigationEqualityComparer.Instance);
+
+    private void DoneLoading((object Entity, string NavigationName) navEntry)
+    {
+        for (var i = 0; i < _isLoading!.Count; i++)
+        {
+            if (EntityNavigationEqualityComparer.Instance.Equals(navEntry, _isLoading[i]))
+            {
+                _isLoading.RemoveAt(i);
+                break;
+            }
+        }
+    }
+
+    private sealed class EntityNavigationEqualityComparer : IEqualityComparer<(object Entity, string NavigationName)>
+    {
+        public static readonly EntityNavigationEqualityComparer Instance = new();
+
+        private EntityNavigationEqualityComparer()
+        {
+        }
+
+        public bool Equals((object Entity, string NavigationName) x, (object Entity, string NavigationName) y)
+            => ReferenceEquals(x.Entity, y.Entity)
+                && string.Equals(x.NavigationName, y.NavigationName, StringComparison.Ordinal);
+
+        public int GetHashCode((object Entity, string NavigationName) obj)
+            => HashCode.Combine(obj.Entity.GetHashCode(), obj.GetHashCode());
     }
 
     private bool ShouldLoad(object entity, string navigationName, [NotNullWhen(true)] out NavigationEntry? navigationEntry)

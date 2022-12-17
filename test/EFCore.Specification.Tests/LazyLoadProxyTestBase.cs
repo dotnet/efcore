@@ -3064,6 +3064,12 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             }
             set => _backing = value;
         }
+
+        public override bool Equals(object obj)
+            => throw new InvalidOperationException();
+
+        public override int GetHashCode()
+            => throw new InvalidOperationException();
     }
 
     public class Child
