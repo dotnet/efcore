@@ -95,6 +95,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             try
             {
                 _isLoading!.Add(navEntry);
+                // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
                     try
@@ -135,6 +136,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
             try
             {
                 _isLoading!.Add(navEntry);
+                // ShouldLoad is called after _isLoading.Add because it could attempt to load the property. See #13138.
                 if (ShouldLoad(entity, navigationName, out var entry))
                 {
                     try
