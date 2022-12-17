@@ -385,10 +385,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         foreach (var entry in _entries.Where(x => !x.EntityType.IsMappedToJson()))
         {
-            var nonMainEntry = (!_mainEntryAdded || entry != _entries[0])
-                || (updating
-                    && (entry.EntityState == EntityState.Deleted
-                        || entry.EntityState == EntityState.Added));
+            var nonMainEntry = !_mainEntryAdded || entry != _entries[0];
 
             var optionalDependentWithAllNull = false;
 
@@ -545,7 +542,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                     }
                     else if (((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
-                                 || (!isKey && nonMainEntry))
+                                 || (!isKey && nonMainEntry)
+                                 || entry.SharedIdentityEntry != null)
                              && storedProcedureParameter is not { ForOriginalValue: true })
                     {
                         // Note that for stored procedures we always need to send all parameters, regardless of whether the property
