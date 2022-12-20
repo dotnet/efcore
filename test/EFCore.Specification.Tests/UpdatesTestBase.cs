@@ -59,6 +59,60 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(EntityState.Detached, context.Entry(rodney1).State);
             });
 
+    [ConditionalTheory] // Issue #29789
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var gift = new Gift { Recipient = "Alice", Obscurer = new GiftPaper { Pattern = "Stripes" } };
+                await context.AddAsync(gift);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var gift = await context.Set<Gift>().Include(e => e.Obscurer).SingleAsync();
+                var bag = new GiftBag { Pattern = "Gold stars" };
+                gift.Obscurer = bag;
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var gift = await context.Set<Gift>().Include(e => e.Obscurer).SingleAsync();
+
+                Assert.IsType<GiftBag>(gift.Obscurer);
+                Assert.Equal(gift.Id, gift.Obscurer.Id);
+                Assert.Single(context.Set<GiftObscurer>());
+            });
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_change_type_of__dependent_by_replacing_with_new_dependent(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var lift = new Lift { Recipient = "Alice", Obscurer = new LiftPaper { Pattern = "Stripes" } };
+                await context.AddAsync(lift);
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var lift = await context.Set<Lift>().Include(e => e.Obscurer).SingleAsync();
+                var bag = new LiftBag { Pattern = "Gold stars" };
+                lift.Obscurer = bag;
+                _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+            },
+            async context =>
+            {
+                var lift = await context.Set<Lift>().Include(e => e.Obscurer).SingleAsync();
+
+                Assert.IsType<LiftBag>(lift.Obscurer);
+                Assert.Equal(lift.Id, lift.Obscurer.LiftId);
+                Assert.Single(context.Set<LiftObscurer>());
+            });
+
     [ConditionalFact]
     public virtual void Mutation_of_tracked_values_does_not_mutate_values_in_store()
     {
@@ -763,6 +817,16 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
                         .WithOne(l => l.Profile)
                         .IsRequired();
                 });
+
+            modelBuilder.Entity<Gift>();
+            modelBuilder.Entity<GiftObscurer>().HasOne<Gift>().WithOne(x => x.Obscurer).HasForeignKey<GiftObscurer>(e => e.Id);
+            modelBuilder.Entity<GiftBag>();
+            modelBuilder.Entity<GiftPaper>();
+
+            modelBuilder.Entity<Lift>();
+            modelBuilder.Entity<LiftObscurer>().HasOne<Lift>().WithOne(x => x.Obscurer).HasForeignKey<LiftObscurer>(e => e.LiftId);
+            modelBuilder.Entity<LiftBag>();
+            modelBuilder.Entity<LiftPaper>();
         }
 
         protected override void Seed(UpdatesContext context)

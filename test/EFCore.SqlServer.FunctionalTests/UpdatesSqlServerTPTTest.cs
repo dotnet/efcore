@@ -15,6 +15,10 @@ public class UpdatesSqlServerTPTTest : UpdatesSqlServerTestBase<UpdatesSqlServer
     {
     }
 
+    [ConditionalTheory(Skip = "Issue #29874. Skipped because the database is in a bad state, but the test may or may not fail.")]
+    public override Task Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(bool async)
+        => Task.CompletedTask;
+
     public override void Save_with_shared_foreign_key()
     {
         base.Save_with_shared_foreign_key();
@@ -97,8 +101,9 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Category>()
-                .UseTptMappingStrategy();
+            modelBuilder.Entity<Category>().UseTptMappingStrategy();
+            modelBuilder.Entity<GiftObscurer>().UseTptMappingStrategy();
+            modelBuilder.Entity<LiftObscurer>().UseTptMappingStrategy();
         }
     }
 }
