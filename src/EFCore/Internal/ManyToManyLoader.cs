@@ -49,7 +49,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
 
             if (entry.EntityState == EntityState.Detached)
             {
-                var stateManager = GetOrCreateStateManager(entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(entry, forceIdentityResolution);
                 try
                 {
                     foreach (var loaded in queryable)
@@ -94,7 +94,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
 
             if (entry.EntityState == EntityState.Detached)
             {
-                var stateManager = GetOrCreateStateManager(entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(entry, forceIdentityResolution);
                 try
                 {
                     await foreach (var loaded in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
@@ -149,7 +149,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         }
     }
 
-    private IStateManager GetOrCreateStateManager(InternalEntityEntry entry, bool forceIdentityResolution)
+    private IStateManager GetOrCreateStateManagerAndStartTrackingIfNeeded(InternalEntityEntry entry, bool forceIdentityResolution)
     {
         if (!forceIdentityResolution)
         {
@@ -157,20 +157,24 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         }
 
         var stateManager = new StateManager(entry.StateManager.Dependencies);
-        StartTracking(entry.Entity);
+        StartTracking(stateManager, entry);
+        return stateManager;
+    }
+
+    private void StartTracking(StateManager stateManager, InternalEntityEntry entry)
+    {
+        Track(entry.Entity);
 
         var navigationValue = entry[_skipNavigation];
         if (navigationValue != null)
         {
             foreach (var related in (IEnumerable)navigationValue)
             {
-                StartTracking(related);
+                Track(related);
             }
         }
 
-        return stateManager;
-
-        void StartTracking(object entity)
+        void Track(object entity)
             => stateManager.StartTracking(stateManager.GetOrCreateEntry(entity)).MarkUnchangedFromQuery();
     }
 

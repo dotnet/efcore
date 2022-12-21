@@ -428,7 +428,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             if (entry.EntityState == EntityState.Detached)
             {
                 var inverse = navigation.Inverse;
-                var stateManager = GetOrCreateStateManager(navigation, entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, forceIdentityResolution);
                 try
                 {
                     if (navigation.IsCollection)
@@ -487,7 +487,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             if (entry.EntityState == EntityState.Detached)
             {
                 var inverse = navigation.Inverse;
-                var stateManager = GetOrCreateStateManager(navigation, entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, forceIdentityResolution);
                 try
                 {
                     if (navigation.IsCollection)
@@ -583,7 +583,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         }
     }
 
-    private IStateManager GetOrCreateStateManager(
+    private IStateManager GetOrCreateStateManagerAndStartTrackingIfNeeded(
         INavigation loading,
         InternalEntityEntry entry,
         bool forceIdentityResolution)
@@ -594,27 +594,31 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         }
 
         var stateManager = new StateManager(_stateManager.Dependencies);
-        StartTracking(entry.Entity);
+        StartTracking(stateManager, entry, loading);
+        return stateManager;
+    }
 
-        var navigationValue = entry[loading];
+    private static void StartTracking(StateManager stateManager, InternalEntityEntry entry, INavigation navigation)
+    {
+        Track(entry.Entity);
+
+        var navigationValue = entry[navigation];
         if (navigationValue != null)
         {
-            if (loading.IsCollection)
+            if (navigation.IsCollection)
             {
                 foreach (var related in (IEnumerable)navigationValue)
                 {
-                    StartTracking(related);
+                    Track(related);
                 }
             }
             else
             {
-                StartTracking(navigationValue);
+                Track(navigationValue);
             }
         }
 
-        return stateManager;
-
-        void StartTracking(object entity)
+        void Track(object entity)
             => stateManager.StartTracking(stateManager.GetOrCreateEntry(entity)).MarkUnchangedFromQuery();
     }
 
