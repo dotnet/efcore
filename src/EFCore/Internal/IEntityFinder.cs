@@ -83,7 +83,7 @@ public interface IEntityFinder
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    void Load(INavigation navigation, InternalEntityEntry entry);
+    void Load(INavigation navigation, InternalEntityEntry entry, bool forceIdentityResolution);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,6 +94,7 @@ public interface IEntityFinder
     Task LoadAsync(
         INavigation navigation,
         InternalEntityEntry entry,
+        bool forceIdentityResolution,
         CancellationToken cancellationToken = default);
 
     /// <summary>

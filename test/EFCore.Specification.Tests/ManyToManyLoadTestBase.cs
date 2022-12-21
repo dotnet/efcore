@@ -351,6 +351,269 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
     }
 
     [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false, true)]
+    [InlineData(EntityState.Unchanged, false, false)]
+    [InlineData(EntityState.Added, false, true)]
+    [InlineData(EntityState.Added, false, false)]
+    [InlineData(EntityState.Modified, false, true)]
+    [InlineData(EntityState.Modified, false, false)]
+    [InlineData(EntityState.Deleted, false, true)]
+    [InlineData(EntityState.Deleted, false, false)]
+    [InlineData(EntityState.Detached, false, true)]
+    [InlineData(EntityState.Detached, false, false)]
+    [InlineData(EntityState.Unchanged, true, true)]
+    [InlineData(EntityState.Unchanged, true, false)]
+    [InlineData(EntityState.Added, true, true)]
+    [InlineData(EntityState.Added, true, false)]
+    [InlineData(EntityState.Modified, true, true)]
+    [InlineData(EntityState.Modified, true, false)]
+    [InlineData(EntityState.Deleted, true, true)]
+    [InlineData(EntityState.Deleted, true, false)]
+    [InlineData(EntityState.Detached, true, true)]
+    [InlineData(EntityState.Detached, true, false)]
+    public virtual async Task Load_collection_partially_loaded(EntityState state, bool forceIdentityResolution, bool async)
+    {
+        using var context = Fixture.CreateContext();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var left = context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFull.OrderBy(e => e.Id).Take(1)).Single(e => e.Id == 3);
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(left).Collection(e => e.ThreeSkipPayloadFull);
+
+        foreach (var three in left.ThreeSkipPayloadFull)
+        {
+            SetState(context, three, state);
+        }
+
+        SetState(context, left, state);
+
+        collectionEntry.IsLoaded = false;
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        if (ExpectLazyLoading)
+        {
+            if (state == EntityState.Detached) // Explicitly detached
+            {
+                Assert.Equal(1, left.ThreeSkipPayloadFull.Count);
+                Assert.False(collectionEntry.IsLoaded);
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
+            else
+            {
+                Assert.Equal(4, left.ThreeSkipPayloadFull.Count);
+                Assert.True(collectionEntry.IsLoaded);
+
+                context.ChangeTracker.LazyLoadingEnabled = false;
+                foreach (var right in left.ThreeSkipPayloadFull)
+                {
+                    Assert.Contains(left, right.OneSkipPayloadFull);
+                }
+
+                Assert.Equal(1 + 4 + 4, context.ChangeTracker.Entries().Count());
+            }
+        }
+        else
+        {
+            if (async)
+            {
+                await (forceIdentityResolution ? collectionEntry.LoadWithIdentityResolutionAsync() : collectionEntry.LoadAsync());
+            }
+            else
+            {
+                if (forceIdentityResolution)
+                {
+                    collectionEntry.LoadWithIdentityResolution();
+                }
+                else
+                {
+                    collectionEntry.Load();
+                }
+            }
+
+            Assert.True(collectionEntry.IsLoaded);
+
+            foreach (var entityTwo in left.ThreeSkipPayloadFull)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipPayloadFull).IsLoaded);
+            }
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(state == EntityState.Detached && !forceIdentityResolution ? 5 : 4, left.ThreeSkipPayloadFull.Count);
+            foreach (var right in left.ThreeSkipPayloadFull)
+            {
+                Assert.Contains(left, right.OneSkipPayloadFull);
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 1 + 4 + 4, context.ChangeTracker.Entries().Count());
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(EntityState.Unchanged, false, true)]
+    [InlineData(EntityState.Unchanged, false, false)]
+    [InlineData(EntityState.Added, false, true)]
+    [InlineData(EntityState.Added, false, false)]
+    [InlineData(EntityState.Modified, false, true)]
+    [InlineData(EntityState.Modified, false, false)]
+    [InlineData(EntityState.Deleted, false, true)]
+    [InlineData(EntityState.Deleted, false, false)]
+    [InlineData(EntityState.Detached, false, true)]
+    [InlineData(EntityState.Detached, false, false)]
+    [InlineData(EntityState.Unchanged, true, true)]
+    [InlineData(EntityState.Unchanged, true, false)]
+    [InlineData(EntityState.Added, true, true)]
+    [InlineData(EntityState.Added, true, false)]
+    [InlineData(EntityState.Modified, true, true)]
+    [InlineData(EntityState.Modified, true, false)]
+    [InlineData(EntityState.Deleted, true, true)]
+    [InlineData(EntityState.Deleted, true, false)]
+    [InlineData(EntityState.Detached, true, true)]
+    [InlineData(EntityState.Detached, true, false)]
+    public virtual async Task Load_collection_partially_loaded_no_explicit_join(EntityState state, bool forceIdentityResolution, bool async)
+    {
+        using var context = Fixture.CreateContext();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        var left = context.Set<EntityOne>().Include(e => e.TwoSkip.OrderBy(e => e.Id).Take(1)).Single(e => e.Id == 3);
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(left).Collection(e => e.TwoSkip);
+
+        foreach (var three in left.TwoSkip)
+        {
+            SetState(context, three, state);
+        }
+
+        SetState(context, left, state);
+
+        collectionEntry.IsLoaded = false;
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        if (ExpectLazyLoading)
+        {
+            if (state == EntityState.Detached) // Explicitly detached
+            {
+                Assert.Equal(1, left.TwoSkip.Count);
+                Assert.False(collectionEntry.IsLoaded);
+                Assert.Empty(context.ChangeTracker.Entries());
+            }
+            else
+            {
+                Assert.Equal(7, left.TwoSkip.Count);
+                Assert.True(collectionEntry.IsLoaded);
+
+                context.ChangeTracker.LazyLoadingEnabled = false;
+                foreach (var right in left.TwoSkip)
+                {
+                    Assert.Contains(left, right.OneSkip);
+                }
+
+                Assert.Equal(1 + 7 + 7, context.ChangeTracker.Entries().Count());
+            }
+        }
+        else
+        {
+            if (async)
+            {
+                await (forceIdentityResolution ? collectionEntry.LoadWithIdentityResolutionAsync() : collectionEntry.LoadAsync());
+            }
+            else
+            {
+                if (forceIdentityResolution)
+                {
+                    collectionEntry.LoadWithIdentityResolution();
+                }
+                else
+                {
+                    collectionEntry.Load();
+                }
+            }
+
+            Assert.True(collectionEntry.IsLoaded);
+
+            foreach (var entityTwo in left.TwoSkip)
+            {
+                Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
+            }
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(state == EntityState.Detached && !forceIdentityResolution ? 8 : 7, left.TwoSkip.Count);
+            foreach (var right in left.TwoSkip)
+            {
+                Assert.Contains(left, right.OneSkip);
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 1 + 7 + 7, context.ChangeTracker.Entries().Count());
+        }
+    }
+
+    [ConditionalTheory]
+    [InlineData(QueryTrackingBehavior.NoTracking)]
+    [InlineData(QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public virtual void Load_collection_partially_loaded_no_tracking(QueryTrackingBehavior queryTrackingBehavior)
+    {
+        using var context = Fixture.CreateContext();
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+        context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
+
+        var left = context.Set<EntityOne>().Include(e => e.ThreeSkipPayloadFull.OrderBy(e => e.Id).Take(1)).Single(e => e.Id == 3);
+
+        ClearLog();
+
+        var collectionEntry = context.Entry(left).Collection(e => e.ThreeSkipPayloadFull);
+        collectionEntry.IsLoaded = false;
+
+        context.ChangeTracker.LazyLoadingEnabled = true;
+
+        if (ExpectLazyLoading)
+        {
+            Assert.Equal(queryTrackingBehavior == QueryTrackingBehavior.NoTracking ? 5 : 4, left.ThreeSkipPayloadFull.Count);
+        }
+        else
+        {
+            if (queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
+            {
+                collectionEntry.LoadWithIdentityResolution();
+            }
+            else
+            {
+                collectionEntry.Load();
+            }
+        }
+
+        context.ChangeTracker.LazyLoadingEnabled = false;
+
+        Assert.True(collectionEntry.IsLoaded);
+
+        foreach (var entityTwo in left.ThreeSkipPayloadFull)
+        {
+            Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkipPayloadFull).IsLoaded);
+        }
+
+        RecordLog();
+
+        Assert.Equal(queryTrackingBehavior == QueryTrackingBehavior.NoTracking ? 5 : 4, left.ThreeSkipPayloadFull.Count);
+        foreach (var right in left.ThreeSkipPayloadFull)
+        {
+            Assert.Contains(left, right.OneSkipPayloadFull);
+        }
+
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
+
+    [ConditionalTheory]
     [InlineData(EntityState.Unchanged, true)]
     [InlineData(EntityState.Unchanged, false)]
     [InlineData(EntityState.Added, true)]

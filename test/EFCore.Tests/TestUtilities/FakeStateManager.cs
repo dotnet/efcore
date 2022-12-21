@@ -47,6 +47,9 @@ public class FakeStateManager : IStateManager
         return Task.FromResult(1);
     }
 
+    public InternalEntityEntry TryGetExistingEntry(object entity, IKey key)
+        => throw new NotImplementedException();
+
     public IEnumerable<InternalEntityEntry> Entries
         => InternalEntries ?? Enumerable.Empty<InternalEntityEntry>();
 

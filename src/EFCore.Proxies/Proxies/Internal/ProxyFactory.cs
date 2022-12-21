@@ -79,10 +79,7 @@ public class ProxyFactory : IProxyFactory
             throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
         }
 
-        return CreateLazyLoadingProxy(
-            entityType,
-            context.GetService<ILazyLoader>(),
-            constructorArguments);
+        return CreateLazyLoadingProxy(entityType, loader, constructorArguments);
     }
 
     private object CreateLazyLoadingProxy(

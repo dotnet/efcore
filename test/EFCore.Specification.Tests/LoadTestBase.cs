@@ -5607,7 +5607,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         public IEnumerable<ChildDelegateLoaderByConstructor> Children
         {
-            get => _children ?? _loader.Load(this, ref _children);
+            get => _loader.Load(this, ref _children);
             set => _children = value;
         }
 
@@ -5706,7 +5706,7 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
 
         public IEnumerable<ChildDelegateLoaderByProperty> Children
         {
-            get => _children ?? LazyLoader.Load(this, ref _children);
+            get => LazyLoader.Load(this, ref _children);
             set => _children = value;
         }
 

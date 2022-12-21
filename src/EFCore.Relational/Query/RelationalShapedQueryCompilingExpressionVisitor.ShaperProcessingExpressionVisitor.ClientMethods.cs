@@ -1,10 +1,8 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -308,7 +306,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (!trackingQuery)
                     {
                         fixup(entity, relatedEntity);
-                        if (inverseNavigation != null)
+                        if (inverseNavigation != null
+                            && !inverseNavigation.IsCollection)
                         {
                             inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                         }
@@ -477,7 +476,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // Execute and fetch data reader
                 var dataReader = await executionStrategy.ExecuteAsync(
                         (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
-                        ((RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup, CancellationToken cancellationToken)
+                        (
+                                (RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup,
+                                CancellationToken cancellationToken)
                             => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, tup.Item4, cancellationToken),
                         verifySucceeded: null,
                         queryContext.CancellationToken)
@@ -800,7 +801,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 // Execute and fetch data reader
                 var dataReader = await executionStrategy.ExecuteAsync(
                         (queryContext, relationalCommandCache, readerColumns, detailedErrorsEnabled),
-                        ((RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup, CancellationToken cancellationToken)
+                        (
+                                (RelationalQueryContext, RelationalCommandCache, IReadOnlyList<ReaderColumn?>?, bool) tup,
+                                CancellationToken cancellationToken)
                             => InitializeReaderAsync(tup.Item1, tup.Item2, tup.Item3, tup.Item4, cancellationToken),
                         verifySucceeded: null,
                         queryContext.CancellationToken)
@@ -929,7 +932,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (nullable)
             {
-                return default(TEntity);
+                return default;
             }
 
             throw new InvalidOperationException(
@@ -966,7 +969,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 return result;
             }
 
-            return default(TResult);
+            return default;
         }
 
         private static async Task TaskAwaiter(Func<Task>[] taskFactories)
