@@ -715,11 +715,29 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         PropertyInfo? propertyInfo = null,
         FieldInfo? fieldInfo = null,
         PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode)
+        => AddServiceProperty(name, (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!, propertyInfo, fieldInfo, propertyAccessMode);
+
+    /// <summary>
+    ///     Adds a service property to this entity type.
+    /// </summary>
+    /// <param name="name">The name of the property to add.</param>
+    /// <param name="serviceType">The type of the service.</param>
+    /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow property.</param>
+    /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow property.</param>
+    /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this property.</param>
+    /// <returns>The newly created service property.</returns>
+    public virtual RuntimeServiceProperty AddServiceProperty(
+        string name,
+        Type serviceType,
+        PropertyInfo? propertyInfo = null,
+        FieldInfo? fieldInfo = null,
+        PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode)
     {
         var serviceProperty = new RuntimeServiceProperty(
             name,
             propertyInfo,
             fieldInfo,
+            serviceType,
             this,
             propertyAccessMode);
 

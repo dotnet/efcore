@@ -972,6 +972,15 @@ public interface IConventionEntityType : IReadOnlyEntityType, IConventionTypeBas
     IConventionServiceProperty AddServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Adds a service property to this entity type.
+    /// </summary>
+    /// <param name="serviceType">The type of the service.</param>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The newly created service property.</returns>
+    IConventionServiceProperty AddServiceProperty(Type serviceType, MemberInfo memberInfo, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Gets the service property with a given name.
     ///     Returns <see langword="null" /> if no property with the given name is defined.
     /// </summary>

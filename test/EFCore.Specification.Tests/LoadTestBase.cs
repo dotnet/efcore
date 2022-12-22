@@ -3,6 +3,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
@@ -5777,6 +5778,92 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
         }
     }
 
+    protected class ParentDelegateLoaderWithStateByProperty
+    {
+        private IEnumerable<ChildDelegateLoaderWithStateByProperty> _children;
+        private SingleDelegateLoaderWithStateByProperty _single;
+
+        private object LazyLoaderState { get; set; }
+        private Action<object, string> LazyLoader { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public IEnumerable<ChildDelegateLoaderWithStateByProperty> Children
+        {
+            get => LazyLoader.Load(this, ref _children);
+            set => _children = value;
+        }
+
+        public SingleDelegateLoaderWithStateByProperty Single
+        {
+            get => _single ?? LazyLoader.Load(this, ref _single);
+            set => _single = value;
+        }
+    }
+
+    protected class ChildDelegateLoaderWithStateByProperty
+    {
+        private ParentDelegateLoaderWithStateByProperty _parent;
+        private int? _parentId;
+
+        private object LazyLoaderState { get; set; }
+        private Action<object, string> LazyLoader { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public int? ParentId
+        {
+            get => _parentId;
+            set
+            {
+                if (_parentId != value)
+                {
+                    _parentId = value;
+                    _parent = null;
+                }
+            }
+        }
+
+        public ParentDelegateLoaderWithStateByProperty Parent
+        {
+            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            set => _parent = value;
+        }
+    }
+
+    protected class SingleDelegateLoaderWithStateByProperty
+    {
+        private ParentDelegateLoaderWithStateByProperty _parent;
+        private int? _parentId;
+
+        private object LazyLoaderState { get; set; }
+        private Action<object, string> LazyLoader { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public int? ParentId
+        {
+            get => _parentId;
+            set
+            {
+                if (_parentId != value)
+                {
+                    _parentId = value;
+                    _parent = null;
+                }
+            }
+        }
+
+        public ParentDelegateLoaderWithStateByProperty Parent
+        {
+            get => _parent ?? LazyLoader.Load(this, ref _parent);
+            set => _parent = value;
+        }
+    }
+
     protected DbContext CreateContext(bool lazyLoadingEnabled = false, bool noTracking = false)
     {
         var context = Fixture.CreateContext();
@@ -5922,6 +6009,50 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
                         .HasForeignKey<SingleDelegateLoaderByProperty>(e => e.ParentId);
                 });
 
+            modelBuilder.Entity<ChildDelegateLoaderWithStateByProperty>(
+                b =>
+                {
+                    var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
+                        typeof(ILazyLoader),
+                        typeof(ChildDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!);
+
+                    serviceProperty.SetParameterBinding(
+                        new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
+                        ConfigurationSource.Explicit);
+                });
+
+            modelBuilder.Entity<SingleDelegateLoaderWithStateByProperty>(
+                b =>
+                {
+                    var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
+                        typeof(ILazyLoader),
+                        typeof(SingleDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!);
+
+                    serviceProperty.SetParameterBinding(
+                        new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
+                        ConfigurationSource.Explicit);
+                });
+
+            modelBuilder.Entity<ParentDelegateLoaderWithStateByProperty>(
+                b =>
+                {
+                    var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
+                        typeof(ILazyLoader),
+                        typeof(ParentDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!);
+
+                    serviceProperty.SetParameterBinding(
+                        new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
+                        ConfigurationSource.Explicit);
+
+                    b.HasMany<ChildDelegateLoaderWithStateByProperty>(nameof(ParentDelegateLoaderWithStateByProperty.Children))
+                        .WithOne(nameof(ChildDelegateLoaderWithStateByProperty.Parent))
+                        .HasForeignKey(e => e.ParentId);
+
+                    b.HasOne<SingleDelegateLoaderWithStateByProperty>(nameof(ParentDelegateLoaderWithStateByProperty.Single))
+                        .WithOne(e => e.Parent)
+                        .HasForeignKey<SingleDelegateLoaderWithStateByProperty>(e => e.ParentId);
+                });
+
             modelBuilder.Entity<RootClass>();
             modelBuilder.Entity<Product>();
             modelBuilder.Entity<Deposit>();
@@ -5972,6 +6103,14 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
                     Id = 707,
                     Children = new List<ChildDelegateLoaderByProperty> { new() { Id = 11 }, new() { Id = 12 } },
                     Single = new SingleDelegateLoaderByProperty { Id = 21 }
+                });
+
+            context.Add(
+                new ParentDelegateLoaderWithStateByProperty
+                {
+                    Id = 707,
+                    Children = new List<ChildDelegateLoaderWithStateByProperty> { new() { Id = 11 }, new() { Id = 12 } },
+                    Single = new SingleDelegateLoaderWithStateByProperty { Id = 21 }
                 });
 
             context.Add(

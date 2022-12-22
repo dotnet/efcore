@@ -28,6 +28,7 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
         string name,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
+        Type serviceType,
         RuntimeEntityType declaringEntityType,
         PropertyAccessMode propertyAccessMode)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
@@ -35,7 +36,7 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
         Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
         DeclaringEntityType = declaringEntityType;
-        ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
+        ClrType = serviceType;
     }
 
     /// <summary>

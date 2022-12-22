@@ -840,6 +840,14 @@ public interface IMutableEntityType : IReadOnlyEntityType, IMutableTypeBase
     IMutableServiceProperty AddServiceProperty(MemberInfo memberInfo);
 
     /// <summary>
+    ///     Adds a service property to this entity type.
+    /// </summary>
+    /// <param name="serviceType">The type of the service.</param>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property to add.</param>
+    /// <returns>The newly created service property.</returns>
+    IMutableServiceProperty AddServiceProperty(Type serviceType, MemberInfo memberInfo);
+
+    /// <summary>
     ///     Gets the service property with a given name.
     ///     Returns <see langword="null" /> if no property with the given name is defined.
     /// </summary>

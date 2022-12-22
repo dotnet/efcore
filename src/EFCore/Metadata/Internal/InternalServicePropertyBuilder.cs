@@ -93,7 +93,7 @@ public class InternalServicePropertyBuilder : InternalPropertyBaseBuilder<Servic
     public virtual InternalServicePropertyBuilder? Attach(InternalEntityTypeBuilder entityTypeBuilder)
     {
         var newPropertyBuilder = entityTypeBuilder.ServiceProperty(
-            Metadata.GetIdentifyingMemberInfo()!, Metadata.GetConfigurationSource());
+            Metadata.ClrType, Metadata.GetIdentifyingMemberInfo()!, Metadata.GetConfigurationSource());
         if (newPropertyBuilder == null)
         {
             return null;

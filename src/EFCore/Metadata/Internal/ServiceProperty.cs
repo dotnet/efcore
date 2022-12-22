@@ -29,12 +29,13 @@ public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventio
         string name,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
+        Type serviceType,
         EntityType declaringEntityType,
         ConfigurationSource configurationSource)
         : base(name, propertyInfo, fieldInfo, configurationSource)
     {
         DeclaringEntityType = declaringEntityType;
-        ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
+        ClrType = serviceType;
 
         _builder = new InternalServicePropertyBuilder(this, declaringEntityType.Model.Builder);
     }
