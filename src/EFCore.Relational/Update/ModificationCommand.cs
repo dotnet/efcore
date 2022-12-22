@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 /// </remarks>
 public class ModificationCommand : IModificationCommand, INonTrackedModificationCommand
 {
+    private static readonly bool QuirkEnabled29876
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29876", out var enabled) && enabled;
+
     private readonly Func<string>? _generateParameterName;
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
@@ -543,7 +546,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                     }
                     else if (((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
                                  || (!isKey && nonMainEntry)
-                                 || entry.SharedIdentityEntry != null)
+                                 || (!QuirkEnabled29876 && entry.SharedIdentityEntry != null))
                              && storedProcedureParameter is not { ForOriginalValue: true })
                     {
                         // Note that for stored procedures we always need to send all parameters, regardless of whether the property
