@@ -176,11 +176,17 @@ namespace TestNamespace
                 assertModel: model =>
                 {
                     var lazyConstructorEntity = model.FindEntityType(typeof(LazyConstructorEntity));
-                    var lazyParameterBinding = lazyConstructorEntity.ConstructorBinding.ParameterBindings.Single();
+                    var lazyParameterBinding = lazyConstructorEntity!.ConstructorBinding!.ParameterBindings.Single();
                     Assert.Equal(typeof(ILazyLoader), lazyParameterBinding.ParameterType);
+
                     var lazyPropertyEntity = model.FindEntityType(typeof(LazyPropertyEntity));
-                    var lazyServiceProperty = lazyPropertyEntity.GetServiceProperties().Single();
+                    var lazyServiceProperty = lazyPropertyEntity!.GetServiceProperties().Single();
                     Assert.Equal(typeof(ILazyLoader), lazyServiceProperty.ClrType);
+
+                    var lazyPropertyDelegateEntity = model.FindEntityType(typeof(LazyPropertyDelegateEntity));
+                    Assert.Equal(2, lazyPropertyDelegateEntity!.GetServiceProperties().Count());
+                    Assert.Contains(lazyPropertyDelegateEntity!.GetServiceProperties(), p => p.ClrType == typeof(ILazyLoader));
+                    Assert.Contains(lazyPropertyDelegateEntity!.GetServiceProperties(), p => p.ClrType == typeof(Action<object, string>));
                 });
 
         public class LazyLoadingContext : ContextBase
@@ -190,6 +196,18 @@ namespace TestNamespace
                 base.OnModelCreating(modelBuilder);
 
                 modelBuilder.Entity<LazyConstructorEntity>();
+
+                modelBuilder.Entity<LazyPropertyDelegateEntity>(
+                    b =>
+                    {
+                        var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
+                            typeof(ILazyLoader),
+                            typeof(LazyPropertyDelegateEntity).GetAnyProperty("LoaderState")!);
+
+                        serviceProperty.SetParameterBinding(
+                            new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
+                            ConfigurationSource.Explicit);
+                    });
             }
         }
 
@@ -205,11 +223,23 @@ namespace TestNamespace
             public int Id { get; set; }
 
             public LazyPropertyEntity LazyPropertyEntity { get; set; }
+            public LazyPropertyDelegateEntity LazyPropertyDelegateEntity { get; set; }
         }
 
         public class LazyPropertyEntity
         {
             public ILazyLoader Loader { get; set; }
+
+            public int Id { get; set; }
+            public int LazyConstructorEntityId { get; set; }
+
+            public LazyConstructorEntity LazyConstructorEntity { get; set; }
+        }
+
+        public class LazyPropertyDelegateEntity
+        {
+            public object LoaderState { get; set; }
+            private Action<object, string> LazyLoader { get; set; }
 
             public int Id { get; set; }
             public int LazyConstructorEntityId { get; set; }
@@ -1302,6 +1332,7 @@ namespace TestNamespace
 
             var context = runtimeEntityType.AddServiceProperty(
                 ""Context"",
+                typeof(Microsoft.EntityFrameworkCore.DbContext),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Context"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
@@ -1430,6 +1461,7 @@ namespace TestNamespace
 
             var context = runtimeEntityType.AddServiceProperty(
                 ""Context"",
+                typeof(Microsoft.EntityFrameworkCore.DbContext),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty(""Context"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
 
             var key = runtimeEntityType.AddKey(
