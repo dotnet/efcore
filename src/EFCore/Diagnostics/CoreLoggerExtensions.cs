@@ -3012,6 +3012,99 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedNavigationIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="navigation">The navigation.</param>
+    public static void MappedNavigationIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        INavigationBase navigation)
+    {
+        var definition = CoreResources.LogMappedNavigationIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, navigation.DeclaringType.ShortName(), navigation.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new NavigationBaseEventData(definition, MappedNavigationIgnoredWarning, navigation);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedNavigationIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (NavigationBaseEventData)payload;
+        return d.GenerateMessage(p.NavigationBase.DeclaringType.ShortName(), p.NavigationBase.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedPropertyIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="property">The property.</param>
+    public static void MappedPropertyIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        IProperty property)
+    {
+        var definition = CoreResources.LogMappedPropertyIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.ShortName(), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new PropertyEventData(definition, MappedPropertyIgnoredWarning, property);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedPropertyIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (PropertyEventData)payload;
+        return d.GenerateMessage(p.Property.DeclaringType.ShortName(), p.Property.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedEntityTypeIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The entity type.</param>
+    public static void MappedEntityTypeIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        IEntityType entityType)
+    {
+        var definition = CoreResources.LogMappedEntityTypeIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.ShortName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeEventData(definition, MappedEntityTypeIgnoredWarning, entityType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedEntityTypeIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string>)definition;
+        var p = (EntityTypeEventData)payload;
+        return d.GenerateMessage(p.EntityType.ShortName());
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.CascadeDeleteOrphan" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>

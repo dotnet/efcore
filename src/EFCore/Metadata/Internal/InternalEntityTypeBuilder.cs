@@ -1181,6 +1181,11 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 var foreignKey = navigation.ForeignKey;
                 Check.DebugAssert(navigation.DeclaringEntityType == Metadata, "navigation.DeclaringEntityType != Metadata");
 
+                if (navigation.GetConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    ModelBuilder.Metadata.ScopedModelDependencies?.Logger.MappedNavigationIgnoredWarning(navigation);
+                }
+
                 var navigationConfigurationSource = navigation.GetConfigurationSource();
                 if ((navigation.IsOnDependent
                         && foreignKey.IsOwnership)
@@ -1211,6 +1216,11 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 {
                     Check.DebugAssert(property.DeclaringEntityType == Metadata, "property.DeclaringEntityType != Metadata");
 
+                    if (property.GetConfigurationSource() == ConfigurationSource.Explicit)
+                    {
+                        ModelBuilder.Metadata.ScopedModelDependencies?.Logger.MappedPropertyIgnoredWarning(property);
+                    }
+
                     var removedProperty = RemoveProperty(property, configurationSource);
 
                     Check.DebugAssert(removedProperty != null, "removedProperty is null");
@@ -1229,6 +1239,11 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
                         Check.DebugAssert(
                             skipNavigation.DeclaringEntityType == Metadata, "skipNavigation.DeclaringEntityType != Metadata");
+
+                        if (skipNavigation.GetConfigurationSource() == ConfigurationSource.Explicit)
+                        {
+                            ModelBuilder.Metadata.ScopedModelDependencies?.Logger.MappedNavigationIgnoredWarning(skipNavigation);
+                        }
 
                         Metadata.Builder.HasNoSkipNavigation(skipNavigation, configurationSource);
                     }

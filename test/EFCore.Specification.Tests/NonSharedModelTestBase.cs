@@ -131,7 +131,11 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
             .ConfigureWarnings(
                 b => b.Default(WarningBehavior.Throw)
                     .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
+                    .Ignore(
+                        CoreEventId.MappedEntityTypeIgnoredWarning,
+                        CoreEventId.MappedPropertyIgnoredWarning,
+                        CoreEventId.MappedNavigationIgnoredWarning));
 
     protected virtual TestStore CreateTestStore()
         => TestStoreFactory.Create(StoreName);
