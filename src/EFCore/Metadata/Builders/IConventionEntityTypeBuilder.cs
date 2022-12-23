@@ -174,6 +174,22 @@ public interface IConventionEntityTypeBuilder : IConventionAnnotatableBuilder
         bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Returns an object that can be used to configure the service property with the given member info.
+    ///     If no matching property exists, then a new property will be added.
+    /// </summary>
+    /// <param name="serviceType">The type of the service.</param>
+    /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An object that can be used to configure the property if it exists on the entity type,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    IConventionServicePropertyBuilder? ServiceProperty(
+        Type serviceType,
+        MemberInfo memberInfo,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Returns a value indicating whether the given service property can be added to this entity type.
     /// </summary>
     /// <param name="memberInfo">The <see cref="PropertyInfo" /> or <see cref="FieldInfo" /> of the property.</param>

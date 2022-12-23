@@ -880,6 +880,18 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     public virtual InternalServicePropertyBuilder? ServiceProperty(
         MemberInfo memberInfo,
         ConfigurationSource? configurationSource)
+        => ServiceProperty(memberInfo.GetMemberType(), memberInfo, configurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalServicePropertyBuilder? ServiceProperty(
+        Type serviceType,
+        MemberInfo memberInfo,
+        ConfigurationSource? configurationSource)
     {
         var propertyName = memberInfo.GetSimpleMemberName();
         List<ServiceProperty>? propertiesToDetach = null;
@@ -999,7 +1011,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 }
             }
 
-            builder = Metadata.AddServiceProperty(memberInfo, configurationSource.Value).Builder;
+            builder = Metadata.AddServiceProperty(serviceType, memberInfo, configurationSource.Value).Builder;
 
             if (detachedProperties != null)
             {
@@ -5286,6 +5298,17 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     [DebuggerStepThrough]
     IConventionServicePropertyBuilder? IConventionEntityTypeBuilder.ServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
         => ServiceProperty(memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionServicePropertyBuilder? IConventionEntityTypeBuilder.ServiceProperty(
+        Type serviceType, MemberInfo memberInfo, bool fromDataAnnotation)
+        => ServiceProperty(serviceType, memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
