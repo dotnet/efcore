@@ -3650,6 +3650,81 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The entity type '{entityType}' was first mapped explicitly and then ignored. Consider not mapping the entity type in the first place.
+        /// </summary>
+        public static EventDefinition<string> LogMappedEntityTypeIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMappedEntityTypeIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMappedEntityTypeIgnored,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.MappedEntityTypeIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MappedEntityTypeIgnoredWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.MappedEntityTypeIgnoredWarning,
+                            _resourceManager.GetString("LogMappedEntityTypeIgnored")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The navigation '{entityType}.{navigation}' was first mapped explicitly and then ignored. Consider not mapping the navigation in the first place.
+        /// </summary>
+        public static EventDefinition<string, string> LogMappedNavigationIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMappedNavigationIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMappedNavigationIgnored,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.MappedNavigationIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MappedNavigationIgnoredWarning",
+                        level => LoggerMessage.Define<string, string?>(
+                            level,
+                            CoreEventId.MappedNavigationIgnoredWarning,
+                            _resourceManager.GetString("LogMappedNavigationIgnored")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' was first mapped explicitly and then ignored. Consider not mapping the property in the first place.
+        /// </summary>
+        public static EventDefinition<string, string> LogMappedPropertyIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMappedPropertyIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMappedPropertyIgnored,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.MappedPropertyIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MappedPropertyIgnoredWarning",
+                        level => LoggerMessage.Define<string, string?>(
+                            level,
+                            CoreEventId.MappedPropertyIgnoredWarning,
+                            _resourceManager.GetString("LogMappedPropertyIgnored")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
         ///     There are multiple navigations ({navigations}) configured with [InverseProperty] attribute which point to the same inverse navigation '{inverseNavigation}' therefore no relationship was configured by convention.
         /// </summary>
         public static EventDefinition<string, string?> LogMultipleInversePropertiesSameTarget(IDiagnosticsLogger logger)

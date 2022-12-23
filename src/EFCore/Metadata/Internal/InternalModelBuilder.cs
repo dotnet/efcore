@@ -469,6 +469,11 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
             var entityType = Metadata.FindEntityType(name);
             if (entityType != null)
             {
+                if (entityType.GetConfigurationSource() == ConfigurationSource.Explicit)
+                {
+                    Metadata.ScopedModelDependencies?.Logger.MappedEntityTypeIgnoredWarning(entityType);
+                }
+
                 HasNoEntityType(entityType, configurationSource);
             }
 
@@ -479,10 +484,6 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
             else
             {
                 Metadata.AddIgnored(type.Type, configurationSource);
-            }
-
-            if (type.Type != null)
-            {
                 Metadata.RemoveOwned(type.Type);
             }
 

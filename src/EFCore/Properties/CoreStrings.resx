@@ -817,6 +817,18 @@
     <value>More than twenty 'IServiceProvider' instances have been created for internal use by Entity Framework. This is commonly caused by injection of a new singleton service instance into every DbContext instance. For example, calling 'UseLoggerFactory' passing in a new instance each time--see https://go.microsoft.com/fwlink/?linkid=869049 for more details. This may lead to performance issues, consider reviewing calls on 'DbContextOptionsBuilder' that may require new service providers to be built.</value>
     <comment>Warning CoreEventId.ManyServiceProvidersCreatedWarning</comment>
   </data>
+  <data name="LogMappedEntityTypeIgnored" xml:space="preserve">
+    <value>The entity type '{entityType}' was first mapped explicitly and then ignored. Consider not mapping the entity type in the first place.</value>
+    <comment>Warning CoreEventId.MappedEntityTypeIgnored string</comment>
+  </data>
+  <data name="LogMappedPropertyIgnored" xml:space="preserve">
+    <value>The property '{entityType}.{property}' was first mapped explicitly and then ignored. Consider not mapping the property in the first place.</value>
+    <comment>Warning CoreEventId.MappedPropertyIgnored string string</comment>
+  </data>
+  <data name="LogMappedNavigationIgnored" xml:space="preserve">
+    <value>The navigation '{entityType}.{navigation}' was first mapped explicitly and then ignored. Consider not mapping the navigation in the first place.</value>
+    <comment>Warning CoreEventId.MappedNavigationIgnored string string</comment>
+  </data>
   <data name="LogMultipleInversePropertiesSameTarget" xml:space="preserve">
     <value>There are multiple navigations ({navigations}) configured with [InverseProperty] attribute which point to the same inverse navigation '{inverseNavigation}' therefore no relationship was configured by convention.</value>
     <comment>Warning CoreEventId.MultipleInversePropertiesSameTargetWarning string string?</comment>

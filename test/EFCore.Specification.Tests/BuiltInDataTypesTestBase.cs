@@ -2113,6 +2113,13 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
         public virtual string ReallyLargeString
             => string.Join("", Enumerable.Repeat(Environment.NewLine, 1001));
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(
+                w => w.Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             modelBuilder.Entity<BinaryKeyDataType>();
