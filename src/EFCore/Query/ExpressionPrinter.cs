@@ -292,6 +292,7 @@ public class ExpressionPrinter : ExpressionVisitor
                 break;
 
             case ExpressionType.NewArrayInit:
+            case ExpressionType.NewArrayBounds:
                 VisitNewArray((NewArrayExpression)expression);
                 break;
 
@@ -794,6 +795,15 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
     {
+        if (newArrayExpression.NodeType == ExpressionType.NewArrayBounds)
+        {
+            Append("new " + newArrayExpression.Type.GetElementType()!.ShortDisplayName() + "[");
+            VisitArguments(newArrayExpression.Expressions, s => Append(s));
+            Append("]");
+
+            return newArrayExpression;
+        }
+
         var isComplex = newArrayExpression.Expressions.Count > 1;
         var appendAction = isComplex ? s => AppendLine(s) : (Action<string>)(s => Append(s));
 
