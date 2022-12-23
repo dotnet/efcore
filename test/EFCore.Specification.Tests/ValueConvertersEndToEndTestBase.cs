@@ -668,6 +668,13 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
         protected override string StoreName
             => "ValueConvertersEndToEnd";
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(
+                w => w.Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<ConvertingEntity>(
                 b =>
