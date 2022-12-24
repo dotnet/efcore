@@ -1092,7 +1092,7 @@ public class DbContext :
 
             _disposed = true;
 
-            _dbContextDependencies?.StateManager.Unsubscribe();
+            _dbContextDependencies?.StateManager.Unsubscribe(resetting: true);
 
             _dbContextDependencies = null;
             _changeTracker = null;

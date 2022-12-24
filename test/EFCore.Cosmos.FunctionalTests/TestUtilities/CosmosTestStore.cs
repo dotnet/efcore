@@ -512,6 +512,9 @@ public class CosmosTestStore : TestStore
         public IEnumerable<IReadOnlyServiceProperty> GetDerivedServiceProperties()
             => throw new NotImplementedException();
 
+        public bool HasServiceProperties()
+            => throw new NotImplementedException();
+
         public IEnumerable<IReadOnlySkipNavigation> GetDerivedSkipNavigations()
             => throw new NotImplementedException();
 

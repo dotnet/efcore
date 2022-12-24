@@ -763,6 +763,9 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             ? property
             : null;
 
+    private bool HasServiceProperties()
+        => _serviceProperties.Count != 0 || _baseType != null && _baseType.HasServiceProperties();
+
     private IEnumerable<RuntimeServiceProperty> GetServiceProperties()
         => _baseType != null
             ? _serviceProperties.Count == 0
@@ -1394,6 +1397,11 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetDerivedServiceProperties()
         => GetDerivedServiceProperties();
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IReadOnlyEntityType.HasServiceProperties()
+        => HasServiceProperties();
 
     /// <inheritdoc />
     [DebuggerStepThrough]

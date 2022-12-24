@@ -61,7 +61,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
                 {
                     if (stateManager != entry.StateManager)
                     {
-                        stateManager.ResetState();
+                        stateManager.Clear(resetting: false);
                     }
                 }
             }
@@ -106,7 +106,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
                 {
                     if (stateManager != entry.StateManager)
                     {
-                        await stateManager.ResetStateAsync(cancellationToken).ConfigureAwait(false);
+                        stateManager.Clear(resetting: false);
                     }
                 }
             }

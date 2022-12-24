@@ -22,6 +22,7 @@ public class StateManager : IStateManager
     private IIdentityMap? _identityMap1;
     private Dictionary<IKey, IIdentityMap>? _identityMaps;
     private bool _needsUnsubscribe;
+    private bool _hasServiceProperties;
     private IChangeDetector? _changeDetector;
 
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _changeTrackingLogger;
@@ -361,6 +362,11 @@ public class StateManager : IStateManager
             _needsUnsubscribe = true;
         }
 
+        if (newEntry.EntityType.HasServiceProperties())
+        {
+            _hasServiceProperties = true;
+        }
+
         return newEntry;
     }
 
@@ -600,6 +606,11 @@ public class StateManager : IStateManager
             _needsUnsubscribe = true;
         }
 
+        if (entry.EntityType.HasServiceProperties())
+        {
+            _hasServiceProperties = true;
+        }
+
         return entry;
     }
 
@@ -661,13 +672,34 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Unsubscribe()
+    public virtual void Unsubscribe(bool resetting)
     {
         if (_needsUnsubscribe)
         {
             foreach (var entry in Entries)
             {
                 _internalEntityEntrySubscriber.Unsubscribe(entry);
+            }
+        }
+
+        if (_hasServiceProperties)
+        {
+            foreach (var entry in Entries)
+            {
+                foreach (var serviceProperty in entry.EntityType.GetServiceProperties())
+                {
+                    var service = entry[serviceProperty];
+                    if (resetting
+                        && service is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
+                    else if (!(service is IInjectableService detachable)
+                             || detachable.Detaching(Context, entry.Entity))
+                    {
+                        entry[serviceProperty] = null;
+                    }
+                }
             }
         }
     }
@@ -680,7 +712,7 @@ public class StateManager : IStateManager
     /// </summary>
     public virtual void ResetState()
     {
-        Clear();
+        Clear(resetting: true);
         Dependencies.NavigationFixer.AbortDelayedFixup();
         _changeDetector?.ResetState();
 
@@ -696,9 +728,9 @@ public class StateManager : IStateManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Clear()
+    public virtual void Clear(bool resetting)
     {
-        Unsubscribe();
+        Unsubscribe(resetting);
         ChangedCount = 0;
         _entityReferenceMap.Clear();
         _referencedUntrackedEntities = null;
@@ -708,6 +740,7 @@ public class StateManager : IStateManager
         _identityMap1?.Clear();
 
         _needsUnsubscribe = false;
+        _hasServiceProperties = false;
 
         SavingChanges = false;
 

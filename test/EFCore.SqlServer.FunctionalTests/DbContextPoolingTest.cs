@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable MethodHasAsyncOverload
@@ -172,7 +173,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().ToTable("Customers");
+        {
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+        }
 
         public override void Dispose()
         {
@@ -192,19 +196,26 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().ToTable("Customers");
+        {
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+        }
     }
 
     public class Customer
     {
         public string CustomerId { get; set; }
         public string CompanyName { get; set; }
+        public ILazyLoader LazyLoader { get; set; }
         public ObservableCollection<Order> Orders { get; } = new();
     }
 
     public class Order
     {
-        public string OrderId { get; set; }
+        public int OrderId { get; set; }
+        public ILazyLoader LazyLoader { get; set; }
+        public string CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 
     private interface ISecondContext
@@ -1329,6 +1340,101 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.False(weakRef.IsAlive);
     }
+
+    [ConditionalTheory] // Issue #25486
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Service_properties_are_disposed(bool useInterface, bool async, bool load)
+    {
+        var serviceProvider = useInterface
+            ? BuildServiceProvider<IPooledContext, PooledContext>()
+            : BuildServiceProvider<PooledContext>();
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = useInterface
+            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+            : scopedProvider.GetService<PooledContext>();
+
+        context1.ChangeTracker.LazyLoadingEnabled = true;
+
+        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+        var orderLoader = entity.LazyLoader;
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+        }
+
+        Assert.Equal(load ? 7 : 1, context1.ChangeTracker.Entries().Count());
+
+        await Dispose(serviceScope, async);
+
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+            orderLoader.SetLoaded(entity, nameof(Customer.Orders), loaded: false);
+        }
+
+        AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
+    }
+
+    [ConditionalTheory] // Issue #25486
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Service_properties_are_disposed_with_factory(bool async, bool withDependencyInjection, bool load)
+    {
+        var factory = BuildFactory<PooledContext>(withDependencyInjection);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+
+        context1.ChangeTracker.LazyLoadingEnabled = true;
+
+        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+        var orderLoader = entity.LazyLoader;
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+        }
+
+        Assert.Equal(load ? 7 : 1, context1.ChangeTracker.Entries().Count());
+
+        await Dispose(context1, async);
+
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+            orderLoader.SetLoaded(entity, nameof(Customer.Orders), loaded: false);
+        }
+
+        AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
+    }
+
+    private static void AssertDisposed(Action testCode, string entityTypeName, string navigationName)
+        => Assert.Equal(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(entityTypeName, navigationName),
+                "CoreEventId.LazyLoadOnDisposedContextWarning"),
+            Assert.Throws<InvalidOperationException>(
+                testCode).Message);
 
     [ConditionalTheory]
     [InlineData(false, false)]

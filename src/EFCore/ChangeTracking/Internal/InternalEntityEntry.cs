@@ -470,26 +470,29 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private void SetServiceProperties(EntityState oldState, EntityState newState)
     {
-        if (oldState == EntityState.Detached)
+        if (EntityType.HasServiceProperties())
         {
-            foreach (var serviceProperty in EntityType.GetServiceProperties())
+            if (oldState == EntityState.Detached)
             {
-                this[serviceProperty] = (this[serviceProperty] is IInjectableService injectableService
-                        ? injectableService.Attaching(Context, Entity, injectableService)
-                        : null)
-                    ?? serviceProperty
-                        .ParameterBinding
-                        .ServiceDelegate(new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
-            }
-        }
-        else if (newState == EntityState.Detached)
-        {
-            foreach (var serviceProperty in EntityType.GetServiceProperties())
-            {
-                if (!(this[serviceProperty] is IInjectableService detachable)
-                    || detachable.Detaching(Context, Entity))
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
                 {
-                    this[serviceProperty] = null;
+                    this[serviceProperty] = (this[serviceProperty] is IInjectableService injectableService
+                            ? injectableService.Attaching(Context, Entity, injectableService)
+                            : null)
+                        ?? serviceProperty
+                            .ParameterBinding
+                            .ServiceDelegate(new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
+                }
+            }
+            else if (newState == EntityState.Detached)
+            {
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
+                {
+                    if (!(this[serviceProperty] is IInjectableService detachable)
+                        || detachable.Detaching(Context, Entity))
+                    {
+                        this[serviceProperty] = null;
+                    }
                 }
             }
         }
@@ -2030,6 +2033,11 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private ILazyLoader? GetLazyLoader()
     {
+        if (!EntityType.HasServiceProperties())
+        {
+            return null;
+        }
+
         var lazyLoaderProperty = EntityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == typeof(ILazyLoader));
         return lazyLoaderProperty != null ? (ILazyLoader?)this[lazyLoaderProperty] : null;
     }

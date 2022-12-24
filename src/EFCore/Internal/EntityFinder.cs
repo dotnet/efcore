@@ -447,7 +447,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 {
                     if (stateManager != _stateManager)
                     {
-                        stateManager.ResetState();
+                        stateManager.Clear(resetting: false);
                     }
                 }
             }
@@ -509,7 +509,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                 {
                     if (stateManager != _stateManager)
                     {
-                        await stateManager.ResetStateAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
+                        stateManager.Clear(resetting: false);
                     }
                 }
             }
