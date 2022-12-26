@@ -70,4 +70,14 @@ public interface IDatabaseFacadeDependencies
     ///     The async query provider.
     /// </summary>
     IAsyncQueryProvider QueryProvider { get; }
+
+    /// <summary>
+    ///     The ad-hoc type mapper.
+    /// </summary>
+    IAdHocMapper AdHocMapper { get; }
+
+    /// <summary>
+    ///    The <see cref="TypeMappingSource"/>.
+    /// </summary>
+    ITypeMappingSource TypeMappingSource { get; }
 }
