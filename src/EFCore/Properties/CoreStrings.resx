@@ -1067,6 +1067,9 @@
   <data name="NavigationNotAdded" xml:space="preserve">
     <value>Unable to determine the relationship represented by navigation '{entityType}.{navigation}' of type '{propertyType}'. Either manually configure the relationship, or ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
   </data>
+  <data name="NavigationNotAddedAdHoc" xml:space="preserve">
+    <value>The property '{entityType}.{navigation}' of type '{propertyType}' appears to be a navigation to another entity type. Navigations are not supported when using 'SqlQuery". Either include this type in the model and use 'FromSql' for the query, or ignore this property using the '[NotMapped]' attribute.</value>
+  </data>
   <data name="NavigationSingleWrongClrType" xml:space="preserve">
     <value>The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.</value>
   </data>
@@ -1243,6 +1246,9 @@
   </data>
   <data name="PropertyNotAdded" xml:space="preserve">
     <value>The property '{entityType}.{property}' could not be mapped because it is of type '{propertyType}', which is not a supported primitive type or a valid entity type. Either explicitly map this property, or ignore it using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.</value>
+  </data>
+  <data name="PropertyNotAddedAdHoc" xml:space="preserve">
+    <value>The property '{entityType}.{property}' could not be mapped because it is of type '{propertyType}', which is not a supported primitive type or a valid entity type. The property can be ignored using the '[NotMapped]' attribute.</value>
   </data>
   <data name="PropertyNotFound" xml:space="preserve">
     <value>The property '{1_entityType}.{0_property}' could not be found. Ensure that the property exists and has been included in the model.</value>
