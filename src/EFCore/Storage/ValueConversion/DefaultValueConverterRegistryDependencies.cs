@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 ///         your constructor so that an instance will be created and injected automatically by the
 ///         dependency injection container. To create an instance with some dependent services replaced,
 ///         first resolve the object from the dependency injection container, then replace selected
-///         services using the 'With...' methods. Do not call the constructor at any point in this process.
+///         services using the C# 'with' operator. Do not call the constructor at any point in this process.
 ///     </para>
 ///     <para>
 ///         The service lifetime is <see cref="ServiceLifetime.Singleton" />.
@@ -39,7 +39,7 @@ public sealed record ValueConverterSelectorDependencies
     ///         as new dependencies are added. Instead, use this type in your constructor so that an instance
     ///         will be created and injected automatically by the dependency injection container. To create
     ///         an instance with some dependent services replaced, first resolve the object from the dependency
-    ///         injection container, then replace selected services using the 'With...' methods. Do not call
+    ///         injection container, then replace selected services using the C# 'with' operator. Do not call
     ///         the constructor at any point in this process.
     ///     </para>
     ///     <para>
