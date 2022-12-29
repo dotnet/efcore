@@ -584,7 +584,8 @@ public class ModelSnapshotSqlServerTest
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
 
                     b.Property<string>(""Discriminator"")
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasMaxLength(13)
+                        .HasColumnType(""nvarchar(13)"");
 
                     b.HasKey(""Id"");
 
@@ -1400,7 +1401,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasMaxLength(13)
+                        .HasColumnType(""nvarchar(13)"");
 
                     b.HasKey(""Id"");
 
@@ -1711,7 +1713,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasMaxLength(21)
+                        .HasColumnType(""nvarchar(21)"");
 
                     b.HasKey(""Id"");
 
@@ -1780,7 +1783,8 @@ public class ModelSnapshotSqlServerTest
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasMaxLength(21)
+                        .HasColumnType(""nvarchar(21)"");
 
                     b.HasKey(""Id"");
 
@@ -4238,7 +4242,8 @@ namespace RootNamespace
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasMaxLength(34)
+                        .HasColumnType(""nvarchar(34)"");
 
                     b.HasKey(""Id"");
 
@@ -6234,7 +6239,8 @@ namespace RootNamespace
 
                     b.Property<string>(""Discriminator"")
                         .IsRequired()
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasMaxLength(13)
+                        .HasColumnType(""nvarchar(13)"");
 
                     b.Property<int?>(""NavigationId"")
                         .HasColumnType(""int"");

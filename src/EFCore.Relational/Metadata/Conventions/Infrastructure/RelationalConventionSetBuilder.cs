@@ -73,6 +73,7 @@ public abstract class RelationalConventionSetBuilder : ProviderConventionSetBuil
         conventionSet.Add(new TableValuedDbFunctionConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new StoreGenerationConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new EntitySplittingConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new DiscriminatorLengthConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new EntityTypeHierarchyMappingConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new SequenceUniquificationConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new SharedTableConvention(Dependencies, RelationalDependencies));

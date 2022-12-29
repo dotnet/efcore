@@ -21,7 +21,7 @@ public class UpdatesSqlServerTPCTest : UpdatesSqlServerTestBase<UpdatesSqlServer
 
         AssertContainsSql(
             @"@p0=NULL (Size = 8000) (DbType = Binary)
-@p1='ProductWithBytes' (Nullable = false) (Size = 4000)
+@p1='ProductWithBytes' (Nullable = false) (Size = 21)
 @p2=NULL (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;

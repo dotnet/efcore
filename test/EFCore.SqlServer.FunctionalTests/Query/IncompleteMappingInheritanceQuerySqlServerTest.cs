@@ -658,7 +658,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
             //
 """
 @p0='0'
-@p1='Eagle' (Nullable = false) (Size = 4000)
+@p1='Eagle' (Nullable = false) (Size = 8)
 @p2='2' (Nullable = true)
 @p3='1' (Nullable = true)
 @p4='False' (Nullable = true)
