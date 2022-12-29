@@ -165,6 +165,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
             {
                 typeof(MaterializationContext),
                 typeof(IEntityType),
+                typeof(QueryTrackingBehavior?),
                 typeof(Dictionary<IPropertyBase, (object, Func<MaterializationContext, object?>)>)
             })!;
 
@@ -242,6 +243,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                     MaterializationInterceptionDataConstructor,
                     materializationContextExpression,
                     Expression.Constant(entityType),
+                    Expression.Constant(bindingInfo.QueryTrackingBehavior, typeof(QueryTrackingBehavior?)),
                     accessorDictionaryVariable)),
             Expression.Assign(
                 creatingResultVariable,

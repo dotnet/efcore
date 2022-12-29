@@ -83,6 +83,7 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                 {
                     Assert.Same(context, data.Context);
                     Assert.Same(data.Context.Model.FindEntityType(typeof(Book)), data.EntityType);
+                    Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
 
                     var idProperty = data.EntityType.FindProperty(nameof(Book.Id))!;
                     var id = data.GetPropertyValue<Guid>(nameof(Book.Id))!;
@@ -189,6 +190,7 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
                 {
                     Assert.Same(context, data.Context);
                     Assert.Same(data.Context.Model.FindEntityType(typeof(Pamphlet)), data.EntityType);
+                    Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
 
                     var idProperty = data.EntityType.FindProperty(nameof(Pamphlet.Id))!;
                     var id = data.GetPropertyValue<Guid>(nameof(Pamphlet.Id))!;
