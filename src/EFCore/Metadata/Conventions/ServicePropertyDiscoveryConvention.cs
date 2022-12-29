@@ -81,7 +81,8 @@ public class ServicePropertyDiscoveryConvention :
                 }
 
                 var memberType = memberInfo.GetMemberType();
-                if (entityType.GetServiceProperties().Any(p => p.ClrType == memberType))
+                if (entityType.HasServiceProperties()
+                    && entityType.GetServiceProperties().Any(p => p.ClrType == memberType))
                 {
                     continue;
                 }

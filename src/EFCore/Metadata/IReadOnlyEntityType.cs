@@ -742,6 +742,12 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyServiceProperty> GetDerivedServiceProperties();
 
     /// <summary>
+    ///     Checks whether or not this entity type has any <see cref="IServiceProperty" /> defined.
+    /// </summary>
+    /// <returns><see langword="true"/> if there are any service properties defined on this entity type or base types.</returns>
+    bool HasServiceProperties();
+
+    /// <summary>
     ///     Gets all the <see cref="IReadOnlyServiceProperty" /> defined on this entity type.
     /// </summary>
     /// <remarks>

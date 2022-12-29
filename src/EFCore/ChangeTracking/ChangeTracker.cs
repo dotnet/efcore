@@ -609,7 +609,7 @@ public class ChangeTracker : IResettableService
     ///     </para>
     /// </remarks>
     public virtual void Clear()
-        => StateManager.Clear();
+        => StateManager.Clear(resetting: false);
 
     /// <summary>
     ///     <para>

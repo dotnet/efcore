@@ -19,7 +19,7 @@ public class FakeStateManager : IStateManager
     public Task ResetStateAsync(CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
-    public void Unsubscribe()
+    public void Unsubscribe(bool resetting)
     {
     }
 
@@ -76,7 +76,7 @@ public class FakeStateManager : IStateManager
 
     public IDiagnosticsLogger<DbLoggerCategory.Update> UpdateLogger { get; }
 
-    public void Clear()
+    public void Clear(bool resetting)
         => throw new NotImplementedException();
 
     public bool SavingChanges
