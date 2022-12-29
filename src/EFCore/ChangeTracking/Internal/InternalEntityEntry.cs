@@ -472,16 +472,33 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     {
         if (EntityType.HasServiceProperties())
         {
-            if (oldState == EntityState.Detached)
+            List<IServiceProperty>? dependentServices = null;
+            foreach (var serviceProperty in EntityType.GetServiceProperties())
             {
-                foreach (var serviceProperty in EntityType.GetServiceProperties())
+                var service = this[serviceProperty] ?? serviceProperty.ParameterBinding.ServiceDelegate(
+                    new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
+
+                if (service == null)
                 {
-                    this[serviceProperty] = (this[serviceProperty] is IInjectableService injectableService
-                            ? injectableService.Attaching(Context, Entity, injectableService)
-                            : null)
-                        ?? serviceProperty
-                            .ParameterBinding
-                            .ServiceDelegate(new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
+                    (dependentServices ??= new List<IServiceProperty>()).Add(serviceProperty);
+                }
+                else
+                {
+                    if (service is IInjectableService injectableService)
+                    {
+                        injectableService.Attaching(Context, EntityType, Entity);
+                    }
+
+                    this[serviceProperty] = service;
+                }
+            }
+
+            if (dependentServices != null)
+            {
+                foreach (var serviceProperty in dependentServices)
+                {
+                    this[serviceProperty] = serviceProperty.ParameterBinding.ServiceDelegate(
+                        new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
                 }
             }
             else if (newState == EntityState.Detached)

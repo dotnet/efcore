@@ -92,6 +92,20 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IEntityTypeConfiguration<>).GetMethod(nameof(IEntityTypeConfiguration<Type>.Configure))
         };
 
+        public override Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new()
+        {
+            {
+                typeof(IConventionNavigationBuilder).GetMethod(
+                    nameof(IConventionNavigationBuilder.EnableLazyLoading), new[] { typeof(bool?), typeof(bool) })!,
+                "LazyLoadingEnabled"
+            },
+            {
+                typeof(IConventionSkipNavigationBuilder).GetMethod(
+                    nameof(IConventionSkipNavigationBuilder.EnableLazyLoading), new[] { typeof(bool?), typeof(bool) })!,
+                "LazyLoadingEnabled"
+            }
+        };
+
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
         {
             typeof(OwnedNavigationBuilder).GetMethod(

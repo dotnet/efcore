@@ -456,6 +456,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         public abstract TestNavigationBuilder HasField(string fieldName);
         public abstract TestNavigationBuilder AutoInclude(bool autoInclude = true);
+        public abstract TestNavigationBuilder EnableLazyLoading(bool lazyLoadingEnabled = true);
         public abstract TestNavigationBuilder IsRequired(bool required = true);
     }
 

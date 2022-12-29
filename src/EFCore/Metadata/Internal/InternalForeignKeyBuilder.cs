@@ -2782,6 +2782,14 @@ public class InternalForeignKeyBuilder : AnnotatableBuilder<ForeignKey, Internal
                 ((IReadOnlyNavigation)oldNavigation).IsEagerLoaded, oldIsEagerLoadedConfigurationSource.Value)!;
         }
 
+        var oldLazyLoadingEnabledConfigurationSource = ((IConventionNavigation)oldNavigation).GetLazyLoadingEnabledConfigurationSource();
+        if (oldLazyLoadingEnabledConfigurationSource.HasValue
+            && builder.CanSetLazyLoadingEnabled(((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value))
+        {
+            builder = builder.EnableLazyLoading(
+                ((IReadOnlyNavigation)oldNavigation).LazyLoadingEnabled, oldLazyLoadingEnabledConfigurationSource.Value)!;
+        }
+
         return builder.Metadata.ForeignKey.Builder;
     }
 

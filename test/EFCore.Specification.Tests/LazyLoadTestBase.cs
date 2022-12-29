@@ -56,7 +56,7 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (!LazyLoadingEnabled || (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll))
         {
             Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
         }
@@ -74,9 +74,9 @@ public abstract partial class LoadTestBase<TFixture>
             context.ChangeTracker.LazyLoadingEnabled = false;
 
             Assert.Equal(2, parent.Children.Count());
-        }
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
+        }
     }
 
     [ConditionalTheory]
@@ -131,50 +131,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await child.LazyLoadParent(async)); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(await child.LazyLoadParent(async));
+                Assert.Null(await child.LazyLoadParent(async)); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(await child.LazyLoadParent(async));
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.Children.Single());
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
-                    Assert.Null(child.Parent);
-                    Assert.Null(parent.Children);
+                    Assert.Null(await child.LazyLoadParent(async));
                 }
                 else
                 {
-                    Assert.Same(parent, child.Parent);
-                    Assert.Same(child, parent.Children.Single());
+                    Assert.NotNull(await child.LazyLoadParent(async));
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.Children.Single());
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.Children);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.Children.Single());
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(await child.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -230,50 +238,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await single.LazyLoadParent(async)); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(await single.LazyLoadParent(async));
+                Assert.Null(await single.LazyLoadParent(async)); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(await single.LazyLoadParent(async));
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.Single);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
-                    Assert.Null(single.Parent);
-                    Assert.Null(parent.Single);
+                    Assert.Null(await single.LazyLoadParent(async));
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.Single);
+                    Assert.NotNull(await single.LazyLoadParent(async));
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.Single);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.Single);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.Single);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(await single.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -329,35 +345,43 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await parent.LazyLoadSingle(async)); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(await parent.LazyLoadSingle(async)); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(await parent.LazyLoadSingle(async));
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(parent, parent.Single.Parent);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<Single>().Single().Entity;
+
+                    Assert.Same(single, parent.Single);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(await parent.LazyLoadSingle(async));
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(parent, parent.Single.Parent);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<Single>().Single().Entity;
-
-                Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(await parent.LazyLoadSingle(async));
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -395,50 +419,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(single.Parent);
+                Assert.Null(single.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(single.Parent);
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.SinglePkToPk);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(single.Parent);
-                    Assert.Null(parent.SinglePkToPk);
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.SinglePkToPk);
+                    Assert.NotNull(single.Parent);
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.SinglePkToPk);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.SinglePkToPk);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.SinglePkToPk);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -476,32 +508,40 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.SinglePkToPk); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.SinglePkToPk); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.SinglePkToPk);
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                Assert.Same(parent, parent.SinglePkToPk.Parent);
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
+
+                    Assert.Same(single, parent.SinglePkToPk);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(parent.SinglePkToPk);
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            Assert.Same(parent, parent.SinglePkToPk.Parent);
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SinglePkToPk>().Single().Entity;
-
-                Assert.Same(single, parent.SinglePkToPk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(parent.SinglePkToPk);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -557,17 +597,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await child.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await child.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(await child.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -622,18 +670,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await single.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await single.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(await single.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -685,20 +741,28 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
+            if (state == EntityState.Detached)
+            {
+                Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
+            }
+            else
+            {
+                Assert.Empty(await parent.LazyLoadChildren(async));
+                Assert.False(changeDetector.DetectChangesCalled);
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Single(context.ChangeTracker.Entries());
+            }
         }
         else
         {
-            Assert.Empty(await parent.LazyLoadChildren(async));
-            Assert.False(changeDetector.DetectChangesCalled);
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(await parent.LazyLoadChildren(async));
+            Assert.False(collectionEntry.IsLoaded);
         }
     }
 
@@ -754,17 +818,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await child.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await child.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(await child.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -819,18 +891,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await single.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await single.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(await single.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -885,18 +965,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await parent.LazyLoadSingle(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await parent.LazyLoadSingle(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Null(parent.Single);
+            Assert.Null(parent.Single);
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+        }
+        else
+        {
+            Assert.Null(await parent.LazyLoadSingle(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -1071,7 +1159,7 @@ public abstract partial class LoadTestBase<TFixture>
 
         RecordLog();
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (!LazyLoadingEnabled || (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll))
         {
             Assert.False(collectionEntry.IsLoaded); // Explicitly detached
             Assert.Equal(1, parent.Children.Count());
@@ -1522,48 +1610,56 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(child.Parent);
+                Assert.Null(child.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(child.Parent);
-            }
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.ChildrenAk.Single());
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(child.Parent);
-                    Assert.Null(parent.ChildrenAk);
                 }
                 else
                 {
-                    Assert.Same(parent, child.Parent);
-                    Assert.Same(child, parent.ChildrenAk.Single());
+                    Assert.NotNull(child.Parent);
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.ChildrenAk.Single());
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.ChildrenAk);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.ChildrenAk.Single());
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -1599,48 +1695,56 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(single.Parent);
+                Assert.Null(single.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(single.Parent);
-            }
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.SingleAk);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(single.Parent);
-                    Assert.Null(parent.SingleAk);
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.SingleAk);
+                    Assert.NotNull(single.Parent);
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.SingleAk);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.SingleAk);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.SingleAk);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -1676,30 +1780,38 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.SingleAk); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.SingleAk); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.SingleAk);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                Assert.Same(parent, parent.SingleAk.Parent);
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SingleAk>().Single().Entity;
+
+                    Assert.Same(single, parent.SingleAk);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(parent.SingleAk);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            Assert.Same(parent, parent.SingleAk.Parent);
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SingleAk>().Single().Entity;
-
-                Assert.Same(single, parent.SingleAk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(parent.SingleAk);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -1735,15 +1847,23 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.Null(child.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(child.Parent);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -1778,16 +1898,24 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.Null(single.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(single.Parent);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -1820,24 +1948,32 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(collectionEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.ChildrenShadowFk); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.ChildrenShadowFk); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.ChildrenShadowFk);
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, parent.ChildrenShadowFk.Count());
+                Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), p => Assert.Same(parent, p));
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
         }
         else
         {
-            Assert.NotNull(parent.ChildrenShadowFk);
-
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, parent.ChildrenShadowFk.Count());
-            Assert.All(parent.ChildrenShadowFk.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.Null(parent.ChildrenShadowFk);
+            Assert.False(collectionEntry.IsLoaded);
         }
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
@@ -1868,55 +2004,63 @@ public abstract partial class LoadTestBase<TFixture>
 
         SetState(context, child, state, queryTrackingBehavior);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent); // Explicitly detached
-        }
-        else if (state == EntityState.Detached || queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
-        {
-            Assert.Equal(
-                CoreStrings.CannotLoadDetachedShadow("Parent", "ChildShadowFk"),
-                Assert.Throws<InvalidOperationException>(() => child.Parent).Message);
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(child.Parent); // Explicitly detached
+            }
+            else if (state == EntityState.Detached || queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetachedShadow("Parent", "ChildShadowFk"),
+                    Assert.Throws<InvalidOperationException>(() => child.Parent).Message);
+            }
+            else
+            {
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(child.Parent);
+                }
+                else
+                {
+                    Assert.NotNull(child.Parent);
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.ChildrenShadowFk.Single());
+                }
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(child.Parent);
+                    Assert.Null(parent.ChildrenShadowFk);
+                }
+                else
+                {
+                    Assert.Same(parent, child.Parent);
+                    Assert.Same(child, parent.ChildrenShadowFk.Single());
+                }
+            }
         }
         else
         {
-            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
-
-            Assert.False(referenceEntry.IsLoaded);
-
-            if (state == EntityState.Deleted)
-            {
-                Assert.Null(child.Parent);
-            }
-            else
-            {
-                Assert.NotNull(child.Parent);
-            }
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.ChildrenShadowFk.Single());
-            }
-
-            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-            if (state == EntityState.Deleted)
-            {
-                Assert.Null(child.Parent);
-                Assert.Null(parent.ChildrenShadowFk);
-            }
-            else
-            {
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.ChildrenShadowFk.Single());
-            }
+            Assert.Null(child.Parent);
+            Assert.False(context.Entry(child).Reference(e => e.Parent).IsLoaded);
         }
     }
 
@@ -1948,55 +2092,63 @@ public abstract partial class LoadTestBase<TFixture>
 
         SetState(context, single, state, queryTrackingBehavior);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent); // Explicitly detached
-        }
-        else if (state == EntityState.Detached || queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
-        {
-            Assert.Equal(
-                CoreStrings.CannotLoadDetachedShadow("Parent", "SingleShadowFk"),
-                Assert.Throws<InvalidOperationException>(() => single.Parent).Message);
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(single.Parent); // Explicitly detached
+            }
+            else if (state == EntityState.Detached || queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetachedShadow("Parent", "SingleShadowFk"),
+                    Assert.Throws<InvalidOperationException>(() => single.Parent).Message);
+            }
+            else
+            {
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(single.Parent);
+                }
+                else
+                {
+                    Assert.NotNull(single.Parent);
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.SingleShadowFk);
+                }
+
+                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(single.Parent);
+                    Assert.Null(parent.SingleShadowFk);
+                }
+                else
+                {
+                    Assert.Same(parent, single.Parent);
+                    Assert.Same(single, parent.SingleShadowFk);
+                }
+            }
         }
         else
         {
-            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
-
-            Assert.False(referenceEntry.IsLoaded);
-
-            if (state == EntityState.Deleted)
-            {
-                Assert.Null(single.Parent);
-            }
-            else
-            {
-                Assert.NotNull(single.Parent);
-            }
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.SingleShadowFk);
-            }
-
-            var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
-            if (state == EntityState.Deleted)
-            {
-                Assert.Null(single.Parent);
-                Assert.Null(parent.SingleShadowFk);
-            }
-            else
-            {
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.SingleShadowFk);
-            }
+            Assert.Null(single.Parent);
+            Assert.False(context.Entry(single).Reference(e => e.Parent).IsLoaded);
         }
     }
 
@@ -2032,30 +2184,38 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.SingleShadowFk); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.SingleShadowFk); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.SingleShadowFk);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                Assert.Same(parent, parent.SingleShadowFk.Parent);
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SingleShadowFk>().Single().Entity;
+
+                    Assert.Same(single, parent.SingleShadowFk);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(parent.SingleShadowFk);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            Assert.Same(parent, parent.SingleShadowFk.Parent);
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SingleShadowFk>().Single().Entity;
-
-                Assert.Same(single, parent.SingleShadowFk);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(parent.SingleShadowFk);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2092,31 +2252,39 @@ public abstract partial class LoadTestBase<TFixture>
 
         SetState(context, child, state, queryTrackingBehavior, isAttached: true);
 
-        if (state == EntityState.Detached)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent); // Explicitly detached
-        }
-        else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
-        {
-            Assert.Equal(
-                CoreStrings.CannotLoadDetachedShadow("Parent", "ChildShadowFk"),
-                Assert.Throws<InvalidOperationException>(() => child.Parent).Message);
+            if (state == EntityState.Detached)
+            {
+                Assert.Null(child.Parent); // Explicitly detached
+            }
+            else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetachedShadow("Parent", "ChildShadowFk"),
+                    Assert.Throws<InvalidOperationException>(() => child.Parent).Message);
+            }
+            else
+            {
+                var referenceEntry = context.Entry(child).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
+                Assert.Null(child.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Single(context.ChangeTracker.Entries());
+                Assert.Null(child.Parent);
+            }
         }
         else
         {
-            var referenceEntry = context.Entry(child).Reference(e => e.Parent);
-
-            Assert.False(referenceEntry.IsLoaded);
-
             Assert.Null(child.Parent);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Single(context.ChangeTracker.Entries());
-            Assert.Null(child.Parent);
+            Assert.False(context.Entry(child).Reference(e => e.Parent).IsLoaded);
         }
     }
 
@@ -2153,32 +2321,40 @@ public abstract partial class LoadTestBase<TFixture>
 
         SetState(context, single, state, queryTrackingBehavior, isAttached: true);
 
-        if (state == EntityState.Detached)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent);
-        }
-        else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
-        {
-            Assert.Equal(
-                CoreStrings.CannotLoadDetachedShadow("Parent", "SingleShadowFk"),
-                Assert.Throws<InvalidOperationException>(() => single.Parent).Message);
+            if (state == EntityState.Detached)
+            {
+                Assert.Null(single.Parent);
+            }
+            else if (queryTrackingBehavior != QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Equal(
+                    CoreStrings.CannotLoadDetachedShadow("Parent", "SingleShadowFk"),
+                    Assert.Throws<InvalidOperationException>(() => single.Parent).Message);
+            }
+            else
+            {
+                var referenceEntry = context.Entry(single).Reference(e => e.Parent);
+
+                Assert.False(referenceEntry.IsLoaded);
+
+                Assert.Null(single.Parent);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Single(context.ChangeTracker.Entries());
+
+                Assert.Null(single.Parent);
+            }
         }
         else
         {
-            var referenceEntry = context.Entry(single).Reference(e => e.Parent);
-
-            Assert.False(referenceEntry.IsLoaded);
-
             Assert.Null(single.Parent);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Single(context.ChangeTracker.Entries());
-
-            Assert.Null(single.Parent);
+            Assert.False(context.Entry(single).Reference(e => e.Parent).IsLoaded);
         }
     }
 
@@ -2212,24 +2388,32 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(collectionEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.ChildrenCompositeKey); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.ChildrenCompositeKey); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.ChildrenCompositeKey);
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, parent.ChildrenCompositeKey.Count());
+                Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), p => Assert.Same(parent, p));
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
         }
         else
         {
-            Assert.NotNull(parent.ChildrenCompositeKey);
-
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, parent.ChildrenCompositeKey.Count());
-            Assert.All(parent.ChildrenCompositeKey.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.Null(parent.ChildrenCompositeKey);
+            Assert.False(collectionEntry.IsLoaded);
         }
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
@@ -2264,48 +2448,56 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(child.Parent);
+                Assert.Null(child.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(child.Parent);
-            }
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.ChildrenCompositeKey.Single());
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(child.Parent);
-                    Assert.Null(parent.ChildrenCompositeKey);
                 }
                 else
                 {
-                    Assert.Same(parent, child.Parent);
-                    Assert.Same(child, parent.ChildrenCompositeKey.Single());
+                    Assert.NotNull(child.Parent);
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.ChildrenCompositeKey.Single());
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.ChildrenCompositeKey);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.ChildrenCompositeKey.Single());
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2341,48 +2533,56 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(single.Parent);
+                Assert.Null(single.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(single.Parent);
-            }
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.SingleCompositeKey);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(single.Parent);
-                    Assert.Null(parent.SingleCompositeKey);
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.SingleCompositeKey);
+                    Assert.NotNull(single.Parent);
+                }
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.SingleCompositeKey);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<Parent>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.SingleCompositeKey);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.SingleCompositeKey);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2418,30 +2618,38 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.SingleCompositeKey); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.SingleCompositeKey); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.SingleCompositeKey);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                Assert.Same(parent, parent.SingleCompositeKey.Parent);
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SingleCompositeKey>().Single().Entity;
+
+                    Assert.Same(single, parent.SingleCompositeKey);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(parent.SingleCompositeKey);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            Assert.Same(parent, parent.SingleCompositeKey.Parent);
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SingleCompositeKey>().Single().Entity;
-
-                Assert.Same(single, parent.SingleCompositeKey);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(parent.SingleCompositeKey);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2477,15 +2685,23 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.Null(child.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(child.Parent);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -2520,16 +2736,24 @@ public abstract partial class LoadTestBase<TFixture>
 
         Assert.False(referenceEntry.IsLoaded);
 
-        Assert.Null(single.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(single.Parent);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -2584,27 +2808,35 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(await parent.LazyLoadChildren(async));
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, parent.Children.Count());
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
         }
         else
         {
-            Assert.NotNull(await parent.LazyLoadChildren(async));
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(collectionEntry.IsLoaded);
-
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, parent.Children.Count());
+            Assert.Null(await parent.LazyLoadChildren(async));
+            Assert.False(collectionEntry.IsLoaded);
         }
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
@@ -2659,50 +2891,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await child.LazyLoadParent(async)); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(await child.LazyLoadParent(async));
+                Assert.Null(await child.LazyLoadParent(async)); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(await child.LazyLoadParent(async));
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.Children.Single());
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<ParentFullLoaderByConstructor>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
-                    Assert.Null(child.Parent);
-                    Assert.Null(parent.Children);
+                    Assert.Null(await child.LazyLoadParent(async));
                 }
                 else
                 {
-                    Assert.Same(parent, child.Parent);
-                    Assert.Same(child, parent.Children.Single());
+                    Assert.NotNull(await child.LazyLoadParent(async));
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.Children.Single());
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<ParentFullLoaderByConstructor>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.Children);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.Children.Single());
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(await child.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2758,50 +2998,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await single.LazyLoadParent(async)); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(await single.LazyLoadParent(async));
+                Assert.Null(await single.LazyLoadParent(async)); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(await single.LazyLoadParent(async));
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.Single);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<ParentFullLoaderByConstructor>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
-                    Assert.Null(single.Parent);
-                    Assert.Null(parent.Single);
+                    Assert.Null(await single.LazyLoadParent(async));
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.Single);
+                    Assert.NotNull(await single.LazyLoadParent(async));
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.Single);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<ParentFullLoaderByConstructor>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.Single);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.Single);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(await single.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2857,35 +3105,43 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await parent.LazyLoadSingle(async)); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(await parent.LazyLoadSingle(async)); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(await parent.LazyLoadSingle(async));
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(parent, parent.Single.Parent);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SingleFullLoaderByConstructor>().Single().Entity;
+
+                    Assert.Same(single, parent.Single);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(await parent.LazyLoadSingle(async));
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(parent, parent.Single.Parent);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SingleFullLoaderByConstructor>().Single().Entity;
-
-                Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(await parent.LazyLoadSingle(async));
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -2941,17 +3197,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await child.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await child.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(await child.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -3006,18 +3270,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await single.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await single.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(await single.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -3072,20 +3344,28 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
+            if (state == EntityState.Detached)
+            {
+                Assert.Null(await parent.LazyLoadChildren(async)); // Explicitly detached
+            }
+            else
+            {
+                Assert.Empty(await parent.LazyLoadChildren(async));
+                Assert.False(changeDetector.DetectChangesCalled);
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Single(context.ChangeTracker.Entries());
+            }
         }
         else
         {
-            Assert.Empty(await parent.LazyLoadChildren(async));
-            Assert.False(changeDetector.DetectChangesCalled);
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(await parent.LazyLoadChildren(async));
+            Assert.False(collectionEntry.IsLoaded);
         }
     }
 
@@ -3141,17 +3421,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await child.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await child.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(await child.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -3206,18 +3494,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await single.LazyLoadParent(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await single.LazyLoadParent(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(await single.LazyLoadParent(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -3272,18 +3568,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(await parent.LazyLoadSingle(async));
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(await parent.LazyLoadSingle(async));
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Null(parent.Single);
+            Assert.Null(parent.Single);
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+        }
+        else
+        {
+            Assert.Null(await parent.LazyLoadSingle(async));
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -3723,26 +4027,34 @@ public abstract partial class LoadTestBase<TFixture>
 
         RecordLog();
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.False(collectionEntry.IsLoaded); // Explicitly detached
-            Assert.Equal(1, parent.Children.Count());
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.False(collectionEntry.IsLoaded); // Explicitly detached
+                Assert.Equal(1, parent.Children.Count());
 
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            }
+            else
+            {
+                Assert.True(collectionEntry.IsLoaded);
+
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                // Note that when detached there is no identity resolution, so loading results in duplicates
+                Assert.Equal(
+                    state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                        ? 3
+                        : 2, parent.Children.Count());
+
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            }
         }
         else
         {
-            Assert.True(collectionEntry.IsLoaded);
-
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            // Note that when detached there is no identity resolution, so loading results in duplicates
-            Assert.Equal(
-                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                    ? 3
-                    : 2, parent.Children.Count());
-
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.False(collectionEntry.IsLoaded);
+            Assert.Equal(1, parent.Children.Count());
         }
     }
 
@@ -3782,20 +4094,28 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.NotNull(parent.Children);
+        if (LazyLoadingEnabled)
+        {
+            Assert.NotNull(parent.Children);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.True(collectionEntry.IsLoaded);
+            Assert.True(collectionEntry.IsLoaded);
 
-        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(2, parent.Children.Count());
+            Assert.Equal(2, parent.Children.Count());
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
+        }
+        else
+        {
+            Assert.Null(parent.Children);
+            Assert.False(collectionEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -3834,43 +4154,51 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Deleted)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent);
-        }
-        else
-        {
-            Assert.NotNull(child.Parent);
-        }
-
-        Assert.False(changeDetector.DetectChangesCalled);
-
-        Assert.True(referenceEntry.IsLoaded);
-
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-        if (state != EntityState.Deleted)
-        {
-            Assert.Same(child, child.Parent!.Children.Single());
-        }
-
-        if (state != EntityState.Detached)
-        {
-            var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByConstructor>().Single().Entity;
-
             if (state == EntityState.Deleted)
             {
                 Assert.Null(child.Parent);
-                Assert.Null(parent.Children);
             }
             else
             {
-                Assert.Same(parent, child.Parent);
-                Assert.Same(child, parent.Children.Single());
+                Assert.NotNull(child.Parent);
             }
+
+            Assert.False(changeDetector.DetectChangesCalled);
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+            if (state != EntityState.Deleted)
+            {
+                Assert.Same(child, child.Parent!.Children.Single());
+            }
+
+            if (state != EntityState.Detached)
+            {
+                var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByConstructor>().Single().Entity;
+
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(child.Parent);
+                    Assert.Null(parent.Children);
+                }
+                else
+                {
+                    Assert.Same(parent, child.Parent);
+                    Assert.Same(child, parent.Children.Single());
+                }
+            }
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -3910,43 +4238,51 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Deleted)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent);
-        }
-        else
-        {
-            Assert.NotNull(single.Parent);
-        }
-
-        Assert.False(changeDetector.DetectChangesCalled);
-
-        Assert.True(referenceEntry.IsLoaded);
-
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-        if (state != EntityState.Deleted)
-        {
-            Assert.Same(single, single.Parent!.Single);
-        }
-
-        if (state != EntityState.Detached)
-        {
-            var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByConstructor>().Single().Entity;
-
             if (state == EntityState.Deleted)
             {
                 Assert.Null(single.Parent);
-                Assert.Null(parent.Single);
             }
             else
             {
-                Assert.Same(parent, single.Parent);
-                Assert.Same(single, parent.Single);
+                Assert.NotNull(single.Parent);
             }
+
+            Assert.False(changeDetector.DetectChangesCalled);
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+            if (state != EntityState.Deleted)
+            {
+                Assert.Same(single, single.Parent!.Single);
+            }
+
+            if (state != EntityState.Detached)
+            {
+                var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByConstructor>().Single().Entity;
+
+                if (state == EntityState.Deleted)
+                {
+                    Assert.Null(single.Parent);
+                    Assert.Null(parent.Single);
+                }
+                else
+                {
+                    Assert.Same(parent, single.Parent);
+                    Assert.Same(single, parent.Single);
+                }
+            }
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -3986,28 +4322,36 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.NotNull(parent.Single);
-
-        Assert.False(changeDetector.DetectChangesCalled);
-
-        Assert.True(referenceEntry.IsLoaded);
-
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-        if (state != EntityState.Deleted)
+        if (LazyLoadingEnabled)
         {
-            Assert.Same(parent, parent.Single.Parent);
+            Assert.NotNull(parent.Single);
+
+            Assert.False(changeDetector.DetectChangesCalled);
+
+            Assert.True(referenceEntry.IsLoaded);
+
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+            if (state != EntityState.Deleted)
+            {
+                Assert.Same(parent, parent.Single.Parent);
+            }
+
+            if (state != EntityState.Detached)
+            {
+                var single = context.ChangeTracker.Entries<SingleDelegateLoaderByConstructor>().Single().Entity;
+
+                Assert.Same(single, parent.Single);
+                Assert.Same(parent, single.Parent);
+            }
         }
-
-        if (state != EntityState.Detached)
+        else
         {
-            var single = context.ChangeTracker.Entries<SingleDelegateLoaderByConstructor>().Single().Entity;
-
-            Assert.Same(single, parent.Single);
-            Assert.Same(parent, single.Parent);
+            Assert.Null(parent.Single);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -4369,22 +4713,31 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
+        var originalLoadedState = collectionEntry.IsLoaded;
+
         Assert.NotNull(parent.Children);
 
         Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.True(collectionEntry.IsLoaded);
+        if (LazyLoadingEnabled)
+        {
+            Assert.True(collectionEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        // Note that when detached there is no identity resolution, so loading results in duplicates
-        Assert.Equal(
-            state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                ? 4
-                : 2, parent.Children.Count());
+            // Note that when detached there is no identity resolution, so loading results in duplicates
+            Assert.Equal(
+                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? 4
+                    : 2, parent.Children.Count());
 
-        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+        }
+        else
+        {
+            Assert.Equal(originalLoadedState, collectionEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -4655,17 +5008,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         RecordLog();
 
-        Assert.True(collectionEntry.IsLoaded);
+        if (LazyLoadingEnabled)
+        {
+            Assert.True(collectionEntry.IsLoaded);
 
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        // Note that when detached there is no identity resolution, so loading results in duplicates
-        Assert.Equal(
-            state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                ? 3
-                : 2, parent.Children.Count());
+            // Note that when detached there is no identity resolution, so loading results in duplicates
+            Assert.Equal(
+                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? 3
+                    : 2, parent.Children.Count());
 
-        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+        }
+        else
+        {
+            Assert.False(collectionEntry.IsLoaded);
+            Assert.Single(parent.Children);
+        }
     }
 
     [ConditionalTheory]
@@ -4704,27 +5065,35 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.Children); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.Children); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.Children);
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, parent.Children.Count());
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
         }
         else
         {
-            Assert.NotNull(parent.Children);
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(collectionEntry.IsLoaded);
-
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, parent.Children.Count());
+            Assert.Null(parent.Children);
+            Assert.False(collectionEntry.IsLoaded);
         }
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
@@ -4763,50 +5132,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(child.Parent);
+                Assert.Null(child.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(child.Parent);
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.Children.Single());
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByProperty>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(child.Parent);
-                    Assert.Null(parent.Children);
                 }
                 else
                 {
-                    Assert.Same(parent, child.Parent);
-                    Assert.Same(child, parent.Children.Single());
+                    Assert.NotNull(child.Parent);
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.Children.Single());
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByProperty>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.Children);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.Children.Single());
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -4846,50 +5223,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(single.Parent);
+                Assert.Null(single.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(single.Parent);
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.Single);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByProperty>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(single.Parent);
-                    Assert.Null(parent.Single);
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.Single);
+                    Assert.NotNull(single.Parent);
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.Single);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<ParentDelegateLoaderByProperty>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.Single);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.Single);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -4929,35 +5314,43 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.Single); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.Single); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.Single);
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(parent, parent.Single.Parent);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SingleDelegateLoaderByProperty>().Single().Entity;
+
+                    Assert.Same(single, parent.Single);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(parent.Single);
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(parent, parent.Single.Parent);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SingleDelegateLoaderByProperty>().Single().Entity;
-
-                Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(parent.Single);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -4997,17 +5390,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(child.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(child.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -5046,18 +5447,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(single.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(single.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -5096,20 +5505,28 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.Children); // Explicitly detached
+            if (state == EntityState.Detached)
+            {
+                Assert.Null(parent.Children); // Explicitly detached
+            }
+            else
+            {
+                Assert.Empty(parent.Children);
+                Assert.False(changeDetector.DetectChangesCalled);
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Single(context.ChangeTracker.Entries());
+            }
         }
         else
         {
-            Assert.Empty(parent.Children);
-            Assert.False(changeDetector.DetectChangesCalled);
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(parent.Children);
+            Assert.False(collectionEntry.IsLoaded);
         }
     }
 
@@ -5149,17 +5566,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(child.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(child.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -5198,18 +5623,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(single.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(single.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -5248,18 +5681,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(parent.Single);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(parent.Single);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Null(parent.Single);
+            Assert.Null(parent.Single);
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+        }
+        else
+        {
+            Assert.Null(parent.Single);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -5326,30 +5767,39 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
+        var originalLoadedState = collectionEntry.IsLoaded;
+
         Assert.NotNull(parent.Children);
 
         Assert.False(changeDetector.DetectChangesCalled);
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.False(collectionEntry.IsLoaded); // Explicitly detached
-            Assert.Equal(2, parent.Children.Count());
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.False(collectionEntry.IsLoaded); // Explicitly detached
+                Assert.Equal(2, parent.Children.Count());
+            }
+            else
+            {
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                // Note that when detached there is no identity resolution, so loading results in duplicates
+                Assert.Equal(
+                    state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                        ? 4
+                        : 2, parent.Children.Count());
+            }
+
+            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
         }
         else
         {
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            // Note that when detached there is no identity resolution, so loading results in duplicates
-            Assert.Equal(
-                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                    ? 4
-                    : 2, parent.Children.Count());
+            Assert.Equal(originalLoadedState, collectionEntry.IsLoaded);
         }
-
-        Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
     }
 
     [ConditionalTheory]
@@ -5618,7 +6068,7 @@ public abstract partial class LoadTestBase<TFixture>
 
         RecordLog();
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (!LazyLoadingEnabled || (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll))
         {
             Assert.False(collectionEntry.IsLoaded); // Explicitly detached
             Assert.Equal(1, parent.Children.Count());
@@ -5677,27 +6127,35 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.Children); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.Children); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.Children);
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(collectionEntry.IsLoaded);
+
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(2, parent.Children.Count());
+            }
+
+            Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
         }
         else
         {
-            Assert.NotNull(parent.Children);
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(collectionEntry.IsLoaded);
-
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(2, parent.Children.Count());
+            Assert.Null(parent.Children);
+            Assert.False(collectionEntry.IsLoaded);
         }
-
-        Assert.Equal(state == EntityState.Detached ? 0 : 3, context.ChangeTracker.Entries().Count());
     }
 
     [ConditionalTheory]
@@ -5736,50 +6194,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(child.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(child.Parent);
+                Assert.Null(child.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(child.Parent);
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(child, child.Parent!.Children.Single());
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<ParentDelegateLoaderWithStateByProperty>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(child.Parent);
-                    Assert.Null(parent.Children);
                 }
                 else
                 {
-                    Assert.Same(parent, child.Parent);
-                    Assert.Same(child, parent.Children.Single());
+                    Assert.NotNull(child.Parent);
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(child, child.Parent!.Children.Single());
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<ParentDelegateLoaderWithStateByProperty>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(child.Parent);
+                        Assert.Null(parent.Children);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, child.Parent);
+                        Assert.Same(child, parent.Children.Single());
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -5819,50 +6285,58 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(single.Parent); // Explicitly detached
-        }
-        else
-        {
-            if (state == EntityState.Deleted)
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
             {
-                Assert.Null(single.Parent);
+                Assert.Null(single.Parent); // Explicitly detached
             }
             else
             {
-                Assert.NotNull(single.Parent);
-            }
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(single, single.Parent!.Single);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var parent = context.ChangeTracker.Entries<ParentDelegateLoaderWithStateByProperty>().Single().Entity;
-
                 if (state == EntityState.Deleted)
                 {
                     Assert.Null(single.Parent);
-                    Assert.Null(parent.Single);
                 }
                 else
                 {
-                    Assert.Same(parent, single.Parent);
-                    Assert.Same(single, parent.Single);
+                    Assert.NotNull(single.Parent);
+                }
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(single, single.Parent!.Single);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var parent = context.ChangeTracker.Entries<ParentDelegateLoaderWithStateByProperty>().Single().Entity;
+
+                    if (state == EntityState.Deleted)
+                    {
+                        Assert.Null(single.Parent);
+                        Assert.Null(parent.Single);
+                    }
+                    else
+                    {
+                        Assert.Same(parent, single.Parent);
+                        Assert.Same(single, parent.Single);
+                    }
                 }
             }
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -5902,35 +6376,43 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.Single); // Explicitly detached
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.Null(parent.Single); // Explicitly detached
+            }
+            else
+            {
+                Assert.NotNull(parent.Single);
+
+                Assert.False(changeDetector.DetectChangesCalled);
+
+                Assert.True(referenceEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
+
+                if (state != EntityState.Deleted)
+                {
+                    Assert.Same(parent, parent.Single.Parent);
+                }
+
+                if (state != EntityState.Detached)
+                {
+                    var single = context.ChangeTracker.Entries<SingleDelegateLoaderWithStateByProperty>().Single().Entity;
+
+                    Assert.Same(single, parent.Single);
+                    Assert.Same(parent, single.Parent);
+                }
+            }
         }
         else
         {
-            Assert.NotNull(parent.Single);
-
-            Assert.False(changeDetector.DetectChangesCalled);
-
-            Assert.True(referenceEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Equal(state == EntityState.Detached ? 0 : 2, context.ChangeTracker.Entries().Count());
-
-            if (state != EntityState.Deleted)
-            {
-                Assert.Same(parent, parent.Single.Parent);
-            }
-
-            if (state != EntityState.Detached)
-            {
-                var single = context.ChangeTracker.Entries<SingleDelegateLoaderWithStateByProperty>().Single().Entity;
-
-                Assert.Same(single, parent.Single);
-                Assert.Same(parent, single.Parent);
-            }
+            Assert.Null(parent.Single);
+            Assert.False(referenceEntry.IsLoaded);
         }
     }
 
@@ -5970,17 +6452,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(child.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(child.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -6019,18 +6509,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(single.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(single.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -6069,20 +6567,28 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        if (state == EntityState.Detached)
+        if (LazyLoadingEnabled)
         {
-            Assert.Null(parent.Children); // Explicitly detached
+            if (state == EntityState.Detached)
+            {
+                Assert.Null(parent.Children); // Explicitly detached
+            }
+            else
+            {
+                Assert.Empty(parent.Children);
+                Assert.False(changeDetector.DetectChangesCalled);
+                Assert.True(collectionEntry.IsLoaded);
+
+                RecordLog();
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                Assert.Single(context.ChangeTracker.Entries());
+            }
         }
         else
         {
-            Assert.Empty(parent.Children);
-            Assert.False(changeDetector.DetectChangesCalled);
-            Assert.True(collectionEntry.IsLoaded);
-
-            RecordLog();
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            Assert.Single(context.ChangeTracker.Entries());
+            Assert.Null(parent.Children);
+            Assert.False(collectionEntry.IsLoaded);
         }
     }
 
@@ -6122,17 +6628,25 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(child.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(child.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
-        Assert.Null(child.Parent);
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Null(child.Parent);
+        }
+        else
+        {
+            Assert.Null(child.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -6171,18 +6685,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(single.Parent);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(single.Parent);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
 
-        Assert.Null(single.Parent);
+            Assert.Null(single.Parent);
+        }
+        else
+        {
+            Assert.Null(single.Parent);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -6221,18 +6743,26 @@ public abstract partial class LoadTestBase<TFixture>
 
         changeDetector.DetectChangesCalled = false;
 
-        Assert.Null(parent.Single);
+        if (LazyLoadingEnabled)
+        {
+            Assert.Null(parent.Single);
 
-        Assert.False(changeDetector.DetectChangesCalled);
+            Assert.False(changeDetector.DetectChangesCalled);
 
-        Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
+            Assert.Equal(state != EntityState.Detached, referenceEntry.IsLoaded);
 
-        RecordLog();
-        context.ChangeTracker.LazyLoadingEnabled = false;
+            RecordLog();
+            context.ChangeTracker.LazyLoadingEnabled = false;
 
-        Assert.Null(parent.Single);
+            Assert.Null(parent.Single);
 
-        Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+            Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
+        }
+        else
+        {
+            Assert.Null(parent.Single);
+            Assert.False(referenceEntry.IsLoaded);
+        }
     }
 
     [ConditionalTheory]
@@ -6578,26 +7108,34 @@ public abstract partial class LoadTestBase<TFixture>
 
         RecordLog();
 
-        if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+        if (LazyLoadingEnabled)
         {
-            Assert.False(collectionEntry.IsLoaded); // Explicitly detached
-            Assert.Equal(1, parent.Children.Count());
+            if (state == EntityState.Detached && queryTrackingBehavior == QueryTrackingBehavior.TrackAll)
+            {
+                Assert.False(collectionEntry.IsLoaded); // Explicitly detached
+                Assert.Equal(1, parent.Children.Count());
 
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            }
+            else
+            {
+                Assert.True(collectionEntry.IsLoaded);
+
+                context.ChangeTracker.LazyLoadingEnabled = false;
+
+                // Note that when detached there is no identity resolution, so loading results in duplicates
+                Assert.Equal(
+                    state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                        ? 3
+                        : 2, parent.Children.Count());
+
+                Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            }
         }
         else
         {
-            Assert.True(collectionEntry.IsLoaded);
-
-            context.ChangeTracker.LazyLoadingEnabled = false;
-
-            // Note that when detached there is no identity resolution, so loading results in duplicates
-            Assert.Equal(
-                state == EntityState.Detached && queryTrackingBehavior != QueryTrackingBehavior.NoTrackingWithIdentityResolution
-                    ? 3
-                    : 2, parent.Children.Count());
-
-            Assert.All(parent.Children.Select(e => e.Parent), p => Assert.Same(parent, p));
+            Assert.False(collectionEntry.IsLoaded);
+            Assert.Equal(1, parent.Children.Count());
         }
     }
 
@@ -6608,7 +7146,17 @@ public abstract partial class LoadTestBase<TFixture>
         var product = context.Set<SimpleProduct>().Single();
         var deposit = product.Deposit;
 
-        Assert.NotNull(deposit);
-        Assert.Same(deposit, product.Deposit);
+        if (LazyLoadingEnabled)
+        {
+            Assert.NotNull(deposit);
+            Assert.Same(deposit, product.Deposit);
+        }
+        else
+        {
+            Assert.Null(deposit);
+        }
     }
+
+    protected virtual bool LazyLoadingEnabled
+        => true;
 }

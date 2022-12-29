@@ -41,6 +41,7 @@ public class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.AfterSaveBehavior,
             CoreAnnotationNames.ProviderClrType,
             CoreAnnotationNames.EagerLoaded,
+            CoreAnnotationNames.LazyLoadingEnabled,
             CoreAnnotationNames.DuplicateServiceProperties,
             RelationalAnnotationNames.ColumnName,
             RelationalAnnotationNames.ColumnOrder,
@@ -200,6 +201,7 @@ public class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.ProductVersion,
             CoreAnnotationNames.NavigationAccessMode,
             CoreAnnotationNames.EagerLoaded,
+            CoreAnnotationNames.LazyLoadingEnabled,
             CoreAnnotationNames.QueryFilter,
 #pragma warning disable CS0612 // Type or member is obsolete
             CoreAnnotationNames.DefiningQuery,

@@ -22,7 +22,7 @@ public interface IInjectableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    void ServiceObtained(DbContext context, ParameterBindingInfo bindingInfo);
+    void Injected(DbContext context, object entity, ParameterBindingInfo bindingInfo);
 
     /// <summary>
     ///     <para>
@@ -52,11 +52,7 @@ public interface IInjectableService
     ///     </para>
     /// </summary>
     /// <param name="context">The <see cref="DbContext" /> instance.</param>
+    /// <param name="entityType">The <see cref="IEntityType"/> of the instance being attached.</param>
     /// <param name="entity">The entity instance that is being attached.</param>
-    /// <param name="existingService">
-    ///     The existing instance of this service being held by the entity instance, or <see langword="null" /> if there
-    ///     is no existing instance.
-    /// </param>
-    /// <returns>The service instance to use, or <see langword="null" /> if a new instance should be created.</returns>
-    IInjectableService? Attaching(DbContext context, object entity, IInjectableService? existingService);
+    void Attaching(DbContext context, IEntityType entityType, object entity);
 }

@@ -64,6 +64,11 @@ public readonly struct ParameterBindingInfo
     public Expression MaterializationContextExpression { get; }
 
     /// <summary>
+    ///     Expressions holding initialized instances for service properties.
+    /// </summary>
+    public List<ParameterExpression> ServiceInstances { get; } = new();
+
+    /// <summary>
     ///     Gets the index into the <see cref="ValueBuffer" /> where the property value can be found.
     /// </summary>
     /// <param name="property">The property.</param>

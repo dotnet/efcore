@@ -530,34 +530,36 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         var methodLookup = new Dictionary<string, MethodInfo>();
         foreach (var method in methods)
         {
-            methodLookup[method.Name] = method;
+            methodLookup[Fixture.MetadataMethodNameTransformers.TryGetValue(method, out var name) ? name : method.Name] = method;
         }
 
-        foreach (var method in methodLookup.Values)
+        foreach (var keyValuePair in methodLookup)
         {
+            var method = keyValuePair.Value;
+            var methodName = keyValuePair.Key;
             if (Fixture.UnmatchedMetadataMethods.Contains(method)
                 || method.ReturnType != builderType)
             {
                 continue;
             }
 
-            var expectedName = method.Name.StartsWith("HasNo", StringComparison.Ordinal)
-                ? "CanRemove" + method.Name[5..]
+            var expectedName = methodName.StartsWith("HasNo", StringComparison.Ordinal)
+                ? "CanRemove" + methodName[5..]
                 : "CanSet"
-                + (method.Name.StartsWith("Has", StringComparison.Ordinal)
-                    || method.Name.StartsWith("Use", StringComparison.Ordinal)
-                        ? method.Name[3..]
-                        : method.Name.StartsWith("To", StringComparison.Ordinal)
-                            ? method.Name[2..]
-                            : method.Name.StartsWith("With", StringComparison.Ordinal)
-                                ? method.Name[4..]
-                                : method.Name);
+                + (methodName.StartsWith("Has", StringComparison.Ordinal)
+                    || methodName.StartsWith("Use", StringComparison.Ordinal)
+                        ? methodName[3..]
+                        : methodName.StartsWith("To", StringComparison.Ordinal)
+                            ? methodName[2..]
+                            : methodName.StartsWith("With", StringComparison.Ordinal)
+                                ? methodName[4..]
+                                : methodName);
 
             if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
             {
-                if (method.Name.StartsWith("Has", StringComparison.Ordinal))
+                if (methodName.StartsWith("Has", StringComparison.Ordinal))
                 {
-                    var otherExpectedName = "CanHave" + method.Name[3..];
+                    var otherExpectedName = "CanHave" + methodName[3..];
                     if (!methodLookup.TryGetValue(otherExpectedName, out canSetMethod))
                     {
                         return $"{declaringType.Name} expected to have a {expectedName} or {otherExpectedName} method";
@@ -1084,6 +1086,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         public virtual HashSet<MethodInfo> NotAnnotatedMethods { get; } = new();
         public virtual HashSet<MethodInfo> AsyncMethodExceptions { get; } = new();
         public virtual HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new();
+        public virtual Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new();
         public virtual HashSet<MethodInfo> MetadataMethodExceptions { get; } = new();
 
         public virtual HashSet<PropertyInfo> ComputedDependencyProperties { get; }
