@@ -105,15 +105,20 @@ public static class ProxiesExtensions
     ///     or exposed AddDbContext.
     /// </param>
     /// <param name="useLazyLoadingProxies"><see langword="true" /> to use lazy loading proxies; <see langword="false" /> to prevent their use.</param>
+    /// <param name="ignoreNonVirtualNavigations">
+    ///     <see langword="true" /> to ignore navigations that are not virtual. The default value is
+    ///     <see langword="false" />, meaning an exception will be thrown if a non-virtual navigation is found.
+    /// </param>
     /// <returns>The same builder to allow method calls to be chained.</returns>
     public static DbContextOptionsBuilder UseLazyLoadingProxies(
         this DbContextOptionsBuilder optionsBuilder,
-        bool useLazyLoadingProxies = true)
+        bool useLazyLoadingProxies = true,
+        bool ignoreNonVirtualNavigations = false)
     {
         var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
             ?? new ProxiesOptionsExtension();
 
-        extension = extension.WithLazyLoading(useLazyLoadingProxies);
+        extension = extension.WithLazyLoading(useLazyLoadingProxies, ignoreNonVirtualNavigations);
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(extension);
 
@@ -139,10 +144,15 @@ public static class ProxiesExtensions
     ///     or exposed AddDbContext.
     /// </param>
     /// <param name="useLazyLoadingProxies"><see langword="true" /> to use lazy loading proxies; <see langword="false" /> to prevent their use.</param>
+    /// <param name="ignoreNonVirtualNavigations">
+    ///     <see langword="true" /> to ignore navigations that are not virtual. The default value is
+    ///     <see langword="false" />, meaning an exception will be thrown if a non-virtual navigation is found.
+    /// </param>
     /// <returns>The same builder to allow method calls to be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        bool useLazyLoadingProxies = true)
+        bool useLazyLoadingProxies = true,
+        bool ignoreNonVirtualNavigations = false)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies((DbContextOptionsBuilder)optionsBuilder, useLazyLoadingProxies);
 

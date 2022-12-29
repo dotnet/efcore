@@ -891,6 +891,74 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         Assert.Null(owner.Address);
     }
 
+    [ConditionalFact]
+    public virtual void Non_virtual_one_to_one_reference_to_principal_is_not_lazy_loaded()
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        var child = context.Set<NonVirtualChild>().Single(e => e.SingleParent != null);
+
+        Assert.Null(child.SingleParent);
+        context.Entry(child).Reference(e => e.SingleParent).Load();
+        Assert.NotNull(child.SingleParent);
+
+        child.SingleParent = null;
+        Assert.Null(child.SingleParent);
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(child.SingleParent);
+    }
+
+    [ConditionalFact]
+    public virtual void Non_virtual_one_to_many_reference_to_principal_is_not_lazy_loaded()
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        var child = context.Set<NonVirtualChild>().Single(e => e.CollectionParent != null);
+
+        Assert.Null(child.CollectionParent);
+        context.Entry(child).Reference(e => e.CollectionParent).Load();
+        Assert.NotNull(child.CollectionParent);
+
+        child.CollectionParent = null;
+        Assert.Null(child.CollectionParent);
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(child.CollectionParent);
+    }
+
+    [ConditionalFact]
+    public virtual void Non_virtual_reference_to_dependent_is_not_lazy_loaded()
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        var parent = context.Set<NonVirtualParent>().Single();
+
+        Assert.Null(parent.Child);
+        context.Entry(parent).Reference(e => e.Child).Load();
+        Assert.NotNull(parent.Child);
+
+        parent.Child = null;
+        Assert.Null(parent.Child);
+        context.ChangeTracker.DetectChanges();
+        Assert.Null(parent.Child);
+    }
+
+    [ConditionalFact]
+    public virtual void Non_virtual_collection_is_not_lazy_loaded()
+    {
+        using var context = CreateContext(lazyLoadingEnabled: true);
+
+        var parent = context.Set<NonVirtualParent>().Single();
+
+        Assert.Null(parent.Children);
+        context.Entry(parent).Collection(e => e.Children).Load();
+        Assert.Single(parent.Children!);
+
+        parent.Children.Clear();
+        Assert.Empty(parent.Children);
+        context.ChangeTracker.DetectChanges();
+        Assert.Empty(parent.Children);
+    }
+
     [ConditionalTheory]
     [InlineData(EntityState.Unchanged)]
     [InlineData(EntityState.Added)]
@@ -3317,6 +3385,24 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
         public virtual Called Called { set; get; }
     }
 
+    public class NonVirtualParent
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public NonVirtualChild Child { get; set; }
+        public List<NonVirtualChild> Children { get; set; }
+    }
+
+    public class NonVirtualChild
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int Id { get; set; }
+
+        public NonVirtualParent SingleParent { get; set; }
+        public NonVirtualParent CollectionParent { get; set; }
+    }
+
     public class NonVirtualOneToOneOwner
     {
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -3444,7 +3530,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             => "LazyLoadProxyTest";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.UseLazyLoadingProxies());
+            => base.AddOptions(builder.UseLazyLoadingProxies(ignoreNonVirtualNavigations: true));
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(
@@ -3618,6 +3704,13 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
             modelBuilder.Entity<ExplicitLazyLoadVirtualOneToManyOwner>()
                 .OwnsMany(o => o.Addresses, a => a.HasKey("Id"));
+
+            modelBuilder.Entity<NonVirtualParent>(
+                b =>
+                {
+                    b.HasOne(e => e.Child).WithOne(e => e.SingleParent).HasPrincipalKey<NonVirtualChild>();
+                    b.HasMany(e => e.Children).WithOne(e => e.CollectionParent);
+                });
         }
 
         protected override void Seed(DbContext context)
@@ -3734,6 +3827,14 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
                 new ExplicitLazyLoadVirtualOneToManyOwner
                 {
                     Id = 600, Addresses = new List<OwnedAddress> { new() { Street = "12 Grimmauld Place", PostalCode = "L0N D0N" } }
+                });
+
+            context.Add(
+                new NonVirtualParent
+                {
+                    Id = 100,
+                    Child = new() { Id = 100 },
+                    Children = new() { new() { Id = 101 } }
                 });
 
             context.SaveChanges();

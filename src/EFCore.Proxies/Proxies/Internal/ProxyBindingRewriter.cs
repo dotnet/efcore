@@ -94,15 +94,20 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
 
                         if (_options.UseLazyLoadingProxies)
                         {
-                            if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual()
-                                && (!(navigationBase is INavigation navigation
-                                    && navigation.ForeignKey.IsOwnership)))
+                            if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual())
                             {
-                                throw new InvalidOperationException(
-                                    ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                                if (!_options.IgnoreNonVirtualNavigations
+                                    && !(navigationBase is INavigation navigation
+                                        && navigation.ForeignKey.IsOwnership))
+                                {
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                                }
                             }
-
-                            navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                            else
+                            {
+                                navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                            }
                         }
                     }
                 }
