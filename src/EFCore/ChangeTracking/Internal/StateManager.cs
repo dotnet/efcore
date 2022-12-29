@@ -362,7 +362,7 @@ public class StateManager : IStateManager
             _needsUnsubscribe = true;
         }
 
-        if (newEntry.EntityType.HasServiceProperties())
+        if (!_hasServiceProperties && newEntry.EntityType.HasServiceProperties())
         {
             _hasServiceProperties = true;
         }
@@ -606,7 +606,7 @@ public class StateManager : IStateManager
             _needsUnsubscribe = true;
         }
 
-        if (entry.EntityType.HasServiceProperties())
+        if (!_hasServiceProperties && entry.EntityType.HasServiceProperties())
         {
             _hasServiceProperties = true;
         }

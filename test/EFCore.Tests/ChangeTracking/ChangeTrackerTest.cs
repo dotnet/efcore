@@ -283,9 +283,11 @@ public class ChangeTrackerTest
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
         Assert.Equal(EntityState.Unchanged, context.Entry(cats[0]).State);
         Assert.Equal(EntityState.Unchanged, context.Entry(hats[0]).State);
+        Assert.NotNull(cats[0].EntityType);
 
         context.ChangeTracker.Clear();
 
+        Assert.Null(cats[0].EntityType);
         Assert.Empty(context.ChangeTracker.Entries());
         Assert.Equal(EntityState.Detached, context.Entry(cats[0]).State);
         Assert.Equal(EntityState.Detached, context.Entry(hats[0]).State);
@@ -293,10 +295,12 @@ public class ChangeTrackerTest
         var catsAgain = context.Cats.ToList();
         var hatsAgain = context.Set<Hat>().ToList();
 
+        Assert.NotNull(catsAgain[0].EntityType);
         Assert.Equal(3, context.ChangeTracker.Entries().Count());
         Assert.Equal(EntityState.Unchanged, context.Entry(catsAgain[0]).State);
         Assert.Equal(EntityState.Unchanged, context.Entry(hatsAgain[0]).State);
 
+        Assert.Null(cats[0].EntityType);
         Assert.Equal(EntityState.Detached, context.Entry(cats[0]).State);
         Assert.Equal(EntityState.Detached, context.Entry(hats[0]).State);
     }
@@ -2135,6 +2139,8 @@ public class ChangeTrackerTest
         {
             Id = id;
         }
+
+        public IEntityType? EntityType { get; set; }
 
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public int Id { get; private set; }

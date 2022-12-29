@@ -53,6 +53,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     private readonly PropertyInfo? _indexerPropertyInfo;
     private readonly bool _isPropertyBag;
     private readonly object? _discriminatorValue;
+    private bool _hasServiceProperties;
 
     // Warning: Never access these fields directly as access needs to be thread-safe
     private PropertyCounts? _counts;
@@ -742,6 +743,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             propertyAccessMode);
 
         _serviceProperties[serviceProperty.Name] = serviceProperty;
+        _hasServiceProperties = true;
 
         return serviceProperty;
     }
@@ -764,13 +766,13 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             : null;
 
     private bool HasServiceProperties()
-        => _serviceProperties.Count != 0 || _baseType != null && _baseType.HasServiceProperties();
+        => _hasServiceProperties || _baseType != null && _baseType.HasServiceProperties();
 
     private IEnumerable<RuntimeServiceProperty> GetServiceProperties()
         => _baseType != null
-            ? _serviceProperties.Count == 0
-                ? _baseType.GetServiceProperties()
-                : _baseType.GetServiceProperties().Concat(_serviceProperties.Values)
+            ? _hasServiceProperties
+                ? _baseType.GetServiceProperties().Concat(_serviceProperties.Values)
+                : _baseType.GetServiceProperties()
             : _serviceProperties.Values;
 
     private IEnumerable<RuntimeServiceProperty> GetDeclaredServiceProperties()
