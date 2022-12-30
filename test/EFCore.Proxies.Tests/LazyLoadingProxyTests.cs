@@ -29,6 +29,14 @@ public class LazyLoadingProxyTests
     }
 
     [ConditionalFact]
+    public void Does_not_throw_if_non_virtual_navigation_to_non_owned_type_is_allowed()
+    {
+        using var context = new LazyContextIgnoreVirtuals<LazyNonVirtualNavEntity>();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyNonVirtualNavEntity))!.FindNavigation(nameof(LazyNonVirtualNavEntity.SelfRef)));
+    }
+
+    [ConditionalFact]
     public void Does_not_throw_if_non_virtual_navigation_to_owned_type()
     {
         using var context = new LazyContext<LazyNonVirtualOwnedNavEntity>();
@@ -80,6 +88,15 @@ public class LazyLoadingProxyTests
                 "CoreEventId.LazyLoadOnDisposedContextWarning"),
             Assert.Throws<InvalidOperationException>(
                 () => phone.Texts).Message);
+    }
+
+    private class LazyContextIgnoreVirtuals<TEntity> : TestContext<TEntity>
+        where TEntity : class
+    {
+        public LazyContextIgnoreVirtuals()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
+        {
+        }
     }
 
     private class LazyContext<TEntity> : TestContext<TEntity>
