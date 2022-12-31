@@ -1516,6 +1516,152 @@ while (true)
 """);
     }
 
+    [Fact]
+    public void Try_catch_statement()
+    {
+        var e = Parameter(typeof(InvalidOperationException), "e");
+
+        AssertStatement(
+            TryCatch(
+                Call(FooMethod),
+                Catch(e, Call(BarMethod)),
+                Catch(e, Call(BazMethod))),
+"""
+try
+{
+    LinqToCSharpTranslatorTest.Foo();
+}
+catch (InvalidOperationException e)
+{
+    LinqToCSharpTranslatorTest.Bar();
+}
+catch (InvalidOperationException e)
+{
+    LinqToCSharpTranslatorTest.Baz();
+}
+""");
+    }
+
+    [Fact]
+    public void Try_finally_statement()
+        => AssertStatement(
+            TryFinally(
+                Call(FooMethod),
+                Call(BarMethod)),
+"""
+try
+{
+    LinqToCSharpTranslatorTest.Foo();
+}
+finally
+{
+    LinqToCSharpTranslatorTest.Bar();
+}
+""");
+
+    [Fact]
+    public void Try_catch_finally_statement()
+    {
+        var e = Parameter(typeof(InvalidOperationException), "e");
+
+        AssertStatement(
+            TryCatchFinally(
+                Call(FooMethod),
+                Block(
+                    Call(BarMethod),
+                    Call(BazMethod)),
+                Catch(e, Call(BarMethod)),
+                Catch(
+                    e,
+                    Call(BazMethod),
+                    Equal(
+                        Property(e, nameof(Exception.Message)),
+                        Constant("foo")))),
+"""
+try
+{
+    LinqToCSharpTranslatorTest.Foo();
+}
+catch (InvalidOperationException e)
+{
+    LinqToCSharpTranslatorTest.Bar();
+}
+catch (InvalidOperationException e)when (e.Message == "foo")
+{
+    LinqToCSharpTranslatorTest.Baz();
+}
+finally
+{
+    LinqToCSharpTranslatorTest.Bar();
+    LinqToCSharpTranslatorTest.Baz();
+}
+""");
+    }
+
+    [Fact]
+    public void Try_catch_statement_with_filter()
+    {
+        var e = Parameter(typeof(InvalidOperationException), "e");
+
+        AssertStatement(
+            TryCatch(
+                Call(FooMethod),
+                Catch(
+                    e,
+                    Call(BarMethod),
+                    Equal(
+                        Property(e, nameof(Exception.Message)),
+                        Constant("foo")))),
+"""
+try
+{
+    LinqToCSharpTranslatorTest.Foo();
+}
+catch (InvalidOperationException e)when (e.Message == "foo")
+{
+    LinqToCSharpTranslatorTest.Bar();
+}
+""");
+    }
+
+    [Fact]
+    public void Try_catch_statement_without_exception_reference()
+        => AssertStatement(
+            TryCatch(
+                Call(FooMethod),
+                Catch(
+                    typeof(InvalidOperationException),
+                    Call(BarMethod))),
+"""
+try
+{
+    LinqToCSharpTranslatorTest.Foo();
+}
+catch (InvalidOperationException)
+{
+    LinqToCSharpTranslatorTest.Bar();
+}
+""");
+
+    [Fact]
+    public void Try_fault_statement()
+        => AssertStatement(
+            TryFault(
+                Call(FooMethod),
+                Call(BarMethod)),
+"""
+try
+{
+    LinqToCSharpTranslatorTest.Foo();
+}
+catch
+{
+    LinqToCSharpTranslatorTest.Bar();
+}
+""");
+
+    // TODO: try/catch expressions
+
     private void AssertStatement(Expression expression, string expected)
         => AssertCore(expression, isStatement: true, expected);
 

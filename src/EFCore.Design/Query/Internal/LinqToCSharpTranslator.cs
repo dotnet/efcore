@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
@@ -78,7 +79,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SyntaxNode Result { get; set; } = null!;
+    protected SyntaxNode? Result { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -104,7 +105,8 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SyntaxNode TranslateCore(Expression node, ISet<string> collectedNamespaces, bool statementContext = false)
+    [return: NotNullIfNotNull(nameof(node))]
+    protected virtual SyntaxNode? TranslateCore(Expression node, ISet<string> collectedNamespaces, bool statementContext = false)
     {
         _capturedVariables.Clear();
         _collectedNamespaces = collectedNamespaces;
@@ -128,7 +130,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         Check.DebugAssert(_stack.Peek().Labels.Count == 0, "_stack.Peek().Labels.Count == 0");
         Check.DebugAssert(_stack.Peek().UnnamedLabelNames.Count == 0, "_stack.Peek().UnnamedLabelNames.Count == 0");
 
-        return Result;
+        return Result!;
     }
 
     /// <summary>
@@ -137,7 +139,8 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual SyntaxNode Translate(Expression? node)
+    [return: NotNullIfNotNull(nameof(node))]
+    protected virtual SyntaxNode? Translate(Expression? node)
     {
         Visit(node);
 
@@ -150,13 +153,13 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual T Translate<T>(Expression node) where T : CSharpSyntaxNode
+    protected virtual T Translate<T>(Expression? node) where T : CSharpSyntaxNode
     {
         Visit(node);
 
         return Result as T
                ?? throw new InvalidOperationException(
-                   $"Got translated node of type {Result?.GetType().Name} instead of the expected {typeof(T)}");
+                   $"Got translated node of type '{Result?.GetType().Name ?? "<null>"}' instead of the expected {typeof(T)}");
     }
 
     /// <summary>
@@ -191,7 +194,15 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     /// </summary>
     [return: NotNullIfNotNull("node")]
     public override Expression? Visit(Expression? node)
-        => node is null ? null : base.Visit(node);
+    {
+        if (node is null)
+        {
+            Result = null;
+            return null;
+        }
+
+        return base.Visit(node);
+    }
 
     /// <inheritdoc />
     protected override Expression VisitBinary(BinaryExpression binary)
@@ -661,9 +672,49 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     }
 
     /// <inheritdoc />
-    protected override CatchBlock VisitCatchBlock(CatchBlock node)
+    protected override CatchBlock VisitCatchBlock(CatchBlock catchBlock)
     {
-        throw new NotImplementedException();
+        Result = TranslateCatchBlock(catchBlock);
+
+        return catchBlock;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual SyntaxNode TranslateCatchBlock(CatchBlock catchBlock, bool noType = false)
+    {
+        var translatedBody = Translate(catchBlock.Body) switch
+        {
+            BlockSyntax b => b,
+            StatementSyntax s => Block(s),
+            ExpressionSyntax e => Block(ExpressionStatement(e)),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        var catchDeclaration = noType
+            ? null
+            : CatchDeclaration(catchBlock.Test.GetTypeSyntax());
+
+        if (catchBlock.Variable is not null)
+        {
+            Check.DebugAssert(catchDeclaration is not null, "catchDeclaration is not null");
+
+            if (catchBlock.Variable.Name is null)
+            {
+                throw new NotSupportedException("TranslateCatchBlock: unnamed parameter as catch variable");
+            }
+
+            catchDeclaration = catchDeclaration.WithIdentifier(Identifier(catchBlock.Variable.Name));
+        }
+
+        return CatchClause(
+            catchDeclaration,
+            catchBlock.Filter is null ? null : CatchFilterClause(Translate<ExpressionSyntax>(catchBlock.Filter)),
+            translatedBody);
     }
 
     /// <inheritdoc />
@@ -1630,9 +1681,51 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     }
 
     /// <inheritdoc />
-    protected override Expression VisitTry(TryExpression node)
+    protected override Expression VisitTry(TryExpression tryNode)
     {
-        throw new NotImplementedException();
+        var translatedBody = Translate(tryNode.Body) switch
+        {
+            BlockSyntax b => (IEnumerable<SyntaxNode>)b.Statements,
+            var n => new[] { n }
+        };
+
+        var translatedFinally = Translate(tryNode.Finally) switch
+        {
+            BlockSyntax b => (IEnumerable<SyntaxNode>)b.Statements,
+            null => null,
+            var n => new[] { n }
+        };
+
+        switch (_context)
+        {
+            case ExpressionContext.Statement:
+                if (tryNode.Fault is not null)
+                {
+                    Check.DebugAssert(
+                        tryNode.Finally is null && tryNode.Handlers.Count == 0,
+                        "tryNode.Finally is null && tryNode.Handlers.Count == 0");
+
+                    Result = _g.TryCatchStatement(
+                        translatedBody,
+                        catchClauses: new[] { TranslateCatchBlock(E.Catch(typeof(Exception), tryNode.Fault), noType: true) });
+
+                    return tryNode;
+                }
+
+                Result = _g.TryCatchStatement(
+                    translatedBody,
+                    catchClauses: tryNode.Handlers.Select(h => TranslateCatchBlock(h)),
+                    translatedFinally);
+
+                return tryNode;
+
+            case ExpressionContext.Expression:
+            case ExpressionContext.ExpressionLambda:
+                throw new NotImplementedException();
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     /// <inheritdoc />
