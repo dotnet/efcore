@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -13,6 +16,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public class DependencyInjectionMethodParameterBinding : DependencyInjectionParameterBinding
 {
+    private static readonly MethodInfo GetServiceMethod
+        = typeof(InfrastructureExtensions).GetRuntimeMethod(
+            nameof(InfrastructureExtensions.GetService), new[] { typeof(IInfrastructure<IServiceProvider>) })!;
+
+    private static readonly MethodInfo GetServiceFromPropertyMethod
+        = typeof(DependencyInjectionMethodParameterBinding).GetTypeInfo().GetDeclaredMethod(nameof(GetServiceFromProperty))!;
+
+    private static readonly MethodInfo CreateServiceMethod
+        = typeof(DependencyInjectionMethodParameterBinding).GetTypeInfo().GetDeclaredMethod(nameof(CreateService))!;
+
+    private Func<MaterializationContext, IEntityType, object, object>? _serviceDelegate;
+
     /// <summary>
     ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given method
     ///     of the given service type.
@@ -42,43 +57,102 @@ public class DependencyInjectionMethodParameterBinding : DependencyInjectionPara
     ///     Creates an expression tree representing the binding of the value of a property from a
     ///     materialization expression to a parameter of the constructor, factory method, etc.
     /// </summary>
-    /// <param name="materializationExpression">The expression representing the materialization context.</param>
-    /// <param name="bindingInfoExpression">The expression representing the <see cref="ParameterBindingInfo" /> constant.</param>
+    /// <param name="bindingInfo">The binding information.</param>
     /// <returns>The expression tree.</returns>
-    public override Expression BindToParameter(
-        Expression materializationExpression,
-        Expression bindingInfoExpression)
+    public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
     {
-        Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
+        var serviceInstance = bindingInfo.ServiceInstances.FirstOrDefault(e => e.Type == ServiceType);
+        if (serviceInstance != null)
+        {
+            var parameters = Method.GetParameters().Select(
+                (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
 
-        var parameters = Method.GetParameters().Select(
-            (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
+            return Expression.Condition(
+                Expression.ReferenceEqual(serviceInstance, Expression.Constant(null)),
+                Expression.Constant(null, ParameterType),
+                Expression.Lambda(
+                    Expression.Call(
+                        serviceInstance,
+                        Method,
+                        parameters),
+                    parameters));
+        }
 
-        var serviceVariable = Expression.Variable(ServiceType, "service");
-        var delegateVariable = Expression.Variable(ParameterType, "delegate");
-
-        return Expression.Block(
-            new[] { serviceVariable, delegateVariable },
-            new List<Expression>
-            {
-                Expression.Assign(
-                    serviceVariable,
-                    base.BindToParameter(materializationExpression, bindingInfoExpression)),
-                Expression.Assign(
-                    delegateVariable,
-                    Expression.Condition(
-                        Expression.ReferenceEqual(serviceVariable, Expression.Constant(null)),
-                        Expression.Constant(null, ParameterType),
-                        Expression.Lambda(
-                            Expression.Call(
-                                serviceVariable,
-                                Method,
-                                parameters),
-                            parameters))),
-                delegateVariable
-            });
+        return base.BindToParameter(bindingInfo);
     }
+
+    private static object? GetServiceFromProperty(MaterializationContext materializationContext, IPropertyBase property, object entity)
+        => materializationContext.Context.GetDependencies().StateManager.GetOrCreateEntry(entity)[property];
+
+    private static object CreateService(
+        MaterializationContext materializationContext, Type serviceType, IEntityType entityType, object entity)
+    {
+        var service = materializationContext.Context.GetService(serviceType);
+
+        if (service is IInjectableService injectableService)
+        {
+            injectableService.Attaching(materializationContext.Context, entityType, entity);
+        }
+
+        return service;
+    }
+
+    /// <summary>
+    ///     A delegate to set a CLR service property on an entity instance.
+    /// </summary>
+    public override Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _serviceDelegate, this, static b =>
+            {
+                var materializationContextParam = Expression.Parameter(typeof(MaterializationContext));
+                var entityTypeParam = Expression.Parameter(typeof(IEntityType));
+                var entityParam = Expression.Parameter(typeof(object));
+
+                var parameters = b.Method.GetParameters().Select(
+                    (p, i) => Expression.Parameter(p.ParameterType, "param" + i)).ToArray();
+
+                var entityType = (IEntityType)b.ConsumedProperties.First().DeclaringType;
+                var serviceStateProperty = entityType.GetServiceProperties().FirstOrDefault(
+                    p => p.ParameterBinding != b && p.ParameterBinding.ServiceType == b.ServiceType);
+
+                var serviceVariable = Expression.Variable(b.ServiceType, "service");
+                var serviceExpression = Expression.Block(
+                    new[] { serviceVariable },
+                    new List<Expression>
+                    {
+                        Expression.Assign(
+                            serviceVariable,
+                            Expression.Convert(
+                                serviceStateProperty == null
+                                    ? Expression.Call(
+                                        CreateServiceMethod,
+                                        materializationContextParam,
+                                        Expression.Constant(b.ServiceType),
+                                        entityTypeParam,
+                                        entityParam)
+                                    : Expression.Call(
+                                        GetServiceFromPropertyMethod,
+                                        materializationContextParam,
+                                        Expression.Constant(serviceStateProperty, typeof(IPropertyBase)),
+                                        entityParam),
+                                typeof(ILazyLoader))),
+                        Expression.Condition(
+                            Expression.ReferenceEqual(serviceVariable, Expression.Constant(null)),
+                            Expression.Constant(null, b.ParameterType),
+                            Expression.Lambda(
+                                Expression.Call(
+                                    serviceVariable,
+                                    b.Method,
+                                    parameters),
+                                parameters))
+                    });
+
+                return Expression.Lambda<Func<MaterializationContext, IEntityType, object, object>>(
+                    serviceExpression,
+                    materializationContextParam,
+                    entityTypeParam,
+                    entityParam).Compile();
+            });
 
     /// <summary>
     ///     Creates a copy that contains the given consumed properties.

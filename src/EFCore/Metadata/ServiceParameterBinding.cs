@@ -47,9 +47,17 @@ public abstract class ServiceParameterBinding : ParameterBinding
     /// <param name="bindingInfo">The binding information.</param>
     /// <returns>The expression tree.</returns>
     public override Expression BindToParameter(ParameterBindingInfo bindingInfo)
-        => BindToParameter(
+    {
+        var serviceInstance = bindingInfo.ServiceInstances.FirstOrDefault(e => e.Type == ServiceType);
+        if (serviceInstance != null)
+        {
+            return serviceInstance;
+        }
+
+        return BindToParameter(
             bindingInfo.MaterializationContextExpression,
             Expression.Constant(bindingInfo));
+    }
 
     /// <summary>
     ///     Creates an expression tree representing the binding of the value of a property from a
@@ -65,7 +73,7 @@ public abstract class ServiceParameterBinding : ParameterBinding
     /// <summary>
     ///     A delegate to set a CLR service property on an entity instance.
     /// </summary>
-    public virtual Func<MaterializationContext, IEntityType, object, object> ServiceDelegate
+    public virtual Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
         => NonCapturingLazyInitializer.EnsureInitialized(
             ref _serviceDelegate, this, static b =>
             {

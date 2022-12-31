@@ -365,6 +365,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow navigation.</param>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
     /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
+    /// <param name="lazyLoadingEnabled">A value indicating whether this navigation should be enabled for lazy-loading.</param>
     /// <returns>The newly created navigation property.</returns>
     public virtual RuntimeNavigation AddNavigation(
         string name,
@@ -374,9 +375,10 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         PropertyInfo? propertyInfo = null,
         FieldInfo? fieldInfo = null,
         PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
-        bool eagerLoaded = false)
+        bool eagerLoaded = false,
+        bool lazyLoadingEnabled = true)
     {
-        var navigation = new RuntimeNavigation(name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded);
+        var navigation = new RuntimeNavigation(name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded, lazyLoadingEnabled);
 
         _navigations.Add(name, navigation);
 
@@ -421,6 +423,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow navigation.</param>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this navigation.</param>
     /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
+    /// <param name="lazyLoadingEnabled">A value indicating whether this navigation should be enabled for lazy-loading.</param>
     /// <returns>The newly created skip navigation property.</returns>
     public virtual RuntimeSkipNavigation AddSkipNavigation(
         string name,
@@ -432,7 +435,8 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         PropertyInfo? propertyInfo = null,
         FieldInfo? fieldInfo = null,
         PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
-        bool eagerLoaded = false)
+        bool eagerLoaded = false,
+        bool lazyLoadingEnabled = true)
     {
         var skipNavigation = new RuntimeSkipNavigation(
             name,
@@ -445,7 +449,8 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             collection,
             onDependent,
             propertyAccessMode,
-            eagerLoaded);
+            eagerLoaded,
+            lazyLoadingEnabled);
 
         _skipNavigations.Add(name, skipNavigation);
 

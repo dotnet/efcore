@@ -42,6 +42,26 @@ public static class AccessorExtensions
         => InfrastructureExtensions.GetService<TService>(accessor);
 
     /// <summary>
+    ///     Resolves a service from the <see cref="IServiceProvider" /> exposed from a type that implements
+    ///     <see cref="IInfrastructure{IServiceProvider}" />.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         <see cref="IInfrastructure{T}" /> is used to hide properties that are not intended to be used in
+    ///         application code but can be used in extension methods written by database providers etc.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-services">Accessing DbContext services</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="accessor">The object exposing the service provider.</param>
+    /// <param name="serviceType">The type of service to be resolved.</param>
+    /// <returns>The requested service.</returns>
+    [DebuggerStepThrough]
+    public static object GetService(this IInfrastructure<IServiceProvider> accessor, Type serviceType)
+        => InfrastructureExtensions.GetService(accessor, serviceType);
+
+    /// <summary>
     ///     <para>
     ///         Gets the value from a property that is being hidden using <see cref="IInfrastructure{T}" />.
     ///     </para>

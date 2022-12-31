@@ -1257,6 +1257,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("eagerLoaded: ").Append(_code.Literal(true));
         }
 
+        if (!navigation.LazyLoadingEnabled)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("lazyLoadingEnabled: ").Append(_code.Literal(false));
+        }
+
         mainBuilder
             .AppendLine(");")
             .AppendLine()
@@ -1344,6 +1350,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             {
                 mainBuilder.AppendLine(",")
                     .Append("eagerLoaded: ").Append(_code.Literal(true));
+            }
+
+            if (!navigation.LazyLoadingEnabled)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("lazyLoadingEnabled: ").Append(_code.Literal(false));
             }
 
             mainBuilder

@@ -1109,7 +1109,8 @@ namespace TestNamespace
                 typeof(CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>).GetProperty(""Dependent"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>).GetField(""<Dependent>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                eagerLoaded: true);
+                eagerLoaded: true,
+                lazyLoadingEnabled: false);
 
             return runtimeForeignKey;
         }
@@ -1733,7 +1734,8 @@ namespace TestNamespace
                 typeof(ICollection<CSharpRuntimeModelCodeGeneratorTest.PrincipalBase>),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>).GetProperty(""Principals"", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>).GetField(""<Principals>k__BackingField"", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                eagerLoaded: true);
+                eagerLoaded: true,
+                lazyLoadingEnabled: false);
 
             var inverse = targetEntityType.FindSkipNavigation(""Deriveds"");
             if (inverse != null)
@@ -1999,6 +2001,7 @@ namespace TestNamespace
                     Assert.Equal("<Dependent>k__BackingField", dependentNavigation.FieldInfo.Name);
                     Assert.False(dependentNavigation.IsCollection);
                     Assert.True(dependentNavigation.IsEagerLoaded);
+                    Assert.False(dependentNavigation.LazyLoadingEnabled);
                     Assert.False(dependentNavigation.IsOnDependent);
                     Assert.Equal(principalDerived, dependentNavigation.DeclaringEntityType);
                     Assert.Equal("Principal", dependentNavigation.Inverse.Name);
@@ -2047,6 +2050,7 @@ namespace TestNamespace
                     Assert.Equal(typeof(ICollection<PrincipalBase>), derivedSkipNavigation.ClrType);
                     Assert.True(derivedSkipNavigation.IsCollection);
                     Assert.True(derivedSkipNavigation.IsEagerLoaded);
+                    Assert.False(derivedSkipNavigation.LazyLoadingEnabled);
                     Assert.False(derivedSkipNavigation.IsOnDependent);
                     Assert.Equal(principalDerived, derivedSkipNavigation.DeclaringEntityType);
                     Assert.Equal("Deriveds", derivedSkipNavigation.Inverse.Name);
@@ -2282,7 +2286,7 @@ namespace TestNamespace
                             .HasForeignKey<DependentBase<byte?>>()
                             .OnDelete(DeleteBehavior.ClientNoAction);
 
-                        eb.Navigation(e => e.Dependent).AutoInclude();
+                        eb.Navigation(e => e.Dependent).AutoInclude().EnableLazyLoading(false);
 
                         eb.OwnsMany(
                             typeof(OwnedType).FullName, "ManyOwned", ob =>
@@ -2301,7 +2305,7 @@ namespace TestNamespace
                                         .HasColumnOrder(1);
                                 });
 
-                        eb.Navigation(e => e.Principals).AutoInclude();
+                        eb.Navigation(e => e.Principals).AutoInclude().EnableLazyLoading(false);
 
                         eb.ToTable("PrincipalDerived");
                     });
@@ -2940,6 +2944,7 @@ namespace TestNamespace
                     Assert.Equal("<Dependent>k__BackingField", dependentNavigation.FieldInfo.Name);
                     Assert.False(dependentNavigation.IsCollection);
                     Assert.False(dependentNavigation.IsEagerLoaded);
+                    Assert.True(dependentNavigation.LazyLoadingEnabled);
                     Assert.False(dependentNavigation.IsOnDependent);
                     Assert.Equal(principalDerived, dependentNavigation.DeclaringEntityType);
                     Assert.Equal("Principal", dependentNavigation.Inverse.Name);

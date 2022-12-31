@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
-using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -17,10 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class DependencyInjectionParameterBinding : ServiceParameterBinding
 {
     private static readonly MethodInfo GetServiceMethod
-        = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService))!;
-
-    private static readonly MethodInfo InjectableServiceServiceObtainedMethod
-        = typeof(IInjectableService).GetMethod(nameof(IInjectableService.ServiceObtained))!;
+        = typeof(InfrastructureExtensions).GetRuntimeMethod(
+            nameof(InfrastructureExtensions.GetService), new[] { typeof(IInfrastructure<IServiceProvider>) })!;
 
     /// <summary>
     ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.
@@ -50,22 +47,13 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
         Check.NotNull(materializationExpression, nameof(materializationExpression));
         Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
 
-        var serviceVariable = Expression.Variable(ServiceType);
-        var getContext = Expression.Property(materializationExpression, MaterializationContext.ContextProperty);
-        return Expression.Block(
-            variables: new[] { serviceVariable },
-            Expression.Assign(
-                serviceVariable, Expression.Call(
-                    GetServiceMethod.MakeGenericMethod(ServiceType),
-                    Expression.Convert(getContext, typeof(IInfrastructure<IServiceProvider>)))),
-            Expression.IfThen(
-                Expression.TypeIs(serviceVariable, typeof(IInjectableService)),
-                Expression.Call(
-                    Expression.Convert(serviceVariable, typeof(IInjectableService)),
-                    InjectableServiceServiceObtainedMethod,
-                    getContext,
-                    bindingInfoExpression)),
-            serviceVariable);
+        return Expression.Call(
+            GetServiceMethod.MakeGenericMethod(ServiceType),
+            Expression.Convert(
+                Expression.Property(
+                    materializationExpression,
+                    MaterializationContext.ContextProperty),
+                typeof(IInfrastructure<IServiceProvider>)));
     }
 
     /// <summary>
@@ -75,4 +63,10 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
     /// <returns>A copy with replaced consumed properties.</returns>
     public override ParameterBinding With(IPropertyBase[] consumedProperties)
         => new DependencyInjectionParameterBinding(ParameterType, ServiceType, consumedProperties);
+
+    /// <summary>
+    ///     A delegate to set a CLR service property on an entity instance.
+    /// </summary>
+    public override Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
+        => (materializationContext, _, _) => materializationContext.Context.GetService(ServiceType);
 }

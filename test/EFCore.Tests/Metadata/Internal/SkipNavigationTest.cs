@@ -47,6 +47,10 @@ public class SkipNavigationTest
 
         Assert.Equal(
             CoreStrings.ModelReadOnly,
+            Assert.Throws<InvalidOperationException>(() => navigation.SetLazyLoadingEnabled(null)).Message);
+
+        Assert.Equal(
+            CoreStrings.ModelReadOnly,
             Assert.Throws<InvalidOperationException>(() => navigation.SetPropertyAccessMode(null)).Message);
     }
 

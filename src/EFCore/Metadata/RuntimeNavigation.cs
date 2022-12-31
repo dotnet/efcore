@@ -33,7 +33,8 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
         FieldInfo? fieldInfo,
         RuntimeForeignKey foreignKey,
         PropertyAccessMode propertyAccessMode,
-        bool eagerLoaded)
+        bool eagerLoaded,
+        bool lazyLoadingEnabled)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
         ClrType = clrType;
@@ -41,6 +42,10 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
         if (eagerLoaded)
         {
             SetAnnotation(CoreAnnotationNames.EagerLoaded, true);
+        }
+        if (!lazyLoadingEnabled)
+        {
+            SetAnnotation(CoreAnnotationNames.LazyLoadingEnabled, false);
         }
     }
 

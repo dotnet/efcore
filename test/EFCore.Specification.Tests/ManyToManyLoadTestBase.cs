@@ -75,6 +75,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
             else
             {
+                Assert.Null(left.TwoSkip);
                 if (async)
                 {
                     await collectionEntry.LoadAsync();
@@ -86,7 +87,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
 
             Assert.True(collectionEntry.IsLoaded);
-            foreach (var entityTwo in left.TwoSkip)
+            foreach (var entityTwo in left.TwoSkip!)
             {
                 Assert.False(context.Entry(entityTwo).Collection(e => e.OneSkip).IsLoaded);
             }
@@ -261,6 +262,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         }
         else
         {
+            Assert.Equal(4, left.ThreeSkipPayloadFull.Count);
             if (async)
             {
                 await collectionEntry.LoadAsync();
@@ -583,6 +585,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         }
         else
         {
+            Assert.Single(left.ThreeSkipPayloadFull);
             if (queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
             {
                 collectionEntry.LoadWithIdentityResolution();
@@ -650,6 +653,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
             else
             {
+                Assert.Null(left.TwoSkip);
                 if (async)
                 {
                     await navigationEntry.LoadAsync();
@@ -661,7 +665,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
 
             Assert.True(navigationEntry.IsLoaded);
-            foreach (var entityTwo in left.TwoSkip)
+            foreach (var entityTwo in left.TwoSkip!)
             {
                 Assert.False(context.Entry((object)entityTwo).Collection("OneSkip").IsLoaded);
             }
@@ -771,6 +775,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
             else
             {
+                Assert.Null(left.TwoSkip);
                 if (async)
                 {
                     await navigationEntry.LoadAsync();
@@ -786,7 +791,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             RecordLog();
             context.ChangeTracker.LazyLoadingEnabled = false;
 
-            Assert.Empty(left.TwoSkip);
+            Assert.Empty(left.TwoSkip!);
         }
 
         Assert.Equal(state == EntityState.Detached ? 0 : 1, context.ChangeTracker.Entries().Count());
@@ -883,6 +888,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         }
         else
         {
+            Assert.Equal(4, left.ThreeSkipPayloadFull.Count);
             if (async)
             {
                 await navigationEntry.LoadAsync();
@@ -1025,6 +1031,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
             else
             {
+                Assert.Null(left.ThreeSkipFull);
                 if (async)
                 {
                     await collectionEntry.LoadAsync();
@@ -1036,7 +1043,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             }
 
             Assert.True(collectionEntry.IsLoaded);
-            foreach (var entityTwo in left.ThreeSkipFull)
+            foreach (var entityTwo in left.ThreeSkipFull!)
             {
                 Assert.False(context.Entry(entityTwo).Collection(e => e.CompositeKeySkipFull).IsLoaded);
             }

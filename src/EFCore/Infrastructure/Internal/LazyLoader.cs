@@ -20,6 +20,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
     private bool _detached;
     private IDictionary<string, bool>? _loadedStates;
     private List<(object Entity, string NavigationName)>? _isLoading;
+    private IEntityType? _entityType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,8 +42,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void ServiceObtained(DbContext context, ParameterBindingInfo bindingInfo)
-        => _queryTrackingBehavior = bindingInfo.QueryTrackingBehavior;
+    public virtual void Injected(DbContext context, object entity, ParameterBindingInfo bindingInfo)
+    {
+        _queryTrackingBehavior = bindingInfo.QueryTrackingBehavior;
+        _entityType = bindingInfo.EntityType;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -217,18 +221,24 @@ public class LazyLoader : ILazyLoader, IInjectableService
     {
         if (!_detached && !IsLoaded(entity, navigationName))
         {
-            if (_disposed)
-            {
-                Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
-            }
-            else if (Context!.ChangeTracker.LazyLoadingEnabled) // Check again because the nav may be loaded without the loader knowing
-            {
-                navigationEntry = Context.Entry(entity).Navigation(navigationName); // Will use local-DetectChanges, if enabled.
-                if (!navigationEntry.IsLoaded)
-                {
-                    Logger.NavigationLazyLoading(Context, entity, navigationName);
+            var navigation = _entityType?.FindNavigation(navigationName)
+                ?? (INavigationBase?)_entityType?.FindSkipNavigation(navigationName);
 
-                    return true;
+            if (navigation?.LazyLoadingEnabled != false)
+            {
+                if (_disposed)
+                {
+                    Logger.LazyLoadOnDisposedContextWarning(Context, entity, navigationName);
+                }
+                else if (Context!.ChangeTracker.LazyLoadingEnabled)
+                {
+                    navigationEntry = Context.Entry(entity).Navigation(navigationName); // Will use local-DetectChanges, if enabled.
+                    if (!navigationEntry.IsLoaded) // Check again because the nav may be loaded without the loader knowing
+                    {
+                        Logger.NavigationLazyLoading(Context, entity, navigationName);
+
+                        return true;
+                    }
                 }
             }
         }
@@ -268,11 +278,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IInjectableService? Attaching(DbContext context, object entity, IInjectableService? existingService)
+    public virtual void Attaching(DbContext context, IEntityType entityType, object entity)
     {
         _disposed = false;
         _detached = false;
+        _entityType = entityType;
         Context = context;
-        return this;
     }
 }
