@@ -21,7 +21,7 @@ public static class InfrastructureExtensions
     /// </summary>
     public static TService GetService<TService>(IInfrastructure<IServiceProvider> accessor)
         where TService : class
-        => (TService)GetService(typeof(TService), accessor);
+        => (TService)GetService(accessor, typeof(TService));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +29,7 @@ public static class InfrastructureExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static object GetService(Type serviceType, IInfrastructure<IServiceProvider> accessor)
+    public static object GetService(IInfrastructure<IServiceProvider> accessor, Type serviceType)
     {
         var internalServiceProvider = accessor.Instance;
 

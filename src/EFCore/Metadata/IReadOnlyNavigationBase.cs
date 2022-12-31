@@ -52,7 +52,6 @@ public interface IReadOnlyNavigationBase : IReadOnlyPropertyBase
         => (bool?)this[CoreAnnotationNames.LazyLoadingEnabled] ?? true;
 
     /// <inheritdoc />
-    // TODO: Remove when #3864 is implemented
     bool IReadOnlyPropertyBase.IsShadowProperty()
         => this.GetIdentifyingMemberInfo() == null;
 }

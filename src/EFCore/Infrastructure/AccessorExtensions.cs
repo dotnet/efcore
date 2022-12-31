@@ -59,7 +59,7 @@ public static class AccessorExtensions
     /// <returns>The requested service.</returns>
     [DebuggerStepThrough]
     public static object GetService(this IInfrastructure<IServiceProvider> accessor, Type serviceType)
-        => InfrastructureExtensions.GetService(serviceType, accessor);
+        => InfrastructureExtensions.GetService(accessor, serviceType);
 
     /// <summary>
     ///     <para>
