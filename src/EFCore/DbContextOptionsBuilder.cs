@@ -447,6 +447,41 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
         => WithOption(e => e.WithApplicationServiceProvider(serviceProvider));
 
     /// <summary>
+    ///     Sets the root <see cref="IServiceProvider" /> from which singleton application services can be obtained from singleton
+    ///     internal services.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is an advanced option that is rarely needed by normal applications. Calling this method will result in a new internal
+    ///         service provider being created for every different root application service provider.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="rootServiceProvider">The service provider to be used.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual DbContextOptionsBuilder UseRootApplicationServiceProvider(IServiceProvider? rootServiceProvider)
+        => WithOption(e => e.WithRootApplicationServiceProvider(rootServiceProvider));
+
+    /// <summary>
+    ///     Resolves the root <see cref="IServiceProvider" /> from from the scoped application service provider. The root provider can
+    ///     be used to obtain singleton application services from singleton internal services.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is an advanced option that is rarely needed by normal applications. Calling this method will result in a new internal
+    ///         service provider being created for every different root application service provider.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual DbContextOptionsBuilder ResolveRootApplicationServiceProvider()
+        => WithOption(e => e.WithAutoResolveRootApplicationServiceProvider(true));
+
+    /// <summary>
     ///     Enables application data to be included in exception messages, logging, etc. This can include the
     ///     values assigned to properties of your entity instances, parameter values for commands being sent
     ///     to the database, and other such data. You should only enable this flag if you have the appropriate
