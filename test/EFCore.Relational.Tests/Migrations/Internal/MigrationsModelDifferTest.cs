@@ -8350,7 +8350,17 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                     });
             },
-            operations => Assert.Equal(0, operations.Count));
+            operations =>
+            {
+                Assert.Equal(1, operations.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                Assert.Equal("Animal", operation.Table);
+                Assert.Equal("Discriminator", operation.Name);
+                Assert.Equal(typeof(string), operation.ClrType);
+                Assert.Equal("just_string(21)", operation.ColumnType);
+                Assert.Equal(21, operation.MaxLength);
+            });
 
     [ConditionalFact]
     public void Add_foreign_key_to_subtype()

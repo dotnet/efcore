@@ -560,7 +560,7 @@ END
         AssertSql(
 """
 @p0=NULL (Nullable = false) (Direction = Output) (DbType = Int32)
-@p1='Child1' (Nullable = false) (Size = 4000)
+@p1='Child1' (Nullable = false) (Size = 8)
 @p2='Child' (Size = 4000)
 @p3=NULL (DbType = Int32)
 @p4=NULL (Direction = Output) (DbType = Int32)

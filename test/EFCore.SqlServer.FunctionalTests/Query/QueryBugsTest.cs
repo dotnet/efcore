@@ -4079,7 +4079,7 @@ ORDER BY [p].[Id]
 
             AssertSql(
 """
-@p0='BaseEntity13079' (Nullable = false) (Size = 4000)
+@p0='BaseEntity13079' (Nullable = false) (Size = 21)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
