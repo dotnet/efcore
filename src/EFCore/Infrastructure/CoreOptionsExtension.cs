@@ -130,6 +130,9 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._applicationServiceProvider = applicationServiceProvider;
+        clone._rootApplicationServiceProvider ??= _autoResolveResolveRootProvider
+            ? applicationServiceProvider?.GetService<ServiceProviderAccessor>()?.RootServiceProvider
+            : null;
 
         return clone;
     }
@@ -160,6 +163,9 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         var clone = Clone();
 
         clone._autoResolveResolveRootProvider = autoResolve;
+        clone._rootApplicationServiceProvider ??= autoResolve
+            ? _applicationServiceProvider?.GetService<ServiceProviderAccessor>()?.RootServiceProvider
+            : null;
 
         return clone;
     }
@@ -458,10 +464,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     ///     The option set from the <see cref="DbContextOptionsBuilder.UseRootApplicationServiceProvider" /> method.
     /// </summary>
     public virtual IServiceProvider? RootApplicationServiceProvider
-        => _rootApplicationServiceProvider
-            ?? (_autoResolveResolveRootProvider
-                ? _applicationServiceProvider?.GetService<ServiceProviderAccessor>()?.RootServiceProvider
-                : null);
+        => _rootApplicationServiceProvider;
 
     /// <summary>
     ///     The option set from the <see cref="DbContextOptionsBuilder.UseRootApplicationServiceProvider" /> method.
