@@ -279,6 +279,20 @@ public class PropertyAttributeConventionTest
     }
 
     [ConditionalFact]
+    public void MaxLengthAttribute_overrides_unbounded_configuration_from_convention_source()
+    {
+        var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();
+
+        var propertyBuilder = entityTypeBuilder.Property(typeof(string), "MaxLengthProperty", ConfigurationSource.Explicit);
+
+        propertyBuilder.HasMaxLength(-1, ConfigurationSource.Convention);
+
+        RunConvention(propertyBuilder);
+
+        Assert.Equal(10, propertyBuilder.Metadata.GetMaxLength());
+    }
+
+    [ConditionalFact]
     public void MaxLengthAttribute_does_not_override_configuration_from_explicit_source()
     {
         var entityTypeBuilder = CreateInternalEntityTypeBuilder<A>();

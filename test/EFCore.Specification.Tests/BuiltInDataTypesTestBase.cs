@@ -84,6 +84,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     String3 = shortString,
                     ByteArray5 = shortBinary,
                     String9000 = longString,
+                    StringUnbounded = longString,
                     ByteArray9000 = longBinary
                 });
 
@@ -97,6 +98,9 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
 
             Assert.NotNull(
                 context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.String9000 == longString).ToList().SingleOrDefault());
+
+            Assert.NotNull(
+                context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.StringUnbounded == longString).ToList().SingleOrDefault());
 
             Assert.NotNull(
                 context.Set<MaxLengthDataTypes>().Where(e => e.Id == 799 && e.ByteArray5 == shortBinary).ToList()
@@ -1372,6 +1376,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     String3 = shortString,
                     ByteArray5 = shortBinary,
                     String9000 = longString,
+                    StringUnbounded = longString,
                     ByteArray9000 = longBinary
                 });
 
@@ -1385,6 +1390,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
             Assert.Equal(shortString, dt.String3);
             Assert.Equal(shortBinary, dt.ByteArray5);
             Assert.Equal(longString, dt.String9000);
+            Assert.Equal(longString, dt.StringUnbounded);
             Assert.Equal(longBinary, dt.ByteArray9000);
         }
     }
@@ -2208,6 +2214,8 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
                     b.Property(e => e.String3).HasMaxLength(3);
                     b.Property(e => e.ByteArray9000).HasMaxLength(LongStringLength);
                     b.Property(e => e.String9000).HasMaxLength(LongStringLength);
+                    b.Property(e => e.StringUnbounded).HasMaxLength(-1);
+                    b.Property(e => e.StringUnbounded).HasMaxLength(LongStringLength);
                 });
 
             modelBuilder.Entity<UnicodeDataTypes>(
@@ -2494,6 +2502,7 @@ public abstract class BuiltInDataTypesTestBase<TFixture> : IClassFixture<TFixtur
         public string String3 { get; set; }
         public byte[] ByteArray5 { get; set; }
         public string String9000 { get; set; }
+        public string StringUnbounded { get; set; }
         public byte[] ByteArray9000 { get; set; }
     }
 

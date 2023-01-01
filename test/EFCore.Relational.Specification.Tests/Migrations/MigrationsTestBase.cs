@@ -522,6 +522,24 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                     column.StoreType);
             });
 
+
+    [ConditionalFact]
+    public virtual Task Add_column_with_unbounded_max_length()
+        => Test(
+            builder => builder.Entity("People").Property<int>("Id"),
+            builder => { },
+            builder => builder.Entity("People").Property<string>("Name").HasMaxLength(-1),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns, c => c.Name == "Name");
+                Assert.Equal(
+                    TypeMappingSource
+                        .FindMapping(typeof(string), storeTypeName: null, size: -1)
+                        .StoreType,
+                    column.StoreType);
+            });
+
     [ConditionalFact]
     public virtual Task Add_column_with_max_length_on_derived()
         => Test(

@@ -173,6 +173,7 @@ public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataType
                 {
                     b.Property(e => e.String3).HasConversion<byte[]>();
                     b.Property(e => e.String9000).HasConversion<byte[]>();
+                    b.Property(e => e.StringUnbounded).HasConversion<byte[]>();
                     b.Property(e => e.ByteArray5).HasConversion<string>().HasMaxLength(8);
                     b.Property(e => e.ByteArray9000).HasConversion<string>().HasMaxLength(LongStringLength * 2);
                 });
