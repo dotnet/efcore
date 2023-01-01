@@ -646,16 +646,18 @@ public static class RelationalDatabaseFacadeExtensions
     ///         The connection can only be set when the existing connection, if any, is not open.
     ///     </para>
     ///     <para>
-    ///         Note that the given connection must be disposed by application code since it was not created by Entity Framework.
-    ///     </para>
-    ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="connection">The connection.</param>
-    public static void SetDbConnection(this DatabaseFacade databaseFacade, DbConnection? connection)
-        => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection = connection;
+    /// <param name="contextOwnsConnection">
+    ///     If <see langword="true" />, then EF will take ownership of the connection and will
+    ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
+    ///     owns the connection and is responsible for its disposal. The default value is <see langword="false"/>.
+    /// </param>
+    public static void SetDbConnection(this DatabaseFacade databaseFacade, DbConnection? connection, bool contextOwnsConnection = false)
+        => GetFacadeDependencies(databaseFacade).RelationalConnection.SetDbConnection(connection, contextOwnsConnection);
 
     /// <summary>
     ///     Gets the underlying connection string configured for this <see cref="DbContext" />.

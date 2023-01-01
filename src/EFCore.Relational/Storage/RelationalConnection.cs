@@ -67,7 +67,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         if (relationalOptions.Connection != null)
         {
             _connection = relationalOptions.Connection;
-            _connectionOwned = false;
+            _connectionOwned = relationalOptions.ConnectionOwned;
 
             if (_connectionString != null)
             {
@@ -172,19 +172,25 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         }
         set
         {
-            if (!ReferenceEquals(_connection, value))
+            SetDbConnection(value, contextOwnsConnection: false);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void SetDbConnection(DbConnection? value, bool contextOwnsConnection)
+    {
+        if (!ReferenceEquals(_connection, value))
+        {
+            if (_openedCount > 0)
             {
-                if (_openedCount > 0)
-                {
-                    throw new InvalidOperationException(RelationalStrings.CannotChangeWhenOpen);
-                }
-
-                Dispose();
-
-                _connection = value;
-                _connectionString = null;
-                _connectionOwned = false;
+                throw new InvalidOperationException(RelationalStrings.CannotChangeWhenOpen);
             }
+
+            Dispose();
+
+            _connection = value;
+            _connectionString = null;
+            _connectionOwned = contextOwnsConnection;
         }
     }
 

@@ -97,37 +97,67 @@ public class ConnectionSpecificationTest
                 .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString, b => b.ApplyConfiguration());
     }
 
-    [ConditionalFact]
-    public void Can_specify_no_connection_in_OnConfiguring()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_specify_no_connection_in_OnConfiguring(bool contextOwnsConnection)
     {
         var serviceProvider
             = new ServiceCollection()
                 .AddScoped(p => new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
                 .AddDbContext<NoneInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
 
+        SqlConnection connection;
+
         using (SqlServerTestStore.GetNorthwindStore())
         {
             using var scope = serviceProvider.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<NoneInOnConfiguringContext>();
 
-            using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
-            context.Database.SetDbConnection(connection);
+            connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+            context.Database.SetDbConnection(connection, contextOwnsConnection);
 
             Assert.True(context.Customers.Any());
         }
+
+        if (contextOwnsConnection)
+        {
+            Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
+        }
+        else
+        {
+            connection.Open();
+            connection.Close();
+            connection.Dispose();
+        }
     }
 
-    [ConditionalFact]
-    public void Can_specify_no_connection_in_OnConfiguring_with_default_service_provider()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_specify_no_connection_in_OnConfiguring_with_default_service_provider(bool contextOwnsConnection)
     {
+        SqlConnection connection;
+
         using (SqlServerTestStore.GetNorthwindStore())
         {
             using var context = new NoneInOnConfiguringContext();
 
-            using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
-            context.Database.SetDbConnection(connection);
+            connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+            context.Database.SetDbConnection(connection, contextOwnsConnection);
 
             Assert.True(context.Customers.Any());
+        }
+
+        if (contextOwnsConnection)
+        {
+            Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
+        }
+        else
+        {
+            connection.Open();
+            connection.Close();
+            connection.Dispose();
         }
     }
 
@@ -157,6 +187,44 @@ public class ConnectionSpecificationTest
 
             Assert.True(context.Customers.Any());
         }
+    }
+
+    [ConditionalFact]
+    public void Can_specify_owned_connection_in_OnConfiguring()
+    {
+        var serviceProvider
+            = new ServiceCollection()
+                .AddSingleton(_ => new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString))
+                .AddDbContext<OwnedConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
+
+        SqlConnection connection;
+
+        using (SqlServerTestStore.GetNorthwindStore())
+        {
+            connection = serviceProvider.GetRequiredService<SqlConnection>();
+
+            using var scope = serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<OwnedConnectionInOnConfiguringContext>();
+            Assert.True(context.Customers.Any());
+        }
+
+        Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
+    }
+
+    [ConditionalFact]
+    public void Can_specify_owned_connection_in_OnConfiguring_with_default_service_provider()
+    {
+        SqlConnection connection;
+
+        using (SqlServerTestStore.GetNorthwindStore())
+        {
+            connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+            using var context = new OwnedConnectionInOnConfiguringContext(connection);
+
+            Assert.True(context.Customers.Any());
+        }
+
+        Assert.Throws<InvalidOperationException>(() => connection.Open()); // Disposed
     }
 
     [ConditionalFact]
@@ -233,11 +301,19 @@ public class ConnectionSpecificationTest
         }
     }
 
-    // ReSharper disable once UnusedMember.Local
-    private class StringInConfigContext : NorthwindContextBase
+    private class OwnedConnectionInOnConfiguringContext : NorthwindContextBase
     {
+        private readonly SqlConnection _connection;
+
+        public OwnedConnectionInOnConfiguringContext(SqlConnection connection)
+        {
+            _connection = connection;
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer("Database=Crunchie", b => b.ApplyConfiguration());
+            => optionsBuilder
+                .EnableServiceProviderCaching(false)
+                .UseSqlServer(_connection, contextOwnsConnection: true, b => b.ApplyConfiguration());
     }
 
     [ConditionalFact]
