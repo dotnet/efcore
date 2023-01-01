@@ -92,7 +92,8 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                 ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
                         }
 
-                        if (_options.UseLazyLoadingProxies)
+                        if (_options.UseLazyLoadingProxies
+                            && navigationBase.LazyLoadingEnabled)
                         {
                             if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual())
                             {

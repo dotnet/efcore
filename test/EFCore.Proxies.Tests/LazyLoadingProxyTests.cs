@@ -37,6 +37,14 @@ public class LazyLoadingProxyTests
     }
 
     [ConditionalFact]
+    public void Does_not_throw_if_non_virtual_navigation_is_set_to_not_eager_load()
+    {
+        using var context = new LazyContextDisabledNavigation();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyNonVirtualNavEntity))!.FindNavigation(nameof(LazyNonVirtualNavEntity.SelfRef)));
+    }
+
+    [ConditionalFact]
     public void Does_not_throw_if_non_virtual_navigation_to_owned_type()
     {
         using var context = new LazyContext<LazyNonVirtualOwnedNavEntity>();
@@ -105,6 +113,21 @@ public class LazyLoadingProxyTests
         public LazyContext()
             : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
         {
+        }
+    }
+
+    private class LazyContextDisabledNavigation : TestContext<LazyNonVirtualNavEntity>
+    {
+        public LazyContextDisabledNavigation()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<LazyNonVirtualNavEntity>().Navigation(e => e.SelfRef).EnableLazyLoading(false);
         }
     }
 
