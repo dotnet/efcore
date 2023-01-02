@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
@@ -243,9 +242,10 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         // If both sides were lifted, we don't need to do anything special. Same if the left side was lifted.
         // But if the right side was lifted and the left wasn't, then in order to preserve evaluation order we need to lift the left side
         // out as well, otherwise the right side gets evaluated before the left.
+        // We refrain from doing this only if the two expressions can't possibly have side effects over each other, for nicer code.
         if (_liftedState.Statements.Count > liftedStatementLeftPosition
             && liftedStatementLeftPosition == liftedStatementOrigPosition
-            && _sideEffectDetector.MayHaveSideEffects(left))
+            && !_sideEffectDetector.CanBeReordered(left, right))
         {
             var name = UniquifyVariableName("lifted");
             _liftedState.Statements.Insert(
@@ -349,9 +349,9 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             }
             else
             {
-                // Identify assignment where the RHS is a switch expression, and pass the LHS for possible lowering. If the switch
-                // expression is lifted out (e.g. because some arm contains a block), this will lower the variable to be assigned inside
-                // the resulting switch statement, rather then adding another useless temporary variable.
+                // Identify assignment where the RHS supports assignment lowering (switch, conditional). If the e.g. switch expression is
+                // lifted out (because some arm contains a block), this will lower the variable to be assigned inside the resulting switch
+                // statement, rather then adding another useless temporary variable.
                 translatedRight = Translate(
                     assignment.Right,
                     lowerableAssignmentVariable: translatedLeft as IdentifierNameSyntax);
@@ -420,7 +420,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             var statements = new List<StatementSyntax>();
             LabeledStatementSyntax? pendingLabeledStatement = null;
 
-            // Now visit the expressions, applying any lifted expressions
+            // Now visit the block's expressions
             for (var i = 0; i < block.Expressions.Count; i++)
             {
                 var expression = block.Expressions[i];
@@ -432,7 +432,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 var statementContext = onLastBlockLine ? _context : ExpressionContext.Statement;
 
                 SyntaxNode translated;
-                using (ChangeContext(onLastBlockLine ? _context : ExpressionContext.Statement))
+                using (ChangeContext(statementContext))
                 {
                     translated = Translate(expression);
                 }
@@ -455,29 +455,24 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 // ... instead of:
                 // int x;
                 // x = <expression>;
-                // ... except for the last line, where we just return the value if needed.
+                // ... except for expression context (i.e. on the last line), where we just return the value if needed.
                 if (expression is BinaryExpression { NodeType: ExpressionType.Assign, Left: ParameterExpression lValue }
                     && translated is AssignmentExpressionSyntax { Right: var valueSyntax }
-                    && (!onLastBlockLine || statementContext == ExpressionContext.Statement)
+                    && statementContext == ExpressionContext.Statement
                     && unassignedVariables.Remove(lValue))
                 {
                     var useExplicitVariableType = valueSyntax.Kind() == SyntaxKind.NullLiteralExpression;
 
-                    translated = LocalDeclarationStatement(
-                        VariableDeclaration(
-                            useExplicitVariableType
-                                ? lValue.Type.GetTypeSyntax()
-                                : IdentifierName(Identifier(TriviaList(), SyntaxKind.VarKeyword, "var", "var", TriviaList())),
-                            SingletonSeparatedList(
-                                VariableDeclarator(Identifier(LookupVariableName(lValue)))
-                                    .WithInitializer(EqualsValueClause(valueSyntax)))));
+                    translated = useExplicitVariableType
+                        ? _g.LocalDeclarationStatement(lValue.Type.GetTypeSyntax(), LookupVariableName(lValue), valueSyntax)
+                        : _g.LocalDeclarationStatement(LookupVariableName(lValue), valueSyntax);
                 }
 
                 if (statementContext == ExpressionContext.Expression)
                 {
                     // We're on the last line of a block in expression context - the block is being lifted out.
                     // All statements before the last line (this one) have already been added to _liftedStatements, just return the last
-                    // E.
+                    // expression.
                     Check.DebugAssert(onLastBlockLine, "onLastBlockLine");
                     Result = translated;
                     break;
@@ -488,7 +483,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                     if (_liftedState.Statements.Count > 0)
                     {
                         // If any expressions were lifted out of the current expression, flatten them into our own block, just before the
-                        // statement from which it was lifted. Note that we don't do this in Expression context, since our own block is
+                        // expression from which they were lifted. Note that we don't do this in Expression context, since our own block is
                         // lifted out.
                         statements.AddRange(_liftedState.Statements);
                         _liftedState.Statements.Clear();
@@ -524,15 +519,8 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                         => ReturnStatement(e),
 
                     // If we're in statement context and we have an expression that can't stand alone (e.g. literal), assign it to discard
-                    // TODO: We can also elide expressions with no side effects in stand-alone context
-                    ExpressionSyntax e
-                        when statementContext == ExpressionContext.Statement
-                        && !IsExpressionValidAsStatement(e)
-                        => ExpressionStatement(
-                            AssignmentExpression(
-                                SyntaxKind.SimpleAssignmentExpression,
-                                IdentifierName(Identifier(TriviaList(), SyntaxKind.UnderscoreToken, "_", "_", TriviaList())),
-                                e)),
+                    ExpressionSyntax e when statementContext == ExpressionContext.Statement && !IsExpressionValidAsStatement(e)
+                        => ExpressionStatement((ExpressionSyntax)_g.AssignmentStatement(_g.IdentifierName("_"), e)),
 
                     ExpressionSyntax e => ExpressionStatement(e),
 
@@ -556,8 +544,8 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 }
             }
 
-            // If a label existed on the last line, add an empty statement (since C# requires it); for expression blocks we'd have to
-            // lift that, not supported for now.
+            // If a label existed on the last line of the block, add an empty statement (since C# requires it); for expression blocks we'd
+            // have to lift that, not supported for now.
             if (pendingLabeledStatement is not null)
             {
                 if (blockContext == ExpressionContext.Expression)
@@ -576,11 +564,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             // and either add them to the block, or lift them if we're an expression block.
             var unassignedVariableDeclarations =
                 unassignedVariables.Select(
-                    v => LocalDeclarationStatement(
-                        VariableDeclaration(
-                            v.Type.GetTypeSyntax(),
-                            SingletonSeparatedList(
-                                VariableDeclarator(Identifier(LookupVariableName(v)))))));
+                    v => (LocalDeclarationStatementSyntax)_g.LocalDeclarationStatement(v.Type.GetTypeSyntax(), LookupVariableName(v)));
 
             if (blockContext == ExpressionContext.Expression)
             {
@@ -591,8 +575,8 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 statements.InsertRange(0, unassignedVariableDeclarations.Concat(_liftedState.UnassignedVariableDeclarations));
                 _liftedState.UnassignedVariableDeclarations.Clear();
 
-                // We're done. If the block is in an expression context, it needs to be lifted out; but not if it's in a lambda (in that case we
-                // just added return above).
+                // We're done. If the block is in an expression context, it needs to be lifted out; but not if it's in a lambda (in that
+                // case we just added return above).
                 Result = Block(statements);
             }
 
@@ -976,14 +960,15 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         // We need to inline the lambda invocation into the tree, by replacing parameters in the lambda body with the invocation arguments.
         // However, if an argument to the invocation can have side effects (e.g. a method call), and it's referenced multiple times from
         // the body, then that would cause multiple evaluation, which is wrong (same if the arguments are evaluated only once but in reverse
-        // order.
+        // order).
         // So we have to lift such arguments.
         var arguments = new Expression[invocation.Arguments.Count];
 
         for (var i = 0; i < arguments.Length; i++)
         {
             var argument = invocation.Arguments[i];
-            if (!MayHaveSideEffects(argument))
+
+            if (argument is ConstantExpression)
             {
                 // No need to evaluate into a separate variable, just pass directly
                 arguments[i] = argument;
@@ -1229,55 +1214,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        var parameters = call.Method.GetParameters();
-        var arguments = new ArgumentSyntax[parameters.Length];
-        var lastLiftedArgumentPosition = 0;
-
-        for (var i = 0; i < arguments.Length; i++)
-        {
-            var (argument, parameter) = (call.Arguments[i], parameters[i]);
-
-            var liftedStatementsPosition = _liftedState.Statements.Count;
-
-            var translated = Argument(Translate<ExpressionSyntax>(argument));
-
-            if (parameter.IsOut)
-            {
-                translated = translated.WithRefKindKeyword(Token(SyntaxKind.OutKeyword));
-            }
-            else if (parameter.IsIn)
-            {
-                translated = translated.WithRefKindKeyword(Token(SyntaxKind.InKeyword));
-            }
-            else if (parameter.ParameterType.IsByRef)
-            {
-                translated = translated.WithRefKindKeyword(Token(SyntaxKind.RefKeyword));
-            }
-
-            if (_liftedState.Statements.Count > liftedStatementsPosition)
-            {
-                // This argument contained lifted statements. In order to preserve evaluation order, we must also lift out all preceding
-                // arguments to before this argument's lifted statements.
-                for (; lastLiftedArgumentPosition < i; lastLiftedArgumentPosition++)
-                {
-                    var argumentExpression = arguments[lastLiftedArgumentPosition].Expression;
-
-                    if (_sideEffectDetector.MayHaveSideEffects(argumentExpression))
-                    {
-                        var name = UniquifyVariableName("liftedArg");
-
-                        _liftedState.Statements.Insert(
-                            liftedStatementsPosition++,
-                            GenerateVarDeclaration(name, argumentExpression));
-                        _liftedState.VariableNames.Add(name);
-
-                        arguments[lastLiftedArgumentPosition] = Argument(IdentifierName(name));
-                    }
-                }
-            }
-
-            arguments[i] = translated;
-        }
+        var arguments = TranslateMethodArguments(call.Method.GetParameters(), call.Arguments);
 
         // TODO: don't specify generic parameters if they can all be inferred
         SimpleNameSyntax methodIdentifier = call.Method.IsGenericMethod
@@ -1343,19 +1280,24 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
 
-        Result =
-            ArrayCreationExpression(
-                    ArrayType(newArray.Type.GetElementType()!.GetTypeSyntax())
-                        .WithRankSpecifiers(
-                            SingletonList(
-                                ArrayRankSpecifier(
-                                    SingletonSeparatedList<ExpressionSyntax>(
-                                        OmittedArraySizeExpression())))))
-                .WithInitializer(
-                    InitializerExpression(
-                        SyntaxKind.ArrayInitializerExpression,
-                        SeparatedList(
-                            newArray.Expressions.Select(Translate<ExpressionSyntax>))));
+        var elementType = newArray.Type.GetElementType()!.GetTypeSyntax();
+
+        var expressions = TranslateList(newArray.Expressions);
+
+        if (newArray.NodeType == ExpressionType.NewArrayBounds)
+        {
+            Result =
+                ArrayCreationExpression(
+                    ArrayType(
+                        elementType,
+                        SingletonList(ArrayRankSpecifier(SeparatedList(expressions)))));
+
+            return newArray;
+        }
+
+        Check.DebugAssert(newArray.NodeType == ExpressionType.NewArrayInit, "newArray.NodeType == ExpressionType.NewArrayInit");
+
+        Result = _g.ArrayCreationExpression(elementType, expressions);
 
         return newArray;
     }
@@ -1364,6 +1306,10 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     protected override Expression VisitNew(NewExpression node)
     {
         using var _ = ChangeContext(ExpressionContext.Expression);
+
+        var arguments = node.Constructor is null
+            ? Array.Empty<ArgumentSyntax>()
+            : TranslateMethodArguments(node.Constructor.GetParameters(), node.Arguments);
 
         if (node.Type.IsAnonymousType())
         {
@@ -1374,52 +1320,52 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
             Result = AnonymousObjectCreationExpression(
                 SeparatedList(
-                    node.Arguments.Select((arg, i) =>
-                            AnonymousObjectMemberDeclarator(NameEquals(node.Members[i].Name), Translate<ExpressionSyntax>(arg)))
+                    arguments.Select(
+                            (arg, i) =>
+                                AnonymousObjectMemberDeclarator(NameEquals(node.Members[i].Name), arg.Expression))
                         .ToArray()));
+
+            return node;
         }
-        else
+
+        // If the type has any required properties and the constructor doesn't have [SetsRequiredMembers], we can't just generate an
+        // instantiation expression.
+        // TODO: Currently matching attributes by name since we target .NET 6.0. If/when we target .NET 7.0 and above, match the type.
+        if (node.Type.GetCustomAttributes(inherit: true)
+                .Any(a => a.GetType().FullName == "System.Runtime.CompilerServices.RequiredMemberAttribute")
+            && node.Constructor is not null
+            && node.Constructor.GetCustomAttributes()
+                .Any(a => a.GetType().FullName == "System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute") != true)
         {
-            // If the type has any required properties and the constructor doesn't have [SetsRequiredMembers], we can't just generate an
-            // instantiation E.
-            // TODO: Currently matching attributes by name since we target .NET 6.0. If/when we target .NET 7.0 and above, match the type.
-            if (node.Type.GetCustomAttributes(inherit: true)
-                    .Any(a => a.GetType().FullName == "System.Runtime.CompilerServices.RequiredMemberAttribute")
-                && node.Constructor is not null
-                && node.Constructor.GetCustomAttributes()
-                    .Any(a => a.GetType().FullName == "System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute") != true)
+            // If the constructor is parameterless, we generate Activator.Create<T>() which is almost as fast (<10ns difference).
+            // For constructors with parameters, we currently throw as not supported (we can pass parameters, but boxing, probably
+            // speed degradation etc.).
+            if (node.Constructor.GetParameters().Length == 0)
             {
-                // If the constructor is parameterless, we generate Activator.Create<T>() which is almost as fast (<10ns difference).
-                // For constructors with parameters, we currently throw as not supported (we can pass parameters, but boxing, probably
-                // speed degradation etc.).
-                if (node.Constructor.GetParameters().Length == 0)
-                {
-                    Result =
-                        Translate(
-                            E.Call(
-                                (_activatorCreateInstanceMethod ??= typeof(Activator).GetMethod(
-                                    nameof(Activator.CreateInstance), Array.Empty<Type>())!)
-                                .MakeGenericMethod(node.Type)));
-                }
-                else
-                {
-                    throw new NotImplementedException("Instantiation of type with required properties via constructor that has parameters");
-                }
+                Result =
+                    Translate(
+                        E.Call(
+                            (_activatorCreateInstanceMethod ??= typeof(Activator).GetMethod(
+                                nameof(Activator.CreateInstance), Array.Empty<Type>())!)
+                            .MakeGenericMethod(node.Type)));
             }
             else
             {
-                // Normal case with plain old instantiation
-                Result = ObjectCreationExpression(node.Type.GetTypeSyntax())
-                    .WithArgumentList(
-                        ArgumentList(
-                            SeparatedList(
-                                node.Arguments.Select(arg => Argument(Translate<ExpressionSyntax>(arg))).ToArray())));
+                throw new NotImplementedException("Instantiation of type with required properties via constructor that has parameters");
             }
+        }
+        else
+        {
+            // Normal case with plain old instantiation
+            Result = ObjectCreationExpression(
+                node.Type.GetTypeSyntax(),
+                ArgumentList(SeparatedList(arguments)),
+                initializer: null);
+        }
 
-            if (node.Constructor?.DeclaringType?.Namespace is not null)
-            {
-                _collectedNamespaces.Add(node.Constructor.DeclaringType.Namespace);
-            }
+        if (node.Constructor?.DeclaringType?.Namespace is not null)
+        {
+            _collectedNamespaces.Add(node.Constructor.DeclaringType.Namespace);
         }
 
         return node;
@@ -1855,8 +1801,77 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             $"Encountered non-quotable expression of type {node.GetType()} when translating expression tree to C#");
     }
 
-    private static bool MayHaveSideEffects(Expression expression)
-        => expression is not ConstantExpression and not ParameterExpression;
+    private ArgumentSyntax[] TranslateMethodArguments(ParameterInfo[] parameters, IReadOnlyList<Expression> arguments)
+    {
+        var translatedExpressions = TranslateList(arguments);
+        var translatedArguments = new ArgumentSyntax[arguments.Count];
+
+        for (var i = 0; i < translatedExpressions.Length; i++)
+        {
+            var parameter = parameters[i];
+            var argument = Argument(translatedExpressions[i]);
+
+            if (parameter.IsOut)
+            {
+                argument = argument.WithRefKindKeyword(Token(SyntaxKind.OutKeyword));
+            }
+            else if (parameter.IsIn)
+            {
+                argument = argument.WithRefKindKeyword(Token(SyntaxKind.InKeyword));
+            }
+            else if (parameter.ParameterType.IsByRef)
+            {
+                argument = argument.WithRefKindKeyword(Token(SyntaxKind.RefKeyword));
+            }
+
+            translatedArguments[i] = argument;
+        }
+
+        return translatedArguments;
+    }
+
+    private ExpressionSyntax[] TranslateList(IReadOnlyList<Expression> list)
+    {
+        Check.DebugAssert(_context == ExpressionContext.Expression, "_context == ExpressionContext.Expression");
+
+        var translatedList = new ExpressionSyntax[list.Count];
+        var lastLiftedArgumentPosition = 0;
+
+        for (var i = 0; i < list.Count; i++)
+        {
+            var expression = list[i];
+
+            var liftedStatementsPosition = _liftedState.Statements.Count;
+
+            var translated = Translate<ExpressionSyntax>(expression);
+
+            if (_liftedState.Statements.Count > liftedStatementsPosition)
+            {
+                // This argument contained lifted statements. In order to preserve evaluation order, we must also lift out all preceding
+                // arguments to before this argument's lifted statements.
+                for (; lastLiftedArgumentPosition < i; lastLiftedArgumentPosition++)
+                {
+                    var argumentExpression = translatedList[lastLiftedArgumentPosition];
+
+                    if (!_sideEffectDetector.CanBeReordered(argumentExpression, translated))
+                    {
+                        var name = UniquifyVariableName("liftedArg");
+
+                        _liftedState.Statements.Insert(
+                            liftedStatementsPosition++,
+                            GenerateVarDeclaration(name, argumentExpression));
+                        _liftedState.VariableNames.Add(name);
+
+                        translatedList[lastLiftedArgumentPosition] = IdentifierName(name);
+                    }
+                }
+            }
+
+            translatedList[i] = translated;
+        }
+
+        return translatedList;
+    }
 
     private StackFrame PushNewStackFrame()
     {
@@ -1969,6 +1984,13 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     private class SideEffectDetectionSyntaxWalker : SyntaxWalker
     {
         private bool _mayHaveSideEffects;
+
+        /// <summary>
+        ///     Returns whether the two provided nodes can be re-ordered without the reversed evaluation order having any effect.
+        ///     For example, two literal expressions can be safely ordered, while two invocations cannot.
+        /// </summary>
+        public bool CanBeReordered(SyntaxNode first, SyntaxNode second)
+            => first is LiteralExpressionSyntax || (!MayHaveSideEffects(first) && !MayHaveSideEffects(second));
 
         public bool MayHaveSideEffects(SyntaxNode node)
         {

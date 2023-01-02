@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Editing;
 using Microsoft.CodeAnalysis.Simplification;
 using Microsoft.CodeAnalysis.Text;
@@ -416,16 +415,12 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
     }
 
     [Fact]
-    public void Invocation_simple()
-    {
-        var i = Parameter(typeof(int), "i");
-
-        AssertExpression(
+    public void Invocation_with_literal_argument()
+        => AssertExpression(
             AndAlso(
                 Constant(true),
-                Invoke((Expression<Func<int, bool>>)(f => f > 5), i)),
-            "true && i > 5");
-    }
+                Invoke((Expression<Func<int, bool>>)(f => f > 5), Constant(8))),
+            "true && 8 > 5");
 
     [Fact]
     public void Invocation_with_argument_that_has_side_effects()
@@ -1084,7 +1079,25 @@ f1 = i =>
     [Fact]
     public void New_lifts_earlier_args_if_later_arg_is_lifted()
     {
-        throw new NotImplementedException();
+        var b = Parameter(typeof(Blog), "b");
+
+        AssertStatement(
+            Block(
+                variables: new[] { b },
+                Assign(b,
+                    New(
+                        typeof(Blog).GetConstructor(new[] { typeof(int), typeof(int) })!,
+                        Call(FooMethod),
+                        Block(
+                            Call(BarMethod),
+                            Call(BazMethod))))),
+"""
+{
+    var liftedArg = LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpTranslatorTest.Bar();
+    var b = new Blog(liftedArg, LinqToCSharpTranslatorTest.Baz());
+}
+""");
     }
 
     [Fact]
@@ -1100,9 +1113,46 @@ f1 = i =>
     }
 
     [Fact]
-    public void NewArray_lifts_earlier_args_if_later_arg_is_lifted()
+    public void New_array()
+        => AssertExpression(
+            NewArrayInit(typeof(int)),
+            "new int[]{}");
+
+    [Fact]
+    public void New_array_with_bounds()
+        => AssertExpression(
+            NewArrayBounds(typeof(int), Constant(3)),
+            "new int[3]");
+
+    [Fact]
+    public void New_array_with_initializers()
+        => AssertExpression(
+            NewArrayInit(typeof(int), Constant(3), Constant(4)),
+            "new int[]{3, 4}");
+
+    [Fact]
+    public void New_array_lifts_earlier_args_if_later_arg_is_lifted()
     {
-        throw new NotImplementedException();
+        var a = Parameter(typeof(int[]), "a");
+
+        // a = new[] { Foo(), { Bar(); Baz(); } }
+        AssertStatement(
+            Block(
+                variables: new[] { a },
+                Assign(a,
+                    NewArrayInit(
+                        typeof(int),
+                        Call(FooMethod),
+                        Block(
+                            Call(BarMethod),
+                            Call(BazMethod))))),
+"""
+{
+    var liftedArg = LinqToCSharpTranslatorTest.Foo();
+    LinqToCSharpTranslatorTest.Bar();
+    var a = new int[]{liftedArg, LinqToCSharpTranslatorTest.Baz()};
+}
+""");
     }
 
     [Fact]
@@ -1784,6 +1834,7 @@ catch
 
         public Blog() {}
         public Blog(string name) {}
+        public Blog(int foo, int bar) {}
 
         public int SomeInstanceMethod()
             => 3;

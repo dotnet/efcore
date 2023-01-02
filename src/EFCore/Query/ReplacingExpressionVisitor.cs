@@ -58,10 +58,7 @@ public class ReplacingExpressionVisitor : ExpressionVisitor
     [return: NotNullIfNotNull("expression")]
     public override Expression? Visit(Expression? expression)
     {
-        if (expression == null
-            || expression is ShapedQueryExpression
-            || expression is EntityShaperExpression
-            || expression is GroupByShaperExpression)
+        if (expression is null or ShapedQueryExpression or EntityShaperExpression or GroupByShaperExpression)
         {
             return expression;
         }
