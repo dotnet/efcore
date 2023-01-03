@@ -926,16 +926,16 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
     public virtual IModel Timestamp_takes_precedence_over_MaxLength()
     {
         var modelBuilder = CreateModelBuilder();
-        modelBuilder.Entity<TimestampAndMaxlen>().Ignore(x => x.NonMaxTimestamp);
+        modelBuilder.Entity<TimestampAndMaxlength>().Ignore(x => x.NonMaxTimestamp);
 
         var model = Validate(modelBuilder);
 
-        Assert.Null(GetProperty<TimestampAndMaxlen>(model, "MaxTimestamp").GetMaxLength());
+        Assert.Null(GetProperty<TimestampAndMaxlength>(model, "MaxTimestamp").GetMaxLength());
 
         return model;
     }
 
-    protected class TimestampAndMaxlen
+    protected class TimestampAndMaxlength
     {
         public int Id { get; set; }
 

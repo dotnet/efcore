@@ -69,7 +69,7 @@ public class DataAnnotationSqliteTest : DataAnnotationRelationalTestBase<DataAnn
     {
         var model = base.Timestamp_takes_precedence_over_MaxLength();
 
-        var property = GetProperty<TimestampAndMaxlen>(model, "MaxTimestamp");
+        var property = GetProperty<TimestampAndMaxlength>(model, "MaxTimestamp");
 
         var storeType = property.GetRelationalTypeMapping().StoreType;
 

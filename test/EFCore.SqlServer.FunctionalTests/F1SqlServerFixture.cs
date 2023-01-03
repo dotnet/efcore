@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore.TestModels.ConcurrencyModel;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -22,14 +23,10 @@ public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
             .OwnsOne(
                 s => s.Details, eb =>
                 {
-                    eb.Property<ulong>("Version").IsRowVersion().HasConversion<byte[]>();
+                    eb.Property<ulong>("Version").IsRowVersion();
                 });
 
-        modelBuilder
-            .Entity<OptimisticOptionalChild>()
-            .Property(x => x.Version)
-            .IsRowVersion()
-            .HasConversion<byte[]>();
+        modelBuilder.Entity<OptimisticOptionalChild>();
 
         modelBuilder
             .Entity<OptimisticParent>()
@@ -78,7 +75,9 @@ public class F1ULongSqlServerFixture : F1SqlServerFixtureBase<ulong>
     {
         public Guid Id { get; set; }
         public ICollection<OptimisticParent> Parents { get; set; }
-        public ulong Version { get; set; }
+
+        [Timestamp]
+        public long Version { get; set; }
     }
 
     public class OptimisticParent

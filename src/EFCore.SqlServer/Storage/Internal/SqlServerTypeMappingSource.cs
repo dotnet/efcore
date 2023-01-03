@@ -43,6 +43,26 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 v => v.ToArray()),
             storeTypePostfix: StoreTypePostfix.None);
 
+    private readonly SqlServerLongTypeMapping _longRowversion
+        = new(
+            "rowversion",
+            converter: new NumberToBytesConverter<long>(),
+            providerValueComparer: new ValueComparer<byte[]>(
+                (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
+                v => v.ToArray()),
+            dbType: DbType.Binary);
+
+    private readonly SqlServerLongTypeMapping _ulongRowversion
+        = new(
+            "rowversion",
+            converter: new NumberToBytesConverter<ulong>(),
+            providerValueComparer: new ValueComparer<byte[]>(
+                (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
+                v => v.ToArray()),
+            dbType: DbType.Binary);
+
     private readonly IntTypeMapping _int
         = new("int");
 
@@ -291,6 +311,16 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             if (_clrTypeMappings.TryGetValue(clrType, out var mapping))
             {
                 return mapping;
+            }
+
+            if (clrType == typeof(ulong) && mappingInfo.IsRowVersion == true)
+            {
+                return _ulongRowversion;
+            }
+
+            if (clrType == typeof(long) && mappingInfo.IsRowVersion == true)
+            {
+                return _longRowversion;
             }
 
             if (clrType == typeof(string))
