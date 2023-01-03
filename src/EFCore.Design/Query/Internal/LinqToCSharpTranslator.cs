@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
@@ -1739,45 +1741,161 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     }
 
     /// <inheritdoc />
-    protected override Expression VisitMemberInit(MemberInitExpression node)
+    protected override Expression VisitMemberInit(MemberInitExpression memberInit)
     {
-        throw new NotImplementedException();
+        var objectCreation = Translate<ObjectCreationExpressionSyntax>(memberInit.NewExpression);
+
+        List<MemberListBinding>? incompatibleListBindings = null;
+
+        var initializerExpressions = new List<AssignmentExpressionSyntax>(memberInit.Bindings.Count);
+
+        foreach (var binding in memberInit.Bindings)
+        {
+            // C# collection initialization syntax only works when Add is called on an IEnumerable, but LINQ supports arbitrary add
+            // methods. Skip these, we'll add them later outside the initializer
+            if (binding is MemberListBinding listBinding
+                && (!listBinding.Member.GetMemberType().IsAssignableTo(typeof(IEnumerable))
+                    || listBinding.Initializers.Any(e => e.AddMethod.Name != "Add" || e.Arguments.Count != 1)))
+            {
+                incompatibleListBindings ??= new();
+                incompatibleListBindings.Add(listBinding);
+                continue;
+            }
+
+            var liftedStatementsPosition = _liftedState.Statements.Count;
+
+            VisitMemberBinding(binding);
+
+            initializerExpressions.Add((AssignmentExpressionSyntax)Result!);
+
+            if (_liftedState.Statements.Count > liftedStatementsPosition)
+            {
+                // TODO: This is tricky because of the recursive nature of MemberMemberBinding
+                throw new NotImplementedException("MemberInit: lifted statements");
+            }
+        }
+
+        if (incompatibleListBindings is not null)
+        {
+            // TODO: This requires lifting statements to *after* the instantiation - we usually lift to before.
+            // This is problematic: if such an expression is passed as an argument to a method, there's no way to faithfully translate it
+            // while preserving evaluation order.
+            throw new NotImplementedException("MemberInit: incompatible MemberListBinding");
+        }
+
+        Result = objectCreation.WithInitializer(
+            InitializerExpression(
+                SyntaxKind.ObjectInitializerExpression,
+                SeparatedList<ExpressionSyntax>(initializerExpressions)));
+
+        return memberInit;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitListInit(ListInitExpression node)
+    protected override Expression VisitListInit(ListInitExpression listInit)
     {
-        throw new NotImplementedException();
+        var objectCreation = Translate<ObjectCreationExpressionSyntax>(listInit.NewExpression);
+
+        List<ElementInit>? incompatibleListBindings = null;
+
+        var initializerExpressions = new List<ExpressionSyntax>(listInit.Initializers.Count);
+
+        foreach (var initializer in listInit.Initializers)
+        {
+            // C# collection initialization syntax only works when Add is called on an IEnumerable, but LINQ supports arbitrary add
+            // methods. Skip these, we'll add them later outside the initializer
+            if (!listInit.NewExpression.Type.IsAssignableTo(typeof(IEnumerable))
+                || listInit.Initializers.Any(e => e.AddMethod.Name != "Add" || e.Arguments.Count != 1))
+            {
+                incompatibleListBindings ??= new();
+                incompatibleListBindings.Add(initializer);
+                continue;
+            }
+
+            var liftedStatementsPosition = _liftedState.Statements.Count;
+
+            VisitElementInit(initializer);
+
+            initializerExpressions.Add((ExpressionSyntax)Result!);
+
+            if (_liftedState.Statements.Count > liftedStatementsPosition)
+            {
+                throw new NotImplementedException("ListInit: lifted statements");
+            }
+        }
+
+        if (incompatibleListBindings is not null)
+        {
+            // TODO: This requires lifting statements to *after* the instantiation - we usually lift to before.
+            // This is problematic: if such an expression is passed as an argument to a method, there's no way to faithfully translate it
+            // while preserving evaluation order.
+            throw new NotImplementedException("ListInit: incompatible ElementInit");
+        }
+
+        Result = objectCreation.WithInitializer(
+            InitializerExpression(
+                SyntaxKind.CollectionInitializerExpression,
+                SeparatedList(initializerExpressions)));
+
+        return listInit;
     }
 
     /// <inheritdoc />
-    protected override ElementInit VisitElementInit(ElementInit node)
+    protected override ElementInit VisitElementInit(ElementInit elementInit)
     {
-        throw new NotImplementedException();
+        Check.DebugAssert(elementInit.Arguments.Count == 1, "elementInit.Arguments.Count == 1");
+
+        Visit(elementInit.Arguments.Single());
+
+        return elementInit;
     }
 
     /// <inheritdoc />
-    protected override MemberBinding VisitMemberBinding(MemberBinding node)
+    protected override MemberAssignment VisitMemberAssignment(MemberAssignment memberAssignment)
     {
-        throw new NotImplementedException();
+        Result = AssignmentExpression(
+            SyntaxKind.SimpleAssignmentExpression,
+            IdentifierName(memberAssignment.Member.Name),
+            Translate<ExpressionSyntax>(memberAssignment.Expression));
+
+        return memberAssignment;
     }
 
     /// <inheritdoc />
-    protected override MemberAssignment VisitMemberAssignment(MemberAssignment node)
+    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding memberMemberBinding)
     {
-        throw new NotImplementedException();
+        Result = AssignmentExpression(
+            SyntaxKind.SimpleAssignmentExpression,
+            IdentifierName(memberMemberBinding.Member.Name),
+            InitializerExpression(
+                SyntaxKind.ObjectInitializerExpression,
+                SeparatedList(
+                    memberMemberBinding.Bindings.Select(
+                        b =>
+                        {
+                            VisitMemberBinding(b);
+                            return (ExpressionSyntax)Result!;
+                        }))));
+
+        return memberMemberBinding;
     }
 
     /// <inheritdoc />
-    protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding node)
+    protected override MemberListBinding VisitMemberListBinding(MemberListBinding memberListBinding)
     {
-        throw new NotImplementedException();
-    }
+        Result = AssignmentExpression(
+            SyntaxKind.SimpleAssignmentExpression,
+            IdentifierName(memberListBinding.Member.Name),
+            InitializerExpression(
+                SyntaxKind.CollectionInitializerExpression,
+                SeparatedList(
+                    memberListBinding.Initializers.Select(i =>
+                    {
+                        VisitElementInit(i);
+                        return (ExpressionSyntax)Result!;
+                    }))));
 
-    /// <inheritdoc />
-    protected override MemberListBinding VisitMemberListBinding(MemberListBinding node)
-    {
-        throw new NotImplementedException();
+        return memberListBinding;
     }
 
     /// <summary>

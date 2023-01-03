@@ -211,14 +211,60 @@ $$"""
     [Fact]
     public void Internal_instance_field_read()
         => AssertExpression(
-            Field(Parameter(typeof(Blog), "blog"), "_internalField"),
-            @"typeof(Blog).GetField(""_internalField"", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(blog)");
+            Field(Parameter(typeof(Blog), "blog"), "InternalField"),
+            "blog.InternalField");
 
     [Fact]
     public void Not()
         => AssertExpression(
             Expression.Not(Constant(true)),
             "!true");
+
+    [Fact]
+    public void MemberInit_with_MemberAssignment()
+        => AssertExpression(
+            MemberInit(
+                New(
+                    typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                    Constant("foo")),
+                Bind(typeof(Blog).GetProperty(nameof(Blog.PublicProperty))!, Constant(8)),
+                Bind(typeof(Blog).GetField(nameof(Blog.PublicField))!, Constant(9))),
+"""
+new Blog("foo")
+{PublicProperty = 8, PublicField = 9}
+""");
+
+    [Fact]
+    public void MemberInit_with_MemberListBinding()
+        => AssertExpression(
+            MemberInit(
+                New(
+                    typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                    Constant("foo")),
+                ListBind(typeof(Blog).GetProperty(nameof(Blog.ListOfInts))!,
+                    ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(8)),
+                    ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(9)))),
+"""
+new Blog("foo")
+{ListOfInts = {8, 9}}
+""");
+
+    [Fact]
+    public void MemberInit_with_MemberMemberBinding()
+        => AssertExpression(
+            MemberInit(
+                New(
+                    typeof(Blog).GetConstructor(new[] { typeof(string) })!,
+                    Constant("foo")),
+                MemberBind(typeof(Blog).GetProperty(nameof(Blog.Details))!,
+                    Bind(typeof(BlogDetails).GetProperty(nameof(BlogDetails.Foo))!, Constant(5)),
+                    ListBind(typeof(BlogDetails).GetProperty(nameof(BlogDetails.ListOfInts))!,
+                        ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(8)),
+                        ElementInit(typeof(List<int>).GetMethod(nameof(List<int>.Add))!, Constant(9))))),
+"""
+new Blog("foo")
+{Details = {Foo = 5, ListOfInts = {8, 9}}}
+""");
 
     [Fact]
     public void Method_call_instance()
@@ -1107,12 +1153,6 @@ f1 = i =>
     }
 
     [Fact]
-    public void ListInit_lifts_earlier_args_if_later_arg_is_lifted()
-    {
-        throw new NotImplementedException();
-    }
-
-    [Fact]
     public void New_array()
         => AssertExpression(
             NewArrayInit(typeof(int)),
@@ -1398,6 +1438,19 @@ f1 = i =>
 }
 """);
     }
+
+    [Fact]
+    public void ListInit_node()
+        => AssertExpression(
+            ListInit(
+                New(typeof(List<int>)),
+                typeof(List<int>).GetMethod(nameof(List<int>.Add))!,
+                Constant(8),
+                Constant(9)),
+"""
+new List<int>()
+{8, 9}
+""");
 
     [Fact]
     public void TypeEqual_node()
@@ -1826,11 +1879,18 @@ catch
     private class Blog
     {
 #pragma warning disable CS0169
+#pragma warning disable CS0649
+        public int PublicField;
+        public int PublicProperty { get; set; }
+        internal int InternalField;
+        internal int InternalProperty { get; set; }
         private int _privateField;
-        private int _internalField;
-#pragma warning restore CS0169
         private int PrivateProperty { get; set; }
-        private int InternalProperty { get; set; }
+
+        public List<int> ListOfInts { get; set; } = new();
+        public BlogDetails Details { get; set; } = new();
+#pragma warning restore CS0649
+#pragma warning restore CS0169
 
         public Blog() {}
         public Blog(string name) {}
@@ -1844,6 +1904,12 @@ catch
 
         public static int Static_method_on_nested_type()
             => 3;
+    }
+
+    public class BlogDetails
+    {
+        public int Foo { get; set; }
+        public List<int> ListOfInts { get; set; } = new();
     }
 
     private class BlogWithRequiredProperties
