@@ -13,8 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
     public class CSharpDbContextGeneratorTest : ModelCodeGeneratorTestBase
     {
-        private static readonly string _nl = Environment.NewLine;
-
         public CSharpDbContextGeneratorTest(ModelCodeGeneratorTestFixture fixture, ITestOutputHelper output)
             : base(fixture, output)
         {
@@ -28,7 +26,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -46,10 +45,8 @@ public partial class TestDbContext : DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,7 +55,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
@@ -73,7 +70,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -91,7 +89,7 @@ public partial class TestDbContext : DbContext
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -100,7 +98,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
@@ -115,7 +113,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -135,7 +134,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
@@ -222,12 +221,12 @@ public partial class TestDbContext : DbContext
                     ConnectionString = "Initial Catalog=TestDatabase"
                 });
 
-            Assert.Contains(
-                @"optionsBuilder"
-                + _nl
-                + @"            .UseSqlServer(""Initial Catalog=TestDatabase"", x => x.SetProviderOption())"
-                + _nl
-                + @"            .SetContextOption();",
+            AssertContains(
+"""
+optionsBuilder
+            .UseSqlServer("Initial Catalog=TestDatabase", x => x.SetProviderOption())
+            .SetContextOption();
+""",
                 scaffoldedModel.ContextFile.Code);
         }
 
@@ -395,8 +394,11 @@ public partial class TestDbContext : DbContext
                 new ModelCodeGenerationOptions(),
                 code =>
                 {
-                    Assert.Contains(
-                        @$"Property(e => e.ValueGeneratedOnAdd){_nl}                .ValueGeneratedOnAdd()",
+                    AssertContains(
+"""
+Property(e => e.ValueGeneratedOnAdd)
+                .ValueGeneratedOnAdd()
+""",
                         code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ValueGeneratedOnAddOrUpdate).ValueGeneratedOnAddOrUpdate()", code.ContextFile.Code);
                     Assert.Contains("Property(e => e.ConcurrencyToken).IsConcurrencyToken()", code.ContextFile.Code);
@@ -556,7 +558,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -576,22 +579,20 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<EntityWithIndexes>(entity =>
         {
-            entity.HasIndex(e => new { e.A, e.B }, ""IndexOnAAndB"")
+            entity.HasIndex(e => new { e.A, e.B }, "IndexOnAAndB")
                 .IsUnique()
                 .IsDescending(false, true);
 
-            entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
-                .HasFilter(""Filter SQL"")
-                .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+            entity.HasIndex(e => new { e.B, e.C }, "IndexOnBAndC")
+                .HasFilter("Filter SQL")
+                .HasAnnotation("AnnotationName", "AnnotationValue");
 
             entity.Property(e => e.Id).UseIdentityColumn();
         });
@@ -601,7 +602,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model =>
@@ -631,7 +632,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -651,18 +653,16 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<EntityWithIndexes>(entity =>
         {
-            entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"")
-                .HasFilter(""Filter SQL"")
-                .HasAnnotation(""AnnotationName"", ""AnnotationValue"");
+            entity.HasIndex(e => new { e.B, e.C }, "IndexOnBAndC")
+                .HasFilter("Filter SQL")
+                .HasAnnotation("AnnotationName", "AnnotationValue");
 
             entity.Property(e => e.Id).UseIdentityColumn();
         });
@@ -672,7 +672,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model =>
@@ -705,7 +705,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -725,24 +726,22 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<EntityWithIndexes>(entity =>
         {
-            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_ascending"");
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_all_ascending");
 
-            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_all_descending"").IsDescending();
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_all_descending").IsDescending();
 
-            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_empty"").IsDescending();
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_empty").IsDescending();
 
-            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_mixed"").IsDescending(false, true, false);
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_mixed").IsDescending(false, true, false);
 
-            entity.HasIndex(e => new { e.X, e.Y, e.Z }, ""IX_unspecified"");
+            entity.HasIndex(e => new { e.X, e.Y, e.Z }, "IX_unspecified");
 
             entity.Property(e => e.Id).UseIdentityColumn();
         });
@@ -752,7 +751,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model =>
@@ -804,7 +803,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -826,16 +826,14 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<PrincipalEntity> PrincipalEntity { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<DependentEntity>(entity =>
         {
-            entity.HasIndex(e => e.DependentId, ""IX_DependentEntity_DependentId"").IsUnique();
+            entity.HasIndex(e => e.DependentId, "IX_DependentEntity_DependentId").IsUnique();
 
             entity.Property(e => e.Id).UseIdentityColumn();
 
@@ -856,7 +854,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model => { });
@@ -876,7 +874,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -896,10 +895,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Employee> Employee { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -907,8 +904,8 @@ public partial class TestDbContext : DbContext
         {
             entity.Property(e => e.Id).UseIdentityColumn();
             entity.Property(e => e.HireDate)
-                .HasColumnType(""date"")
-                .HasColumnName(""hiring_date"");
+                .HasColumnType("date")
+                .HasColumnName("hiring_date");
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -916,7 +913,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model =>
@@ -946,7 +943,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -964,10 +962,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<MyEntity> MyEntity { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -981,7 +977,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
 
                     Assert.DoesNotContain("namespace ", Assert.Single(code.AdditionalFiles).Code);
@@ -1030,7 +1026,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using CustomTestNamespace;
 using Microsoft.EntityFrameworkCore;
@@ -1053,7 +1050,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
 
                     Assert.Empty(code.AdditionalFiles);
@@ -1081,7 +1078,8 @@ public partial class TestDbContext : DbContext
                             code =>
                             {
                                 AssertFileContents(
-                                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1101,10 +1099,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Customer> Customer { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                                    + DesignStrings.SensitiveInformationWarning
-                                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1112,13 +1108,13 @@ public partial class TestDbContext : DbContext
         {
             entity.ToTable(tb => tb.IsTemporal(ttb =>
                     {
-                        ttb.UseHistoryTable(""CustomerHistory"");
+                        ttb.UseHistoryTable("CustomerHistory");
                         ttb
-                            .HasPeriodStart(""PeriodStart"")
-                            .HasColumnName(""PeriodStart"");
+                            .HasPeriodStart("PeriodStart")
+                            .HasColumnName("PeriodStart");
                         ttb
-                            .HasPeriodEnd(""PeriodEnd"")
-                            .HasColumnName(""PeriodEnd"");
+                            .HasPeriodEnd("PeriodEnd")
+                            .HasColumnName("PeriodEnd");
                     }));
 
             entity.Property(e => e.Id).UseIdentityColumn();
@@ -1129,7 +1125,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                                     code.ContextFile);
                             },
                             model =>
@@ -1147,18 +1143,15 @@ public partial class TestDbContext : DbContext
                     .HasMax(100)
                     .IsCyclic(),
                 new ModelCodeGenerationOptions(),
-                code => Assert.Contains(
-                    @".HasSequence<int>(""EvenNumbers"", ""dbo"")"
-                    + _nl
-                    + "            .StartsAt(2L)"
-                    + _nl
-                    + "            .IncrementsBy(2)"
-                    + _nl
-                    + "            .HasMin(2L)"
-                    + _nl
-                    + "            .HasMax(100L)"
-                    + _nl
-                    + "            .IsCyclic();",
+                code => AssertContains(
+"""
+.HasSequence<int>("EvenNumbers", "dbo")
+            .StartsAt(2L)
+            .IncrementsBy(2)
+            .HasMin(2L)
+            .HasMax(100L)
+            .IsCyclic();
+""",
                     code.ContextFile.Code),
                 model =>
                 {
@@ -1193,7 +1186,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1213,10 +1207,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Employee> Employee { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1224,8 +1216,8 @@ public partial class TestDbContext : DbContext
         {
             entity.ToTable(tb =>
                 {
-                    tb.HasTrigger(""Trigger1"");
-                    tb.HasTrigger(""Trigger2"");
+                    tb.HasTrigger("Trigger1");
+                    tb.HasTrigger("Trigger2");
                 });
 
             entity.Property(e => e.Id).UseIdentityColumn();
@@ -1236,7 +1228,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model =>
@@ -1264,7 +1256,8 @@ public partial class TestDbContext : DbContext
                 code =>
                 {
                     AssertFileContents(
-                        @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -1285,16 +1278,14 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Channel> Channel { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                        + DesignStrings.SensitiveInformationWarning
-                        + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Channel>(entity =>
         {
-            entity.Property(e => e.Id).HasAnnotation(""SqlServer:ValueGenerationStrategy"", SqlServerValueGenerationStrategy.None);
+            entity.Property(e => e.Id).HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -1302,7 +1293,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                         code.ContextFile);
                 },
                 model =>
