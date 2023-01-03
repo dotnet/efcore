@@ -1527,7 +1527,12 @@ public class SqlNullabilityProcessor
         return sqlBinaryExpression;
     }
 
-    private SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
+    /// <summary>
+    ///     Attempts to simplify a unary not operation on a non-nullable operand.
+    /// </summary>
+    /// <param name="sqlUnaryExpression">The expression to simplify.</param>
+    /// <returns>The simplified expression, or the original expression if it cannot be simplified.</returns>
+    protected virtual SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
     {
         if (sqlUnaryExpression.OperatorType != ExpressionType.Not)
         {
@@ -1632,7 +1637,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
@@ -1842,7 +1847,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;

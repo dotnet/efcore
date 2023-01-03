@@ -19,11 +19,12 @@ public class RegexpExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public RegexpExpression(SqlExpression match, SqlExpression pattern, RelationalTypeMapping typeMapping)
+    public RegexpExpression(SqlExpression match, SqlExpression pattern, bool negated, RelationalTypeMapping typeMapping)
         : base(typeof(bool), typeMapping)
     {
         Match = match;
         Pattern = pattern;
+        IsNegated = negated;
     }
 
     /// <summary>
@@ -57,6 +58,14 @@ public class RegexpExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool IsNegated { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var match = (SqlExpression)visitor.Visit(Match);
@@ -71,9 +80,18 @@ public class RegexpExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual RegexpExpression Negate()
+        => new RegexpExpression(Match, Pattern, !IsNegated, TypeMapping);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual RegexpExpression Update(SqlExpression match, SqlExpression pattern)
         => match != Match || pattern != Pattern
-            ? new RegexpExpression(match, pattern, TypeMapping)
+            ? new RegexpExpression(match, pattern, IsNegated, TypeMapping)
             : this;
 
     /// <summary>
@@ -85,6 +103,12 @@ public class RegexpExpression : SqlExpression
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Visit(Match);
+
+        if (IsNegated)
+        {
+            expressionPrinter.Append(" NOT");
+        }
+
         expressionPrinter.Append(" REGEXP ");
         expressionPrinter.Visit(Pattern);
     }
@@ -104,7 +128,8 @@ public class RegexpExpression : SqlExpression
     private bool Equals(RegexpExpression regexpExpression)
         => base.Equals(regexpExpression)
             && Match.Equals(regexpExpression.Match)
-            && Pattern.Equals(regexpExpression.Pattern);
+            && Pattern.Equals(regexpExpression.Pattern)
+            && IsNegated.Equals(regexpExpression.IsNegated);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -113,5 +138,5 @@ public class RegexpExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Match, Pattern);
+        => HashCode.Combine(base.GetHashCode(), Match, Pattern, IsNegated);
 }
