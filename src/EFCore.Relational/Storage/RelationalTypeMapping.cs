@@ -137,7 +137,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
                 CoreParameters,
                 mappingInfo.StoreTypeName ?? StoreType,
                 StoreTypePostfix,
-                DbType,
+                mappingInfo.DbType ?? DbType,
                 mappingInfo.IsUnicode ?? Unicode,
                 mappingInfo.Size ?? Size,
                 mappingInfo.IsFixedLength ?? FixedLength,
