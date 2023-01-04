@@ -41,6 +41,9 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     private IRelationalCommandBuilder _relationalCommandBuilder;
     private Dictionary<string, int>? _repeatedParameterCounts;
 
+    private static readonly bool QuirkEnabled29646
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29646", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
     /// </summary>
@@ -598,20 +601,53 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         var invariantName = sqlParameterExpression.Name;
         var parameterName = sqlParameterExpression.Name;
 
-        if (_relationalCommandBuilder.Parameters
-            .All(
-                p => p.InvariantName != parameterName
-                    || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
-                        && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
-                            || typeMappedRelationalParameter.RelationalTypeMapping.Converter
-                            != sqlParameterExpression.TypeMapping!.Converter))))
+        if (QuirkEnabled29646)
         {
-            parameterName = GetUniqueParameterName(parameterName);
-            _relationalCommandBuilder.AddParameter(
-                invariantName,
-                _sqlGenerationHelper.GenerateParameterName(parameterName),
-                sqlParameterExpression.TypeMapping!,
-                sqlParameterExpression.IsNullable);
+            if (_relationalCommandBuilder.Parameters
+                .All(
+                    p => p.InvariantName != parameterName
+                        || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
+                            && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
+                                || typeMappedRelationalParameter.RelationalTypeMapping.Converter
+                                != sqlParameterExpression.TypeMapping!.Converter))))
+            {
+                parameterName = GetUniqueParameterName(parameterName);
+                _relationalCommandBuilder.AddParameter(
+                    invariantName,
+                    _sqlGenerationHelper.GenerateParameterName(parameterName),
+                    sqlParameterExpression.TypeMapping!,
+                    sqlParameterExpression.IsNullable);
+            }
+        }
+        else
+        {
+            // Try to see if a parameter already exists - if so, just integrate the same placeholder into the SQL instead of sending the same
+            // data twice.
+            // Note that if the type mapping differs, we do send the same data twice (e.g. the same string may be sent once as Unicode, once as
+            // non-Unicode).
+            var parameter = _relationalCommandBuilder.Parameters.FirstOrDefault(
+                p =>
+                    p.InvariantName == parameterName
+                    && p is TypeMappedRelationalParameter typeMappedRelationalParameter
+                    && string.Equals(
+                        typeMappedRelationalParameter.RelationalTypeMapping.StoreType, sqlParameterExpression.TypeMapping!.StoreType,
+                        StringComparison.OrdinalIgnoreCase)
+                    && typeMappedRelationalParameter.RelationalTypeMapping.Converter == sqlParameterExpression.TypeMapping!.Converter);
+
+            if (parameter is null)
+            {
+                parameterName = GetUniqueParameterName(parameterName);
+
+                _relationalCommandBuilder.AddParameter(
+                    invariantName,
+                    _sqlGenerationHelper.GenerateParameterName(parameterName),
+                    sqlParameterExpression.TypeMapping!,
+                    sqlParameterExpression.IsNullable);
+            }
+            else
+            {
+                parameterName = ((TypeMappedRelationalParameter)parameter).Name;
+            }
         }
 
         _relationalCommandBuilder
