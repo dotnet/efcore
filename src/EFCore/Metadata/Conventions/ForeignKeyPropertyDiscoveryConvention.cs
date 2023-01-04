@@ -50,6 +50,9 @@ public class ForeignKeyPropertyDiscoveryConvention :
     IPropertyFieldChangedConvention,
     IModelFinalizingConvention
 {
+    private static readonly bool QuirkEnabled29826
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29826", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a new instance of <see cref="ForeignKeyPropertyDiscoveryConvention" />.
     /// </summary>
@@ -309,7 +312,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
                 : relationshipBuilder;
         }
 
-        if (conflictingFKCount == 0)
+        if ((!QuirkEnabled29826 && conflictingFKCount >= 0)
+            || (QuirkEnabled29826 && conflictingFKCount == 0))
         {
             return ((ForeignKey)foreignKey).Builder.ReuniquifyImplicitProperties(false);
         }
