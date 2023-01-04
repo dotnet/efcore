@@ -1636,7 +1636,9 @@ public partial class TestDbContext : DbContext
         {
             entity.Property(e => e.Id).UseIdentityColumn();
 
-            entity.HasOne(d => d.BlogNavigation).WithMany(p => p.Posts).HasPrincipalKey(p => new { p.Id1, p.Id2 });
+            entity.HasOne(d => d.BlogNavigation).WithMany(p => p.Posts)
+                .HasPrincipalKey(p => new { p.Id1, p.Id2 })
+                .HasForeignKey(d => new { d.BlogId1, d.BlogId2 });
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -1654,6 +1656,137 @@ public partial class TestDbContext : DbContext
                 Assert.Equal("TestNamespace.Blog", blogNavigation.ForeignKey.PrincipalEntityType.Name);
                 Assert.Equal(new[] { "BlogId1", "BlogId2" }, blogNavigation.ForeignKey.Properties.Select(p => p.Name));
                 Assert.Equal(new[] { "Id1", "Id2" }, blogNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
+            });
+
+    [ConditionalFact]
+    public Task ForeignKeyAttribute_is_generated_for_fk_referencing_ak()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Color",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<string>("ColorCode");
+                    })
+                .Entity(
+                    "Car",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+
+                        x.HasOne("Color", "Color").WithMany("Cars")
+                            .HasPrincipalKey("ColorCode")
+                            .HasForeignKey("ColorCode");
+                    }),
+            new ModelCodeGenerationOptions
+            {
+                UseDataAnnotations = true,
+                UseNullableReferenceTypes = true
+            },
+            code =>
+            {
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Color
+{
+    [Key]
+    public int Id { get; set; }
+
+    public string ColorCode { get; set; } = null!;
+
+    public virtual ICollection<Car> Cars { get; } = new List<Car>();
+}
+",
+                    code.AdditionalFiles.Single(f => f.Path == "Color.cs"));
+
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Car
+{
+    [Key]
+    public int Id { get; set; }
+
+    public string? ColorCode { get; set; }
+
+    public virtual Color? Color { get; set; }
+}
+",
+                    code.AdditionalFiles.Single(f => f.Path == "Car.cs"));
+
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Car> Car { get; set; }
+
+    public virtual DbSet<Color> Color { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                    + DesignStrings.SensitiveInformationWarning
+                    + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Car>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+
+            entity.HasOne(d => d.Color).WithMany(p => p.Cars)
+                .HasPrincipalKey(p => p.ColorCode)
+                .HasForeignKey(d => d.ColorCode);
+        });
+
+        modelBuilder.Entity<Color>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                    code.ContextFile);
+            },
+            model =>
+            {
+                var carType = model.FindEntityType("TestNamespace.Car");
+                var colorNavigation = carType.FindNavigation("Color");
+                Assert.Equal("TestNamespace.Color", colorNavigation.ForeignKey.PrincipalEntityType.Name);
+                Assert.Equal(new[] { "ColorCode" }, colorNavigation.ForeignKey.Properties.Select(p => p.Name));
+                Assert.Equal(new[] { "ColorCode" }, colorNavigation.ForeignKey.PrincipalKey.Properties.Select(p => p.Name));
             });
 
     [ConditionalFact]
@@ -1830,6 +1963,54 @@ public partial class Post
                 var originalInverseNavigation = originalBlogNavigation.Inverse;
                 Assert.Equal("TestNamespace.Blog", originalInverseNavigation.DeclaringEntityType.Name);
                 Assert.Equal("OriginalPosts", originalInverseNavigation.Name);
+            });
+
+    [ConditionalFact]
+    public Task InverseProperty_when_navigation_property_and_keyless()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Blog",
+                    x => x.Property<int>("Id"))
+                .Entity(
+                    "Post",
+                    x =>
+                    {
+                        x.HasNoKey();
+                        x.HasOne("Blog", "Blog").WithMany();
+                    }),
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code =>
+            {
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+[Keyless]
+public partial class Post
+{
+    public int? BlogId { get; set; }
+
+    [ForeignKey(""BlogId"")]
+    public virtual Blog Blog { get; set; }
+}
+",
+                    code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
+            },
+            model =>
+            {
+                var postType = model.FindEntityType("TestNamespace.Post");
+                var blogNavigation = postType.FindNavigation("Blog");
+
+                var foreignKeyProperty = Assert.Single(blogNavigation.ForeignKey.Properties);
+                Assert.Equal("BlogId", foreignKeyProperty.Name);
+
+                Assert.Null(blogNavigation.Inverse);
             });
 
     [ConditionalFact]
@@ -2384,6 +2565,158 @@ public partial class Post
                 Assert.Equal(typeof(Dictionary<string, object>), joinEntityType.ClrType);
                 Assert.Single(joinEntityType.GetIndexes());
                 Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+            });
+
+    [ConditionalFact]
+    public Task Scaffold_skip_navigations_alternate_key_data_annotations()
+        => TestAsync(
+            modelBuilder => modelBuilder
+                .Entity(
+                    "Blog",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.Property<int>("Key");
+                    })
+                .Entity(
+                    "Post",
+                    x => x.Property<int>("Id"))
+                .Entity("Blog").HasMany("Post", "Posts").WithMany("Blogs")
+                    .UsingEntity(
+                        "BlogPost",
+                        r => r.HasOne("Post").WithMany(),
+                        l => l.HasOne("Blog").WithMany().HasPrincipalKey("Key")),
+            new ModelCodeGenerationOptions { UseDataAnnotations = true },
+            code =>
+            {
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Blog> Blog { get; set; }
+
+    public virtual DbSet<Post> Post { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning "
+                    + DesignStrings.SensitiveInformationWarning
+                    + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+
+            entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
+                .UsingEntity<Dictionary<string, object>>(
+                    ""BlogPost"",
+                    r => r.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
+                    l => l.HasOne<Blog>().WithMany()
+                        .HasPrincipalKey(""Key"")
+                        .HasForeignKey(""BlogsKey""),
+                    j =>
+                    {
+                        j.HasKey(""BlogsKey"", ""PostsId"");
+                        j.HasIndex(new[] { ""PostsId"" }, ""IX_BlogPost_PostsId"");
+                    });
+        });
+
+        modelBuilder.Entity<Post>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                    code.ContextFile);
+
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Blog
+{
+    [Key]
+    public int Id { get; set; }
+
+    public int Key { get; set; }
+
+    public virtual ICollection<Post> Posts { get; } = new List<Post>();
+}
+",
+                    code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
+
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class Post
+{
+    [Key]
+    public int Id { get; set; }
+
+    [ForeignKey(""PostsId"")]
+    [InverseProperty(""Posts"")]
+    public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
+}
+",
+                    code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
+
+                Assert.Equal(2, code.AdditionalFiles.Count);
+            },
+            model =>
+            {
+                var blogType = model.FindEntityType("TestNamespace.Blog");
+                Assert.Empty(blogType.GetNavigations());
+                var postsNavigation = Assert.Single(blogType.GetSkipNavigations());
+                Assert.Equal("Posts", postsNavigation.Name);
+
+                var postType = model.FindEntityType("TestNamespace.Post");
+                Assert.Empty(postType.GetNavigations());
+                var blogsNavigation = Assert.Single(postType.GetSkipNavigations());
+                Assert.Equal("Blogs", blogsNavigation.Name);
+
+                Assert.Equal(postsNavigation, blogsNavigation.Inverse);
+                Assert.Equal(blogsNavigation, postsNavigation.Inverse);
+
+                var joinEntityType = blogsNavigation.ForeignKey.DeclaringEntityType;
+                Assert.Equal("BlogPost", joinEntityType.Name);
+                Assert.Equal(typeof(Dictionary<string, object>), joinEntityType.ClrType);
+                Assert.Single(joinEntityType.GetIndexes());
+                Assert.Equal(2, joinEntityType.GetForeignKeys().Count());
+
+                var fk = Assert.Single(joinEntityType.FindDeclaredForeignKeys(new[] { joinEntityType.GetProperty("BlogsKey") }));
+                Assert.False(fk.PrincipalKey.IsPrimaryKey());
             });
 
     protected override void AddModelServices(IServiceCollection services)
