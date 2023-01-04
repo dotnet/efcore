@@ -24,7 +24,7 @@ public class LiftableConstantExpression : Expression
         Type type)
     {
         ResolverExpression = resolverExpression;
-        VariableName = variableName;
+        VariableName = char.ToLower(variableName[0]) + variableName[1..];
         Type = type;
     }
 

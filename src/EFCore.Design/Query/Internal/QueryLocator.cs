@@ -303,7 +303,7 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
                 return false;
 
             default:
-                Console.WriteLine($"Unexpected symbol type '{symbol.GetType().Name} for symbol '{symbol}' for query: " + expression);
+                // Console.WriteLine($"Unexpected symbol type '{symbol.GetType().Name}' for symbol '{symbol}' for query: " + expression);
                 return false;
         }
     }

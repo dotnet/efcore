@@ -707,7 +707,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 // Expression.Constant(navigation),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!,
-                                    "navigation",
+                                    navigation.Name + "Navigation",
                                     typeof(INavigationBase)),
                                 // Expression.Constant(navigation.IsShadowProperty()
                                 //     ? null
@@ -717,7 +717,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     : _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                         c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!
                                             .GetCollectionAccessor()!,
-                                        "navigationCollectionAccessor",
+                                        navigation.Name + "NavigationCollectionAccessor",
                                         typeof(IClrCollectionAccessor)),
                                 Expression.Constant(_isTracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -755,7 +755,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     ? Expression.Constant(null, typeof(INavigationBase))
                                     : _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                         c => c.Dependencies.Model.FindEntityType(inverseNavigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!,
-                                        "inverseNavigation",
+                                        navigation.Name + "InverseNavigation",
                                         typeof(INavigationBase)),
                                 GenerateFixup(includingEntityClrType, relatedEntityClrType, navigation, inverseNavigation),
                                 Expression.Constant(_isTracking)));
@@ -813,13 +813,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 // Expression.Constant(navigation),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!,
-                                    "navigation",
+                                    navigation.Name + "Navigation",
                                     typeof(INavigationBase)),
                                 // Expression.Constant(navigation.GetCollectionAccessor()),
                                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                     c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!
                                         .GetCollectionAccessor()!,
-                                    "navigationCollectionAccessor",
+                                    navigation.Name + "NavigationCollectionAccessor",
                                     typeof(IClrCollectionAccessor)),
                                 Expression.Constant(_isTracking),
 #pragma warning disable EF1001 // Internal EF Core API usage.
@@ -860,7 +860,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     ? Expression.Constant(null, typeof(INavigationBase))
                                     : _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                                         c => c.Dependencies.Model.FindEntityType(inverseNavigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!,
-                                        "inverseNavigation",
+                                        navigation.Name + "InverseNavigation",
                                         typeof(INavigationBase)),
                                 GenerateFixup(includingEntityClrType, relatedEntityClrType, navigation, inverseNavigation),
                                 Expression.Constant(_isTracking)));
@@ -1616,7 +1616,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _parentVisitor.Dependencies.LiftableConstantFactory.CreateLiftableConstant(
                         c => c.Dependencies.Model.FindEntityType(navigation.DeclaringEntityType.Name)!.FindNavigation(navigation.Name)!
                             .GetCollectionAccessor()!,
-                        "navigationCollectionAccessor",
+                        navigation.Name + "NavigationCollectionAccessor",
                         typeof(IClrCollectionAccessor)),
 
                 CollectionAccessorAddMethodInfo,
