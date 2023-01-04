@@ -23,7 +23,8 @@ public class CSharpEntityTypeGeneratorTest : ModelCodeGeneratorTestBase
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -35,11 +36,12 @@ namespace TestNamespace;
 public partial class Vista
 {
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -59,10 +61,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Vista> Vista { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,7 +71,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -98,7 +98,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -106,13 +107,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[Table(""Vistas"")]
+[Table("Vistas")]
 public partial class Vista
 {
     [Key]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
             },
             model =>
@@ -141,7 +142,8 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -154,7 +156,7 @@ public partial class Vista
     [Key]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
             },
             model =>
@@ -183,7 +185,8 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -191,13 +194,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[Table(""Vista"", Schema = ""custom"")]
+[Table("Vista", Schema = "custom")]
 public partial class Vista
 {
     [Key]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
             },
             model =>
@@ -215,7 +218,8 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -227,7 +231,7 @@ namespace TestNamespace;
 public partial class Vista
 {
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Vista.cs"));
             },
             model =>
@@ -262,7 +266,8 @@ public partial class Vista
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -270,9 +275,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[Index(""C"")]
-[Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true, IsDescending = new[] { true, false })]
-[Index(""B"", ""C"", Name = ""IndexOnBAndC"")]
+[Index("C")]
+[Index("A", "B", Name = "IndexOnAAndB", IsUnique = true, IsDescending = new[] { true, false })]
+[Index("B", "C", Name = "IndexOnBAndC")]
 public partial class EntityWithIndexes
 {
     [Key]
@@ -284,7 +289,7 @@ public partial class EntityWithIndexes
 
     public int C { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithIndexes.cs"));
             },
             model =>
@@ -318,7 +323,8 @@ public partial class EntityWithIndexes
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -326,9 +332,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[Index(""A"", ""B"", Name = ""AllAscending"")]
-[Index(""A"", ""B"", Name = ""AllDescending"", AllDescending = true)]
-[Index(""A"", ""B"", Name = ""PartiallyDescending"", IsDescending = new[] { true, false })]
+[Index("A", "B", Name = "AllAscending")]
+[Index("A", "B", Name = "AllDescending", AllDescending = true)]
+[Index("A", "B", Name = "PartiallyDescending", IsDescending = new[] { true, false })]
 public partial class EntityWithAscendingDescendingIndexes
 {
     [Key]
@@ -338,7 +344,7 @@ public partial class EntityWithAscendingDescendingIndexes
 
     public int B { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithAscendingDescendingIndexes.cs"));
             },
             model =>
@@ -386,7 +392,8 @@ public partial class EntityWithAscendingDescendingIndexes
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -394,7 +401,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[Index(""A"", ""B"", Name = ""IndexOnAAndB"", IsUnique = true)]
+[Index("A", "B", Name = "IndexOnAAndB", IsUnique = true)]
 public partial class EntityWithIndexes
 {
     [Key]
@@ -406,11 +413,12 @@ public partial class EntityWithIndexes
 
     public int C { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithIndexes.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -430,16 +438,14 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<EntityWithIndexes> EntityWithIndexes { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<EntityWithIndexes>(entity =>
         {
-            entity.HasIndex(e => new { e.B, e.C }, ""IndexOnBAndC"").HasFilter(""Filter SQL"");
+            entity.HasIndex(e => new { e.B, e.C }, "IndexOnBAndC").HasFilter("Filter SQL");
 
             entity.Property(e => e.Id).UseIdentityColumn();
         });
@@ -449,7 +455,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -470,7 +476,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -483,11 +490,12 @@ public partial class Entity
     [Key]
     public int PrimaryKey { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -507,10 +515,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Entity> Entity { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -524,7 +530,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -546,7 +552,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -554,7 +561,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[PrimaryKey(""Key"", ""Serial"")]
+[PrimaryKey("Key", "Serial")]
 public partial class Post
 {
     [Key]
@@ -563,11 +570,12 @@ public partial class Post
     [Key]
     public int Serial { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -587,10 +595,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Post> Post { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -599,7 +605,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -626,7 +632,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -648,7 +655,7 @@ public partial class Entity
     [Required]
     public string RequiredString { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -678,7 +685,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -699,7 +707,7 @@ public partial class Entity
 
     public string RequiredString { get; set; } = null!;
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -734,7 +742,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -756,23 +765,23 @@ public partial class Entity
 
     public int RequiredValueNavigationId { get; set; }
 
-    [ForeignKey(""OptionalReferenceNavigationId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("OptionalReferenceNavigationId")]
+    [InverseProperty("Entity")]
     public virtual Dependent2 OptionalReferenceNavigation { get; set; }
 
-    [ForeignKey(""OptionalValueNavigationId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("OptionalValueNavigationId")]
+    [InverseProperty("Entity")]
     public virtual Dependent4 OptionalValueNavigation { get; set; }
 
-    [ForeignKey(""RequiredReferenceNavigationId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("RequiredReferenceNavigationId")]
+    [InverseProperty("Entity")]
     public virtual Dependent1 RequiredReferenceNavigation { get; set; }
 
-    [ForeignKey(""RequiredValueNavigationId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("RequiredValueNavigationId")]
+    [InverseProperty("Entity")]
     public virtual Dependent3 RequiredValueNavigation { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -830,7 +839,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -843,19 +853,19 @@ public partial class Entity
     [Key]
     public int Id { get; set; }
 
-    [InverseProperty(""Entity"")]
+    [InverseProperty("Entity")]
     public virtual Dependent2? OptionalNavigationWithReferenceForeignKey { get; set; }
 
-    [InverseProperty(""Entity"")]
+    [InverseProperty("Entity")]
     public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
 
-    [InverseProperty(""Entity"")]
+    [InverseProperty("Entity")]
     public virtual Dependent1? RequiredNavigationWithReferenceForeignKey { get; set; }
 
-    [InverseProperty(""Entity"")]
+    [InverseProperty("Entity")]
     public virtual Dependent3? RequiredNavigationWithValueForeignKey { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -891,7 +901,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -912,23 +923,23 @@ public partial class Entity
 
     public int RequiredNavigationWithValueForeignKeyId { get; set; }
 
-    [ForeignKey(""OptionalNavigationWithReferenceForeignKeyId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("OptionalNavigationWithReferenceForeignKeyId")]
+    [InverseProperty("Entity")]
     public virtual Dependent2? OptionalNavigationWithReferenceForeignKey { get; set; }
 
-    [ForeignKey(""OptionalNavigationWithValueForeignKeyId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("OptionalNavigationWithValueForeignKeyId")]
+    [InverseProperty("Entity")]
     public virtual Dependent4? OptionalNavigationWithValueForeignKey { get; set; }
 
-    [ForeignKey(""RequiredNavigationWithReferenceForeignKeyId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("RequiredNavigationWithReferenceForeignKeyId")]
+    [InverseProperty("Entity")]
     public virtual Dependent1 RequiredNavigationWithReferenceForeignKey { get; set; } = null!;
 
-    [ForeignKey(""RequiredNavigationWithValueForeignKeyId"")]
-    [InverseProperty(""Entity"")]
+    [ForeignKey("RequiredNavigationWithValueForeignKeyId")]
+    [InverseProperty("Entity")]
     public virtual Dependent3 RequiredNavigationWithValueForeignKey { get; set; } = null!;
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
 
                 for (var i = 1; i <= 4; i++)
@@ -968,7 +979,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -981,7 +993,7 @@ public partial class Entity
     [Key]
     public string RequiredString { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -1006,7 +1018,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1019,26 +1032,27 @@ public partial class Entity
     [Key]
     public int Id { get; set; }
 
-    [Column(""propertyA"")]
+    [Column("propertyA")]
     public string A { get; set; }
 
-    [Column(TypeName = ""nchar(10)"")]
+    [Column(TypeName = "nchar(10)")]
     public string B { get; set; }
 
-    [Column(""random"", TypeName = ""varchar(200)"")]
+    [Column("random", TypeName = "varchar(200)")]
     public string C { get; set; }
 
-    [Column(TypeName = ""numeric(18, 2)"")]
+    [Column(TypeName = "numeric(18, 2)")]
     public decimal D { get; set; }
 
     [StringLength(100)]
     public string E { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1058,10 +1072,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Entity> Entity { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1075,7 +1087,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -1103,7 +1115,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1122,7 +1135,7 @@ public partial class Entity
     [MaxLength(10)]
     public byte[] B { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -1149,7 +1162,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1173,7 +1187,7 @@ public partial class Entity
     [StringLength(34)]
     public string C { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -1202,7 +1216,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1227,7 +1242,7 @@ public partial class Entity
     [Precision(3)]
     public DateTimeOffset D { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model =>
@@ -1256,7 +1271,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1275,7 +1291,7 @@ public partial class Entity
     [Key]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model => { });
@@ -1290,20 +1306,25 @@ public partial class Entity
                     {
                         x.ToTable(
                             tb => tb.HasComment(
-                                @"Entity Comment
+"""
+Entity Comment
 On multiple lines
-With XML content <br/>"));
+With XML content <br/>
+"""));
                         x.Property<int>("Id").HasComment(
-                            @"Property Comment
+"""
+Property Comment
 On multiple lines
-With XML content <br/>");
+With XML content <br/>
+""");
                     })
             ,
             new ModelCodeGenerationOptions { UseDataAnnotations = true },
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1326,7 +1347,7 @@ public partial class Entity
     [Key]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model => { });
@@ -1348,7 +1369,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1365,7 +1387,7 @@ public partial class Entity
 
     public string LastProperty { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Entity.cs"));
             },
             model => { });
@@ -1393,7 +1415,8 @@ public partial class Entity
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1408,18 +1431,19 @@ public partial class Post
 
     public int? AuthorId { get; set; }
 
-    [ForeignKey(""AuthorId"")]
-    [InverseProperty(""Posts"")]
+    [ForeignKey("AuthorId")]
+    [InverseProperty("Posts")]
     public virtual Person Author { get; set; }
 
-    [InverseProperty(""Post"")]
+    [InverseProperty("Post")]
     public virtual ICollection<Contribution> Contributions { get; } = new List<Contribution>();
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1432,10 +1456,10 @@ public partial class Person
     [Key]
     public int Id { get; set; }
 
-    [InverseProperty(""Author"")]
+    [InverseProperty("Author")]
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Person.cs"));
             },
             model =>
@@ -1474,7 +1498,8 @@ public partial class Person
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1491,15 +1516,16 @@ public partial class Post
 
     public int? BlogId2 { get; set; }
 
-    [ForeignKey(""BlogId1, BlogId2"")]
-    [InverseProperty(""Posts"")]
+    [ForeignKey("BlogId1, BlogId2")]
+    [InverseProperty("Posts")]
     public virtual Blog BlogNavigation { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1521,10 +1547,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Post> Post { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1538,7 +1562,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -1575,7 +1599,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1594,11 +1619,12 @@ public partial class Post
 
     public virtual Blog BlogNavigation { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1620,10 +1646,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Post> Post { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1644,7 +1668,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             model =>
@@ -1674,7 +1698,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1689,11 +1714,11 @@ public partial class Post
 
     public int? BlogId { get; set; }
 
-    [ForeignKey(""BlogId"")]
-    [InverseProperty(""Posts"")]
+    [ForeignKey("BlogId")]
+    [InverseProperty("Posts")]
     public virtual Blog Blog { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
             },
             model =>
@@ -1727,7 +1752,8 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1742,11 +1768,11 @@ public partial class Post
 
     public int? Blog { get; set; }
 
-    [ForeignKey(""Blog"")]
-    [InverseProperty(""Posts"")]
+    [ForeignKey("Blog")]
+    [InverseProperty("Posts")]
     public virtual Blog BlogNavigation { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
             },
             model =>
@@ -1781,7 +1807,8 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1798,15 +1825,15 @@ public partial class Post
 
     public int? OriginalBlogId { get; set; }
 
-    [ForeignKey(""BlogId"")]
-    [InverseProperty(""Posts"")]
+    [ForeignKey("BlogId")]
+    [InverseProperty("Posts")]
     public virtual Blog Blog { get; set; }
 
-    [ForeignKey(""OriginalBlogId"")]
-    [InverseProperty(""OriginalPosts"")]
+    [ForeignKey("OriginalBlogId")]
+    [InverseProperty("OriginalPosts")]
     public virtual Blog OriginalBlog { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
             },
             model =>
@@ -1848,7 +1875,8 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1856,17 +1884,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[CustomEntityDataAnnotation(""first argument"")]
+[CustomEntityDataAnnotation("first argument")]
 public partial class EntityWithAnnotation
 {
     [Key]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithAnnotation.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1886,10 +1915,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<EntityWithAnnotation> EntityWithAnnotation { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1903,7 +1930,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             assertModel: null,
@@ -1925,7 +1952,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -1936,14 +1964,15 @@ namespace TestNamespace;
 public partial class EntityWithPropertyAnnotation
 {
     [Key]
-    [CustomPropertyDataAnnotation(""first argument"")]
+    [CustomPropertyDataAnnotation("first argument")]
     public int Id { get; set; }
 }
-",
+""",
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithPropertyAnnotation.cs"));
 
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -1963,10 +1992,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<EntityWithPropertyAnnotation> EntityWithPropertyAnnotation { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -1980,7 +2007,7 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
             },
             assertModel: null,
@@ -2005,7 +2032,8 @@ public partial class TestDbContext : DbContext
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -2027,10 +2055,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Post> Post { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -2040,13 +2066,13 @@ public partial class TestDbContext : DbContext
 
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
-                    ""BlogPost"",
-                    r => r.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
-                    l => l.HasOne<Blog>().WithMany().HasForeignKey(""BlogsId""),
+                    "BlogPost",
+                    r => r.HasOne<Post>().WithMany().HasForeignKey("PostsId"),
+                    l => l.HasOne<Blog>().WithMany().HasForeignKey("BlogsId"),
                     j =>
                     {
-                        j.HasKey(""BlogsId"", ""PostsId"");
-                        j.HasIndex(new[] { ""PostsId"" }, ""IX_BlogPost_PostsId"");
+                        j.HasKey("BlogsId", "PostsId");
+                        j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
                     });
         });
 
@@ -2060,11 +2086,12 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 
 namespace TestNamespace;
@@ -2075,11 +2102,12 @@ public partial class Blog
 
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
 }
-",
+""",
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 
 namespace TestNamespace;
@@ -2090,7 +2118,7 @@ public partial class Post
 
     public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
 }
-",
+""",
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
 
                 Assert.Equal(2, code.AdditionalFiles.Count);
@@ -2136,7 +2164,8 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -2158,10 +2187,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Post> Post { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -2171,13 +2198,13 @@ public partial class TestDbContext : DbContext
 
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
-                    ""BlogPost"",
-                    r => r.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
-                    l => l.HasOne<Blog>().WithMany().HasForeignKey(""BlogsId""),
+                    "BlogPost",
+                    r => r.HasOne<Post>().WithMany().HasForeignKey("PostsId"),
+                    l => l.HasOne<Blog>().WithMany().HasForeignKey("BlogsId"),
                     j =>
                     {
-                        j.HasKey(""BlogsId"", ""PostsId"");
-                        j.HasIndex(new[] { ""PostsId"" }, ""IX_BlogPost_PostsId"");
+                        j.HasKey("BlogsId", "PostsId");
+                        j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
                     });
         });
 
@@ -2186,11 +2213,12 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 
 namespace TestNamespace;
@@ -2201,11 +2229,12 @@ public partial class Blog
 
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
 }
-",
+""",
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 
 namespace TestNamespace;
@@ -2216,7 +2245,7 @@ public partial class Post
 
     public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
 }
-",
+""",
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
 
                 Assert.Equal(2, code.AdditionalFiles.Count);
@@ -2262,7 +2291,8 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-                    @"using System;
+$$"""
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -2284,10 +2314,8 @@ public partial class TestDbContext : DbContext
     public virtual DbSet<Post> Post { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning "
-                    + DesignStrings.SensitiveInformationWarning
-                    + @"
-        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+#warning {{DesignStrings.SensitiveInformationWarning}}
+        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -2297,13 +2325,13 @@ public partial class TestDbContext : DbContext
 
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
-                    ""BlogPost"",
-                    r => r.HasOne<Post>().WithMany().HasForeignKey(""PostsId""),
-                    l => l.HasOne<Blog>().WithMany().HasForeignKey(""BlogsId""),
+                    "BlogPost",
+                    r => r.HasOne<Post>().WithMany().HasForeignKey("PostsId"),
+                    l => l.HasOne<Blog>().WithMany().HasForeignKey("BlogsId"),
                     j =>
                     {
-                        j.HasKey(""BlogsId"", ""PostsId"");
-                        j.HasIndex(new[] { ""PostsId"" }, ""IX_BlogPost_PostsId"");
+                        j.HasKey("BlogsId", "PostsId");
+                        j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
                     });
         });
 
@@ -2317,11 +2345,12 @@ public partial class TestDbContext : DbContext
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 }
-",
+""",
                     code.ContextFile);
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -2334,15 +2363,16 @@ public partial class Blog
     [Key]
     public int Id { get; set; }
 
-    [ForeignKey(""BlogsId"")]
-    [InverseProperty(""Blogs"")]
+    [ForeignKey("BlogsId")]
+    [InverseProperty("Blogs")]
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
 }
-",
+""",
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
-                    @"using System;
+"""
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -2355,11 +2385,11 @@ public partial class Post
     [Key]
     public int Id { get; set; }
 
-    [ForeignKey(""PostsId"")]
-    [InverseProperty(""Posts"")]
+    [ForeignKey("PostsId")]
+    [InverseProperty("Posts")]
     public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
 }
-",
+""",
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
 
                 Assert.Equal(2, code.AdditionalFiles.Count);
