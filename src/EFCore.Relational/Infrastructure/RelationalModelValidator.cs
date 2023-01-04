@@ -23,6 +23,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class RelationalModelValidator : ModelValidator
 {
+    private static readonly bool QuirkEnabled29859
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29859", out var enabled) && enabled;
     private static readonly bool QuirkEnabled29531
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29531", out var enabled) && enabled;
 
@@ -1423,7 +1425,14 @@ public class RelationalModelValidator : ModelValidator
                 ?? duplicateTypeMapping.ClrType;
         }
 
-        if (currentProviderType != previousProviderType)
+        if (currentProviderType != previousProviderType
+            && (QuirkEnabled29859
+                || property.IsKey()
+                || duplicateProperty.IsKey()
+                || property.IsForeignKey()
+                || duplicateProperty.IsForeignKey()
+                || (property.IsIndex() && property.GetContainingIndexes().Any(i => i.IsUnique))
+                || (duplicateProperty.IsIndex() && duplicateProperty.GetContainingIndexes().Any(i => i.IsUnique))))
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
