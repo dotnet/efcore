@@ -5,10 +5,13 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class InheritanceBulkUpdatesSqliteTest : InheritanceBulkUpdatesTestBase<InheritanceBulkUpdatesSqliteFixture>
 {
-    public InheritanceBulkUpdatesSqliteTest(InheritanceBulkUpdatesSqliteFixture fixture)
+    public InheritanceBulkUpdatesSqliteTest(
+        InheritanceBulkUpdatesSqliteFixture fixture,
+        ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         ClearLog();
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -194,6 +197,30 @@ WHERE (
         await base.Update_where_keyless_entity_mapped_to_sql_query(async);
 
         AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_with_interface_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_property_expression(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE "Drinks" AS "d"
+SET "SugarGrams" = 0
+WHERE "d"."Discriminator" = 'Coke'
+""");
+    }
+
+    public override async Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_EF_Property_in_property_expression(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE "Drinks" AS "d"
+SET "SugarGrams" = 0
+WHERE "d"."Discriminator" = 'Coke'
+""");
     }
 
     protected override void ClearLog()

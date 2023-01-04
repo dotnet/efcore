@@ -30,19 +30,51 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
             .EnableServiceProviderCaching(false);
 
-    private static IServiceProvider BuildServiceProvider<TContextService, TContext>()
+    private static IServiceProvider BuildServiceProvider<TContextService, TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContextService : class
         where TContext : DbContext, TContextService
         => new ServiceCollection()
-            .AddDbContextPool<TContextService, TContext>(ob => ConfigureOptions(ob))
-            .AddDbContextPool<ISecondContext, SecondContext>(ob => ConfigureOptions(ob))
+            .AddDbContextPool<TContextService, TContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
+            .AddDbContextPool<ISecondContext, SecondContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
             .BuildServiceProvider(validateScopes: true);
 
-    private static IServiceProvider BuildServiceProvider<TContext>()
+    private static IServiceProvider BuildServiceProvider<TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContext : DbContext
         => new ServiceCollection()
-            .AddDbContextPool<TContext>(ob => ConfigureOptions(ob))
-            .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob))
+            .AddDbContextPool<TContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
+            .AddDbContextPool<SecondContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
             .BuildServiceProvider(validateScopes: true);
 
     private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
@@ -758,15 +790,27 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     }
 
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public async Task Context_configuration_is_reset(bool useInterface, bool async)
+    [InlineData(false, false, null)]
+    [InlineData(true, false, null)]
+    [InlineData(false, true, null)]
+    [InlineData(true, true, null)]
+    [InlineData(false, false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(false, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Context_configuration_is_reset(bool useInterface, bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
         var serviceProvider = useInterface
-            ? BuildServiceProvider<IPooledContext, PooledContext>()
-            : BuildServiceProvider<PooledContext>();
+            ? BuildServiceProvider<IPooledContext, PooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior))
+            : BuildServiceProvider<PooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -828,7 +872,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+        Assert.Equal(queryTrackingBehavior ?? QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
         Assert.Equal(AutoTransactionBehavior.Never, context2.Database.AutoTransactionBehavior);
@@ -869,11 +913,17 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Uninitialized_context_configuration_is_reset_properly(bool async)
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Uninitialized_context_configuration_is_reset_properly(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
-        var serviceProvider = BuildServiceProvider<SecondContext>();
+        var serviceProvider = BuildServiceProvider<SecondContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var ctx = serviceScope.ServiceProvider.GetRequiredService<SecondContext>();
@@ -1122,11 +1172,17 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         => _changeTracker_OnDetectedEntityChanges = true;
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Default_Context_configuration_is_reset(bool async)
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Default_Context_configuration_is_reset(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
-        var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
+        var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -1152,7 +1208,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.True(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+        Assert.Equal(queryTrackingBehavior ?? QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
         Assert.Equal(AutoTransactionBehavior.WhenNeeded, context2.Database.AutoTransactionBehavior);
@@ -1441,7 +1497,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     {
         var serviceProvider = useInterface
             ? BuildServiceProvider<IPooledContext, PooledContext>()
-            : BuildServiceProvider<PooledContext>();
+            : BuildServiceProvider<PooledContext>(o => o.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -1966,6 +2022,14 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
                             }
                         }
                     })));
+    }
+
+    private void UseQueryTrackingBehavior(DbContextOptionsBuilder optionsBuilder, QueryTrackingBehavior? queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior.HasValue)
+        {
+            optionsBuilder.UseQueryTrackingBehavior(queryTrackingBehavior.Value);
+        }
     }
 
     private async Task Dispose(IDisposable disposable, bool async)

@@ -52,6 +52,9 @@ public class DbContext :
     IDbSetCache,
     IDbContextPoolable
 {
+    private static readonly bool QuirkEnabled29733
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29733", out var enabled) && enabled;
+
     private readonly DbContextOptions _options;
 
     private IDictionary<(Type Type, string? Name), object>? _sets;
@@ -882,8 +885,20 @@ public class DbContext :
             || _configurationSnapshot.HasChangeTrackerConfiguration)
         {
             var changeTracker = ChangeTracker;
+            if (QuirkEnabled29733
+                && _configurationSnapshot.QueryTrackingBehavior.HasValue)
+            {
+                changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
+            }
+            else
+            {
+                ((IResettableService)changeTracker).ResetState();
+                if (_configurationSnapshot.QueryTrackingBehavior.HasValue)
+                {
+                    changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior.Value;
+                }
+            }
             changeTracker.AutoDetectChangesEnabled = _configurationSnapshot.AutoDetectChangesEnabled;
-            changeTracker.QueryTrackingBehavior = _configurationSnapshot.QueryTrackingBehavior;
             changeTracker.LazyLoadingEnabled = _configurationSnapshot.LazyLoadingEnabled;
             changeTracker.CascadeDeleteTiming = _configurationSnapshot.CascadeDeleteTiming;
             changeTracker.DeleteOrphansTiming = _configurationSnapshot.DeleteOrphansTiming;
@@ -940,7 +955,9 @@ public class DbContext :
             _changeTracker != null,
             changeDetectorEvents != null,
             _changeTracker?.AutoDetectChangesEnabled ?? true,
-            _changeTracker?.QueryTrackingBehavior ?? QueryTrackingBehavior.TrackAll,
+            QuirkEnabled29733
+                ? _changeTracker?.QueryTrackingBehavior ?? QueryTrackingBehavior.TrackAll
+                : _changeTracker?.QueryTrackingBehavior,
             _database?.AutoTransactionBehavior ?? AutoTransactionBehavior.WhenNeeded,
             _database?.AutoSavepointsEnabled ?? true,
             _changeTracker?.LazyLoadingEnabled ?? true,

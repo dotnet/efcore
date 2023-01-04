@@ -29,61 +29,68 @@ public abstract class UpdatesSqlServerTestBase<TFixture> : UpdatesRelationalTest
 @p0=NULL (Size = 4000)
 @p1='1' (Nullable = false) (Size = 4000)
 @p2=NULL (DbType = Int32)
+@p3=NULL (DbType = Int32)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-INSERT INTO [Person] ([Country], [Name], [ParentId])
+INSERT INTO [Person] ([Country], [Name], [ParentId], [ZipCode])
 OUTPUT INSERTED.[PersonId]
-VALUES (@p0, @p1, @p2);
+VALUES (@p0, @p1, @p2, @p3);
 """,
-            //
-"""
-@p3=NULL (Size = 4000)
-@p4='2' (Nullable = false) (Size = 4000)
-@p5='1' (Nullable = true)
-@p6=NULL (Size = 4000)
-@p7='3' (Nullable = false) (Size = 4000)
-@p8='1' (Nullable = true)
+                //
+                """
+@p4=NULL (Size = 4000)
+@p5='2' (Nullable = false) (Size = 4000)
+@p6='1' (Nullable = true)
+@p7=NULL (DbType = Int32)
+@p8=NULL (Size = 4000)
+@p9='3' (Nullable = false) (Size = 4000)
+@p10='1' (Nullable = true)
+@p11=NULL (DbType = Int32)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 MERGE [Person] USING (
-VALUES (@p3, @p4, @p5, 0),
-(@p6, @p7, @p8, 1)) AS i ([Country], [Name], [ParentId], _Position) ON 1=0
+VALUES (@p4, @p5, @p6, @p7, 0),
+(@p8, @p9, @p10, @p11, 1)) AS i ([Country], [Name], [ParentId], [ZipCode], _Position) ON 1=0
 WHEN NOT MATCHED THEN
-INSERT ([Country], [Name], [ParentId])
-VALUES (i.[Country], i.[Name], i.[ParentId])
+INSERT ([Country], [Name], [ParentId], [ZipCode])
+VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-            //
-"""
-@p9=NULL (Size = 4000)
-@p10='4' (Nullable = false) (Size = 4000)
-@p11='2' (Nullable = true)
+                //
+                """
 @p12=NULL (Size = 4000)
-@p13='5' (Nullable = false) (Size = 4000)
+@p13='4' (Nullable = false) (Size = 4000)
 @p14='2' (Nullable = true)
-@p15=NULL (Size = 4000)
-@p16='6' (Nullable = false) (Size = 4000)
-@p17='3' (Nullable = true)
-@p18=NULL (Size = 4000)
-@p19='7' (Nullable = false) (Size = 4000)
-@p20='3' (Nullable = true)
+@p15=NULL (DbType = Int32)
+@p16=NULL (Size = 4000)
+@p17='5' (Nullable = false) (Size = 4000)
+@p18='2' (Nullable = true)
+@p19=NULL (DbType = Int32)
+@p20=NULL (Size = 4000)
+@p21='6' (Nullable = false) (Size = 4000)
+@p22='3' (Nullable = true)
+@p23=NULL (DbType = Int32)
+@p24=NULL (Size = 4000)
+@p25='7' (Nullable = false) (Size = 4000)
+@p26='3' (Nullable = true)
+@p27=NULL (DbType = Int32)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 MERGE [Person] USING (
-VALUES (@p9, @p10, @p11, 0),
-(@p12, @p13, @p14, 1),
-(@p15, @p16, @p17, 2),
-(@p18, @p19, @p20, 3)) AS i ([Country], [Name], [ParentId], _Position) ON 1=0
+VALUES (@p12, @p13, @p14, @p15, 0),
+(@p16, @p17, @p18, @p19, 1),
+(@p20, @p21, @p22, @p23, 2),
+(@p24, @p25, @p26, @p27, 3)) AS i ([Country], [Name], [ParentId], [ZipCode], _Position) ON 1=0
 WHEN NOT MATCHED THEN
-INSERT ([Country], [Name], [ParentId])
-VALUES (i.[Country], i.[Name], i.[ParentId])
+INSERT ([Country], [Name], [ParentId], [ZipCode])
+VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-            //
-"""
+                //
+                """
 @p0='4'
 @p1='5'
 @p2='6'
@@ -93,6 +100,7 @@ OUTPUT INSERTED.[PersonId], i._Position;
 @p6=NULL (Size = 4000)
 @p7='1' (Nullable = false) (Size = 4000)
 @p8=NULL (DbType = Int32)
+@p9=NULL (DbType = Int32)
 
 SET NOCOUNT ON;
 DELETE FROM [Person]
@@ -113,62 +121,68 @@ WHERE [PersonId] = @p4;
 DELETE FROM [Person]
 OUTPUT 1
 WHERE [PersonId] = @p5;
-INSERT INTO [Person] ([Country], [Name], [ParentId])
+INSERT INTO [Person] ([Country], [Name], [ParentId], [ZipCode])
 OUTPUT INSERTED.[PersonId]
-VALUES (@p6, @p7, @p8);
+VALUES (@p6, @p7, @p8, @p9);
 """,
-            //
-"""
-@p9='1'
-@p10=NULL (Size = 4000)
-@p11='2' (Nullable = false) (Size = 4000)
-@p12='8' (Nullable = true)
-@p13=NULL (Size = 4000)
-@p14='3' (Nullable = false) (Size = 4000)
-@p15='8' (Nullable = true)
+                //
+                """
+@p10='1'
+@p11=NULL (Size = 4000)
+@p12='2' (Nullable = false) (Size = 4000)
+@p13='8' (Nullable = true)
+@p14=NULL (DbType = Int32)
+@p15=NULL (Size = 4000)
+@p16='3' (Nullable = false) (Size = 4000)
+@p17='8' (Nullable = true)
+@p18=NULL (DbType = Int32)
 
 SET NOCOUNT ON;
 DELETE FROM [Person]
 OUTPUT 1
-WHERE [PersonId] = @p9;
+WHERE [PersonId] = @p10;
 MERGE [Person] USING (
-VALUES (@p10, @p11, @p12, 0),
-(@p13, @p14, @p15, 1)) AS i ([Country], [Name], [ParentId], _Position) ON 1=0
+VALUES (@p11, @p12, @p13, @p14, 0),
+(@p15, @p16, @p17, @p18, 1)) AS i ([Country], [Name], [ParentId], [ZipCode], _Position) ON 1=0
 WHEN NOT MATCHED THEN
-INSERT ([Country], [Name], [ParentId])
-VALUES (i.[Country], i.[Name], i.[ParentId])
+INSERT ([Country], [Name], [ParentId], [ZipCode])
+VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-            //
-"""
-@p16=NULL (Size = 4000)
-@p17='4' (Nullable = false) (Size = 4000)
-@p18='9' (Nullable = true)
+                //
+                """
 @p19=NULL (Size = 4000)
-@p20='5' (Nullable = false) (Size = 4000)
+@p20='4' (Nullable = false) (Size = 4000)
 @p21='9' (Nullable = true)
-@p22=NULL (Size = 4000)
-@p23='6' (Nullable = false) (Size = 4000)
-@p24='10' (Nullable = true)
-@p25=NULL (Size = 4000)
-@p26='7' (Nullable = false) (Size = 4000)
-@p27='10' (Nullable = true)
+@p22=NULL (DbType = Int32)
+@p23=NULL (Size = 4000)
+@p24='5' (Nullable = false) (Size = 4000)
+@p25='9' (Nullable = true)
+@p26=NULL (DbType = Int32)
+@p27=NULL (Size = 4000)
+@p28='6' (Nullable = false) (Size = 4000)
+@p29='10' (Nullable = true)
+@p30=NULL (DbType = Int32)
+@p31=NULL (Size = 4000)
+@p32='7' (Nullable = false) (Size = 4000)
+@p33='10' (Nullable = true)
+@p34=NULL (DbType = Int32)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 MERGE [Person] USING (
-VALUES (@p16, @p17, @p18, 0),
-(@p19, @p20, @p21, 1),
-(@p22, @p23, @p24, 2),
-(@p25, @p26, @p27, 3)) AS i ([Country], [Name], [ParentId], _Position) ON 1=0
+VALUES (@p19, @p20, @p21, @p22, 0),
+(@p23, @p24, @p25, @p26, 1),
+(@p27, @p28, @p29, @p30, 2),
+(@p31, @p32, @p33, @p34, 3)) AS i ([Country], [Name], [ParentId], [ZipCode], _Position) ON 1=0
 WHEN NOT MATCHED THEN
-INSERT ([Country], [Name], [ParentId])
-VALUES (i.[Country], i.[Name], i.[ParentId])
+INSERT ([Country], [Name], [ParentId], [ZipCode])
+VALUES (i.[Country], i.[Name], i.[ParentId], i.[ZipCode])
 OUTPUT INSERTED.[PersonId], i._Position;
 """,
-            //
-"""
-SELECT [p].[PersonId], [p].[Country], [p].[Name], [p].[ParentId], [p].[Address_City], [p].[Country], [p0].[PersonId], [p0].[Country], [p0].[Name], [p0].[ParentId], [p0].[Address_City], [p0].[Country], [p1].[PersonId], [p1].[Country], [p1].[Name], [p1].[ParentId], [p1].[Address_City], [p1].[Country], [p2].[PersonId], [p2].[Country], [p2].[Name], [p2].[ParentId], [p2].[Address_City], [p2].[Country]
+                //
+                """
+SELECT [p].[PersonId], [p].[Country], [p].[Name], [p].[ParentId], [p].[ZipCode], [p].[Address_City], [p].[Country], [p].[ZipCode], [p0].[PersonId], [p0].[Country], [p0].[Name], [p0].[ParentId], [p0].[ZipCode], [p0].[Address_City], [p0].[Country], [p0].[ZipCode], [p1].[PersonId], [p1].[Country], [p1].[Name], [p1].[ParentId], [p1].[ZipCode], [p1].[Address_City], [p1].[Country], [p1].[ZipCode], [p2].[PersonId], [p2].[Country], [p2].[Name], [p2].[ParentId], [p2].[ZipCode], [p2].[Address_City], [p2].[Country], [p2].[ZipCode]
 FROM [Person] AS [p]
 LEFT JOIN [Person] AS [p0] ON [p].[ParentId] = [p0].[PersonId]
 LEFT JOIN [Person] AS [p1] ON [p0].[ParentId] = [p1].[PersonId]
@@ -245,6 +259,8 @@ LEFT JOIN [Person] AS [p2] ON [p1].[ParentId] = [p2].[PersonId]
 
             modelBuilder.Entity<ProductBase>()
                 .Property(p => p.Id).HasDefaultValueSql("NEWID()");
+
+            modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).HasFilter("Name IS NOT NULL");
         }
         public virtual void ResetIdentity()
         {

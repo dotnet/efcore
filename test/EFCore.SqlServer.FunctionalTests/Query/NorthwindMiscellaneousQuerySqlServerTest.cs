@@ -4791,7 +4791,7 @@ FROM (
 
 SELECT [c].[CustomerID]
 FROM [Customers] AS [c]
-WHERE @__prefix_0 = N'' OR LEFT([c].[CustomerID], LEN(@__prefix_0_1)) = @__prefix_0
+WHERE @__prefix_0 = N'' OR LEFT([c].[CustomerID], LEN(@__prefix_0_1)) = @__prefix_0_1
 """);
     }
 

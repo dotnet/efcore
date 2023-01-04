@@ -158,5 +158,26 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
                 s => s.SetProperty(e => e.Name, "Eagle"),
                 rowsAffectedCount: 1));
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_interface_in_property_expression(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Coke>(),
+            e => e,
+            s => s.SetProperty(c => ((ISugary)c).SugarGrams, 0),
+            rowsAffectedCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Coke>(),
+            e => e,
+            // ReSharper disable once RedundantCast
+            s => s.SetProperty(c => EF.Property<int>((ISugary)c, nameof(ISugary.SugarGrams)), 0),
+            rowsAffectedCount: 1);
+
     protected abstract void ClearLog();
 }

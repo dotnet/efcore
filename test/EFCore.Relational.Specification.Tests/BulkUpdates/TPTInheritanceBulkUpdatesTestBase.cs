@@ -56,4 +56,14 @@ public abstract class TPTInheritanceBulkUpdatesTestBase<TFixture> : InheritanceB
         => AssertTranslationFailed(
             RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Kiwi"),
             () => base.Update_where_hierarchy_derived(async));
+
+    public override Task Update_with_interface_in_property_expression(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Coke"),
+            () => base.Update_with_interface_in_property_expression(async));
+
+    public override Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+        => AssertTranslationFailed(
+            RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Coke"),
+            () => base.Update_with_interface_in_EF_Property_in_property_expression(async));
 }

@@ -22,6 +22,7 @@ public class Person
     public string Name { get; set; }
     public int? ParentId { get; set; }
     public string? Country { get; set; }
+    public string? ZipCode { get; set; }
     public Person? Parent { get; set; }
     public Address? Address { get; set; }
 }
