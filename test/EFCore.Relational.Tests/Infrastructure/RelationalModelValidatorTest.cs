@@ -493,7 +493,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types()
+    public virtual void Passes_for_incompatible_shared_columns_in_shared_table_with_different_provider_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -502,6 +502,57 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<A>().ToTable("Table");
         modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
         modelBuilder.Entity<B>().ToTable("Table");
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types_for_unique_indexes()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt").HasConversion<long>();
+        modelBuilder.Entity<A>().ToTable("Table");
+        modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().HasIndex(a => a.P0).IsUnique();
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "long", "int"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types_for_keys()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt").HasConversion<long>();
+        modelBuilder.Entity<A>().ToTable("Table");
+        modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().HasAlternateKey(a => a.P0);
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "long", "int"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types_for_foreign_keys()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt").HasConversion<long>();
+        modelBuilder.Entity<A>().ToTable("Table");
+        modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.P0).HasPrincipalKey<B>(b => b.Id);
 
         VerifyError(
             RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
