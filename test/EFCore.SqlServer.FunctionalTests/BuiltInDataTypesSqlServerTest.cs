@@ -172,6 +172,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
             String3 = shortString,
             ByteArray5 = shortBinary,
             String9000 = longString,
+            StringUnbounded = longString,
             ByteArray9000 = longBinary
         });
 
@@ -181,6 +182,7 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.String3 == shortString));
         ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.ByteArray5 == shortBinary));
         ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.String9000 == longString));
+        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringUnbounded == longString));
         ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.ByteArray9000 == longBinary));
     }
 
@@ -4110,6 +4112,7 @@ MaxLengthDataTypes.ByteArray9000 ---> [nullable varbinary] [MaxLength = -1]
 MaxLengthDataTypes.Id ---> [int] [Precision = 10 Scale = 0]
 MaxLengthDataTypes.String3 ---> [nullable nvarchar] [MaxLength = 3]
 MaxLengthDataTypes.String9000 ---> [nullable nvarchar] [MaxLength = -1]
+MaxLengthDataTypes.StringUnbounded ---> [nullable nvarchar] [MaxLength = -1]
 StringEnclosure.Id ---> [int] [Precision = 10 Scale = 0]
 StringEnclosure.Value ---> [nullable nvarchar] [MaxLength = -1]
 StringForeignKeyDataType.Id ---> [int] [Precision = 10 Scale = 0]

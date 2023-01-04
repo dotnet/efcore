@@ -1181,6 +1181,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(e => e.String9000).HasConversion(
                         StringToBytesConverter.DefaultInfo.Create());
 
+                    b.Property(e => e.StringUnbounded).HasConversion(
+                        StringToBytesConverter.DefaultInfo.Create());
+
                     b.Property(e => e.ByteArray5)
                         .HasConversion(
                             new ValueConverter<byte[], byte[]>(

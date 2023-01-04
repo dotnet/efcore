@@ -1389,7 +1389,7 @@ public abstract partial class ModelBuilderTest
                     b.Property(e => e.Up).HasMaxLength(0);
                     b.Property(e => e.Down).HasMaxLength(100);
                     b.Property<int>("Charm").HasMaxLength(0);
-                    b.Property<string>("Strange").HasMaxLength(100);
+                    b.Property<string>("Strange").HasMaxLength(-1);
                     b.Property<int>("Top").HasMaxLength(0);
                     b.Property<string>("Bottom").HasMaxLength(100);
                 });
@@ -1401,7 +1401,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(0, entityType.FindProperty("Up").GetMaxLength());
             Assert.Equal(100, entityType.FindProperty("Down").GetMaxLength());
             Assert.Equal(0, entityType.FindProperty("Charm").GetMaxLength());
-            Assert.Equal(100, entityType.FindProperty("Strange").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Strange").GetMaxLength());
             Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
             Assert.Equal(100, entityType.FindProperty("Bottom").GetMaxLength());
         }
@@ -1435,6 +1435,37 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(100, entityType.FindProperty("Strange").GetMaxLength());
             Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
             Assert.Equal(100, entityType.FindProperty("Bottom").GetMaxLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_unbounded_max_length_for_property_type()
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Properties<int>().HaveMaxLength(0);
+                    c.Properties<string>().HaveMaxLength(-1);
+                });
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property<int>("Charm");
+                    b.Property<string>("Strange");
+                    b.Property<int>("Top");
+                    b.Property<string>("Bottom");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks));
+
+            Assert.Equal(0, entityType.FindProperty(Customer.IdProperty.Name).GetMaxLength());
+            Assert.Equal(0, entityType.FindProperty("Up").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Down").GetMaxLength());
+            Assert.Equal(0, entityType.FindProperty("Charm").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Strange").GetMaxLength());
+            Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Bottom").GetMaxLength());
         }
 
         [ConditionalFact]

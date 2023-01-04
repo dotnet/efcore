@@ -114,7 +114,7 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
     public virtual void SetMaxLength(int? maxLength)
     {
         if (maxLength != null
-            && maxLength < 0)
+            && maxLength < -1)
         {
             throw new ArgumentOutOfRangeException(nameof(maxLength));
         }
