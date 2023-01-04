@@ -331,7 +331,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     typeof(FromSqlQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors()[0],
                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                     Expression.Constant(relationalCommandCache),
-                    Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
+                    readerColumns(),
                     Expression.Constant(
                         selectExpression.Projection.Select(pe => ((ColumnExpression)pe.Expression).Name).ToList(),
                         typeof(IReadOnlyList<string>)),
@@ -345,20 +345,30 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
 
             if (splitQuery)
             {
-                var relatedDataLoadersParameter = Expression.Constant(
-                    QueryCompilationContext.IsAsync ? null : relatedDataLoaders?.Compile(),
-                    typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>));
+                var relatedDataLoadersParameter =
+                    QueryCompilationContext.IsAsync || relatedDataLoaders is null
+                        ? Expression.Constant(null, typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>))
+                        : (Expression)relatedDataLoaders;
 
-                var relatedDataLoadersAsyncParameter = Expression.Constant(
-                    QueryCompilationContext.IsAsync ? relatedDataLoaders?.Compile() : null,
-                    typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>));
+                // var relatedDataLoadersParameter = Expression.Constant(
+                //     QueryCompilationContext.IsAsync ? null : relatedDataLoaders?.Compile(),
+                //     typeof(Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>));
+
+                var relatedDataLoadersAsyncParameter =
+                    QueryCompilationContext.IsAsync && relatedDataLoaders is not null
+                        ? (Expression)relatedDataLoaders
+                        : Expression.Constant(null, typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>));
+
+                // var relatedDataLoadersAsyncParameter = Expression.Constant(
+                //     QueryCompilationContext.IsAsync ? relatedDataLoaders?.Compile() : null,
+                //     typeof(Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>));
 
                 return Expression.New(
                     typeof(SplitQueryingEnumerable<>).MakeGenericType(shaper.ReturnType).GetConstructors().Single(),
                     Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-                    Expression.Constant(relationalCommandCache),
-                    Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
-                    Expression.Constant(shaper.Compile()),
+                    relationalCommandCache,
+                    readerColumns(),
+                    shaper,
                     relatedDataLoadersParameter,
                     relatedDataLoadersAsyncParameter,
                     Expression.Constant(_contextType),
@@ -375,7 +385,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                     .MakeGenericMethod(shaper.ReturnType),
                 Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
                 relationalCommandCache,
-                Expression.Constant(readerColumns, typeof(IReadOnlyList<ReaderColumn?>)),
+                readerColumns(),
                 shaper,
                 Expression.Constant(_contextType),
                 Expression.Constant(

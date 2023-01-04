@@ -25,6 +25,9 @@ public class SqlTreeQuoter : ISqlTreeQuoter
     private ParameterExpression _relationalModelParameter = null!;
     private ParameterExpression _relationalTypeMappingSourceParameter = null!;
 
+    private string _rootSelectVariableName = null!;
+    private HashSet<string> _variableNames = null!;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -40,8 +43,11 @@ public class SqlTreeQuoter : ISqlTreeQuoter
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public BlockExpression Quote(Expression expression)
+    public BlockExpression Quote(Expression expression, string rootSelectVariableName, HashSet<string> variableNames)
     {
+        _rootSelectVariableName = rootSelectVariableName;
+        _variableNames = variableNames;
+
         _blockVariables.Clear();
         _blockExpressions.Clear();
         _selectExpressionMap.Clear();
@@ -64,14 +70,14 @@ public class SqlTreeQuoter : ISqlTreeQuoter
 
         private readonly SqlTreeQuoter _parentVisitor;
 
-        private int _selectExpressionCounter;
+        private bool _isFirstSelectExpression;
 
         public EmptySelectExpressionRenderer(SqlTreeQuoter parentVisitor)
             => _parentVisitor = parentVisitor;
 
         public void Render(Expression expression)
         {
-            _selectExpressionCounter = 0;
+            _isFirstSelectExpression = true;
 
             Visit(expression);
         }
@@ -84,11 +90,28 @@ public class SqlTreeQuoter : ISqlTreeQuoter
                 // The rest of the clauses will be rendered in another pass, referencing the SelectExpression variables
                 // we create here.
 
-                // The very first SelectExpression we encounter is the root one, so we give it the special name sqlTree
-                var selectExpressionCounter = _selectExpressionCounter++;
-                var selectExpressionVariable = Parameter(
-                    typeof(SelectExpression),
-                    selectExpressionCounter == 0 ? "sqlTree" : $"select{selectExpressionCounter}");
+                // The very first SelectExpression we encounter is the root one, so we give it an externally given name (it needs to be
+                // referenced later from the outside).
+                // For other, nested select expressions, generate a uniquified name.
+                string selectExpressionVariableName;
+                if (_isFirstSelectExpression)
+                {
+                    selectExpressionVariableName = _parentVisitor._rootSelectVariableName;
+                    _isFirstSelectExpression = false;
+                }
+                else
+                {
+                    var baseName = "select";
+                    selectExpressionVariableName = baseName;
+                    for (var i = 0; _parentVisitor._variableNames.Contains(selectExpressionVariableName); i++)
+                    {
+                        selectExpressionVariableName = baseName + i;
+                    }
+
+                    _parentVisitor._variableNames.Add(selectExpressionVariableName);
+                }
+
+                var selectExpressionVariable = Parameter(typeof(SelectExpression), selectExpressionVariableName);
                 _parentVisitor._selectExpressionMap[selectExpression] = selectExpressionVariable;
                 _parentVisitor._blockVariables.Add(selectExpressionVariable);
 

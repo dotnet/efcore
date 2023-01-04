@@ -717,7 +717,9 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual CSharpSyntaxNode TranslateConditional(ConditionalExpression conditional, IdentifierNameSyntax? lowerableAssignmentVariable)
+    protected virtual CSharpSyntaxNode TranslateConditional(
+        ConditionalExpression conditional,
+        IdentifierNameSyntax? lowerableAssignmentVariable)
     {
         // ConditionalExpression can be an expression or an if/else statement.
         var test = Translate<ExpressionSyntax>(conditional.Test);
@@ -727,36 +729,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         switch (_context)
         {
             case ExpressionContext.Statement:
-            {
-                var ifTrue = Translate(conditional.IfTrue);
-                var ifFalse = Translate(conditional.IfFalse);
-
-                var ifTrueStatement = ProcessArmBody(ifTrue, isTrueArm: true);
-
-                if (isFalseAbsent)
-                {
-                    return IfStatement(test, ifTrueStatement);
-                }
-
-                var ifFalseStatement = ProcessArmBody(ifFalse, isTrueArm: false);
-
-                return IfStatement(test, ifTrueStatement, ElseClause(ifFalseStatement));
-
-                StatementSyntax ProcessArmBody(SyntaxNode body, bool isTrueArm)
-                    => body switch
-                    {
-                        BlockSyntax b => b,
-
-                        // We want to specifically exempt IfStatementSyntax under the Else from being wrapped by a block, so as to get nice
-                        // else if syntax
-                        IfStatementSyntax i => isTrueArm ? Block(i) : i,
-
-                        ExpressionSyntax e => Block(ExpressionStatement(e)),
-                        StatementSyntax s => Block(s),
-
-                        _ => throw new ArgumentOutOfRangeException()
-                    };
-            }
+                return TranslateConditionalStatement(conditional);
 
             case ExpressionContext.Expression:
             case ExpressionContext.ExpressionLambda:
@@ -770,24 +743,40 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                 var parentLiftedState = _liftedState;
                 _liftedState = new(new(), new(), new(), new());
 
-                var ifTrue = Translate(conditional.IfTrue);
-                var ifFalse = Translate(conditional.IfFalse);
-
-                if (ifTrue is not ExpressionSyntax ifTrueExpression
-                    || ifFalse is not ExpressionSyntax ifFalseExpression)
+                // If we're in a lambda body, we try to translate as an expression if possible (i.e. no blocks in the true/false arms).
+                using (ChangeContext(ExpressionContext.Expression))
                 {
-                    throw new NotSupportedException("Trying to evaluate a non-expression condition in expression context");
+                    var ifTrue = Translate(conditional.IfTrue);
+                    var ifFalse = Translate(conditional.IfFalse);
+
+                    if (ifTrue is not ExpressionSyntax ifTrueExpression
+                        || ifFalse is not ExpressionSyntax ifFalseExpression)
+                    {
+                        throw new InvalidOperationException("Trying to evaluate a non-expression condition in expression context");
+                    }
+
+                    // There were no lifted expressions inside either arm - we can translate directly to a C# conditional expression
+                    if (_liftedState.Statements.Count == 0)
+                    {
+                        _liftedState = parentLiftedState;
+                        return ConditionalExpression(test, ifTrueExpression, ifFalseExpression);
+                    }
                 }
 
-                // There were no lifted expressions inside either arm - we can translate directly to a C# conditional expression
-                if (_liftedState.Statements.Count == 0)
+                // If we're in a lambda body and couldn't translate as a conditional expression, translate as an if/else statement with
+                // return. Wrap the true/false sides in blocks to have "return" added.
+                if (_context == ExpressionContext.ExpressionLambda)
                 {
                     _liftedState = parentLiftedState;
-                    return ConditionalExpression(test, ifTrueExpression, ifFalseExpression);
+
+                    return Block(TranslateConditionalStatement(conditional.Update(
+                        conditional.Test,
+                        conditional.IfTrue is BlockExpression ? conditional.IfTrue : E.Block(conditional.IfTrue),
+                        conditional.IfFalse is BlockExpression ? conditional.IfFalse : E.Block(conditional.IfFalse))));
                 }
 
-                // There are lifted expressions inside one of the arms, we must lift the entire conditional expression, rewriting it to
-                // a an if/else statement.
+                // We're in regular expression context, and there are lifted expressions inside one of the arms; we translate to an if/else
+                // statement but lowering an assignment into both sides of the condition
                 _liftedState = new(new(), new(), new(), new());
 
                 IdentifierNameSyntax assignmentVariable;
@@ -849,6 +838,38 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
             default:
                 throw new ArgumentOutOfRangeException();
+        }
+
+        IfStatementSyntax TranslateConditionalStatement(ConditionalExpression conditional)
+        {
+            var ifTrue = Translate(conditional.IfTrue);
+            var ifFalse = Translate(conditional.IfFalse);
+
+            var ifTrueStatement = ProcessArmBody(ifTrue, isTrueArm: true);
+
+            if (isFalseAbsent)
+            {
+                return IfStatement(test, ifTrueStatement);
+            }
+
+            var ifFalseStatement = ProcessArmBody(ifFalse, isTrueArm: false);
+
+            return IfStatement(test, ifTrueStatement, ElseClause(ifFalseStatement));
+
+            StatementSyntax ProcessArmBody(SyntaxNode body, bool isTrueArm)
+                => body switch
+                {
+                    BlockSyntax b => b,
+
+                    // We want to specifically exempt IfStatementSyntax under the Else from being wrapped by a block, so as to get nice
+                    // else if syntax
+                    IfStatementSyntax i => isTrueArm ? Block(i) : i,
+
+                    ExpressionSyntax e => Block(ExpressionStatement(e)),
+                    StatementSyntax s => Block(s),
+
+                    _ => throw new ArgumentOutOfRangeException()
+                };
         }
     }
 
@@ -1063,14 +1084,11 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             _liftedState.Statements.Clear();
         }
 
-        Result = lambda.Parameters.Count switch
-        {
-            0 => ParenthesizedLambdaExpression(body),
-            1 => SimpleLambdaExpression(Parameter(Identifier(stackFrame.Variables[lambda.Parameters[0]])), body),
-            _ => ParenthesizedLambdaExpression(
-                ParameterList(SeparatedList(lambda.Parameters.Select(p => Parameter(Identifier(LookupVariableName(p)))))),
-                body)
-        };
+        Result = ParenthesizedLambdaExpression(
+            ParameterList(SeparatedList(lambda.Parameters.Select(p =>
+                Parameter(Identifier(LookupVariableName(p)))
+                    .WithType(p.Type.GetTypeSyntax())))),
+            body);
 
         var popped = _stack.Pop();
         Check.DebugAssert(popped.Equals(stackFrame), "popped.Equals(stackFrame)");
@@ -1777,9 +1795,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
         if (incompatibleListBindings is not null)
         {
-            // TODO: This requires lifting statements to *after* the instantiation - we usually lift to before.
-            // This is problematic: if such an expression is passed as an argument to a method, there's no way to faithfully translate it
-            // while preserving evaluation order.
+            // TODO: Lift the instantiation and add extra statements to add the incompatible bindings after that
             throw new NotImplementedException("MemberInit: incompatible MemberListBinding");
         }
 
@@ -2041,15 +2057,15 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
                             EqualsValueClause(
                                 initializer)))));
 
-    private ContextSwitcher ChangeContext(ExpressionContext newContext)
+    private ContextChanger ChangeContext(ExpressionContext newContext)
         => new(this, newContext);
 
-    private readonly struct ContextSwitcher : IDisposable
+    private readonly struct ContextChanger : IDisposable
     {
         private readonly LinqToCSharpTranslator _translator;
         private readonly ExpressionContext _oldContext;
 
-        public ContextSwitcher(LinqToCSharpTranslator translator, ExpressionContext newContext)
+        public ContextChanger(LinqToCSharpTranslator translator, ExpressionContext newContext)
         {
             _translator = translator;
             _oldContext = translator._context;

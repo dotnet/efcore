@@ -169,7 +169,7 @@ $$"""
     {
         AssertExpression(
             Quote((Expression<Func<string, int>>)(s => s.Length)),
-            "s => s.Length");
+            "(string s) => s.Length");
     }
 
     [Fact]
@@ -417,13 +417,13 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
     public void Lambda_with_block_body()
     {
         var i = Parameter(typeof(int), "i");
-        var block = Block(
-            variables: new[] { i },
-            Assign(i, Constant(8)),
-            i);
 
         AssertExpression(
-            Lambda<Func<int>>(block),
+            Lambda<Func<int>>(
+                Block(
+                    variables: new[] { i },
+                    Assign(i, Constant(8)),
+                    i)),
 """
 () =>
 {
@@ -446,7 +446,7 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
 
         AssertExpression(
             Lambda<Func<int, bool>>(Constant(true), i),
-            "i => true");
+            "(int i) => true");
     }
 
     [Fact]
@@ -457,7 +457,7 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
 
         AssertExpression(
             Lambda<Func<int, int, int>>(Add(i, j), i, j),
-            "(i, j) => i + j");
+            "(int i, int j) => i + j");
     }
 
     [Fact]
@@ -490,7 +490,7 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
     }
 
     [Fact]
-    public void Condition_expression()
+    public void Conditional_expression()
         => AssertExpression(
             Condition(Constant(true), Constant(1), Constant(2)),
             "true ? 1 : 2");
@@ -503,7 +503,7 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
                 "true ? 1 : 2"));
 
     [Fact]
-    public void Condition_statement()
+    public void Conditional_statement()
         => AssertStatement(
             Block(
                 Condition(Constant(true), Call(FooMethod), Call(BarMethod)),
@@ -600,6 +600,65 @@ Activator.CreateInstance<BlogWithRequiredProperties>()
     {
         i = 3;
     }
+}
+""");
+    }
+
+    [Fact]
+    public void Conditional_expression_with_block_in_lambda()
+        => AssertExpression(
+            Lambda<Func<int>>(
+                Condition(
+                    Constant(true),
+                    Block(
+                        Call(FooMethod),
+                        Constant(8)),
+                    Constant(9))),
+"""
+() =>
+{
+    if (true)
+    {
+        LinqToCSharpTranslatorTest.Foo();
+        return 8;
+    }
+    else
+    {
+        return 9;
+    }
+}
+""");
+
+    [Fact]
+    public void IfThen_with_block_inside_expression_block_with_lifted_statements()
+    {
+        var i = Parameter(typeof(int), "i");
+
+        AssertStatement(
+            Block(
+                variables: new[] { i },
+                Assign(
+                    i, Block(
+                        // We're in expression context. Do anything that will get lifted.
+                        Call(FooMethod),
+                        // Statement condition
+                        IfThen(
+                            Constant(true),
+                            Block(
+                                Call(BarMethod),
+                                Call(BazMethod))),
+                        // Last expression (to make the block above evaluate as statement
+                        Constant(8)))),
+"""
+{
+    LinqToCSharpTranslatorTest.Foo();
+    if (true)
+    {
+        LinqToCSharpTranslatorTest.Bar();
+        LinqToCSharpTranslatorTest.Baz();
+    }
+
+    var i = 8;
 }
 """);
     }
@@ -907,7 +966,7 @@ else
 """
 {
     var i = 8;
-    f = i => i == 5;
+    f = (int i) => i == 5;
 }
 """);
     }
@@ -932,9 +991,9 @@ else
                         Constant(true)),
                     i)),
 """
-f1 = i =>
+f1 = (int i) =>
 {
-    f2 = i => i == 5;
+    f2 = (int i) => i == 5;
     return true;
 }
 """);
@@ -949,40 +1008,6 @@ f1 = i =>
     _ = 1 + 2;
 }
 """);
-
-    [Fact]
-    public void Statement_condition_block_inside_expression_block_with_lifted_statements()
-    {
-        var i = Parameter(typeof(int), "i");
-
-        AssertStatement(
-            Block(
-                variables: new[] { i },
-                Assign(
-                    i, Block(
-                        // We're in expression context. Do anything that will get lifted.
-                        Call(FooMethod),
-                        // Statement condition
-                        IfThen(
-                            Constant(true),
-                            Block(
-                                Call(BarMethod),
-                                Call(BazMethod))),
-                        // Last expression (to make the block above evaluate as statement
-                        Constant(8)))),
-"""
-{
-    LinqToCSharpTranslatorTest.Foo();
-    if (true)
-    {
-        LinqToCSharpTranslatorTest.Bar();
-        LinqToCSharpTranslatorTest.Baz();
-    }
-
-    var i = 8;
-}
-""");
-    }
 
     [Fact]
     public void Lift_block_in_assignment_context()

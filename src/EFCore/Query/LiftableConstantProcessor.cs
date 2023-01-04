@@ -97,7 +97,8 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
         _liftedConstantOptimizer.Optimize(_liftedConstants);
 
         // Uniquify all variable names, taking into account possible remapping done in the optimization phase above
-        var (originalParameters, newParameters) = (new List<Expression>(), new List<Expression>());
+        var replacedParameters = new Dictionary<ParameterExpression, ParameterExpression>();
+        // var (originalParameters, newParameters) = (new List<Expression>(), new List<Expression>());
         for (var i = 0; i < _liftedConstants.Count; i++)
         {
             var liftedConstant = _liftedConstants[i];
@@ -106,8 +107,10 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             {
                 // This lifted constant is being removed, since it's a duplicate of another with the same expression.
                 // We still need to remap the parameter in the expression, but no uniquification etc.
-                originalParameters.Add(liftedConstant.Parameter);
-                newParameters.Add(liftedConstant.ReplacingParameter);
+                replacedParameters.Add(liftedConstant.Parameter,
+                    replacedParameters.TryGetValue(liftedConstant.ReplacingParameter, out var replacedReplacingParameter)
+                        ? replacedReplacingParameter
+                        : liftedConstant.ReplacingParameter);
                 _liftedConstants.RemoveAt(i--);
                 continue;
             }
@@ -125,20 +128,31 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             {
                 var newParameter = Expression.Parameter(liftedConstant.Parameter.Type, name);
                 _liftedConstants[i] = liftedConstant with { Parameter = newParameter };
-                originalParameters.Add(liftedConstant.Parameter);
-                newParameters.Add(newParameter);
+                replacedParameters.Add(liftedConstant.Parameter, newParameter);
             }
         }
 
         // Finally, apply all remapping (optimization, uniquification) to both the expression tree and to the lifted constant variable
         // themselves.
-        var (originalParametersArray, newParametersArray) = (originalParameters.ToArray(), newParameters.ToArray());
-        var remappedExpression = ReplacingExpressionVisitor.Replace(originalParametersArray, newParametersArray, expressionAfterLifting);
+
+        // var (originalParametersArray, newParametersArray) = (originalParameters.ToArray(), newParameters.ToArray());
+        // var remappedExpression = ReplacingExpressionVisitor.Replace(originalParametersArray, newParametersArray, expressionAfterLifting);
+        var originalParameters = new Expression[replacedParameters.Count];
+        var newParameters = new Expression[replacedParameters.Count];
+        var index = 0;
+        foreach (var (originalParameter, newParameter) in replacedParameters)
+        {
+            originalParameters[index] = originalParameter;
+            newParameters[index] = newParameter;
+            index++;
+        }
+        var remappedExpression = ReplacingExpressionVisitor.Replace(originalParameters, newParameters, expressionAfterLifting);
+
         for (var i = 0; i < _liftedConstants.Count; i++)
         {
             var liftedConstant = _liftedConstants[i];
             var remappedLiftedConstantExpression =
-                ReplacingExpressionVisitor.Replace(originalParametersArray, newParametersArray, liftedConstant.Expression);
+                ReplacingExpressionVisitor.Replace(originalParameters, newParameters, liftedConstant.Expression);
 
             if (remappedLiftedConstantExpression != liftedConstant.Expression)
             {
@@ -267,7 +281,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
                 return null;
             }
 
-            if (node is ParameterExpression or ConstantExpression)
+            if (node is ParameterExpression or ConstantExpression || node.Type.IsAssignableTo(typeof(LambdaExpression)))
             {
                 return node;
             }
@@ -378,7 +392,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
 
             if (visited is MemberExpression
                 {
-                    Expression: ConstantExpression { Value: var constant },
+                    Expression: ConstantExpression { Value: { } constant },
                     Member: var member
                 })
             {
@@ -406,7 +420,7 @@ public class LiftableConstantProcessor : ExpressionVisitor, ILiftableConstantPro
             ? node
             : throw new InvalidOperationException(
                 $"Materializer expression contains a non-literal constant of type '{node.Value!.GetType().Name}'. " +
-                $"Use a {nameof(LiftableConstantExpression)} to reference any constants.");
+                $"Use a {nameof(LiftableConstantExpression)} to reference any non-literal constants.");
 
         static bool IsLiteral(object? value)
         {

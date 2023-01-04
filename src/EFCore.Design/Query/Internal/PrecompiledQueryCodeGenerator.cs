@@ -412,6 +412,8 @@ new RelationalMaterializerLiftableConstantContext(
             var queryExecutorAfterLiftingExpression =
                 liftableConstantProcessor.LiftConstants(queryExecutorExpression, materializerLiftableConstantContext, variableNames);
 
+            var sqlTreeCounter = 0;
+
             foreach (var liftedConstant in liftableConstantProcessor.LiftedConstants)
             {
                 var (parameter, variableValue) = liftedConstant;
@@ -420,6 +422,8 @@ new RelationalMaterializerLiftableConstantContext(
                 // very special rendering logic
                 if (parameter.Type == typeof(RelationalCommandCache))
                 {
+                    var sqlTreeVariable = "sqlTree" + (++sqlTreeCounter);
+
                     if (variableValue is NewExpression newRelationalCommandCacheExpression
                         && newRelationalCommandCacheExpression.Arguments.FirstOrDefault(a => a.Type == typeof(SelectExpression)) is
                             ConstantExpression { Value: SelectExpression selectExpression })
@@ -427,7 +431,7 @@ new RelationalMaterializerLiftableConstantContext(
                         // Render out the SQL tree, preceded by an ExpressionPrinter dump of it in a comment for easier debugging.
                         // Note that since the SQL tree is a graph (columns reference their SelectExpression's tables), rendering happens
                         // in multiple statements.
-                        var sqlTreeBlock = _sqlTreeQuoter.Quote(selectExpression);
+                        var sqlTreeBlock = _sqlTreeQuoter.Quote(selectExpression, sqlTreeVariable, variableNames);
                         var sqlTreeSyntaxStatements =
                             ((BlockSyntax)linqToCSharpTranslator.TranslateStatement(sqlTreeBlock, namespaces)).Statements
                             .ToArray();
@@ -446,7 +450,7 @@ new RelationalMaterializerLiftableConstantContext(
                         // to it
                         variableValue = newRelationalCommandCacheExpression.Update(newRelationalCommandCacheExpression.Arguments
                             .Select(a => a.Type == typeof(SelectExpression)
-                                ? Expression.Parameter(typeof(SelectExpression), "sqlTree")
+                                ? Expression.Parameter(typeof(SelectExpression), sqlTreeVariable)
                                 : a));
                     }
                     else
@@ -463,7 +467,7 @@ new RelationalMaterializerLiftableConstantContext(
             // We compiled the query and now have an expression tree for invoking it. Translate that to a Roslyn syntax tree
             // for outputting as C# code.
             var queryExecutorSyntaxTree =
-                (SimpleLambdaExpressionSyntax)linqToCSharpTranslator.TranslateExpression(queryExecutorAfterLiftingExpression,
+                (AnonymousFunctionExpressionSyntax)linqToCSharpTranslator.TranslateExpression(queryExecutorAfterLiftingExpression,
                     namespaces);
 
             // var executor = (QueryContext queryContext) => SingleQueryingEnumerable.Create(...)

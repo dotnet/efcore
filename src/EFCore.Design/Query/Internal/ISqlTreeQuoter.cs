@@ -19,6 +19,8 @@ public interface ISqlTreeQuoter
     ///     Returns a LINQ expression tree that instantiates a faithful copy of <paramref name="expression" />.
     /// </summary>
     /// <param name="expression">The SQL tree to be quoted.</param>
+    /// <param name="rootSelectVariableName">The variable name to give to the top-most select expression.</param>
+    /// <param name="variableNames">A set of variable names already defined in the context, for uniquification.</param>
     /// <returns>A LINQ expression tree that instantiates a faithful copy of <paramref name="expression" />.</returns>
     /// <remarks>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,5 +28,5 @@ public interface ISqlTreeQuoter
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
-    BlockExpression Quote(Expression expression);
+    public BlockExpression Quote(Expression expression, string rootSelectVariableName, HashSet<string> variableNames);
 }

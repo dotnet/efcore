@@ -353,7 +353,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private static void InitializeSplitIncludeCollection<TParent, TNavigationEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void InitializeSplitIncludeCollection<TParent, TNavigationEntity>(
             int collectionId,
             QueryContext queryContext,
             DbDataReader parentDataReader,
@@ -392,7 +399,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             resultCoordinator.SetSplitQueryCollectionContext(collectionId, splitQueryCollectionContext);
         }
 
-        private static void PopulateSplitIncludeCollection<TIncludingEntity, TIncludedEntity>(
+        /// <summary>
+        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+        ///     any release. You should only use it directly in your code with extreme caution and knowing that
+        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+        /// </summary>
+        [EntityFrameworkInternal]
+        public static void PopulateSplitIncludeCollection<TIncludingEntity, TIncludedEntity>(
             int collectionId,
             RelationalQueryContext queryContext,
             IExecutionStrategy executionStrategy,
@@ -401,7 +415,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            // IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Action<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -448,7 +463,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 while (dataReaderContext.HasNext ?? dbDataReader.Read())
                 {
-                    if (!CompareIdentifiers(
+                    if (!CompareIdentifiers2(
                             identifierValueComparers,
                             splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
                     {
@@ -485,7 +500,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             bool detailedErrorsEnabled,
             SplitQueryResultCoordinator resultCoordinator,
             Func<QueryContext, DbDataReader, object[]> childIdentifier,
-            IReadOnlyList<ValueComparer> identifierValueComparers,
+            IReadOnlyList<Func<object, object, bool>> identifierValueComparers,
+            // IReadOnlyList<ValueComparer> identifierValueComparers,
             Func<QueryContext, DbDataReader, ResultContext, SplitQueryResultCoordinator, TIncludedEntity> innerShaper,
             Func<QueryContext, IExecutionStrategy, SplitQueryResultCoordinator, Task>? relatedDataLoaders,
             INavigationBase? inverseNavigation,
@@ -540,7 +556,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             {
                 while (dataReaderContext.HasNext ?? await dbDataReader.ReadAsync(queryContext.CancellationToken).ConfigureAwait(false))
                 {
-                    if (!CompareIdentifiers(
+                    if (!CompareIdentifiers2(
                             identifierValueComparers,
                             splitQueryCollectionContext.ParentIdentifier, childIdentifier(queryContext, dbDataReader)))
                     {
