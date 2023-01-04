@@ -38,8 +38,7 @@ public class ConverterMappingHints
     }
 
     /// <summary>
-    ///     Adds hints from the given object to this one. Hints that are already specified are
-    ///     not overridden.
+    ///     Adds hints from the given object to this one. Hints that are already specified are not overridden.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
@@ -49,12 +48,34 @@ public class ConverterMappingHints
     public virtual ConverterMappingHints With(ConverterMappingHints? hints)
         => hints == null
             ? this
-            : new ConverterMappingHints(
-                hints.Size ?? Size,
-                hints.Precision ?? Precision,
-                hints.Scale ?? Scale,
-                hints.IsUnicode ?? IsUnicode,
-                hints.ValueGeneratorFactory ?? ValueGeneratorFactory);
+            : hints.GetType().IsAssignableFrom(GetType())
+                ? new ConverterMappingHints(
+                    hints.Size ?? Size,
+                    hints.Precision ?? Precision,
+                    hints.Scale ?? Scale,
+                    hints.IsUnicode ?? IsUnicode,
+                    hints.ValueGeneratorFactory ?? ValueGeneratorFactory)
+                : hints.Override(this);
+
+    /// <summary>
+    ///     Adds hints from the given object to this one. Hints that are already specified are overridden.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-value-converters">EF Core value converters</see> for more information and examples.
+    /// </remarks>
+    /// <param name="hints">The hints to add.</param>
+    /// <returns>The combined hints.</returns>
+    public virtual ConverterMappingHints Override(ConverterMappingHints? hints)
+        => hints == null
+            ? this
+            : GetType().IsAssignableFrom(hints.GetType())
+                ? new ConverterMappingHints(
+                    Size ?? hints.Size,
+                    Precision ?? hints.Precision,
+                    Scale ?? hints.Scale,
+                    IsUnicode ?? hints.IsUnicode,
+                    ValueGeneratorFactory ?? hints.ValueGeneratorFactory)
+                : hints.With(this);
 
     /// <summary>
     ///     The suggested size of the mapped data type.
