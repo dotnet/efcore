@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore;
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
-    ///     Generates a string representation of the query used. This string may not be suitable for direct execution is intended only
+    ///     Generates a string representation of the query used. This string may not be suitable for direct execution and is intended only
     ///     for use in debugging.
     /// </summary>
     /// <remarks>
