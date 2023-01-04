@@ -937,6 +937,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         public IColumnModification? ColumnModification { get; set; }
 
+        private static readonly bool QuirkEnabled29531
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29531", out var enabled) && enabled;
+
         public void RecordValue(IColumnMapping mapping, IUpdateEntry entry)
         {
             var property = mapping.Property;
@@ -981,7 +984,17 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     || entry.EntityState == EntityState.Added)
                 {
-                    entry.SetStoreGeneratedValue(property, _currentValue);
+                    var value = _currentValue;
+                    if (!QuirkEnabled29531)
+                    {
+                        var converter = property.GetTypeMapping().Converter;
+                        if (converter != null)
+                        {
+                            value = converter.ConvertFromProvider(value);
+                        }
+                    }
+
+                    entry.SetStoreGeneratedValue(property, value);
                 }
 
                 return false;

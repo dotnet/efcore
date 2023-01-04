@@ -23,6 +23,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class RelationalModelValidator : ModelValidator
 {
+    private static readonly bool QuirkEnabled29531
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29531", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalModelValidator" />.
     /// </summary>
@@ -1406,8 +1409,20 @@ public class RelationalModelValidator : ModelValidator
                     currentTypeString));
         }
 
-        var currentProviderType = typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType;
-        var previousProviderType = duplicateTypeMapping.Converter?.ProviderClrType ?? duplicateTypeMapping.ClrType;
+        Type currentProviderType, previousProviderType;
+        if (QuirkEnabled29531)
+        {
+            currentProviderType = typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType;
+            previousProviderType = duplicateTypeMapping.Converter?.ProviderClrType ?? duplicateTypeMapping.ClrType;
+        }
+        else
+        {
+            currentProviderType = typeMapping.Converter?.ProviderClrType.UnwrapNullableType()
+                ?? typeMapping.ClrType;
+            previousProviderType = duplicateTypeMapping.Converter?.ProviderClrType.UnwrapNullableType()
+                ?? duplicateTypeMapping.ClrType;
+        }
+
         if (currentProviderType != previousProviderType)
         {
             throw new InvalidOperationException(

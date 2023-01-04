@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
@@ -109,6 +109,39 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
     }
 
     [ConditionalFact]
+    public virtual void Can_use_shared_columns_with_conversion()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var person = new Person("1", null)
+                {
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
+                };
+
+                context.Add(person);
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var person = context.Set<Person>().Single();
+                person.Address = new Address { Country = Country.Türkiye, City = "Konya", ZipCode = 42100 };
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var person = context.Set<Person>().Single();
+
+                Assert.Equal(Country.Türkiye, person.Address!.Country);
+                Assert.Equal("Konya", person.Address.City);
+                Assert.Equal(42100, person.Address.ZipCode);
+                Assert.Equal("Türkiye", person.Country);
+                Assert.Equal("42100", person.ZipCode);
+            });
+
+    [ConditionalFact]
     public virtual void Swap_filtered_unique_index_values()
     {
         var productId1 = new Guid("984ade3c-2f7b-4651-a351-642e92ab7146");
@@ -174,14 +207,19 @@ public abstract class UpdatesRelationalTestBase<TFixture> : UpdatesTestBase<TFix
 
             modelBuilder.Entity<Product>().HasIndex(p => new { p.Name, p.Price }).IsUnique().HasFilter("Name IS NOT NULL");
 
-            modelBuilder.Entity<Person>()
-                .Property(p => p.Country)
-                .HasColumnName("Country");
-
-            modelBuilder.Entity<Person>()
-                .OwnsOne(p => p.Address)
-                .Property(p => p.Country)
-                .HasColumnName("Country");
+            modelBuilder.Entity<Person>(pb =>
+            {
+                pb.Property(p => p.Country)
+                    .HasColumnName("Country");
+                pb.Property(p => p.ZipCode)
+                    .HasColumnName("ZipCode");
+                pb.OwnsOne(p => p.Address)
+                    .Property(p => p.Country)
+                    .HasColumnName("Country");
+                pb.OwnsOne(p => p.Address)
+                    .Property(p => p.ZipCode)
+                    .HasColumnName("ZipCode");
+            });
 
             modelBuilder
                 .Entity<
