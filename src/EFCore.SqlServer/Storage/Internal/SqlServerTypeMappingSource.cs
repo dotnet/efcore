@@ -336,7 +336,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 }
 
                 if (size == null
-                    && storeTypeName == null)
+                    && storeTypeName == null
+                    && !mappingInfo.HasKeySemantics)
                 {
                     return isAnsi
                         ? isFixedLength
@@ -351,7 +352,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                     unicode: !isAnsi,
                     size: size,
                     fixedLength: isFixedLength,
-                    storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
+                    storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
+                    useKeyComparison: mappingInfo.HasKeySemantics);
             }
 
             if (clrType == typeof(byte[]))

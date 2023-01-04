@@ -1141,18 +1141,11 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         v => v.Skip(3).ToArray());
                 });
 
-            var caseInsensitiveComparer = new ValueComparer<string>(
-                (l, r) => (l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
-                v => StringComparer.InvariantCultureIgnoreCase.GetHashCode(v),
-                v => v);
-
             modelBuilder.Entity<StringKeyDataType>(
                 b =>
                 {
                     var property = b.Property(e => e.Id)
                         .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
-
-                    property.SetValueComparer(caseInsensitiveComparer);
                 });
 
             modelBuilder.Entity<StringForeignKeyDataType>(
@@ -1161,8 +1154,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(e => e.StringKeyDataTypeId)
                         .HasConversion(
                             v => "KeyValue=" + v,
-                            v => v.Substring(9),
-                            caseInsensitiveComparer);
+                            v => v.Substring(9));
                 });
 
             modelBuilder.Entity<MaxLengthDataTypes>(
