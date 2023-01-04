@@ -90,6 +90,25 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
     }
 
 #nullable enable
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Update_non_owned_property_on_entity_with_owned(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context28671>(
+            onModelCreating: mb =>
+            {
+                mb.Entity<Owner>().OwnsOne(o => o.OwnedReference);
+            });
+
+        await AssertUpdate(
+            async,
+            contextFactory.CreateContext,
+            ss => ss.Set<Owner>(),
+            s => s.SetProperty(o => o.Title, "SomeValue"),
+            rowsAffectedCount: 0);
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_predicate_based_on_optional_navigation(bool async)

@@ -5,10 +5,13 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class TPTInheritanceBulkUpdatesSqliteTest : TPTInheritanceBulkUpdatesTestBase<TPTInheritanceBulkUpdatesSqliteFixture>
 {
-    public TPTInheritanceBulkUpdatesSqliteTest(TPTInheritanceBulkUpdatesSqliteFixture fixture)
+    public TPTInheritanceBulkUpdatesSqliteTest(
+        TPTInheritanceBulkUpdatesSqliteFixture fixture,
+        ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         ClearLog();
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -138,6 +141,20 @@ WHERE (
     public override async Task Update_where_keyless_entity_mapped_to_sql_query(bool async)
     {
         await base.Update_where_keyless_entity_mapped_to_sql_query(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_with_interface_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_property_expression(async);
+
+        AssertExecuteUpdateSql();
+    }
+
+    public override async Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_EF_Property_in_property_expression(async);
 
         AssertExecuteUpdateSql();
     }

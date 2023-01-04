@@ -18,6 +18,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
 
+    private static readonly bool QuirkEnabled28727
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue28727", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -1178,11 +1181,25 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         foreach (var (propertyExpression, _) in propertyValueLambdaExpressions)
         {
             var left = RemapLambdaBody(source, propertyExpression);
-            left = left.UnwrapTypeConversion(out _);
-            if (!IsValidPropertyAccess(RelationalDependencies.Model, left, out var ese))
+
+            EntityShaperExpression? ese;
+
+            if (QuirkEnabled28727)
             {
-                AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
-                return null;
+                left = left.UnwrapTypeConversion(out _);
+                if (!IsValidPropertyAccess(RelationalDependencies.Model, left, out ese))
+                {
+                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
+                    return null;
+                }
+            }
+            else
+            {
+                if (!TryProcessPropertyAccess(RelationalDependencies.Model, ref left, out ese))
+                {
+                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
+                    return null;
+                }
             }
 
             if (entityShaperExpression is null)
@@ -1382,6 +1399,66 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
+        // For property setter selectors in ExecuteUpdate, we support only simple member access, EF.Function, etc.
+        // We also unwrap casts to interface/base class (#29618), as well as IncludeExpressions (which occur when the target entity has
+        // owned entities, #28727).
+        static bool TryProcessPropertyAccess(
+            IModel model,
+            ref Expression expression,
+            [NotNullWhen(true)] out EntityShaperExpression? entityShaperExpression)
+        {
+            expression = expression.UnwrapTypeConversion(out _);
+
+            if (expression is MemberExpression { Expression : not null } memberExpression
+                && Unwrap(memberExpression.Expression) is EntityShaperExpression ese)
+            {
+                expression = memberExpression.Update(ese);
+                entityShaperExpression = ese;
+                return true;
+            }
+
+            if (expression is MethodCallExpression mce)
+            {
+                if (mce.TryGetEFPropertyArguments(out var source, out _)
+                    && Unwrap(source) is EntityShaperExpression ese1)
+                {
+                    if (source != ese1)
+                    {
+                        var rewrittenArguments = mce.Arguments.ToArray();
+                        rewrittenArguments[0] = ese1;
+                        expression = mce.Update(mce.Object, rewrittenArguments);
+                    }
+
+                    entityShaperExpression = ese1;
+                    return true;
+                }
+
+                if (mce.TryGetIndexerArguments(model, out var source2, out _)
+                    && Unwrap(source2) is EntityShaperExpression ese2)
+                {
+                    expression = mce.Update(ese2, mce.Arguments);
+                    entityShaperExpression = ese2;
+                    return true;
+                }
+            }
+
+            entityShaperExpression = null;
+            return false;
+
+            static Expression Unwrap(Expression expression)
+            {
+                expression = expression.UnwrapTypeConversion(out _);
+
+                while (expression is IncludeExpression includeExpression)
+                {
+                    expression = includeExpression.EntityExpression;
+                }
+
+                return expression;
+            }
+        }
+
+        // Old quirked implementation only
         static bool IsValidPropertyAccess(
             IModel model,
             Expression expression,
