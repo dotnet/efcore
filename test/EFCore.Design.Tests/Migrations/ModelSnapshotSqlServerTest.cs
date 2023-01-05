@@ -4074,23 +4074,25 @@ namespace RootNamespace
         => Test(
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(-1),
             AddBoilerPlate(
-                GetHeading()
-                + @"            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+                GetHeading() +
+"""
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
                 {
-                    b.Property<int>(""Id"")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType(""int"");
+                        .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>(""Id""));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>(""Name"")
+                    b.Property<string>("Name")
                         .HasMaxLength(-1)
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey(""Id"");
+                    b.HasKey("Id");
 
-                    b.ToTable(""EntityWithStringProperty"");
-                });"),
+                    b.ToTable("EntityWithStringProperty");
+                });
+"""),
             o => Assert.Equal(-1, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
 
     [ConditionalFact]
