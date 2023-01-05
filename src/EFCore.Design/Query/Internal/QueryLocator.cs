@@ -108,17 +108,14 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
     /// </summary>
     public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax invocation)
     {
-        // TODO: Skip visiting identified candidates, there's no point.
-        var visitedInvocation = (InvocationExpressionSyntax)base.VisitInvocationExpression(invocation)!;
-
         // TODO: Support non-extension invocation syntax: var blogs = ToList(ctx.Blogs);
-        if (visitedInvocation.Expression is not MemberAccessExpressionSyntax
+        if (invocation.Expression is not MemberAccessExpressionSyntax
             {
                 Name: IdentifierNameSyntax { Identifier.Text : var identifier },
                 Expression: var innerExpression
             } memberAccess)
         {
-            return visitedInvocation;
+            return invocation;
         }
 
         // First, pattern-match on the method name as a string; this avoids accessing the semantic model for each and
@@ -137,14 +134,14 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
             case nameof(Enumerable.AsEnumerable):
                 return IsOnEnumerable() && IsQueryable(innerExpression)
                     ? CheckAndAddQuery(innerExpression, async: false)
-                    : visitedInvocation;
+                    : invocation;
 
             case nameof(EntityFrameworkQueryableExtensions.ToListAsync):
             case nameof(EntityFrameworkQueryableExtensions.ToArrayAsync):
             case nameof(EntityFrameworkQueryableExtensions.AsAsyncEnumerable):
                 return IsOnEfQueryableExtensions()
                     ? CheckAndAddQuery(innerExpression, async: true)
-                    : visitedInvocation;
+                    : invocation;
 
             case nameof(Queryable.All):
             case nameof(Queryable.Any):
@@ -167,8 +164,8 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
             case nameof(Queryable.SingleOrDefault):
             case nameof(Queryable.Sum):
                 return IsOnQueryable()
-                    ? CheckAndAddQuery(visitedInvocation, async: false)
-                    : visitedInvocation;
+                    ? CheckAndAddQuery(invocation, async: false)
+                    : invocation;
 
             case nameof(EntityFrameworkQueryableExtensions.AllAsync):
             case nameof(EntityFrameworkQueryableExtensions.AnyAsync):
@@ -192,10 +189,10 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
             case nameof(EntityFrameworkQueryableExtensions.SumAsync):
                 return IsOnEfQueryableExtensions() && TryRewriteInvocationToSync(out var rewrittenSyncInvocation)
                     ? CheckAndAddQuery(rewrittenSyncInvocation, async: true)
-                    : visitedInvocation;
+                    : invocation;
 
             default:
-                return visitedInvocation;
+                return base.VisitInvocationExpression(invocation)!;
         }
 
         bool IsOnEfQueryableExtensions()
@@ -209,9 +206,9 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
 
         bool IsOnTypeSymbol(ITypeSymbol typeSymbol)
         {
-            if (GetSymbol(visitedInvocation) is not IMethodSymbol methodSymbol)
+            if (GetSymbol(invocation) is not IMethodSymbol methodSymbol)
             {
-                Console.WriteLine("Couldn't get method symbol for invocation: " + visitedInvocation);
+                Console.WriteLine("Couldn't get method symbol for invocation: " + invocation);
                 return false;
             }
 
@@ -225,25 +222,25 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
             var syncMethodName = identifier.Substring(0, identifier.Length - "Async".Length);
 
             // If the last argument is a cancellation token, chop it off
-            var arguments = visitedInvocation.ArgumentList.Arguments;
-            if (GetSymbol(visitedInvocation) is not IMethodSymbol methodSymbol)
+            var arguments = invocation.ArgumentList.Arguments;
+            if (GetSymbol(invocation) is not IMethodSymbol methodSymbol)
             {
                 syncInvocation = null;
                 return false;
             }
 
             if (SymbolEqualityComparer.Default.Equals(methodSymbol.Parameters[^1].Type, _cancellationTokenSymbol)
-                && visitedInvocation.ArgumentList.Arguments.Count == methodSymbol.Parameters.Length)
+                && invocation.ArgumentList.Arguments.Count == methodSymbol.Parameters.Length)
             {
                 arguments = arguments.RemoveAt(arguments.Count - 1);
             }
 
-            syncInvocation = visitedInvocation.Update(
+            syncInvocation = invocation.Update(
                     memberAccess.Update(
                         memberAccess.Expression,
                         memberAccess.OperatorToken,
                         SyntaxFactory.IdentifierName(syncMethodName)),
-                    visitedInvocation.ArgumentList.WithArguments(arguments));
+                    invocation.ArgumentList.WithArguments(arguments));
 
             return true;
         }
