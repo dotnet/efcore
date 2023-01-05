@@ -1727,8 +1727,7 @@ public partial class Color
     public string ColorCode { get; set; } = null!;
 
     public virtual ICollection<Car> Cars { get; } = new List<Car>();
-}
-",
+}",
                     code.AdditionalFiles.Single(f => f.Path == "Color.cs"));
 
                 AssertFileContents(
@@ -1748,8 +1747,7 @@ public partial class Car
     public string? ColorCode { get; set; }
 
     public virtual Color? Color { get; set; }
-}
-",
+}",
                     code.AdditionalFiles.Single(f => f.Path == "Car.cs"));
 
                 AssertFileContents(
@@ -1800,8 +1798,7 @@ public partial class TestDbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-}
-",
+}",
                     code.ContextFile);
             },
             model =>
@@ -2025,8 +2022,7 @@ public partial class Post
 
     [ForeignKey(""BlogId"")]
     public virtual Blog Blog { get; set; }
-}
-",
+}",
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
             },
             model =>
@@ -2056,8 +2052,7 @@ public partial class Post
             code =>
             {
                 AssertFileContents(
-"""
-using System;
+@"using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -2065,53 +2060,50 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
-[CustomEntityDataAnnotation("first argument")]
+[CustomEntityDataAnnotation(""first argument"")]
 public partial class EntityWithAnnotation
 {
     [Key]
     public int Id { get; set; }
-}
-""",
+}",
                     code.AdditionalFiles.Single(f => f.Path == "EntityWithAnnotation.cs"));
 
                 AssertFileContents(
-$$"""
-using System;
+$@"using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
 namespace TestNamespace;
 
 public partial class TestDbContext : DbContext
-{
+{{
     public TestDbContext()
-    {
-    }
+    {{
+    }}
 
     public TestDbContext(DbContextOptions<TestDbContext> options)
         : base(options)
-    {
-    }
+    {{
+    }}
 
-    public virtual DbSet<EntityWithAnnotation> EntityWithAnnotation { get; set; }
+    public virtual DbSet<EntityWithAnnotation> EntityWithAnnotation {{ get; set; }}
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning {{DesignStrings.SensitiveInformationWarning}}
-        => optionsBuilder.UseSqlServer("Initial Catalog=TestDatabase");
+#warning {DesignStrings.SensitiveInformationWarning}
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    {{
         modelBuilder.Entity<EntityWithAnnotation>(entity =>
-        {
+        {{
             entity.Property(e => e.Id).UseIdentityColumn();
-        });
+        }});
 
         OnModelCreatingPartial(modelBuilder);
-    }
+    }}
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-}
-""",
+}}",
                     code.ContextFile);
             },
             assertModel: null,
@@ -2676,8 +2668,7 @@ public partial class TestDbContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
-}
-",
+}",
                     code.ContextFile);
 
                 AssertFileContents(
@@ -2697,8 +2688,7 @@ public partial class Blog
     public int Key { get; set; }
 
     public virtual ICollection<Post> Posts { get; } = new List<Post>();
-}
-",
+}",
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
 
                 AssertFileContents(
@@ -2718,8 +2708,7 @@ public partial class Post
     [ForeignKey(""PostsId"")]
     [InverseProperty(""Posts"")]
     public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
-}
-",
+}",
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
 
                 Assert.Equal(2, code.AdditionalFiles.Count);

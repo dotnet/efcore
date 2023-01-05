@@ -4075,8 +4075,7 @@ namespace RootNamespace
             builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(-1),
             AddBoilerPlate(
                 GetHeading()
-                + @"
-            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
+                + @"            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty"", b =>
                 {
                     b.Property<int>(""Id"")
                         .ValueGeneratedOnAdd()
