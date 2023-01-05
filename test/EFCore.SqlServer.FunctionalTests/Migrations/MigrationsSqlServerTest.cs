@@ -8883,13 +8883,13 @@ CREATE TABLE [Entity_NestedCollection] (
     CONSTRAINT [FK_Entity_NestedCollection_Entity_OwnedEntityId] FOREIGN KEY ([OwnedEntityId]) REFERENCES [Entity] ([Id]) ON DELETE CASCADE
 );
 """,
-            //
+//
 """
 CREATE TABLE [Entity_OwnedCollection] (
     [EntityId] int NOT NULL,
     [Id] int NOT NULL IDENTITY,
-    [NestedReference2_Number3] int NULL,
     [Date2] datetime2 NOT NULL,
+    [NestedReference2_Number3] int NULL,
     CONSTRAINT [PK_Entity_OwnedCollection] PRIMARY KEY ([EntityId], [Id]),
     CONSTRAINT [FK_Entity_OwnedCollection_Entity_EntityId] FOREIGN KEY ([EntityId]) REFERENCES [Entity] ([Id]) ON DELETE CASCADE
 );
