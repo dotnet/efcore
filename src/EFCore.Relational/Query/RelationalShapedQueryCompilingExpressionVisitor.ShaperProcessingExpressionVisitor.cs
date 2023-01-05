@@ -281,7 +281,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 _expressions.Add(result);
                 result = Expression.Block(_variables, _expressions);
 
-                relationalCommandCache = CreateRelationalCommandCache();
+                relationalCommandCache = _parentVisitor.CreateRelationalCommandCacheExpression(_selectExpression);
                 readerColumns = CreateReaderColumnsExpression();
 
                 return Expression.Lambda(
@@ -303,7 +303,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 result = Expression.Block(_variables, _expressions);
 
                 relationalCommandCache = _generateCommandCache
-                    ? CreateRelationalCommandCache()
+                    ? _parentVisitor.CreateRelationalCommandCacheExpression(_selectExpression)
                     : Expression.Constant(null, typeof(RelationalCommandCache));
                 readerColumns = CreateReaderColumnsExpression();
 
@@ -386,7 +386,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
 
                 relationalCommandCache = _generateCommandCache
-                    ? CreateRelationalCommandCache()
+                    ? _parentVisitor.CreateRelationalCommandCacheExpression(_selectExpression)
                     : Expression.Constant(null, typeof(RelationalCommandCache));;
                 readerColumns = CreateReaderColumnsExpression();
 
@@ -399,17 +399,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     _resultContextParameter,
                     _resultCoordinatorParameter);
             }
-
-            LiftableConstantExpression CreateRelationalCommandCache()
-                => _parentVisitor.RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
-                    c => new RelationalCommandCache(
-                        c.Dependencies.MemoryCache,
-                        c.RelationalDependencies.QuerySqlGeneratorFactory,
-                        c.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-                        _selectExpression,
-                        _parentVisitor._useRelationalNulls),
-                    "relationalCommandCache",
-                    typeof(RelationalCommandCache));
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)

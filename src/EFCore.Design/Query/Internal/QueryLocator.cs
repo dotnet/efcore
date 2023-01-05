@@ -20,7 +20,7 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
 
 #pragma warning disable CS8618 // Uninitialized non-nullable fields. We check _compilation to make sure LoadCompilation was invoked.
     private ITypeSymbol _genericIQueryableSymbol, _nonGenericIQueryableSymbol, _dbSetSymbol;
-    private ITypeSymbol _efQueryableExtensionsSymbol, _enumerableSymbol, _queryableSymbol;
+    private ITypeSymbol _enumerableSymbol, _queryableSymbol, _efQueryableExtensionsSymbol, _efRelationalQueryableExtensionsSymbol;
     private ITypeSymbol _cancellationTokenSymbol;
 #pragma warning restore CS8618
 
@@ -51,10 +51,10 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
         _nonGenericIQueryableSymbol = GetTypeSymbolOrThrow("System.Linq.IQueryable");
         _dbSetSymbol = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.DbSet`1");
 
-        _efQueryableExtensionsSymbol =
-            GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions");
         _enumerableSymbol = GetTypeSymbolOrThrow("System.Linq.Enumerable");
         _queryableSymbol = GetTypeSymbolOrThrow("System.Linq.Queryable");
+        _efQueryableExtensionsSymbol = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions");
+        _efRelationalQueryableExtensionsSymbol = GetTypeSymbolOrThrow("Microsoft.EntityFrameworkCore.RelationalQueryableExtensions");
         _cancellationTokenSymbol = GetTypeSymbolOrThrow("System.Threading.CancellationToken");
 
         _syntaxTreesWithQueryCandidates.Clear();
@@ -187,22 +187,41 @@ public class QueryLocator : CSharpSyntaxRewriter, IQueryLocator
             case nameof(EntityFrameworkQueryableExtensions.SingleAsync):
             case nameof(EntityFrameworkQueryableExtensions.SingleOrDefaultAsync):
             case nameof(EntityFrameworkQueryableExtensions.SumAsync):
+            {
                 return IsOnEfQueryableExtensions() && TryRewriteInvocationToSync(out var rewrittenSyncInvocation)
                     ? CheckAndAddQuery(rewrittenSyncInvocation, async: true)
                     : invocation;
+            }
+
+            case nameof(RelationalQueryableExtensions.ExecuteDelete):
+            case nameof(RelationalQueryableExtensions.ExecuteUpdate):
+                return IsOnEfRelationalQueryableExtensions()
+                    ? CheckAndAddQuery(invocation, async: false)
+                    : invocation;
+
+            case nameof(RelationalQueryableExtensions.ExecuteDeleteAsync):
+            case nameof(RelationalQueryableExtensions.ExecuteUpdateAsync):
+            {
+                return IsOnEfRelationalQueryableExtensions() && TryRewriteInvocationToSync(out var rewrittenSyncInvocation)
+                    ? CheckAndAddQuery(rewrittenSyncInvocation, async: true)
+                    : invocation;
+            }
 
             default:
                 return base.VisitInvocationExpression(invocation)!;
         }
-
-        bool IsOnEfQueryableExtensions()
-            => IsOnTypeSymbol(_efQueryableExtensionsSymbol);
 
         bool IsOnEnumerable()
             => IsOnTypeSymbol(_enumerableSymbol);
 
         bool IsOnQueryable()
             => IsOnTypeSymbol(_queryableSymbol);
+
+        bool IsOnEfQueryableExtensions()
+            => IsOnTypeSymbol(_efQueryableExtensionsSymbol);
+
+        bool IsOnEfRelationalQueryableExtensions()
+            => IsOnTypeSymbol(_efRelationalQueryableExtensionsSymbol);
 
         bool IsOnTypeSymbol(ITypeSymbol typeSymbol)
         {

@@ -65,13 +65,25 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         Console.Error.WriteLine("Loading project...");
         using var workspace = MSBuildWorkspace.Create();
 
-        // var project = await workspace.OpenProjectAsync("/home/roji/projects/test/EFTest/EFTest.csproj")
         var project = await workspace.OpenProjectAsync(projectDir, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         Console.WriteLine("Compiling project...");
         var compilation = await project.GetCompilationAsync(cancellationToken)
             .ConfigureAwait(false);
+
+        var errorDiagnostics = compilation.GetDiagnostics(cancellationToken).Where(d => d.Severity == DiagnosticSeverity.Error).ToArray();
+        if (errorDiagnostics.Any())
+        {
+            Console.Error.WriteLine("Compilation failed with errors:");
+            Console.Error.WriteLine();
+            foreach (var diagnostic in errorDiagnostics)
+            {
+                Console.WriteLine(diagnostic);
+            }
+            Environment.Exit(1);
+        }
+
         Console.WriteLine($"Compiled assembly {compilation.Assembly.Name}");
 
         // TODO: check reference to EF, bail early if not found?
@@ -181,6 +193,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             .Append("System.Collections.Generic")
             .Append("Microsoft.EntityFrameworkCore")
             .Append("Microsoft.EntityFrameworkCore.ChangeTracking.Internal")
+            .Append("Microsoft.EntityFrameworkCore.Diagnostics")
             .Append("Microsoft.EntityFrameworkCore.Infrastructure")
             .Append("Microsoft.EntityFrameworkCore.Infrastructure.Internal")
             .Append("Microsoft.EntityFrameworkCore.Metadata")
@@ -425,13 +438,13 @@ new RelationalMaterializerLiftableConstantContext(
                     var sqlTreeVariable = "sqlTree" + (++sqlTreeCounter);
 
                     if (variableValue is NewExpression newRelationalCommandCacheExpression
-                        && newRelationalCommandCacheExpression.Arguments.FirstOrDefault(a => a.Type == typeof(SelectExpression)) is
-                            ConstantExpression { Value: SelectExpression selectExpression })
+                        && newRelationalCommandCacheExpression.Arguments.FirstOrDefault(a => a.Type == typeof(Expression)) is
+                            ConstantExpression { Value: Expression queryExpression })
                     {
                         // Render out the SQL tree, preceded by an ExpressionPrinter dump of it in a comment for easier debugging.
                         // Note that since the SQL tree is a graph (columns reference their SelectExpression's tables), rendering happens
                         // in multiple statements.
-                        var sqlTreeBlock = _sqlTreeQuoter.Quote(selectExpression, sqlTreeVariable, variableNames);
+                        var sqlTreeBlock = _sqlTreeQuoter.Quote(queryExpression, sqlTreeVariable, variableNames);
                         var sqlTreeSyntaxStatements =
                             ((BlockSyntax)linqToCSharpTranslator.TranslateStatement(sqlTreeBlock, namespaces)).Statements
                             .ToArray();
@@ -440,7 +453,7 @@ new RelationalMaterializerLiftableConstantContext(
                                 stringBuilder
                                     .Clear()
                                     .AppendLine("/*")
-                                    .AppendLine(sqlExpressionPrinter.PrintExpression(selectExpression))
+                                    .AppendLine(sqlExpressionPrinter.PrintExpression(queryExpression))
                                     .AppendLine("*/")
                                     .ToString()));
 
@@ -449,8 +462,8 @@ new RelationalMaterializerLiftableConstantContext(
                         // We've rendered the SQL tree, assigning it to variable "sqlTree". Update the RelationalCommandCache to point
                         // to it
                         variableValue = newRelationalCommandCacheExpression.Update(newRelationalCommandCacheExpression.Arguments
-                            .Select(a => a.Type == typeof(SelectExpression)
-                                ? Expression.Parameter(typeof(SelectExpression), sqlTreeVariable)
+                            .Select(a => a.Type == typeof(Expression)
+                                ? Expression.Parameter(typeof(Expression), sqlTreeVariable)
                                 : a));
                     }
                     else

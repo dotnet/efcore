@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -427,13 +428,38 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
                 originalDefinition = originalDefinition.ReducedFrom;
             }
 
-            // var originalDefParamTypes = originalDefinition.Parameters.Select(p => ResolveType(p.Type)).ToArray();
-            // var paramTypes = reducedMethodSymbol.Parameters.Select(p => ResolveType(p.Type)).ToArray();
+            // To accurately find the right open generic method definition based on the Roslyn symbol, we need to create a mapping between
+            // generic type parameter names (based on the Roslyn side) and .NET reflection Types representing those type parameters.
+            // This includes both type parameters immediately on the generic method, as well as type parameters from the method's
+            // containing type (and recursively, its containing types)
+            var typeTypeParameterMap = new Dictionary<string, Type>(Foo(methodSymbol.ContainingType));
 
-            // TODO: Populate with generic type parameters from the containing type (and nested containing types, methods?), not just method
-            // below
-            // TODO: We match Roslyn type parameters by name, not sure that's right
-            var genericParameterMap = new Dictionary<string, Type>();
+            IEnumerable<KeyValuePair<string, Type>> Foo(INamedTypeSymbol typeSymbol)
+            {
+                // TODO: We match Roslyn type parameters by name, not sure that's right; also for the method's generic type parameters
+
+                if (typeSymbol.ContainingType is INamedTypeSymbol containingTypeSymbol)
+                {
+                    foreach (var kvp in Foo(containingTypeSymbol))
+                    {
+                        yield return kvp;
+                    }
+                }
+
+                var type = ResolveType(typeSymbol);
+                var genericArguments = type.GetGenericArguments();
+
+                Check.DebugAssert(
+                    genericArguments.Length == typeSymbol.TypeParameters.Length,
+                    "genericArguments.Length == typeSymbol.TypeParameters.Length");
+
+                foreach (var (typeParamSymbol, typeParamType) in typeSymbol.TypeParameters.Zip(genericArguments))
+                {
+                    // Check.DebugAssert(typeParamSymbol.Name == typeParamType.Name, "typeParamSymbol.Name == type.Name");
+
+                    yield return new KeyValuePair<string, Type>(typeParamSymbol.Name, typeParamType);
+                }
+            }
 
             var definitionMethodInfos = declaringType.GetMethods()
                 .Where(m =>
@@ -445,10 +471,11 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
                         && m.GetParameters() is var candidateParams
                         && candidateParams.Length == originalDefinition.Parameters.Length)
                     {
+                        var methodTypeParameterMap = new Dictionary<string, Type>(typeTypeParameterMap);
+
                         // Prepare a dictionary that will be used to resolve generic type parameters (ITypeParameterSymbol) to the
                         // corresponding reflection Type. This is needed to correctly (and recursively) resolve the type of parameters
                         // below.
-                        genericParameterMap.Clear();
                         foreach (var (symbol, type) in methodSymbol.TypeParameters.Zip(candidateGenericArguments))
                         {
                             if (symbol.Name != type.Name)
@@ -456,12 +483,12 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
                                 return false;
                             }
 
-                            genericParameterMap[symbol.Name] = type;
+                            methodTypeParameterMap[symbol.Name] = type;
                         }
 
                         for (var i = 0; i < candidateParams.Length; i++)
                         {
-                            var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, genericParameterMap);
+                            var translatedParamType = ResolveType(originalDefinition.Parameters[i].Type, methodTypeParameterMap);
                             if (translatedParamType != candidateParams[i].ParameterType)
                             {
                                 return false;
@@ -931,45 +958,6 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
     {
         switch (typeSymbol)
         {
-            case ITypeParameterSymbol typeParameterSymbol:
-                return genericParameterMap?.TryGetValue(typeParameterSymbol.Name, out var type) == true
-                    ? type
-                    : throw new InvalidOperationException($"Unknown generic type parameter symbol {typeParameterSymbol}");
-
-            case INamedTypeSymbol { IsGenericType: true } genericTypeSymbol:
-            {
-                var genericTypeName =
-                    genericTypeSymbol.OriginalDefinition.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat)
-                    + '`' + genericTypeSymbol.Arity;
-
-                var definition = GetClrType(genericTypeName);
-                var typeArguments = genericTypeSymbol.TypeArguments.Select(a => ResolveType(a, genericParameterMap)).ToArray();
-                return definition.MakeGenericType(typeArguments);
-            }
-
-            // // Open generic type
-            // case INamedTypeSymbol { IsGenericType: true } genericTypeSymbol
-            //     // TODO: Hacky... Detect open type, to avoid trying MakeGenericType on it
-            //     when genericTypeSymbol.TypeArguments.Any(a => a is ITypeParameterSymbol):
-            // {
-            //     var genericTypeName = genericTypeSymbol.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat)
-            //                           + '`' + genericTypeSymbol.Arity;
-            //
-            //     return GetClrType(genericTypeName);
-            // }
-            //
-            // // Closed generic type
-            // case INamedTypeSymbol { IsGenericType: true } genericTypeSymbol:
-            // {
-            //     var genericTypeName =
-            //         genericTypeSymbol.OriginalDefinition.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat)
-            //         + '`' + genericTypeSymbol.Arity;
-            //
-            //     var definition = GetClrType(genericTypeName);
-            //     var typeArguments = genericTypeSymbol.TypeArguments.Select(ResolveType).ToArray();
-            //     return definition.MakeGenericType(typeArguments);
-            // }
-
             case INamedTypeSymbol { IsAnonymousType: true } anonymousTypeSymbol:
                 _anonymousTypeDefinitions ??= LoadAnonymousTypes();
                 var properties = anonymousTypeSymbol.GetMembers().OfType<IPropertySymbol>().ToArray();
@@ -989,34 +977,61 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
 
                 // TODO: Cache closed anonymous types
 
-                return anonymousTypeGenericDefinition!.MakeGenericType(genericTypeArguments);
+                return anonymousTypeGenericDefinition.MakeGenericType(genericTypeArguments);
+
+            case INamedTypeSymbol { IsDefinition: true } genericTypeSymbol:
+                return GetClrType(genericTypeSymbol);
+
+            case INamedTypeSymbol { IsGenericType: true } genericTypeSymbol:
+            {
+                var definition = GetClrType(genericTypeSymbol.OriginalDefinition);
+                var typeArguments = genericTypeSymbol.TypeArguments.Select(a => ResolveType(a, genericParameterMap)).ToArray();
+                return definition.MakeGenericType(typeArguments);
+            }
+
+            case ITypeParameterSymbol typeParameterSymbol:
+                return genericParameterMap?.TryGetValue(typeParameterSymbol.Name, out var type) == true
+                    ? type
+                    : throw new InvalidOperationException($"Unknown generic type parameter symbol {typeParameterSymbol}");
 
             case INamedTypeSymbol namedTypeSymbol:
-                if (typeSymbol.ContainingType is null)
-                {
-                    goto default;
-                }
-
-                var containingType = ResolveType(namedTypeSymbol.ContainingType);
-
-                var nestedType =
-                    containingType.GetNestedType(namedTypeSymbol.ToDisplayString(SymbolDisplayFormat.MinimallyQualifiedFormat));
-                if (nestedType is null)
-                {
-                    throw new InvalidOperationException(
-                        $"Couldn't find nested type '{namedTypeSymbol.Name}' on containing type '{containingType.Name}'");
-                }
-
-                return nestedType;
+                return GetClrType(namedTypeSymbol);
 
             default:
-                return GetClrType(typeSymbol.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat));
+                return GetClrTypeFromAssembly(
+                    typeSymbol.ContainingAssembly,
+                    typeSymbol.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat));
         }
 
-        Type GetClrType(string name)
-            => typeSymbol.ContainingAssembly is null
-                ? Type.GetType(name)!
-                : Type.GetType($"{name}, {typeSymbol.ContainingAssembly.Name}")!;
+        Type GetClrType(INamedTypeSymbol symbol)
+        {
+            var name = symbol.ContainingType is null
+                ? typeSymbol.ToDisplayString(QualifiedTypeNameSymbolDisplayFormat)
+                : typeSymbol.Name;
+
+            if (symbol.IsGenericType)
+            {
+                name += '`' + symbol.Arity.ToString();
+            }
+
+            if (symbol.ContainingType is not null)
+            {
+                var containingType = ResolveType(symbol.ContainingType);
+
+                return containingType.GetNestedType(name)
+                    ?? throw new InvalidOperationException(
+                        $"Couldn't find nested type '{name}' on containing type '{containingType.Name}'");
+            }
+
+            return GetClrTypeFromAssembly(typeSymbol.ContainingAssembly, name);
+        }
+
+        static Type GetClrTypeFromAssembly(IAssemblySymbol? assemblySymbol, string name)
+            => (assemblySymbol is null
+                    ? Type.GetType(name)!
+                    : Type.GetType($"{name}, {assemblySymbol.Name}"))
+                ?? throw new InvalidOperationException(
+                    $"Couldn't resolve CLR type '{name}' in assembly '{assemblySymbol?.Name}'");
 
         Dictionary<string[], Type> LoadAnonymousTypes()
         {

@@ -69,17 +69,19 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 break;
         }
 
-        var relationalCommandCache = new RelationalCommandCache(
-            Dependencies.MemoryCache,
-            RelationalDependencies.QuerySqlGeneratorFactory,
-            RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
-            innerExpression,
-            _useRelationalNulls);
+        // var relationalCommandCache = new RelationalCommandCache(
+        //     Dependencies.MemoryCache,
+        //     RelationalDependencies.QuerySqlGeneratorFactory,
+        //     RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+        //     innerExpression,
+        //     _useRelationalNulls);
+
+        var relationalCommandCache = CreateRelationalCommandCacheExpression(innerExpression);
 
         return Expression.Call(
             QueryCompilationContext.IsAsync ? NonQueryAsyncMethodInfo : NonQueryMethodInfo,
             Expression.Convert(QueryCompilationContext.QueryContextParameter, typeof(RelationalQueryContext)),
-            Expression.Constant(relationalCommandCache),
+            relationalCommandCache,
             Expression.Constant(_contextType),
             Expression.Constant(nonQueryExpression.CommandSource),
             Expression.Constant(_threadSafetyChecksEnabled));
@@ -95,7 +97,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
             .GetDeclaredMethods(nameof(NonQueryResultAsync))
             .Single(mi => mi.GetParameters().Length == 5);
 
-    private static int NonQueryResult(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static int NonQueryResult(
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
         Type contextType,
@@ -166,7 +175,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         }
     }
 
-    private static Task<int> NonQueryResultAsync(
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public static Task<int> NonQueryResultAsync(
         RelationalQueryContext relationalQueryContext,
         RelationalCommandCache relationalCommandCache,
         Type contextType,
@@ -394,4 +410,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
                 Expression.Constant(_threadSafetyChecksEnabled));
         }
     }
+
+    private LiftableConstantExpression CreateRelationalCommandCacheExpression(Expression queryExpression)
+        => RelationalDependencies.RelationalLiftableConstantFactory.CreateLiftableConstant(
+            c => new RelationalCommandCache(
+                c.Dependencies.MemoryCache,
+                c.RelationalDependencies.QuerySqlGeneratorFactory,
+                c.RelationalDependencies.RelationalParameterBasedSqlProcessorFactory,
+                queryExpression,
+                _useRelationalNulls),
+            "relationalCommandCache",
+            typeof(RelationalCommandCache));
 }

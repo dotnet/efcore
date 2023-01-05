@@ -512,9 +512,8 @@ public sealed partial class SelectExpression : TableExpressionBase
         SqlExpression? having,
         IReadOnlyList<OrderingExpression> orderings,
         bool isDistinct,
-        IReadOnlyList<ProjectionExpression> projection)
-        // TODO
-        // ISet<string> tags,
+        IReadOnlyList<ProjectionExpression> projection,
+        ISet<string> tags)
         // SortedDictionary<string, IAnnotation> annotations)
     {
         _tables.AddRange(tables);
@@ -526,7 +525,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         _orderings.AddRange(orderings);
         IsDistinct = isDistinct;
         _projection.AddRange(projection);
-        // Tags = tags;
+        Tags = tags;
         // _annotations = annotations;
 
         _mutable = false;
