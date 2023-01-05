@@ -42,13 +42,17 @@ For EF8 daily builds, `NuGet.config` should contain:
 </configuration>
 ```
 
-To install the daily build of `dotnet ef`:
+### The EF command-line tool
+
+`dotnet ef` is the [the EF command-line tool](https://learn.microsoft.com/ef/core/cli/dotnet), used to perform various design-time tasks such as creating and applying migrations. Stable versions of `dotnet ef` usually work fine with daily build versions of EF; but in some situations you must also update to daily builds of the CLI tool. To use a daily build version of `dotnet ef`, do the following:
 
 ```sh
 dotnet tool install -g dotnet-ef --version 8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
 ```
 
-To install the `dotnet new` templates:
+### EF reverse engineering templates
+
+EF features code templates for [reverse engineering (or "scaffolding") existing databases](https://learn.microsoft.com/ef/core/managing-schemas/scaffolding/templates); installing daily versions of these templates typically isn't necessary, but you may want to do so to experiment with new features or test bug fixes in the templates:
 
 ```sh
 dotnet new install Microsoft.EntityFrameworkCore.Templates::8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
@@ -92,6 +96,10 @@ EF8 currently targets .NET 6. This means that:
 However, it's likely that EF8 will be changed to target .NET 8 before it's released.
 
 ## Troubleshooting
+
+### VS isn't showing the new packages
+
+If you can't see the daily build packages after adding the NuGet.config file to your solution, make sure that the "Package Source" is set to "All" in the VS Package Manager UI. You may also need to reload your project or restart Visual Studio for the packages to appear.
 
 ### Missing packages
 
