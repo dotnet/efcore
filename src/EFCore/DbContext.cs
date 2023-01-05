@@ -52,6 +52,9 @@ public class DbContext :
     IDbSetCache,
     IDbContextPoolable
 {
+    private static readonly bool QuirkEnabled29733
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29733", out var enabled) && enabled;
+
     private readonly DbContextOptions _options;
 
     private IDictionary<(Type Type, string? Name), object>? _sets;

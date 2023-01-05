@@ -26,6 +26,9 @@ namespace Microsoft.EntityFrameworkCore.Update;
 /// </remarks>
 public class ModificationCommand : IModificationCommand, INonTrackedModificationCommand
 {
+    private static readonly bool QuirkEnabled29789
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29789", out var enabled) && enabled;
+
     private readonly Func<string>? _generateParameterName;
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
@@ -937,6 +940,9 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         private object? _currentValue;
 
         public IColumnModification? ColumnModification { get; set; }
+
+        private static readonly bool QuirkEnabled29531
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29531", out var enabled) && enabled;
 
         public void RecordValue(IColumnMapping mapping, IUpdateEntry entry)
         {

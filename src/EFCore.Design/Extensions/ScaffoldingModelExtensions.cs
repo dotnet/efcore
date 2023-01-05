@@ -720,6 +720,11 @@ public static class ScaffoldingModelExtensions
         var hasForeignKey =
             new FluentApiCodeFragment(nameof(ReferenceReferenceBuilder.HasForeignKey)) { IsHandledByDataAnnotations = true };
 
+        if (!foreignKey.PrincipalKey.IsPrimaryKey())
+        {
+            hasForeignKey.IsHandledByDataAnnotations = false;
+        }
+
         if (foreignKey.IsUnique)
         {
             hasForeignKey.TypeArguments.Add(foreignKey.DeclaringEntityType.Name);

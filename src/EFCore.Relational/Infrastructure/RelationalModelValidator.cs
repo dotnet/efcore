@@ -23,6 +23,11 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public class RelationalModelValidator : ModelValidator
 {
+    private static readonly bool QuirkEnabled29859
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29859", out var enabled) && enabled;
+    private static readonly bool QuirkEnabled29531
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29531", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalModelValidator" />.
     /// </summary>

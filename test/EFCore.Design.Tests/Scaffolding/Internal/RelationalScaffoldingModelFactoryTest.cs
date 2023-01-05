@@ -2360,6 +2360,86 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
+    public void Scaffold_skip_navigation_for_many_to_many_join_table_unique_constraint()
+    {
+        var database = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Name = "Blogs",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "Id", StoreType = "int" },
+                        new DatabaseColumn { Name = "Key", StoreType = "int" }
+                    },
+                    PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } },
+                    UniqueConstraints = { new DatabaseUniqueConstraint { Columns = { new DatabaseColumnRef("Key") } } }
+                },
+                new DatabaseTable
+                {
+                    Name = "Posts",
+                    Columns = { new DatabaseColumn { Name = "Id", StoreType = "int" } },
+                    PrimaryKey = new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("Id") } }
+                },
+                new DatabaseTable
+                {
+                    Name = "BlogPosts",
+                    Columns =
+                    {
+                        new DatabaseColumn { Name = "BlogKey", StoreType = "int" },
+                        new DatabaseColumn { Name = "PostId", StoreType = "int" }
+                    },
+                    PrimaryKey =
+                        new DatabasePrimaryKey { Columns = { new DatabaseColumnRef("BlogKey"), new DatabaseColumnRef("PostId") } },
+                    ForeignKeys =
+                    {
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("BlogKey") },
+                            PrincipalColumns = { new DatabaseColumnRef("Key") },
+                            PrincipalTable = new DatabaseTableRef("Blogs"),
+                        },
+                        new DatabaseForeignKey
+                        {
+                            Columns = { new DatabaseColumnRef("PostId") },
+                            PrincipalColumns = { new DatabaseColumnRef("Id") },
+                            PrincipalTable = new DatabaseTableRef("Posts"),
+                        }
+                    }
+                }
+            }
+        };
+
+        var model = _factory.Create(database, new ModelReverseEngineerOptions());
+
+        Assert.Collection(
+            model.GetEntityTypes().OrderBy(e => e.Name),
+            t1 =>
+            {
+                Assert.Empty(t1.GetNavigations());
+                var skipNavigation = Assert.Single(t1.GetSkipNavigations());
+                Assert.Equal("Posts", skipNavigation.Name);
+                Assert.Equal("BlogKeys", skipNavigation.Inverse.Name);
+            },
+            t2 =>
+            {
+                Assert.Empty(t2.GetNavigations());
+                Assert.Equal(2, t2.GetForeignKeys().Count());
+                var fk = Assert.Single(t2.FindDeclaredForeignKeys(new[] { t2.GetProperty("BlogKey") }));
+                Assert.False(fk.PrincipalKey.IsPrimaryKey());
+            },
+            t3 =>
+            {
+                Assert.Empty(t3.GetNavigations());
+                var skipNavigation = Assert.Single(t3.GetSkipNavigations());
+                Assert.Equal("BlogKeys", skipNavigation.Name);
+                Assert.Equal("Posts", skipNavigation.Inverse.Name);
+            });
+    }
+
+    [ConditionalFact]
     public void Scaffold_skip_navigation_for_many_to_many_join_table_self_ref()
     {
         var database = new DatabaseModel
