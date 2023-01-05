@@ -41,9 +41,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     private IRelationalCommandBuilder _relationalCommandBuilder;
     private Dictionary<string, int>? _repeatedParameterCounts;
 
-    private static readonly bool QuirkEnabled29646
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29646", out var enabled) && enabled;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="QuerySqlGenerator" /> class.
     /// </summary>
@@ -615,15 +612,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 && typeMappedRelationalParameter.RelationalTypeMapping.Converter == sqlParameterExpression.TypeMapping!.Converter);
 
         if (parameter is null)
-            {
-                parameterName = GetUniqueParameterName(parameterName);
+        {
+            parameterName = GetUniqueParameterName(parameterName);
 
-                _relationalCommandBuilder.AddParameter(
-                    invariantName,
-                    _sqlGenerationHelper.GenerateParameterName(parameterName),
-                    sqlParameterExpression.TypeMapping!,
-                    sqlParameterExpression.IsNullable);
-            }
+            _relationalCommandBuilder.AddParameter(
+                invariantName,
+                _sqlGenerationHelper.GenerateParameterName(parameterName),
+                sqlParameterExpression.TypeMapping!,
+                sqlParameterExpression.IsNullable);
+        }
         else
         {
             parameterName = ((TypeMappedRelationalParameter)parameter).Name;

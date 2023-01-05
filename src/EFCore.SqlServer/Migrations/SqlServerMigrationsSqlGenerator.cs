@@ -35,9 +35,6 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
     private readonly ICommandBatchPreparer _commandBatchPreparer;
 
-    private static readonly bool QuirkEnabled29619
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29619", out var enabled) && enabled;
-
     /// <summary>
     ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
     /// </summary>
@@ -373,14 +370,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             var updateBuilder = new StringBuilder()
-                    .Append("UPDATE ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
-                    .Append(" SET ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
-                    .Append(" = ")
-                    .Append(defaultValueSql)
-                    .Append(" WHERE ")
-                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append("UPDATE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" SET ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" = ")
+                .Append(defaultValueSql)
+                .Append(" WHERE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
                 .Append(" IS NULL");
 
             if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))

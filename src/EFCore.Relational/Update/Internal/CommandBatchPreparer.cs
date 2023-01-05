@@ -14,9 +14,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 /// </summary>
 public class CommandBatchPreparer : ICommandBatchPreparer
 {
-    private static readonly bool QuirkEnabled29647
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29647", out var enabled) && enabled;
-
     private readonly int _minBatchSize;
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;

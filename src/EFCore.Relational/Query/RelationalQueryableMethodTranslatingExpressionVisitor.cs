@@ -19,9 +19,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly bool _subquery;
 
-    private static readonly bool QuirkEnabled28727
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue28727", out var enabled) && enabled;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
     /// </summary>
@@ -1201,10 +1198,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             var left = RemapLambdaBody(source, propertyExpression);
 
             if (!TryProcessPropertyAccess(RelationalDependencies.Model, ref left, out var ese))
-                {
-                    AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
-                    return null;
-                }
+            {
+                AddTranslationErrorDetails(RelationalStrings.InvalidPropertyInSetProperty(propertyExpression.Print()));
+                return null;
             }
 
             if (entityShaperExpression is null)
