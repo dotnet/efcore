@@ -614,6 +614,69 @@ public class RelationalConnectionTest
         Assert.Equal(0, dbConnection.DisposeCount);
     }
 
+    [ConditionalFact]
+    public void Existing_connection_is_disposed_after_being_opened_and_closed_if_owned()
+    {
+        var dbConnection = new FakeDbConnection("Database=FrodoLives");
+        var connection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection, owned: true)));
+
+        Assert.Equal(0, connection.DbConnections.Count);
+        Assert.Same(dbConnection, connection.DbConnection);
+
+        connection.Open();
+        connection.Close();
+        connection.Dispose();
+
+        Assert.Equal(1, dbConnection.OpenCount);
+        Assert.Equal(2, dbConnection.CloseCount);
+        Assert.Equal(1, dbConnection.DisposeCount);
+
+        Assert.Equal(0, connection.DbConnections.Count);
+    }
+
+    [ConditionalFact]
+    public void Existing_connection_is_disposed_if_owned_and_replaced()
+    {
+        var dbConnection1 = new FakeDbConnection("Database=FrodoLives");
+        var connection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnection(dbConnection1, owned: true)));
+
+        Assert.Equal(0, connection.DbConnections.Count);
+        Assert.Same(dbConnection1, connection.DbConnection);
+
+        Assert.Equal(0, dbConnection1.OpenCount);
+        Assert.Equal(0, dbConnection1.CloseCount);
+        Assert.Equal(0, dbConnection1.DisposeCount);
+
+        Assert.Equal(0, connection.DbConnections.Count);
+
+        var dbConnection2 = new FakeDbConnection("Database=FrodoLives");
+        connection.SetDbConnection(dbConnection2, contextOwnsConnection: true);
+
+        Assert.Equal(0, dbConnection1.OpenCount);
+        Assert.Equal(1, dbConnection1.CloseCount);
+        Assert.Equal(1, dbConnection1.DisposeCount);
+
+        Assert.Equal(0, dbConnection2.OpenCount);
+        Assert.Equal(0, dbConnection2.CloseCount);
+        Assert.Equal(0, dbConnection2.DisposeCount);
+
+        Assert.Equal(0, connection.DbConnections.Count);
+
+        connection.Dispose();
+
+        Assert.Equal(0, dbConnection1.OpenCount);
+        Assert.Equal(1, dbConnection1.CloseCount);
+        Assert.Equal(1, dbConnection1.DisposeCount);
+
+        Assert.Equal(0, dbConnection2.OpenCount);
+        Assert.Equal(1, dbConnection2.CloseCount);
+        Assert.Equal(1, dbConnection2.DisposeCount);
+
+        Assert.Equal(0, connection.DbConnections.Count);
+    }
+
     [ConditionalTheory]
     [InlineData(true)]
     [InlineData(false)]
