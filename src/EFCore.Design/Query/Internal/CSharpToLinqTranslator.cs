@@ -331,9 +331,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
         // TODO: Separate out EF Core-specific logic (EF Core would extend this visitor)
         if (localSymbol.Type.Name.Contains("DbSet"))
         {
-            var queryRootType = ResolveType(localSymbol.Type)!;
-            // TODO: Decide what to actually return for query root
-            return Constant(null, queryRootType);
+            throw new NotImplementedException("DbSet local symbol");
         }
 
         // We have an identifier which isn't in our parameters stack - it's a closure parameter.
@@ -349,7 +347,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
         // We haven't seen this captured variable yet
         if (memberExpression is null)
         {
-            memberExpression = _capturedVariables[localSymbol] = _capturedVariables[localSymbol] =
+            memberExpression = _capturedVariables[localSymbol] =
                 Field(
                     Constant(new FakeClosureFrameClass()),
                     new FakeFieldInfo(
@@ -762,47 +760,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax lambda)
-    {
-        if (lambda.ExpressionBody is null)
-        {
-            throw new NotSupportedException("Lambda with null expression body");
-        }
-
-        if (lambda.Modifiers.Any())
-        {
-            throw new NotImplementedException("Lambda with modifiers: " + lambda.Modifiers);
-        }
-
-        if (!lambda.AsyncKeyword.IsKind(SyntaxKind.None))
-        {
-            throw new NotImplementedException("Async lambda");
-        }
-
-        var translatedParameters = new List<ParameterExpression>();
-        foreach (var parameter in lambda.ParameterList.Parameters)
-        {
-            if (_semanticModel.GetDeclaredSymbol(parameter) is not { } parameterSymbol ||
-                ResolveType(parameterSymbol.Type) is not { } parameterType)
-            {
-                throw new InvalidOperationException("Could not found symbol for parameter lambda: " + parameter);
-            }
-
-            translatedParameters.Add(Parameter(parameterType, parameter.Identifier.Text));
-        }
-
-        _parameterStack.Push(_parameterStack.Peek()
-            .AddRange(translatedParameters.Select(p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
-
-        try
-        {
-            var body = Visit(lambda.ExpressionBody);
-            return Lambda(body, translatedParameters);
-        }
-        finally
-        {
-            _parameterStack.Pop();
-        }
-    }
+        => VisitLambdaExpression(lambda);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -881,42 +839,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax lambda)
-    {
-        if (lambda.ExpressionBody is null)
-        {
-            throw new NotSupportedException("SimpleLambda with null expression body");
-        }
-
-        if (lambda.Modifiers.Any())
-        {
-            throw new NotImplementedException("SimpleLambda with modifiers: " + lambda.Modifiers);
-        }
-
-        if (!lambda.AsyncKeyword.IsKind(SyntaxKind.None))
-        {
-            throw new NotImplementedException("SimpleLambda with async keyword");
-        }
-
-        var paramName = lambda.Parameter.Identifier.Text;
-        if (_semanticModel.GetDeclaredSymbol(lambda.Parameter) is not { } parameterSymbol ||
-            ResolveType(parameterSymbol.Type) is not { } parameterType)
-        {
-            throw new InvalidOperationException("Could not found symbol for parameter lambda: " + lambda.Parameter);
-        }
-
-        var parameter = Parameter(parameterType, paramName);
-        _parameterStack.Push(_parameterStack.Peek().SetItem(paramName, parameter));
-
-        try
-        {
-            var body = Visit(lambda.ExpressionBody);
-            return Lambda(body, parameter);
-        }
-        finally
-        {
-            _parameterStack.Pop();
-        }
-    }
+        => VisitLambdaExpression(lambda);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -944,6 +867,56 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
     /// </summary>
     public override Expression DefaultVisit(SyntaxNode node)
         => throw new NotSupportedException($"Unsupported syntax node of type '{node.GetType()}': {node}");
+
+    private Expression VisitLambdaExpression(AnonymousFunctionExpressionSyntax lambda)
+    {
+        if (lambda.ExpressionBody is null)
+        {
+            throw new NotSupportedException("Lambda with null expression body");
+        }
+
+        if (lambda.Modifiers.Any())
+        {
+            throw new NotImplementedException("Lambda with modifiers: " + lambda.Modifiers);
+        }
+
+        if (!lambda.AsyncKeyword.IsKind(SyntaxKind.None))
+        {
+            throw new NotImplementedException("Async lambda");
+        }
+
+        var lambdaParameters = lambda switch
+        {
+            SimpleLambdaExpressionSyntax simpleLambda => SyntaxFactory.SingletonSeparatedList(simpleLambda.Parameter),
+            ParenthesizedLambdaExpressionSyntax parenthesizedLambda => parenthesizedLambda.ParameterList.Parameters,
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        var translatedParameters = new List<ParameterExpression>();
+        foreach (var parameter in lambdaParameters)
+        {
+            if (_semanticModel.GetDeclaredSymbol(parameter) is not { } parameterSymbol ||
+                ResolveType(parameterSymbol.Type) is not { } parameterType)
+            {
+                throw new InvalidOperationException("Could not found symbol for parameter lambda: " + parameter);
+            }
+
+            translatedParameters.Add(Parameter(parameterType, parameter.Identifier.Text));
+        }
+
+        _parameterStack.Push(_parameterStack.Peek()
+            .AddRange(translatedParameters.Select(p => new KeyValuePair<string, ParameterExpression>(p.Name ?? throw new NotImplementedException(), p))));
+
+        try
+        {
+            var body = Visit(lambda.ExpressionBody);
+            return Lambda(body, translatedParameters);
+        }
+        finally
+        {
+            _parameterStack.Pop();
+        }
+    }
 
     private Type ResolveType(SyntaxNode node)
         => _semanticModel.GetTypeInfo(node).Type is { } typeSymbol

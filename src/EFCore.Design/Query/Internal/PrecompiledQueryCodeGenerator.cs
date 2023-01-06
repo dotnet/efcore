@@ -57,7 +57,11 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public async Task GeneratePrecompiledQueries(string projectDir, DbContext context, string outputDir, CancellationToken cancellationToken = default)
+    public async Task GeneratePrecompiledQueries(
+        string projectFilePath,
+         DbContext context,
+        string outputDir,
+        CancellationToken cancellationToken = default)
     {
         // https://gist.github.com/DustinCampbell/32cd69d04ea1c08a16ae5c4cd21dd3a3
         MSBuildLocator.RegisterDefaults();
@@ -65,7 +69,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
         Console.Error.WriteLine("Loading project...");
         using var workspace = MSBuildWorkspace.Create();
 
-        var project = await workspace.OpenProjectAsync(projectDir, cancellationToken: cancellationToken)
+        var project = await workspace.OpenProjectAsync(projectFilePath, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
         Console.WriteLine("Compiling project...");

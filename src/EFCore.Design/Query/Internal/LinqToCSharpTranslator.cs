@@ -106,8 +106,7 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [return: NotNullIfNotNull(nameof(node))]
-    protected virtual SyntaxNode? TranslateCore(Expression node, ISet<string> collectedNamespaces, bool statementContext = false)
+    protected virtual SyntaxNode TranslateCore(Expression node, ISet<string> collectedNamespaces, bool statementContext = false)
     {
         _capturedVariables.Clear();
         _collectedNamespaces = collectedNamespaces;
