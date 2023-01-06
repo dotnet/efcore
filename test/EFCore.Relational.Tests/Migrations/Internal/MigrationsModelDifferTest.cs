@@ -1460,6 +1460,37 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Add_owned_types()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Order",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.OwnsOne("Address", "ShippingAddress");
+                        x.OwnsOne("Address", "BillingAddress");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Order", m.Name);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Order", m.Name);
+                }));
+
+    [ConditionalFact]
     public void Add_owned_type_with_seed_data()
         => Execute(
             modelBuilder =>

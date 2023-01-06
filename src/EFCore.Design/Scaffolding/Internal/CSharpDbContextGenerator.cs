@@ -255,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.DependentToPrincipal.Name));
             this.Write(").");
             this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.IsUnique ? "WithOne" : "WithMany"));
-            this.Write("(p => p.");
-            this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.PrincipalToDependent.Name));
+            this.Write("(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : ""));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(foreignKeyFluentApiCalls, indent: 4)));
             this.Write(";\r\n");
@@ -343,6 +343,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(index.GetDatabaseName())));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(indexFluentApiCalls, indent: 7)));
+            this.Write(";\r\n");
+
+            }
+
+            foreach (var property in joinEntityType.GetProperties())
+            {
+                var propertyFluentApiCalls = property.GetFluentApiCalls(annotationCodeGenerator);
+                if (propertyFluentApiCalls == null)
+                {
+                    continue;
+                }
+
+                usings.AddRange(propertyFluentApiCalls.GetRequiredUsings());
+
+            this.Write("                        j.IndexerProperty<");
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Reference(property.ClrType)));
+            this.Write(">(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(property.Name)));
+            this.Write(")");
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(propertyFluentApiCalls, indent: 7)));
             this.Write(";\r\n");
 
             }
@@ -803,7 +823,7 @@ if ((NamespaceHintValueAcquired == false))
             {
                 get
                 {
-                    return this.formatProviderField;
+                    return this.formatProviderField ;
                 }
                 set
                 {
