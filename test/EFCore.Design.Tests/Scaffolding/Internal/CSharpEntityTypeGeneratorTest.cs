@@ -1790,6 +1790,101 @@ public partial class TestDbContext : DbContext
             });
 
     [ConditionalFact]
+    public Task Foreign_key_from_keyless_table()
+        => TestAsync(
+            modelBuilder => modelBuilder
+            .Entity("Blog", x => x.Property<int>("Id"))
+            .Entity("Post", x => x.HasOne("Blog", "Blog").WithMany()),
+            new ModelCodeGenerationOptions(),
+            code =>
+            {
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Blog> Blog { get; set; }
+
+    public virtual DbSet<Post> Post { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning " + DesignStrings.SensitiveInformationWarning + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        modelBuilder.Entity<Post>(entity =>
+        {
+            entity.HasNoKey();
+
+            entity.HasIndex(e => e.BlogId, ""IX_Post_BlogId"");
+
+            entity.HasOne(d => d.Blog).WithMany().HasForeignKey(d => d.BlogId);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                    code.ContextFile);
+
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+
+namespace TestNamespace;
+
+public partial class Blog
+{
+    public int Id { get; set; }
+}
+",
+                    code.AdditionalFiles.First(f => f.Path == "Blog.cs"));
+
+                AssertFileContents(
+                    @"using System;
+using System.Collections.Generic;
+
+namespace TestNamespace;
+
+public partial class Post
+{
+    public int? BlogId { get; set; }
+
+    public virtual Blog Blog { get; set; }
+}
+",
+                    code.AdditionalFiles.First(f => f.Path == "Post.cs"));
+            },
+            model =>
+            {
+                var post = model.FindEntityType("TestNamespace.Post");
+                var foreignKey = Assert.Single(post.GetForeignKeys());
+                Assert.Equal("Blog", foreignKey.DependentToPrincipal.Name);
+                Assert.Null(foreignKey.PrincipalToDependent);
+            });
+
+    [ConditionalFact]
     public Task InverseProperty_when_navigation_property_with_same_type_and_navigation_name()
         => TestAsync(
             modelBuilder => modelBuilder

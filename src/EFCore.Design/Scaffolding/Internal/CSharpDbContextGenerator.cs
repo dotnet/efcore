@@ -255,8 +255,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.DependentToPrincipal.Name));
             this.Write(").");
             this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.IsUnique ? "WithOne" : "WithMany"));
-            this.Write("(p => p.");
-            this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.PrincipalToDependent.Name));
+            this.Write("(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(foreignKey.PrincipalToDependent != null ? $"p => p.{foreignKey.PrincipalToDependent.Name}" : ""));
             this.Write(")");
             this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(foreignKeyFluentApiCalls, indent: 4)));
             this.Write(";\r\n");
@@ -803,7 +803,7 @@ if ((NamespaceHintValueAcquired == false))
             {
                 get
                 {
-                    return this.formatProviderField;
+                    return this.formatProviderField ;
                 }
                 set
                 {
