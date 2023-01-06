@@ -339,7 +339,7 @@ new Blog("foo")
 """
 {
     var blog = new Blog();
-    LinqToCSharpTranslatorTest.GenericMethodImplementation<Blog>(blog);
+    LinqToCSharpTranslatorTest.GenericMethodImplementation(blog);
 }
 """);
     }

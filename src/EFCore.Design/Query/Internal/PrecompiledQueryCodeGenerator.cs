@@ -188,6 +188,7 @@ public class PrecompiledQueryCodeGenerator : IPrecompiledQueryCodeGenerator
             // by manually generated code above.
             .Append("System")
             .Append("System.Collections.Concurrent")
+            .Append("System.Linq.Expressions")
             .Append("System.Runtime.CompilerServices")
             .Append("System.Reflection")
             .Append("System.Collections.Generic")

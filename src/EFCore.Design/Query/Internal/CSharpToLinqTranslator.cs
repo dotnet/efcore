@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
@@ -111,15 +110,14 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override Expression VisitAnonymousObjectCreationExpression(
-        AnonymousObjectCreationExpressionSyntax objectCreation)
+    public override Expression VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax anonymousObjectCreation)
     {
         // Creating an actual anonymous object means creating a new type, which can only be done with Reflection.Emit.
         // At least for EF's purposes, it doesn't matter, so we build a placeholder.
-        if (_semanticModel.GetSymbolInfo(objectCreation).Symbol is not IMethodSymbol constructorSymbol)
+        if (_semanticModel.GetSymbolInfo(anonymousObjectCreation).Symbol is not IMethodSymbol constructorSymbol)
         {
             throw new InvalidOperationException(
-                "Could not find symbol for anonymous object creation initializer: " + objectCreation);
+                "Could not find symbol for anonymous object creation initializer: " + anonymousObjectCreation);
         }
 
         var anonymousType = ResolveType(constructorSymbol.ContainingType);
@@ -130,26 +128,24 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
         var memberInfos = new MemberInfo[parameters.Length];
         var arguments = new Expression[parameters.Length];
 
-        foreach (var initializer in objectCreation.Initializers)
+        foreach (var initializer in anonymousObjectCreation.Initializers)
         {
-            if (initializer.NameEquals is null)
-            {
-                throw new NotImplementedException("Unnamed anonymous object initializer");
-            }
-            else
-            {
-                var position = Array.FindIndex(parameters, p => p.Name == initializer.NameEquals.Name.Identifier.Text);
-                var parameter = parameters[position];
-                var parameterType = ResolveType(parameter.Type) ?? throw new InvalidOperationException(
-                    "Could not resolve type symbol for: " + parameter.Type);
+            // If the initializer's name isn't explicitly specified, infer it from the initializer's expression like the compiler does
+            var name = initializer.NameEquals is not null
+                ? initializer.NameEquals.Name.Identifier.Text
+                : initializer.Expression is MemberAccessExpressionSyntax memberAccess
+                    ? memberAccess.Name.Identifier.Text
+                    : throw new InvalidOperationException(
+                        $"AnonymousObjectCreation: unnamed initializer with non-MemberAccess expression: {initializer.Expression}");
 
-                parameterInfos[position] = new FakeParameterInfo(
-                    initializer.NameEquals.Name.Identifier.Text,
-                    parameterType,
-                    position);
-                arguments[position] = Visit(initializer.Expression);
-                memberInfos[position] = anonymousType.GetProperty(parameter.Name)!;
-            }
+            var position = Array.FindIndex(parameters, p => p.Name == name);
+            var parameter = parameters[position];
+            var parameterType = ResolveType(parameter.Type) ?? throw new InvalidOperationException(
+                "Could not resolve type symbol for: " + parameter.Type);
+
+            parameterInfos[position] = new FakeParameterInfo(name, parameterType, position);
+            arguments[position] = Visit(initializer.Expression);
+            memberInfos[position] = anonymousType.GetProperty(parameter.Name)!;
         }
 
         return New(
@@ -959,7 +955,7 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
         switch (typeSymbol)
         {
             case INamedTypeSymbol { IsAnonymousType: true } anonymousTypeSymbol:
-                _anonymousTypeDefinitions ??= LoadAnonymousTypes();
+                _anonymousTypeDefinitions ??= LoadAnonymousTypes(anonymousTypeSymbol.ContainingAssembly);
                 var properties = anonymousTypeSymbol.GetMembers().OfType<IPropertySymbol>().ToArray();
                 var found = _anonymousTypeDefinitions.TryGetValue(
                     properties.Select(p => p.Name).OrderBy(p => p).ToArray(),
@@ -1033,10 +1029,9 @@ public class CSharpToLinqTranslator : CSharpSyntaxVisitor<Expression>, ICSharpTo
                 ?? throw new InvalidOperationException(
                     $"Couldn't resolve CLR type '{name}' in assembly '{assemblySymbol?.Name}'");
 
-        Dictionary<string[], Type> LoadAnonymousTypes()
+        Dictionary<string[], Type> LoadAnonymousTypes(IAssemblySymbol assemblySymbol)
         {
-            // TODO
-            var assembly = Assembly.LoadFile("/home/roji/projects/test/EFTest/bin/Debug/net7.0/linux-x64/EFTest.dll");
+            var assembly = Assembly.Load(assemblySymbol.Name);
 
             return assembly.GetTypes()
                 .Where(t => t.IsAnonymousType())

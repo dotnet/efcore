@@ -1084,10 +1084,13 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
             _liftedState.Statements.Clear();
         }
 
+        // Note that we always explicitly include the parameters' types.
+        // This is because in some cases, the parameter isn't actually used in the lambda body, and the compiler can't infer its type.
+        // However, we can't do that when the type is anonymous.
         Result = ParenthesizedLambdaExpression(
             ParameterList(SeparatedList(lambda.Parameters.Select(p =>
                 Parameter(Identifier(LookupVariableName(p)))
-                    .WithType(p.Type.GetTypeSyntax())))),
+                    .WithType(p.Type.IsAnonymousType() ? null : p.Type.GetTypeSyntax())))),
             body);
 
         var popped = _stack.Pop();
@@ -1236,14 +1239,26 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
 
         var arguments = TranslateMethodArguments(call.Method.GetParameters(), call.Arguments);
 
-        // TODO: don't specify generic parameters if they can all be inferred
-        SimpleNameSyntax methodIdentifier = call.Method.IsGenericMethod
-            ? GenericName(
+        // For generic methods, we check whether the generic type arguments are inferrable (e.g. they all appear in the parameters), and
+        // only explicitly specify the arguments if not. Note that this isn't just for prettier code: anonymous types cannot be explicitly
+        // named in code.
+        SimpleNameSyntax methodIdentifier;
+        if (!call.Method.IsGenericMethod || GenericTypeParameterAreInferrable())
+        {
+            methodIdentifier = IdentifierName(call.Method.Name);
+        }
+        else
+        {
+            Check.DebugAssert(
+                call.Method.GetGenericArguments().All(ga => !ga.IsAnonymousType()),
+                "Anonymous type as generic type argument for method whose type arguments aren't inferrable");
+
+            methodIdentifier = GenericName(
                 Identifier(call.Method.Name),
                 TypeArgumentList(
                     SeparatedList(
-                        call.Method.GetGenericArguments().Select(ga => ga.GetTypeSyntax()))))
-            : IdentifierName(call.Method.Name);
+                        call.Method.GetGenericArguments().Select(ga => ga.GetTypeSyntax()))));
+        }
 
         // Extension syntax
         if (call.Method.IsDefined(typeof(ExtensionAttribute), inherit: false)
@@ -1293,6 +1308,34 @@ public class LinqToCSharpTranslator : ExpressionVisitor, ILinqToCSharpTranslator
         }
 
         return call;
+
+        bool GenericTypeParameterAreInferrable()
+        {
+            var originalDefinition = call.Method.GetGenericMethodDefinition();
+            var unseenTypeParameters = originalDefinition.GetGenericArguments().ToList();
+
+            foreach (var parameter in originalDefinition.GetParameters())
+            {
+                ProcessType(parameter.ParameterType);
+            }
+
+            return unseenTypeParameters.Count == 0;
+
+            void ProcessType(Type type)
+            {
+                if (type.IsGenericParameter)
+                {
+                    unseenTypeParameters.Remove(type);
+                }
+                else if (type.IsGenericType)
+                {
+                    foreach (var genericArgument in type.GetGenericArguments())
+                    {
+                        ProcessType(genericArgument);
+                    }
+                }
+            }
+        }
     }
 
     /// <inheritdoc />
