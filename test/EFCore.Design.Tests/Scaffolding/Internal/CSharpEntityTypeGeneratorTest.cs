@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -2813,6 +2814,159 @@ public partial class Post
                 var fk = Assert.Single(joinEntityType.FindDeclaredForeignKeys(new[] { joinEntityType.GetProperty("BlogsKey") }));
                 Assert.False(fk.PrincipalKey.IsPrimaryKey());
             });
+
+        [ConditionalFact]
+        public Task Many_to_many_ef6()
+            => TestAsync(
+                modelBuilder => modelBuilder
+                    .Entity(
+                        "Blog",
+                        x =>
+                        {
+                            x.ToTable("Blogs");
+                            x.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Blogs");
+
+                            x.Property<int>("Id");
+                        })
+                    .Entity(
+                        "Post",
+                        x =>
+                        {
+                            x.ToTable("Posts");
+                            x.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Posts");
+
+                            x.Property<int>("Id");
+
+                            x.HasMany("Blog", "Blogs").WithMany("Posts")
+                                .UsingEntity(
+                                    "PostBlog",
+                                    r => r.HasOne("Blog", null).WithMany().HasForeignKey("BlogId").HasConstraintName("Post_Blogs_Target"),
+                                    l => l.HasOne("Post", null).WithMany().HasForeignKey("PostId").HasConstraintName("Post_Blogs_Source"),
+                                    j =>
+                                    {
+                                        j.ToTable("PostBlogs");
+                                        j.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "PostBlogs");
+
+                                        j.Property<int>("BlogId").HasColumnName("Blog_Id");
+                                        j.Property<int>("PostId").HasColumnName("Post_Id");
+                                    });
+                        })                ,
+                new ModelCodeGenerationOptions(),
+                code =>
+                {
+                    AssertFileContents(
+                        @"using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace TestNamespace;
+
+public partial class TestDbContext : DbContext
+{
+    public TestDbContext()
+    {
+    }
+
+    public TestDbContext(DbContextOptions<TestDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Blog> Blogs { get; set; }
+
+    public virtual DbSet<Post> Posts { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning " + DesignStrings.SensitiveInformationWarning + @"
+        => optionsBuilder.UseSqlServer(""Initial Catalog=TestDatabase"");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+
+            entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
+                .UsingEntity<Dictionary<string, object>>(
+                    ""PostBlog"",
+                    r => r.HasOne<Post>().WithMany()
+                        .HasForeignKey(""PostId"")
+                        .HasConstraintName(""Post_Blogs_Source""),
+                    l => l.HasOne<Blog>().WithMany()
+                        .HasForeignKey(""BlogId"")
+                        .HasConstraintName(""Post_Blogs_Target""),
+                    j =>
+                    {
+                        j.HasKey(""BlogId"", ""PostId"");
+                        j.ToTable(""PostBlogs"");
+                        j.HasIndex(new[] { ""PostId"" }, ""IX_PostBlogs_Post_Id"");
+                        j.IndexerProperty<int>(""BlogId"").HasColumnName(""Blog_Id"");
+                        j.IndexerProperty<int>(""PostId"").HasColumnName(""Post_Id"");
+                    });
+        });
+
+        modelBuilder.Entity<Post>(entity =>
+        {
+            entity.Property(e => e.Id).UseIdentityColumn();
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+",
+                        code.ContextFile);
+                },
+                model => Assert.Collection(
+                    model.GetEntityTypes().OrderBy(e => e.Name),
+                    t1 =>
+                    {
+                        Assert.Equal("PostBlog", t1.Name);
+                        Assert.Equal("PostBlogs", t1.GetTableName());
+                        Assert.Collection(
+                            t1.GetForeignKeys().OrderBy(fk => fk.GetConstraintName()),
+                            fk1 =>
+                            {
+                                Assert.Equal("Post_Blogs_Source", fk1.GetConstraintName());
+                                var property = Assert.Single(fk1.Properties);
+                                Assert.Equal("PostId", property.Name);
+                                Assert.Equal("Post_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
+                                Assert.Equal("TestNamespace.Post", fk1.PrincipalEntityType.Name);
+                                Assert.Equal(DeleteBehavior.Cascade, fk1.DeleteBehavior);
+                            },
+                            fk2 =>
+                            {
+                                Assert.Equal("Post_Blogs_Target", fk2.GetConstraintName());
+                                var property = Assert.Single(fk2.Properties);
+                                Assert.Equal("BlogId", property.Name);
+                                Assert.Equal("Blog_Id", property.GetColumnName(StoreObjectIdentifier.Table(t1.GetTableName())));
+                                Assert.Equal("TestNamespace.Blog", fk2.PrincipalEntityType.Name);
+                                Assert.Equal(DeleteBehavior.Cascade, fk2.DeleteBehavior);
+                            });
+                    },
+                    t2 =>
+                    {
+                        Assert.Equal("TestNamespace.Blog", t2.Name);
+                        Assert.Equal("Blogs", t2.GetTableName());
+                        Assert.Empty(t2.GetDeclaredForeignKeys());
+                        var skipNavigation = Assert.Single(t2.GetSkipNavigations());
+                        Assert.Equal("Posts", skipNavigation.Name);
+                        Assert.Equal("Blogs", skipNavigation.Inverse.Name);
+                        Assert.Equal("PostBlog", skipNavigation.JoinEntityType.Name);
+                        Assert.Equal("Post_Blogs_Target", skipNavigation.ForeignKey.GetConstraintName());
+                    },
+                    t3 =>
+                    {
+                        Assert.Equal("TestNamespace.Post", t3.Name);
+                        Assert.Equal("Posts", t3.GetTableName());
+                        Assert.Empty(t3.GetDeclaredForeignKeys());
+                        var skipNavigation = Assert.Single(t3.GetSkipNavigations());
+                        Assert.Equal("Blogs", skipNavigation.Name);
+                        Assert.Equal("Posts", skipNavigation.Inverse.Name);
+                        Assert.Equal("PostBlog", skipNavigation.JoinEntityType.Name);
+                        Assert.Equal("Post_Blogs_Source", skipNavigation.ForeignKey.GetConstraintName());
+                    }));
 
     protected override void AddModelServices(IServiceCollection services)
         => services.Replace(ServiceDescriptor.Singleton<IRelationalAnnotationProvider, TestModelAnnotationProvider>());

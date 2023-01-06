@@ -347,6 +347,26 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             }
 
+            foreach (var property in joinEntityType.GetProperties())
+            {
+                var propertyFluentApiCalls = property.GetFluentApiCalls(annotationCodeGenerator);
+                if (propertyFluentApiCalls == null)
+                {
+                    continue;
+                }
+
+                usings.AddRange(propertyFluentApiCalls.GetRequiredUsings());
+
+            this.Write("                        j.IndexerProperty<");
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Reference(property.ClrType)));
+            this.Write(">(");
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Literal(property.Name)));
+            this.Write(")");
+            this.Write(this.ToStringHelper.ToStringWithCulture(code.Fragment(propertyFluentApiCalls, indent: 7)));
+            this.Write(";\r\n");
+
+            }
+
             this.Write("                    });\r\n");
 
             anyEntityTypeConfiguration = true;
