@@ -2452,4 +2452,38 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(VariancePopulation)));
 
     #endregion Population variance
+
+    /// <summary>
+    ///     Extracts a scalar value from a JSON string.
+    ///     Corresponds to SQL Server's <c>JSON_VALUE(@expression, @path)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="expression">An expression. Typically the name of a variable or a column that contains JSON text.</param>
+    /// <param name="path">A JSON path that specifies the property to extract.</param>
+    /// <returns>A single text value.</returns>
+    /// <seealso href="https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql">SQL Server documentation for <c>JSON_VALUE</c>.</seealso>
+    public static string JsonValue(this DbFunctions _, object expression, string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.JsonValue)));
+
+    /// <summary>
+    ///     Extracts an object or an array from a JSON string.
+    ///     Corresponds to SQL Server's <c>JSON_QUERY(@expression, @path)</c>.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
+    ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
+    ///     for more information and examples.
+    /// </remarks>
+    /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
+    /// <param name="expression">An expression. Typically the name of a variable or a column that contains JSON text.</param>
+    /// <param name="path">A JSON path that specifies the object or the array to extract.</param>
+    /// <returns>Returns a JSON fragment of type nvarchar(max).</returns>
+    /// <seealso href="https://learn.microsoft.com/sv-se/sql/t-sql/functions/json-query-transact-sql">SQL Server documentation for <c>JSON_QUERY</c>.</seealso>
+    public static string JsonQuery(this DbFunctions _, object expression, string path)
+        => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(SqlServerDbFunctionsExtensions.JsonQuery)));
 }
