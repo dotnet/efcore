@@ -7,6 +7,7 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
 {
     public DbSet<EntityBasic> EntitiesBasic { get; set; } = null!;
     public DbSet<JsonEntityBasic> JsonEntitiesBasic { get; set; } = null!;
+    public DbSet<JsonEntityBasicString> JsonEntitiesBasicString { get; set; } = null!;
     public DbSet<JsonEntityBasicForReference> JsonEntitiesBasicForReference { get; set; } = null!;
     public DbSet<JsonEntityBasicForCollection> JsonEntitiesBasicForCollection { get; set; } = null!;
     public DbSet<JsonEntityCustomNaming> JsonEntitiesCustomNaming { get; set; } = null!;
@@ -18,6 +19,7 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
     public static Task SeedAsync(JsonQueryContext context)
     {
         var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
+        var jsonEntitiesBasicStrings = JsonQueryData.CreateJsonEntitiesBasicString();
         var entitiesBasic = JsonQueryData.CreateEntitiesBasic();
         var jsonEntitiesBasicForReference = JsonQueryData.CreateJsonEntitiesBasicForReference();
         var jsonEntitiesBasicForCollection = JsonQueryData.CreateJsonEntitiesBasicForCollection();
@@ -30,6 +32,7 @@ public class JsonQueryContext(DbContextOptions options) : DbContext(options)
         var jsonEntitiesConverters = JsonQueryData.CreateJsonEntitiesConverters();
 
         context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
+        context.JsonEntitiesBasicString.AddRange(jsonEntitiesBasicStrings);
         context.EntitiesBasic.AddRange(entitiesBasic);
         context.JsonEntitiesBasicForReference.AddRange(jsonEntitiesBasicForReference);
         context.JsonEntitiesBasicForCollection.AddRange(jsonEntitiesBasicForCollection);
