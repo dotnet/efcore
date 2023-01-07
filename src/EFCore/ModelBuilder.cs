@@ -493,7 +493,7 @@ public class ModelBuilder : IInfrastructure<IConventionModelBuilder>
     }
 
     /// <summary>
-    ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" /> />
+    ///     Applies configuration from all <see cref="IEntityTypeConfiguration{TEntity}" />
     ///     instances that are defined in provided assembly.
     /// </summary>
     /// <remarks>
