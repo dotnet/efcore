@@ -26,7 +26,7 @@ public class StoreGeneratedValuesFactoryFactory : SidecarValuesFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression CreateReadShadowValueExpression(ParameterExpression parameter, IPropertyBase property)
+    protected override Expression CreateReadShadowValueExpression(ParameterExpression? parameter, IPropertyBase property)
         => Expression.Default(property.ClrType);
 
     /// <summary>
@@ -35,6 +35,6 @@ public class StoreGeneratedValuesFactoryFactory : SidecarValuesFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression CreateReadValueExpression(ParameterExpression parameter, IPropertyBase property)
+    protected override Expression CreateReadValueExpression(ParameterExpression? parameter, IPropertyBase property)
         => Expression.Default(property.ClrType);
 }
