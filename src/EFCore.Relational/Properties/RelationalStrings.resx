@@ -902,6 +902,9 @@
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a DbCommand for a non-relational query.</value>
   </data>
+  <data name="NonConstantOrParameterAsInExpressionValues" xml:space="preserve">
+    <value>Expression of type '{type}' isn't supported as the Values of an InExpression; only constants and parameters are supported.</value>
+  </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
   </data>

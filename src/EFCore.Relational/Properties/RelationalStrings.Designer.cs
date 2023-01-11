@@ -1288,6 +1288,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoDbCommand");
 
         /// <summary>
+        ///     Expression of type '{type}' isn't supported as the Values of an InExpression; only constants and parameters are supported.
+        /// </summary>
+        public static string NonConstantOrParameterAsInExpressionValues(object? type)
+            => string.Format(
+                GetString("NonConstantOrParameterAsInExpressionValues", nameof(type)),
+                type);
+
+        /// <summary>
         ///     'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.
         /// </summary>
         public static string NoneRelationalTypeMappingOnARelationalTypeMappingSource
