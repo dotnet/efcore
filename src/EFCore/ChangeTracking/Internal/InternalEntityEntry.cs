@@ -186,7 +186,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         CancellationToken cancellationToken = default)
     {
         var oldState = _stateData.EntityState;
-        bool adding;
+        bool adding = PrepareForAdd(entityState);
         await SetupAsync().ConfigureAwait(false);
 
         if ((adding || oldState is EntityState.Detached)
@@ -202,7 +202,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         async Task SetupAsync()
         {
-            adding = PrepareForAdd(entityState);
             entityState = await PropagateToUnknownKeyAsync(
                 oldState, entityState, adding, forceStateWhenUnknownKey, cancellationToken).ConfigureAwait(false);
         }
