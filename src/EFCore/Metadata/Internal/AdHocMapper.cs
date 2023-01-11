@@ -61,7 +61,6 @@ public class AdHocMapper : IAdHocMapper
                 _conventionSet.Remove(typeof(ValueGenerationConvention));
                 _conventionSet.Remove(typeof(BaseTypeDiscoveryConvention));
                 _conventionSet.Remove(typeof(DiscriminatorConvention));
-                _conventionSet.Add(new AdHocModelInitializedConvention());
             }
 
             return _conventionSet;
@@ -84,6 +83,7 @@ public class AdHocMapper : IAdHocMapper
     private RuntimeEntityType AddEntityType(Type clrType)
     {
         var modelBuilder = new ModelBuilder(ConventionSet, _modelCreationDependencies.ModelDependencies);
+        modelBuilder.HasAnnotation(CoreAnnotationNames.AdHocModel, true);
         modelBuilder.Entity(clrType).HasNoKey();
         var finalizedModel = modelBuilder.FinalizeModel();
         var runtimeModel = _modelCreationDependencies.ModelRuntimeInitializer.Initialize(
