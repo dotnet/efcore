@@ -210,7 +210,7 @@ public sealed partial class SelectExpression
 
                 case SqlExpression sqlExpression
                     when !_groupByDiscovery
-                    && sqlExpression is not SqlConstantExpression or SqlParameterExpression
+                    && sqlExpression is not SqlConstantExpression and not SqlParameterExpression
                     && _correlatedTerms.Contains(sqlExpression):
                     var outerColumn = _subquery.GenerateOuterColumn(_tableReferenceExpression, sqlExpression);
                     _mappings[sqlExpression] = outerColumn;

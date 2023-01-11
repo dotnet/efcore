@@ -2319,6 +2319,28 @@ ORDER BY [l].[Id], [t2].[Date], [t2].[Date0], [t2].[Name]
 """);
     }
 
+    public override async Task Collection_projection_over_GroupBy_over_parameter(bool async)
+    {
+        await base.Collection_projection_over_GroupBy_over_parameter(async);
+
+        AssertSql(
+"""
+SELECT [t].[Date], [t0].[Id]
+FROM (
+    SELECT [l].[Date]
+    FROM [LevelOne] AS [l]
+    WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+    GROUP BY [l].[Date]
+) AS [t]
+LEFT JOIN (
+    SELECT [l0].[Id], [l0].[Date]
+    FROM [LevelOne] AS [l0]
+    WHERE [l0].[Name] IN (N'L1 01', N'L1 02')
+) AS [t0] ON [t].[Date] = [t0].[Date]
+ORDER BY [t].[Date]
+""");
+    }
+
     public override async Task Include_partially_added_before_Where_and_then_build_upon(bool async)
     {
         await base.Include_partially_added_before_Where_and_then_build_upon(async);
