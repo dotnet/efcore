@@ -114,6 +114,18 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     }
 
     /// <summary>
+    ///     Gets all ad-hoc entity types defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <returns>All entity types defined in the model.</returns>
+    [DebuggerStepThrough]
+    public virtual IEnumerable<IReadOnlyEntityType> GetAdHocEntityTypes()
+        => _adHocEntityTypes.Values;
+
+
+    /// <summary>
     ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name is found
     ///     or the given CLR type is being used by shared type entity type
     ///     or the entity type has a defining navigation.
@@ -294,11 +306,6 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyEntityType> IReadOnlyModel.GetEntityTypes()
         => _entityTypes.Values;
-
-    /// <inheritdoc />
-    [DebuggerStepThrough]
-    IEnumerable<IReadOnlyEntityType> IReadOnlyModel.GetAdHocEntityTypes()
-        => _adHocEntityTypes.Values;
 
     /// <inheritdoc />
     [DebuggerStepThrough]

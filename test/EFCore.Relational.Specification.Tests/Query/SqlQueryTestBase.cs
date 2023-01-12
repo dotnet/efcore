@@ -156,6 +156,16 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task SqlQueryRaw_queryable_simple_mapped_type(bool async)
+        => AssertQuery(
+            async,
+            _ => Fixture.CreateContext().Database.SqlQueryRaw<CustomerQuery>
+                (NormalizeDelimitersInRawString("SELECT * FROM [Customers] WHERE [ContactName] LIKE '%z%'")),
+            ss => ss.Set<CustomerQuery>().Where(x => x.ContactName.Contains("z")),
+            entryCount: 0);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task SqlQueryRaw_queryable_simple_columns_out_of_order(bool async)
         => AssertQuery(
             async,

@@ -118,7 +118,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     public virtual RuntimeModel Model { [DebuggerStepThrough] get; private set; }
 
     /// <summary>
-    ///     Re-parents the this entity type to the given model.
+    ///     Re-parents this entity type to the given model.
     /// </summary>
     /// <param name="model">The new parent model.</param>
     public virtual void Reparent(RuntimeModel model)

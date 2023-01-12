@@ -74,15 +74,6 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
     IEnumerable<IReadOnlyEntityType> GetEntityTypes();
 
     /// <summary>
-    ///     Gets all ad-hoc entity types defined in the model.
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
-    /// </remarks>
-    /// <returns>All entity types defined in the model.</returns>
-    IEnumerable<IReadOnlyEntityType> GetAdHocEntityTypes();
-
-    /// <summary>
     ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name is found
     ///     or the given CLR type is being used by shared type entity type
     ///     or the entity type has a defining navigation.
@@ -240,13 +231,16 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
                 builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
             }
 
-            var adHocEntityTypes = GetAdHocEntityTypes().ToList();
-            if (adHocEntityTypes.Count > 0)
+            if (this is RuntimeModel runtimeModel)
             {
-                builder.AppendLine().Append(indentString + "  ").Append("Ad-hoc entity types:");
-                foreach (var entityType in adHocEntityTypes)
+                var adHocEntityTypes = runtimeModel.GetAdHocEntityTypes().ToList();
+                if (adHocEntityTypes.Count > 0)
                 {
-                    builder.AppendLine().Append(entityType.ToDebugString(options, indent + 4));
+                    builder.AppendLine().Append(indentString + "  ").Append("Ad-hoc entity types:");
+                    foreach (var entityType in adHocEntityTypes)
+                    {
+                        builder.AppendLine().Append(entityType.ToDebugString(options, indent + 4));
+                    }
                 }
             }
 

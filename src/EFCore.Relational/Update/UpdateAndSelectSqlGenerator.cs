@@ -29,7 +29,7 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
 {
     /// <summary>
-    ///     Initializes a new instance of the this class.
+    ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected UpdateAndSelectSqlGenerator(UpdateSqlGeneratorDependencies dependencies)
