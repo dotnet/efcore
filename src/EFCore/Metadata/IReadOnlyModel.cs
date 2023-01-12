@@ -231,6 +231,19 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
                 builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
             }
 
+            if (this is RuntimeModel runtimeModel)
+            {
+                var adHocEntityTypes = runtimeModel.GetAdHocEntityTypes().ToList();
+                if (adHocEntityTypes.Count > 0)
+                {
+                    builder.AppendLine().Append(indentString + "  ").Append("Ad-hoc entity types:");
+                    foreach (var entityType in adHocEntityTypes)
+                    {
+                        builder.AppendLine().Append(entityType.ToDebugString(options, indent + 4));
+                    }
+                }
+            }
+
             if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
             {
                 builder.Append(AnnotationsToDebugString(indent));

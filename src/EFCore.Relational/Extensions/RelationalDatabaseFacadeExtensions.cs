@@ -340,11 +340,14 @@ public static class RelationalDatabaseFacadeExtensions
         Check.NotNull(parameters, nameof(parameters));
 
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
+        var queryProvider = facadeDependencies.QueryProvider;
+        var argumentsExpression = Expression.Constant(parameters);
 
-        return facadeDependencies.QueryProvider
-            .CreateQuery<TResult>(
-                new SqlQueryRootExpression(
-                    facadeDependencies.QueryProvider, typeof(TResult), sql, Expression.Constant(parameters)));
+        return queryProvider.CreateQuery<TResult>(
+            facadeDependencies.TypeMappingSource.FindMapping(typeof(TResult)) != null
+                ? new SqlQueryRootExpression(queryProvider, typeof(TResult), sql, argumentsExpression)
+                : new FromSqlQueryRootExpression(
+                    queryProvider, facadeDependencies.AdHocMapper.GetOrAddEntityType(typeof(TResult)), sql, argumentsExpression));
     }
 
     /// <summary>
@@ -380,17 +383,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static IQueryable<TResult> SqlQuery<TResult>(
         this DatabaseFacade databaseFacade,
         [NotParameterized] FormattableString sql)
-    {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotNull(sql.Format, nameof(sql.Format));
-
-        var facadeDependencies = GetFacadeDependencies(databaseFacade);
-
-        return facadeDependencies.QueryProvider
-            .CreateQuery<TResult>(
-                new SqlQueryRootExpression(
-                    facadeDependencies.QueryProvider, typeof(TResult), sql.Format, Expression.Constant(sql.GetArguments())));
-    }
+        => SqlQueryRaw<TResult>(databaseFacade, sql.Format, sql.GetArguments()!);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -654,7 +647,7 @@ public static class RelationalDatabaseFacadeExtensions
     /// <param name="contextOwnsConnection">
     ///     If <see langword="true" />, then EF will take ownership of the connection and will
     ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
-    ///     owns the connection and is responsible for its disposal. The default value is <see langword="false"/>.
+    ///     owns the connection and is responsible for its disposal. The default value is <see langword="false" />.
     /// </param>
     public static void SetDbConnection(this DatabaseFacade databaseFacade, DbConnection? connection, bool contextOwnsConnection = false)
         => GetFacadeDependencies(databaseFacade).RelationalConnection.SetDbConnection(connection, contextOwnsConnection);

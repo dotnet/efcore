@@ -1710,6 +1710,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, navigation, propertyType);
 
         /// <summary>
+        ///     The property '{entityType}.{navigation}' of type '{propertyType}' appears to be a navigation to another entity type. Navigations are not supported when using 'SqlQuery". Either include this type in the model and use 'FromSql' for the query, or ignore this property using the '[NotMapped]' attribute.
+        /// </summary>
+        public static string NavigationNotAddedAdHoc(object? entityType, object? navigation, object? propertyType)
+            => string.Format(
+                GetString("NavigationNotAddedAdHoc", nameof(entityType), nameof(navigation), nameof(propertyType)),
+                entityType, navigation, propertyType);
+
+        /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.
         /// </summary>
         public static string NavigationSingleWrongClrType(object? navigation, object? entityType, object? clrType, object? targetType)
@@ -2163,6 +2171,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         public static string PropertyNotAdded(object? entityType, object? property, object? propertyType)
             => string.Format(
                 GetString("PropertyNotAdded", nameof(entityType), nameof(property), nameof(propertyType)),
+                entityType, property, propertyType);
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' could not be mapped because it is of type '{propertyType}', which is not a supported primitive type or a valid entity type. The property can be ignored using the '[NotMapped]' attribute.
+        /// </summary>
+        public static string PropertyNotAddedAdHoc(object? entityType, object? property, object? propertyType)
+            => string.Format(
+                GetString("PropertyNotAddedAdHoc", nameof(entityType), nameof(property), nameof(propertyType)),
                 entityType, property, propertyType);
 
         /// <summary>

@@ -43,8 +43,10 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
 
     private RuntimeKey? _primaryKey;
     private readonly bool _hasSharedClrType;
+
     [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     private readonly Type _clrType;
+
     private readonly RuntimeEntityType? _baseType;
     private readonly SortedSet<RuntimeEntityType> _directlyDerivedTypes = new(EntityTypeFullNameComparer.Instance);
     private readonly ChangeTrackingStrategy _changeTrackingStrategy;
@@ -113,7 +115,14 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <summary>
     ///     Gets the model that this type belongs to.
     /// </summary>
-    public virtual RuntimeModel Model { [DebuggerStepThrough] get; }
+    public virtual RuntimeModel Model { [DebuggerStepThrough] get; private set; }
+
+    /// <summary>
+    ///     Re-parents this entity type to the given model.
+    /// </summary>
+    /// <param name="model">The new parent model.</param>
+    public virtual void Reparent(RuntimeModel model)
+        => Model = model;
 
     private IEnumerable<RuntimeEntityType> GetDerivedTypes()
     {
@@ -378,7 +387,8 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         bool eagerLoaded = false,
         bool lazyLoadingEnabled = true)
     {
-        var navigation = new RuntimeNavigation(name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded, lazyLoadingEnabled);
+        var navigation = new RuntimeNavigation(
+            name, clrType, propertyInfo, fieldInfo, foreignKey, propertyAccessMode, eagerLoaded, lazyLoadingEnabled);
 
         _navigations.Add(name, navigation);
 

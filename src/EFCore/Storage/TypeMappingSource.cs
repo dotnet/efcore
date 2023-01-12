@@ -31,7 +31,7 @@ public abstract class TypeMappingSource : TypeMappingSourceBase
     private readonly ConcurrentDictionary<(TypeMappingInfo, Type?, ValueConverter?), CoreTypeMapping?> _explicitMappings = new();
 
     /// <summary>
-    ///     Initializes a new instance of the this class.
+    ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected TypeMappingSource(TypeMappingSourceDependencies dependencies)
