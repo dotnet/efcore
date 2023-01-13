@@ -12,9 +12,6 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 // Sealed for perf
 public sealed class ForeignKeyConstraintComparer : IEqualityComparer<IForeignKeyConstraint>, IComparer<IForeignKeyConstraint>
 {
-    private static readonly bool QuirkEnabled29741
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29741", out var enabled) && enabled;
-
     private ForeignKeyConstraintComparer()
     {
     }
@@ -75,7 +72,7 @@ public sealed class ForeignKeyConstraintComparer : IEqualityComparer<IForeignKey
         }
 
         result = StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
-        if (result != 0 || QuirkEnabled29741)
+        if (result != 0)
         {
             return result;
         }
