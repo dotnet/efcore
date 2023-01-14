@@ -163,7 +163,7 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
         {
             if (condition == null)
             {
-                return leastDerivedTypes.ToList();
+                return leastDerivedTypes;
             }
 
             var filteredTypes = leastDerivedTypes.Where(condition).ToList();

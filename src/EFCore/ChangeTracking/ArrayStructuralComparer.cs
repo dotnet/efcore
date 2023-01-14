@@ -20,7 +20,7 @@ public class ArrayStructuralComparer<TElement> : ValueComparer<TElement[]>
         : base(
             CreateDefaultEqualsExpression(),
             CreateDefaultHashCodeExpression(favorStructuralComparisons: true),
-            v => v.ToArray())
+            v => v)
     {
     }
 }
