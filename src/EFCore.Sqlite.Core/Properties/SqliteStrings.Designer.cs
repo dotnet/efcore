@@ -172,6 +172,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
+        ///     The column '{columnName}' on table '{tableName}' should map to a property of type '{type}', but its values are in an incompatible format. Using a different type.
+        /// </summary>
+        public static EventDefinition<string?, string?, string?> LogFormatWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFormatWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogFormatWarning,
+                    logger,
+                    static logger => new EventDefinition<string?, string?, string?>(
+                        logger.Options,
+                        SqliteEventId.FormatWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.FormatWarning",
+                        level => LoggerMessage.Define<string?, string?, string?>(
+                            level,
+                            SqliteEventId.FormatWarning,
+                            _resourceManager.GetString("LogFormatWarning")!)));
+            }
+
+            return (EventDefinition<string?, string?, string?>)definition;
+        }
+
+        /// <summary>
         ///     Found column on table '{tableName}' with name: '{columnName}', data type: {dataType}, not nullable: {notNullable}, default value: {defaultValue}.
         /// </summary>
         public static EventDefinition<string?, string?, string?, bool, string?> LogFoundColumn(IDiagnosticsLogger logger)
@@ -322,6 +347,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
         }
 
         /// <summary>
+        ///     Querying table '{tableName}' to determine an appropriate CLR type for each column.
+        /// </summary>
+        public static EventDefinition<string?> LogInferringTypes(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogInferringTypes;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogInferringTypes,
+                    logger,
+                    static logger => new EventDefinition<string?>(
+                        logger.Options,
+                        SqliteEventId.InferringTypes,
+                        LogLevel.Debug,
+                        "SqliteEventId.InferringTypes",
+                        level => LoggerMessage.Define<string?>(
+                            level,
+                            SqliteEventId.InferringTypes,
+                            _resourceManager.GetString("LogInferringTypes")!)));
+            }
+
+            return (EventDefinition<string?>)definition;
+        }
+
+        /// <summary>
         ///     Unable to find a table in the database matching the selected table '{table}'.
         /// </summary>
         public static EventDefinition<string?> LogMissingTable(IDiagnosticsLogger logger)
@@ -344,6 +394,31 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
             }
 
             return (EventDefinition<string?>)definition;
+        }
+
+        /// <summary>
+        ///     The column '{columnName}' on table '{tableName}' should map to a property of type '{type}', but its values are out of range. Using a different type.
+        /// </summary>
+        public static EventDefinition<string?, string?, string?> LogOutOfRangeWarning(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogOutOfRangeWarning;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqliteLoggingDefinitions)logger.Definitions).LogOutOfRangeWarning,
+                    logger,
+                    static logger => new EventDefinition<string?, string?, string?>(
+                        logger.Options,
+                        SqliteEventId.OutOfRangeWarning,
+                        LogLevel.Warning,
+                        "SqliteEventId.OutOfRangeWarning",
+                        level => LoggerMessage.Define<string?, string?, string?>(
+                            level,
+                            SqliteEventId.OutOfRangeWarning,
+                            _resourceManager.GetString("LogOutOfRangeWarning")!)));
+            }
+
+            return (EventDefinition<string?, string?, string?>)definition;
         }
 
         /// <summary>

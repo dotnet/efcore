@@ -487,7 +487,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
         property.Metadata.AddAnnotations(
             column.GetAnnotations().Where(
-                a => a.Name != ScaffoldingAnnotationNames.ConcurrencyToken));
+                a => a.Name != ScaffoldingAnnotationNames.ConcurrencyToken
+                    && a.Name != ScaffoldingAnnotationNames.ClrType));
 
         return property;
     }
@@ -967,7 +968,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         return _scaffoldingTypeMapper.FindMapping(
             column.StoreType,
             column.IsKeyOrIndex(),
-            column.IsRowVersion());
+            column.IsRowVersion(),
+            (Type?)column[ScaffoldingAnnotationNames.ClrType]);
     }
 
     private static void AssignOnDeleteAction(

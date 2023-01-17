@@ -251,7 +251,6 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
                 ? Text
                 : null,
         name => Contains(name, "BLOB")
-            || Contains(name, "BIN")
                 ? Blob
                 : null,
         name => Contains(name, "REAL")

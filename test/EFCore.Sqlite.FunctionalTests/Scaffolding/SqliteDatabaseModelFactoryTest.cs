@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.EntityFrameworkCore.Sqlite.Design.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
@@ -45,6 +46,7 @@ public class SqliteDatabaseModelFactoryTest : IClassFixture<SqliteDatabaseModelF
                 .AddSingleton<IDbContextLogger, NullDbContextLogger>();
 
             new SqliteDesignTimeServices().ConfigureDesignTimeServices(services);
+            new SqliteNetTopologySuiteDesignTimeServices().ConfigureDesignTimeServices(services);
 
             var databaseModelFactory = services
                 .BuildServiceProvider() // No scope validation; design services only resolved once
@@ -356,6 +358,221 @@ CREATE TABLE StoreType (
                 Assert.Equal("randomType", columns.Single(c => c.Name == "RandomProperty").StoreType);
             },
             "DROP TABLE StoreType;");
+
+    [ConditionalTheory]
+    [InlineData("BIT", typeof(bool))]
+    [InlineData("BIT(1)", typeof(bool))]
+    [InlineData("BOOL", typeof(bool))]
+    [InlineData("BOOLEAN", typeof(bool))]
+    [InlineData("LOGICAL", typeof(bool))]
+    [InlineData("YESNO", typeof(bool))]
+    [InlineData("TINYINT", typeof(byte))]
+    [InlineData("UINT8", typeof(byte))]
+    [InlineData("UNSIGNEDINTEGER8", typeof(byte))]
+    [InlineData("BYTE", typeof(byte))]
+    [InlineData("SMALLINT", typeof(short))]
+    [InlineData("INT16", typeof(short))]
+    [InlineData("INTEGER16", typeof(short))]
+    [InlineData("SHORT", typeof(short))]
+    [InlineData("MEDIUMINT", typeof(int))]
+    [InlineData("INT", typeof(int))]
+    [InlineData("INT32", typeof(int))]
+    [InlineData("INTEGER", typeof(int))]
+    [InlineData("INTEGER32", typeof(int))]
+    [InlineData("BIGINT", null)]
+    [InlineData("INT64", null)]
+    [InlineData("INTEGER64", null)]
+    [InlineData("LONG", null)]
+    [InlineData("TINYSINT", typeof(sbyte))]
+    [InlineData("INT8", typeof(sbyte))]
+    [InlineData("INTEGER8", typeof(sbyte))]
+    [InlineData("SBYTE", typeof(sbyte))]
+    [InlineData("SMALLUINT", typeof(ushort))]
+    [InlineData("UINT16", typeof(ushort))]
+    [InlineData("UNSIGNEDINTEGER16", typeof(ushort))]
+    [InlineData("USHORT", typeof(ushort))]
+    [InlineData("MEDIUMUINT", typeof(uint))]
+    [InlineData("UINT", typeof(uint))]
+    [InlineData("UINT32", typeof(uint))]
+    [InlineData("UNSIGNEDINTEGER32", typeof(uint))]
+    [InlineData("BIGUINT", typeof(ulong))]
+    [InlineData("UINT64", typeof(ulong))]
+    [InlineData("UNSIGNEDINTEGER", typeof(ulong))]
+    [InlineData("UNSIGNEDINTEGER64", typeof(ulong))]
+    [InlineData("ULONG", typeof(ulong))]
+    [InlineData("REAL", null)]
+    [InlineData("DOUBLE", null)]
+    [InlineData("FLOAT", null)]
+    [InlineData("SINGLE", typeof(float))]
+    [InlineData("TEXT", null)]
+    [InlineData("NTEXT", null)]
+    [InlineData("CHAR(1)", null)]
+    [InlineData("NCHAR(1)", null)]
+    [InlineData("VARCHAR(1)", null)]
+    [InlineData("VARCHAR2(1)", null)]
+    [InlineData("NVARCHAR(1)", null)]
+    [InlineData("CLOB", null)]
+    [InlineData("STRING", typeof(string))]
+    [InlineData("JSON", typeof(string))]
+    [InlineData("XML", typeof(string))]
+    [InlineData("DATEONLY", typeof(DateOnly))]
+    [InlineData("DATE", typeof(DateTime))]
+    [InlineData("DATETIME", typeof(DateTime))]
+    [InlineData("DATETIME2", typeof(DateTime))]
+    [InlineData("SMALLDATE", typeof(DateTime))]
+    [InlineData("TIMESTAMP(7)", typeof(DateTime))]
+    [InlineData("DATETIMEOFFSET", typeof(DateTimeOffset))]
+    [InlineData("CURRENCY", typeof(decimal))]
+    [InlineData("DECIMAL(18, 0)", typeof(decimal))]
+    [InlineData("MONEY", typeof(decimal))]
+    [InlineData("SMALLMONEY", typeof(decimal))]
+    [InlineData("NUMBER(18, 0)", typeof(decimal))]
+    [InlineData("NUMERIC(18, 0)", typeof(decimal))]
+    [InlineData("GUID", typeof(Guid))]
+    [InlineData("UNIQUEIDENTIFIER", typeof(Guid))]
+    [InlineData("UUID", typeof(Guid))]
+    [InlineData("TIMEONLY", typeof(TimeOnly))]
+    [InlineData("TIME(7)", typeof(TimeSpan))]
+    [InlineData("TIMESPAN", typeof(TimeSpan))]
+    [InlineData("BLOB", null)]
+    [InlineData("BINARY(10)", null)]
+    [InlineData("VARBINARY(10)", null)]
+    [InlineData("IMAGE", null)]
+    [InlineData("RAW(10)", null)]
+    [InlineData("GEOMETRY", null)]
+    [InlineData("GEOMETRYZ", null)]
+    [InlineData("GEOMETRYM", null)]
+    [InlineData("GEOMETRYZM", null)]
+    [InlineData("GEOMETRYCOLLECTION", null)]
+    [InlineData("GEOMETRYCOLLECTIONZ", null)]
+    [InlineData("GEOMETRYCOLLECTIONM", null)]
+    [InlineData("GEOMETRYCOLLECTIONZM", null)]
+    [InlineData("LINESTRING", null)]
+    [InlineData("LINESTRINGZ", null)]
+    [InlineData("LINESTRINGM", null)]
+    [InlineData("LINESTRINGZM", null)]
+    [InlineData("MULTILINESTRING", null)]
+    [InlineData("MULTILINESTRINGZ", null)]
+    [InlineData("MULTILINESTRINGM", null)]
+    [InlineData("MULTILINESTRINGZM", null)]
+    [InlineData("MULTIPOINT", null)]
+    [InlineData("MULTIPOINTZ", null)]
+    [InlineData("MULTIPOINTM", null)]
+    [InlineData("MULTIPOINTZM", null)]
+    [InlineData("MULTIPOLYGON", null)]
+    [InlineData("MULTIPOLYGONZ", null)]
+    [InlineData("MULTIPOLYGONM", null)]
+    [InlineData("MULTIPOLYGONZM", null)]
+    [InlineData("POINT", null)]
+    [InlineData("POINTZ", null)]
+    [InlineData("POINTM", null)]
+    [InlineData("POINTZM", null)]
+    [InlineData("POLYGON", null)]
+    [InlineData("POLYGONZ", null)]
+    [InlineData("POLYGONM", null)]
+    [InlineData("POLYGONZM", null)]
+    public void Column_ClrType_is_set_when_no_data(string storeType, Type expected)
+        => Test(
+            $@"
+CREATE TABLE ClrType (
+    EmptyColumn {storeType}
+);",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns);
+                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+            },
+            "DROP TABLE ClrType");
+
+    [ConditionalTheory]
+    [InlineData("INTEGER", "1", typeof(int))]
+    [InlineData("INTEGER", "2147483648", null)]
+    [InlineData("BIT", "1", typeof(bool))]
+    [InlineData("TINYINT", "1", typeof(byte))]
+    [InlineData("SMALLINT", "1", typeof(short))]
+    [InlineData("BIGINT", "1", null)]
+    [InlineData("INT8", "1", typeof(sbyte))]
+    [InlineData("UINT16", "1", typeof(ushort))]
+    [InlineData("UINT", "1", typeof(uint))]
+    [InlineData("UINT64", "1", typeof(ulong))]
+    [InlineData("UINT64", "-1", typeof(ulong))]
+    [InlineData("REAL", "0.1", null)]
+    [InlineData("SINGLE", "0.1", typeof(float))]
+    [InlineData("TEXT", "'A'", null)]
+    [InlineData("TEXT", "'2023-01-20'", typeof(DateOnly))]
+    [InlineData("TEXT", "'2023-01-20 13:37:00'", typeof(DateTime))]
+    [InlineData("TEXT", "'2023-01-20 13:42:00-08:00'", typeof(DateTimeOffset))]
+    [InlineData("TEXT", "'0.1'", typeof(decimal))]
+    [InlineData("TEXT", "'00000000-0000-0000-0000-000000000000'", typeof(Guid))]
+    [InlineData("TEXT", "'13:44:00'", typeof(TimeSpan))]
+    [InlineData("TIMEONLY", "'14:34:00'", typeof(TimeOnly))]
+    [InlineData("BLOB", "x'01'", null)]
+    [InlineData("GEOMETRY", "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'", null)]
+    [InlineData("POINT", "x'00010000000000000000000000000000000000000000000000000000000000000000000000007C0100000000000000000000000000000000000000FE'", null)]
+    public void Column_ClrType_is_set_when_data(string storeType, string value, Type expected)
+        => Test(
+            $@"
+CREATE TABLE IF NOT EXISTS ClrTypeWithData (
+    ColumnWithData {storeType}
+);
+
+INSERT INTO ClrTypeWithData VALUES ({value});",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns);
+                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+            },
+            "DROP TABLE ClrTypeWithData");
+
+    [ConditionalTheory]
+    [InlineData("INTEGER", "0.1", typeof(double))]
+    [InlineData("BIT", "2", typeof(int))]
+    [InlineData("TINYINT", "-1", typeof(int))]
+    [InlineData("TINYINT", "256", typeof(int))]
+    [InlineData("SMALLINT", "32768", typeof(int))]
+    [InlineData("MEDIUMINT", "2147483648", null)]
+    [InlineData("INT8", "128", typeof(int))]
+    [InlineData("UINT16", "-1", typeof(int))]
+    [InlineData("UINT16", "65536", typeof(int))]
+    [InlineData("UINT", "4294967296", null)]
+    [InlineData("REAL", "'A'", null)]
+    [InlineData("SINGLE", "3.402824E+38", typeof(double))]
+    [InlineData("TEXT", "x'00'", typeof(byte[]))]
+    [InlineData("DATE", "'A'", typeof(string))]
+    [InlineData("DATEONLY", "'A'", typeof(string))]
+    [InlineData("DATETIME", "'A'", typeof(string))]
+    [InlineData("DATETIMEOFFSET", "'A'", typeof(string))]
+    [InlineData("DECIMAL", "'A'", typeof(string))]
+    [InlineData("GUID", "'A'", typeof(string))]
+    [InlineData("TIME", "'A'", typeof(string))]
+    [InlineData("TIMEONLY", "'A'", typeof(string))]
+    [InlineData("TIMEONLY", "'24:00:00'", typeof(TimeSpan))]
+    [InlineData("BLOB", "1", null)]
+    [InlineData("GEOMETRY", "1", null)]
+    [InlineData("POINT", "1", null)]
+    public void Column_ClrType_is_set_when_insane(string storeType, string value, Type expected)
+        => Test(
+            $@"
+CREATE TABLE IF NOT EXISTS ClrTypeWithData (
+    ColumnWithData {storeType}
+);
+
+INSERT INTO ClrTypeWithData VALUES ({value});",
+            Enumerable.Empty<string>(),
+            Enumerable.Empty<string>(),
+            model =>
+            {
+                var table = Assert.Single(model.Tables);
+                var column = Assert.Single(table.Columns);
+                Assert.Equal(expected, (Type)column[ScaffoldingAnnotationNames.ClrType]);
+            },
+            "DROP TABLE ClrTypeWithData");
 
     [ConditionalFact]
     public void Column_nullability_is_set()

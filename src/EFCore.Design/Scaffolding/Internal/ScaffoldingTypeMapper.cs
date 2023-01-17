@@ -33,9 +33,12 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
     public virtual TypeScaffoldingInfo? FindMapping(
         string storeType,
         bool keyOrIndex,
-        bool rowVersion)
+        bool rowVersion,
+        Type? clrType = null)
     {
-        var mapping = _typeMappingSource.FindMapping(storeType);
+        var mapping = clrType is null
+            ? _typeMappingSource.FindMapping(storeType)
+            : _typeMappingSource.FindMapping(clrType, storeType);
         if (mapping == null)
         {
             return null;

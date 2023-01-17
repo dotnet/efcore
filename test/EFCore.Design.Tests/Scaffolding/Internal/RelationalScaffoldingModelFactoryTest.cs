@@ -1978,6 +1978,13 @@ public class RelationalScaffoldingModelFactoryTest
             ValueGenerated = ValueGenerated.OnAddOrUpdate,
             [ScaffoldingAnnotationNames.ConcurrencyToken] = true
         };
+        var clrTypeColumn = new DatabaseColumn
+        {
+            Table = Table,
+            Name = "ClrType",
+            StoreType = "char(36)",
+            [ScaffoldingAnnotationNames.ClrType] = typeof(Guid)
+        };
 
         var principalTable = new DatabaseTable
         {
@@ -1988,7 +1995,8 @@ public class RelationalScaffoldingModelFactoryTest
                 principalPkColumn,
                 principalAkColumn,
                 principalIndexColumn,
-                rowversionColumn
+                rowversionColumn,
+                clrTypeColumn
             },
             PrimaryKey = new DatabasePrimaryKey
             {
@@ -2070,6 +2078,7 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Null(model.FindEntityType("Principal").FindProperty("AlternateKey").GetConfiguredColumnType());
         Assert.Null(model.FindEntityType("Principal").FindProperty("Index").GetConfiguredColumnType());
         Assert.Null(model.FindEntityType("Principal").FindProperty("Rowversion").GetConfiguredColumnType());
+        Assert.Equal(typeof(Guid), model.FindEntityType("Principal").FindProperty("ClrType").ClrType);
         Assert.Null(model.FindEntityType("Dependent").FindProperty("BlogAlternateKey").GetConfiguredColumnType());
     }
 
