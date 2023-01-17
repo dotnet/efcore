@@ -437,6 +437,59 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_json_entities_json_being_inner(bool async)
+        => AssertQuery(
+            async,
+            ss => from e1 in ss.Set<JsonEntityBasic>()
+                  join e2 in ss.Set<JsonEntitySingleOwned>() on e1.Id equals e2.Id into g
+                  from e2 in g.DefaultIfEmpty()
+                  select new { e1, e2 },
+            elementSorter: e => (e.e1.Id, e.e2?.Id),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.e1, a.e1);
+                AssertEqual(e.e2, a.e2);
+            },
+            entryCount: 44);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_json_entities_complex_projection_json_being_inner(bool async)
+        => AssertQuery(
+            async,
+
+            ss => (from e1 in ss.Set<JsonEntityBasic>()
+                   join e2 in ss.Set<JsonEntitySingleOwned>() on e1.Id equals e2.Id into g
+                   from e2 in g.DefaultIfEmpty()
+                   select new
+                   {
+                       Id1 = e1.Id,
+                       Id2 = (int?)e2.Id,
+                       e1,
+                       e1.OwnedReferenceRoot,
+                       e1.OwnedReferenceRoot.OwnedReferenceBranch,
+                       e1.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                       e1.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf,
+                       e2,
+                       e2.Name
+                   }),
+            elementSorter: e => (e.Id1, e?.Id2),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+                AssertEqual(e.e1, a.e1);
+                AssertEqual(e.OwnedReferenceRoot, a.OwnedReferenceRoot);
+                AssertEqual(e.OwnedReferenceBranch, a.OwnedReferenceBranch);
+                AssertEqual(e.OwnedReferenceLeaf, a.OwnedReferenceLeaf);
+                AssertCollection(e.OwnedCollectionLeaf, a.OwnedCollectionLeaf, ordered: true);
+                AssertEqual(e.e2, a.e2);
+                AssertEqual(e.Name, a.Name);
+            },
+            entryCount: 44);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Project_json_entity_FirstOrDefault_subquery(bool async)
         => AssertQuery(
             async,
@@ -1346,7 +1399,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             elementAsserter: (e, a) => AssertInclude(
                 e, a,
                 new ExpectedInclude<EntityBasic>(x => x.JsonEntityBasics)),
-            entryCount: 0);
+            entryCount: 41);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

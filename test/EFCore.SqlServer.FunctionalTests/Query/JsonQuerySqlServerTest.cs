@@ -435,6 +435,30 @@ LEFT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
     }
 
+    public override async Task Left_join_json_entities_json_being_inner(bool async)
+    {
+        await base.Left_join_json_entities_json_being_inner(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j0].[Id], [j0].[Name], [j0].[OwnedCollection]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesSingleOwned] AS [j0] ON [j].[Id] = [j0].[Id]
+""");
+    }
+
+    public override async Task Left_join_json_entities_complex_projection_json_being_inner(bool async)
+    {
+        await base.Left_join_json_entities_complex_projection_json_being_inner(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j0].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j0].[Name], [j0].[OwnedCollection]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesSingleOwned] AS [j0] ON [j].[Id] = [j0].[Id]
+""");
+    }
+
     public override async Task Project_json_entity_FirstOrDefault_subquery(bool async)
     {
         await base.Project_json_entity_FirstOrDefault_subquery(async);
