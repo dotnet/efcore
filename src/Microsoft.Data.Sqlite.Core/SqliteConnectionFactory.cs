@@ -9,6 +9,9 @@ namespace Microsoft.Data.Sqlite
 {
     internal class SqliteConnectionFactory
     {
+        private static readonly bool QuirkEnabled29952
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29952", out var enabled) && enabled;
+
         public static readonly SqliteConnectionFactory Instance = new();
 
 #pragma warning disable IDE0052 // Remove unread private members
@@ -138,11 +141,8 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            _lock.EnterWriteLock();
-
-            try
+            if (QuirkEnabled29952)
             {
-
                 for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
                 {
                     var poolGroup = _idlePoolGroups[i];
@@ -153,26 +153,71 @@ namespace Microsoft.Data.Sqlite
                     }
                 }
 
-                var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
-                foreach (var entry in _poolGroups)
+                _lock.EnterWriteLock();
+
+                try
                 {
-                    var poolGroup = entry.Value;
+                    var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
+                    foreach (var entry in _poolGroups)
+                    {
+                        var poolGroup = entry.Value;
 
-                    if (poolGroup.Prune())
-                    {
-                        _idlePoolGroups.Add(poolGroup);
+                        if (poolGroup.Prune())
+                        {
+                            _idlePoolGroups.Add(poolGroup);
+                        }
+                        else
+                        {
+                            activePoolGroups.Add(entry.Key, poolGroup);
+                        }
                     }
-                    else
-                    {
-                        activePoolGroups.Add(entry.Key, poolGroup);
-                    }
+
+                    _poolGroups = activePoolGroups;
                 }
-
-                _poolGroups = activePoolGroups;
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
             }
-            finally
+
+            else
             {
-                _lock.ExitWriteLock();
+                _lock.EnterWriteLock();
+
+                try
+                {
+
+                    for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
+                    {
+                        var poolGroup = _idlePoolGroups[i];
+
+                        if (!poolGroup.Clear())
+                        {
+                            _idlePoolGroups.Remove(poolGroup);
+                        }
+                    }
+
+                    var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
+                    foreach (var entry in _poolGroups)
+                    {
+                        var poolGroup = entry.Value;
+
+                        if (poolGroup.Prune())
+                        {
+                            _idlePoolGroups.Add(poolGroup);
+                        }
+                        else
+                        {
+                            activePoolGroups.Add(entry.Key, poolGroup);
+                        }
+                    }
+
+                    _poolGroups = activePoolGroups;
+                }
+                finally
+                {
+                    _lock.ExitWriteLock();
+                }
             }
         }
     }
