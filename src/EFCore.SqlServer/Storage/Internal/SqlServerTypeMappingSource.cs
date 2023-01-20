@@ -105,8 +105,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
         = new(fixedLength: true);
 
-    private readonly SqlServerDateTimeTypeMapping _date
-        = new("date", DbType.Date);
+    private readonly DateOnlyTypeMapping _date
+        = new SqlServerDateOnlyTypeMapping("date");
 
     private readonly SqlServerDateTimeTypeMapping _smallDatetime
         = new("smalldatetime", DbType.DateTime, SqlDbType.SmallDateTime);
@@ -151,8 +151,11 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new SqlServerDecimalTypeMapping(
             "smallmoney", DbType.Currency, sqlDbType: SqlDbType.SmallMoney, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly TimeSpanTypeMapping _time
+    private readonly TimeSpanTypeMapping _timeAsTimeSpan
         = new SqlServerTimeSpanTypeMapping("time");
+
+    private readonly TimeOnlyTypeMapping _timeAsTimeOnly
+        = new SqlServerTimeOnlyTypeMapping("time");
 
     private readonly SqlServerStringTypeMapping _xml
         = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
@@ -182,6 +185,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             {
                 { typeof(int), _int },
                 { typeof(long), _long },
+                { typeof(DateOnly), _date },
                 { typeof(DateTime), _datetime2 },
                 { typeof(Guid), _uniqueidentifier },
                 { typeof(bool), _bool },
@@ -191,7 +195,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { typeof(short), _short },
                 { typeof(float), _real },
                 { typeof(decimal), _decimal182 },
-                { typeof(TimeSpan), _time },
+                { typeof(TimeOnly), _timeAsTimeOnly },
+                { typeof(TimeSpan), _timeAsTimeSpan },
                 { typeof(JsonElement), _json }
             };
 
@@ -246,7 +251,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { "smallmoney", _smallMoney },
                 { "sql_variant", _sqlVariant },
                 { "text", _textAnsiString },
-                { "time", _time },
+                { "time", _timeAsTimeOnly },
                 { "timestamp", _rowversion },
                 { "tinyint", _byte },
                 { "uniqueidentifier", _uniqueidentifier },
@@ -282,8 +287,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             }
 
             if (clrType == typeof(float)
-                && mappingInfo.Precision != null
-                && mappingInfo.Precision <= 24
+                && mappingInfo.Precision is <= 24
                 && (storeTypeNameBase.Equals("float", StringComparison.OrdinalIgnoreCase)
                     || storeTypeNameBase.Equals("double precision", StringComparison.OrdinalIgnoreCase)))
             {
