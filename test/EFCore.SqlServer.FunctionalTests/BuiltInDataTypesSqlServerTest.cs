@@ -64,92 +64,92 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         var set = context.Set<BuiltInDataTypes>();
 
         var param1 = (short)-1234;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestInt16 == param1));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestInt16 == param1));
 
         var param2 = -123456789;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestInt32 == param2));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestInt32 == param2));
 
         var param3 = -1234567890123456789L;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestInt64 == param3));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestInt64 == param3));
 
         double? param4 = -1.23456789;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDouble == param4));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestDouble == param4));
 
         var param5 = -1234567890.01M;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDecimal == param5));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestDecimal == param5));
 
         var param6 = Fixture.DefaultDateTime;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDateTime == param6));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestDateTime == param6));
 
         var param7 = new DateTimeOffset(new DateTime(), TimeSpan.FromHours(-8.0));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestDateTimeOffset == param7));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestDateTimeOffset == param7));
 
         var param8 = new TimeSpan(0, 10, 9, 8, 7);
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestTimeSpan == param8));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestTimeSpan == param8));
 
         var param9 = -1.234F;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestSingle == param9));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestSingle == param9));
 
         var param10 = true;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestBoolean == param10));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestBoolean == param10));
 
         var param11 = (byte)255;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestByte == param11));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestByte == param11));
 
         var param12 = Enum64.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum64 == param12));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum64 == param12));
 
         var param13 = Enum32.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum32 == param13));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum32 == param13));
 
         var param14 = Enum16.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum16 == param14));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum16 == param14));
 
         var param15 = Enum8.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum8 == param15));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum8 == param15));
 
         var param16 = (ushort)1234;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt16 == param16));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt16 == param16));
 
         var param17 = 1234565789U;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt32 == param17));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt32 == param17));
 
         var param18 = 1234567890123456789UL;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt64 == param18));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestUnsignedInt64 == param18));
 
         var param19 = 'a';
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestCharacter == param19));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestCharacter == param19));
 
         var param20 = (sbyte)-128;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.TestSignedByte == param20));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.TestSignedByte == param20));
 
         var param21 = EnumU64.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumU64 == param21));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.EnumU64 == param21));
 
         var param22 = EnumU32.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumU32 == param22));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.EnumU32 == param22));
 
         var param23 = EnumU16.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumU16 == param23));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.EnumU16 == param23));
 
         var param24 = EnumS8.SomeValue;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.EnumS8 == param24));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.EnumS8 == param24));
 
         var param25 = 1;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum64 == (Enum64)param25));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum64 == param25));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum64 == (Enum64)param25));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum64 == param25));
 
         var param26 = 1;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum32 == (Enum32)param26));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum32 == param26));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum32 == (Enum32)param26));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum32 == param26));
 
         var param27 = 1;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum16 == (Enum16)param27));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum16 == param27));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum16 == (Enum16)param27));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum16 == param27));
 
         var param28 = 1;
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.Enum8 == (Enum8)param28));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum8 == param28));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.Enum8 == (Enum8)param28));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && (int)e.Enum8 == param28));
     }
 
     [ConditionalFact]
@@ -179,11 +179,11 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         context.SaveChanges();
         var set = context.Set<MaxLengthDataTypes>();
 
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.String3 == shortString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.ByteArray5 == shortBinary));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.String9000 == longString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringUnbounded == longString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.ByteArray9000 == longBinary));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.String3 == shortString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.ByteArray5 == shortBinary));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.String9000 == longString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringUnbounded == longString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.ByteArray9000 == longBinary));
     }
 
     [ConditionalFact]
@@ -209,11 +209,11 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         context.SaveChanges();
         var set = context.Set<UnicodeDataTypes>();
 
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringDefault == shortString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi == shortString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi3 == shortString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringUnicode == shortString));
-        ExecuteQuerySting(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi9000 == longString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringDefault == shortString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi == shortString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi3 == shortString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringUnicode == shortString));
+        ExecuteQueryString(context, 54, set.Where(e => e.Id == 54 && e.StringAnsi9000 == longString));
     }
 
     [ConditionalFact]
@@ -339,81 +339,81 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         var id = entity.Id;
         var set = context.Set<MappedDataTypesWithIdentity>();
 
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.LongAsBigint == longAsBigint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.ShortAsSmallint == shortAsSmallint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.ByteAsTinyint == byteAsTinyint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UintAsInt == uintAsInt));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UlongAsBigint == ulongAsBigint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UShortAsSmallint == uShortAsSmallint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.SbyteAsTinyint == sbyteAsTinyint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BoolAsBit == boolAsBit));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsMoney == decimalAsMoney));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsSmallmoney == decimalAsSmallmoney));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DoubleAsFloat == doubleAsFloat));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsReal == floatAsReal));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DoubleAsDoublePrecision == doubleAsDoublePrecision));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDate == dateTimeAsDate));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeOffsetAsDatetimeoffset == dateTimeOffsetAsDatetimeoffset));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime2 == dateTimeAsDatetime2));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsSmalldatetime == dateTimeAsSmalldatetime));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime == dateTimeAsDatetime));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime == timeSpanAsTime));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarcharMax == stringAsVarcharMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVaryingMax == stringAsCharVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVaryingMax == stringAsCharacterVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNvarcharMax == stringAsNvarcharMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharVaryingMax == stringAsNationalCharVaryingMax));
-        ExecuteQuerySting(
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.LongAsBigint == longAsBigint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.ShortAsSmallint == shortAsSmallint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.ByteAsTinyint == byteAsTinyint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.UintAsInt == uintAsInt));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.UlongAsBigint == ulongAsBigint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.UShortAsSmallint == uShortAsSmallint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.SbyteAsTinyint == sbyteAsTinyint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BoolAsBit == boolAsBit));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsMoney == decimalAsMoney));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsSmallmoney == decimalAsSmallmoney));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DoubleAsFloat == doubleAsFloat));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.FloatAsReal == floatAsReal));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DoubleAsDoublePrecision == doubleAsDoublePrecision));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeAsDate == dateTimeAsDate));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeOffsetAsDatetimeoffset == dateTimeOffsetAsDatetimeoffset));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime2 == dateTimeAsDatetime2));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeAsSmalldatetime == dateTimeAsSmalldatetime));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime == dateTimeAsDatetime));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime == timeSpanAsTime));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsVarcharMax == stringAsVarcharMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharVaryingMax == stringAsCharVaryingMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVaryingMax == stringAsCharacterVaryingMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNvarcharMax == stringAsNvarcharMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharVaryingMax == stringAsNationalCharVaryingMax));
+        ExecuteQueryString(
             context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacterVaryingMax == stringAsNationalCharacterVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarcharMaxUtf8 == stringAsVarcharMaxUtf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVaryingMaxUtf8 == stringAsCharVaryingMaxUtf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVaryingMaxUtf8 == stringAsCharacterVaryingMaxUtf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsVarbinaryMax == bytesAsVarbinaryMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsBinaryVaryingMax == bytesAsBinaryVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.Decimal == @decimal));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDec == decimalAsDec));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric == decimalAsNumeric));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.GuidAsUniqueidentifier == guidAsUniqueidentifier));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UintAsBigint == uintAsBigint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UlongAsDecimal200 == ulongAsDecimal200));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.UShortAsInt == uShortAsInt));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.SByteAsSmallint == sByteAsSmallint));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsVarchar == CharAsVarchar));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVarying == CharAsAsCharVarying));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVaryingMax == charAsCharacterVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNvarchar == CharAsNvarchar));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVarying == CharAsNationalCharVarying));
-        ExecuteQuerySting(
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsVarcharMaxUtf8 == stringAsVarcharMaxUtf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharVaryingMaxUtf8 == stringAsCharVaryingMaxUtf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVaryingMaxUtf8 == stringAsCharacterVaryingMaxUtf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsVarbinaryMax == bytesAsVarbinaryMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsBinaryVaryingMax == bytesAsBinaryVaryingMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.Decimal == @decimal));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsDec == decimalAsDec));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric == decimalAsNumeric));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.GuidAsUniqueidentifier == guidAsUniqueidentifier));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.UintAsBigint == uintAsBigint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.UlongAsDecimal200 == ulongAsDecimal200));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.UShortAsInt == uShortAsInt));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.SByteAsSmallint == sByteAsSmallint));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsVarchar == CharAsVarchar));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVarying == CharAsAsCharVarying));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVaryingMax == charAsCharacterVaryingMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNvarchar == CharAsNvarchar));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVarying == CharAsNationalCharVarying));
+        ExecuteQueryString(
             context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVaryingMax == charAsNationalCharacterVaryingMax));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsInt == charAsInt));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.EnumAsNvarchar20 == enumAsNvarchar20));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.EnumAsVarcharMax == enumAsVarcharMax));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsInt == charAsInt));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.EnumAsNvarchar20 == enumAsNvarchar20));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.EnumAsVarcharMax == enumAsVarcharMax));
 
         // The text, ntext, and image data types are invalid for local variables.
         Assert.Contains(
             "text",
             Assert.Throws<SqlException>(
-                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsText == stringAsText))).Message);
+                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsText == stringAsText))).Message);
 
         Assert.Contains(
             "ntext",
             Assert.Throws<SqlException>(
-                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNtext == gumballRulesOk))).Message);
+                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNtext == gumballRulesOk))).Message);
 
         Assert.Contains(
             "image",
             Assert.Throws<SqlException>(
-                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsImage == bytesAsImage))).Message);
+                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsImage == bytesAsImage))).Message);
 
         Assert.Contains(
             "text",
             Assert.Throws<SqlException>(
-                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsText == charAsText))).Message);
+                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsText == charAsText))).Message);
 
         Assert.Contains(
             "ntext",
             Assert.Throws<SqlException>(
-                () => ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNtext == charAsNtext))).Message);
+                () => ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNtext == charAsNtext))).Message);
     }
 
     [ConditionalFact]
@@ -480,31 +480,31 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         var id = entity.Id;
         var set = context.Set<MappedSizedDataTypes>();
 
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsChar3 == stringAsChar3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacter3 == stringAsCharacter3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarchar3 == stringAsVarchar3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVarying3 == stringAsCharVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVarying3 == stringAsCharacterVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNchar3 == stringAsNchar3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacter3 == stringAsNationalCharacter3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNvarchar3 == stringAsNvarchar3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharVarying3 == stringAsNationalCharVarying3));
-        ExecuteQuerySting(
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsChar3 == stringAsChar3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharacter3 == stringAsCharacter3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsVarchar3 == stringAsVarchar3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharVarying3 == stringAsCharVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVarying3 == stringAsCharacterVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNchar3 == stringAsNchar3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacter3 == stringAsNationalCharacter3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNvarchar3 == stringAsNvarchar3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsNationalCharVarying3 == stringAsNationalCharVarying3));
+        ExecuteQueryString(
             context, id, set.Where(e => e.Id == id && e.StringAsNationalCharacterVarying3 == stringAsNationalCharacterVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsChar3Utf8 == stringAsChar3Utf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacter3Utf8 == stringAsCharacter3Utf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsVarchar3Utf8 == stringAsVarchar3Utf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharVarying3Utf8 == stringAsCharVarying3Utf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVarying3Utf8 == stringAsCharacterVarying3Utf8));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsBinary3 == bytesAsBinary3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsVarbinary3 == bytesAsVarbinary3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.BytesAsBinaryVarying3 == bytesAsBinaryVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsVarchar3 == charAsVarchar3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVarying3 == charAsAsCharVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVarying3 == charAsCharacterVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNvarchar3 == charAsNvarchar3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVarying3 == charAsNationalCharVarying3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVarying3 == charAsNationalCharacterVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsChar3Utf8 == stringAsChar3Utf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharacter3Utf8 == stringAsCharacter3Utf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsVarchar3Utf8 == stringAsVarchar3Utf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharVarying3Utf8 == stringAsCharVarying3Utf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.StringAsCharacterVarying3Utf8 == stringAsCharacterVarying3Utf8));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsBinary3 == bytesAsBinary3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsVarbinary3 == bytesAsVarbinary3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.BytesAsBinaryVarying3 == bytesAsBinaryVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsVarchar3 == charAsVarchar3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsAsCharVarying3 == charAsAsCharVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsCharacterVarying3 == charAsCharacterVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNvarchar3 == charAsNvarchar3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharVarying3 == charAsNationalCharVarying3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.CharAsNationalCharacterVarying3 == charAsNationalCharacterVarying3));
     }
 
     [ConditionalFact]
@@ -542,16 +542,16 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         var id = entity.Id;
         var set = context.Set<MappedScaledDataTypes>();
 
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsFloat3 == floatAsFloat3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsDoublePrecision3 == floatAsDoublePrecision3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsFloat25 == floatAsFloat25));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.FloatAsDoublePrecision25 == floatAsDoublePrecision25));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeOffsetAsDatetimeoffset3 == dateTimeOffsetAsDatetimeoffset3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime23 == dateTimeAsDatetime23));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDecimal3 == decimalAsDecimal3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDec3 == decimalAsDec3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric3 == decimalAsNumeric3));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime3 == timeSpanAsTime3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.FloatAsFloat3 == floatAsFloat3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.FloatAsDoublePrecision3 == floatAsDoublePrecision3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.FloatAsFloat25 == floatAsFloat25));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.FloatAsDoublePrecision25 == floatAsDoublePrecision25));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeOffsetAsDatetimeoffset3 == dateTimeOffsetAsDatetimeoffset3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DateTimeAsDatetime23 == dateTimeAsDatetime23));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsDecimal3 == decimalAsDecimal3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsDec3 == decimalAsDec3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric3 == decimalAsNumeric3));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.TimeSpanAsTime3 == timeSpanAsTime3));
     }
 
     [ConditionalFact]
@@ -575,9 +575,9 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
         var id = entity.Id;
         var set = context.Set<MappedPrecisionAndScaledDataTypes>();
 
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDecimal52 == decimalAsDecimal52));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsDec52 == decimalAsDec52));
-        ExecuteQuerySting(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric52 == decimalAsNumeric52));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsDecimal52 == decimalAsDecimal52));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsDec52 == decimalAsDec52));
+        ExecuteQueryString(context, id, set.Where(e => e.Id == id && e.DecimalAsNumeric52 == decimalAsNumeric52));
     }
 
     [ConditionalFact]
@@ -602,13 +602,13 @@ public class BuiltInDataTypesSqlServerTest : BuiltInDataTypesTestBase<BuiltInDat
             context.SaveChanges();
             var id = entity.Id;
 
-            ExecuteQuerySting(
+            ExecuteQueryString(
                 context, id, context.Set<MappedNullableDataTypesWithIdentity>().Where(
                     e => e.Id == id && e.DoubleAsFloat == @double && e.FloatAsReal == @float));
         }
     }
 
-    private void ExecuteQuerySting(DbContext context, int expectedId, IQueryable queryable)
+    private void ExecuteQueryString(DbContext context, int expectedId, IQueryable queryable)
     {
         var queryString = queryable.ToQueryString();
         using var command = context.Database.GetDbConnection().CreateCommand();

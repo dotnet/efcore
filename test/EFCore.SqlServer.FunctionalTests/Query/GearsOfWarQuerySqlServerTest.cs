@@ -13,7 +13,7 @@ public class GearsOfWarQuerySqlServerTest : GearsOfWarQueryRelationalTestBase<Ge
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override bool CanExecuteQueryString
@@ -8628,7 +8628,7 @@ WHERE [l].[Discriminator] = N'LocustCommander' AND ([g].[Nickname] IS NOT NULL) 
 
         AssertSql(
 """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE FREETEXT([m].[BriefingDocument], N'bombing')
 """);
@@ -8646,7 +8646,7 @@ WHERE FREETEXT([m].[BriefingDocument], N'bombing')
 
         AssertSql(
 """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE FREETEXT([m].[BriefingDocument], N'bombing', LANGUAGE 1033)
 """);
@@ -8663,7 +8663,7 @@ WHERE FREETEXT([m].[BriefingDocument], N'bombing', LANGUAGE 1033)
 
         AssertSql(
 """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONTAINS([m].[BriefingDocument], N'bomb')
 """);
@@ -8681,7 +8681,7 @@ WHERE CONTAINS([m].[BriefingDocument], N'bomb')
 
         AssertSql(
 """
-SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[Rating], [m].[Timeline]
+SELECT TOP(2) [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONTAINS([m].[BriefingDocument], N'bomb', LANGUAGE 1033)
 """);

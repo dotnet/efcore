@@ -77,7 +77,12 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
                 return null;
             }
 
-            instance = _sqlExpressionFactory.ApplyDefaultTypeMapping(instance);
+            // DATEADD defaults to interpreting its last argument as datetime, not datetime2.
+            // Our default mapping for DateTime is datetime2, so we force constants to be datetime instead here.
+            if (instance is SqlConstantExpression instanceConstant)
+            {
+                instance = instanceConstant.ApplyTypeMapping(_typeMappingSource.FindMapping(typeof(DateTime), "datetime"));
+            }
 
             return _sqlExpressionFactory.Function(
                 "DATEADD",

@@ -96,7 +96,7 @@ public class SqlServerTimeOnlyTypeMapping : TimeOnlyTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => value is TimeSpan { Milliseconds: 0 } // Handle trailing decimal separator when no fractional seconds
+        => ((TimeOnly)value).Ticks % 10000000 == 0 // Handle trailing decimal separator when no fractional seconds
             ? string.Format(CultureInfo.InvariantCulture, _timeFormats[0], value)
             : string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
 }
