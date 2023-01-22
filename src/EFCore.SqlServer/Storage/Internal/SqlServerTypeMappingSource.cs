@@ -105,8 +105,11 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
         = new(fixedLength: true);
 
-    private readonly DateOnlyTypeMapping _date
-        = new SqlServerDateOnlyTypeMapping("date");
+    private readonly SqlServerDateOnlyTypeMapping _dateAsDateOnly
+        = new("date");
+
+    private readonly SqlServerDateTimeTypeMapping _dateAsDateTime
+        = new("date", DbType.Date);
 
     private readonly SqlServerDateTimeTypeMapping _smallDatetime
         = new("smalldatetime", DbType.DateTime, SqlDbType.SmallDateTime);
@@ -167,7 +170,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrNoFacetTypeMappings;
 
-    private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+    private readonly Dictionary<string, RelationalTypeMapping[]> _storeTypeMappings;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -185,7 +188,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             {
                 { typeof(int), _int },
                 { typeof(long), _long },
-                { typeof(DateOnly), _date },
+                { typeof(DateOnly), _dateAsDateOnly },
                 { typeof(DateTime), _datetime2 },
                 { typeof(Guid), _uniqueidentifier },
                 { typeof(bool), _bool },
@@ -210,57 +213,59 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { typeof(decimal), _decimalAlias }
             };
 
+        // ReSharper disable CoVariantArrayConversion
         _storeTypeMappings
-            = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+            = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
             {
-                { "bigint", _long },
-                { "binary varying", _variableLengthBinary },
-                { "binary", _fixedLengthBinary },
-                { "bit", _bool },
-                { "char varying", _variableLengthAnsiString },
-                { "char varying(max)", _variableLengthMaxAnsiString },
-                { "char", _fixedLengthAnsiString },
-                { "character varying", _variableLengthAnsiString },
-                { "character varying(max)", _variableLengthMaxAnsiString },
-                { "character", _fixedLengthAnsiString },
-                { "date", _date },
-                { "datetime", _datetime },
-                { "datetime2", _datetime2 },
-                { "datetimeoffset", _datetimeoffset },
-                { "dec", _decimal },
-                { "decimal", _decimal },
-                { "double precision", _double },
-                { "float", _double },
-                { "image", _imageBinary },
-                { "int", _int },
-                { "money", _money },
-                { "national char varying", _variableLengthUnicodeString },
-                { "national char varying(max)", _variableLengthMaxUnicodeString },
-                { "national character varying", _variableLengthUnicodeString },
-                { "national character varying(max)", _variableLengthMaxUnicodeString },
-                { "national character", _fixedLengthUnicodeString },
-                { "nchar", _fixedLengthUnicodeString },
-                { "ntext", _textUnicodeString },
-                { "numeric", _decimal },
-                { "nvarchar", _variableLengthUnicodeString },
-                { "nvarchar(max)", _variableLengthMaxUnicodeString },
-                { "real", _real },
-                { "rowversion", _rowversion },
-                { "smalldatetime", _smallDatetime },
-                { "smallint", _short },
-                { "smallmoney", _smallMoney },
-                { "sql_variant", _sqlVariant },
-                { "text", _textAnsiString },
-                { "time", _timeAsTimeOnly },
-                { "timestamp", _rowversion },
-                { "tinyint", _byte },
-                { "uniqueidentifier", _uniqueidentifier },
-                { "varbinary", _variableLengthBinary },
-                { "varbinary(max)", _variableLengthMaxBinary },
-                { "varchar", _variableLengthAnsiString },
-                { "varchar(max)", _variableLengthMaxAnsiString },
-                { "xml", _xml }
+                { "bigint", new[] { _long } },
+                { "binary varying", new[] { _variableLengthBinary } },
+                { "binary", new[] { _fixedLengthBinary } },
+                { "bit", new[] { _bool } },
+                { "char varying", new[] { _variableLengthAnsiString } },
+                { "char varying(max)", new[] { _variableLengthMaxAnsiString } },
+                { "char", new[] { _fixedLengthAnsiString } },
+                { "character varying", new[] { _variableLengthAnsiString } },
+                { "character varying(max)", new[] { _variableLengthMaxAnsiString } },
+                { "character", new[] { _fixedLengthAnsiString } },
+                { "date", new RelationalTypeMapping[] { _dateAsDateOnly, _dateAsDateTime } },
+                { "datetime", new[] { _datetime } },
+                { "datetime2", new[] { _datetime2 } },
+                { "datetimeoffset", new[] { _datetimeoffset } },
+                { "dec", new[] { _decimal } },
+                { "decimal", new[] { _decimal } },
+                { "double precision", new[] { _double } },
+                { "float", new[] { _double } },
+                { "image", new[] { _imageBinary } },
+                { "int", new[] { _int } },
+                { "money", new[] { _money } },
+                { "national char varying", new[] { _variableLengthUnicodeString } },
+                { "national char varying(max)", new[] { _variableLengthMaxUnicodeString } },
+                { "national character varying", new[] { _variableLengthUnicodeString } },
+                { "national character varying(max)", new[] { _variableLengthMaxUnicodeString } },
+                { "national character", new[] { _fixedLengthUnicodeString } },
+                { "nchar", new[] { _fixedLengthUnicodeString } },
+                { "ntext", new[] { _textUnicodeString } },
+                { "numeric", new[] { _decimal } },
+                { "nvarchar", new[] { _variableLengthUnicodeString } },
+                { "nvarchar(max)", new[] { _variableLengthMaxUnicodeString } },
+                { "real", new[] { _real } },
+                { "rowversion", new[] { _rowversion } },
+                { "smalldatetime", new[] { _smallDatetime } },
+                { "smallint", new[] { _short } },
+                { "smallmoney", new[] {_smallMoney } },
+                { "sql_variant", new[] { _sqlVariant } },
+                { "text", new[] { _textAnsiString } },
+                { "time", new RelationalTypeMapping[] { _timeAsTimeOnly, _timeAsTimeSpan } },
+                { "timestamp", new[] { _rowversion } },
+                { "tinyint", new[] { _byte } },
+                { "uniqueidentifier", new[] { _uniqueidentifier } },
+                { "varbinary", new[] { _variableLengthBinary } },
+                { "varbinary(max)", new[] { _variableLengthMaxBinary } },
+                { "varchar", new[] { _variableLengthAnsiString } },
+                { "varchar(max)", new[] { _variableLengthMaxAnsiString } },
+                { "xml", new[] { _xml } }
             };
+        // ReSharper restore CoVariantArrayConversion
     }
 
     /// <summary>
@@ -294,17 +299,31 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 return _real;
             }
 
-            if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
-                || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+            if (_storeTypeMappings.TryGetValue(storeTypeName, out var mappings)
+                || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mappings))
             {
-                return clrType == null
-                    || mapping.ClrType == clrType
-                        ? mapping
-                        : null;
+                // We found the user-specified store type. No CLR type was provided - we're probably scaffolding from an existing database,
+                // take the first mapping as the default.
+                if (clrType is null)
+                {
+                    return mappings[0];
+                }
+
+                // A CLR type was provided - look for a mapping between the store and CLR types. If not found, fail
+                // immediately.
+                foreach (var m in mappings)
+                {
+                    if (m.ClrType == clrType)
+                    {
+                        return m;
+                    }
+                }
+
+                return null;
             }
 
             if (clrType != null
-                && _clrNoFacetTypeMappings.TryGetValue(clrType, out mapping))
+                && _clrNoFacetTypeMappings.TryGetValue(clrType, out var mapping))
             {
                 return mapping;
             }

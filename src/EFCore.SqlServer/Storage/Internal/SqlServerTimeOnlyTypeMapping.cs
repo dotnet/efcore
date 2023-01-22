@@ -34,7 +34,8 @@ public class SqlServerTimeOnlyTypeMapping : TimeOnlyTypeMapping
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(typeof(TimeOnly)),
                 storeType,
-                StoreTypePostfix.Precision))
+                StoreTypePostfix.Precision,
+                System.Data.DbType.Time))
     {
     }
 
