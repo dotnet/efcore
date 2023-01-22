@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data.SqlTypes;
 using NetTopologySuite.Geometries;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -43,7 +44,8 @@ public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeM
             || (storeTypeName != null
                 && _spatialStoreTypes.Contains(storeTypeName))
                 ? (RelationalTypeMapping)Activator.CreateInstance(
-                    typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(clrType ?? typeof(Geometry)),
+                    typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(
+                        clrType is null || clrType == typeof(SqlBytes) ? typeof(Geometry) : clrType),
                     _geometryServices,
                     storeTypeName ?? "geography")!
                 : null;
