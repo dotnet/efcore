@@ -213,8 +213,10 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             || nonNullableType == typeof(bool)
             || nonNullableType == typeof(string)
             || nonNullableType == typeof(DateTime)
+            || nonNullableType == typeof(DateOnly)
             || nonNullableType == typeof(Guid)
             || nonNullableType == typeof(TimeSpan)
+            || nonNullableType == typeof(TimeOnly)
                 ? typeof(DefaultValueComparer<>)
                 : typeof(ValueComparer<>);
 
