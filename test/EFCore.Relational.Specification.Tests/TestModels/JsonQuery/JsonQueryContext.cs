@@ -22,9 +22,10 @@ public class JsonQueryContext : DbContext
     public static void Seed(JsonQueryContext context)
     {
         var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
+        var entitiesBasic = JsonQueryData.CreateEntitiesBasic();
         var jsonEntitiesBasicForReference = JsonQueryData.CreateJsonEntitiesBasicForReference();
         var jsonEntitiesBasicForCollection = JsonQueryData.CreateJsonEntitiesBasicForCollection();
-        JsonQueryData.WireUp(jsonEntitiesBasic, jsonEntitiesBasicForReference, jsonEntitiesBasicForCollection);
+        JsonQueryData.WireUp(jsonEntitiesBasic, entitiesBasic, jsonEntitiesBasicForReference, jsonEntitiesBasicForCollection);
 
         var jsonEntitiesCustomNaming = JsonQueryData.CreateJsonEntitiesCustomNaming();
         var jsonEntitiesSingleOwned = JsonQueryData.CreateJsonEntitiesSingleOwned();
@@ -32,6 +33,7 @@ public class JsonQueryContext : DbContext
         var jsonEntitiesAllTypes = JsonQueryData.CreateJsonEntitiesAllTypes();
 
         context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
+        context.EntitiesBasic.AddRange(entitiesBasic);
         context.JsonEntitiesBasicForReference.AddRange(jsonEntitiesBasicForReference);
         context.JsonEntitiesBasicForCollection.AddRange(jsonEntitiesBasicForCollection);
         context.JsonEntitiesCustomNaming.AddRange(jsonEntitiesCustomNaming);

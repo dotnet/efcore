@@ -7,11 +7,11 @@ public class JsonQueryData : ISetSource
 {
     public JsonQueryData()
     {
-        EntitiesBasic = new List<EntityBasic>();
         JsonEntitiesBasic = CreateJsonEntitiesBasic();
+        EntitiesBasic = CreateEntitiesBasic();
         JsonEntitiesBasicForReference = CreateJsonEntitiesBasicForReference();
         JsonEntitiesBasicForCollection = CreateJsonEntitiesBasicForCollection();
-        WireUp(JsonEntitiesBasic, JsonEntitiesBasicForReference, JsonEntitiesBasicForCollection);
+        WireUp(JsonEntitiesBasic, EntitiesBasic, JsonEntitiesBasicForReference, JsonEntitiesBasicForCollection);
 
         JsonEntitiesCustomNaming = CreateJsonEntitiesCustomNaming();
         JsonEntitiesSingleOwned = CreateJsonEntitiesSingleOwned();
@@ -292,6 +292,13 @@ public class JsonQueryData : ISetSource
         return new List<JsonEntityBasic> { entity1 };
     }
 
+    public static IReadOnlyList<EntityBasic> CreateEntitiesBasic()
+    {
+        var entity1 = new EntityBasic { Id = 1, Name = "eb 1" };
+
+        return new List<EntityBasic> { entity1 };
+    }
+
     public static IReadOnlyList<JsonEntityBasicForReference> CreateJsonEntitiesBasicForReference()
     {
         var entity1 = new JsonEntityBasicForReference { Id = 1, Name = "EntityReference1" };
@@ -314,27 +321,30 @@ public class JsonQueryData : ISetSource
     }
 
     public static void WireUp(
-        IReadOnlyList<JsonEntityBasic> entitiesBasic,
+        IReadOnlyList<JsonEntityBasic> jsonEntitiesBasic,
+        IReadOnlyList<EntityBasic> entitiesBasic,
         IReadOnlyList<JsonEntityBasicForReference> entitiesBasicForReference,
         IReadOnlyList<JsonEntityBasicForCollection> entitiesBasicForCollection)
     {
-        entitiesBasic[0].EntityReference = entitiesBasicForReference[0];
-        entitiesBasicForReference[0].Parent = entitiesBasic[0];
-        entitiesBasicForReference[0].ParentId = entitiesBasic[0].Id;
+        entitiesBasic[0].JsonEntityBasics = new List<JsonEntityBasic> { jsonEntitiesBasic[0] };
 
-        entitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection>
+        jsonEntitiesBasic[0].EntityReference = entitiesBasicForReference[0];
+        entitiesBasicForReference[0].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForReference[0].ParentId = jsonEntitiesBasic[0].Id;
+
+        jsonEntitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection>
         {
             entitiesBasicForCollection[0],
             entitiesBasicForCollection[1],
             entitiesBasicForCollection[2]
         };
 
-        entitiesBasicForCollection[0].Parent = entitiesBasic[0];
-        entitiesBasicForCollection[0].ParentId = entitiesBasic[0].Id;
-        entitiesBasicForCollection[1].Parent = entitiesBasic[0];
-        entitiesBasicForCollection[1].ParentId = entitiesBasic[0].Id;
-        entitiesBasicForCollection[2].Parent = entitiesBasic[0];
-        entitiesBasicForCollection[2].ParentId = entitiesBasic[0].Id;
+        entitiesBasicForCollection[0].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForCollection[0].ParentId = jsonEntitiesBasic[0].Id;
+        entitiesBasicForCollection[1].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForCollection[1].ParentId = jsonEntitiesBasic[0].Id;
+        entitiesBasicForCollection[2].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForCollection[2].ParentId = jsonEntitiesBasic[0].Id;
     }
 
     public static IReadOnlyList<JsonEntityCustomNaming> CreateJsonEntitiesCustomNaming()
@@ -799,6 +809,16 @@ public class JsonQueryData : ISetSource
         if (typeof(TEntity) == typeof(JsonEntityAllTypes))
         {
             return (IQueryable<TEntity>)JsonEntitiesAllTypes.OfType<JsonEntityAllTypes>().AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(JsonEntityBasicForReference))
+        {
+            return (IQueryable<TEntity>)JsonEntitiesBasicForReference.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(JsonEntityBasicForCollection))
+        {
+            return (IQueryable<TEntity>)JsonEntitiesBasicForCollection.AsQueryable();
         }
 
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

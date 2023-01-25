@@ -1539,7 +1539,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         remappedConstant = Constant(
                             new JsonProjectionInfo(
-                                jsonProjectionInfo.JsonColumnIndex,
+                                projectionIndexMap[jsonProjectionInfo.JsonColumnIndex],
                                 newKeyAccessInfo,
                                 jsonProjectionInfo.AdditionalPath));
                     }
