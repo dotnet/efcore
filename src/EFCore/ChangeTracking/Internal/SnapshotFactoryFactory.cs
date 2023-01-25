@@ -25,8 +25,6 @@ public abstract class SnapshotFactoryFactory
         => GetPropertyCount(entityType) == 0
             ? (() => Snapshot.Empty)
             : Expression.Lambda<Func<ISnapshot>>(
-                    // TODO-Nullable: This whole code path is null unsafe. We are passing null parameter but later using parameter
-                    // as if always exists.
                     CreateConstructorExpression(entityType, null!))
                 .Compile();
 
@@ -38,7 +36,7 @@ public abstract class SnapshotFactoryFactory
     /// </summary>
     protected virtual Expression CreateConstructorExpression(
         IEntityType entityType,
-        ParameterExpression parameter)
+        ParameterExpression? parameter)
     {
         var count = GetPropertyCount(entityType);
 
@@ -93,7 +91,7 @@ public abstract class SnapshotFactoryFactory
     /// </summary>
     protected virtual Expression CreateSnapshotExpression(
         Type? entityType,
-        ParameterExpression parameter,
+        ParameterExpression? parameter,
         Type[] types,
         IList<IPropertyBase> propertyBases)
     {
@@ -154,6 +152,10 @@ public abstract class SnapshotFactoryFactory
                 arguments),
             typeof(ISnapshot));
 
+        Check.DebugAssert(
+            !UseEntityVariable || entityVariable == null || parameter != null,
+            "Parameter can only be null when not using entity variable.");
+
         return UseEntityVariable
             && entityVariable != null
                 ? Expression.Block(
@@ -163,7 +165,7 @@ public abstract class SnapshotFactoryFactory
                         Expression.Assign(
                             entityVariable,
                             Expression.Convert(
-                                Expression.Property(parameter, "Entity"),
+                                Expression.Property(parameter!, "Entity"),
                                 entityType!)),
                         constructorExpression
                     })
@@ -215,7 +217,7 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual Expression CreateReadShadowValueExpression(
-        ParameterExpression parameter,
+        ParameterExpression? parameter,
         IPropertyBase property)
         => Expression.Call(
             parameter,
@@ -229,7 +231,7 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual Expression CreateReadValueExpression(
-        ParameterExpression parameter,
+        ParameterExpression? parameter,
         IPropertyBase property)
         => Expression.Call(
             parameter,

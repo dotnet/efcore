@@ -42,6 +42,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("BundleFullName");
 
         /// <summary>
+        ///     Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+        /// </summary>
+        public static string CannotCreateContextInstance(object? contextType, object? rootException)
+            => string.Format(
+                GetString("CannotCreateContextInstance", nameof(contextType), nameof(rootException)),
+                contextType, rootException);
+
+        /// <summary>
+        ///     The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+        /// </summary>
+        public static string CannotFindDbContextTypes(object? rootException)
+            => string.Format(
+                GetString("CannotFindDbContextTypes", nameof(rootException)),
+                rootException);
+
+        /// <summary>
         ///     Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.
         /// </summary>
         public static string CannotFindDesignTimeProviderAssemblyAttribute(object? runtimeProviderAssemblyName)
@@ -536,14 +552,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 provider);
 
         /// <summary>
-        ///     Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
-        /// </summary>
-        public static string NoParameterlessConstructor(object? contextType)
-            => string.Format(
-                GetString("NoParameterlessConstructor", nameof(contextType)),
-                contextType);
-
-        /// <summary>
         ///     No referenced design-time services were found.
         /// </summary>
         public static string NoReferencedServices
@@ -821,4 +829,3 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
-

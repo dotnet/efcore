@@ -16,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal;
 /// </summary>
 public class MigrationsModelDiffer : IMigrationsModelDiffer
 {
-    private static readonly bool QuirkEnabled27504
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27504", out var enabled) && enabled;
-
     private static readonly Type[] DropOperationTypes =
     {
         typeof(DropIndexOperation),
@@ -788,8 +785,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
                 var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
                 if (linkingNavigationProperty == null
-                    || (linkingForeignKey.PrincipalToDependent!.IsIndexerProperty()
-                        && !QuirkEnabled27504))
+                    || (linkingForeignKey.PrincipalToDependent!.IsIndexerProperty()))
                 {
                     leastPriorityProperties.AddRange(properties);
 

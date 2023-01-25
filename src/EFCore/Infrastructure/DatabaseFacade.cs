@@ -396,7 +396,7 @@ public class DatabaseFacade : IInfrastructure<IServiceProvider>, IDatabaseFacade
     ///         See <see href="https://aka.ms/efcore-docs-transactions">Transactions in EF Core</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    [Obsolete("Use AutoTransactionBehavior instead")]
+    [Obsolete("Use " + nameof(AutoTransactionBehavior) + " instead")]
     public virtual bool AutoTransactionsEnabled
     {
         get => AutoTransactionBehavior is AutoTransactionBehavior.Always or AutoTransactionBehavior.WhenNeeded;

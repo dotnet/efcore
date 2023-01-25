@@ -204,17 +204,26 @@ public class DbContextOperations
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual DbContext CreateContext(string? contextType)
-        => CreateContext(FindContextType(contextType).Value);
-
-    private DbContext CreateContext(Func<DbContext> factory)
     {
-        var context = factory();
-        _reporter.WriteVerbose(DesignStrings.UseContext(context.GetType().ShortDisplayName()));
+        var factory = FindContextType(contextType).Value;
+        try
+        {
+            var context = factory();
+            _reporter.WriteVerbose(DesignStrings.UseContext(context.GetType().ShortDisplayName()));
 
-        var loggerFactory = context.GetService<ILoggerFactory>();
-        loggerFactory.AddProvider(new OperationLoggerProvider(_reporter));
+            var loggerFactory = context.GetService<ILoggerFactory>();
+            loggerFactory.AddProvider(new OperationLoggerProvider(_reporter));
 
-        return context;
+            return context;
+        }
+        catch (Exception ex)
+        {
+            if (ex is TargetInvocationException)
+            {
+                ex = ex.InnerException!;
+            }
+            throw new OperationException(DesignStrings.CannotCreateContextInstance(contextType, ex.Message), ex);
+        }
     }
 
     /// <summary>
@@ -241,73 +250,79 @@ public class DbContextOperations
 
         var contexts = new Dictionary<Type, Func<DbContext>>();
 
-        // Look for IDesignTimeDbContextFactory implementations
-        _reporter.WriteVerbose(DesignStrings.FindingContextFactories);
-        var contextFactories = _startupAssembly.GetConstructibleTypes()
-            .Where(t => typeof(IDesignTimeDbContextFactory<DbContext>).IsAssignableFrom(t));
-        foreach (var factory in contextFactories)
+        try
         {
-            _reporter.WriteVerbose(DesignStrings.FoundContextFactory(factory.ShortDisplayName()));
-            var manufacturedContexts =
-                from i in factory.ImplementedInterfaces
-                where i.IsGenericType
-                    && i.GetGenericTypeDefinition() == typeof(IDesignTimeDbContextFactory<>)
-                select i.GenericTypeArguments[0];
-            foreach (var context in manufacturedContexts)
+            // Look for IDesignTimeDbContextFactory implementations
+            _reporter.WriteVerbose(DesignStrings.FindingContextFactories);
+            var contextFactories = _startupAssembly.GetConstructibleTypes()
+                .Where(t => typeof(IDesignTimeDbContextFactory<DbContext>).IsAssignableFrom(t));
+            foreach (var factory in contextFactories)
+            {
+                _reporter.WriteVerbose(DesignStrings.FoundContextFactory(factory.ShortDisplayName()));
+                var manufacturedContexts =
+                    from i in factory.ImplementedInterfaces
+                    where i.IsGenericType
+                        && i.GetGenericTypeDefinition() == typeof(IDesignTimeDbContextFactory<>)
+                    select i.GenericTypeArguments[0];
+                foreach (var context in manufacturedContexts)
+                {
+                    _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
+                    contexts.Add(
+                        context,
+                        () => CreateContextFromFactory(factory.AsType(), context));
+                }
+            }
+
+            // Look for DbContext classes registered in the service provider
+            var appServices = _appServicesFactory.Create(_args);
+            var registeredContexts = appServices.GetServices<DbContextOptions>()
+                .Select(o => o.ContextType);
+            foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
             {
                 _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
                 contexts.Add(
                     context,
-                    () => CreateContextFromFactory(factory.AsType(), context));
+                    FindContextFactory(context)
+                    ?? FindContextFromRuntimeDbContextFactory(appServices, context)
+                    ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
+            }
+
+            // Look for DbContext classes in assemblies
+            _reporter.WriteVerbose(DesignStrings.FindingReferencedContexts);
+            var types = _startupAssembly.GetConstructibleTypes()
+                .Concat(_assembly.GetConstructibleTypes())
+                .ToList();
+
+            var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(
+                    t => t.AsType())
+                .Concat(
+                    types.Where(t => typeof(Migration).IsAssignableFrom(t))
+                        .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
+                        .Where(t => t != null)
+                        .Cast<Type>())
+                .Distinct();
+
+            foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
+            {
+                _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
+                contexts.Add(
+                    context,
+                    FindContextFactory(context)
+                    ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
             }
         }
-
-        // Look for DbContext classes registered in the service provider
-        var appServices = _appServicesFactory.Create(_args);
-        var registeredContexts = appServices.GetServices<DbContextOptions>()
-            .Select(o => o.ContextType);
-        foreach (var context in registeredContexts.Where(c => !contexts.ContainsKey(c)))
+        catch (Exception ex)
         {
-            _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
-            contexts.Add(
-                context,
-                FindContextFactory(context)
-                ?? FindContextFromRuntimeDbContextFactory(appServices, context)
-                ?? (() => (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context)));
-        }
+            if (ex is OperationException)
+            {
+                throw;
+            }
 
-        // Look for DbContext classes in assemblies
-        _reporter.WriteVerbose(DesignStrings.FindingReferencedContexts);
-        var types = _startupAssembly.GetConstructibleTypes()
-            .Concat(_assembly.GetConstructibleTypes())
-            .ToList();
-
-        var contextTypes = types.Where(t => typeof(DbContext).IsAssignableFrom(t)).Select(
-                t => t.AsType())
-            .Concat(
-                types.Where(t => typeof(Migration).IsAssignableFrom(t))
-                    .Select(t => t.GetCustomAttribute<DbContextAttribute>()?.ContextType)
-                    .Where(t => t != null)
-                    .Cast<Type>())
-            .Distinct();
-
-        foreach (var context in contextTypes.Where(c => !contexts.ContainsKey(c)))
-        {
-            _reporter.WriteVerbose(DesignStrings.FoundDbContext(context.ShortDisplayName()));
-            contexts.Add(
-                context,
-                FindContextFactory(context)
-                ?? (() =>
-                {
-                    try
-                    {
-                        return (DbContext)ActivatorUtilities.GetServiceOrCreateInstance(appServices, context);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new OperationException(DesignStrings.NoParameterlessConstructor(context.Name), ex);
-                    }
-                }));
+            if (ex is TargetInvocationException)
+            {
+                ex = ex.InnerException!;
+            }
+            throw new OperationException(DesignStrings.CannotFindDbContextTypes(ex.Message), ex);
         }
 
         return contexts;

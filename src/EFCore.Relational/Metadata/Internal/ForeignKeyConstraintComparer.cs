@@ -66,7 +66,24 @@ public sealed class ForeignKeyConstraintComparer : IEqualityComparer<IForeignKey
         }
 
         result = StringComparer.Ordinal.Compare(x.PrincipalTable.Name, y.PrincipalTable.Name);
-        return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
+        if (result != 0)
+        {
+            return result;
+        }
+
+        result = StringComparer.Ordinal.Compare(x.Table.Name, y.Table.Name);
+        if (result != 0)
+        {
+            return result;
+        }
+
+        result = StringComparer.Ordinal.Compare(x.PrincipalTable.Schema, y.PrincipalTable.Schema);
+        if (result != 0)
+        {
+            return result;
+        }
+
+        return result != 0 ? result : StringComparer.Ordinal.Compare(x.Table.Schema, y.Table.Schema);
     }
 
     /// <summary>

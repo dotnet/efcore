@@ -30,6 +30,34 @@ public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBas
         Assert.Empty(result);
     }
 
+    [ConditionalFact]
+    public virtual void Ad_hoc_query_for_shared_type_entity_type_works()
+    {
+        var contextFactory = Initialize<MyContextRelational24601>(
+            seed: c => c.Seed());
+
+        using var context = contextFactory.CreateContext();
+
+        var result = context.Database.SqlQueryRaw<ViewQuery24601>(@"SELECT * FROM ViewQuery24601");
+
+        Assert.Empty(result);
+    }
+
+    [ConditionalFact]
+    public virtual void Ad_hoc_query_for_default_shared_type_entity_type_throws()
+    {
+        var contextFactory = Initialize<MyContextRelational24601>(
+            seed: c => c.Seed());
+
+        using var context = contextFactory.CreateContext();
+
+        Assert.Equal(
+            CoreStrings.ClashingSharedType("Dictionary<string, object>"),
+            Assert.Throws<InvalidOperationException>(
+                () => context.Database.SqlQueryRaw<Dictionary<string, object>>(@"SELECT * FROM X")).Message);
+    }
+
+
     protected class MyContextRelational24601 : MyContext24601
     {
         public MyContextRelational24601(DbContextOptions options)

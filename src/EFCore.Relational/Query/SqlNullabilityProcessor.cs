@@ -720,26 +720,28 @@ public class SqlNullabilityProcessor
         {
             var inValues = new List<object?>();
             var hasNullValue = false;
-            RelationalTypeMapping? typeMapping = null;
+            RelationalTypeMapping? typeMapping;
 
-            IEnumerable? values = null;
-            if (valuesExpression is SqlConstantExpression sqlConstant)
+            IEnumerable values;
+            switch (valuesExpression)
             {
-                typeMapping = sqlConstant.TypeMapping;
-                values = (IEnumerable)sqlConstant.Value!;
-            }
-            else if (valuesExpression is SqlParameterExpression sqlParameter)
-            {
-                DoNotCache();
-                typeMapping = sqlParameter.TypeMapping;
-                values = (IEnumerable?)ParameterValues[sqlParameter.Name];
-                if (values == null)
-                {
-                    throw new NullReferenceException();
-                }
+                case SqlConstantExpression sqlConstant:
+                    typeMapping = sqlConstant.TypeMapping;
+                    values = (IEnumerable)sqlConstant.Value!;
+                    break;
+
+                case SqlParameterExpression sqlParameter:
+                    DoNotCache();
+                    typeMapping = sqlParameter.TypeMapping;
+                    values = (IEnumerable?)ParameterValues[sqlParameter.Name] ?? throw new NullReferenceException();
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        RelationalStrings.NonConstantOrParameterAsInExpressionValues(valuesExpression.GetType().Name));
             }
 
-            foreach (var value in values!)
+            foreach (var value in values)
             {
                 if (value == null && extractNullValues)
                 {

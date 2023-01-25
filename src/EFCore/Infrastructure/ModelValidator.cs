@@ -237,8 +237,11 @@ public class ModelValidator : IModelValidator
                         }
 
                         throw new InvalidOperationException(
-                            CoreStrings.NavigationNotAdded(
-                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                            Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true)
+                                ? CoreStrings.NavigationNotAddedAdHoc(
+                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
+                                : CoreStrings.NavigationNotAdded(
+                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                     }
 
                     // ReSharper restore CheckForReferenceEqualityInstead.3
@@ -254,8 +257,11 @@ public class ModelValidator : IModelValidator
                 else
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.PropertyNotAdded(
-                            entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                        Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true)
+                            ? CoreStrings.PropertyNotAddedAdHoc(
+                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
+                            : CoreStrings.PropertyNotAdded(
+                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                 }
             }
         }

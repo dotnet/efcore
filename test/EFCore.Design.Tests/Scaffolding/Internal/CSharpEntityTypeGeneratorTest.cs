@@ -91,6 +91,7 @@ public partial class TestDbContext : DbContext
                     b =>
                     {
                         b.ToTable("Vistas"); // Default name is "Vista" in the absence of pluralizer
+                        b.HasAnnotation(ScaffoldingAnnotationNames.DbSetName, "Vista");
                         b.Property<int>("Id");
                         b.HasKey("Id");
                     });
@@ -447,8 +448,6 @@ public partial class TestDbContext : DbContext
         modelBuilder.Entity<EntityWithIndexes>(entity =>
         {
             entity.HasIndex(e => new { e.B, e.C }, "IndexOnBAndC").HasFilter("Filter SQL");
-
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -521,11 +520,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Entity>(entity =>
-        {
-            entity.Property(e => e.PrimaryKey).UseIdentityColumn();
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -1078,11 +1072,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Entity>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -1553,11 +1542,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -1654,15 +1638,8 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Blog>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
-        });
-
         modelBuilder.Entity<Post>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasOne(d => d.BlogNavigation).WithMany(p => p.Posts)
                 .HasPrincipalKey(p => new { p.Id1, p.Id2 })
                 .HasForeignKey(d => new { d.BlogId1, d.BlogId2 });
@@ -1791,16 +1768,9 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Car>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasOne(d => d.Color).WithMany(p => p.Cars)
                 .HasPrincipalKey(p => p.ColorCode)
                 .HasForeignKey(d => d.ColorCode);
-        });
-
-        modelBuilder.Entity<Color>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -1858,11 +1828,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Blog>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
-        });
-
         modelBuilder.Entity<Post>(entity =>
         {
             entity.HasNoKey();
@@ -2207,11 +2172,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<EntityWithAnnotation>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -2284,11 +2244,6 @@ public partial class TestDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<EntityWithPropertyAnnotation>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
-        });
-
         OnModelCreatingPartial(modelBuilder);
     }
 
@@ -2349,8 +2304,6 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
                     "BlogPost",
@@ -2361,11 +2314,6 @@ public partial class TestDbContext : DbContext
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
                     });
-        });
-
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -2481,8 +2429,6 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
                     "BlogPost",
@@ -2608,8 +2554,6 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
                     "BlogPost",
@@ -2620,11 +2564,6 @@ public partial class TestDbContext : DbContext
                         j.HasKey("BlogsId", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
                     });
-        });
-
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -2756,8 +2695,6 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
                     "BlogPost",
@@ -2770,11 +2707,6 @@ public partial class TestDbContext : DbContext
                         j.HasKey("BlogsKey", "PostsId");
                         j.HasIndex(new[] { "PostsId" }, "IX_BlogPost_PostsId");
                     });
-        });
-
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);
@@ -2928,8 +2860,6 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.Property(e => e.Id).UseIdentityColumn();
-
             entity.HasMany(d => d.Posts).WithMany(p => p.Blogs)
                 .UsingEntity<Dictionary<string, object>>(
                     "PostBlog",
@@ -2947,11 +2877,6 @@ public partial class TestDbContext : DbContext
                         j.IndexerProperty<int>("BlogId").HasColumnName("Blog_Id");
                         j.IndexerProperty<int>("PostId").HasColumnName("Post_Id");
                     });
-        });
-
-        modelBuilder.Entity<Post>(entity =>
-        {
-            entity.Property(e => e.Id).UseIdentityColumn();
         });
 
         OnModelCreatingPartial(modelBuilder);

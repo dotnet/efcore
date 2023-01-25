@@ -66,6 +66,7 @@ public static class ScaffoldingModelExtensions
     /// <returns>The property name.</returns>
     public static string GetDbSetName(this IReadOnlyEntityType entityType)
         => (string?)entityType[ScaffoldingAnnotationNames.DbSetName]
+            ?? entityType.GetTableName()
             ?? entityType.ShortName();
 
     /// <summary>
