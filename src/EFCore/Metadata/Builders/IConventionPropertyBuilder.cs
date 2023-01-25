@@ -142,7 +142,9 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     /// <summary>
     ///     Configures the maximum length of data that can be stored in this property.
     /// </summary>
-    /// <param name="maxLength">The maximum length of data allowed in the property.</param>
+    /// <param name="maxLength">
+    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    /// </param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>
     ///     The same builder instance if the configuration was applied,

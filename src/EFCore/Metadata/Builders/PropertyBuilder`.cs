@@ -56,7 +56,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the maximum length of data that can be stored in this property.
     ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
     /// </summary>
-    /// <param name="maxLength">The maximum length of data allowed in the property.</param>
+    /// <param name="maxLength">
+    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasMaxLength(int maxLength)
         => (PropertyBuilder<TProperty>)base.HasMaxLength(maxLength);

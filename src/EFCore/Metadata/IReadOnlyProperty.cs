@@ -67,7 +67,10 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     Gets the maximum length of data that is allowed in this property. For example, if the property is a <see cref="string" />
     ///     then this is the maximum number of characters.
     /// </summary>
-    /// <returns>The maximum length, or <see langword="null" /> if none is defined.</returns>
+    /// <returns>
+    /// The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
+    /// set.
+    /// </returns>
     int? GetMaxLength();
 
     /// <summary>
