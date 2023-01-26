@@ -61,9 +61,63 @@ public class DbContextOperationsTest
     }
 
     [ConditionalFact]
-    public void GetContextInfo_returns_correct_info()
+    public void GetContextInfo_with_wildcard_name_returns_correct_info()
+    {
+        var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo("test*");
+
+        Assert.Equal("Test", info.DatabaseName);
+        Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
+        Assert.Equal("None", info.Options);
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
+    }
+
+    [ConditionalFact]
+    public void GetContextInfo_with_wildcard_name_fails()
+    {
+        var badWildcardName = "test-wrong*";
+        var message = Assert.Throws<OperationException>(
+            () => CreateOperations(typeof(TestProgramRelational)).GetContextInfo(badWildcardName)).Message;
+
+        Assert.StartsWith(DesignStrings.NoContextWithName("").Substring(0, 10), message);
+    }
+
+    [ConditionalFact]
+    public void GetContextInfo_with_case_insensitive_returns_correct_info()
+    {
+        var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext).ToLower());
+
+        Assert.Equal("Test", info.DatabaseName);
+        Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
+        Assert.Equal("None", info.Options);
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
+    }
+
+    [ConditionalFact]
+    public void GetContextInfo_with_name_exact_returns_correct_info()
     {
         var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(nameof(TestContext));
+
+        Assert.Equal("Test", info.DatabaseName);
+        Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
+        Assert.Equal("None", info.Options);
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
+    }
+
+    [ConditionalFact]
+    public void GetContextInfo_with_full_name_returns_correct_info()
+    {
+        var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(typeof(TestContext).FullName);
+
+        Assert.Equal("Test", info.DatabaseName);
+        Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);
+        Assert.Equal("None", info.Options);
+        Assert.Equal("Microsoft.EntityFrameworkCore.SqlServer", info.ProviderName);
+    }
+
+    [ConditionalFact]
+    public void GetContextInfo_with_assembly_qualified_name_returns_correct_info()
+    {
+        var info = CreateOperations(typeof(TestProgramRelational)).GetContextInfo(typeof(TestContext).AssemblyQualifiedName);
 
         Assert.Equal("Test", info.DatabaseName);
         Assert.Equal(@"(localdb)\mssqllocaldb", info.DataSource);

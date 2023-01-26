@@ -413,6 +413,30 @@ public class DbContextOperations
             throw new OperationException(DesignStrings.MultipleContexts);
         }
 
+        if (name.Contains('*'))
+        {
+            var nameContext = name.Replace("*", "Context");
+            var nameDbContext = name.Replace("*", "DbContext");
+
+            var contextCandidates = FilterTypes(types, nameContext, ignoreCase: true);
+            var dbContextCandidates = FilterTypes(types, nameDbContext, ignoreCase: true);
+
+            if (contextCandidates.Count + dbContextCandidates.Count > 1)
+            {
+                throw new OperationException(DesignStrings.MultipleContextsWithName(name));
+            }
+
+            if (contextCandidates.Count == 1)
+            {
+                return contextCandidates.First();
+            }
+
+            if (dbContextCandidates.Count == 1)
+            {
+                return dbContextCandidates.First();
+            }
+        }
+
         var candidates = FilterTypes(types, name, ignoreCase: true);
         if (candidates.Count == 0)
         {
