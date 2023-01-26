@@ -171,6 +171,30 @@ WHERE (c["Discriminator"] = "Customer")
 """);
     }
 
+    public override async Task Count_over_keyless_entity(bool async)
+    {
+        await base.Count_over_keyless_entity(async);
+
+        AssertSql(
+"""
+SELECT COUNT(1) AS c
+FROM root c
+WHERE (c["Discriminator"] = "Customer")
+""");
+    }
+
+    public override async Task Count_over_keyless_entity_with_pushdown(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Count_over_keyless_entity_with_pushdown(async));
+    }
+
+    public override async Task Count_over_keyless_entity_with_pushdown_empty_projection(bool async)
+    {
+        // Cosmos client evaluation. Issue #17246.
+        await AssertTranslationFailed(() => base.Count_over_keyless_entity_with_pushdown_empty_projection(async));
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
