@@ -5,12 +5,11 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-// Old Sqlite versions don't support the RETURNING clause, so we use the INSERT/UPDATE+SELECT behavior for fetching back database-
-// generated values and rows affected.
-[SqliteVersionCondition(Max = "3.34.999")]
-public class StoreValueGenerationLegacySqliteTest : StoreValueGenerationTestBase<StoreValueGenerationSqliteFixture>
+public class StoreValueGenerationWithoutReturningSqliteTest : StoreValueGenerationTestBase
+    <StoreValueGenerationWithoutReturningSqliteTest.StoreValueGenerationWithoutReturningSqliteFixture>
 {
-    public StoreValueGenerationLegacySqliteTest(StoreValueGenerationSqliteFixture fixture, ITestOutputHelper testOutputHelper)
+    public StoreValueGenerationWithoutReturningSqliteTest(
+        StoreValueGenerationWithoutReturningSqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
@@ -438,4 +437,17 @@ SELECT changes();
     }
 
     #endregion Same two operations with different entity types
+
+    public class StoreValueGenerationWithoutReturningSqliteFixture : StoreValueGenerationSqliteFixture
+    {
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                modelBuilder.Entity(entity.Name).ToTable(b => b.UseSqlReturningClause(false));
+            }
+        }
+    }
 }

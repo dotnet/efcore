@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class StoreValueGenerationTriggerSqlServerTestBase<TFixture> : StoreValueGenerationTestBase<TFixture>
-    where TFixture : StoreValueGenerationTriggerSqlServerFixture
+public abstract class StoreValueGenerationWithoutOutputSqlServerTestBase<TFixture> : StoreValueGenerationTestBase<TFixture>
+    where TFixture : StoreValueGenerationWithoutOutputSqlServerFixture
 {
-    protected StoreValueGenerationTriggerSqlServerTestBase(TFixture fixture)
+    protected StoreValueGenerationWithoutOutputSqlServerTestBase(TFixture fixture)
         : base(fixture)
     {
     }

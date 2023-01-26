@@ -57,6 +57,12 @@ public class OwnedNavigationSplitTableBuilder : IInfrastructure<OwnedNavigationB
     public virtual IMutableEntityTypeMappingFragment MappingFragment
         => InternalMappingFragment;
 
+    /// <summary>
+    ///     The entity type being configured.
+    /// </summary>
+    public virtual IMutableEntityType Metadata
+        => OwnedNavigationBuilder.OwnedEntityType;
+
     private OwnedNavigationBuilder OwnedNavigationBuilder { get; }
 
     /// <summary>

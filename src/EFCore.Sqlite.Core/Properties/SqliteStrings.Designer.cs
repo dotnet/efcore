@@ -52,6 +52,14 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 entityType1, property1, entityType2, property2, columnName, table);
 
         /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlReturningClause}' is configured to use the SQL RETURNING clause, but entity type '{entityTypeWithoutSqlReturningClause}' is not.
+        /// </summary>
+        public static string IncompatibleSqlReturningClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlReturningClause, object? entityTypeWithoutSqlReturningClause)
+            => string.Format(
+                GetString("IncompatibleSqlReturningClauseMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(entityTypeWithSqlReturningClause), nameof(entityTypeWithoutSqlReturningClause)),
+                table, entityType, otherEntityType, entityTypeWithSqlReturningClause, entityTypeWithoutSqlReturningClause);
+
+        /// <summary>
         ///     SQLite does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string InvalidMigrationOperation(object? operation)

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
 
@@ -149,5 +150,42 @@ public class SqliteModelValidator : RelationalModelValidator
         {
             logger.CompositeKeyWithValueGeneration(key);
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void ValidateSharedTableCompatibility(
+        IReadOnlyList<IEntityType> mappedTypes,
+        in StoreObjectIdentifier storeObject,
+        IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+    {
+        bool? firstSqlOutputSetting = null;
+        IEntityType? firstMappedType = null;
+        foreach (var mappedType in mappedTypes)
+        {
+            if (((IConventionEntityType)mappedType).GetUseSqlReturningClauseConfigurationSource() is null)
+            {
+                continue;
+            }
+
+            if (firstSqlOutputSetting is null)
+            {
+                (firstSqlOutputSetting, firstMappedType) = (mappedType.IsSqlReturningClauseUsed(), mappedType);
+            }
+            else if (mappedType.IsSqlReturningClauseUsed() != firstSqlOutputSetting)
+            {
+                throw new InvalidOperationException(
+                    SqliteStrings.IncompatibleSqlReturningClauseMismatch(
+                        storeObject.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
+                        firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName(),
+                        !firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName()));
+            }
+        }
+
+        base.ValidateSharedTableCompatibility(mappedTypes, storeObject, logger);
     }
 }

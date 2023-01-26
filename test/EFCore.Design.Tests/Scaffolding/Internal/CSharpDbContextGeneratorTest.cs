@@ -1196,11 +1196,13 @@ public partial class TestDbContext : DbContext
     {
         modelBuilder.Entity<Employee>(entity =>
         {
-            entity.ToTable(tb =>
+            entity
+                .ToTable(tb =>
                 {
                     tb.HasTrigger("Trigger1");
                     tb.HasTrigger("Trigger2");
-                });
+                })
+                .HasAnnotation("SqlServer:UseSqlOutputClause", false);
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -923,9 +923,7 @@ namespace Internal
                 => base.ShouldUseFullName(type);
 
             protected override bool ShouldUseFullName(string shortTypeName)
-                => base.ShouldUseFullName(shortTypeName)
-                    || shortTypeName == nameof(Index)
-                    || shortTypeName == nameof(Internal);
+                => base.ShouldUseFullName(shortTypeName) || shortTypeName is nameof(Index) or nameof(Internal);
         }
 
         [ConditionalFact]
@@ -4338,6 +4336,7 @@ namespace TestNamespace
             runtimeEntityType.AddAnnotation("Relational:TableName", "Data");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
+            runtimeEntityType.AddAnnotation("SqlServer:UseSqlOutputClause", false);
 
             Customize(runtimeEntityType);
         }

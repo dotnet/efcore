@@ -5,11 +5,11 @@ namespace Microsoft.EntityFrameworkCore.Update;
 
 #nullable enable
 
-public class StoreValueGenerationIdentityTriggerSqlServerTest : StoreValueGenerationTriggerSqlServerTestBase<
-    StoreValueGenerationIdentityTriggerSqlServerTest.StoreValueGenerationIdentityWithTriggerSqlServerFixture>
+public class StoreValueGenerationIdentityWithoutOutputSqlServerTest : StoreValueGenerationWithoutOutputSqlServerTestBase<
+    StoreValueGenerationIdentityWithoutOutputSqlServerTest.StoreValueGenerationIdentityWithWithoutOutputSqlServerFixture>
 {
-    public StoreValueGenerationIdentityTriggerSqlServerTest(
-        StoreValueGenerationIdentityWithTriggerSqlServerFixture fixture,
+    public StoreValueGenerationIdentityWithoutOutputSqlServerTest(
+        StoreValueGenerationIdentityWithWithoutOutputSqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
@@ -471,7 +471,7 @@ WHERE @@ROWCOUNT = 1 AND [Id] = scope_identity();
         }
     }
 
-    public class StoreValueGenerationIdentityWithTriggerSqlServerFixture : StoreValueGenerationTriggerSqlServerFixture
+    public class StoreValueGenerationIdentityWithWithoutOutputSqlServerFixture : StoreValueGenerationWithoutOutputSqlServerFixture
     {
         protected override string StoreName
             => "StoreValueGenerationIdentityWithTriggerTest";

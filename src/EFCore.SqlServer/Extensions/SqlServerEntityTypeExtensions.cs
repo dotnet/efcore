@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -17,6 +18,8 @@ namespace Microsoft.EntityFrameworkCore;
 public static class SqlServerEntityTypeExtensions
 {
     private const string DefaultHistoryTableNameSuffix = "History";
+
+    #region Memory-optimized table
 
     /// <summary>
     ///     Returns a value indicating whether the entity type is mapped to a memory-optimized table.
@@ -57,6 +60,10 @@ public static class SqlServerEntityTypeExtensions
     /// <returns>The configuration source for the memory-optimized setting.</returns>
     public static ConfigurationSource? GetIsMemoryOptimizedConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(SqlServerAnnotationNames.MemoryOptimized)?.GetConfigurationSource();
+
+    #endregion Memory-optimized table
+
+    #region Temporal table
 
     /// <summary>
     ///     Returns a value indicating whether the entity type is mapped to a temporal table.
@@ -271,4 +278,149 @@ public static class SqlServerEntityTypeExtensions
     /// <returns>The configuration source for the temporal history table schema setting.</returns>
     public static ConfigurationSource? GetHistoryTableSchemaConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(SqlServerAnnotationNames.TemporalHistoryTableSchema)?.GetConfigurationSource();
+
+    #endregion Temporal table
+
+    #region SQL OUTPUT clause
+
+    /// <summary>
+    ///     Returns a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns><see langword="true" /> if the SQL OUTPUT clause is used to save changes to the table.</returns>
+    public static bool IsSqlOutputClauseUsed(this IReadOnlyEntityType entityType)
+    {
+        if (entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool useSqlOutputClause })
+        {
+            return useSqlOutputClause;
+        }
+
+        if (entityType.FindOwnership() is { } ownership
+            && StoreObjectIdentifier.Create(entityType, StoreObjectType.Table) is { } tableIdentifier
+            && ownership.FindSharedObjectRootForeignKey(tableIdentifier) is { } rootForeignKey)
+        {
+            return rootForeignKey.PrincipalEntityType.IsSqlOutputClauseUsed();
+        }
+
+        if (entityType.BaseType is not null && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+        {
+            return entityType.GetRootType().IsSqlOutputClauseUsed();
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    public static void UseSqlOutputClause(this IMutableEntityType entityType, bool? useSqlOutputClause)
+        => entityType.SetOrRemoveAnnotation(SqlServerAnnotationNames.UseSqlOutputClause, useSqlOutputClause);
+
+    /// <summary>
+    ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? UseSqlOutputClause(
+        this IConventionEntityType entityType,
+        bool? useSqlOutputClause,
+        bool fromDataAnnotation = false)
+        => (bool?)entityType.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.UseSqlOutputClause,
+            useSqlOutputClause,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Gets the configuration source for whether to use the SQL OUTPUT clause when saving changes to the table.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <returns>The configuration source for the memory-optimized setting.</returns>
+    public static ConfigurationSource? GetUseSqlOutputClauseConfigurationSource(this IConventionEntityType entityType)
+        => entityType.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether to use the SQL OUTPUT clause when saving changes to the specified table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <returns>A value indicating whether the SQL OUTPUT clause is used to save changes to the associated table.</returns>
+    public static bool IsSqlOutputClauseUsed(this IReadOnlyEntityType entityType, in StoreObjectIdentifier storeObject)
+    {
+        if (entityType.FindMappingFragment(storeObject) is { } overrides
+            && overrides.FindAnnotation(SqlServerAnnotationNames.UseSqlOutputClause) is { Value: bool useSqlOutputClause })
+        {
+            return useSqlOutputClause;
+        }
+
+        if (StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject)
+        {
+            return entityType.IsSqlOutputClauseUsed();
+        }
+
+        if (entityType.FindOwnership() is { } ownership
+            && ownership.FindSharedObjectRootForeignKey(storeObject) is { } rootForeignKey)
+        {
+            return rootForeignKey.PrincipalEntityType.IsSqlOutputClauseUsed(storeObject);
+        }
+
+        if (entityType.BaseType is not null && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+        {
+            return entityType.GetRootType().IsSqlOutputClauseUsed(storeObject);
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    public static void UseSqlOutputClause(
+        this IMutableEntityType entityType,
+        bool? useSqlOutputClause,
+        in StoreObjectIdentifier storeObject)
+    {
+        if (StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject)
+        {
+            entityType.UseSqlOutputClause(useSqlOutputClause);
+            return;
+        }
+
+        entityType
+            .GetOrCreateMappingFragment(storeObject)
+            .UseSqlOutputClause(useSqlOutputClause);
+    }
+
+    /// <summary>
+    ///     Sets a value indicating whether to use the SQL OUTPUT clause when saving changes to the table.
+    ///     The OUTPUT clause is incompatible with certain SQL Server features, such as tables with triggers.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    /// <param name="useSqlOutputClause">The value to set.</param>
+    /// <param name="storeObject">The identifier of the table-like store object.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? UseSqlOutputClause(
+        this IConventionEntityType entityType,
+        bool? useSqlOutputClause,
+        in StoreObjectIdentifier storeObject,
+        bool fromDataAnnotation = false)
+        => StoreObjectIdentifier.Create(entityType, storeObject.StoreObjectType) == storeObject
+            ? entityType.UseSqlOutputClause(useSqlOutputClause, fromDataAnnotation)
+            : entityType
+                .GetOrCreateMappingFragment(storeObject, fromDataAnnotation)
+                .UseSqlOutputClause(useSqlOutputClause, fromDataAnnotation);
+
+    #endregion SQL OUTPUT clause
 }

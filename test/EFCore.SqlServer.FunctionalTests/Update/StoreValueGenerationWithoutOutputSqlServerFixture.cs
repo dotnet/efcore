@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.TestModels.StoreValueGenerationModel;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-public abstract class StoreValueGenerationTriggerSqlServerFixture : StoreValueGenerationSqlServerFixtureBase
+public abstract class StoreValueGenerationWithoutOutputSqlServerFixture : StoreValueGenerationSqlServerFixtureBase
 {
     protected override void Seed(StoreValueGenerationContext context)
     {
@@ -32,7 +32,7 @@ END");
 
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {
-            modelBuilder.Entity(entity.Name).ToTable(b => b.HasTrigger(entity.GetTableName() + "_Trigger"));
+            modelBuilder.Entity(entity.Name).ToTable(b => b.UseSqlOutputClause(false));
         }
     }
 }

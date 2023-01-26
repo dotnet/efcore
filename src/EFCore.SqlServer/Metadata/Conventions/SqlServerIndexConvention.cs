@@ -161,8 +161,7 @@ public class SqlServerIndexConvention :
         var index = indexBuilder.Metadata;
         if (index.IsUnique
             && index.IsClustered() != true
-            && GetNullableColumns(index) is List<string> nullableColumns
-            && nullableColumns.Count > 0)
+            && GetNullableColumns(index) is { Count: > 0 } nullableColumns)
         {
             if (columnNameChanged
                 || index.GetFilter() == null)

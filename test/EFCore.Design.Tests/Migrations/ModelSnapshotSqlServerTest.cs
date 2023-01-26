@@ -849,6 +849,8 @@ public class ModelSnapshotSqlServerTest
 
                             t.HasAnnotation("foo", "bar");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order", b =>
@@ -1481,6 +1483,8 @@ public class ModelSnapshotSqlServerTest
                                 .HasDatabaseName("SomeTrg")
                                 .HasAnnotation("foo", "bar");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 """),
             o =>
@@ -1526,6 +1530,8 @@ public class ModelSnapshotSqlServerTest
 
                             t.HasTrigger("SomeTrigger2");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 """),
             o =>

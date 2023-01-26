@@ -1458,8 +1458,7 @@ public static class RelationalEntityTypeExtensions
         }
 
         var ownership = entityType.FindOwnership();
-        if (ownership != null
-            && ownership.IsUnique)
+        if (ownership is { IsUnique: true })
         {
             return ownership.PrincipalEntityType.IsTableExcludedFromMigrations();
         }

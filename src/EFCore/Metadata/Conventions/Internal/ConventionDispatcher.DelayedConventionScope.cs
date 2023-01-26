@@ -269,6 +269,21 @@ public partial class ConventionDispatcher
             return navigation;
         }
 
+        public override IConventionTriggerBuilder OnTriggerAdded(
+            IConventionTriggerBuilder navigationBuilder)
+        {
+            Add(new OnTriggerAddedNode(navigationBuilder));
+            return navigationBuilder;
+        }
+
+        public override IConventionTrigger OnTriggerRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTrigger navigation)
+        {
+            Add(new OnTriggerRemovedNode(entityTypeBuilder, navigation));
+            return navigation;
+        }
+
         public override IReadOnlyList<IConventionProperty> OnForeignKeyPropertiesChanged(
             IConventionForeignKeyBuilder relationshipBuilder,
             IReadOnlyList<IConventionProperty> oldDependentProperties,
@@ -791,6 +806,36 @@ public partial class ConventionDispatcher
 
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnSkipNavigationRemoved(EntityTypeBuilder, Navigation);
+    }
+
+    private sealed class OnTriggerAddedNode : ConventionNode
+    {
+        public OnTriggerAddedNode(IConventionTriggerBuilder triggerBuilder)
+        {
+            TriggerBuilder = triggerBuilder;
+        }
+
+        public IConventionTriggerBuilder TriggerBuilder { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnTriggerAdded(TriggerBuilder);
+    }
+
+    private sealed class OnTriggerRemovedNode : ConventionNode
+    {
+        public OnTriggerRemovedNode(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTrigger trigger)
+        {
+            EntityTypeBuilder = entityTypeBuilder;
+            Trigger = trigger;
+        }
+
+        public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
+        public IConventionTrigger Trigger { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnTriggerRemoved(EntityTypeBuilder, Trigger);
     }
 
     private sealed class OnKeyAddedNode : ConventionNode
