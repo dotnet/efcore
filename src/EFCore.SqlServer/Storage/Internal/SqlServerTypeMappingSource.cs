@@ -160,6 +160,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     private readonly TimeOnlyTypeMapping _timeAsTimeOnly
         = new SqlServerTimeOnlyTypeMapping("time");
 
+    private readonly TimeOnlyTypeMapping _timeAlias
+        = new SqlServerTimeOnlyTypeMapping("placeholder", StoreTypePostfix.None);
+
     private readonly SqlServerStringTypeMapping _xml
         = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
 
@@ -207,8 +210,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(DateTime), _datetime2Alias },
-                { typeof(double), _doubleAlias },
                 { typeof(DateTimeOffset), _datetimeoffsetAlias },
+                { typeof(TimeOnly), _timeAlias },
+                { typeof(double), _doubleAlias },
                 { typeof(float), _realAlias },
                 { typeof(decimal), _decimalAlias }
             };
@@ -322,6 +326,11 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 return null;
             }
 
+            // SQL Server supports aliases (e.g. CREATE TYPE datetimeAlias FROM datetime2(6))
+            // Since we don't know the store name above, usually we end up in the clrType-only lookup below and everything goes well.
+            // However, when a facet is specified (length/precision/scale), that facet would get appended to the store type; we don't want
+            // this in the case of aliased types, since the facet is already part of the type. So we check whether the CLR type supports
+            // facets, and return a special type mapping that doesn't support facets.
             if (clrType != null
                 && _clrNoFacetTypeMappings.TryGetValue(clrType, out var mapping))
             {

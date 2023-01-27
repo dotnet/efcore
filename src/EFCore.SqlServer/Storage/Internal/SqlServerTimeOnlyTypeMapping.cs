@@ -29,12 +29,12 @@ public class SqlServerTimeOnlyTypeMapping : TimeOnlyTypeMapping
         @"'{0:HH\:mm\:ss\.FFFFFFF}'"
     };
 
-    internal SqlServerTimeOnlyTypeMapping(string storeType)
+    internal SqlServerTimeOnlyTypeMapping(string storeType, StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(typeof(TimeOnly)),
                 storeType,
-                StoreTypePostfix.Precision,
+                storeTypePostfix,
                 System.Data.DbType.Time))
     {
     }
