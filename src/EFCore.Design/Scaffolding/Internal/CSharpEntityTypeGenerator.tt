@@ -124,6 +124,7 @@ public partial class <#= EntityType.Name #>
         if (navigation.IsCollection)
         {
 #>
+<# // Initialize property with new List of targetType  #>
     public virtual ICollection<<#= targetType #>> <#= navigation.Name #> { get; } = new List<<#= targetType #>>();
 <#
         }
@@ -151,6 +152,7 @@ public partial class <#= EntityType.Name #>
             }
         }
 #>
+<# // Initialize ICollection Type with new List of TargetEntityType  #>
     public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #> { get; } = new List<<#= skipNavigation.TargetEntityType.Name #>>();
 <#
     }
