@@ -85,7 +85,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
 
         if (Precision.HasValue)
         {
-            parameter.Scale = unchecked((byte)Precision.Value);
+            parameter.Scale = (byte)Precision.Value;
         }
     }
 

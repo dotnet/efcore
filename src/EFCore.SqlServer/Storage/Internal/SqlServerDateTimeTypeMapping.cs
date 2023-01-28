@@ -106,7 +106,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
         {
             // SQL Server accepts a scale, but in EF a scale along isn't supported (without precision).
             // So the actual value is contained as precision in scale, but sent as Scale to SQL Server.
-            parameter.Scale = unchecked((byte)Precision.Value);
+            parameter.Scale = (byte)Precision.Value;
         }
     }
 
