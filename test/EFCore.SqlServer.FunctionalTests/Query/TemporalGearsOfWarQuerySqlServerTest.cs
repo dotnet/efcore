@@ -224,39 +224,54 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam)
 
     public override async Task Where_DateOnly_Year(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_Year(async));
+        await base.Where_DateOnly_Year(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(year, [m].[Date]) = 1990
+""");
     }
 
     public override async Task Where_DateOnly_Month(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_Month(async));
+        await base.Where_DateOnly_Month(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(month, [m].[Date]) = 11
+""");
     }
 
     public override async Task Where_DateOnly_Day(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_Day(async));
+        await base.Where_DateOnly_Day(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(day, [m].[Date]) = 10
+""");
     }
 
     public override async Task Where_DateOnly_DayOfYear(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_DayOfYear(async));
+        await base.Where_DateOnly_DayOfYear(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(dayofyear, [m].[Date]) = 314
+""");
     }
 
     public override async Task Where_DateOnly_DayOfWeek(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
         await AssertTranslationFailed(() => base.Where_DateOnly_DayOfWeek(async));
 
         AssertSql();
@@ -264,79 +279,114 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam)
 
     public override async Task Where_DateOnly_AddYears(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_AddYears(async));
+        await base.Where_DateOnly_AddYears(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEADD(year, CAST(3 AS int), [m].[Date]) = '1993-11-10'
+""");
     }
 
     public override async Task Where_DateOnly_AddMonths(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_AddMonths(async));
+        await base.Where_DateOnly_AddMonths(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEADD(month, CAST(3 AS int), [m].[Date]) = '1991-02-10'
+""");
     }
 
     public override async Task Where_DateOnly_AddDays(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_DateOnly_AddDays(async));
+        await base.Where_DateOnly_AddDays(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEADD(day, CAST(3 AS int), [m].[Date]) = '1990-11-13'
+""");
     }
 
     public override async Task Where_TimeOnly_Hour(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_Hour(async));
+        await base.Where_TimeOnly_Hour(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(hour, [m].[Time]) = 10
+""");
     }
 
     public override async Task Where_TimeOnly_Minute(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_Minute(async));
+        await base.Where_TimeOnly_Minute(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(minute, [m].[Time]) = 15
+""");
     }
 
     public override async Task Where_TimeOnly_Second(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_Second(async));
+        await base.Where_TimeOnly_Second(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(second, [m].[Time]) = 50
+""");
     }
 
     public override async Task Where_TimeOnly_Millisecond(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_Millisecond(async));
+        await base.Where_TimeOnly_Millisecond(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEPART(millisecond, [m].[Time]) = 500
+""");
     }
 
     public override async Task Where_TimeOnly_AddHours(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_AddHours(async));
+        await base.Where_TimeOnly_AddHours(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEADD(hour, CAST(3.0E0 AS int), [m].[Time]) = '13:15:50.5'
+""");
     }
 
     public override async Task Where_TimeOnly_AddMinutes(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_AddMinutes(async));
+        await base.Where_TimeOnly_AddMinutes(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE DATEADD(minute, CAST(3.0E0 AS int), [m].[Time]) = '10:18:50.5'
+""");
     }
 
     public override async Task Where_TimeOnly_Add_TimeSpan(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
         await AssertTranslationFailed(() => base.Where_TimeOnly_Add_TimeSpan(async));
 
         AssertSql();
@@ -344,15 +394,24 @@ WHERE CAST(DATALENGTH([s].[Banner]) AS int) = CAST(DATALENGTH(@__byteArrayParam)
 
     public override async Task Where_TimeOnly_IsBetween(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
-        await AssertTranslationFailed(() => base.Where_TimeOnly_IsBetween(async));
+        await base.Where_TimeOnly_IsBetween(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
+WHERE (CASE
+    WHEN [m].[Time] >= '10:00:00' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END & CASE
+    WHEN [m].[Time] < '11:00:00' THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END) = CAST(1 AS bit)
+""");
     }
 
     public override async Task Where_TimeOnly_subtract_TimeOnly(bool async)
     {
-        // DateOnly and TimeOnly. Issue #24507.
         await AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
 
         AssertSql();
@@ -719,7 +778,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId], [w].[Id
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(month, [m].[Timeline]) = 1
 """);
@@ -1030,7 +1089,7 @@ FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(minute, [m].[Timeline]) = 0
 """);
@@ -2089,7 +2148,7 @@ WHERE [w].[Id] <> 50 AND [g].[HasSoulPatch] = CAST(0 AS bit)
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(second, [m].[Timeline]) = 0
 """);
@@ -2767,7 +2826,7 @@ WHERE ([g].[Rank] & @__parameter_0) = @__parameter_0
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(second, [m].[Duration]) = 1
 """);
@@ -2881,7 +2940,7 @@ WHERE [w].[IsAutomatic] = CAST(1 AS bit)
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(millisecond, [m].[Timeline]) = 0
 """);
@@ -3355,7 +3414,7 @@ GROUP BY [g].[Rank]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(hour, [m].[Duration]) = 1
 """);
@@ -3979,7 +4038,7 @@ ORDER BY [w].[Id]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)
 """);
@@ -4062,7 +4121,7 @@ WHERE EXISTS (
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()
 """);
@@ -4374,7 +4433,7 @@ ORDER BY [g].[FullName]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(dayofyear, [m].[Timeline]) = 2
 """);
@@ -5561,7 +5620,7 @@ WHERE [t].[Note] <> N'Foo' OR ([t].[Note] IS NULL)
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(millisecond, [m].[Duration]) = 1
 """);
@@ -6093,7 +6152,7 @@ ORDER BY [g].[Nickname]
 """
 @__Date_0='0001-01-01T00:00:00.0000000'
 
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE CONVERT(date, [m].[Timeline]) > @__Date_0
 """);
@@ -6218,7 +6277,7 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit)
 @__start_0='1902-01-01T10:00:00.1234567+01:30'
 @__end_1='1902-01-03T10:00:00.1234567+01:30'
 
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'
 """);
@@ -6510,7 +6569,7 @@ WHERE [t].[Name] IS NOT NULL
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(year, [m].[Timeline]) = 2
 """);
@@ -6630,7 +6689,7 @@ ORDER BY [t0].[Note], [t0].[Name], [t0].[Nickname], [t0].[SquadId], [t0].[Id]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(day, [m].[Timeline]) = 2
 """);
@@ -6748,7 +6807,7 @@ ORDER BY [g].[Nickname], [g].[SquadId], [g0].[Nickname], [g0].[SquadId], [w].[Id
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(hour, [m].[Timeline]) = 10
 """);
@@ -8535,7 +8594,7 @@ WHERE [g].[HasSoulPatch] = CAST(0 AS bit)
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE DATEPART(minute, [m].[Duration]) = 1
 """);
@@ -8924,7 +8983,7 @@ WHERE 0 = 1
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE [m].[Rating] IS NULL
 """);
@@ -9346,7 +9405,7 @@ ORDER BY [t].[FullName], [t].[Nickname], [t].[SquadId]
 """
 @__dateTimeOffset_Date_0='0002-03-01T00:00:00.0000000'
 
-SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Timeline]
+SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[PeriodEnd], [m].[PeriodStart], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m]
 WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0
 """);

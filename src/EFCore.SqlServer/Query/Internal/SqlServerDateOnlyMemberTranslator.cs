@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data.SqlTypes;
-using NetTopologySuite.Geometries;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,11 +11,18 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
+public class SqlServerDateOnlyMemberTranslator : IMemberTranslator
 {
-    private readonly HashSet<string> _spatialStoreTypes = new(StringComparer.OrdinalIgnoreCase) { "geometry", "geography" };
+    private static readonly Dictionary<string, string> DatePartMapping
+        = new()
+        {
+            { nameof(DateTime.Year), "year" },
+            { nameof(DateTime.Month), "month" },
+            { nameof(DateTime.DayOfYear), "dayofyear" },
+            { nameof(DateTime.Day), "day" }
+        };
 
-    private readonly NtsGeometryServices _geometryServices;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,9 +30,9 @@ public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeM
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices geometryServices)
+    public SqlServerDateOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
-        _geometryServices = geometryServices;
+        _sqlExpressionFactory = sqlExpressionFactory;
     }
 
     /// <summary>
@@ -35,19 +41,17 @@ public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeM
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-    {
-        var clrType = mappingInfo.ClrType;
-        var storeTypeName = mappingInfo.StoreTypeName;
-
-        return typeof(Geometry).IsAssignableFrom(clrType)
-            || (storeTypeName != null
-                && _spatialStoreTypes.Contains(storeTypeName))
-                ? (RelationalTypeMapping)Activator.CreateInstance(
-                    typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(
-                        clrType is null || clrType == typeof(SqlBytes) ? typeof(Geometry) : clrType),
-                    _geometryServices,
-                    storeTypeName ?? "geography")!
-                : null;
-    }
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
+        MemberInfo member,
+        Type returnType,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        => member.DeclaringType == typeof(DateOnly) && DatePartMapping.TryGetValue(member.Name, out var datePart)
+            ? _sqlExpressionFactory.Function(
+                "DATEPART",
+                new[] { _sqlExpressionFactory.Fragment(datePart), instance! },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true },
+                returnType)
+            : null;
 }

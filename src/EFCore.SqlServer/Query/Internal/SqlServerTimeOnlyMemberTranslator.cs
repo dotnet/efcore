@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data.SqlTypes;
-using NetTopologySuite.Geometries;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -12,11 +11,17 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeMappingSourcePlugin
+public class SqlServerTimeOnlyMemberTranslator : IMemberTranslator
 {
-    private readonly HashSet<string> _spatialStoreTypes = new(StringComparer.OrdinalIgnoreCase) { "geometry", "geography" };
+    private static readonly Dictionary<string, string> DatePartMappings = new()
+    {
+        { nameof(TimeOnly.Hour), "hour" },
+        { nameof(TimeOnly.Minute), "minute" },
+        { nameof(TimeOnly.Second), "second" },
+        { nameof(TimeOnly.Millisecond), "millisecond" }
+    };
 
-    private readonly NtsGeometryServices _geometryServices;
+    private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -24,9 +29,9 @@ public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeM
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices geometryServices)
+    public SqlServerTimeOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
     {
-        _geometryServices = geometryServices;
+        _sqlExpressionFactory = sqlExpressionFactory;
     }
 
     /// <summary>
@@ -35,19 +40,21 @@ public class SqlServerNetTopologySuiteTypeMappingSourcePlugin : IRelationalTypeM
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
+    public virtual SqlExpression? Translate(
+        SqlExpression? instance,
+        MemberInfo member,
+        Type returnType,
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        var clrType = mappingInfo.ClrType;
-        var storeTypeName = mappingInfo.StoreTypeName;
+        if (member.DeclaringType == typeof(TimeOnly) && DatePartMappings.TryGetValue(member.Name, out var value))
+        {
+            return _sqlExpressionFactory.Function(
+                "DATEPART", new[] { _sqlExpressionFactory.Fragment(value), instance! },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true },
+                returnType);
+        }
 
-        return typeof(Geometry).IsAssignableFrom(clrType)
-            || (storeTypeName != null
-                && _spatialStoreTypes.Contains(storeTypeName))
-                ? (RelationalTypeMapping)Activator.CreateInstance(
-                    typeof(SqlServerGeometryTypeMapping<>).MakeGenericType(
-                        clrType is null || clrType == typeof(SqlBytes) ? typeof(Geometry) : clrType),
-                    _geometryServices,
-                    storeTypeName ?? "geography")!
-                : null;
+        return null;
     }
 }
