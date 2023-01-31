@@ -117,27 +117,41 @@ public class ChangeDetector : IChangeDetector
 
         _logger.DetectChangesStarting(stateManager.Context);
 
-        foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+        try
         {
-            switch (entry.EntityState)
+            stateManager.PostponeConceptualNullExceptions = true;
+
+            foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
             {
-                case EntityState.Detached:
-                    break;
-                case EntityState.Deleted:
-                    if (entry.SharedIdentityEntry != null)
-                    {
-                        continue;
-                    }
+                switch (entry.EntityState)
+                {
+                    case EntityState.Detached:
+                        break;
+                    case EntityState.Deleted:
+                        if (entry.SharedIdentityEntry != null)
+                        {
+                            continue;
+                        }
 
-                    goto default;
-                default:
-                    if (LocalDetectChanges(entry))
-                    {
-                        changesFound = true;
-                    }
+                        goto default;
+                    default:
+                        if (LocalDetectChanges(entry))
+                        {
+                            changesFound = true;
+                        }
 
-                    break;
+                        break;
+                }
             }
+        }
+        finally
+        {
+            stateManager.PostponeConceptualNullExceptions = false;
+        }
+
+        if (stateManager.DeleteOrphansTiming == CascadeTiming.Immediate)
+        {
+            stateManager.HandleConceptualNulls(false);
         }
 
         _logger.DetectChangesCompleted(stateManager.Context);

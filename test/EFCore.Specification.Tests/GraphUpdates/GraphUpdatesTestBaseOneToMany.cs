@@ -865,58 +865,42 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     child.ParentId = newParent.Id;
                 }
 
-                if (!Fixture.ForceClientNoAction
-                    || deleteOrphansTiming != CascadeTiming.Immediate
-                    || (changeMechanism & ChangeMechanism.Fk) != 0
-                    || changeMechanism == ChangeMechanism.Dependent)
-                {
-                    Assert.True(context.ChangeTracker.HasChanges());
+                Assert.True(context.ChangeTracker.HasChanges());
 
-                    Assert.DoesNotContain(child, oldParent.Children);
-                    Assert.Contains(child, newParent.Children);
-                    Assert.Equal(newParent.Id, child.ParentId);
-                    Assert.Equal(EntityState.Modified, context.Entry(child).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
+                Assert.DoesNotContain(child, oldParent.Children);
+                Assert.Contains(child, newParent.Children);
+                Assert.Equal(newParent.Id, child.ParentId);
+                Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.False(context.ChangeTracker.HasChanges());
+                Assert.False(context.ChangeTracker.HasChanges());
 
-                    Assert.DoesNotContain(child, oldParent.Children);
-                    Assert.Contains(child, newParent.Children);
-                    Assert.Equal(newParent.Id, child.ParentId);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
-                }
-                else
-                {
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
-                }
+                Assert.DoesNotContain(child, oldParent.Children);
+                Assert.Contains(child, newParent.Children);
+                Assert.Equal(newParent.Id, child.ParentId);
+                Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
             },
             context =>
             {
-                if (!Fixture.ForceClientNoAction
-                    || deleteOrphansTiming != CascadeTiming.Immediate
-                    || (changeMechanism & ChangeMechanism.Fk) != 0
-                    || changeMechanism == ChangeMechanism.Dependent)
-                {
-                    var root = LoadRequiredGraph(context);
+                var root = LoadRequiredGraph(context);
 
-                    Assert.False(context.ChangeTracker.HasChanges());
+                Assert.False(context.ChangeTracker.HasChanges());
 
-                    oldParent = root.RequiredChildren.First(e => e.Id == oldParent.Id);
-                    newParent = root.RequiredChildren.First(e => e.Id == newParent.Id);
-                    child = newParent.Children.First(e => e.Id == child.Id);
+                oldParent = root.RequiredChildren.First(e => e.Id == oldParent.Id);
+                newParent = root.RequiredChildren.First(e => e.Id == newParent.Id);
+                child = newParent.Children.First(e => e.Id == child.Id);
 
-                    Assert.DoesNotContain(child, oldParent.Children);
-                    Assert.Contains(child, newParent.Children);
-                    Assert.Equal(newParent.Id, child.ParentId);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
-                }
+                Assert.DoesNotContain(child, oldParent.Children);
+                Assert.Contains(child, newParent.Children);
+                Assert.Equal(newParent.Id, child.ParentId);
+                Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
             });
     }
 
@@ -984,58 +968,42 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     child.ParentId = newParent.AlternateId;
                 }
 
-                if (!Fixture.ForceClientNoAction
-                    || deleteOrphansTiming != CascadeTiming.Immediate
-                    || (changeMechanism & ChangeMechanism.Fk) != 0
-                    || changeMechanism == ChangeMechanism.Dependent)
-                {
-                    Assert.True(context.ChangeTracker.HasChanges());
+                Assert.True(context.ChangeTracker.HasChanges());
 
-                    Assert.DoesNotContain(child, oldParent.Children);
-                    Assert.Contains(child, newParent.Children);
-                    Assert.Equal(newParent.AlternateId, child.ParentId);
-                    Assert.Equal(EntityState.Modified, context.Entry(child).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
+                Assert.DoesNotContain(child, oldParent.Children);
+                Assert.Contains(child, newParent.Children);
+                Assert.Equal(newParent.AlternateId, child.ParentId);
+                Assert.Equal(EntityState.Modified, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
 
-                    context.SaveChanges();
+                context.SaveChanges();
 
-                    Assert.False(context.ChangeTracker.HasChanges());
+                Assert.False(context.ChangeTracker.HasChanges());
 
-                    Assert.DoesNotContain(child, oldParent.Children);
-                    Assert.Contains(child, newParent.Children);
-                    Assert.Equal(newParent.AlternateId, child.ParentId);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
-                }
-                else
-                {
-                    Assert.Throws<InvalidOperationException>(() => context.ChangeTracker.DetectChanges());
-                }
+                Assert.DoesNotContain(child, oldParent.Children);
+                Assert.Contains(child, newParent.Children);
+                Assert.Equal(newParent.AlternateId, child.ParentId);
+                Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
             },
             context =>
             {
-                if (!Fixture.ForceClientNoAction
-                    || deleteOrphansTiming != CascadeTiming.Immediate
-                    || (changeMechanism & ChangeMechanism.Fk) != 0
-                    || changeMechanism == ChangeMechanism.Dependent)
-                {
-                    var root = LoadRequiredAkGraph(context);
+                var root = LoadRequiredAkGraph(context);
 
-                    Assert.False(context.ChangeTracker.HasChanges());
+                Assert.False(context.ChangeTracker.HasChanges());
 
-                    oldParent = root.RequiredChildrenAk.First(e => e.Id == oldParent.Id);
-                    newParent = root.RequiredChildrenAk.First(e => e.Id == newParent.Id);
-                    child = newParent.Children.First(e => e.Id == child.Id);
+                oldParent = root.RequiredChildrenAk.First(e => e.Id == oldParent.Id);
+                newParent = root.RequiredChildrenAk.First(e => e.Id == newParent.Id);
+                child = newParent.Children.First(e => e.Id == child.Id);
 
-                    Assert.DoesNotContain(child, oldParent.Children);
-                    Assert.Contains(child, newParent.Children);
-                    Assert.Equal(newParent.AlternateId, child.ParentId);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
-                    Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
-                }
+                Assert.DoesNotContain(child, oldParent.Children);
+                Assert.Contains(child, newParent.Children);
+                Assert.Equal(newParent.AlternateId, child.ParentId);
+                Assert.Equal(EntityState.Unchanged, context.Entry(child).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(oldParent).State);
+                Assert.Equal(EntityState.Unchanged, context.Entry(newParent).State);
             });
     }
 

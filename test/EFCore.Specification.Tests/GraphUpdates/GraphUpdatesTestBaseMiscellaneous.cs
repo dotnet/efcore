@@ -1739,4 +1739,33 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 Assert.Equal(0, context.SaveChanges());
             });
+
+    [ConditionalTheory] // Issue #30122
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Sever_relationship_that_will_later_be_deleted(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var swedes = context.Set<Parsnip>()
+                    .Include(x => x.Carrot)
+                    .ThenInclude(x => x.Turnips)
+                    .Include(x => x.Swede)
+                    .ThenInclude(x => x.TurnipSwedes)
+                    .Single(x => x.Id == 1);
+
+                swedes.Carrot.Turnips.Clear();
+                swedes.Swede.TurnipSwedes.Clear();
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                var entries = context.ChangeTracker.Entries();
+                Assert.Equal(3, entries.Count());
+                Assert.All(entries, e => Assert.Equal(EntityState.Unchanged, e.State));
+                Assert.Contains(entries, e => e.Entity.GetType() == typeof(Carrot));
+                Assert.Contains(entries, e => e.Entity.GetType() == typeof(Parsnip));
+                Assert.Contains(entries, e => e.Entity.GetType() == typeof(Swede));
+            });
 }

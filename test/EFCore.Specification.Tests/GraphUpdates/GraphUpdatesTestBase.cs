@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable ArrangeAccessorOwnerBody
@@ -481,62 +481,65 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             modelBuilder.Entity<City>();
 
             modelBuilder.Entity<SomethingCategory>().HasData(
-                new SomethingCategory
-                {
-                    Id = 1,
-                    Name = "A"
-                },
-                new SomethingCategory
-                {
-                    Id = 2,
-                    Name = "B"
-                },
-                new SomethingCategory
-                {
-                    Id = 3,
-                    Name = "C"
-                });
+                new SomethingCategory { Id = 1, Name = "A" },
+                new SomethingCategory { Id = 2, Name = "B" },
+                new SomethingCategory { Id = 3, Name = "C" });
 
             modelBuilder.Entity<Something>().HasOne(s => s.SomethingCategory)
                 .WithMany()
                 .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            modelBuilder.Entity<SomethingOfCategoryA>(builder =>
-            {
-                builder.Property<int>("CategoryId").IsRequired();
+            modelBuilder.Entity<SomethingOfCategoryA>(
+                builder =>
+                {
+                    builder.Property<int>("CategoryId").IsRequired();
 
-                builder.HasKey(nameof(SomethingOfCategoryA.SomethingId), "CategoryId");
+                    builder.HasKey(nameof(SomethingOfCategoryA.SomethingId), "CategoryId");
 
-                builder.HasOne(d => d.Something)
-                    .WithOne(p => p.SomethingOfCategoryA)
-                    .HasPrincipalKey<Something>(p => new {p.Id, p.CategoryId})
-                    .HasForeignKey<SomethingOfCategoryA>(nameof(SomethingOfCategoryA.SomethingId), "CategoryId")
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    builder.HasOne(d => d.Something)
+                        .WithOne(p => p.SomethingOfCategoryA)
+                        .HasPrincipalKey<Something>(p => new { p.Id, p.CategoryId })
+                        .HasForeignKey<SomethingOfCategoryA>(nameof(SomethingOfCategoryA.SomethingId), "CategoryId")
+                        .OnDelete(DeleteBehavior.ClientSetNull);
 
-                builder.HasOne<SomethingCategory>()
-                    .WithMany()
-                    .HasForeignKey("CategoryId")
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+                    builder.HasOne<SomethingCategory>()
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+                });
 
-            modelBuilder.Entity<SomethingOfCategoryB>(builder =>
-            {
-                builder.Property(e => e.CategoryId).IsRequired();
+            modelBuilder.Entity<SomethingOfCategoryB>(
+                builder =>
+                {
+                    builder.Property(e => e.CategoryId).IsRequired();
 
-                builder.HasKey(e => new {e.SomethingId, e.CategoryId});
+                    builder.HasKey(e => new { e.SomethingId, e.CategoryId });
 
-                builder.HasOne(d => d.Something)
-                    .WithOne(p => p.SomethingOfCategoryB)
-                    .HasPrincipalKey<Something>(p => new {p.Id, p.CategoryId})
-                    .HasForeignKey<SomethingOfCategoryB>(socb => new {socb.SomethingId, socb.CategoryId})
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    builder.HasOne(d => d.Something)
+                        .WithOne(p => p.SomethingOfCategoryB)
+                        .HasPrincipalKey<Something>(p => new { p.Id, p.CategoryId })
+                        .HasForeignKey<SomethingOfCategoryB>(socb => new { socb.SomethingId, socb.CategoryId })
+                        .OnDelete(DeleteBehavior.ClientSetNull);
 
-                builder.HasOne(e => e.SomethingCategory)
-                    .WithMany()
-                    .HasForeignKey(e => e.CategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+                    builder.HasOne(e => e.SomethingCategory)
+                        .WithMany()
+                        .HasForeignKey(e => e.CategoryId)
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+                });
+
+            modelBuilder.Entity<Swede>().HasMany(e => e.TurnipSwedes).WithOne(e => e.Swede).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Parsnip>().HasData(new Parsnip { Id = 1 });
+            modelBuilder.Entity<Carrot>().HasData(new Carrot { Id = 1, ParsnipId = 1 });
+            modelBuilder.Entity<Turnip>().HasData(new Turnip { Id = 1, CarrotsId = 1 });
+            modelBuilder.Entity<Swede>().HasData(new Swede { Id = 1, ParsnipId = 1 });
+            modelBuilder.Entity<TurnipSwede>().HasData(
+                new TurnipSwede
+                {
+                    Id = 1,
+                    SwedesId = 1,
+                    TurnipId = 1
+                });
         }
 
         protected virtual object CreateFullGraph()
@@ -3683,6 +3686,159 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         {
             get => _something;
             set => SetWithNotify(value, ref _something);
+        }
+    }
+
+    protected class Parsnip : NotifyingEntity
+    {
+        private int _id;
+        private Carrot _carrot;
+        private Swede _swede;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Carrot Carrot
+        {
+            get => _carrot;
+            set => SetWithNotify(value, ref _carrot);
+        }
+
+        public Swede Swede
+        {
+            get => _swede;
+            set => SetWithNotify(value, ref _swede);
+        }
+    }
+
+    protected class Carrot : NotifyingEntity
+    {
+        private int _id;
+        private int _parsnipId;
+        private Parsnip _parsnip;
+        private ICollection<Turnip> _turnips = new ObservableHashSet<Turnip>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParsnipId
+        {
+            get => _parsnipId;
+            set => SetWithNotify(value, ref _parsnipId);
+        }
+
+        public Parsnip Parsnip
+        {
+            get => _parsnip;
+            set => SetWithNotify(value, ref _parsnip);
+        }
+
+        public ICollection<Turnip> Turnips
+        {
+            get => _turnips;
+            set => SetWithNotify(value, ref _turnips);
+        }
+    }
+
+    protected class Turnip : NotifyingEntity
+    {
+        private int _id;
+        private int _carrotsId;
+        private Carrot _carrot;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int CarrotsId
+        {
+            get => _carrotsId;
+            set => SetWithNotify(value, ref _carrotsId);
+        }
+
+        public Carrot Carrot
+        {
+            get => _carrot;
+            set => SetWithNotify(value, ref _carrot);
+        }
+    }
+
+    protected class Swede : NotifyingEntity
+    {
+        private int _id;
+        private int _parsnipId;
+        private Parsnip _parsnip;
+        private ICollection<TurnipSwede> _turnipSwede = new ObservableHashSet<TurnipSwede>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParsnipId
+        {
+            get => _parsnipId;
+            set => SetWithNotify(value, ref _parsnipId);
+        }
+
+        public Parsnip Parsnip
+        {
+            get => _parsnip;
+            set => SetWithNotify(value, ref _parsnip);
+        }
+
+        public ICollection<TurnipSwede> TurnipSwedes
+        {
+            get => _turnipSwede;
+            set => SetWithNotify(value, ref _turnipSwede);
+        }
+    }
+
+    protected class TurnipSwede : NotifyingEntity
+    {
+        private int _id;
+        private int _swedesId;
+        private Swede _swede;
+        private int _turnipId;
+        private Turnip _turnip;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int SwedesId
+        {
+            get => _swedesId;
+            set => SetWithNotify(value, ref _swedesId);
+        }
+
+        public Swede Swede
+        {
+            get => _swede;
+            set => SetWithNotify(value, ref _swede);
+        }
+
+        public int TurnipId
+        {
+            get => _turnipId;
+            set => SetWithNotify(value, ref _turnipId);
+        }
+
+        public Turnip Turnip
+        {
+            get => _turnip;
+            set => SetWithNotify(value, ref _turnip);
         }
     }
 

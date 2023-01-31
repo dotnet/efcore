@@ -1708,26 +1708,27 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
             SetEntityState(cascadeState);
         }
-        else if (fks.Count > 0)
+        else if (!StateManager.PostponeConceptualNullExceptions)
         {
-            var foreignKey = fks.First();
-
-            if (sensitiveLoggingEnabled)
+            if (fks.Count > 0)
             {
+                var foreignKey = fks.First();
+
+                if (sensitiveLoggingEnabled)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.RelationshipConceptualNullSensitive(
+                            foreignKey.PrincipalEntityType.DisplayName(),
+                            EntityType.DisplayName(),
+                            this.BuildOriginalValuesString(foreignKey.Properties)));
+                }
+
                 throw new InvalidOperationException(
-                    CoreStrings.RelationshipConceptualNullSensitive(
+                    CoreStrings.RelationshipConceptualNull(
                         foreignKey.PrincipalEntityType.DisplayName(),
-                        EntityType.DisplayName(),
-                        this.BuildOriginalValuesString(foreignKey.Properties)));
+                        EntityType.DisplayName()));
             }
 
-            throw new InvalidOperationException(
-                CoreStrings.RelationshipConceptualNull(
-                    foreignKey.PrincipalEntityType.DisplayName(),
-                    EntityType.DisplayName()));
-        }
-        else
-        {
             var property = EntityType.GetProperties().FirstOrDefault(
                 p => (EntityState != EntityState.Modified
                         || IsModified(p))

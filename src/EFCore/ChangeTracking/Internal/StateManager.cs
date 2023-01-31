@@ -1162,6 +1162,22 @@ public class StateManager : IStateManager
     {
         // Perf sensitive
 
+        HandleConceptualNulls(force);
+
+        foreach (var entry in this.ToListForState(deleted: true))
+        {
+            CascadeDelete(entry, force);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void HandleConceptualNulls(bool force)
+    {
         var toHandle = new List<InternalEntityEntry>();
 
         foreach (var entry in GetEntriesForState(modified: true, added: true))
@@ -1176,12 +1192,15 @@ public class StateManager : IStateManager
         {
             entry.HandleConceptualNulls(SensitiveLoggingEnabled, force, isCascadeDelete: false);
         }
-
-        foreach (var entry in this.ToListForState(deleted: true))
-        {
-            CascadeDelete(entry, force);
-        }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool PostponeConceptualNullExceptions { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

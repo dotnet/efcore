@@ -247,6 +247,11 @@ public class FakeStateManager : IStateManager
     public void CascadeChanges(bool force)
         => throw new NotImplementedException();
 
+    public void HandleConceptualNulls(bool force)
+        => throw new NotImplementedException();
+
+    public bool PostponeConceptualNullExceptions { get; set; }
+
     public void CascadeDelete(InternalEntityEntry entry, bool force, IEnumerable<IForeignKey> foreignKeys = null)
         => throw new NotImplementedException();
 
