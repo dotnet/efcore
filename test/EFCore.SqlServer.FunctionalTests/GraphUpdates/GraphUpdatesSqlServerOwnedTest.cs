@@ -10,6 +10,34 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
     {
     }
 
+    // No owned types
+    public override Task Update_root_by_collection_replacement_of_inserted_first_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Update_root_by_collection_replacement_of_deleted_first_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Update_root_by_collection_replacement_of_inserted_second_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Update_root_by_collection_replacement_of_deleted_second_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Update_root_by_collection_replacement_of_inserted_first_level_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Update_root_by_collection_replacement_of_deleted_third_level(bool async)
+        => Task.CompletedTask;
+
+    // No owned types
+    public override Task Sever_relationship_that_will_later_be_deleted(bool async)
+        => Task.CompletedTask;
+
     // Owned dependents are always loaded
     public override void Required_one_to_one_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,

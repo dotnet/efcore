@@ -438,4 +438,20 @@ SELECT changes();
     }
 
     #endregion Same two operations with different entity types
+
+    public class StoreValueGenerationWithoutReturningSqliteFixture : StoreValueGenerationSqliteFixture
+    {
+        protected override string StoreName
+            => "StoreValueGenerationWithoutReturningTest";
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
+        {
+            base.OnModelCreating(modelBuilder, context);
+
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                modelBuilder.Entity(entity.Name).ToTable(b => b.UseSqlReturningClause(false));
+            }
+        }
+    }
 }
