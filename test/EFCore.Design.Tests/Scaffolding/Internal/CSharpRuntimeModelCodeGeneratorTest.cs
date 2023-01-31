@@ -2182,7 +2182,7 @@ namespace TestNamespace
                     Assert.False(dependentMoney.IsConcurrencyToken);
                     Assert.Equal(ValueGenerated.Never, dependentMoney.ValueGenerated);
                     Assert.Equal("Money", dependentMoney.GetColumnName());
-                    Assert.Equal("decimal(9,3)", dependentMoney.GetColumnType());
+                    Assert.Equal("decimal(9, 3)", dependentMoney.GetColumnType());
                     Assert.Null(dependentMoney.GetMaxLength());
                     Assert.Null(dependentMoney.IsUnicode());
                     Assert.Null(dependentMoney.IsFixedLength());

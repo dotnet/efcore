@@ -401,10 +401,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
         property.HasColumnName(column.Name);
 
-        if (!typeScaffoldingInfo.IsInferred
-            && !string.IsNullOrWhiteSpace(column.StoreType))
+        if (!string.IsNullOrWhiteSpace(typeScaffoldingInfo.ScaffoldColumnType))
         {
-            property.HasColumnType(column.StoreType);
+            property.HasColumnType(typeScaffoldingInfo.ScaffoldColumnType);
         }
 
         if (typeScaffoldingInfo.ScaffoldUnicode.HasValue)

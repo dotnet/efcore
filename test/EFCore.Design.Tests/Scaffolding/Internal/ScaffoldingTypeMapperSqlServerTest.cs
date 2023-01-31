@@ -17,7 +17,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("int", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<int>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<int>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory]
@@ -27,7 +27,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("bigint", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<long>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<long>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory]
@@ -35,10 +35,10 @@ public class ScaffoldingTypeMapperSqlServerTest
     [InlineData(true)]
     public void Maps_default_decimal_column(bool isKeyOrIndex)
     {
-        var mapping = CreateMapper().FindMapping("decimal(18,2)", isKeyOrIndex, rowVersion: false);
+        var mapping = CreateMapper().FindMapping("decimal(18, 2)", isKeyOrIndex, rowVersion: false);
 
         AssertMapping<decimal>(
-            mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory]
@@ -46,9 +46,9 @@ public class ScaffoldingTypeMapperSqlServerTest
     [InlineData(true)]
     public void Maps_non_default_decimal_column(bool isKeyOrIndex)
     {
-        var mapping = CreateMapper().FindMapping("decimal(14,3)", isKeyOrIndex, rowVersion: false);
+        var mapping = CreateMapper().FindMapping("decimal(14, 3)", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<decimal>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: 14, scale: 3);
+        AssertMapping<decimal>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: 14, scale: 3);
     }
 
     [ConditionalTheory]
@@ -59,7 +59,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("numeric(17,4)", isKeyOrIndex, rowVersion: false);
 
         AssertMapping<decimal>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "numeric", maxLength: null, unicode: null, fixedLength: null, precision: 17, scale: 4);
     }
 
     [ConditionalTheory]
@@ -69,7 +69,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("bit", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<bool>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<bool>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory]
@@ -80,7 +80,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("datetime", isKeyOrIndex, rowVersion: false);
 
         AssertMapping<DateTime>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "datetime", maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalTheory]
@@ -91,7 +91,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("datetime2", isKeyOrIndex, rowVersion: false);
 
         AssertMapping<DateTime>(
-            mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -99,7 +99,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -107,7 +107,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -115,7 +115,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -124,7 +124,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<byte[]>(
-            mapping, inferred: true, maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -132,7 +132,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -140,7 +140,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(900)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -148,7 +148,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -156,7 +156,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("binary(900)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: true, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -164,7 +164,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("rowversion", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -173,7 +173,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: false, rowVersion: true);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "varbinary", maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -182,7 +182,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: false, rowVersion: true);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "varbinary", maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -191,7 +191,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varbinary(8)", keyOrIndex: false, rowVersion: true);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -200,7 +200,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("binary(max)", keyOrIndex: false, rowVersion: true);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "binary", maxLength: -1, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -209,7 +209,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: false, rowVersion: true);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "binary", maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -218,7 +218,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("binary(8)", keyOrIndex: false, rowVersion: true);
 
         AssertMapping<byte[]>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -226,7 +226,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(max)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -234,7 +234,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -243,7 +243,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: false, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -251,7 +251,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("varchar(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: false, fixedLength: null, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -260,7 +260,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("nvarchar(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: -1, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -268,7 +268,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -277,7 +277,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: -1, unicode: false, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: -1, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -285,7 +285,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("varchar(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: false, fixedLength: null, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -293,7 +293,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(450)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -302,7 +302,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("varchar(900)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: null, maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -310,7 +310,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nchar(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -318,7 +318,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("char(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: false, fixedLength: true, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: false, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -327,7 +327,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("nchar(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: -1, unicode: null, fixedLength: true, precision: null, scale: null);
+            mapping, columnType: null, maxLength: -1, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -335,7 +335,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nchar(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -344,7 +344,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("char(max)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: -1, unicode: false, fixedLength: true, precision: null, scale: null);
+            mapping, columnType: null, maxLength: -1, unicode: false, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -352,7 +352,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("char(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: 200, unicode: false, fixedLength: true, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: 200, unicode: false, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -360,7 +360,7 @@ public class ScaffoldingTypeMapperSqlServerTest
     {
         var mapping = CreateMapper().FindMapping("nchar(450)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: true, precision: null, scale: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -369,7 +369,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("char(900)", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: true, maxLength: null, unicode: false, fixedLength: true, precision: null, scale: null);
+            mapping, columnType: null, maxLength: null, unicode: false, fixedLength: true, precision: null, scale: null);
     }
 
     [ConditionalFact]
@@ -378,12 +378,12 @@ public class ScaffoldingTypeMapperSqlServerTest
         var mapping = CreateMapper().FindMapping("text", keyOrIndex: true, rowVersion: false);
 
         AssertMapping<string>(
-            mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null, precision: null, scale: null);
+            mapping, columnType: "text", maxLength: null, unicode: false, fixedLength: null, precision: null, scale: null);
     }
 
     private static void AssertMapping<T>(
         TypeScaffoldingInfo mapping,
-        bool inferred,
+        string columnType,
         int? maxLength,
         bool? unicode,
         bool? fixedLength,
@@ -391,7 +391,7 @@ public class ScaffoldingTypeMapperSqlServerTest
         int? scale)
     {
         Assert.Same(typeof(T), mapping.ClrType);
-        Assert.Equal(inferred, mapping.IsInferred);
+        Assert.Equal(columnType, mapping.ScaffoldColumnType);
         Assert.Equal(maxLength, mapping.ScaffoldMaxLength);
         Assert.Equal(unicode, mapping.ScaffoldUnicode);
         Assert.Equal(fixedLength, mapping.ScaffoldFixedLength);

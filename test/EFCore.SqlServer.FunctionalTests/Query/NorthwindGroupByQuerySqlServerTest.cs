@@ -2804,7 +2804,7 @@ ORDER BY [o].[OrderDate]
 
         AssertSql(
 """
-SELECT N'TotalAmount' AS [Name], COALESCE(SUM(CAST([t].[OrderID] AS decimal(18,2))), 0.0) AS [Value]
+SELECT N'TotalAmount' AS [Name], COALESCE(SUM(CAST([t].[OrderID] AS decimal(18, 2))), 0.0) AS [Value]
 FROM (
     SELECT [o].[OrderID], 1 AS [Key]
     FROM [Orders] AS [o]

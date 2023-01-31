@@ -467,7 +467,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
                     + "("
                     + (scale == null || parameters.StoreTypePostfix == StoreTypePostfix.Precision
                         ? precision.ToString()
-                        : precision + "," + scale)
+                        : precision + ", " + scale)
                     + ")";
             }
         }

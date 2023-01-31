@@ -358,7 +358,7 @@ public class RelationalScaffoldingModelFactoryTest
     [ConditionalTheory]
     [InlineData("nvarchar(450)", null)]
     [InlineData("datetime2(4)", null)]
-    [InlineData("DateTime2(4)", "DateTime2(4)")]
+    [InlineData("DateTime2(4)", null)]
     public void Column_type_annotation(string storeType, string expectedColumnType)
     {
         var column = new DatabaseColumn

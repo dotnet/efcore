@@ -4174,7 +4174,7 @@ namespace RootNamespace
 
                     b.Property<decimal>("Price")
                         .HasPrecision(7)
-                        .HasColumnType("decimal(7,2)");
+                        .HasColumnType("decimal(7, 2)");
 
                     b.HasKey("Id");
 
@@ -4208,7 +4208,7 @@ namespace RootNamespace
 
                     b.Property<decimal>("Price")
                         .HasPrecision(7, 3)
-                        .HasColumnType("decimal(7,3)");
+                        .HasColumnType("decimal(7, 3)");
 
                     b.HasKey("Id");
 
@@ -6904,7 +6904,7 @@ namespace RootNamespace
                         .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("Decimal")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<double>("Double")
                         .HasColumnType("float");
@@ -6931,7 +6931,7 @@ namespace RootNamespace
                         .HasColumnType("bigint");
 
                     b.Property<decimal>("EnumU64")
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnType("decimal(20, 0)");
 
                     b.Property<short>("Int16")
                         .HasColumnType("smallint");
@@ -6943,7 +6943,7 @@ namespace RootNamespace
                         .HasColumnType("bigint");
 
                     b.Property<decimal?>("OptionalProperty")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<short>("SignedByte")
                         .HasColumnType("smallint");
@@ -7006,7 +7006,7 @@ namespace RootNamespace
                         .HasColumnType("bigint");
 
                     b.Property<decimal>("UnsignedInt64")
-                        .HasColumnType("decimal(20,0)");
+                        .HasColumnType("decimal(20, 0)");
 
                     b.HasKey("Id");
 

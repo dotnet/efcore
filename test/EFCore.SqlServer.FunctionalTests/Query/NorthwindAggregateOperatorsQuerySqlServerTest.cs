@@ -673,7 +673,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
 """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.09), 0.0)
+SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18, 2)) / 2.09), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -684,7 +684,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
 """
-SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18,2)) / 2.0), 0.0)
+SELECT COALESCE(SUM(CAST([o].[Quantity] AS decimal(18, 2)) / 2.0), 0.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -838,7 +838,7 @@ FROM [Orders] AS [o]
 
         AssertSql(
 """
-SELECT AVG(CAST([o].[Quantity] AS decimal(18,2)) / 2.09)
+SELECT AVG(CAST([o].[Quantity] AS decimal(18, 2)) / 2.09)
 FROM [Order Details] AS [o]
 """);
     }
@@ -849,7 +849,7 @@ FROM [Order Details] AS [o]
 
         AssertSql(
 """
-SELECT AVG(CAST([o].[Quantity] AS decimal(18,2)) / 2.0)
+SELECT AVG(CAST([o].[Quantity] AS decimal(18, 2)) / 2.0)
 FROM [Order Details] AS [o]
 """);
     }
@@ -902,7 +902,7 @@ SELECT AVG(CAST((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID]))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
+    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18, 2)))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]
@@ -929,7 +929,7 @@ SELECT AVG(CAST((
         FROM [Order Details] AS [o0]
         WHERE [o].[OrderID] = [o0].[OrderID])) AS float))
     FROM [Orders] AS [o]
-    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18,2)))
+    WHERE [t].[CustomerID] = [o].[CustomerID]) AS decimal(18, 2)))
 FROM (
     SELECT TOP(@__p_0) [c].[CustomerID]
     FROM [Customers] AS [c]

@@ -41,7 +41,7 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
             return null;
         }
 
-        var canInfer = false;
+        string? scaffoldColumnType = null;
         bool? scaffoldUnicode = null;
         bool? scaffoldFixedLength = null;
         int? scaffoldMaxLength = null;
@@ -62,10 +62,13 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
             precision: mapping.Precision,
             scale: mapping.Scale);
 
-        if (defaultTypeMapping != null
-            && string.Equals(defaultTypeMapping.StoreType, storeType, StringComparison.Ordinal))
+        if (defaultTypeMapping != null)
         {
-            canInfer = true;
+            // Check for ColumnType
+            scaffoldColumnType = !string.Equals(defaultTypeMapping.StoreType, storeType, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(defaultTypeMapping.StoreTypeNameBase, storeType, StringComparison.OrdinalIgnoreCase)
+                ? mapping.StoreTypeNameBase
+                : null;
 
             // Check for Unicode
             var unicodeMapping = _typeMappingSource.FindMapping(
@@ -125,8 +128,6 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
                 precision: null,
                 scale: mapping.Scale)!;
 
-            scaffoldPrecision = precisionMapping.Precision != defaultTypeMapping.Precision ? defaultTypeMapping.Precision : null;
-
             // Check for scale
             var scaleMapping = _typeMappingSource.FindMapping(
                 unwrappedClrType,
@@ -139,12 +140,17 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
                 precision: mapping.Precision,
                 scale: null)!;
 
-            scaffoldScale = scaleMapping.Scale != defaultTypeMapping.Scale ? defaultTypeMapping.Scale : null;
+            if (precisionMapping.Precision != defaultTypeMapping.Precision
+                || scaleMapping.Scale != defaultTypeMapping.Scale)
+            {
+                scaffoldPrecision = defaultTypeMapping.Precision;
+                scaffoldScale = defaultTypeMapping.Scale;
+            }
         }
 
         return new TypeScaffoldingInfo(
             mapping.ClrType,
-            canInfer,
+            scaffoldColumnType,
             scaffoldUnicode,
             scaffoldMaxLength,
             scaffoldFixedLength,

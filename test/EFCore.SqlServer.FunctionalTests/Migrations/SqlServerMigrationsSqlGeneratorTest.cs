@@ -107,7 +107,7 @@ ALTER TABLE [Person] ADD [Name] nvarchar(32) NULL;
 
         AssertSql(
 """
-ALTER TABLE [Person] ADD [Pi] decimal(15,10) NOT NULL;
+ALTER TABLE [Person] ADD [Pi] decimal(15, 10) NOT NULL;
 """);
     }
 
@@ -117,7 +117,7 @@ ALTER TABLE [Person] ADD [Pi] decimal(15,10) NOT NULL;
 
         AssertSql(
 """
-ALTER TABLE [Person] ADD [Pi] decimal(20,7) NOT NULL;
+ALTER TABLE [Person] ADD [Pi] decimal(20, 7) NOT NULL;
 """);
     }
 

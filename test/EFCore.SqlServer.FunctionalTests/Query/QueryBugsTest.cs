@@ -4140,7 +4140,7 @@ VALUES (@p0);
 
             AssertSql(
 """
-SELECT COALESCE(SUM(CAST([i].[Quantity] AS decimal(18,2))), 0.0)
+SELECT COALESCE(SUM(CAST([i].[Quantity] AS decimal(18, 2))), 0.0)
 FROM [InventoryPools] AS [i]
 """);
         }
@@ -8276,10 +8276,10 @@ ORDER BY [t].[Id], [t].[MasterTrunk22340Id], [t].[MasterTrunk22340Id0], [f0].[Cu
 
         public class Currency22340
         {
-            [Column(TypeName = "decimal(18,2)")]
+            [Column(TypeName = "decimal(18, 2)")]
             public decimal Amount { get; set; }
 
-            [Column(TypeName = "decimal(18,2)")]
+            [Column(TypeName = "decimal(18, 2)")]
             public decimal Code { get; set; }
         }
     }

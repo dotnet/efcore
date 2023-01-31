@@ -166,8 +166,10 @@ public class ReverseEngineerScaffolderTest
     public void ScaffoldModel_works_with_overridden_connection_string()
     {
         var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
-        var databaseModelFactory = new TestDatabaseModelFactory();
-        databaseModelFactory.ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString";
+        var databaseModelFactory = new TestDatabaseModelFactory
+        {
+            ScaffoldedConnectionString = "Data Source=ScaffoldedConnectionString"
+        };
         var scaffolder = new DesignTimeServicesBuilder(
                 typeof(ReverseEngineerScaffolderTest).Assembly,
                 typeof(ReverseEngineerScaffolderTest).Assembly,
@@ -192,6 +194,83 @@ public class ReverseEngineerScaffolderTest
         Assert.DoesNotContain("Data Source=Test", result.ContextFile.Code);
     }
 
+    [ConditionalFact]
+    public void ScaffoldModel_decimal_numeric_types_have_precision_scale()
+    {
+        var resolver = new TestNamedConnectionStringResolver("Data Source=Test");
+        var databaseModelFactory = new TestDatabaseModelFactory();
+        var table = new DatabaseTable { Name = "DecimalNumericColumns" };
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "Id", StoreType = "int" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "DecimalColumn", StoreType = "decimal" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "Decimal105Column", StoreType = "decimal(10, 5)" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "DecimalDefaultColumn", StoreType = "decimal(18, 2)" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "NumericColumn", StoreType = "numeric" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "Numeric152Column", StoreType = "numeric(15, 2)" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "NumericDefaultColumn", StoreType = "numeric(18, 2)" });
+        table.Columns.Add(new DatabaseColumn { Table = table, Name = "NumericDefaultPrecisionColumn", StoreType = "numeric(38, 5)" });
+        databaseModelFactory.DatabaseModel.Tables.Add(table);
+        var scaffolder = new DesignTimeServicesBuilder(
+                typeof(ReverseEngineerScaffolderTest).Assembly,
+                typeof(ReverseEngineerScaffolderTest).Assembly,
+                new TestOperationReporter(),
+                new string[0])
+            .CreateServiceCollection("Microsoft.EntityFrameworkCore.SqlServer")
+            .AddSingleton<IDesignTimeConnectionStringResolver>(resolver)
+            .AddScoped<IDatabaseModelFactory>(p => databaseModelFactory)
+            .BuildServiceProvider(validateScopes: true)
+            .CreateScope()
+            .ServiceProvider
+            .GetRequiredService<IReverseEngineerScaffolder>();
+
+        var result = scaffolder.ScaffoldModel(
+            "Name=DefaultConnection",
+            new DatabaseModelFactoryOptions(),
+            new ModelReverseEngineerOptions(),
+            new ModelCodeGenerationOptions { ModelNamespace = "Foo", UseDataAnnotations = true });
+
+        Assert.Equal(
+"""
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
+namespace Foo;
+
+[Keyless]
+public partial class DecimalNumericColumn
+{
+    public int Id { get; set; }
+
+    [Precision(18, 0)]
+    public decimal DecimalColumn { get; set; }
+
+    [Precision(10, 5)]
+    public decimal Decimal105Column { get; set; }
+
+    public decimal DecimalDefaultColumn { get; set; }
+
+    [Column(TypeName = "numeric")]
+    [Precision(18, 0)]
+    public decimal NumericColumn { get; set; }
+
+    [Column(TypeName = "numeric")]
+    [Precision(15, 2)]
+    public decimal Numeric152Column { get; set; }
+
+    [Column(TypeName = "numeric")]
+    public decimal NumericDefaultColumn { get; set; }
+
+    [Column(TypeName = "numeric")]
+    [Precision(38, 5)]
+    public decimal NumericDefaultPrecisionColumn { get; set; }
+}
+""",
+                result.AdditionalFiles.Single(a => a.Path == "DecimalNumericColumn.cs").Code.TrimEnd(),
+                ignoreLineEndingDifferences: true);
+    }
+
     private class TestNamedConnectionStringResolver : IDesignTimeConnectionStringResolver
     {
         private readonly string _resolvedConnectionString;
@@ -208,18 +287,18 @@ public class ReverseEngineerScaffolderTest
     private class TestDatabaseModelFactory : IDatabaseModelFactory
     {
         public string ConnectionString { get; set; }
+        public DatabaseModel DatabaseModel { get; set; } = new DatabaseModel();
         public string ScaffoldedConnectionString { get; set; }
 
         public DatabaseModel Create(string connectionString, DatabaseModelFactoryOptions options)
         {
             ConnectionString = connectionString;
-            var databaseModel = new DatabaseModel();
             if (ScaffoldedConnectionString != null)
             {
-                databaseModel[ScaffoldingAnnotationNames.ConnectionString] = ScaffoldedConnectionString;
+                DatabaseModel[ScaffoldingAnnotationNames.ConnectionString] = ScaffoldedConnectionString;
             }
 
-            return databaseModel;
+            return DatabaseModel;
         }
 
         public DatabaseModel Create(DbConnection connection, DatabaseModelFactoryOptions options)

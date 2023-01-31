@@ -19,7 +19,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("text", keyOrIndex, rowVersion);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -31,7 +31,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("integer", keyOrIndex, rowVersion);
 
-        AssertMapping<long>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<long>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -43,7 +43,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("blob", keyOrIndex, rowVersion);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -55,7 +55,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("real", keyOrIndex, rowVersion);
 
-        AssertMapping<double>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<double>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -67,7 +67,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("TEXT", keyOrIndex, rowVersion);
 
-        AssertMapping<string>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -79,7 +79,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("INTEGER", keyOrIndex, rowVersion);
 
-        AssertMapping<long>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<long>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -91,7 +91,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("BLOB", keyOrIndex, rowVersion);
 
-        AssertMapping<byte[]>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -103,7 +103,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("REAL", keyOrIndex, rowVersion);
 
-        AssertMapping<double>(mapping, inferred: true, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<double>(mapping, columnType: null, maxLength: null, unicode: null, fixedLength: null);
     }
 
     // Type affinity cases...
@@ -115,7 +115,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("int", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<long>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<long>(mapping, columnType: "int", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -125,7 +125,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("bigint", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<long>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<long>(mapping, columnType: "bigint", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -133,7 +133,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -141,7 +141,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -149,7 +149,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -157,7 +157,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -165,7 +165,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -173,7 +173,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(900)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -181,15 +181,15 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
     public void Maps_key_binary_default_sized_column()
     {
-        var mapping = CreateMapper().FindMapping("binary(900)", keyOrIndex: true, rowVersion: false);
+        var mapping = CreateMapper().FindMapping("binary", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -197,7 +197,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(max)", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -205,7 +205,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(200)", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -213,7 +213,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varbinary(8)", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "varbinary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -221,7 +221,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("binary(max)", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -229,7 +229,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("binary(200)", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -237,7 +237,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("binary(8)", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "binary", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -245,7 +245,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(max)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nvarchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -253,7 +253,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nvarchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -261,7 +261,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "varchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -269,7 +269,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varchar(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "varchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -277,7 +277,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(max)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nvarchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -285,7 +285,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nvarchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -293,7 +293,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varchar(max)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "varchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -301,7 +301,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varchar(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "varchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -309,7 +309,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nvarchar(450)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nvarchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -317,7 +317,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("varchar(900)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "varchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -325,7 +325,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nchar(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -333,7 +333,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("char(200)", keyOrIndex: false, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "char", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -341,7 +341,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nchar(max)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -349,7 +349,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nchar(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -357,7 +357,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("char(max)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "char", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -365,7 +365,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("char(200)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "char", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -373,7 +373,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("nchar(450)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "nchar", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -381,7 +381,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("char(900)", keyOrIndex: true, rowVersion: false);
 
-        AssertMapping<string>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<string>(mapping, columnType: "char", maxLength: null, unicode: null, fixedLength: null);
     }
 
     // Unknown type cases...
@@ -395,7 +395,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("", keyOrIndex, rowVersion);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalFact]
@@ -403,7 +403,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("rowversion", keyOrIndex: false, rowVersion: true);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "rowversion", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -413,7 +413,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("decimal(18, 2)", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "decimal", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -423,7 +423,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("bit", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "bit", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -433,7 +433,7 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("datetime", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "datetime", maxLength: null, unicode: null, fixedLength: null);
     }
 
     [ConditionalTheory]
@@ -443,13 +443,13 @@ public class ScaffoldingTypeMapperSqliteTest
     {
         var mapping = CreateMapper().FindMapping("datetime2", isKeyOrIndex, rowVersion: false);
 
-        AssertMapping<byte[]>(mapping, inferred: false, maxLength: null, unicode: null, fixedLength: null);
+        AssertMapping<byte[]>(mapping, columnType: "datetime2", maxLength: null, unicode: null, fixedLength: null);
     }
 
-    private static void AssertMapping<T>(TypeScaffoldingInfo mapping, bool inferred, int? maxLength, bool? unicode, bool? fixedLength)
+    private static void AssertMapping<T>(TypeScaffoldingInfo mapping, string columnType, int? maxLength, bool? unicode, bool? fixedLength)
     {
         Assert.Same(typeof(T), mapping.ClrType);
-        Assert.Equal(inferred, mapping.IsInferred);
+        Assert.Equal(columnType, mapping.ScaffoldColumnType);
         Assert.Equal(maxLength, mapping.ScaffoldMaxLength);
         Assert.Equal(unicode, mapping.ScaffoldUnicode);
         Assert.Equal(fixedLength, mapping.ScaffoldFixedLength);

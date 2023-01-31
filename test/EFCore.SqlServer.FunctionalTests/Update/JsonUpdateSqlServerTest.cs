@@ -630,7 +630,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimal', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(18,3))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimal', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(18,3)))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimal', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(18, 3))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimal', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(18, 3)))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -894,7 +894,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(20,0))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(20,0)))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64', CAST(JSON_VALUE(@p0, '$[0]') AS decimal(20, 0))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64', CAST(JSON_VALUE(@p1, '$[0]') AS decimal(20, 0)))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
