@@ -52,7 +52,7 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBas
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
 
-        protected virtual bool AutoDetectChanges
+        public override bool AutoDetectChanges
             => false;
 
         public override PoolableDbContext CreateContext()
