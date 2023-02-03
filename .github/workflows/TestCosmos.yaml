@@ -39,4 +39,4 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: artifacts/TestResults/Debug/*
+          path: artifacts/log/Debug/*
