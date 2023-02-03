@@ -440,6 +440,9 @@ SELECT changes();
 
     public class StoreValueGenerationWithoutReturningSqliteFixture : StoreValueGenerationSqliteFixture
     {
+        protected override string StoreName
+            => "StoreValueGenerationWithoutReturningTest";
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
             base.OnModelCreating(modelBuilder, context);
