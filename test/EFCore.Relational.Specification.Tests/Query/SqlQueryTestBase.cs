@@ -1225,6 +1225,17 @@ SELECT * FROM [Customers2]"))
                 () => context.Database.SqlQueryRaw<Post>(NormalizeDelimitersInRawString(@"SELECT * FROM [Posts]"))).Message);
     }
 
+    [ConditionalFact] // Issue #30056
+    public virtual void Ad_hoc_type_with_collection_navigation_throws()
+    {
+        using var context = CreateContext();
+
+        Assert.Equal(
+            CoreStrings.NavigationNotAddedAdHoc("Blog", "Posts", "List<Post>"),
+            Assert.Throws<InvalidOperationException>(
+                () => context.Database.SqlQueryRaw<Blog>(NormalizeDelimitersInRawString(@"SELECT * FROM [Blogs]"))).Message);
+    }
+
     [ConditionalFact]
     public virtual void Ad_hoc_type_with_unmapped_property_throws()
     {
