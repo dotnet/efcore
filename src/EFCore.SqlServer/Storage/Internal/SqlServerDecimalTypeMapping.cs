@@ -92,12 +92,12 @@ public class SqlServerDecimalTypeMapping : DecimalTypeMapping
 
         if (Precision.HasValue)
         {
-            parameter.Precision = unchecked((byte)Precision.Value);
+            parameter.Precision = (byte)Precision.Value;
         }
 
         if (Scale.HasValue)
         {
-            parameter.Scale = unchecked((byte)Scale.Value);
+            parameter.Scale = (byte)Scale.Value;
         }
     }
 }
