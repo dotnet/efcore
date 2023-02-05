@@ -1932,4 +1932,30 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
         return secondLevel;
     }
+
+    [ConditionalTheory] // Issue #28961
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Alternate_key_over_foreign_key_doesnt_bypass_delete_behavior(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var parent = new NaiveParent { Children = { new() } };
+                context.Add(parent);
+
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
+
+                Assert.Equal(
+                    CoreStrings.KeyReadOnly(nameof(SneakyChild.ParentId), nameof(SneakyChild)),
+                    (await Assert.ThrowsAsync<InvalidOperationException>(
+                        async () =>
+                        {
+                            parent.Children.Remove(parent.Children.First());
+                            _ = async
+                                ? await context.SaveChangesAsync()
+                                : context.SaveChanges();
+                        })).Message);
+            });
 }

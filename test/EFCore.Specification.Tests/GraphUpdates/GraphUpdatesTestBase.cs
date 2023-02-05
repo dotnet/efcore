@@ -548,6 +548,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             modelBuilder.Entity<Bayaz>();
             modelBuilder.Entity<SecondLaw>();
             modelBuilder.Entity<ThirdLaw>();
+
+            modelBuilder.Entity<SneakyChild>(
+                b =>
+                {
+                    b.HasOne(x => x.Parent).WithMany(x => x.Children).OnDelete(DeleteBehavior.Restrict);
+                    b.HasAlternateKey(x => new { x.Id, x.ParentId });
+                });
         }
 
         protected virtual object CreateFullGraph()
@@ -3980,6 +3987,46 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         {
             get => _secondLaw;
             set => SetWithNotify(value, ref _secondLaw);
+        }
+    }
+
+    protected class NaiveParent : NotifyingEntity
+    {
+        private Guid _id;
+        private readonly ICollection<SneakyChild> _children = new ObservableHashSet<SneakyChild>();
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public virtual ICollection<SneakyChild> Children
+            => _children;
+    }
+
+    protected class SneakyChild : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid _parentId;
+        private NaiveParent _parent = null!;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+
+        public virtual NaiveParent Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
         }
     }
 
