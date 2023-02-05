@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 /// </summary>
 public class SimpleNullablePrincipalRowForeignKeyValueFactory<TKey, TNonNullableKey, TForeignKey>
     : RowForeignKeyValueFactory<TKey, TForeignKey>
-    where TNonNullableKey : struct
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

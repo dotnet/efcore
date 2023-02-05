@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class CurrentValueComparerFactory
 {
+    private static readonly bool QuirkEnabled29985
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29985", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -49,12 +52,25 @@ public class CurrentValueComparerFactory
                 var nonNullableProviderType = providerType.UnwrapNullableType();
                 if (IsGenericComparable(providerType, nonNullableProviderType))
                 {
-                    var comparerType = modelType.IsClass
-                        ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelType, converter.ProviderClrType)
-                        : modelType == converter.ModelClrType
-                            ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelType, converter.ProviderClrType)
-                            : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
-                                nonNullableModelType, converter.ProviderClrType);
+                    Type comparerType;
+                    if (QuirkEnabled29985)
+                    {
+                        comparerType = modelType.IsClass
+                            ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelType, converter.ProviderClrType)
+                            : modelType == converter.ModelClrType
+                                ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelType, converter.ProviderClrType)
+                                : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
+                                    nonNullableModelType, converter.ProviderClrType);
+                    }
+                    else
+                    {
+                        comparerType = modelType.IsClass
+                            ? typeof(NullableClassCurrentProviderValueComparer<,>).MakeGenericType(modelType, providerType)
+                            : modelType == converter.ModelClrType
+                                ? typeof(CurrentProviderValueComparer<,>).MakeGenericType(modelType, providerType)
+                                : typeof(NullableStructCurrentProviderValueComparer<,>).MakeGenericType(
+                                    nonNullableModelType, providerType);
+                    }
 
                     return (IComparer<IUpdateEntry>)Activator.CreateInstance(comparerType, propertyBase, converter)!;
                 }
