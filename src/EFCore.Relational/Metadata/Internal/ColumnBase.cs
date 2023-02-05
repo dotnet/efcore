@@ -12,6 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     where TColumnMappingBase : class, IColumnMappingBase
 {
+    private static readonly bool QuirkEnabled29985
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29985", out var enabled) && enabled;
+
     private Type? _providerClrType;
 
     /// <summary>
@@ -84,7 +87,9 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
             }
 
             var typeMapping = StoreTypeMapping;
-            var providerType = typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType;
+            var providerType = QuirkEnabled29985
+                ? typeMapping.Converter?.ProviderClrType ?? typeMapping.ClrType
+                : typeMapping.Converter?.ProviderClrType.UnwrapNullableType() ?? typeMapping.ClrType;
 
             return _providerClrType = providerType;
         }

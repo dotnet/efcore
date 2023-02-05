@@ -430,7 +430,11 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var person = new Person("1", null) { Address = new Address { Country = Country.Eswatini, City = "Bulembu" }, Country = "Eswatini" };
+                var person = new Person("1", null)
+                {
+                    Address = new Address { Country = Country.Eswatini, City = "Bulembu" },
+                    Country = "Eswatini"
+                };
 
                 context.Add(person);
 
@@ -439,8 +443,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
             context =>
             {
                 var person = context.Set<Person>().Single();
-                person.Address = new Address { Country = Country.Türkiye, City = "Konya" };
+                person.Address = new Address { Country = Country.Türkiye, City = "Konya", ZipCode = 42100 };
                 person.Country = "Türkiye";
+                person.ZipCode = "42100";
 
                 context.SaveChanges();
             },
@@ -450,7 +455,9 @@ public abstract class UpdatesTestBase<TFixture> : IClassFixture<TFixture>
 
                 Assert.Equal(Country.Türkiye, person.Address!.Country);
                 Assert.Equal("Konya", person.Address.City);
+                Assert.Equal(42100, person.Address.ZipCode);
                 Assert.Equal("Türkiye", person.Country);
+                Assert.Equal("42100", person.ZipCode);
             });
 
     [ConditionalFact]

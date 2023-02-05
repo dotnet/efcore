@@ -361,7 +361,7 @@ public class MismatchedKeyTypesSqlServerTest : IClassFixture<MismatchedKeyTypesS
         Assert.Equal(
             RelationalStrings.StoredKeyTypesNotConvertable(
                 nameof(OptionalSingleBad.PrincipalId), "uniqueidentifier", "bigint", nameof(PrincipalBad.Id)),
-            Assert.Throws<TargetInvocationException>(() => context.SaveChanges()).InnerException!.Message);
+            Assert.Throws<TargetInvocationException>(() => context.SaveChanges()).InnerException!.InnerException!.Message);
     }
 
     protected class MismatchedKeyTypesContextNoFks : MismatchedKeyTypesContext

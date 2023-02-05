@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 /// </summary>
 public static class ColumnAccessorsFactory
 {
+    private static readonly bool QuirkEnabled29985
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29985", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -51,7 +54,7 @@ public static class ColumnAccessorsFactory
 
                     var providerValue = entry.GetCurrentProviderValue(property);
                     if (providerValue == null
-                        && !typeof(TColumn).IsNullableType())
+                        && (!QuirkEnabled29985 || !typeof(TColumn).IsNullableType()))
                     {
                         return (value!, valueFound);
                     }
@@ -94,7 +97,7 @@ public static class ColumnAccessorsFactory
 
                     var providerValue = entry.GetOriginalProviderValue(property);
                     if (providerValue == null
-                        && !typeof(TColumn).IsNullableType())
+                        && (!QuirkEnabled29985 || !typeof(TColumn).IsNullableType()))
                     {
                         return (value!, valueFound);
                     }
