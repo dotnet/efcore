@@ -146,7 +146,7 @@ public static class RelationalEntityTypeExtensions
         }
 
         return entityType.BaseType != null
-            ? entityType.GetRootType().GetSchema()
+            ? entityType.GetRootType().GetSchema() ?? GetDefaultSchema(entityType)
             : GetDefaultSchema(entityType);
     }
 
