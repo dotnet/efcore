@@ -145,8 +145,8 @@ public static class RelationalEntityTypeExtensions
             return (string?)schemaAnnotation.Value ?? GetDefaultSchema(entityType);
         }
 
-        return entityType.BaseType != null
-            ? entityType.GetRootType().GetSchema() ?? GetDefaultSchema(entityType)
+        return entityType.BaseType != null && entityType.BaseType.GetTableName() != null
+            ? entityType.BaseType.GetSchema()
             : GetDefaultSchema(entityType);
     }
 
