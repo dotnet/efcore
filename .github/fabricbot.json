@@ -1,0 +1,165 @@
+{
+  "version": "1.0",
+  "tasks": [
+    {
+      "taskType": "trigger",
+      "capabilityId": "AutoMerge",
+      "subCapability": "AutoMerge",
+      "version": "1.0",
+      "id": "5F9qlkCNy",
+      "config": {
+        "taskName": "Auto-merge PRs",
+        "label": "auto-merge",
+        "minMinutesOpen": "",
+        "mergeType": "squash",
+        "deleteBranches": true,
+        "removeLabelOnPush": true,
+        "requireAllStatuses": true,
+        "conditionalMergeTypes": [
+          {
+            "mergeType": "merge",
+            "condition": {
+              "placeholder": "labels",
+              "operator": "contains",
+              "label_name": "type-merge forward :fast_forward:"
+            }
+          }
+        ],
+        "requireAllStatuses_exemptList": [
+          "dependabot",
+          "codecov",
+          "DotNet Maestro - Int",
+          "Dotnet maestro",
+          "msftbot"
+        ],
+        "minimumNumberOfStatuses": 0
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestResponder",
+      "version": "1.0",
+      "config": {
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isAction",
+              "parameters": {
+                "action": "opened"
+              }
+            },
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": "dotnet-maestro[bot]",
+                "association": "CONTRIBUTOR"
+              }
+            },
+            {
+              "name": "titleContains",
+              "parameters": {
+                "titlePattern": "Update dependencies"
+              }
+            }
+          ]
+        },
+        "eventType": "pull_request",
+        "eventNames": [
+          "pull_request",
+          "issues",
+          "project_card"
+        ],
+        "taskName": "[Infrastructure PRs] Add area-infrastructure label to dependency update Pull Requests",
+        "actions": [
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "area-infrastructure"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "type-dependency update :arrow_up_small:"
+            }
+          },
+          {
+            "name": "approvePullRequest",
+            "parameters": {
+              "comment": "Auto-approving dependency update."
+            }
+          }
+        ]
+      },
+      "id": "2khUSIqMEcJ"
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestResponder",
+      "version": "1.0",
+      "config": {
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "isAction",
+              "parameters": {
+                "action": "opened"
+              }
+            },
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": "dotnet-maestro-bot"
+              }
+            },
+            {
+              "name": "titleContains",
+              "parameters": {
+                "titlePattern": "Merge branch"
+              }
+            }
+          ]
+        },
+        "eventType": "pull_request",
+        "eventNames": [
+          "pull_request",
+          "issues",
+          "project_card"
+        ],
+        "taskName": "[Infrastructure PRs] Add area-infrastructure label to auto-merge Pull Requests",
+        "actions": [
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "area-infrastructure"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "type-merge forward :fast_forward:"
+            }
+          },
+          {
+            "name": "approvePullRequest",
+            "parameters": {
+              "comment": "Auto-approving branch merge."
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "auto-merge"
+            }
+          }
+        ]
+      },
+      "id": "T7d3xzteS9I"
+    }
+  ],
+  "userGroups": []
+}

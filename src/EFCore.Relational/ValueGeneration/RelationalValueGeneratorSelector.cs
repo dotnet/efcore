@@ -1,103 +1,93 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration;
+
+/// <summary>
+///     <para>
+///         Selects value generators to be used to generate values for properties of entities.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
+/// </summary>
+/// <remarks>
+///     <para>
+///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
+///         <see cref="DbContext" /> instance will use its own instance of this service.
+///         The implementation may depend on other services registered with any lifetime.
+///         The implementation does not need to be thread-safe.
+///     </para>
+///     <para>
+///         See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
+///         for more information and examples.
+///     </para>
+/// </remarks>
+public class RelationalValueGeneratorSelector : ValueGeneratorSelector
 {
-    /// <summary>
-    ///     <para>
-    ///         Selects value generators to be used to generate values for properties of entities.
-    ///     </para>
-    ///     <para>
-    ///         This type is typically used by database providers (and other extensions). It is generally
-    ///         not used in application code.
-    ///     </para>
-    ///     <para>
-    ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
-    ///         <see cref="DbContext" /> instance will use its own instance of this service.
-    ///         The implementation may depend on other services registered with any lifetime.
-    ///         The implementation does not need to be thread-safe.
-    ///     </para>
-    /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
-    ///     for more information.
-    /// </remarks>
-    public class RelationalValueGeneratorSelector : ValueGeneratorSelector
-    {
-        private readonly TemporaryNumberValueGeneratorFactory _numberFactory
-            = new();
+    private readonly TemporaryNumberValueGeneratorFactory _numberFactory
+        = new();
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
-        /// </summary>
-        /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-        public RelationalValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
-            : base(dependencies)
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="RelationalValueGeneratorSelector" /> class.
+    /// </summary>
+    /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
+    public RelationalValueGeneratorSelector(ValueGeneratorSelectorDependencies dependencies)
+        : base(dependencies)
+    {
+    }
+
+    /// <inheritdoc />
+    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+    {
+        if (entityType.IsMappedToJson() && property.IsOrdinalKeyProperty())
         {
+            return _numberFactory.Create(property, entityType);
         }
 
-        /// <summary>
-        ///     Creates a new value generator for the given property.
-        /// </summary>
-        /// <param name="property">The property to get the value generator for.</param>
-        /// <param name="entityType">
-        ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
-        ///     this entity type may be different from the declared entity type on <paramref name="property" />
-        /// </param>
-        /// <returns>The newly created value generator.</returns>
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        if (property.ValueGenerated != ValueGenerated.Never)
         {
-            Check.NotNull(property, nameof(property));
-            Check.NotNull(entityType, nameof(entityType));
-
-            if (property.ValueGenerated != ValueGenerated.Never)
+            if (clrType.IsInteger()
+                || clrType == typeof(decimal)
+                || clrType == typeof(float)
+                || clrType == typeof(double))
             {
-                var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-
-                if (propertyType.IsInteger()
-                    || propertyType == typeof(decimal)
-                    || propertyType == typeof(float)
-                    || propertyType == typeof(double))
-                {
-                    return _numberFactory.Create(property, entityType);
-                }
-
-                if (propertyType == typeof(DateTime))
-                {
-                    return new TemporaryDateTimeValueGenerator();
-                }
-
-                if (propertyType == typeof(DateTimeOffset))
-                {
-                    return new TemporaryDateTimeOffsetValueGenerator();
-                }
-
-                if (property.GetDefaultValueSql() != null)
-                {
-                    if (propertyType == typeof(Guid))
-                    {
-                        return new TemporaryGuidValueGenerator();
-                    }
-
-                    if (propertyType == typeof(string))
-                    {
-                        return new TemporaryStringValueGenerator();
-                    }
-
-                    if (propertyType == typeof(byte[]))
-                    {
-                        return new TemporaryBinaryValueGenerator();
-                    }
-                }
+                return _numberFactory.Create(property, entityType);
             }
 
-            return base.Create(property, entityType);
+            if (clrType == typeof(DateTime))
+            {
+                return new TemporaryDateTimeValueGenerator();
+            }
+
+            if (clrType == typeof(DateTimeOffset))
+            {
+                return new TemporaryDateTimeOffsetValueGenerator();
+            }
+
+            if (property.GetDefaultValueSql() != null)
+            {
+                if (clrType == typeof(Guid))
+                {
+                    return new TemporaryGuidValueGenerator();
+                }
+
+                if (clrType == typeof(string))
+                {
+                    return new TemporaryStringValueGenerator();
+                }
+
+                if (clrType == typeof(byte[]))
+                {
+                    return new TemporaryBinaryValueGenerator();
+                }
+            }
         }
+
+        return base.FindForType(property, entityType, clrType);
     }
 }

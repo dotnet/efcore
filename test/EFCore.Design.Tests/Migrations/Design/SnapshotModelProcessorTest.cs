@@ -1,22 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design.Internal;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Ownership;
-using Xunit;
 
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -206,11 +194,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var differ = context.GetService<IMigrationsModelDiffer>();
             var snapshot = (ModelSnapshot)Activator.CreateInstance(snapshotType);
             var reporter = new TestOperationReporter();
-            var modelRuntimeInitializer = SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
+            var modelRuntimeInitializer =
+                SqlServerTestHelpers.Instance.CreateContextServices().GetRequiredService<IModelRuntimeInitializer>();
             var processor = new SnapshotModelProcessor(reporter, modelRuntimeInitializer);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(),
+            var differences = differ.GetDifferences(
+                model.GetRelationalModel(),
                 context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Empty(differences);
@@ -230,7 +220,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             var processor = new SnapshotModelProcessor(reporter, setBuilder);
             var model = processor.Process(snapshot.Model);
 
-            var differences = differ.GetDifferences(model.GetRelationalModel(), context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
+            var differences = differ.GetDifferences(
+                model.GetRelationalModel(), context.GetService<IDesignTimeModel>().Model.GetRelationalModel());
 
             Assert.Empty(differences);
         }
@@ -238,12 +229,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AddAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
-                .Where(
-                    a => a != RelationalAnnotationNames.MaxIdentifierLength
+                         .Where(
+                             a => a != RelationalAnnotationNames.MaxIdentifierLength
 #pragma warning disable CS0618 // Type or member is obsolete
-                        && a != RelationalAnnotationNames.SequencePrefix)
+                                 && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
-                .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
+                                 && a.IndexOf(':') > 0)
+                         .Select(a => "Unicorn" + a.Substring(RelationalAnnotationNames.Prefix.Length - 1)))
             {
                 element[annotationName] = "Value";
             }
@@ -252,26 +244,28 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private void AssertAnnotations(IMutableAnnotatable element)
         {
             foreach (var annotationName in GetAnnotationNames()
-                .Where(
-                    a => a != RelationalAnnotationNames.MaxIdentifierLength
-                        && a != RelationalAnnotationNames.RelationalModel
-                        && a != RelationalAnnotationNames.DefaultMappings
-                        && a != RelationalAnnotationNames.DefaultColumnMappings
-                        && a != RelationalAnnotationNames.TableMappings
-                        && a != RelationalAnnotationNames.TableColumnMappings
-                        && a != RelationalAnnotationNames.ViewMappings
-                        && a != RelationalAnnotationNames.ViewColumnMappings
-                        && a != RelationalAnnotationNames.SqlQueryMappings
-                        && a != RelationalAnnotationNames.SqlQueryColumnMappings
-                        && a != RelationalAnnotationNames.FunctionMappings
-                        && a != RelationalAnnotationNames.FunctionColumnMappings
-                        && a != RelationalAnnotationNames.ForeignKeyMappings
-                        && a != RelationalAnnotationNames.TableIndexMappings
-                        && a != RelationalAnnotationNames.UniqueConstraintMappings
-                        && a != RelationalAnnotationNames.RelationalOverrides
+                         .Where(
+                             a => a != RelationalAnnotationNames.MaxIdentifierLength
+                                 && a != RelationalAnnotationNames.RelationalModel
+                                 && a != RelationalAnnotationNames.DefaultMappings
+                                 && a != RelationalAnnotationNames.DefaultColumnMappings
+                                 && a != RelationalAnnotationNames.TableMappings
+                                 && a != RelationalAnnotationNames.TableColumnMappings
+                                 && a != RelationalAnnotationNames.ViewMappings
+                                 && a != RelationalAnnotationNames.ViewColumnMappings
+                                 && a != RelationalAnnotationNames.SqlQueryMappings
+                                 && a != RelationalAnnotationNames.SqlQueryColumnMappings
+                                 && a != RelationalAnnotationNames.FunctionMappings
+                                 && a != RelationalAnnotationNames.FunctionColumnMappings
+                                 && a != RelationalAnnotationNames.ForeignKeyMappings
+                                 && a != RelationalAnnotationNames.TableIndexMappings
+                                 && a != RelationalAnnotationNames.UniqueConstraintMappings
+                                 && a != RelationalAnnotationNames.RelationalOverrides
+                                 && a != RelationalAnnotationNames.MappingFragments
 #pragma warning disable CS0618 // Type or member is obsolete
-                        && a != RelationalAnnotationNames.SequencePrefix))
+                                 && a != RelationalAnnotationNames.SequencePrefix
 #pragma warning restore CS0618 // Type or member is obsolete
+                                 && a.IndexOf(':') > 0))
             {
                 Assert.Equal("Value", (string)element[annotationName]);
             }
@@ -294,7 +288,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 => model;
 
             public IModel Initialize(
-                IModel model, bool designTime = true, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
+                IModel model,
+                bool designTime = true,
+                IDiagnosticsLogger<DbLoggerCategory.Model.Validation> validationLogger = null)
                 => model;
 
             public static DummyModelRuntimeInitializer Instance { get; } = new();
@@ -1365,13 +1361,11 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
         private class SequenceModelSnapshot1_1 : ModelSnapshot
         {
             protected override void BuildModel(ModelBuilder modelBuilder)
-            {
-                modelBuilder
+                => modelBuilder
                     .HasAnnotation("ChangeDetector.SkipDetectChanges", "true")
                     .HasAnnotation("ProductVersion", "1.1.6")
                     .HasAnnotation("Relational:Sequence:Bar.Foo", "'Foo', 'Bar', '2', '2', '1', '3', 'Int32', 'True'")
                     .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-            }
         }
 
         private class SequenceModelSnapshot2_2 : ModelSnapshot
@@ -1409,14 +1403,12 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
                 => options.UseSqlServer();
 
             protected override void OnModelCreating(ModelBuilder modelBuilder)
-            {
-                modelBuilder.HasSequence<int>("Foo", "Bar")
+                => modelBuilder.HasSequence<int>("Foo", "Bar")
                     .StartsAt(2)
                     .HasMin(1)
                     .HasMax(3)
                     .IncrementsBy(2)
                     .IsCyclic();
-            }
         }
     }
 }

@@ -1,66 +1,64 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
+namespace Microsoft.EntityFrameworkCore;
 
-namespace Microsoft.EntityFrameworkCore
+public class DataAnnotationInMemoryTest : DataAnnotationTestBase<DataAnnotationInMemoryTest.DataAnnotationInMemoryFixture>
 {
-    public class DataAnnotationInMemoryTest : DataAnnotationTestBase<DataAnnotationInMemoryTest.DataAnnotationInMemoryFixture>
+    public DataAnnotationInMemoryTest(DataAnnotationInMemoryFixture fixture)
+        : base(fixture)
     {
-        public DataAnnotationInMemoryTest(DataAnnotationInMemoryFixture fixture)
-            : base(fixture)
-        {
-        }
+    }
 
-        public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
-        {
-            using var context = CreateContext();
-            Assert.True(context.Model.FindEntityType(typeof(One)).FindProperty("RowVersion").IsConcurrencyToken);
-        }
+    protected override TestHelpers TestHelpers
+        => InMemoryTestHelpers.Instance;
 
-        public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
-        {
-            using var context = CreateContext();
-            Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
-        }
+    public override void ConcurrencyCheckAttribute_throws_if_value_in_database_changed()
+    {
+        using var context = CreateContext();
+        Assert.True(context.Model.FindEntityType(typeof(One)).FindProperty("RowVersion").IsConcurrencyToken);
+    }
 
-        public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
-        {
-            using var context = CreateContext();
-            Assert.True(
-                context.Model.FindEntityType(typeof(BookDetails)).FindNavigation(nameof(BookDetails.AnotherBook)).ForeignKey
-                    .IsRequired);
-        }
+    public override void MaxLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    {
+        using var context = CreateContext();
+        Assert.Equal(10, context.Model.FindEntityType(typeof(One)).FindProperty("MaxLengthProperty").GetMaxLength());
+    }
 
-        public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
-        {
-            using var context = CreateContext();
-            Assert.False(context.Model.FindEntityType(typeof(One)).FindProperty("RequiredColumn").IsNullable);
-        }
+    public override void RequiredAttribute_for_navigation_throws_while_inserting_null_value()
+    {
+        using var context = CreateContext();
+        Assert.True(
+            context.Model.FindEntityType(typeof(BookDetails)).FindNavigation(nameof(BookDetails.AnotherBook)).ForeignKey
+                .IsRequired);
+    }
 
-        public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
-        {
-            using var context = CreateContext();
-            Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
-        }
+    public override void RequiredAttribute_for_property_throws_while_inserting_null_value()
+    {
+        using var context = CreateContext();
+        Assert.False(context.Model.FindEntityType(typeof(One)).FindProperty("RequiredColumn").IsNullable);
+    }
 
-        public override void TimestampAttribute_throws_if_value_in_database_changed()
-        {
-            using var context = CreateContext();
-            Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
-        }
+    public override void StringLengthAttribute_throws_while_inserting_value_longer_than_max_length()
+    {
+        using var context = CreateContext();
+        Assert.Equal(16, context.Model.FindEntityType(typeof(Two)).FindProperty("Data").GetMaxLength());
+    }
 
-        public class DataAnnotationInMemoryFixture : DataAnnotationFixtureBase
-        {
-            public static readonly string DatabaseName = "DataAnnotations";
+    public override void TimestampAttribute_throws_if_value_in_database_changed()
+    {
+        using var context = CreateContext();
+        Assert.True(context.Model.FindEntityType(typeof(Two)).FindProperty("Timestamp").IsConcurrencyToken);
+    }
 
-            protected override ITestStoreFactory TestStoreFactory
-                => InMemoryTestStoreFactory.Instance;
+    public class DataAnnotationInMemoryFixture : DataAnnotationFixtureBase
+    {
+        public static readonly string DatabaseName = "DataAnnotations";
 
-            public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-                => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-        }
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
     }
 }

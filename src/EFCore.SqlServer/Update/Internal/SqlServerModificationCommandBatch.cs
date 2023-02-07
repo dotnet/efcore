@@ -1,223 +1,264 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Update;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal
+namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqlServerModificationCommandBatch : AffectedCountModificationCommandBatch
 {
+    // https://docs.microsoft.com/sql/sql-server/maximum-capacity-specifications-for-sql-server
+    private const int DefaultNetworkPacketSizeBytes = 4096;
+    private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;
+
+    /// <summary>
+    ///     The SQL Server limit on parameters, including two extra parameters to sp_executesql (@stmt and @params).
+    /// </summary>
+    private const int MaxParameterCount = 2100 - 2;
+
+    private readonly List<IReadOnlyModificationCommand> _pendingBulkInsertCommands = new();
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqlServerModificationCommandBatch : AffectedCountModificationCommandBatch
+    public SqlServerModificationCommandBatch(
+        ModificationCommandBatchFactoryDependencies dependencies,
+        int maxBatchSize)
+        : base(dependencies, maxBatchSize)
     {
-        private const int DefaultNetworkPacketSizeBytes = 4096;
-        private const int MaxScriptLength = 65536 * DefaultNetworkPacketSizeBytes / 2;
-        private const int MaxParameterCount = 2100;
-        private const int MaxRowCount = 1000;
-        private int _parameterCount = 1; // Implicit parameter for the command text
-        private readonly int _maxBatchSize;
-        private readonly List<IReadOnlyModificationCommand> _bulkInsertCommands = new();
-        private int _commandsLeftToLengthCheck = 50;
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public SqlServerModificationCommandBatch(
-            ModificationCommandBatchFactoryDependencies dependencies,
-            int? maxBatchSize)
-            : base(dependencies)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator
+        => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void RollbackLastCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        if (_pendingBulkInsertCommands.Count > 0)
         {
-            if (maxBatchSize.HasValue
-                && maxBatchSize.Value <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxBatchSize), RelationalStrings.InvalidMaxBatchSize(maxBatchSize.Value));
-            }
-
-            _maxBatchSize = Math.Min(maxBatchSize ?? 42, MaxRowCount);
+            _pendingBulkInsertCommands.RemoveAt(_pendingBulkInsertCommands.Count - 1);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected new virtual ISqlServerUpdateSqlGenerator UpdateSqlGenerator
-            => (ISqlServerUpdateSqlGenerator)base.UpdateSqlGenerator;
+        base.RollbackLastCommand(modificationCommand);
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override bool CanAddCommand(IReadOnlyModificationCommand modificationCommand)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool IsValid()
+    {
+        if (ParameterValues.Count > MaxParameterCount)
         {
-            if (ModificationCommands.Count >= _maxBatchSize)
-            {
-                return false;
-            }
-
-            var additionalParameterCount = CountParameters(modificationCommand);
-
-            if (_parameterCount + additionalParameterCount >= MaxParameterCount)
-            {
-                return false;
-            }
-
-            _parameterCount += additionalParameterCount;
-            return true;
+            return false;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override bool IsCommandTextValid()
+        var sqlLength = SqlBuilder.Length;
+
+        if (_pendingBulkInsertCommands.Count > 0)
         {
-            if (--_commandsLeftToLengthCheck < 0)
-            {
-                var commandTextLength = GetCommandText().Length;
-                if (commandTextLength >= MaxScriptLength)
-                {
-                    return false;
-                }
+            // Conservative heuristic for the length of the pending bulk insert commands.
+            // See EXEC sp_server_info.
+            var numColumns = _pendingBulkInsertCommands[0].ColumnModifications.Count;
 
-                var averageCommandLength = commandTextLength / ModificationCommands.Count;
-                var expectedAdditionalCommandCapacity = (MaxScriptLength - commandTextLength) / averageCommandLength;
-                _commandsLeftToLengthCheck = Math.Max(1, expectedAdditionalCommandCapacity / 4);
-            }
-
-            return true;
+            sqlLength +=
+                numColumns * 128 // column name lengths
+                + 128 // schema name length
+                + 128 // table name length
+                + _pendingBulkInsertCommands.Count * numColumns * 6 // column parameter placeholders
+                + 300; // some extra fixed overhead
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override int GetParameterCount()
-            => _parameterCount;
+        return sqlLength < MaxScriptLength;
+    }
 
-        private static int CountParameters(IReadOnlyModificationCommand modificationCommand)
+    private void ApplyPendingBulkInsertCommands()
+    {
+        if (_pendingBulkInsertCommands.Count == 0)
         {
-            var parameterCount = 0;
-            // ReSharper disable once ForCanBeConvertedToForeach
-            for (var columnIndex = 0; columnIndex < modificationCommand.ColumnModifications.Count; columnIndex++)
-            {
-                var columnModification = modificationCommand.ColumnModifications[columnIndex];
-                if (columnModification.UseCurrentValueParameter)
-                {
-                    parameterCount++;
-                }
-
-                if (columnModification.UseOriginalValueParameter)
-                {
-                    parameterCount++;
-                }
-            }
-
-            return parameterCount;
+            return;
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override void ResetCommandText()
+        var commandPosition = ResultSetMappings.Count;
+
+        var wasCachedCommandTextEmpty = IsCommandTextEmpty;
+
+        var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
+            SqlBuilder, _pendingBulkInsertCommands, commandPosition, out var requiresTransaction);
+
+        SetRequiresTransaction(!wasCachedCommandTextEmpty || requiresTransaction);
+
+        for (var i = 0; i < _pendingBulkInsertCommands.Count; i++)
         {
-            base.ResetCommandText();
-            _bulkInsertCommands.Clear();
+            ResultSetMappings.Add(resultSetMapping);
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override string GetCommandText()
-            => base.GetCommandText() + GetBulkInsertCommandText(ModificationCommands.Count);
-
-        private string GetBulkInsertCommandText(int lastIndex)
+        // All result mappings are marked as "not last", mark the last one as "last".
+        if (resultSetMapping.HasFlag(ResultSetMapping.HasResultRow))
         {
-            if (_bulkInsertCommands.Count == 0)
-            {
-                return string.Empty;
-            }
+            ResultSetMappings[^1] &= ~ResultSetMapping.NotLastInResultSet;
+            ResultSetMappings[^1] |= ResultSetMapping.LastInResultSet;
+        }
+    }
 
-            var stringBuilder = new StringBuilder();
-            var resultSetMapping = UpdateSqlGenerator.AppendBulkInsertOperation(
-                stringBuilder, _bulkInsertCommands, lastIndex - _bulkInsertCommands.Count);
-            for (var i = lastIndex - _bulkInsertCommands.Count; i < lastIndex; i++)
-            {
-                CommandResultSet[i] = resultSetMapping;
-            }
-
-            if (resultSetMapping != ResultSetMapping.NoResultSet)
-            {
-                CommandResultSet[lastIndex - 1] = ResultSetMapping.LastInResultSet;
-            }
-
-            return stringBuilder.ToString();
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool TryAddCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        // If there are any pending bulk insert commands and the new command is incompatible with them (not an insert, insert into a
+        // separate table..), apply the pending commands.
+        if (_pendingBulkInsertCommands.Count > 0
+            && (modificationCommand.EntityState != EntityState.Added
+                || modificationCommand.StoreStoredProcedure is not null
+                || !CanBeInsertedInSameStatement(_pendingBulkInsertCommands[0], modificationCommand)))
+        {
+            ApplyPendingBulkInsertCommands();
+            _pendingBulkInsertCommands.Clear();
         }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override void UpdateCachedCommandText(int commandPosition)
+        return base.TryAddCommand(modificationCommand);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void AddCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        // TryAddCommand above already applied any pending commands if the new command is incompatible with them.
+        // So if the new command is an insert, just append it to pending, otherwise do the regular add logic.
+        if (modificationCommand.EntityState == EntityState.Added && modificationCommand.StoreStoredProcedure is null)
         {
-            var newModificationCommand = ModificationCommands[commandPosition];
-
-            if (newModificationCommand.EntityState == EntityState.Added)
-            {
-                if (_bulkInsertCommands.Count > 0
-                    && !CanBeInsertedInSameStatement(_bulkInsertCommands[0], newModificationCommand))
-                {
-                    CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
-                    _bulkInsertCommands.Clear();
-                }
-
-                _bulkInsertCommands.Add(newModificationCommand);
-
-                LastCachedCommandIndex = commandPosition;
-            }
-            else
-            {
-                CachedCommandText.Append(GetBulkInsertCommandText(commandPosition));
-                _bulkInsertCommands.Clear();
-
-                base.UpdateCachedCommandText(commandPosition);
-            }
+            _pendingBulkInsertCommands.Add(modificationCommand);
+            AddParameters(modificationCommand);
         }
+        else
+        {
+            base.AddCommand(modificationCommand);
+        }
+    }
 
-        private static bool CanBeInsertedInSameStatement(
-            IReadOnlyModificationCommand firstCommand,
-            IReadOnlyModificationCommand secondCommand)
-            => string.Equals(firstCommand.TableName, secondCommand.TableName, StringComparison.Ordinal)
-                && string.Equals(firstCommand.Schema, secondCommand.Schema, StringComparison.Ordinal)
-                && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
-                    secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
-                && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
-                    secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+    private static bool CanBeInsertedInSameStatement(
+        IReadOnlyModificationCommand firstCommand,
+        IReadOnlyModificationCommand secondCommand)
+        => firstCommand.TableName == secondCommand.TableName
+            && firstCommand.Schema == secondCommand.Schema
+            && firstCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName).SequenceEqual(
+                secondCommand.ColumnModifications.Where(o => o.IsWrite).Select(o => o.ColumnName))
+            && firstCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName).SequenceEqual(
+                secondCommand.ColumnModifications.Where(o => o.IsRead).Select(o => o.ColumnName));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void Complete(bool moreBatchesExpected)
+    {
+        ApplyPendingBulkInsertCommands();
+
+        base.Complete(moreBatchesExpected);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override void Execute(IRelationalConnection connection)
+    {
+        try
+        {
+            base.Execute(connection);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 })
+        {
+            // SQL Server error: The target table '%.*ls' of the DML statement cannot have any enabled triggers if the statement contains an
+            // OUTPUT clause without INTO clause.
+            // This occurs when the user hasn't declared in metadata that a table has triggers, but triggers do exist in the database.
+            // Throw a specialized exception to point the user in the right direction.
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfTriggers,
+                e.InnerException,
+                e.Entries);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 })
+        {
+            // SQL Server error: Column '%ls.%.*ls' cannot be referenced in the OUTPUT clause because the column definition contains a
+            // subquery or references a function that performs user or system data access [...]
+            // See https://docs.microsoft.com/sql/relational-databases/errors-events/mssqlserver-4186-database-engine-error
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction,
+                e.InnerException,
+                e.Entries);
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override async Task ExecuteAsync(
+        IRelationalConnection connection,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await base.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 334 })
+        {
+            // SQL Server error: The target table '%.*ls' of the DML statement cannot have any enabled triggers if the statement contains an
+            // OUTPUT clause without INTO clause.
+            // This occurs when the user hasn't declared in metadata that a table has triggers, but triggers do exist in the database.
+            // Throw a specialized exception to point the user in the right direction.
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfTriggers,
+                e.InnerException,
+                e.Entries);
+        }
+        catch (DbUpdateException e) when (e.InnerException is SqlException { Number: 4186 })
+        {
+            // SQL Server error: Column '%ls.%.*ls' cannot be referenced in the OUTPUT clause because the column definition contains a
+            // subquery or references a function that performs user or system data access [...]
+            // See https://docs.microsoft.com/sql/relational-databases/errors-events/mssqlserver-4186-database-engine-error
+            throw new DbUpdateException(
+                SqlServerStrings.SaveChangesFailedBecauseOfComputedColumnWithFunction,
+                e.InnerException,
+                e.Entries);
+        }
     }
 }

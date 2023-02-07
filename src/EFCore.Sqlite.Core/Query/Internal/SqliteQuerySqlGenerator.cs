@@ -1,12 +1,18 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.Utilities;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
+namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
+
+/// <summary>
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+///     any release. You should only use it directly in your code with extreme caution and knowing that
+///     doing so can result in application failures when updating to a new Entity Framework Core release.
+/// </summary>
+public class SqliteQuerySqlGenerator : QuerySqlGenerator
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -14,77 +20,101 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public class SqliteQuerySqlGenerator : QuerySqlGenerator
+    public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
+        : base(dependencies)
     {
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public SqliteQuerySqlGenerator(QuerySqlGeneratorDependencies dependencies)
-            : base(dependencies)
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitExtension(Expression extensionExpression)
+        => extensionExpression switch
         {
-        }
+            GlobExpression globExpression => VisitGlob(globExpression),
+            RegexpExpression regexpExpression => VisitRegexp(regexpExpression),
+            _ => base.VisitExtension(extensionExpression)
+        };
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override string GetOperator(SqlBinaryExpression binaryExpression)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override string GetOperator(SqlBinaryExpression binaryExpression)
+        => binaryExpression.OperatorType == ExpressionType.Add
+            && binaryExpression.Type == typeof(string)
+                ? " || "
+                : base.GetOperator(binaryExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateLimitOffset(SelectExpression selectExpression)
+    {
+        if (selectExpression.Limit != null
+            || selectExpression.Offset != null)
         {
-            Check.NotNull(binaryExpression, nameof(binaryExpression));
+            Sql.AppendLine()
+                .Append("LIMIT ");
 
-            return binaryExpression.OperatorType == ExpressionType.Add
-                && binaryExpression.Type == typeof(string)
-                    ? " || "
-                    : base.GetOperator(binaryExpression);
-        }
+            Visit(
+                selectExpression.Limit
+                ?? new SqlConstantExpression(Expression.Constant(-1), selectExpression.Offset!.TypeMapping));
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override void GenerateLimitOffset(SelectExpression selectExpression)
-        {
-            Check.NotNull(selectExpression, nameof(selectExpression));
-
-            if (selectExpression.Limit != null
-                || selectExpression.Offset != null)
+            if (selectExpression.Offset != null)
             {
-                Sql.AppendLine()
-                    .Append("LIMIT ");
+                Sql.Append(" OFFSET ");
 
-                Visit(
-                    selectExpression.Limit
-                    ?? new SqlConstantExpression(Expression.Constant(-1), selectExpression.Offset!.TypeMapping));
-
-                if (selectExpression.Offset != null)
-                {
-                    Sql.Append(" OFFSET ");
-
-                    Visit(selectExpression.Offset);
-                }
+                Visit(selectExpression.Offset);
             }
         }
+    }
 
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
+        // Sqlite doesn't support parentheses around set operation operands
+        => Visit(operand);
+
+    private Expression VisitGlob(GlobExpression globExpression)
+    {
+        Visit(globExpression.Match);
+
+        if (globExpression.IsNegated)
         {
-            Check.NotNull(setOperation, nameof(setOperation));
-            Check.NotNull(operand, nameof(operand));
-
-            // Sqlite doesn't support parentheses around set operation operands
-            Visit(operand);
+            Sql.Append(" NOT");
         }
+
+        Sql.Append(" GLOB ");
+        Visit(globExpression.Pattern);
+
+        return globExpression;
+    }
+
+    private Expression VisitRegexp(RegexpExpression regexpExpression)
+    {
+        Visit(regexpExpression.Match);
+
+        if (regexpExpression.IsNegated)
+        {
+            Sql.Append(" NOT");
+        }
+
+        Sql.Append(" REGEXP ");
+        Visit(regexpExpression.Pattern);
+
+        return regexpExpression;
     }
 }

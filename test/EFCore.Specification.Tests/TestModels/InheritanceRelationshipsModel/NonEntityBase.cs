@@ -1,13 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
-{
-    public class NonEntityBase
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
+namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel;
 
-        public ReferencedEntity Reference { get; set; }
-    }
+public class NonEntityBase
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+
+    public ReferencedEntity Reference { get; set; }
 }

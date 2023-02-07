@@ -1,5 +1,6 @@
 <#
     Session["ResourceFile"] = "Resources.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Tools.Properties";
     Session["AccessModifier"] = "internal";
     Session["NoDiagnostics"] = true;
 #>

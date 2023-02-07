@@ -3,15 +3,14 @@
 
 using Microsoft.DotNet.Cli.CommandLine;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
-{
-    internal abstract class EFCommandBase : CommandBase
-    {
-        public override void Configure(CommandLineApplication command)
-        {
-            command.HelpOption("-h|--help");
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
 
-            base.Configure(command);
-        }
+internal abstract class EFCommandBase : CommandBase
+{
+    public override void Configure(CommandLineApplication command)
+    {
+        command.HelpOption("-h|--help");
+
+        base.Configure(command);
     }
 }

@@ -1,6 +1,24 @@
 # Daily Builds
 
-Daily builds are created automatically whenever a new commit is merged to the `main` branch. These builds are verified by more than 70,000 tests each running on a range of platforms. These builds are reliable and have significant advantages over using previews:
+## Quick-start
+
+Create a file called "NuGet.config" with the following contents and put it next to your solution or csproj file:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <packageSources>
+        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
+        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    </packageSources>
+</configuration>
+```
+
+Continue reading for full details and troubleshooting.
+
+## Types of builds
+
+Daily builds are created automatically whenever a new commit is merged to the `main` branch. These builds are verified by more than 80,000 tests each running on a range of platforms. These builds are reliable and have significant advantages over using previews:
 
 * Previews typically lag behind daily builds by around three to five weeks. This means that each preview is missing many bug fixes and enhancements, even if you get it on the day it is released. The daily builds always have the latest features and bug fixes.
 * Serious bugs are usually fixed and available in a new daily build within one or two days--sometimes less. The same fix will likely not make a new preview/release for weeks.
@@ -12,30 +30,46 @@ A disadvantage of using daily builds is that there can be significant API churn 
 
 The daily builds are not published to NuGet.org because the .NET build infrastructure is not set up for this. Instead they can be pulled from a custom NuGet package source. To access this custom source, create a `NuGet.config` file in the same directory as your .NET solution or projects.
 
-For EF Core 6.0 daily builds, `NuGet.config` should contain:
+For EF8 daily builds, `NuGet.config` should contain:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
     <packageSources>
-        <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
+```
+
+### The EF command-line tool
+
+`dotnet ef` is the [the EF command-line tool](https://learn.microsoft.com/ef/core/cli/dotnet), used to perform various design-time tasks such as creating and applying migrations. Stable versions of `dotnet ef` usually work fine with daily build versions of EF; but in some situations you must also update to daily builds of the CLI tool. To use a daily build version of `dotnet ef`, do the following:
+
+```sh
+dotnet tool install -g dotnet-ef --version 8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
+```
+
+### EF reverse engineering templates
+
+EF features code templates for [reverse engineering (or "scaffolding") existing databases](https://learn.microsoft.com/ef/core/managing-schemas/scaffolding/templates); installing daily versions of these templates typically isn't necessary, but you may want to do so to experiment with new features or test bug fixes in the templates:
+
+```sh
+dotnet new install Microsoft.EntityFrameworkCore.Templates::8.0.0-* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json
 ```
 
 ## Package versions to use
 
 ### Using wildcards
 
-The easiest way to use daily builds is with wildcards in project references. For example, for EF Core 6.0 daily builds:
+The easiest way to use daily builds is with wildcards in project references. For example, for EF Core 8.0 daily builds:
 
 ```xml
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.0-*" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="6.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0-*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite" Version="8.0.0-*" />
   </ItemGroup>
 ```
 
@@ -53,14 +87,19 @@ Alternately, your IDE might provide auto-completion directly in the .csproj file
 
 ## What about Visual Studio and the SDK?
 
-EF Core 6.0 targets .NET 5. This means that:
+EF8 currently targets .NET 6. This means that:
 
-* Your application must target .NET 5 or later; .NET Core 3.1 is no longer a supported target.
-* The daily builds should work with any IDE that supports .NET 5.
-  * They do not require a Visual Studio preview release, although previews will also work.
-* The daily builds should work with either the .NET 5 SDK or the .NET 6 SDK installed.
+* Your application must target .NET 6 or later; .NET Framework, .NET Core 3.1, and .NET 5 are no longer supported targets.
+* The daily builds should work with any IDE that supports .NET 6.
+* The daily builds require that the .NET 6 SDK is installed.
+
+However, it's likely that EF8 will be changed to target .NET 8 before it's released.
 
 ## Troubleshooting
+
+### VS isn't showing the new packages
+
+If you can't see the daily build packages after adding the NuGet.config file to your solution, make sure that the "Package Source" is set to "All" in the VS Package Manager UI. You may also need to reload your project or restart Visual Studio for the packages to appear.
 
 ### Missing packages
 
@@ -75,7 +114,7 @@ In addition, packages may be missing if the standard `nuget.org` package source 
         <clear />
     </disabledPackageSources>
     <packageSources>
-        <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>
@@ -91,7 +130,7 @@ A good way to ensure you're dealing with a completely clean NuGet configuration 
     </disabledPackageSources>
     <packageSources>
         <clear />
-        <add key="dotnet6" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet6/nuget/v3/index.json" />
+        <add key="dotnet8" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet8/nuget/v3/index.json" />
         <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
     </packageSources>
 </configuration>

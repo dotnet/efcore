@@ -1,42 +1,75 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+namespace Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Microsoft.EntityFrameworkCore.Metadata
+/// <summary>
+///     Represents a column-like object in a table-like object.
+/// </summary>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+/// </remarks>
+public interface IColumnBase : IAnnotatable
 {
     /// <summary>
-    ///     Represents a column-like object in a table-like object.
+    ///     Gets the column name.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information.
-    /// </remarks>
-    public interface IColumnBase : IAnnotatable
+    string Name { get; }
+
+    /// <summary>
+    ///     Gets the column type.
+    /// </summary>
+    string StoreType { get; }
+
+    /// <summary>
+    ///     Gets the provider type.
+    /// </summary>
+    Type ProviderClrType { get; }
+
+    /// <summary>
+    ///     Gets the type mapping for the column-like object.
+    /// </summary>
+    RelationalTypeMapping StoreTypeMapping { get; }
+
+    /// <summary>
+    ///     Gets the value indicating whether the column can contain NULL.
+    /// </summary>
+    bool IsNullable { get; }
+
+    /// <summary>
+    ///     Gets the containing table-like object.
+    /// </summary>
+    ITableBase Table { get; }
+
+    /// <summary>
+    ///     Gets the property mappings.
+    /// </summary>
+    IReadOnlyList<IColumnMappingBase> PropertyMappings { get; }
+
+    /// <summary>
+    ///     Gets the <see cref="ValueComparer" /> for this column.
+    /// </summary>
+    /// <returns>The comparer.</returns>
+    ValueComparer ProviderValueComparer
+        => PropertyMappings.First().Property
+            .GetProviderValueComparer();
+
+    /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    IColumnMappingBase? FindColumnMapping(IReadOnlyEntityType entityType)
     {
-        /// <summary>
-        ///     Gets the column name.
-        /// </summary>
-        string Name { get; }
+        for (var i = 0; i < PropertyMappings.Count; i++)
+        {
+            var mapping = PropertyMappings[i];
+            if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
+            {
+                return mapping;
+            }
+        }
 
-        /// <summary>
-        ///     Gets the column type.
-        /// </summary>
-        string StoreType { get; }
-
-        /// <summary>
-        ///     Gets the value indicating whether the column can contain NULL.
-        /// </summary>
-        bool IsNullable { get; }
-
-        /// <summary>
-        ///     Gets the containing table-like object.
-        /// </summary>
-        ITableBase Table { get; }
-
-        /// <summary>
-        ///     Gets the property mappings.
-        /// </summary>
-        IEnumerable<IColumnMappingBase> PropertyMappings { get; }
+        return null;
     }
 }

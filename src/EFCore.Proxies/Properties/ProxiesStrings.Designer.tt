@@ -1,5 +1,6 @@
 <#
     Session["ResourceFile"] = "ProxiesStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.Properties";
     Session["LoggingDefinitionsClass"] = "ProxiesLoggingDefinitions";
     Session["NoDiagnostics"] = true;
 #>

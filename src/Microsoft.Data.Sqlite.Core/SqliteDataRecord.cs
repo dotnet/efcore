@@ -373,7 +373,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
-            var rowid = GetInt32(_rowidOrdinal.Value);
+            var rowid = GetInt64(_rowidOrdinal.Value);
 
             return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }

@@ -3,18 +3,17 @@
 
 using System;
 
-namespace Microsoft.EntityFrameworkCore.Tools
-{
-    internal class CommandException : Exception
-    {
-        public CommandException(string message)
-            : base(message)
-        {
-        }
+namespace Microsoft.EntityFrameworkCore.Tools;
 
-        public CommandException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
+internal class CommandException : Exception
+{
+    public CommandException(string message)
+        : base(message)
+    {
+    }
+
+    public CommandException(string message, Exception innerException)
+        : base(message, innerException)
+    {
     }
 }
