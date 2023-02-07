@@ -206,13 +206,15 @@ public class ModelValidator : IModelValidator
                     continue;
                 }
 
+                var isAdHoc = Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true);
                 if (targetType != null)
                 {
                     var targetShared = conventionModel.IsShared(targetType);
                     targetOwned ??= IsOwned(targetType, conventionModel);
                     // ReSharper disable CheckForReferenceEqualityInstead.1
                     // ReSharper disable CheckForReferenceEqualityInstead.3
-                    if ((!entityType.IsKeyless
+                    if ((isAdHoc
+                            || !entityType.IsKeyless
                             || targetSequenceType == null)
                         && entityType.GetDerivedTypes().All(
                             dt => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == clrProperty.GetSimpleMemberName())
@@ -237,7 +239,7 @@ public class ModelValidator : IModelValidator
                         }
 
                         throw new InvalidOperationException(
-                            Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true)
+                            isAdHoc
                                 ? CoreStrings.NavigationNotAddedAdHoc(
                                     entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
                                 : CoreStrings.NavigationNotAdded(
@@ -257,7 +259,7 @@ public class ModelValidator : IModelValidator
                 else
                 {
                     throw new InvalidOperationException(
-                        Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true)
+                        isAdHoc
                             ? CoreStrings.PropertyNotAddedAdHoc(
                                 entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
                             : CoreStrings.PropertyNotAdded(
