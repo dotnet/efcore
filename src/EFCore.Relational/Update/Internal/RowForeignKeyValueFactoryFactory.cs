@@ -80,9 +80,11 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
             return principalType.IsNullableType()
                 ? (IRowForeignKeyValueFactory<TKey>)Activator.CreateInstance(
                     typeof(SimpleNullablePrincipalRowForeignKeyValueFactory<,,>).MakeGenericType(
-                        typeof(TKey), typeof(TKey).UnwrapNullableType(), typeof(TForeignKey)), foreignKey, dependentColumn, columnAccessors)!
+                        typeof(TKey), typeof(TKey).UnwrapNullableType(), typeof(TForeignKey)), foreignKey, dependentColumn,
+                    columnAccessors)!
                 : new SimpleNonNullableRowForeignKeyValueFactory<TKey, TForeignKey>(
-                    foreignKey, dependentColumn, columnAccessors, valueConverterSelector);        }
+                    foreignKey, dependentColumn, columnAccessors, valueConverterSelector);
+        }
         else
         {
             var dependentColumn = foreignKey.Columns.First();
@@ -107,7 +109,8 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
             return principalColumn.IsNullable
                 ? (IRowForeignKeyValueFactory<TKey>)Activator.CreateInstance(
                     typeof(SimpleNullablePrincipalRowForeignKeyValueFactory<,,>).MakeGenericType(
-                        typeof(TKey), typeof(TKey).UnwrapNullableType(), typeof(TKey), typeof(TForeignKey)), foreignKey, dependentColumn, columnAccessors)!
+                        typeof(TKey), typeof(TKey).UnwrapNullableType(), typeof(TKey), typeof(TForeignKey)), foreignKey, dependentColumn,
+                    columnAccessors)!
                 : new SimpleNonNullableRowForeignKeyValueFactory<TKey, TForeignKey>(
                     foreignKey, dependentColumn, columnAccessors, valueConverterSelector);
         }

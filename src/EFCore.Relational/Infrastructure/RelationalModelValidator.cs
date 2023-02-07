@@ -1393,6 +1393,8 @@ public class RelationalModelValidator : ModelValidator
                     storeObject.DisplayName()));
         }
 
+        var typeMapping = property.GetRelationalTypeMapping();
+        var duplicateTypeMapping = duplicateProperty.GetRelationalTypeMapping();
         var currentTypeString = property.GetColumnType(storeObject);
         var previousTypeString = duplicateProperty.GetColumnType(storeObject);
         if (!string.Equals(currentTypeString, previousTypeString, StringComparison.OrdinalIgnoreCase))
@@ -1408,9 +1410,6 @@ public class RelationalModelValidator : ModelValidator
                     previousTypeString,
                     currentTypeString));
         }
-
-        var typeMapping = property.GetRelationalTypeMapping();
-        var duplicateTypeMapping = duplicateProperty.GetRelationalTypeMapping();
 
         Type currentProviderType, previousProviderType;
         if (QuirkEnabled29531)
