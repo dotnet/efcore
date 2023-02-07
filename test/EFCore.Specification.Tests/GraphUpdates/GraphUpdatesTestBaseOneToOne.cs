@@ -857,7 +857,9 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
 
                 if (Fixture.ForceClientNoAction)
                 {
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    Assert.Equal(
+                        CoreStrings.KeyReadOnly(nameof(RequiredSingle1.Id), nameof(RequiredSingle1)),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
                 else
                 {
@@ -1199,16 +1201,18 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     throw new ArgumentOutOfRangeException(nameof(changeMechanism));
                 }
 
-                Assert.False(context.Entry(root).Reference(e => e.RequiredSingle).IsLoaded);
-                Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
-                Assert.True(context.ChangeTracker.HasChanges());
-
                 if (Fixture.ForceClientNoAction)
                 {
-                    Assert.Throws<DbUpdateException>(() => context.SaveChanges());
+                    Assert.Equal(
+                        CoreStrings.KeyReadOnly(nameof(RequiredSingle1.Id), nameof(RequiredSingle1)),
+                        Assert.Throws<InvalidOperationException>(() => context.SaveChanges()).Message);
                 }
                 else
                 {
+                    Assert.False(context.Entry(root).Reference(e => e.RequiredSingle).IsLoaded);
+                    Assert.False(context.Entry(old1).Reference(e => e.Root).IsLoaded);
+                    Assert.True(context.ChangeTracker.HasChanges());
+
                     context.SaveChanges();
 
                     Assert.False(context.ChangeTracker.HasChanges());
