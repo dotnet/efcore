@@ -232,6 +232,56 @@ WHERE [m].[CustomerID] = N'ALFKI'
 """);
     }
 
+    public override async Task Count_over_keyless_entity(bool async)
+    {
+        await base.Count_over_keyless_entity(async);
+
+        AssertSql(
+"""
+SELECT COUNT(*)
+FROM (
+    SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+) AS [m]
+""");
+    }
+
+    public override async Task Count_over_keyless_entity_with_pushdown(bool async)
+    {
+        await base.Count_over_keyless_entity_with_pushdown(async);
+
+        AssertSql(
+"""
+@__p_0='10'
+
+SELECT COUNT(*)
+FROM (
+    SELECT TOP(@__p_0) [m].[ContactTitle]
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    ) AS [m]
+    ORDER BY [m].[ContactTitle]
+) AS [t]
+""");
+    }
+
+    public override async Task Count_over_keyless_entity_with_pushdown_empty_projection(bool async)
+    {
+        await base.Count_over_keyless_entity_with_pushdown_empty_projection(async);
+
+        AssertSql(
+"""
+@__p_0='10'
+
+SELECT COUNT(*)
+FROM (
+    SELECT TOP(@__p_0) 1 AS empty
+    FROM (
+        SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region] FROM [Customers] AS [c]
+    ) AS [m]
+) AS [t]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

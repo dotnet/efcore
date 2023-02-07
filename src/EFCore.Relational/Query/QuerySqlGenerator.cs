@@ -250,7 +250,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             }
             else
             {
-                _relationalCommandBuilder.Append("1");
+                GenerateEmptyProjection(selectExpression);
             }
 
             if (selectExpression.Tables.Any())
@@ -307,6 +307,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual void GeneratePseudoFromClause()
     {
+    }
+
+    /// <summary>
+    ///     Generates empty projection for a SelectExpression.
+    /// </summary>
+    /// <param name="selectExpression">SelectExpression for which the empty projection will be generated.</param>
+    protected virtual void GenerateEmptyProjection(SelectExpression selectExpression)
+    {
+        _relationalCommandBuilder.Append("1");
     }
 
     /// <inheritdoc />
