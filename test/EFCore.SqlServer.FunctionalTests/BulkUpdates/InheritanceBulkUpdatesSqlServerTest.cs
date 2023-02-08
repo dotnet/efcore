@@ -218,7 +218,7 @@ WHERE (
 UPDATE [d]
 SET [d].[SugarGrams] = 0
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Coke'
+WHERE [d].[Discriminator] = 1
 """);
     }
 
@@ -231,7 +231,7 @@ WHERE [d].[Discriminator] = N'Coke'
 UPDATE [d]
 SET [d].[SugarGrams] = 0
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Coke'
+WHERE [d].[Discriminator] = 1
 """);
     }
 
