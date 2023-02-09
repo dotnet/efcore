@@ -80,8 +80,8 @@ public class ObservableCollectionListSource<T> : ObservableCollection<T>, IListS
         "ReflectionAnalysis",
         "IL2046",
         Justification =
-            "This method is an interface implementation, and the interface method isn't annotated with RequiresUnreferencedCode. " +
-            "The entire type is marked with RequiresUnreferencedCode.")]
+            "This method is an interface implementation, and the interface method isn't annotated with RequiresUnreferencedCode. "
+            + "The entire type is marked with RequiresUnreferencedCode.")]
     IList IListSource.GetList()
         => _bindingList ??= this.ToBindingList();
 }

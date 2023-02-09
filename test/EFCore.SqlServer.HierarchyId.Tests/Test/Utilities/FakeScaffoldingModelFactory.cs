@@ -1,6 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -11,8 +11,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-#pragma warning disable EF1001
-
 public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
 {
     public FakeScaffoldingModelFactory(
@@ -22,7 +20,8 @@ public class FakeScaffoldingModelFactory : RelationalScaffoldingModelFactory
         ICSharpUtilities cSharpUtilities,
         IScaffoldingTypeMapper scaffoldingTypeMapper,
         IModelRuntimeInitializer modelRuntimeInitializer)
-        : base(reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
+        : base(
+            reporter, candidateNamingService, pluralizer, cSharpUtilities, scaffoldingTypeMapper,
             modelRuntimeInitializer)
     {
     }

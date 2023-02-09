@@ -32,7 +32,7 @@
           Outputs="$(EFCoreSqlServerHierarchyIdFile)">
     <ItemGroup>
       <EFCoreSqlServerHierarchyIdServices Include="Microsoft.EntityFrameworkCore.Design.DesignTimeServicesReferenceAttribute">
-        <_Parameter1>Microsoft.EntityFrameworkCore.SqlServer.Design.SqlServerHierarchyIdDesignTimeServices, EntityFrameworkCore.SqlServer.HierarchyId</_Parameter1>
+        <_Parameter1>Microsoft.EntityFrameworkCore.SqlServer.Design.Internal.SqlServerHierarchyIdDesignTimeServices, Microsoft.EntityFrameworkCore.SqlServer.HierarchyId</_Parameter1>
         <_Parameter2>Microsoft.EntityFrameworkCore.SqlServer</_Parameter2>
       </EFCoreSqlServerHierarchyIdServices>
     </ItemGroup>

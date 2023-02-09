@@ -43,8 +43,8 @@ public class SortableBindingList<T> : BindingList<T>
         "ReflectionAnalysis",
         "IL2046",
         Justification =
-            "This method is an override, and the base method isn't annotated with RequiresUnreferencedCode. " +
-            "The entire type is marked with RequiresUnreferencedCode.")]
+            "This method is an override, and the base method isn't annotated with RequiresUnreferencedCode. "
+            + "The entire type is marked with RequiresUnreferencedCode.")]
     protected override void ApplySortCore(PropertyDescriptor prop, ListSortDirection direction)
     {
         if (PropertyComparer.CanSort(prop.PropertyType))

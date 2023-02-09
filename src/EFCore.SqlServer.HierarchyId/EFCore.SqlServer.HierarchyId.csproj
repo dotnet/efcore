@@ -2,12 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>EntityFrameworkCore.SqlServer.HierarchyId</AssemblyName>
+    <MinClientVersion>3.6</MinClientVersion>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.HierarchyId</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
     <Description>Adds hierarchyid support to the SQL Server EF Core provider</Description>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>$(PackageTags);SQL Server;HierarchyId</PackageTags>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Reflection" />
+    <Using Include="Microsoft.EntityFrameworkCore.Diagnostics" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="build\**\*">
@@ -17,26 +29,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.0" />
+    <ProjectReference Include="..\EFCore.SqlServer\EFCore.SqlServer.csproj" PrivateAssets="contentfiles;build" />
+    <ProjectReference Include="..\EFCore.SqlServer.Abstractions\EFCore.SqlServer.Abstractions.csproj" />
+    <ProjectReference Condition="'$(BuildingByReSharper)' != 'true'" Include="..\EFCore.Analyzers\EFCore.Analyzers.csproj" ReferenceOutputAssembly="False" OutputItemType="Analyzer" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFCore.SqlServer.HierarchyId.Abstractions\EFCore.SqlServer.HierarchyId.Abstractions.csproj" />
+    <None Update="Properties\SqlServerHierarchyIdStrings.Designer.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SqlServerHierarchyIdStrings.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.SqlServer.Internal</CustomToolNamespace>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\SqlServerHierarchyIdStrings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
+      <DependentUpon>SqlServerHierarchyIdStrings.Designer.tt</DependentUpon>
     </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

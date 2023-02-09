@@ -1,8 +1,10 @@
-﻿namespace Microsoft.EntityFrameworkCore.SqlServer.Test.Models
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+namespace Microsoft.EntityFrameworkCore.SqlServer.Test.Models;
+
+internal class Patriarch
 {
-    class Patriarch
-    {
-        public HierarchyId Id { get; set; }
-        public string Name { get; set; }
-    }
+    public HierarchyId Id { get; set; }
+    public string Name { get; set; }
 }

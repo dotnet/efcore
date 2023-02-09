@@ -1,24 +1,18 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <IsPackable>false</IsPackable>
-    <AssemblyName>EntityFrameworkCore.SqlServer.HierarchyId.Test</AssemblyName>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.Tests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
+    <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational.Specification.Tests" Version="7.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="7.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-    <PackageReference Include="xunit" Version="2.4.2" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5" />
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.HierarchyId\EFCore.SqlServer.HierarchyId.csproj" />
+    <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\EFCore.SqlServer.HierarchyId\EFCore.SqlServer.HierarchyId.csproj" />
-  </ItemGroup>
+  <Import Project="..\..\src\EFCore.SqlServer.HierarchyId\build\net6.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.targets" />
 
 </Project>
