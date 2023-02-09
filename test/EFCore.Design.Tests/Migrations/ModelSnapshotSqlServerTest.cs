@@ -331,7 +331,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""AnnotationName"", ""AnnotationValue"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
@@ -357,7 +357,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseHiLo(modelBuilder, ""EntityFrameworkHiLoSequence"");
@@ -397,7 +397,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, ""Sequence"");
@@ -486,8 +486,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"");
 
                     b.ToTable(""EntityWithTwoProperties"", ""DefaultSchema"");
-                });
-"""),
+                });"),
             o =>
             {
                 Assert.Equal(2, o.GetEntityTypes().Count());
@@ -522,7 +521,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable("AbstractBase", ""DefaultSchema"");
+                    b.ToTable(""AbstractBase"", ""DefaultSchema"");
 
                     b.UseTptMappingStrategy();
                 });
@@ -531,7 +530,7 @@ public class ModelSnapshotSqlServerTest
                 {
                     b.HasBaseType(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase"");
 
-                    b.ToTable("BaseEntity", ""DefaultSchema"");
+                    b.ToTable(""BaseEntity"", ""DefaultSchema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity"", b =>
@@ -647,7 +646,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable((string)null);
 
-                    b.ToView(""EntityWithOneProperty"", "DefaultSchema");
+                    b.ToView(""EntityWithOneProperty"", ""DefaultSchema"");
                 });"),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
 
@@ -825,7 +824,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Order"", "DefaultSchema", t =>
+                    b.ToTable(""Order"", ""DefaultSchema"", t =>
                         {
                             t.Property(""Id"")
                                 .HasAnnotation(""fii"", ""arr"")
@@ -836,7 +835,7 @@ public class ModelSnapshotSqlServerTest
                             t.Property(""Shadow"");
                         });
 
-                    b.SplitToTable(""SplitOrder"", "DefaultSchema", t =>
+                    b.SplitToTable(""SplitOrder"", ""DefaultSchema"", t =>
                         {
                             t.HasTrigger(""splitTrigger"")
                                 .HasAnnotation(""oof"", ""rab"");
@@ -865,13 +864,13 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey(""OrderId"");
 
-                            b1.ToTable(""SplitOrder"", "DefaultSchema", t =>
+                            b1.ToTable(""SplitOrder"", ""DefaultSchema"", t =>
                                 {
                                     t.Property(""BillingShadow"")
                                         .HasColumnName(""Shadow"");
                                 });
 
-                            b1.SplitToTable(""BillingDetails"", "DefaultSchema", t =>
+                            b1.SplitToTable(""BillingDetails"", ""DefaultSchema"", t =>
                                 {
                                     t.Property(""BillingShadow"")
                                         .HasColumnName(""Shadow"");
@@ -915,13 +914,13 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey(""OrderId"");
 
-                            b1.ToTable(""Order"", "DefaultSchema", t =>
+                            b1.ToTable(""Order"", ""DefaultSchema"", t =>
                                 {
                                     t.Property(""ShippingShadow"")
                                         .HasColumnName(""Shadow"");
                                 });
 
-                            b1.SplitToTable(""ShippingDetails"", "DefaultSchema", t =>
+                            b1.SplitToTable(""ShippingDetails"", ""DefaultSchema"", t =>
                                 {
                                     t.Property(""ShippingShadow"");
                                 });
@@ -945,7 +944,7 @@ public class ModelSnapshotSqlServerTest
 
                                     b2.HasKey(""OrderDetailsOrderId"");
 
-                                    b2.ToTable(""ShippingDetails"", "DefaultSchema");
+                                    b2.ToTable(""ShippingDetails"", ""DefaultSchema"");
 
                                     b2.WithOwner()
                                         .HasForeignKey(""OrderDetailsOrderId"");
@@ -1088,12 +1087,12 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable((string)null);
 
-                    b.ToView(""EntityWithOneProperty"", "DefaultSchema", v =>
+                    b.ToView(""EntityWithOneProperty"", ""DefaultSchema"", v =>
                         {
                             v.Property(""Shadow"");
                         });
 
-                    b.SplitToView(""SplitView"", "DefaultSchema", v =>
+                    b.SplitToView(""SplitView"", ""DefaultSchema"", v =>
                         {
                             v.Property(""Shadow"");
                         });
@@ -1113,13 +1112,13 @@ public class ModelSnapshotSqlServerTest
 
                             b1.ToTable((string)null);
 
-                            b1.ToView(""EntityWithOneProperty"", "DefaultSchema", v =>
+                            b1.ToView(""EntityWithOneProperty"", ""DefaultSchema"", v =>
                                 {
                                     v.Property(""AlternateId"")
                                         .HasColumnName(""SomeId"");
                                 });
 
-                            b1.SplitToView(""SplitView"", "DefaultSchema", v =>
+                            b1.SplitToView(""SplitView"", ""DefaultSchema"", v =>
                                 {
                                     v.Property(""AlternateId"")
                                         .HasColumnName(""SomeOtherId"");
@@ -1371,7 +1370,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithTwoProperties"", "DefaultSchema", t =>
+                    b.ToTable(""EntityWithTwoProperties"", ""DefaultSchema"", t =>
                         {
                             t.HasCheckConstraint(""AlternateId"", ""AlternateId > Id"")
                                 .HasName(""CK_Customer_AlternateId"")
@@ -1460,7 +1459,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithOneProperty"", "DefaultSchema", t =>
+                    b.ToTable(""EntityWithOneProperty"", ""DefaultSchema"", t =>
                         {
                             t.HasTrigger(""SomeTrigger"")
                                 .HasDatabaseName(""SomeTrg"")
@@ -1502,7 +1501,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithOneProperty"", "DefaultSchema", t =>
+                    b.ToTable(""EntityWithOneProperty"", ""DefaultSchema"", t =>
                         {
                             t.ExcludeFromMigrations();
 
@@ -1542,7 +1541,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);"),
@@ -1561,7 +1560,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 5L);"),
@@ -1580,7 +1579,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 5);"),
@@ -1611,7 +1610,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 9223372036854775807L, 5);
@@ -1626,7 +1625,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"", "DefaultSchema");
+                    b.ToTable(""Buildings"", ""DefaultSchema"");
                 });"),
             o =>
             {
@@ -2364,7 +2363,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasIndex(""RightsId"");
 
-                    b.ToTable(""MyJoinTable"", "DefaultSchema");
+                    b.ToTable(""MyJoinTable"", ""DefaultSchema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft"", b =>
@@ -2555,7 +2554,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithProperties"", "DefaultSchema");
+                    b.ToTable(""EntityWithProperties"", ""DefaultSchema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
@@ -2570,7 +2569,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithProperties"", "DefaultSchema");
+                    b.ToTable(""EntityWithProperties"", ""DefaultSchema"");
                 });
 
             modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties"", b =>
@@ -3152,7 +3151,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey(""Id"")
                         .HasName(""PK_Custom"");
 
-                    b.ToTable(""EntityWithOneProperty"", "DefaultSchema", t =>
+                    b.ToTable(""EntityWithOneProperty"", ""DefaultSchema"", t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -3171,7 +3170,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""EntityWithStringKey"", "DefaultSchema", t =>
+                    b.ToTable(""EntityWithStringKey"", ""DefaultSchema"", t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -3252,7 +3251,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasIndex(""EntityWithStringKeyId"");
 
-                            b1.ToTable(""EntityWithStringProperty"", "DefaultSchema", t =>
+                            b1.ToTable(""EntityWithStringProperty"", ""DefaultSchema"", t =>
                                 {
                                     t.ExcludeFromMigrations();
                                 });
@@ -3507,7 +3506,7 @@ namespace RootNamespace
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -3542,7 +3541,7 @@ namespace RootNamespace
 
                             b1.ToTable((string)null);
 
-                            b1.ToView(""OwnedView"", "DefaultSchema");
+                            b1.ToView(""OwnedView"", ""DefaultSchema"");
 
                             b1.WithOwner()
                                 .HasForeignKey(""TestOwnerId"");
@@ -3593,7 +3592,7 @@ namespace RootNamespace
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -3629,7 +3628,7 @@ namespace RootNamespace
 
                             b1.HasKey(""TestOwnerId"", ""Id"");
 
-                            b1.ToTable(""TestOwnee"", "DefaultSchema", t =>
+                            b1.ToTable(""TestOwnee"", ""DefaultSchema"", t =>
                                 {
                                     t.HasCheckConstraint(""CK_TestOwnee_TestEnum_Enum_Constraint"", ""[TestEnum] IN (0, 1, 2)"");
                                 });
@@ -4021,33 +4020,6 @@ namespace RootNamespace
                 });"),
             o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
 
-
-    [ConditionalFact]
-    public virtual void Property_maximum_maxLength_is_stored_in_snapshot()
-        => Test(
-            builder => builder.Entity<EntityWithStringProperty>().Property<string>("Name").HasMaxLength(-1),
-            AddBoilerPlate(
-                GetHeading() +
-"""
-            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(-1)
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
-                });
-"""),
-            o => Assert.Equal(-1, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
-
     [ConditionalFact]
     public virtual void Property_unicodeness_is_stored_in_snapshot()
         => Test(
@@ -4312,7 +4284,7 @@ namespace RootNamespace
                     b.Property<string>(""Name"")
                         .HasColumnType(""nvarchar(max)"");
 
-                    b.ToTable(""BaseEntity"", "DefaultSchema", t =>
+                    b.ToTable(""BaseEntity"", ""DefaultSchema"", t =>
                         {
                             t.Property(""Name"")
                                 .HasColumnName(""DuplicateDerivedEntity_Name"");
@@ -4800,7 +4772,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"", "DefaultSchema");
+                    b.ToTable(""Buildings"", ""DefaultSchema"");
                 });"),
             o =>
             {
@@ -4836,7 +4808,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"", "DefaultSchema");
+                    b.ToTable(""Buildings"", ""DefaultSchema"");
                 });"),
             o =>
             {
@@ -4874,7 +4846,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"", "DefaultSchema");
+                    b.ToTable(""Buildings"", ""DefaultSchema"");
                 });"),
             o =>
             {
@@ -4912,7 +4884,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"", "DefaultSchema");
+                    b.ToTable(""Buildings"", ""DefaultSchema"");
                 });"),
             o =>
             {
@@ -4950,7 +4922,7 @@ namespace RootNamespace
 
                     b.HasKey(""Id"");
 
-                    b.ToTable(""Buildings"", "DefaultSchema");
+                    b.ToTable(""Buildings"", ""DefaultSchema"");
                 });"),
             o =>
             {
@@ -4996,7 +4968,7 @@ namespace RootNamespace
             AddBoilerPlate(
                 @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L);"),
@@ -6759,7 +6731,7 @@ namespace RootNamespace
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -7108,7 +7080,7 @@ namespace RootNamespace
     protected virtual string GetHeading(bool empty = false)
         => @"
             modelBuilder
-                .HasDefaultSchema("DefaultSchema")
+                .HasDefaultSchema(""DefaultSchema"")
                 .HasAnnotation(""Relational:MaxIdentifierLength"", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);"
