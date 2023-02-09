@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class ChangeDetector : IChangeDetector
 {
+    private static readonly bool QuirkEnabled30135
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30135", out var enabled) && enabled;
+
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
     private readonly ILoggingOptions _loggingOptions;
     private bool _inCascadeDelete;
@@ -113,7 +116,7 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void DetectChanges(IStateManager stateManager)
     {
-        if (_inCascadeDelete)
+        if (_inCascadeDelete && !QuirkEnabled30135)
         {
             return;
         }
@@ -168,7 +171,7 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void DetectChanges(InternalEntityEntry entry)
     {
-        if (_inCascadeDelete)
+        if (_inCascadeDelete && !QuirkEnabled30135)
         {
             return;
         }
