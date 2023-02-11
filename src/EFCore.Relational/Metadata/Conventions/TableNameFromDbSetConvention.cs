@@ -145,14 +145,16 @@ public class TableNameFromDbSetConvention :
                     entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
 
-                if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                var mappingStrategy = entityType.GetMappingStrategy();
+
+                if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
                     && entityType.IsAbstract())
                 {
                     // Undo the convention change if the entity type is mapped using TPC
                     entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
 
-                if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy
+                if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy
                     && entityType.BaseType != null)
                 {
                     // Undo the convention change if the hierarchy ultimately ends up TPH
