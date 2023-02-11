@@ -48,19 +48,19 @@ public class InheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<
 """
 SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Coke'
+WHERE [d].[Discriminator] = 1
 """,
             //
 """
 SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[LiltCO2], [d].[SugarGrams]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Lilt'
+WHERE [d].[Discriminator] = 2
 """,
             //
 """
 SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[HasMilk]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Tea'
+WHERE [d].[Discriminator] = 3
 """);
     }
 

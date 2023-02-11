@@ -20,21 +20,21 @@ public class InheritanceQueryCosmosTest : InheritanceQueryTestBase<InheritanceQu
 """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Coke")
+WHERE (c["Discriminator"] = 1)
 OFFSET 0 LIMIT 2
 """,
                 //
 """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Lilt")
+WHERE (c["Discriminator"] = 2)
 OFFSET 0 LIMIT 2
 """,
                 //
 """
 SELECT c
 FROM root c
-WHERE (c["Discriminator"] = "Tea")
+WHERE (c["Discriminator"] = 3)
 OFFSET 0 LIMIT 2
 """);
     }
@@ -47,7 +47,7 @@ OFFSET 0 LIMIT 2
 """
 SELECT c
 FROM root c
-WHERE c["Discriminator"] IN ("Drink", "Coke", "Lilt", "Tea")
+WHERE c["Discriminator"] IN (0, 1, 2, 3)
 """);
     }
 

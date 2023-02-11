@@ -3,9 +3,10 @@
 
 namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 
-public class Drink
+public enum DrinkType
 {
-    public int Id { get; set; }
-    public int SortIndex { get; set; }
-    public DrinkType Discriminator { get; set; }
+    Drink,
+    Coke,
+    Lilt,
+    Tea
 }
