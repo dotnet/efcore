@@ -466,8 +466,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 Debug.Assert(table.FindColumn(containerColumnName) == null);
 
                 var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
-                var jsonColumn = new JsonColumn(
-                    containerColumnName, jsonColumnTypeMapping.StoreType, table, jsonColumnTypeMapping.ProviderValueComparer);
+                var jsonColumn = new JsonColumn(containerColumnName, table, jsonColumnTypeMapping);
                 table.Columns.Add(containerColumnName, jsonColumn);
                 jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
 
@@ -624,7 +623,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 Debug.Assert(view.FindColumn(containerColumnName) == null);
 
                 var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
-                var jsonColumn = new JsonViewColumn(containerColumnName, jsonColumnTypeMapping.StoreType, view);
+                var jsonColumn = new JsonViewColumn(containerColumnName, view, jsonColumnTypeMapping);
                 view.Columns.Add(containerColumnName, jsonColumn);
                 jsonColumn.IsNullable = !ownership.IsRequired || !ownership.IsUnique;
 

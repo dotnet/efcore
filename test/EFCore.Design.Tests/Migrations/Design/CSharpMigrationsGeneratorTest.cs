@@ -94,7 +94,9 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.JsonPropertyName,
             // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
             RelationalAnnotationNames.ContainerColumnName,
+#pragma warning disable CS0618
             RelationalAnnotationNames.ContainerColumnTypeMapping,
+#pragma warning restore CS0618
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -262,7 +264,9 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ModelDependencies,
             RelationalAnnotationNames.FieldValueGetter,
             RelationalAnnotationNames.ContainerColumnName,
+#pragma warning disable CS0618
             RelationalAnnotationNames.ContainerColumnTypeMapping,
+#pragma warning restore CS0618
             RelationalAnnotationNames.JsonPropertyName,
         };
 

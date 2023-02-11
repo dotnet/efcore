@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -1331,12 +1332,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 if (index == 0)
                 {
+                    var jsonColumnName = entityType.GetContainerColumnName()!;
+                    var jsonColumnTypeMapping = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+                            ?? entityType.GetDefaultMappings().Single().Table)
+                        .FindColumn(jsonColumnName)!.StoreTypeMapping;
+
                     // create the JsonElement for the initial entity
                     var jsonElementValueExpression = CreateGetValueExpression(
                         _dataReaderParameter,
                         jsonProjectionInfo.JsonColumnIndex,
                         nullable: true,
-                        entityType.GetContainerColumnTypeMapping()!,
+                        jsonColumnTypeMapping,
                         typeof(JsonElement?),
                         property: null);
 

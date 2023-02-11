@@ -322,6 +322,7 @@ public static class RelationalAnnotationNames
     /// <summary>
     ///     The name for the annotation specifying container column type mapping.
     /// </summary>
+    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
     public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
 
     /// <summary>
