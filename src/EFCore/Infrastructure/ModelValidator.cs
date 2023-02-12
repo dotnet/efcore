@@ -155,6 +155,11 @@ public class ModelValidator : IModelValidator
                 continue;
             }
 
+            if (entityType.FindAnnotation("Relational:ContainerColumnName") != null)
+            {
+                continue;
+            }
+
             var runtimeProperties = entityType.GetRuntimeProperties();
             var clrProperties = new HashSet<string>(StringComparer.Ordinal);
             clrProperties.UnionWith(
