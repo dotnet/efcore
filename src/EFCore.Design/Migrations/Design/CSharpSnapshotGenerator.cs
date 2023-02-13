@@ -861,6 +861,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
         var explicitName = tableNameAnnotation != null
             || entityType.BaseType == null
+            || (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy && entityType.IsAbstract())
             || entityType.BaseType.GetTableName() != tableName
             || hasOverrides;
 
