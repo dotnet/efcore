@@ -10281,6 +10281,36 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             Assert.Empty,
             Assert.Empty);
 
+    [ConditionalFact] // Issue #29985
+    public void SeedData_value_conversion_nullable_datetime()
+        => Execute(
+            common => common.Entity(
+                "EntityWithOneProperty",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasData(new { Id = 42 });
+                }),
+            source => source.Entity(
+                "EntityWithOneProperty",
+                x =>
+                {
+                    x.Property<DateTime?>("Value1")
+                        .HasColumnType("datetime2")
+                        .HasConversion(
+                            p => p,
+                            p => p != null ? DateTime.SpecifyKind(p.Value, DateTimeKind.Utc) : null);
+                }),
+            target => target.Entity(
+                "EntityWithOneProperty",
+                x =>
+                {
+                    x.Property<DateTime?>("Value1")
+                        .HasColumnType("datetime2");
+                }),
+            Assert.Empty,
+            Assert.Empty);
+
     [ConditionalFact]
     public void SeedData_change_enum_conversion()
         => Execute(

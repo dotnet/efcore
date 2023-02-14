@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Update.Internal;
 /// </summary>
 public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
 {
+    private static readonly bool QuirkEnabled29985
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29985", out var enabled) && enabled;
+
     private readonly IUniqueConstraint _constraint;
     private readonly IColumn _column;
     private readonly ColumnAccessors _columnAccessors;
@@ -138,8 +141,36 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
 
         public NoNullsCustomEqualityComparer(ValueComparer comparer)
         {
-            _equals = (Func<TKey?, TKey?, bool>)comparer.EqualsExpression.Compile();
-            _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
+            if (QuirkEnabled29985)
+            {
+                _equals = (Func<TKey?, TKey?, bool>)comparer.EqualsExpression.Compile();
+                _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
+            }
+            else
+            {
+                var equals = comparer.EqualsExpression;
+                var getHashCode = comparer.HashCodeExpression;
+                var type = typeof(TKey);
+                if (type != comparer.Type)
+                {
+                    var newEqualsParam1 = Expression.Parameter(type, "v1");
+                    var newEqualsParam2 = Expression.Parameter(type, "v2");
+                    equals = Expression.Lambda(
+                        comparer.ExtractEqualsBody(
+                            Expression.Convert(newEqualsParam1, comparer.Type),
+                            Expression.Convert(newEqualsParam2, comparer.Type)),
+                        newEqualsParam1, newEqualsParam2);
+
+
+                    var newHashCodeParam = Expression.Parameter(type, "v");
+                    getHashCode = Expression.Lambda(
+                        comparer.ExtractHashCodeBody(
+                            Expression.Convert(newHashCodeParam, comparer.Type)),
+                        newHashCodeParam);
+                }
+
+                _equals = (Func<TKey?, TKey?, bool>)equals.Compile();
+                _hashCode = (Func<TKey, int>)getHashCode.Compile();            }
         }
 
         public bool Equals(TKey? x, TKey? y)

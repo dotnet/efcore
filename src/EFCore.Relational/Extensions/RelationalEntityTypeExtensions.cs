@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore;
 /// </remarks>
 public static class RelationalEntityTypeExtensions
 {
+    private static readonly bool QuirkEnabled29899
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29899", out var enabled) && enabled;
+
     /// <summary>
     ///     Gets the name used for the <see cref="ISqlQuery" /> mapped using
     ///     <see cref="O:RelationalEntityTypeBuilderExtensions.ToSqlQuery" />.
@@ -146,7 +149,7 @@ public static class RelationalEntityTypeExtensions
         }
 
         return entityType.BaseType != null
-            ? entityType.GetRootType().GetSchema()
+            ? entityType.GetRootType().GetSchema() ?? (QuirkEnabled29899 ? null : GetDefaultSchema(entityType))
             : GetDefaultSchema(entityType);
     }
 

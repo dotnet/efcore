@@ -115,7 +115,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
                 else
                 {
-                    Assert.Equal(2, context.ChangeTracker.Entries().Count());
+                    Assert.Equal(Fixture.HasIdentityResolution ? 2 : 3, context.ChangeTracker.Entries().Count());
                     Assert.Equal(EntityState.Deleted, context.Entry(college).State);
                     Assert.Equal(EntityState.Unchanged, context.Entry(city).State);
                 }
@@ -1612,131 +1612,324 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_required_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30122
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Sever_relationship_that_will_later_be_deleted(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                var swedes = context.Set<Parsnip>()
+                    .Include(x => x.Carrot)
+                    .ThenInclude(x => x.Turnips)
+                    .Include(x => x.Swede)
+                    .ThenInclude(x => x.TurnipSwedes)
+                    .Single(x => x.Id == 1);
 
-                context.Attach(QueryRequiredGraph(context).AsNoTracking().Single(IsTheRoot));
+                swedes.Carrot.Turnips.Clear();
+                swedes.Swede.TurnipSwedes.Clear();
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
+                _ = async
+                    ? await context.SaveChangesAsync()
+                    : context.SaveChanges();
 
-                Assert.Equal(0, context.SaveChanges());
+                var entries = context.ChangeTracker.Entries();
+                Assert.Equal(3, entries.Count());
+                Assert.All(entries, e => Assert.Equal(EntityState.Unchanged, e.State));
+                Assert.Contains(entries, e => e.Entity.GetType() == typeof(Carrot));
+                Assert.Contains(entries, e => e.Entity.GetType() == typeof(Parsnip));
+                Assert.Contains(entries, e => e.Entity.GetType() == typeof(Swede));
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_optional_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30135
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Update_root_by_collection_replacement_of_inserted_first_level(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadOptionalGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                PopulateGraph(context);
+                var newRoot = BuildNewRoot(firstLevel1: true, secondLevel1: true, thirdLevel1: true, firstLevel2: true);
 
-                context.Attach(QueryOptionalGraph(context).AsNoTracking().Single(IsTheRoot));
+                Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                if (await UpdateRoot(context, newRoot, async))
+                {
+                    Assert.Equal(
+                        Fixture.HasIdentityResolution || !Fixture.AutoDetectChanges ? 1 : 2,
+                        context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_required_non_PK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30135
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Update_root_by_collection_replacement_of_deleted_first_level(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredNonPkGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                PopulateGraph(context);
+                var newRoot = BuildNewRoot();
 
-                context.Attach(QueryRequiredNonPkGraph(context).AsNoTracking().Single(IsTheRoot));
+                Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                if (await UpdateRoot(context, newRoot, async))
+                {
+                    Assert.Equal(Fixture.AutoDetectChanges ? 0 : 1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_required_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30135
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Update_root_by_collection_replacement_of_inserted_second_level(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredAkGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                PopulateGraph(context);
+                var newRoot = BuildNewRoot(firstLevel1: true, secondLevel1: true, thirdLevel1: true, firstLevel2: true, secondLevel2: true);
 
-                context.Attach(QueryRequiredAkGraph(context).AsNoTracking().Single(IsTheRoot));
+                Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                Assert.Equal(1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                if (await UpdateRoot(context, newRoot, async))
+                {
+                    if (Fixture.AutoDetectChanges)
+                    {
+                        Assert.Equal(Fixture.HasIdentityResolution ? 1 : 2, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                        Assert.Equal(Fixture.HasIdentityResolution ? 0 : 2, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                    }
+                    else
+                    {
+                        Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                        Assert.Equal(1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                    }
+                }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_optional_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30135
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Update_root_by_collection_replacement_of_deleted_second_level(
+        bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadOptionalAkGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                PopulateGraph(context);
+                var newRoot = BuildNewRoot(firstLevel1: true);
 
-                context.Attach(QueryOptionalAkGraph(context).AsNoTracking().Single(IsTheRoot));
+                Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                Assert.Equal(1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                if (await UpdateRoot(context, newRoot, async))
+                {
+                    Assert.Equal(Fixture.HasIdentityResolution ? 0 : 1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                    Assert.Equal(Fixture.AutoDetectChanges ? 0 : 1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_required_non_PK_AK_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30135
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Update_root_by_collection_replacement_of_inserted_first_level_level(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadRequiredNonPkAkGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                PopulateGraph(context);
+                var newRoot = BuildNewRoot(
+                    firstLevel1: true, secondLevel1: true, thirdLevel1: true, firstLevel2: true, secondLevel2: true, thirdLevel2: true);
 
-                context.Attach(QueryRequiredNonPkAkGraph(context).AsNoTracking().Single(IsTheRoot));
+                Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                Assert.Equal(1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                Assert.Equal(1, context.Set<ThirdLaw>().Count(x => x.SecondLawId == 111));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                if (await UpdateRoot(context, newRoot, async))
+                {
+                    if (Fixture.AutoDetectChanges)
+                    {
+                        Assert.Equal(Fixture.HasIdentityResolution ? 1 : 2, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                        Assert.Equal(Fixture.HasIdentityResolution ? 0 : 2, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                        Assert.Equal(Fixture.HasIdentityResolution ? 0 : 2, context.Set<ThirdLaw>().Count(x => x.SecondLawId == 111));
+                    }
+                    else
+                    {
+                        Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                        Assert.Equal(1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                        Assert.Equal(1, context.Set<ThirdLaw>().Count(x => x.SecondLawId == 111));
+                    }
+                }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_required_one_to_many_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    [ConditionalTheory] // Issue #30135
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Update_root_by_collection_replacement_of_deleted_third_level(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
             {
-                var trackedRoot = LoadOptionalOneToManyGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
+                PopulateGraph(context);
+                var newRoot = BuildNewRoot(firstLevel1: true, secondLevel1: true);
 
-                context.Attach(QueryOptionalOneToManyGraph(context).AsNoTracking().Single(IsTheRoot));
+                Assert.Equal(1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                Assert.Equal(1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                Assert.Equal(1, context.Set<ThirdLaw>().Count(x => x.SecondLawId == 111));
 
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                if (await UpdateRoot(context, newRoot, async))
+                {
+                    Assert.Equal(Fixture.HasIdentityResolution ? 0 : 1, context.Set<FirstLaw>().Count(x => x.BayazId == 1));
+                    Assert.Equal(Fixture.HasIdentityResolution ? 0 : 1, context.Set<SecondLaw>().Count(x => x.FirstLawId == 11));
+                    Assert.Equal(Fixture.AutoDetectChanges ? 0 : 1, context.Set<ThirdLaw>().Count(x => x.SecondLawId == 111));
+                }
             });
 
-    [ConditionalFact]
-    public void Can_attach_full_required_composite_graph_of_duplicates()
-        => ExecuteWithStrategyInTransaction(
-            context =>
+    protected async Task<bool> UpdateRoot(DbContext context, Bayaz newRoot, bool async)
+    {
+        var existingRoot = context.Set<Bayaz>()
+            .Include(x => x.FirstLaw)
+            .ThenInclude(x => x.SecondLaw)
+            .ThenInclude(x => x.ThirdLaw)
+            .Single(x => x.BayazId == newRoot.BayazId);
+
+        existingRoot.BayazName = newRoot.BayazName;
+        existingRoot.FirstLaw = newRoot.FirstLaw;
+
+        if (Fixture.ForceClientNoAction)
+        {
+            Assert.Equal(
+                CoreStrings.RelationshipConceptualNullSensitive(nameof(Bayaz), nameof(FirstLaw), "{BayazId: 1}"),
+                (await Assert.ThrowsAsync<InvalidOperationException>(
+                    async () =>
+                    {
+                        _ = async
+                            ? await context.SaveChangesAsync()
+                            : context.SaveChanges();
+                    })).Message);
+
+            return false;
+        }
+
+        _ = async
+            ? await context.SaveChangesAsync()
+            : context.SaveChanges();
+
+        return true;
+    }
+
+    protected void PopulateGraph(DbContext context)
+    {
+        context.Add(new Bayaz { BayazId = 1, BayazName = "bayaz" });
+
+        context.Add(
+            new FirstLaw
             {
-                var trackedRoot = LoadRequiredCompositeGraph(context);
-                var entries = context.ChangeTracker.Entries().ToList();
-
-                context.Attach(QueryRequiredCompositeGraph(context).AsNoTracking().Single(IsTheRoot));
-
-                AssertEntries(entries, context.ChangeTracker.Entries().ToList());
-                AssertNavigations(trackedRoot);
-
-                Assert.Equal(0, context.SaveChanges());
+                FirstLawId = 11,
+                FirstLawName = "firstLaw1",
+                BayazId = 1
             });
+
+        context.Add(
+            new SecondLaw
+            {
+                SecondLawId = 111,
+                SecondLawName = "secondLaw1",
+                FirstLawId = 11
+            });
+
+        context.Add(
+            new ThirdLaw
+            {
+                ThirdLawId = 1111,
+                ThirdLawName = "thirdLaw1",
+                SecondLawId = 111
+            });
+
+        context.SaveChanges();
+    }
+
+    protected Bayaz BuildNewRoot(
+        bool firstLevel1 = false,
+        bool firstLevel2 = false,
+        bool secondLevel1 = false,
+        bool secondLevel2 = false,
+        bool thirdLevel1 = false,
+        bool thirdLevel2 = false)
+    {
+        var root = new Bayaz { BayazId = 1, BayazName = "bayaz" };
+
+        if (firstLevel1)
+        {
+            root.FirstLaw.Add(AddFirstLevel(secondLevel1, secondLevel2, thirdLevel1, thirdLevel2));
+        }
+
+        if (firstLevel2)
+        {
+            root.FirstLaw.Add(new FirstLaw
+            {
+                FirstLawId = 12,
+                FirstLawName = "firstLaw2",
+                BayazId = 1
+            });
+        }
+
+        return root;
+    }
+
+    private FirstLaw AddFirstLevel(bool secondLevel1, bool secondLevel2, bool thirdLevel1, bool thirdLevel2)
+    {
+        var firstLevel = new FirstLaw
+        {
+            FirstLawId = 11,
+            FirstLawName = "firstLaw1",
+            BayazId = 1
+        };
+
+        if (secondLevel1)
+        {
+            firstLevel.SecondLaw.Add(AddSecondLevel(thirdLevel1, thirdLevel2));
+        }
+
+        if (secondLevel2)
+        {
+            firstLevel.SecondLaw.Add(new SecondLaw
+            {
+                SecondLawId = 112,
+                SecondLawName = "secondLaw2",
+                FirstLawId = 11
+            });
+        }
+
+        return firstLevel;
+    }
+
+    private static SecondLaw AddSecondLevel(bool thirdLevel1, bool thirdLevel2)
+    {
+        var secondLevel = new SecondLaw
+        {
+            SecondLawId = 111,
+            SecondLawName = "secondLaw1",
+            FirstLawId = 11
+        };
+
+        if (thirdLevel1)
+        {
+            secondLevel.ThirdLaw.Add(new ThirdLaw
+            {
+                ThirdLawId = 1111,
+                ThirdLawName = "thirdLaw1",
+                SecondLawId = 111
+            });
+        }
+
+        if (thirdLevel2)
+        {
+            secondLevel.ThirdLaw.Add(new ThirdLaw
+            {
+                ThirdLawId = 1112,
+                ThirdLawName = "thirdLaw2",
+                SecondLawId = 111
+            });
+        }
+
+        return secondLevel;
+    }
 }

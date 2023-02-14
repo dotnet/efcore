@@ -15,8 +15,12 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class ChangeDetector : IChangeDetector
 {
+    private static readonly bool QuirkEnabled30135
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30135", out var enabled) && enabled;
+
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
     private readonly ILoggingOptions _loggingOptions;
+    private bool _inCascadeDelete;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,37 +116,51 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void DetectChanges(IStateManager stateManager)
     {
-        OnDetectingAllChanges(stateManager);
-        var changesFound = false;
-
-        _logger.DetectChangesStarting(stateManager.Context);
-
-        foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+        if (_inCascadeDelete && !QuirkEnabled30135)
         {
-            switch (entry.EntityState)
-            {
-                case EntityState.Detached:
-                    break;
-                case EntityState.Deleted:
-                    if (entry.SharedIdentityEntry != null)
-                    {
-                        continue;
-                    }
-
-                    goto default;
-                default:
-                    if (LocalDetectChanges(entry))
-                    {
-                        changesFound = true;
-                    }
-
-                    break;
-            }
+            return;
         }
 
-        _logger.DetectChangesCompleted(stateManager.Context);
+        try
+        {
+            _inCascadeDelete = true;
 
-        OnDetectedAllChanges(stateManager, changesFound);
+            OnDetectingAllChanges(stateManager);
+            var changesFound = false;
+
+            _logger.DetectChangesStarting(stateManager.Context);
+
+            foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+            {
+                switch (entry.EntityState)
+                {
+                    case EntityState.Detached:
+                        break;
+                    case EntityState.Deleted:
+                        if (entry.SharedIdentityEntry != null)
+                        {
+                            continue;
+                        }
+
+                        goto default;
+                    default:
+                        if (LocalDetectChanges(entry))
+                        {
+                            changesFound = true;
+                        }
+
+                        break;
+                }
+            }
+
+            _logger.DetectChangesCompleted(stateManager.Context);
+
+            OnDetectedAllChanges(stateManager, changesFound);
+        }
+        finally
+        {
+            _inCascadeDelete = false;
+        }
     }
 
     /// <summary>
@@ -152,7 +170,22 @@ public class ChangeDetector : IChangeDetector
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void DetectChanges(InternalEntityEntry entry)
-        => DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+    {
+        if (_inCascadeDelete && !QuirkEnabled30135)
+        {
+            return;
+        }
+
+        try
+        {
+            _inCascadeDelete = true;
+            DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+        }
+        finally
+        {
+            _inCascadeDelete = false;
+        }
+    }
 
     private bool DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
     {

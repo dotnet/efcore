@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design;
 /// </remarks>
 public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 {
+    private static readonly bool QuirkEnabled30058
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30058", out var enabled) && enabled;
+
     private static readonly MethodInfo HasAnnotationMethodInfo
         = typeof(ModelBuilder).GetRuntimeMethod(nameof(ModelBuilder.HasAnnotation), new[] { typeof(string), typeof(string) })!;
 
@@ -861,6 +864,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
         var explicitName = tableNameAnnotation != null
             || entityType.BaseType == null
+            || (!QuirkEnabled30058 && (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy && entityType.IsAbstract()))
             || entityType.BaseType.GetTableName() != tableName
             || hasOverrides;
 

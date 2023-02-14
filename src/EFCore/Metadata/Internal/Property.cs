@@ -30,6 +30,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private static readonly bool QuirkEnabled29642
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29642", out var enabled) && enabled;
 
+    private static readonly bool QuirkEnabled29985
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29985", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -803,8 +806,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         => FindAnnotation(CoreAnnotationNames.ProviderClrType)?.GetConfigurationSource();
 
     private Type GetEffectiveProviderClrType()
-        => TypeMapping?.Converter?.ProviderClrType
-            ?? ClrType.UnwrapNullableType();
+        => (TypeMapping?.Converter?.ProviderClrType
+            ?? ClrType).UnwrapNullableType();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1012,10 +1015,20 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ValueComparer? GetProviderValueComparer()
-        => GetProviderValueComparer(null)
-            ?? (GetEffectiveProviderClrType() == ClrType
+    {
+        if (QuirkEnabled29985)
+        {
+            return GetProviderValueComparer(null)
+                ?? (GetEffectiveProviderClrType() == ClrType
+                    ? GetKeyValueComparer()
+                    : TypeMapping?.ProviderValueComparer);
+        }
+
+        return GetProviderValueComparer(null)
+            ?? (GetEffectiveProviderClrType() == ClrType.UnwrapNullableType()
                 ? GetKeyValueComparer()
                 : TypeMapping?.ProviderValueComparer);
+    }
 
     private ValueComparer? GetProviderValueComparer(HashSet<IProperty>? checkedProperties)
     {
