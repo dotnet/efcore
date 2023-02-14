@@ -802,7 +802,9 @@ namespace RootNamespace
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
@@ -820,7 +822,7 @@ namespace RootNamespace
 
                     b.HasIndex("PetsId");
 
-                    b.ToTable("HumanPet");
+                    b.ToTable("HumanPet", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal", b =>
@@ -828,7 +830,7 @@ namespace RootNamespace
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValueSql("NEXT VALUE FOR [AnimalSequence]");
+                        .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[AnimalSequence]");
 
                     SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
@@ -851,7 +853,7 @@ namespace RootNamespace
 
                     b.HasIndex("FavoriteAnimalId");
 
-                    b.ToTable("Human");
+                    b.ToTable("Human", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Pet", b =>
@@ -871,7 +873,7 @@ namespace RootNamespace
                     b.Property<string>("EducationLevel")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Cat");
+                    b.ToTable("Cat", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Dog", b =>
@@ -881,7 +883,7 @@ namespace RootNamespace
                     b.Property<string>("FavoriteToy")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("Dog");
+                    b.ToTable("Dog", "DefaultSchema");
                 });
 
             modelBuilder.Entity("HumanPet", b =>
@@ -915,7 +917,7 @@ namespace RootNamespace
 """,
             model =>
             {
-                Assert.Equal(5, model.GetAnnotations().Count());
+                Assert.Equal(6, model.GetAnnotations().Count());
                 Assert.Equal(6, model.GetEntityTypes().Count());
 
                 var animalType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal");
