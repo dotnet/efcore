@@ -186,7 +186,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         CancellationToken cancellationToken = default)
     {
         var oldState = _stateData.EntityState;
-        bool adding;
+        var adding = false;
         await SetupAsync().ConfigureAwait(false);
 
         if ((adding || oldState is EntityState.Detached)
