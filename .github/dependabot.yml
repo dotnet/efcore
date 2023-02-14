@@ -17,6 +17,7 @@ updates:
       - dependency-name: Microsoft.CSharp
       - dependency-name: Microsoft.Data.SqlClient
       - dependency-name: Microsoft.DotNet.PlatformAbstractions
+      - dependency-name: Microsoft.SqlServer.Types
       - dependency-name: mod_spatialite
       - dependency-name: Mono.TextTemplating
       - dependency-name: NetTopologySuite*
