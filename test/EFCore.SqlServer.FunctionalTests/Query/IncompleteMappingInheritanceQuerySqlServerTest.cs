@@ -51,19 +51,19 @@ public class IncompleteMappingInheritanceQuerySqlServerTest : InheritanceRelatio
 """
 SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Coke'
+WHERE [d].[Discriminator] = 1
 """,
             //
 """
 SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[LiltCO2], [d].[SugarGrams]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Lilt'
+WHERE [d].[Discriminator] = 2
 """,
             //
 """
 SELECT TOP(2) [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[HasMilk]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] = N'Tea'
+WHERE [d].[Discriminator] = 3
 """);
     }
 
@@ -103,7 +103,7 @@ WHERE [m].[Discriminator] = N'Eagle'
 """
 SELECT [d].[Id], [d].[Discriminator], [d].[SortIndex], [d].[CaffeineGrams], [d].[CokeCO2], [d].[SugarGrams], [d].[LiltCO2], [d].[HasMilk]
 FROM [Drinks] AS [d]
-WHERE [d].[Discriminator] IN (N'Drink', N'Coke', N'Lilt', N'Tea')
+WHERE [d].[Discriminator] IN (0, 1, 2, 3)
 """);
     }
 

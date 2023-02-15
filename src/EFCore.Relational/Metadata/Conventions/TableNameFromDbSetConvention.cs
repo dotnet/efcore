@@ -118,12 +118,12 @@ public class TableNameFromDbSetConvention :
             && (entityTypeBuilder.Metadata.GetMappingStrategy() ?? RelationalAnnotationNames.TphMappingStrategy)
             != RelationalAnnotationNames.TphMappingStrategy)
         {
-            foreach (var deriverEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
+            foreach (var derivedEntityType in entityTypeBuilder.Metadata.GetDerivedTypesInclusive())
             {
-                if (!deriverEntityType.HasSharedClrType
-                    && _sets.TryGetValue(deriverEntityType.ClrType, out var setName))
+                if (!derivedEntityType.HasSharedClrType
+                    && _sets.TryGetValue(derivedEntityType.ClrType, out var setName))
                 {
-                    deriverEntityType.Builder.ToTable(setName);
+                    derivedEntityType.Builder.ToTable(setName);
                 }
             }
         }
@@ -145,10 +145,19 @@ public class TableNameFromDbSetConvention :
                     entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
 
-                if (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                var mappingStrategy = entityType.GetMappingStrategy();
+
+                if (mappingStrategy == RelationalAnnotationNames.TpcMappingStrategy
                     && entityType.IsAbstract())
                 {
                     // Undo the convention change if the entity type is mapped using TPC
+                    entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
+                }
+
+                if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy
+                    && entityType.BaseType != null)
+                {
+                    // Undo the convention change if the hierarchy ultimately ends up TPH
                     entityType.Builder.HasNoAnnotation(RelationalAnnotationNames.TableName);
                 }
             }

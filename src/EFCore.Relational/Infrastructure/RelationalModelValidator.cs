@@ -2474,8 +2474,16 @@ public class RelationalModelValidator : ModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var entityType in model.GetEntityTypes())
+        foreach (var entityType in model.GetEntityTypes().Where(e => e.GetDeclaredTriggers().Any()))
         {
+            if (entityType.BaseType is not null
+                && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.CannotConfigureTriggerNonRootTphEntity(
+                        entityType.DisplayName(), entityType.GetRootType().DisplayName()));
+            }
+
             var tableName = entityType.GetTableName();
             var tableSchema = entityType.GetSchema();
 

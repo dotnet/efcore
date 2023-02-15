@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("AlterMemoryOptimizedTable");
 
         /// <summary>
-        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .
+        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.
         /// </summary>
         public static string CannotProduceUnterminatedSQLWithComments(object? operation)
             => string.Format(
@@ -156,6 +156,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, index, entityType);
 
         /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.
+        /// </summary>
+        public static string IncompatibleSqlOutputClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlOutputClause, object? entityTypeWithoutSqlOutputClause)
+            => string.Format(
+                GetString("IncompatibleSqlOutputClauseMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(entityTypeWithSqlOutputClause), nameof(entityTypeWithoutSqlOutputClause)),
+                table, entityType, otherEntityType, entityTypeWithSqlOutputClause, entityTypeWithoutSqlOutputClause);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
         /// </summary>
         public static string IncompatibleTableMemoryOptimizedMismatch(object? table, object? entityType, object? otherEntityType, object? memoryOptimizedEntityType, object? nonMemoryOptimizedEntityType)
@@ -204,13 +212,13 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoSavepointRelease");
 
         /// <summary>
-        ///     Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.
+        ///     Could not save changes because the target table has computed column with a function that performs data access. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.
         /// </summary>
         public static string SaveChangesFailedBecauseOfComputedColumnWithFunction
             => GetString("SaveChangesFailedBecauseOfComputedColumnWithFunction");
 
         /// <summary>
-        ///     Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.
+        ///     Could not save changes because the target table has database triggers. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.
         /// </summary>
         public static string SaveChangesFailedBecauseOfTriggers
             => GetString("SaveChangesFailedBecauseOfTriggers");

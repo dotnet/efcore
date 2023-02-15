@@ -55,7 +55,7 @@ public class UnmappedCustomer
     public bool IsLondon
         => City == "London";
 
-    // Unmapped collection navigations are ignored for keyless entity types
+    [NotMapped]
     public virtual List<UnmappedOrder>? Orders { get; set; }
 
     public static UnmappedCustomer FromCustomer(Customer customer)

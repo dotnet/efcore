@@ -466,6 +466,32 @@ public class SqlServerModelValidatorTest : RelationalModelValidatorTest
     }
 
     [ConditionalFact]
+    public virtual void Detects_incompatible_sql_output_clause_shared_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.UseSqlOutputClause(false));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.UseSqlOutputClause());
+
+        VerifyError(
+            SqlServerStrings.IncompatibleSqlOutputClauseMismatch("Table", nameof(A), nameof(B), nameof(B), nameof(A)),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Passes_for_shared_table_with_only_one_entity_trigger_definition()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Order>().ToTable("Table", tb => tb.HasTrigger("SomeTrigger"));
+        modelBuilder.Entity<Order>().OwnsOne(o => o.OrderDetails).ToTable("Table");
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
     public virtual void Detects_incompatible_non_clustered_shared_key()
     {
         var modelBuilder = CreateConventionModelBuilder();

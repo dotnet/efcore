@@ -54,6 +54,7 @@ public class SqlServerConventionSetBuilder : RelationalConventionSetBuilder
         conventionSet.Add(new SqlServerIndexConvention(Dependencies, RelationalDependencies, _sqlGenerationHelper));
         conventionSet.Add(new SqlServerMemoryOptimizedTablesConvention(Dependencies, RelationalDependencies));
         conventionSet.Add(new SqlServerDbFunctionConvention(Dependencies, RelationalDependencies));
+        conventionSet.Add(new SqlServerOutputClauseConvention(Dependencies, RelationalDependencies));
 
         conventionSet.Replace<CascadeDeleteConvention>(
             new SqlServerOnDeleteConvention(Dependencies, RelationalDependencies));

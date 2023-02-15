@@ -210,17 +210,41 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     }
 
     [ConditionalFact]
+    public override void TimeOnly_literal_generated_correctly()
+    {
+        var typeMapping = GetMapping(typeof(TimeOnly));
+
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15), "'13:10:15'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120), "'13:10:15.12'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "'13:10:15.12002'");
+    }
+
+    [ConditionalFact]
+    public override void DateOnly_literal_generated_correctly()
+    {
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(DateOnly)),
+            new DateOnly(2015, 3, 12),
+            "'2015-03-12'");
+    }
+
+    [ConditionalFact]
     public override void Timespan_literal_generated_correctly()
     {
         Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(TimeSpan)),
-            new TimeSpan(7, 14, 30),
-            "'07:14:30'");
+            new TimeSpan(13, 10, 15),
+            "'13:10:15'");
 
         Test_GenerateSqlLiteral_helper(
             GetMapping(typeof(TimeSpan)),
-            new TimeSpan(0, 7, 14, 30, 120),
-            "'07:14:30.12'");
+            new TimeSpan(0, 13, 10, 15, 120),
+            "'13:10:15.12'");
+
+        Test_GenerateSqlLiteral_helper(
+            GetMapping(typeof(TimeSpan)),
+            new TimeSpan(0, 13, 10, 15, 120, 20),
+            "'13:10:15.12002'");
     }
 
     public override void DateTime_literal_generated_correctly()

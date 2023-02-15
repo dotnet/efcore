@@ -3665,6 +3665,21 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         Assert.Equal(ValueGenerated.OnAdd, keyProperties[1].ValueGenerated);
     }
 
+    [ConditionalFact]
+    public void Detects_trigger_on_TPH_non_root()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().ToTable(tb => tb.HasTrigger("SomeTrigger"));
+
+        VerifyError(
+            RelationalStrings.CannotConfigureTriggerNonRootTphEntity(
+                modelBuilder.Model.FindEntityType(typeof(Cat))!.DisplayName(),
+                modelBuilder.Model.FindEntityType(typeof(Animal))!.DisplayName()),
+            modelBuilder);
+    }
+
     private class TpcBase
     {
         public int Id { get; set; }

@@ -419,17 +419,13 @@ public abstract class RelationalTypeMappingTest
 
     [ConditionalFact]
     public virtual void TimeOnly_literal_generated_correctly()
-        => Test_GenerateSqlLiteral_helper(
-            new TimeOnlyTypeMapping("TimeOnly"),
-            new TimeOnly(13, 10, 15),
-            "TIME '13:10:15'");
+    {
+        var typeMapping = new TimeOnlyTypeMapping("TimeOnly");
 
-    [ConditionalFact]
-    public virtual void TimeOnly_literal_generated_correctly_with_milliseconds()
-        => Test_GenerateSqlLiteral_helper(
-            new TimeOnlyTypeMapping("TimeOnly"),
-            new TimeOnly(13, 10, 15, 500),
-            "TIME '13:10:15.5'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15), "TIME '13:10:15'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120), "TIME '13:10:15.12'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "TIME '13:10:15.12002'");
+    }
 
     [ConditionalFact]
     public virtual void Decimal_literal_generated_correctly()

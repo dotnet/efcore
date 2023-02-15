@@ -77,7 +77,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     {
         base.ConfigureParameter(parameter);
 
-        // Workaround for a SQLClient bug
+        // Workaround for SqlClient issue: https://github.com/dotnet/runtime/issues/22386
         if (DbType == System.Data.DbType.Time)
         {
             ((SqlParameter)parameter).SqlDbType = SqlDbType.Time;
@@ -85,7 +85,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
 
         if (Precision.HasValue)
         {
-            parameter.Scale = unchecked((byte)Precision.Value);
+            parameter.Scale = (byte)Precision.Value;
         }
     }
 
@@ -96,22 +96,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string SqlLiteralFormatString
-    {
-        get
-        {
-            if (Precision.HasValue)
-            {
-                var precision = Precision.Value;
-                if (precision <= 7
-                    && precision >= 0)
-                {
-                    return _timeFormats[precision];
-                }
-            }
-
-            return _timeFormats[7];
-        }
-    }
+        => _timeFormats[Precision is >= 0 and <= 7 ? Precision.Value : 7];
 
     /// <summary>
     ///     Generates the SQL representation of a literal value without conversion.
@@ -121,8 +106,7 @@ public class SqlServerTimeSpanTypeMapping : TimeSpanTypeMapping
     ///     The generated string.
     /// </returns>
     protected override string GenerateNonNullSqlLiteral(object value)
-        => value is TimeSpan timeSpan && timeSpan.Milliseconds == 0
-            ? string.Format(
-                CultureInfo.InvariantCulture, _timeFormats[0], value) //handle trailing decimal separator when no fractional seconds
+        => value is TimeSpan { Milliseconds: 0 } // Handle trailing decimal separator when no fractional seconds
+            ? string.Format(CultureInfo.InvariantCulture, _timeFormats[0], value)
             : string.Format(CultureInfo.InvariantCulture, SqlLiteralFormatString, value);
 }

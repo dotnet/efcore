@@ -207,7 +207,7 @@ WHERE (
 """
 UPDATE "Drinks" AS "d"
 SET "SugarGrams" = 0
-WHERE "d"."Discriminator" = 'Coke'
+WHERE "d"."Discriminator" = 1
 """);
     }
 
@@ -219,7 +219,7 @@ WHERE "d"."Discriminator" = 'Coke'
 """
 UPDATE "Drinks" AS "d"
 SET "SugarGrams" = 0
-WHERE "d"."Discriminator" = 'Coke'
+WHERE "d"."Discriminator" = 1
 """);
     }
 

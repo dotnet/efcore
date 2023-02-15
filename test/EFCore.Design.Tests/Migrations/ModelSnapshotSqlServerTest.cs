@@ -319,6 +319,34 @@ public class ModelSnapshotSqlServerTest
             => false;
     }
 
+    private abstract class Animal
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private abstract class Pet : Animal
+    {
+        public string Vet { get; set; }
+        public ICollection<Human> Humans { get; } = new List<Human>();
+    }
+
+    private class Cat : Pet
+    {
+        public string EducationLevel { get; set; }
+    }
+
+    private class Dog : Pet
+    {
+        public string FavoriteToy { get; set; }
+    }
+
+    private class Human : Animal
+    {
+        public Animal FavoriteAnimal { get; set; }
+        public ICollection<Pet> Pets { get; } = new List<Pet>();
+    }
+
     #region Model
 
     [ConditionalFact]
@@ -331,6 +359,7 @@ public class ModelSnapshotSqlServerTest
             AddBoilerPlate(
 """
             modelBuilder
+                .HasDefaultSchema("DefaultSchema")
                 .HasAnnotation("AnnotationName", "AnnotationValue")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -341,7 +370,7 @@ public class ModelSnapshotSqlServerTest
 """),
             o =>
             {
-                Assert.Equal(8, o.GetAnnotations().Count());
+                Assert.Equal(9, o.GetAnnotations().Count());
                 Assert.Equal("AnnotationValue", o["AnnotationName"]);
             });
 
@@ -356,7 +385,9 @@ public class ModelSnapshotSqlServerTest
             },
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseHiLo(modelBuilder, "EntityFrameworkHiLoSequence");
 
@@ -373,7 +404,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o =>
@@ -395,7 +426,9 @@ public class ModelSnapshotSqlServerTest
             },
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseKeySequences(modelBuilder, "Sequence");
 
@@ -406,13 +439,13 @@ public class ModelSnapshotSqlServerTest
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValueSql("NEXT VALUE FOR [EntityWithOnePropertySequence]");
+                        .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[EntityWithOnePropertySequence]");
 
                     SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o =>
@@ -468,7 +501,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -484,7 +517,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -521,7 +554,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("AbstractBase");
+                    b.ToTable("AbstractBase", "DefaultSchema");
 
                     b.UseTptMappingStrategy();
                 });
@@ -530,7 +563,7 @@ public class ModelSnapshotSqlServerTest
                 {
                     b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity", b =>
@@ -554,7 +587,7 @@ public class ModelSnapshotSqlServerTest
 """),
             model =>
             {
-                Assert.Equal(4, model.GetAnnotations().Count());
+                Assert.Equal(5, model.GetAnnotations().Count());
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
                 var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
@@ -563,6 +596,7 @@ public class ModelSnapshotSqlServerTest
 
                 var baseType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+BaseEntity");
                 Assert.Equal("BaseEntity", baseType.GetTableName());
+                Assert.Equal("DefaultSchema", baseType.GetSchema());
 
                 var derived = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity");
                 Assert.Equal("DerivedEntity", derived.GetTableName());
@@ -595,7 +629,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
 
                     b.UseTptMappingStrategy();
                 });
@@ -624,7 +658,7 @@ public class ModelSnapshotSqlServerTest
 """),
             o =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(5, o.GetAnnotations().Count());
 
                 Assert.Equal(
                     "DerivedEntity",
@@ -648,7 +682,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable((string)null);
 
-                    b.ToView("EntityWithOneProperty", (string)null);
+                    b.ToView("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("EntityWithOneProperty", o.GetEntityTypes().Single().GetViewName()));
@@ -701,7 +735,7 @@ public class ModelSnapshotSqlServerTest
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValueSql("NEXT VALUE FOR [AbstractBaseSequence]");
+                        .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[AbstractBaseSequence]");
 
                     SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
 
@@ -716,7 +750,7 @@ public class ModelSnapshotSqlServerTest
                 {
                     b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedEntity", b =>
@@ -733,7 +767,7 @@ public class ModelSnapshotSqlServerTest
 """),
             model =>
             {
-                Assert.Equal(5, model.GetAnnotations().Count());
+                Assert.Equal(6, model.GetAnnotations().Count());
                 Assert.Equal(3, model.GetEntityTypes().Count());
 
                 var abstractBase = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+AbstractBase");
@@ -750,6 +784,179 @@ public class ModelSnapshotSqlServerTest
                 Assert.Equal("DerivedView", derived.GetViewName());
             });
 
+    [ConditionalFact] // Issue #30058
+    public virtual void Non_base_abstract_base_class_with_TPC()
+        => Test(
+            builder =>
+            {
+                builder.Entity<Animal>().UseTpcMappingStrategy();
+                builder.Entity<Pet>();
+                builder.Entity<Cat>();
+                builder.Entity<Dog>();
+                builder.Entity<Human>();
+            },
+"""
+// <auto-generated />
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+
+#nullable disable
+
+namespace RootNamespace
+{
+    [DbContext(typeof(DbContext))]
+    partial class Snapshot : ModelSnapshot
+    {
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+#pragma warning disable 612, 618
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.HasSequence("AnimalSequence");
+
+            modelBuilder.Entity("HumanPet", b =>
+                {
+                    b.Property<int>("HumansId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PetsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("HumansId", "PetsId");
+
+                    b.HasIndex("PetsId");
+
+                    b.ToTable("HumanPet", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValueSql("NEXT VALUE FOR [DefaultSchema].[AnimalSequence]");
+
+                    SqlServerPropertyBuilderExtensions.UseSequence(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable((string)null);
+
+                    b.UseTpcMappingStrategy();
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Human", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal");
+
+                    b.Property<int?>("FavoriteAnimalId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("FavoriteAnimalId");
+
+                    b.ToTable("Human", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Pet", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal");
+
+                    b.Property<string>("Vet")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable((string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Cat", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Pet");
+
+                    b.Property<string>("EducationLevel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("Cat", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Dog", b =>
+                {
+                    b.HasBaseType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Pet");
+
+                    b.Property<string>("FavoriteToy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.ToTable("Dog", "DefaultSchema");
+                });
+
+            modelBuilder.Entity("HumanPet", b =>
+                {
+                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Human", null)
+                        .WithMany()
+                        .HasForeignKey("HumansId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Pet", null)
+                        .WithMany()
+                        .HasForeignKey("PetsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Human", b =>
+                {
+                    b.HasOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal", "FavoriteAnimal")
+                        .WithMany()
+                        .HasForeignKey("FavoriteAnimalId");
+
+                    b.Navigation("FavoriteAnimal");
+                });
+#pragma warning restore 612, 618
+        }
+    }
+}
+
+""",
+            model =>
+            {
+                Assert.Equal(6, model.GetAnnotations().Count());
+                Assert.Equal(6, model.GetEntityTypes().Count());
+
+                var animalType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Animal");
+                Assert.Null(animalType.GetTableName());
+                Assert.Null(animalType.GetViewName());
+                Assert.Equal("TPC", animalType.GetMappingStrategy());
+
+                var petType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Pet");
+                Assert.Null(petType.GetTableName());
+                Assert.Null(petType.GetViewName());
+
+                var catType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Cat");
+                Assert.Equal("Cat", catType.GetTableName());
+                Assert.Null(catType.GetViewName());
+
+                var dogType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Dog");
+                Assert.Equal("Dog", dogType.GetTableName());
+                Assert.Null(dogType.GetViewName());
+
+                var humanType = model.FindEntityType("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Human");
+                Assert.Equal("Human", humanType.GetTableName());
+                Assert.Null(humanType.GetViewName());
+
+                var humanPetType = model.FindEntityType("HumanPet");
+                Assert.Equal("HumanPet", humanPetType.GetTableName());
+                Assert.Null(humanPetType.GetViewName());
+            });
+
     [ConditionalFact]
     public virtual void Entity_splitting_is_stored_in_snapshot_with_tables()
         => Test(
@@ -762,13 +969,13 @@ public class ModelSnapshotSqlServerTest
 
                         b.Property<int>("Shadow").HasColumnName("Shadow");
                         b.ToTable(
-                            "Order", tb =>
+                            "Order", "DefaultSchema", tb =>
                             {
                                 tb.Property(e => e.Id).UseIdentityColumn(2, 3).HasAnnotation("fii", "arr");
                                 tb.Property("Shadow");
                             });
                         b.SplitToTable(
-                            "SplitOrder", sb =>
+                            "SplitOrder", "DefaultSchema", sb =>
                             {
                                 sb.Property("Shadow");
                                 sb.HasTrigger("splitTrigger").HasAnnotation("oof", "rab");
@@ -782,12 +989,12 @@ public class ModelSnapshotSqlServerTest
 
                                 od.Property<int>("BillingShadow");
                                 od.ToTable(
-                                    "SplitOrder", tb =>
+                                    "SplitOrder", "DefaultSchema", tb =>
                                     {
                                         tb.Property("BillingShadow").HasColumnName("Shadow");
                                     });
                                 od.SplitToTable(
-                                    "BillingDetails", sb =>
+                                    "BillingDetails", "DefaultSchema", sb =>
                                     {
                                         sb.Property("BillingShadow").HasColumnName("Shadow");
                                     });
@@ -800,12 +1007,12 @@ public class ModelSnapshotSqlServerTest
 
                                 od.Property<int>("ShippingShadow");
                                 od.ToTable(
-                                    "Order", tb =>
+                                    "Order", "DefaultSchema", tb =>
                                     {
                                         tb.Property("ShippingShadow").HasColumnName("Shadow");
                                     });
                                 od.SplitToTable(
-                                    "ShippingDetails", sb =>
+                                    "ShippingDetails", "DefaultSchema", sb =>
                                     {
                                         sb.Property("ShippingShadow");
                                     });
@@ -829,7 +1036,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("Order", null, t =>
+                    b.ToTable("Order", "DefaultSchema", t =>
                         {
                             t.Property("Id")
                                 .HasAnnotation("fii", "arr")
@@ -840,7 +1047,7 @@ public class ModelSnapshotSqlServerTest
                             t.Property("Shadow");
                         });
 
-                    b.SplitToTable("SplitOrder", null, t =>
+                    b.SplitToTable("SplitOrder", "DefaultSchema", t =>
                         {
                             t.HasTrigger("splitTrigger")
                                 .HasAnnotation("oof", "rab");
@@ -849,6 +1056,8 @@ public class ModelSnapshotSqlServerTest
 
                             t.HasAnnotation("foo", "bar");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order", b =>
@@ -869,13 +1078,13 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("SplitOrder", null, t =>
+                            b1.ToTable("SplitOrder", "DefaultSchema", t =>
                                 {
                                     t.Property("BillingShadow")
                                         .HasColumnName("Shadow");
                                 });
 
-                            b1.SplitToTable("BillingDetails", null, t =>
+                            b1.SplitToTable("BillingDetails", "DefaultSchema", t =>
                                 {
                                     t.Property("BillingShadow")
                                         .HasColumnName("Shadow");
@@ -900,7 +1109,7 @@ public class ModelSnapshotSqlServerTest
 
                                     b2.HasKey("OrderDetailsOrderId");
 
-                                    b2.ToTable("SplitOrder");
+                                    b2.ToTable("SplitOrder", "DefaultSchema");
 
                                     b2.WithOwner()
                                         .HasForeignKey("OrderDetailsOrderId");
@@ -919,13 +1128,13 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Order", null, t =>
+                            b1.ToTable("Order", "DefaultSchema", t =>
                                 {
                                     t.Property("ShippingShadow")
                                         .HasColumnName("Shadow");
                                 });
 
-                            b1.SplitToTable("ShippingDetails", null, t =>
+                            b1.SplitToTable("ShippingDetails", "DefaultSchema", t =>
                                 {
                                     t.Property("ShippingShadow");
                                 });
@@ -949,7 +1158,7 @@ public class ModelSnapshotSqlServerTest
 
                                     b2.HasKey("OrderDetailsOrderId");
 
-                                    b2.ToTable("ShippingDetails", (string)null);
+                                    b2.ToTable("ShippingDetails", "DefaultSchema");
 
                                     b2.WithOwner()
                                         .HasForeignKey("OrderDetailsOrderId");
@@ -1093,12 +1302,12 @@ public class ModelSnapshotSqlServerTest
 
                     b.ToTable((string)null);
 
-                    b.ToView("EntityWithOneProperty", null, v =>
+                    b.ToView("EntityWithOneProperty", "DefaultSchema", v =>
                         {
                             v.Property("Shadow");
                         });
 
-                    b.SplitToView("SplitView", null, v =>
+                    b.SplitToView("SplitView", "DefaultSchema", v =>
                         {
                             v.Property("Shadow");
                         });
@@ -1118,13 +1327,13 @@ public class ModelSnapshotSqlServerTest
 
                             b1.ToTable((string)null);
 
-                            b1.ToView("EntityWithOneProperty", null, v =>
+                            b1.ToView("EntityWithOneProperty", "DefaultSchema", v =>
                                 {
                                     v.Property("AlternateId")
                                         .HasColumnName("SomeId");
                                 });
 
-                            b1.SplitToView("SplitView", null, v =>
+                            b1.SplitToView("SplitView", "DefaultSchema", v =>
                                 {
                                     v.Property("AlternateId")
                                         .HasColumnName("SomeOtherId");
@@ -1154,7 +1363,7 @@ public class ModelSnapshotSqlServerTest
                 Assert.Empty(relationalModel.Tables);
                 Assert.Equal(2, relationalModel.Views.Count());
 
-                var mainView = relationalModel.FindView(entityWithOneProperty.GetViewName(), entityWithOneProperty.GetSchema());
+                var mainView = relationalModel.FindView(entityWithOneProperty.GetViewName(), "DefaultSchema");
 
                 var fragment = entityWithOneProperty.GetMappingFragments().Single();
                 var splitView = relationalModel.FindView(fragment.StoreObject.Name, fragment.StoreObject.Schema);
@@ -1306,7 +1515,7 @@ public class ModelSnapshotSqlServerTest
 """),
             model =>
             {
-                Assert.Equal(5, model.GetAnnotations().Count());
+                Assert.Equal(6, model.GetAnnotations().Count());
 
                 var sequence = model.GetSequences().Single();
                 Assert.Equal(2, sequence.StartValue);
@@ -1383,7 +1592,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties", t =>
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema", t =>
                         {
                             t.HasCheckConstraint("AlternateId", "AlternateId > Id")
                                 .HasName("CK_Customer_AlternateId")
@@ -1425,7 +1634,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
@@ -1475,12 +1684,14 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty", t =>
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema", t =>
                         {
                             t.HasTrigger("SomeTrigger")
                                 .HasDatabaseName("SomeTrg")
                                 .HasAnnotation("foo", "bar");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 """),
             o =>
@@ -1518,7 +1729,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty", t =>
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema", t =>
                         {
                             t.ExcludeFromMigrations();
 
@@ -1526,6 +1737,8 @@ public class ModelSnapshotSqlServerTest
 
                             t.HasTrigger("SomeTrigger2");
                         });
+
+                    b.HasAnnotation("SqlServer:UseSqlOutputClause", false);
                 });
 """),
             o =>
@@ -1558,13 +1771,15 @@ public class ModelSnapshotSqlServerTest
             builder => builder.UseIdentityColumns(),
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 """),
             o =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(5, o.GetAnnotations().Count());
                 Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                 Assert.Equal(1, o.GetIdentitySeed());
                 Assert.Equal(1, o.GetIdentityIncrement());
@@ -1576,13 +1791,15 @@ public class ModelSnapshotSqlServerTest
             builder => builder.UseIdentityColumns(5),
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 5L);
 """),
             o =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(5, o.GetAnnotations().Count());
                 Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                 Assert.Equal(5, o.GetIdentitySeed());
                 Assert.Equal(1, o.GetIdentityIncrement());
@@ -1594,13 +1811,15 @@ public class ModelSnapshotSqlServerTest
             builder => builder.UseIdentityColumns(increment: 5),
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 5);
 """),
             o =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(5, o.GetAnnotations().Count());
                 Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                 Assert.Equal(1, o.GetIdentitySeed());
                 Assert.Equal(5, o.GetIdentityIncrement());
@@ -1619,12 +1838,14 @@ public class ModelSnapshotSqlServerTest
 
                         b.HasKey("Id");
 
-                        b.ToTable("Buildings");
+                        b.ToTable("Buildings", "DefaultSchema");
                     });
             },
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 9223372036854775807L, 5);
 
@@ -1638,12 +1859,12 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", (string)null);
+                    b.ToTable("Buildings", "DefaultSchema");
                 });
 """),
             o =>
             {
-                Assert.Equal(4, o.GetAnnotations().Count());
+                Assert.Equal(5, o.GetAnnotations().Count());
                 Assert.Equal(SqlServerValueGenerationStrategy.IdentityColumn, o.GetValueGenerationStrategy());
                 Assert.Equal(long.MaxValue, o.GetIdentitySeed());
                 Assert.Equal(5, o.GetIdentityIncrement());
@@ -1679,7 +1900,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                     b.HasAnnotation("AnnotationName", "AnnotationValue");
                 });
@@ -1713,7 +1934,7 @@ public class ModelSnapshotSqlServerTest
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"), false);
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                     SqlServerEntityTypeBuilderExtensions.IsMemoryOptimized(b);
                 });
@@ -1746,7 +1967,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
@@ -1817,7 +2038,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Discriminator").IsComplete(true).HasValue("BaseEntity");
 
@@ -1893,7 +2114,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntityWithStructDiscriminator");
+                    b.ToTable("BaseEntityWithStructDiscriminator", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Discriminator").IsComplete(true).HasValue("Base");
 
@@ -1963,7 +2184,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -1998,7 +2219,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id", "AlternateId");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -2023,7 +2244,7 @@ public class ModelSnapshotSqlServerTest
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o =>
@@ -2061,7 +2282,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasAlternateKey("Id", "AlternateId");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -2099,7 +2320,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasIndex("AlternateId");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -2135,7 +2356,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasIndex("Id", "AlternateId");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -2171,7 +2392,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -2190,7 +2411,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -2392,7 +2613,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasIndex("RightsId");
 
-                    b.ToTable("MyJoinTable", (string)null);
+                    b.ToTable("MyJoinTable", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyLeft", b =>
@@ -2408,7 +2629,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("ManyToManyLeft");
+                    b.ToTable("ManyToManyLeft", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+ManyToManyRight", b =>
@@ -2424,7 +2645,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("ManyToManyRight");
+                    b.ToTable("ManyToManyRight", "DefaultSchema");
                 });
 
             modelBuilder.Entity("ManyToManyLeftManyToManyRight", b =>
@@ -2534,7 +2755,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithGenericKey<Guid>");
+                    b.ToTable("EntityWithGenericKey<Guid>", "DefaultSchema");
                 });
 """, usingSystem: true),
             model =>
@@ -2585,7 +2806,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithProperties", (string)null);
+                    b.ToTable("EntityWithProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -2600,7 +2821,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithProperties", (string)null);
+                    b.ToTable("EntityWithProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -2649,7 +2870,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithGenericKey<Guid>");
+                    b.ToTable("EntityWithGenericKey<Guid>", "DefaultSchema");
                 });
 """, usingSystem: true),
             model =>
@@ -2695,7 +2916,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasAlternateKey("Property");
 
-                    b.ToTable("EntityWithGenericProperty<Guid>");
+                    b.ToTable("EntityWithGenericProperty<Guid>", "DefaultSchema");
                 });
 """, usingSystem: true),
             model =>
@@ -2731,7 +2952,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithEnumType");
+                    b.ToTable("EntityWithEnumType", "DefaultSchema");
 
                     b.HasDiscriminator<long>("Day");
                 });
@@ -2764,7 +2985,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithEnumType");
+                    b.ToTable("EntityWithEnumType", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Day");
                 });
@@ -2813,7 +3034,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
                             {
@@ -2875,11 +3096,11 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
 
                     b.ToTable(tb => tb.IsTemporal(ttb =>
                             {
-                                ttb.UseHistoryTable("EntityWithStringPropertyHistory");
+                                ttb.UseHistoryTable("EntityWithStringPropertyHistory", "DefaultSchema");
                                 ttb
                                     .HasPeriodStart("PeriodStart")
                                     .HasColumnName("PeriodStart");
@@ -2961,7 +3182,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey("Id")
                         .HasName("PK_Custom");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                     b.HasData(
                         new
@@ -2977,7 +3198,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringKey");
+                    b.ToTable("EntityWithStringKey", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", b =>
@@ -3004,7 +3225,7 @@ public class ModelSnapshotSqlServerTest
 
                             SqlServerIndexBuilderExtensions.IncludeProperties(b1.HasIndex("Id"), new[] { "AlternateId" });
 
-                            b1.ToTable("EntityWithOneProperty");
+                            b1.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                             b1.WithOwner("EntityWithOneProperty")
                                 .HasForeignKey("AlternateId")
@@ -3057,7 +3278,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasIndex("EntityWithStringKeyId");
 
-                            b1.ToTable("EntityWithStringProperty");
+                            b1.ToTable("EntityWithStringProperty", "DefaultSchema");
 
                             b1.HasOne("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", "EntityWithOneProperty")
                                 .WithOne()
@@ -3158,7 +3379,7 @@ public class ModelSnapshotSqlServerTest
                         b.HasData(
                             new EntityWithOneProperty { Id = 1 });
 
-                        b.ToTable("EntityWithOneProperty", e => e.ExcludeFromMigrations());
+                        b.ToTable("EntityWithOneProperty", "DefaultSchema", e => e.ExcludeFromMigrations());
                     });
 
                 builder.Entity<EntityWithStringKey>(
@@ -3190,7 +3411,7 @@ public class ModelSnapshotSqlServerTest
                     b.HasKey("Id")
                         .HasName("PK_Custom");
 
-                    b.ToTable("EntityWithOneProperty", null, t =>
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema", t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -3209,7 +3430,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringKey", null, t =>
+                    b.ToTable("EntityWithStringKey", "DefaultSchema", t =>
                         {
                             t.ExcludeFromMigrations();
                         });
@@ -3237,7 +3458,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasIndex("Id");
 
-                            b1.ToTable("EntityWithOneProperty");
+                            b1.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                             b1.WithOwner("EntityWithOneProperty")
                                 .HasForeignKey("AlternateId")
@@ -3290,7 +3511,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasIndex("EntityWithStringKeyId");
 
-                            b1.ToTable("EntityWithStringProperty", null, t =>
+                            b1.ToTable("EntityWithStringProperty", "DefaultSchema", t =>
                                 {
                                     t.ExcludeFromMigrations();
                                 });
@@ -3387,7 +3608,7 @@ public class ModelSnapshotSqlServerTest
 
                     b.HasKey("Id");
 
-                    b.ToTable("Order");
+                    b.ToTable("Order", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+Order", b =>
@@ -3399,7 +3620,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Order");
+                            b1.ToTable("Order", "DefaultSchema");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -3414,7 +3635,7 @@ public class ModelSnapshotSqlServerTest
 
                                     b2.HasKey("OrderDetailsOrderId");
 
-                                    b2.ToTable("Order");
+                                    b2.ToTable("Order", "DefaultSchema");
 
                                     b2.WithOwner()
                                         .HasForeignKey("OrderDetailsOrderId");
@@ -3430,7 +3651,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Order");
+                            b1.ToTable("Order", "DefaultSchema");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -3445,7 +3666,7 @@ public class ModelSnapshotSqlServerTest
 
                                     b2.HasKey("OrderDetailsOrderId");
 
-                                    b2.ToTable("Order");
+                                    b2.ToTable("Order", "DefaultSchema");
 
                                     b2.WithOwner()
                                         .HasForeignKey("OrderDetailsOrderId");
@@ -3461,7 +3682,7 @@ public class ModelSnapshotSqlServerTest
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Order");
+                            b1.ToTable("Order", "DefaultSchema");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -3476,7 +3697,7 @@ public class ModelSnapshotSqlServerTest
 
                                     b2.HasKey("OrderInfoOrderId");
 
-                                    b2.ToTable("Order");
+                                    b2.ToTable("Order", "DefaultSchema");
 
                                     b2.WithOwner()
                                         .HasForeignKey("OrderInfoOrderId");
@@ -3547,7 +3768,9 @@ namespace RootNamespace
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
@@ -3561,7 +3784,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("TestOwner");
+                    b.ToTable("TestOwner", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwner", b =>
@@ -3581,7 +3804,7 @@ namespace RootNamespace
 
                             b1.ToTable((string)null);
 
-                            b1.ToView("OwnedView", (string)null);
+                            b1.ToView("OwnedView", "DefaultSchema");
 
                             b1.WithOwner()
                                 .HasForeignKey("TestOwnerId");
@@ -3633,7 +3856,9 @@ namespace RootNamespace
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
@@ -3647,7 +3872,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("TestOwner");
+                    b.ToTable("TestOwner", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+TestOwner", b =>
@@ -3668,7 +3893,7 @@ namespace RootNamespace
 
                             b1.HasKey("TestOwnerId", "Id");
 
-                            b1.ToTable("TestOwnee", t =>
+                            b1.ToTable("TestOwnee", "DefaultSchema", t =>
                                 {
                                     t.HasCheckConstraint("CK_TestOwnee_TestEnum_Enum_Constraint", "[TestEnum] IN (0, 1, 2)");
                                 });
@@ -3735,7 +3960,7 @@ namespace RootNamespace
                     b.HasKey("Id")
                         .HasName("PK_Custom");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", b =>
@@ -3751,7 +3976,7 @@ namespace RootNamespace
 
                             b1.HasKey("EntityWithOnePropertyId");
 
-                            b1.ToTable("EntityWithOneProperty");
+                            b1.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                             b1.ToJson("EntityWithTwoProperties");
 
@@ -3765,7 +3990,7 @@ namespace RootNamespace
 
                                     b2.HasKey("EntityWithTwoPropertiesEntityWithOnePropertyId");
 
-                                    b2.ToTable("EntityWithOneProperty");
+                                    b2.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                                     b2.WithOwner()
                                         .HasForeignKey("EntityWithTwoPropertiesEntityWithOnePropertyId");
@@ -3784,7 +4009,7 @@ namespace RootNamespace
 
                                             b3.HasKey("EntityWithStringKeyEntityWithTwoPropertiesEntityWithOnePropertyId", "Id");
 
-                                            b3.ToTable("EntityWithOneProperty");
+                                            b3.ToTable("EntityWithOneProperty", "DefaultSchema");
 
                                             b3.HasAnnotation("Relational:JsonPropertyName", "JsonProps");
 
@@ -3912,7 +4137,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().FindProperty("Id")["AnnotationName"])
@@ -3939,7 +4164,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o => Assert.Null(o.GetEntityTypes().First().FindProperty("Id")[CoreAnnotationNames.ValueGeneratorFactory])
@@ -3966,7 +4191,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsNullable));
@@ -3997,7 +4222,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """, usingSystem: true),
             o => Assert.Equal(ValueGenerated.OnAdd, o.GetEntityTypes().First().FindProperty("AlternateId").ValueGenerated));
@@ -4029,7 +4254,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithEnumType");
+                    b.ToTable("EntityWithEnumType", "DefaultSchema");
                 });
 """),
             model =>
@@ -4063,7 +4288,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(100, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
@@ -4090,7 +4315,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(-1, o.GetEntityTypes().First().FindProperty("Name").GetMaxLength()));
@@ -4116,7 +4341,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             o => Assert.False(o.GetEntityTypes().First().FindProperty("Name").IsUnicode()));
@@ -4143,7 +4368,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("Name").IsFixedLength()));
@@ -4172,7 +4397,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithDecimalProperty");
+                    b.ToTable("EntityWithDecimalProperty", "DefaultSchema");
                 });
 """),
             o =>
@@ -4206,7 +4431,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithDecimalProperty");
+                    b.ToTable("EntityWithDecimalProperty", "DefaultSchema");
                 });
 """),
             o =>
@@ -4246,7 +4471,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             o =>
@@ -4282,7 +4507,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("AlternateId").IsConcurrencyToken));
@@ -4312,7 +4537,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("CName", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnName"]));
@@ -4343,7 +4568,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("BaseEntity");
+                    b.ToTable("BaseEntity", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("BaseEntity");
 
@@ -4367,7 +4592,7 @@ namespace RootNamespace
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.ToTable("BaseEntity", t =>
+                    b.ToTable("BaseEntity", "DefaultSchema", t =>
                         {
                             t.Property("Name")
                                 .HasColumnName("DuplicateDerivedEntity_Name");
@@ -4390,7 +4615,7 @@ namespace RootNamespace
                         Assert.Equal(
                             "DuplicateDerivedEntity_Name",
                             t.FindProperty(nameof(DuplicateDerivedEntity.Name))
-                                .GetColumnName(StoreObjectIdentifier.Table(nameof(BaseEntity))));
+                                .GetColumnName(StoreObjectIdentifier.Table(nameof(BaseEntity), "DefaultSchema")));
                     }
                 );
             });
@@ -4419,7 +4644,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("CType", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ColumnType"]));
@@ -4450,7 +4675,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValue"]));
@@ -4481,7 +4706,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """,
                 usingSystem: true),
@@ -4513,7 +4738,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
@@ -4544,7 +4769,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:DefaultValueSql"]));
@@ -4575,7 +4800,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("SQL", o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
@@ -4606,7 +4831,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -4641,7 +4866,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(string.Empty, o.GetEntityTypes().First().FindProperty("AlternateId")["Relational:ComputedColumnSql"]));
@@ -4668,7 +4893,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithEnumType");
+                    b.ToTable("EntityWithEnumType", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(3L, o.GetEntityTypes().First().FindProperty("Day")["Relational:DefaultValue"]));
@@ -4703,7 +4928,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithEnumType");
+                    b.ToTable("EntityWithEnumType", "DefaultSchema");
 
                     b.HasData(
                         new
@@ -4741,7 +4966,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithNullableEnumType");
+                    b.ToTable("EntityWithNullableEnumType", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
@@ -4767,7 +4992,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithEnumType");
+                    b.ToTable("EntityWithEnumType", "DefaultSchema");
                 });
 """, usingSystem: true),
             o => Assert.False(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
@@ -4792,7 +5017,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithNullableEnumType");
+                    b.ToTable("EntityWithNullableEnumType", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().First().FindProperty("Day").IsNullable));
@@ -4824,7 +5049,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -4854,7 +5079,7 @@ namespace RootNamespace
 
                         b.HasKey("Id");
 
-                        b.ToTable("Buildings");
+                        b.ToTable("Buildings", "DefaultSchema");
                     });
             },
             AddBoilerPlate(
@@ -4870,7 +5095,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", (string)null);
+                    b.ToTable("Buildings", "DefaultSchema");
                 });
 """),
             o =>
@@ -4891,7 +5116,7 @@ namespace RootNamespace
 
                         b.HasKey("Id");
 
-                        b.ToTable("Buildings");
+                        b.ToTable("Buildings", "DefaultSchema");
                     });
             },
             AddBoilerPlate(
@@ -4907,7 +5132,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", (string)null);
+                    b.ToTable("Buildings", "DefaultSchema");
                 });
 """),
             o =>
@@ -4930,7 +5155,7 @@ namespace RootNamespace
 
                         b.HasKey("Id");
 
-                        b.ToTable("Buildings");
+                        b.ToTable("Buildings", "DefaultSchema");
                     });
             },
             AddBoilerPlate(
@@ -4946,7 +5171,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", (string)null);
+                    b.ToTable("Buildings", "DefaultSchema");
                 });
 """),
             o =>
@@ -4969,7 +5194,7 @@ namespace RootNamespace
 
                         b.HasKey("Id");
 
-                        b.ToTable("Buildings");
+                        b.ToTable("Buildings", "DefaultSchema");
                     });
             },
             AddBoilerPlate(
@@ -4985,7 +5210,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", (string)null);
+                    b.ToTable("Buildings", "DefaultSchema");
                 });
 """),
             o =>
@@ -5008,7 +5233,7 @@ namespace RootNamespace
 
                         b.HasKey("Id");
 
-                        b.ToTable("Buildings");
+                        b.ToTable("Buildings", "DefaultSchema");
                     });
             },
             AddBoilerPlate(
@@ -5024,7 +5249,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("Buildings", (string)null);
+                    b.ToTable("Buildings", "DefaultSchema");
                 });
 """),
             o =>
@@ -5060,7 +5285,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(1, o.GetEntityTypes().First().FindProperty("AlternateId").GetColumnOrder()));
@@ -5071,7 +5296,9 @@ namespace RootNamespace
             builder => builder.HasAnnotation(SqlServerAnnotationNames.IdentitySeed, 8),
             AddBoilerPlate(
 """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 8L);
 """),
@@ -5102,7 +5329,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(8L, o.GetEntityTypes().First().FindProperty("Id").GetIdentitySeed()));
@@ -5139,7 +5366,7 @@ namespace RootNamespace
                     b.HasAlternateKey("AlternateId")
                         .HasAnnotation("AnnotationName", "AnnotationValue");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(
@@ -5168,7 +5395,7 @@ namespace RootNamespace
 
                     SqlServerKeyBuilderExtensions.IsClustered(b.HasKey("Id"));
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().First().GetKeys().Single(k => k.IsPrimaryKey()).IsClustered()));
@@ -5200,7 +5427,7 @@ namespace RootNamespace
                     b.HasAlternateKey("AlternateId")
                         .HasName("KeyName");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(
@@ -5235,7 +5462,7 @@ namespace RootNamespace
                         .HasName("IndexName")
                         .HasAnnotation("AnnotationName", "AnnotationValue");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -5278,7 +5505,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .HasAnnotation("AnnotationName", "AnnotationValue");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal("AnnotationValue", o.GetEntityTypes().First().GetIndexes().First()["AnnotationName"]));
@@ -5311,7 +5538,7 @@ namespace RootNamespace
 
                     SqlServerIndexBuilderExtensions.IsClustered(b.HasIndex("AlternateId"));
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().Single().GetIndexes().Single().IsClustered()));
@@ -5343,7 +5570,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.True(o.GetEntityTypes().First().GetIndexes().First().IsUnique));
@@ -5432,7 +5659,7 @@ namespace RootNamespace
 
                     b.HasIndex(new[] { "X", "Y", "Z" }, "IX_unspecified");
 
-                    b.ToTable("EntityWithThreeProperties");
+                    b.ToTable("EntityWithThreeProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -5485,7 +5712,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .HasDatabaseName("IndexName");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -5523,7 +5750,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .HasFilter("AlternateId <> 0");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o => Assert.Equal(
@@ -5558,7 +5785,7 @@ namespace RootNamespace
                     b.HasIndex(new[] { "AlternateId" }, "IndexName")
                         .HasAnnotation("AnnotationName", "AnnotationValue");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 """),
             o =>
@@ -5602,7 +5829,7 @@ namespace RootNamespace
 
                     b.HasIndex("SomePropertyWithAnExceedinglyLongIdentifierThatCausesTheDefaultIndexNameToExceedTheMaximumIdentifierLimit");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             model => Assert.Equal(128, model.GetEntityTypes().First().GetIndexes().First().GetDatabaseName().Length));
@@ -5632,7 +5859,7 @@ namespace RootNamespace
 
                     b.HasIndex("FirstName", "LastName");
 
-                    b.ToTable("EntityWithIndexAttribute");
+                    b.ToTable("EntityWithIndexAttribute", "DefaultSchema");
                 });
 """),
             model =>
@@ -5675,7 +5902,7 @@ namespace RootNamespace
 
                     b.HasIndex(new[] { "FirstName", "LastName" }, "NamedIndex");
 
-                    b.ToTable("EntityWithNamedIndexAttribute");
+                    b.ToTable("EntityWithNamedIndexAttribute", "DefaultSchema");
                 });
 """),
             model =>
@@ -5724,7 +5951,7 @@ namespace RootNamespace
                         .IsUnique()
                         .HasFilter("[FirstName] IS NOT NULL AND [LastName] IS NOT NULL");
 
-                    b.ToTable("EntityWithUniqueIndexAttribute");
+                    b.ToTable("EntityWithUniqueIndexAttribute", "DefaultSchema");
                 });
 """),
             model =>
@@ -5774,7 +6001,7 @@ namespace RootNamespace
 
                     SqlServerIndexBuilderExtensions.IncludeProperties(b.HasIndex("Id"), new[] { "Name" });
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 """),
             model =>
@@ -5811,7 +6038,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -5830,7 +6057,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -5875,7 +6102,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringKey");
+                    b.ToTable("EntityWithStringKey", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
@@ -5895,7 +6122,7 @@ namespace RootNamespace
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
@@ -5929,7 +6156,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringKey");
+                    b.ToTable("EntityWithStringKey", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
@@ -5947,7 +6174,7 @@ namespace RootNamespace
 
                     b.HasIndex("Name");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
@@ -5992,7 +6219,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithStringAlternateKey");
+                    b.ToTable("EntityWithStringAlternateKey", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
@@ -6010,7 +6237,7 @@ namespace RootNamespace
 
                     b.HasIndex("Name");
 
-                    b.ToTable("EntityWithStringProperty");
+                    b.ToTable("EntityWithStringProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithStringProperty", b =>
@@ -6049,7 +6276,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6065,7 +6292,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", b =>
@@ -6102,7 +6329,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6118,7 +6345,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", b =>
@@ -6164,7 +6391,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithGenericKey<Guid>");
+                    b.ToTable("EntityWithGenericKey<Guid>", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>", b =>
@@ -6182,7 +6409,7 @@ namespace RootNamespace
 
                     b.HasIndex("Property");
 
-                    b.ToTable("EntityWithGenericProperty<Guid>");
+                    b.ToTable("EntityWithGenericProperty<Guid>", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithGenericProperty<System.Guid>", b =>
@@ -6246,7 +6473,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6265,7 +6492,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6313,7 +6540,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6332,7 +6559,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6393,7 +6620,7 @@ namespace RootNamespace
 
                     b.HasIndex("NavigationId");
 
-                    b.ToTable("BaseType");
+                    b.ToTable("BaseType", "DefaultSchema");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("BaseType");
 
@@ -6410,7 +6637,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+DerivedType", b =>
@@ -6452,7 +6679,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6468,7 +6695,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", b =>
@@ -6517,7 +6744,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6536,7 +6763,7 @@ namespace RootNamespace
                     b.HasAlternateKey("AlternateId")
                         .HasAnnotation("Name", "Value");
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithOneProperty", b =>
@@ -6594,7 +6821,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6613,7 +6840,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6662,7 +6889,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithOneProperty");
+                    b.ToTable("EntityWithOneProperty", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6681,7 +6908,7 @@ namespace RootNamespace
                     b.HasIndex("AlternateId")
                         .IsUnique();
 
-                    b.ToTable("EntityWithTwoProperties");
+                    b.ToTable("EntityWithTwoProperties", "DefaultSchema");
                 });
 
             modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.ModelSnapshotSqlServerTest+EntityWithTwoProperties", b =>
@@ -6866,7 +7093,9 @@ namespace RootNamespace
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
@@ -7004,7 +7233,7 @@ namespace RootNamespace
 
                     b.HasKey("Id");
 
-                    b.ToTable("EntityWithManyProperties");
+                    b.ToTable("EntityWithManyProperties", "DefaultSchema");
 
                     b.HasData(
                         new
@@ -7214,7 +7443,9 @@ namespace RootNamespace
 
     protected virtual string GetHeading(bool empty = false)
         => """
-            modelBuilder.HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder
+                .HasDefaultSchema("DefaultSchema")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
@@ -7265,6 +7496,7 @@ namespace RootNamespace
     protected void Test(Action<ModelBuilder> buildModel, string expectedCode, Action<IModel, IModel> assert)
     {
         var modelBuilder = CreateConventionalModelBuilder();
+        modelBuilder.HasDefaultSchema("DefaultSchema");
         modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.Snapshot);
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         buildModel(modelBuilder);

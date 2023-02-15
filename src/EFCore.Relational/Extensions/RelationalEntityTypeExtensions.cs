@@ -145,8 +145,8 @@ public static class RelationalEntityTypeExtensions
             return (string?)schemaAnnotation.Value ?? GetDefaultSchema(entityType);
         }
 
-        return entityType.BaseType != null
-            ? entityType.GetRootType().GetSchema()
+        return entityType.BaseType != null && entityType.BaseType.GetTableName() != null
+            ? entityType.BaseType.GetSchema()
             : GetDefaultSchema(entityType);
     }
 
@@ -1458,8 +1458,7 @@ public static class RelationalEntityTypeExtensions
         }
 
         var ownership = entityType.FindOwnership();
-        if (ownership != null
-            && ownership.IsUnique)
+        if (ownership is { IsUnique: true })
         {
             return ownership.PrincipalEntityType.IsTableExcludedFromMigrations();
         }

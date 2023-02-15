@@ -27,9 +27,11 @@ public class SqlServerMemberTranslatorProvider : RelationalMemberTranslatorProvi
         AddTranslators(
             new IMemberTranslator[]
             {
+                new SqlServerDateOnlyMemberTranslator(sqlExpressionFactory),
                 new SqlServerDateTimeMemberTranslator(sqlExpressionFactory, typeMappingSource),
                 new SqlServerStringMemberTranslator(sqlExpressionFactory),
-                new SqlServerTimeSpanMemberTranslator(sqlExpressionFactory)
+                new SqlServerTimeSpanMemberTranslator(sqlExpressionFactory),
+                new SqlServerTimeOnlyMemberTranslator(sqlExpressionFactory)
             });
     }
 }
