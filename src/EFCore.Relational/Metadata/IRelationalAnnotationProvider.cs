@@ -85,6 +85,14 @@ public interface IRelationalAnnotationProvider
     IEnumerable<IAnnotation> For(IStoreFunction function, bool designTime);
 
     /// <summary>
+    ///     Gets provider-specific annotations for the given <see cref="IStoreFunctionParameter" />.
+    /// </summary>
+    /// <param name="parameter">The parameter.</param>
+    /// <returns>The annotations.</returns>
+    /// <param name="designTime">Whether the model should contain design-time configuration.</param>
+    IEnumerable<IAnnotation> For(IStoreFunctionParameter parameter, bool designTime);
+
+    /// <summary>
     ///     Gets provider-specific annotations for the given <see cref="IFunctionColumn" />.
     /// </summary>
     /// <param name="column">The column.</param>

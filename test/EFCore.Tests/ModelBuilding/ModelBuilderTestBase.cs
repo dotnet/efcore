@@ -10,80 +10,80 @@ namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
+    public static void AssertEqual(
+        IEnumerable<string> expectedNames,
+        IEnumerable<string> actualNames,
+        StringComparer? stringComparer = null)
+    {
+        stringComparer ??= StringComparer.Ordinal;
+        Assert.Equal(
+            new SortedSet<string>(expectedNames, stringComparer),
+            new SortedSet<string>(actualNames, stringComparer),
+            stringComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyProperty> expectedProperties,
+        IEnumerable<IReadOnlyProperty> actualProperties,
+        PropertyComparer? propertyComparer = null)
+    {
+        propertyComparer ??= new PropertyComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyProperty>(expectedProperties, propertyComparer),
+            new SortedSet<IReadOnlyProperty>(actualProperties, propertyComparer),
+            propertyComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyNavigation> expectedNavigations,
+        IEnumerable<IReadOnlyNavigation> actualNavigations,
+        NavigationComparer? navigationComparer = null)
+    {
+        navigationComparer ??= new NavigationComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyNavigation>(expectedNavigations, navigationComparer),
+            new SortedSet<IReadOnlyNavigation>(actualNavigations, navigationComparer),
+            navigationComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyKey> expectedKeys,
+        IEnumerable<IReadOnlyKey> actualKeys,
+        TestKeyComparer? testKeyComparer = null)
+    {
+        testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyKey>(expectedKeys, testKeyComparer),
+            new SortedSet<IReadOnlyKey>(actualKeys, testKeyComparer),
+            testKeyComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyForeignKey> expectedForeignKeys,
+        IEnumerable<IReadOnlyForeignKey> actualForeignKeys,
+        ForeignKeyStrictComparer? foreignKeyComparer = null)
+    {
+        foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyForeignKey>(expectedForeignKeys, foreignKeyComparer),
+            new SortedSet<IReadOnlyForeignKey>(actualForeignKeys, foreignKeyComparer),
+            foreignKeyComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyIndex> expectedIndexes,
+        IEnumerable<IReadOnlyIndex> actualIndexes,
+        TestIndexComparer? testIndexComparer = null)
+    {
+        testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyIndex>(expectedIndexes, testIndexComparer),
+            new SortedSet<IReadOnlyIndex>(actualIndexes, testIndexComparer),
+            testIndexComparer);
+    }
+
     public abstract class ModelBuilderTestBase
     {
-        protected void AssertEqual(
-            IEnumerable<string> expectedNames,
-            IEnumerable<string> actualNames,
-            StringComparer? stringComparer = null)
-        {
-            stringComparer ??= StringComparer.Ordinal;
-            Assert.Equal(
-                new SortedSet<string>(expectedNames, stringComparer),
-                new SortedSet<string>(actualNames, stringComparer),
-                stringComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyProperty> expectedProperties,
-            IEnumerable<IReadOnlyProperty> actualProperties,
-            PropertyComparer? propertyComparer = null)
-        {
-            propertyComparer ??= new PropertyComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyProperty>(expectedProperties, propertyComparer),
-                new SortedSet<IReadOnlyProperty>(actualProperties, propertyComparer),
-                propertyComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyNavigation> expectedNavigations,
-            IEnumerable<IReadOnlyNavigation> actualNavigations,
-            NavigationComparer? navigationComparer = null)
-        {
-            navigationComparer ??= new NavigationComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyNavigation>(expectedNavigations, navigationComparer),
-                new SortedSet<IReadOnlyNavigation>(actualNavigations, navigationComparer),
-                navigationComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyKey> expectedKeys,
-            IEnumerable<IReadOnlyKey> actualKeys,
-            TestKeyComparer? testKeyComparer = null)
-        {
-            testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyKey>(expectedKeys, testKeyComparer),
-                new SortedSet<IReadOnlyKey>(actualKeys, testKeyComparer),
-                testKeyComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyForeignKey> expectedForeignKeys,
-            IEnumerable<IReadOnlyForeignKey> actualForeignKeys,
-            ForeignKeyStrictComparer? foreignKeyComparer = null)
-        {
-            foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyForeignKey>(expectedForeignKeys, foreignKeyComparer),
-                new SortedSet<IReadOnlyForeignKey>(actualForeignKeys, foreignKeyComparer),
-                foreignKeyComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyIndex> expectedIndexes,
-            IEnumerable<IReadOnlyIndex> actualIndexes,
-            TestIndexComparer? testIndexComparer = null)
-        {
-            testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyIndex>(expectedIndexes, testIndexComparer),
-                new SortedSet<IReadOnlyIndex>(actualIndexes, testIndexComparer),
-                testIndexComparer);
-        }
-
         protected virtual TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
 

@@ -345,8 +345,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             var methods = methodBuilder.ToString();
             if (!string.IsNullOrEmpty(methods))
             {
-                mainBuilder.AppendLine()
-                    .AppendLines(methods);
+                mainBuilder.AppendLines(methods);
             }
         }
 
@@ -1465,13 +1464,18 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     {
         process(
             annotatable,
-            parameters with { Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = false });
+            parameters with
+            {
+                Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = false
+            });
 
         process(
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

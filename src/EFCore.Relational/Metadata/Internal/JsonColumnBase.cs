@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.Update.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class JsonViewColumn : ViewColumn, IViewColumn
+public class JsonColumnBase : ColumnBase<ColumnMappingBase>
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,10 +20,10 @@ public class JsonViewColumn : ViewColumn, IViewColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public JsonViewColumn(string name, string type, View view,
+    public JsonColumnBase(string name, string type, TableBase table,
         RelationalTypeMapping? storeTypeMapping = null,
         ValueComparer? providerValueComparer = null)
-        : base(name, type, view, storeTypeMapping, providerValueComparer)
+        : base(name, type, table, storeTypeMapping, providerValueComparer)
     {
     }
 
