@@ -330,7 +330,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
                 if (updateInfo.Property != null)
                 {
-                    json = new JsonArray(JsonValue.Create(updateInfo.PropertyValue));
+                    json = new JsonArray(GenerateJsonForSinglePropertyUpdate(updateInfo.Property, updateInfo.PropertyValue));
                     jsonPathString = jsonPathString + "." + updateInfo.Property.GetJsonPropertyName();
                 }
                 else
@@ -698,6 +698,16 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
             return result;
         }
     }
+
+    /// <summary>
+    ///     Generates <see cref="JsonNode" /> representing the value to use for update in case a single property is being updated.
+    /// </summary>
+    /// <param name="property">Property to be updated.</param>
+    /// <param name="propertyValue">Value object that the property will be updated to.</param>
+    /// <returns><see cref="JsonNode" /> representing the value that the property will be updated to.</returns>
+    [EntityFrameworkInternal]
+    protected virtual JsonNode? GenerateJsonForSinglePropertyUpdate(IProperty property, object? propertyValue)
+        => JsonValue.Create(propertyValue);
 
     private JsonNode? CreateJson(object? navigationValue, IUpdateEntry parentEntry, IEntityType entityType, int? ordinal, bool isCollection)
     {

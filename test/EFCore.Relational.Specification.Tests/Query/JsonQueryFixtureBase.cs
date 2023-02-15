@@ -277,6 +277,21 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 }
             }
         },
+        {
+            typeof(JsonEntityConverters), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonEntityConverters)e;
+                    var aa = (JsonEntityConverters)a;
+
+                    Assert.Equal(ee.Id, aa.Id);
+
+                    AssertConverters(ee.Reference, aa.Reference);
+                }
+            }
+        },
     }.ToDictionary(e => e.Key, e => (object)e.Value);
 
     private static void AssertOwnedRoot(JsonOwnedRoot expected, JsonOwnedRoot actual)
@@ -354,6 +369,16 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
         Assert.Equal(expected.TestNullableEnum, actual.TestNullableEnum);
         Assert.Equal(expected.TestNullableEnumWithIntConverter, actual.TestNullableEnumWithIntConverter);
         Assert.Equal(expected.TestNullableEnumWithConverterThatHandlesNulls, actual.TestNullableEnumWithConverterThatHandlesNulls);
+    }
+
+    public static void AssertConverters(JsonOwnedConverters expected, JsonOwnedConverters actual)
+    {
+        Assert.Equal(expected.BoolConvertedToIntZeroOne, actual.BoolConvertedToIntZeroOne);
+        Assert.Equal(expected.BoolConvertedToStringTrueFalse, actual.BoolConvertedToStringTrueFalse);
+        Assert.Equal(expected.BoolConvertedToStringYN, actual.BoolConvertedToStringYN);
+        Assert.Equal(expected.IntZeroOneConvertedToBool, actual.IntZeroOneConvertedToBool);
+        Assert.Equal(expected.StringTrueFalseConvertedToBool, actual.StringTrueFalseConvertedToBool);
+        Assert.Equal(expected.StringYNConvertedToBool, actual.StringYNConvertedToBool);
     }
 
     protected override string StoreName { get; } = "JsonQueryTest";
@@ -535,6 +560,30 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                 b.ToJson();
                 b.Property(x => x.TestMaxLengthString).HasMaxLength(5);
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+            });
+
+        modelBuilder.Entity<JsonEntityConverters>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityConverters>().OwnsOne(
+            x => x.Reference, b =>
+            {
+                b.ToJson();
+                b.Property(x => x.BoolConvertedToIntZeroOne).HasConversion<BoolToZeroOneConverter<int>>();
+                b.Property(x => x.BoolConvertedToStringTrueFalse).HasConversion(new BoolToStringConverter("False", "True"));
+                b.Property(x => x.BoolConvertedToStringYN).HasConversion(new BoolToStringConverter("N", "Y"));
+                b.Property(x => x.IntZeroOneConvertedToBool).HasConversion(
+                    new ValueConverter<int, bool>(
+                        x => x == 0 ? false : true,
+                        x => x == false ? 0 : 1));
+
+                b.Property(x => x.StringTrueFalseConvertedToBool).HasConversion(
+                    new ValueConverter<string, bool>(
+                        x => x == "True" ? true : false,
+                        x => x == true ? "True" : "False"));
+
+                b.Property(x => x.StringYNConvertedToBool).HasConversion(
+                    new ValueConverter<string, bool>(
+                        x => x == "Y" ? true : false,
+                        x => x == true ? "Y" : "N"));
             });
     }
 }

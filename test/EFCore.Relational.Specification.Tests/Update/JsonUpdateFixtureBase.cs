@@ -124,6 +124,30 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
             });
 
+        modelBuilder.Entity<JsonEntityConverters>().Property(x => x.Id).ValueGeneratedNever();
+        modelBuilder.Entity<JsonEntityConverters>().OwnsOne(
+            x => x.Reference, b =>
+            {
+                b.ToJson();
+                b.Property(x => x.BoolConvertedToIntZeroOne).HasConversion<BoolToZeroOneConverter<int>>();
+                b.Property(x => x.BoolConvertedToStringTrueFalse).HasConversion(new BoolToStringConverter("False", "True"));
+                b.Property(x => x.BoolConvertedToStringYN).HasConversion(new BoolToStringConverter("N", "Y"));
+                b.Property(x => x.IntZeroOneConvertedToBool).HasConversion(
+                    new ValueConverter<int, bool>(
+                        x => x == 0 ? false : true,
+                        x => x == false ? 0 : 1));
+
+                b.Property(x => x.StringTrueFalseConvertedToBool).HasConversion(
+                    new ValueConverter<string, bool>(
+                        x => x == "True" ? true : false,
+                        x => x == true ? "True" : "False"));
+
+                b.Property(x => x.StringYNConvertedToBool).HasConversion(
+                    new ValueConverter<string, bool>(
+                        x => x == "Y" ? true : false,
+                        x => x == true ? "Y" : "N"));
+            });
+
         base.OnModelCreating(modelBuilder, context);
     }
 
@@ -132,10 +156,12 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
         var jsonEntitiesBasic = JsonQueryData.CreateJsonEntitiesBasic();
         var jsonEntitiesInheritance = JsonQueryData.CreateJsonEntitiesInheritance();
         var jsonEntitiesAllTypes = JsonQueryData.CreateJsonEntitiesAllTypes();
+        var jsonEntitiesConverters = JsonQueryData.CreateJsonEntitiesConverters();
 
         context.JsonEntitiesBasic.AddRange(jsonEntitiesBasic);
         context.JsonEntitiesInheritance.AddRange(jsonEntitiesInheritance);
         context.JsonEntitiesAllTypes.AddRange(jsonEntitiesAllTypes);
+        context.JsonEntitiesConverters.AddRange(jsonEntitiesConverters);
         context.SaveChanges();
     }
 }

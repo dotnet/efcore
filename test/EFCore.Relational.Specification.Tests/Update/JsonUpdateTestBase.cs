@@ -1361,6 +1361,126 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("edit", result.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething);
             });
 
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_converter_bool_to_int_zero_one()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesConverters.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.BoolConvertedToIntZeroOne = false;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityConverters>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(false, result.Reference.BoolConvertedToIntZeroOne);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_converter_bool_to_string_True_False()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesConverters.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.BoolConvertedToStringTrueFalse = true;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityConverters>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(true, result.Reference.BoolConvertedToStringTrueFalse);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_converter_bool_to_string_Y_N()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesConverters.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.BoolConvertedToStringYN = false;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityConverters>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(false, result.Reference.BoolConvertedToStringYN);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_converter_int_zero_one_to_bool()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesConverters.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.IntZeroOneConvertedToBool = 1;
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityConverters>().SingleAsync(x => x.Id == 1);
+                Assert.Equal(1, result.Reference.IntZeroOneConvertedToBool);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_converter_string_True_False_to_bool()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesConverters.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.StringTrueFalseConvertedToBool = "False";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityConverters>().SingleAsync(x => x.Id == 1);
+                Assert.Equal("False", result.Reference.StringTrueFalseConvertedToBool);
+            });
+
+    [ConditionalFact]
+    public virtual Task Edit_single_property_with_converter_string_Y_N_to_bool()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesConverters.ToListAsync();
+                var entity = query.Single(x => x.Id == 1);
+                entity.Reference.StringYNConvertedToBool = "Y";
+
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var result = await context.Set<JsonEntityConverters>().SingleAsync(x => x.Id == 1);
+                Assert.Equal("Y", result.Reference.StringYNConvertedToBool);
+            });
+
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());
 

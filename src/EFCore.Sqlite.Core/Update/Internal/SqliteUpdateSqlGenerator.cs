@@ -143,6 +143,62 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
     public override string GenerateNextSequenceValueOperation(string name, string? schema)
         => throw new NotSupportedException(SqliteStrings.SequencesNotSupported);
 
+
+    /// <inheritdoc />
+    protected override void AppendUpdateColumnValue(
+        ISqlGenerationHelper updateSqlGeneratorHelper,
+        IColumnModification columnModification,
+        StringBuilder stringBuilder,
+        string name,
+        string? schema)
+    {
+        if (columnModification.JsonPath is not (null or "$"))
+        {
+            stringBuilder.Append("json_set(");
+            updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);
+            stringBuilder.Append(", '");
+            stringBuilder.Append(columnModification.JsonPath);
+            stringBuilder.Append("', ");
+
+            if (columnModification.Property != null)
+            {
+                // special handling for bool
+                // json_extract converts true/false into native 0/1 values,
+                // but we want to store the values as true/false in JSON
+                // in order to do that we modify the parameter value to "true"/"false"
+                // and wrap json() function around it to avoid conversion to 0/1
+                var boolProviderType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
+                    ?? columnModification.Property.ClrType).UnwrapNullableType() == typeof(bool);
+
+                if (boolProviderType)
+                {
+                    stringBuilder.Append("json(");
+                }
+
+                stringBuilder.Append("json_extract(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(", '$[0]')");
+
+                if (boolProviderType)
+                {
+                    stringBuilder.Append(")");
+                }
+            }
+            else
+            {
+                stringBuilder.Append("json(");
+                base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+                stringBuilder.Append(")");
+            }
+
+            stringBuilder.Append(")");
+        }
+        else
+        {
+            base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
+        }
+    }
+
     private bool CanUseReturningClause(IReadOnlyModificationCommand command)
         => _isReturningClauseSupported && command.Table?.IsSqlReturningClauseUsed() == true;
 }

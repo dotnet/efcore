@@ -1719,6 +1719,78 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_bool_converted_to_int_zero_one(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToIntZeroOne),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_bool_converted_to_int_zero_one_with_explicit_comparison(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToIntZeroOne == false),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_bool_converted_to_string_True_False(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringTrueFalse),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_bool_converted_to_string_True_False_with_explicit_comparison(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringTrueFalse == true),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_bool_converted_to_string_Y_N(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringYN),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_bool_converted_to_string_Y_N_with_explicit_comparison(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.BoolConvertedToStringYN == false),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_int_zero_one_converted_to_bool(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.IntZeroOneConvertedToBool == 1),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_string_True_False_converted_to_bool(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.StringTrueFalseConvertedToBool == "False"),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_predicate_on_string_Y_N_converted_to_bool(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityConverters>().Where(x => x.Reference.StringYNConvertedToBool == "N"),
+            entryCount: 2);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task FromSql_on_entity_with_json_basic(bool async)
         => AssertQuery(
             async,

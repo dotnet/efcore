@@ -100,6 +100,7 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IModelValidator, SqliteModelValidator>()
             .TryAdd<IProviderConventionSetBuilder, SqliteConventionSetBuilder>()
             .TryAdd<IModificationCommandBatchFactory, SqliteModificationCommandBatchFactory>()
+            .TryAdd<IModificationCommandFactory, SqliteModificationCommandFactory>()
             .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqliteRelationalConnection>())
             .TryAdd<IMigrationsSqlGenerator, SqliteMigrationsSqlGenerator>()
             .TryAdd<IRelationalDatabaseCreator, SqliteDatabaseCreator>()
