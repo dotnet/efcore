@@ -692,7 +692,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
             }
 
-            Debug.Assert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
+            Check.DebugAssert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
 
             return result;
         }

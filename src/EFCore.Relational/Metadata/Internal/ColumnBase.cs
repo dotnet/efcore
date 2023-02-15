@@ -13,6 +13,7 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     where TColumnMappingBase : class, IColumnMappingBase
 {
     private Type? _providerClrType;
+    private readonly RelationalTypeMapping? _storeTypeMapping;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -20,11 +21,12 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public ColumnBase(string name, string type, TableBase table)
+    public ColumnBase(string name, string type, TableBase table, RelationalTypeMapping? storeTypeMapping = null)
     {
         Name = name;
         StoreType = type;
         Table = table;
+        _storeTypeMapping = storeTypeMapping;
     }
 
     /// <summary>
@@ -97,7 +99,7 @@ public class ColumnBase<TColumnMappingBase> : Annotatable, IColumnBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual RelationalTypeMapping StoreTypeMapping
-        => PropertyMappings.First().TypeMapping;
+        => _storeTypeMapping ?? PropertyMappings.First().TypeMapping;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

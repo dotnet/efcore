@@ -1203,7 +1203,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (parentEntityExpression != null)
             {
-                Debug.Assert(navigation != null, "Navigation shouldn't be null when including.");
+                Check.DebugAssert(navigation != null, "Navigation shouldn't be null when including.");
 
                 var fixup = GenerateFixup(
                     navigation.DeclaringEntityType.ClrType,
@@ -1262,7 +1262,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             if (collection)
             {
-                Debug.Assert(navigation != null, "navigation shouldn't be null when materializing collection.");
+                Check.DebugAssert(navigation != null, "navigation shouldn't be null when materializing collection.");
 
                 var materializeJsonEntityCollection = Expression.Call(
                     MaterializeJsonEntityCollectionMethodInfo.MakeGenericMethod(
