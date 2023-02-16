@@ -56,6 +56,7 @@ variables:
     value: 'en_US.UTF-8'
   - name: runCodeQL3000
     value: ${{ and(ne(variables['System.TeamProject'], 'public'), or(eq(variables['Build.Reason'], 'Schedule'), and(eq(variables['Build.Reason'], 'Manual'), eq(parameters.runCodeQL3000, 'true')))) }}
+  - template: /eng/common/templates/variables/pool-providers.yml
 
 trigger:
   batch: true
@@ -86,10 +87,10 @@ stages:
             enablePublishTestResults: ${{ ne(variables.runCodeQL3000, 'true') }}
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCore-Public
+                name: $(DncEngPublicBuildPool)
                 demands: ImageOverride -equals 1es-windows-2019-open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: NetCore1ESPool-Internal
+                name: $(DncEngInternalBuildPool)
                 demands: ImageOverride -equals 1es-windows-2019
             ${{ if eq(variables.runCodeQL3000, 'true') }}:
               # Component governance and SBOM creation are not needed here. Disable what Arcade would inject.
@@ -211,7 +212,7 @@ stages:
                 ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                   vmImage: ubuntu-22.04
                 ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
-                  name: NetCore1ESPool-Internal
+                  name: $(DncEngInternalBuildPool)
                   demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
               variables:
                 - _runCounter: $[counter(variables['Build.Reason'], 0)]
@@ -257,10 +258,10 @@ stages:
               timeoutInMinutes: 180
               pool:
                 ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                  name: NetCore-Public
+                  name: $(DncEngPublicBuildPool)
                   demands: ImageOverride -equals 1es-windows-2019-open
                 ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  name: NetCore1ESPool-Internal
+                  name: $(DncEngInternalBuildPool)
                   demands: ImageOverride -equals 1es-windows-2019
               variables:
                 # Rely on task Arcade injects, not auto-injected build step.
