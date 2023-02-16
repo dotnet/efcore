@@ -43,7 +43,7 @@
     </Dependency>
     <Dependency Name="System.Diagnostics.DiagnosticSource" Version="6.0.1">
       <Uri>https://dev.azure.com/dnceng/internal/_git/dotnet-runtime</Uri>
-      <Sha>22da7ee62549733b6b9bbc954b07c218eb0be3a2</Sha>
+      <Sha>5edef4b20babd4c3ddac7460e536f86fd0f2d724</Sha>
     </Dependency>
   </ProductDependencies>
   <ToolsetDependencies>
