@@ -7,6 +7,11 @@
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
+  "runtimes": {
+    "dotnet": [
+      "7.0.3"
+    ]
+  },
   "msbuild-sdks": {
     "Microsoft.DotNet.Arcade.Sdk": "8.0.0-beta.23110.3",
     "Microsoft.DotNet.Helix.Sdk": "8.0.0-beta.23110.3"
