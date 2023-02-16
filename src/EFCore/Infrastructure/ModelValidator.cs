@@ -206,13 +206,15 @@ public class ModelValidator : IModelValidator
                     continue;
                 }
 
+                var isAdHoc = Equals(model.FindAnnotation(CoreAnnotationNames.AdHocModel)?.Value, true);
                 if (targetType != null)
                 {
                     var targetShared = conventionModel.IsShared(targetType);
                     targetOwned ??= IsOwned(targetType, conventionModel);
                     // ReSharper disable CheckForReferenceEqualityInstead.1
                     // ReSharper disable CheckForReferenceEqualityInstead.3
-                    if ((!entityType.IsKeyless
+                    if ((isAdHoc
+                            || !entityType.IsKeyless
                             || targetSequenceType == null)
                         && entityType.GetDerivedTypes().All(
                             dt => dt.GetDeclaredNavigations().FirstOrDefault(n => n.Name == clrProperty.GetSimpleMemberName())
@@ -237,8 +239,11 @@ public class ModelValidator : IModelValidator
                         }
 
                         throw new InvalidOperationException(
-                            CoreStrings.NavigationNotAdded(
-                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                            isAdHoc
+                                ? CoreStrings.NavigationNotAddedAdHoc(
+                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
+                                : CoreStrings.NavigationNotAdded(
+                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                     }
 
                     // ReSharper restore CheckForReferenceEqualityInstead.3
@@ -254,8 +259,11 @@ public class ModelValidator : IModelValidator
                 else
                 {
                     throw new InvalidOperationException(
-                        CoreStrings.PropertyNotAdded(
-                            entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                        isAdHoc
+                            ? CoreStrings.PropertyNotAddedAdHoc(
+                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
+                            : CoreStrings.PropertyNotAdded(
+                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                 }
             }
         }
@@ -464,7 +472,7 @@ public class ModelValidator : IModelValidator
         graph.TopologicalSort(
             tryBreakEdge: null,
             formatCycle: c => c.Select(d => d.Item1.DisplayName()).Join(" -> "),
-            c => CoreStrings.IdentifyingRelationshipCycle(c));
+            CoreStrings.IdentifyingRelationshipCycle);
     }
 
     /// <summary>

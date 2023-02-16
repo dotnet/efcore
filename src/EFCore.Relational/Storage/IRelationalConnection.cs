@@ -48,6 +48,22 @@ public interface IRelationalConnection : IRelationalTransactionManager, IDisposa
     DbConnection DbConnection { get; set; }
 
     /// <summary>
+    ///     Sets the underlying <see cref="System.Data.Common.DbConnection" /> used to connect to the database.
+    /// </summary>
+    /// <param name="value">The connection object.</param>
+    /// <param name="contextOwnsConnection">
+    ///     If <see langword="true" />, then EF will take ownership of the connection and will
+    ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
+    ///     owns the connection and is responsible for its disposal.
+    /// </param>
+    /// <remarks>
+    ///     <para>
+    ///         The connection can only be changed when the existing connection, if any, is not open.
+    ///     </para>
+    /// </remarks>
+    void SetDbConnection(DbConnection? value, bool contextOwnsConnection);
+
+    /// <summary>
     ///     The <see cref="DbContext" /> currently in use, or <see langword="null" /> if not known.
     /// </summary>
     DbContext Context { get; }

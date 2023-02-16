@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -260,6 +261,145 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
         public WrappedIntHiLoRecord Id { get; set; } = null!;
         public WrappedIntHiLoKeyRecord PrincipalId { get; set; } = null!;
         public WrappedIntHiLoRecordPrincipal Principal { get; set; } = null!;
+    }
+
+    protected class LongToDecimalPrincipal
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public ICollection<LongToDecimalDependentShadow> Dependents { get; } = new List<LongToDecimalDependentShadow>();
+        public ICollection<LongToDecimalDependentRequired> RequiredDependents { get; } = new List<LongToDecimalDependentRequired>();
+        public ICollection<LongToDecimalDependentOptional> OptionalDependents { get; } = new List<LongToDecimalDependentOptional>();
+    }
+
+    protected class LongToDecimalDependentShadow
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public LongToDecimalPrincipal? Principal { get; set; }
+    }
+
+    protected class LongToDecimalDependentRequired
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public long PrincipalId { get; set; }
+        public LongToDecimalPrincipal Principal { get; set; } = null!;
+    }
+
+    protected class LongToDecimalDependentOptional
+    {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Id { get; set; }
+
+        public long? PrincipalId { get; set; }
+        public LongToDecimalPrincipal? Principal { get; set; }
+    }
+
+    [ConditionalFact]
+    public virtual void Insert_update_and_delete_with_long_to_decimal_conversion()
+    {
+        var id1 = 0L;
+        ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var principal1 = context.Add(
+                    new LongToDecimalPrincipal
+                    {
+                        Dependents = { new LongToDecimalDependentShadow(), new LongToDecimalDependentShadow() },
+                        OptionalDependents = { new LongToDecimalDependentOptional(), new LongToDecimalDependentOptional() },
+                        RequiredDependents = { new LongToDecimalDependentRequired(), new LongToDecimalDependentRequired() }
+                    }).Entity;
+
+                context.SaveChanges();
+
+                id1 = principal1.Id;
+                Assert.NotEqual(0L, id1);
+                foreach (var dependent in principal1.Dependents)
+                {
+                    Assert.NotEqual(0L, dependent.Id);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, context.Entry(dependent).Property<long?>("PrincipalId").CurrentValue!.Value);
+                }
+
+                foreach (var dependent in principal1.OptionalDependents)
+                {
+                    Assert.NotEqual(0L, dependent.Id);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId);
+                }
+
+                foreach (var dependent in principal1.RequiredDependents)
+                {
+                    Assert.NotEqual(0L, dependent.Id);
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId);
+                }
+            },
+            context =>
+            {
+                var principal1 = context.Set<LongToDecimalPrincipal>()
+                    .Include(e => e.Dependents)
+                    .Include(e => e.OptionalDependents)
+                    .Include(e => e.RequiredDependents)
+                    .Single();
+
+                Assert.Equal(principal1.Id, id1);
+                foreach (var dependent in principal1.Dependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, context.Entry(dependent).Property<long?>("PrincipalId").CurrentValue!.Value);
+                }
+
+                foreach (var dependent in principal1.OptionalDependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId!.Value);
+                }
+
+                foreach (var dependent in principal1.RequiredDependents)
+                {
+                    Assert.Same(principal1, dependent.Principal);
+                    Assert.Equal(id1, dependent.PrincipalId);
+                }
+
+                principal1.Dependents.Remove(principal1.Dependents.First());
+                principal1.OptionalDependents.Remove(principal1.OptionalDependents.First());
+                principal1.RequiredDependents.Remove(principal1.RequiredDependents.First());
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                var dependents1 = context.Set<LongToDecimalDependentShadow>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, dependents1.Count);
+                Assert.Null(
+                    context.Entry(dependents1.Single(e => e.Principal == null))
+                        .Property<long?>("PrincipalId").CurrentValue);
+
+                var optionalDependents1 = context.Set<LongToDecimalDependentOptional>().Include(e => e.Principal).ToList();
+                Assert.Equal(2, optionalDependents1.Count);
+                Assert.Null(optionalDependents1.Single(e => e.Principal == null).PrincipalId);
+
+                var requiredDependents1 = context.Set<LongToDecimalDependentRequired>().Include(e => e.Principal).ToList();
+                Assert.Single(requiredDependents1);
+
+                context.Remove(dependents1.Single(e => e.Principal != null));
+                context.Remove(optionalDependents1.Single(e => e.Principal != null));
+                context.Remove(requiredDependents1.Single());
+                context.Remove(requiredDependents1.Single().Principal);
+
+                context.SaveChanges();
+            },
+            context =>
+            {
+                Assert.Equal(1, context.Set<LongToDecimalDependentShadow>().Count());
+                Assert.Equal(1, context.Set<LongToDecimalDependentOptional>().Count());
+                Assert.Equal(0, context.Set<LongToDecimalDependentRequired>().Count());
+            });
     }
 
     [ConditionalFact]
@@ -606,9 +746,9 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     {
                         Assert.Same(
                             entity,
-                            stateManager.TryGetEntry(
+                            stateManager.TryGetEntryTyped(
                                 key,
-                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue })!.Entity);
+                                context.Entry(entity).Property(p => p.Id).CurrentValue)!.Entity);
                     }
 
                     // DbUpdateException : An error occurred while updating the entries. See the
@@ -647,9 +787,9 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
                     {
                         Assert.Same(
                             entity,
-                            stateManager.TryGetEntry(
+                            stateManager.TryGetEntryTyped(
                                 key,
-                                new object[] { context.Entry(entity).Property(p => p.Id).CurrentValue })!.Entity);
+                                context.Entry(entity).Property(p => p.Id).CurrentValue)!.Entity);
                     }
                 });
         }
@@ -766,6 +906,18 @@ public class StoreGeneratedSqlServerTest : StoreGeneratedTestBase<StoreGenerated
             modelBuilder.Entity<WrappedIntHiLoClassDependentRequired>().Property(e => e.Id).UseHiLo();
             modelBuilder.Entity<WrappedIntHiLoStructDependentRequired>().Property(e => e.Id).UseHiLo();
             modelBuilder.Entity<WrappedIntHiLoRecordDependentRequired>().Property(e => e.Id).UseHiLo();
+
+            modelBuilder.Entity<LongToDecimalPrincipal>(
+                entity =>
+                {
+                    var keyConverter = new ValueConverter<long, decimal>(
+                        v => new decimal(v),
+                        v => decimal.ToInt64(v));
+
+                    entity.Property(e => e.Id)
+                        .HasPrecision(18, 0)
+                        .HasConversion(keyConverter);
+                });
 
             base.OnModelCreating(modelBuilder, context);
         }

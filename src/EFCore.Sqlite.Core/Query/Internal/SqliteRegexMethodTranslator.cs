@@ -3,7 +3,6 @@
 
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -18,7 +17,7 @@ public class SqliteRegexMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo RegexIsMatchMethodInfo
         = typeof(Regex).GetRuntimeMethod(nameof(Regex.IsMatch), new[] { typeof(string), typeof(string) })!;
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,7 +25,7 @@ public class SqliteRegexMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteRegexMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqliteRegexMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -47,18 +46,8 @@ public class SqliteRegexMethodTranslator : IMethodCallTranslator
         {
             var input = arguments[0];
             var pattern = arguments[1];
-            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(input, pattern);
 
-            return _sqlExpressionFactory.Function(
-                "regexp",
-                new[]
-                {
-                    _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping),
-                    _sqlExpressionFactory.ApplyTypeMapping(input, stringTypeMapping)
-                },
-                nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
-                typeof(bool));
+            return _sqlExpressionFactory.Regexp(input, pattern);
         }
 
         return null;

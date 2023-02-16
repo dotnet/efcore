@@ -167,7 +167,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         using (var context = CreateContext())
         {
-            var scooterEntry = context.Add(
+            var scooterEntry = await context.AddAsync(
                 new PoweredVehicle
                 {
                     Name = "Electric scooter",
@@ -212,7 +212,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         using (var context = CreateContext())
         {
-            var scooterEntry = context.Add(
+            var scooterEntry = await context.AddAsync(
                 new PoweredVehicle
                 {
                     Name = "Electric scooter",
@@ -357,14 +357,14 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         await InitializeAsync(OnModelCreating);
 
         using var context = CreateContext();
-        context.Add(
+        await context.AddAsync(
             new PoweredVehicle
             {
                 Name = "Fuel transport",
                 SeatingCapacity = 1,
                 Operator = new LicensedOperator { Name = "Jack Jackson", LicenseType = "Class A CDC" }
             });
-        context.Add(
+        await context.AddAsync(
             new FuelTank
             {
                 Capacity = 10000_1,
@@ -453,7 +453,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             };
 
             context.Remove(bike);
-            context.Add(newBike);
+            await context.AddAsync(newBike);
 
             TestSqlLoggerFactory.Clear();
             context.SaveChanges();
@@ -503,7 +503,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             };
 
             context.Remove(bike);
-            context.Add(newBike);
+            await context.AddAsync(newBike);
 
             TestSqlLoggerFactory.Clear();
             context.SaveChanges();
@@ -545,7 +545,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail() };
 
         using var context = CreateSharedContext();
-        context.Add(meterReading);
+        await context.AddAsync(meterReading);
 
         context.SaveChanges();
 
@@ -566,7 +566,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
         var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail() };
 
         using var context = CreateSharedContext();
-        context.Add(meterReading);
+        await context.AddAsync(meterReading);
 
         TestSqlLoggerFactory.Clear();
 
@@ -605,7 +605,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 
         var meterReading = new MeterReading { MeterReadingDetails = new MeterReadingDetail { CurrentRead = "100" } };
 
-        context.Add(meterReading);
+        await context.AddAsync(meterReading);
 
         TestSqlLoggerFactory.Clear();
 
@@ -657,7 +657,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             await TestHelpers.ExecuteWithStrategyInTransactionAsync(
                 CreateContext,
                 UseTransaction,
-                async context => await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, e => 1)),
+                async context => await context.Set<Vehicle>().ExecuteUpdateAsync(s => s.SetProperty(e => e.SeatingCapacity, 1)),
                 context =>
                 {
                     Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1));
@@ -670,9 +670,99 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
             TestHelpers.ExecuteWithStrategyInTransaction(
                 CreateContext,
                 UseTransaction,
-                context => context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, e => 1)),
+                context => context.Set<Vehicle>().ExecuteUpdate(s => s.SetProperty(e => e.SeatingCapacity, 1)),
                 context => Assert.True(context.Set<Vehicle>().All(e => e.SeatingCapacity == 1)));
         }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Optional_dependent_without_required_property(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context29196>(
+            onConfiguring: e => e.ConfigureWarnings(w => w.Log(RelationalEventId.OptionalDependentWithoutIdentifyingPropertyWarning)));
+
+        using (var context = contextFactory.CreateContext())
+        {
+            var query = context.DetailedOrders.Where(o => o.Status == OrderStatus.Pending);
+
+            var result = async
+                ? await query.ToListAsync()
+                : query.ToList();
+        }
+    }
+
+    protected class Context29196 : DbContext
+    {
+        public Context29196(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        public DbSet<Order> Orders => Set<Order>();
+
+        public DbSet<DetailedOrder> DetailedOrders => Set<DetailedOrder>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<DetailedOrder>(
+             dob =>
+             {
+                 dob.ToTable("Orders");
+                 dob.Property(o => o.Status).HasColumnName("Status");
+                 dob.Property(o => o.Version).IsRowVersion().HasColumnName("Version");
+             });
+
+            modelBuilder.Entity<Order>(
+                ob =>
+                {
+                    ob.ToTable("Orders");
+                    ob.Property(o => o.Status).HasColumnName("Status");
+                    ob.HasOne(o => o.DetailedOrder).WithOne().HasForeignKey<DetailedOrder>(o => o.Id);
+                    ob.Property<byte[]>("Version").IsRowVersion().HasColumnName("Version");
+                });
+        }
+
+        public void Seed()
+        {
+            Add(
+                new Order
+                {
+                    Status = OrderStatus.Pending,
+                    DetailedOrder = new DetailedOrder
+                    {
+                        Status = OrderStatus.Pending,
+                        ShippingAddress = "221 B Baker St, London",
+                        BillingAddress = "11 Wall Street, New York"
+                    }
+                });
+
+            SaveChanges();
+        }
+    }
+
+    public class DetailedOrder
+    {
+        public int Id { get; set; }
+        public OrderStatus? Status { get; set; }
+        public string BillingAddress { get; set; }
+        public string ShippingAddress { get; set; }
+        public byte[] Version { get; set; }
+    }
+
+    public class Order
+    {
+        public int Id { get; set; }
+        public OrderStatus? Status { get; set; }
+        public DetailedOrder DetailedOrder { get; set; }
+    }
+
+    public enum OrderStatus
+    {
+        Pending,
+        Shipped
     }
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

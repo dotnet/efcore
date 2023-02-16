@@ -2922,6 +2922,31 @@ namespace Microsoft.EntityFrameworkCore.Metadata
         }
 
         [ConditionalFact]
+        public void Can_use_relational_model_with_tables_in_different_schemas()
+        {
+            var modelBuilder = CreateConventionModelBuilder();
+
+            modelBuilder.Ignore<Order>();
+            modelBuilder.Entity<OrderDetails>(
+                cb =>
+                {
+                    cb.HasKey(b => b.OrderId);
+                    cb.OwnsOne(d => d.BillingAddress, a => a.ToTable("Details", "Billing"));
+                    cb.OwnsOne(d => d.ShippingAddress, a => a.ToTable("Details", "Shipping"));
+                    cb.OwnsOne(d => d.DateDetails, a => a.ToTable("Details", "Date"));
+                });
+
+            var model = Finalize(modelBuilder);
+
+            Assert.Equal(4, model.Model.GetEntityTypes().Count());
+            Assert.Empty(model.Views);
+
+            var orderDetails = model.Model.FindEntityType(typeof(OrderDetails));
+            var orderDetailsTable = orderDetails.GetTableMappings().Single().Table;
+            Assert.Equal(3, orderDetailsTable.ReferencingForeignKeyConstraints.Count());
+        }
+
+        [ConditionalFact]
         public void Can_use_relational_model_with_SQL_queries()
         {
             var modelBuilder = CreateConventionModelBuilder();

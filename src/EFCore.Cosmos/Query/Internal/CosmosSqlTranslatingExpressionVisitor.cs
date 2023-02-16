@@ -995,7 +995,9 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         => CanEvaluate(expression)
             ? new SqlConstantExpression(
                 Expression.Constant(
-                    Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object))).Compile().Invoke(),
+                    Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
+                        .Compile(preferInterpretation: true)
+                        .Invoke(),
                     expression.Type),
                 null)
             : null;

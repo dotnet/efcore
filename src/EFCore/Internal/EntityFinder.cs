@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Internal;
@@ -18,6 +19,9 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     private readonly IDbSetSource _setSource;
     private readonly IDbSetCache _setCache;
     private readonly IEntityType _entityType;
+    private readonly IKey _primaryKey;
+    private readonly Type _primaryKeyType;
+    private readonly int _primaryKeyPropertiesCount;
     private readonly IQueryable<TEntity> _queryRoot;
 
     /// <summary>
@@ -36,6 +40,9 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         _setSource = setSource;
         _setCache = setCache;
         _entityType = entityType;
+        _primaryKey = entityType.FindPrimaryKey()!;
+        _primaryKeyPropertiesCount = _primaryKey.Properties.Count;
+        _primaryKeyType = _primaryKeyPropertiesCount == 1 ? _primaryKey.Properties[0].ClrType : typeof(IReadOnlyList<object?>);
         _queryRoot = (IQueryable<TEntity>)BuildQueryRoot(entityType);
     }
 
@@ -53,10 +60,10 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return default;
         }
 
-        var (key, processedKeyValues, _) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: false, default);
+        var (processedKeyValues, _) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: false, default);
 
-        return FindTracked(key, processedKeyValues)
-            ?? _queryRoot.FirstOrDefault(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)));
+        return FindTracked(processedKeyValues)
+            ?? _queryRoot.FirstOrDefault(BuildLambda(_primaryKey.Properties, new ValueBuffer(processedKeyValues)));
     }
 
     /// <summary>
@@ -74,6 +81,296 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalEntityEntry? FindEntry<TKey>(TKey keyValue)
+    {
+        if (_primaryKeyPropertiesCount != 1)
+        {
+            throw new ArgumentException(
+                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), _primaryKeyPropertiesCount, 1));
+        }
+
+        if (typeof(TKey) != _primaryKeyType)
+        {
+            throw new ArgumentException(
+                CoreStrings.WrongGenericPropertyType(
+                    _primaryKey.Properties[0].Name,
+                    _primaryKey.Properties[0].DeclaringEntityType.DisplayName(),
+                    _primaryKeyType.ShortDisplayName(),
+                    typeof(TKey).ShortDisplayName()));
+        }
+
+        return _stateManager.TryGetEntryTyped(_primaryKey, keyValue);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? FindEntry<TProperty>(IProperty property, TProperty propertyValue)
+    {
+        ValidateProperty(property, propertyValue);
+
+        if (TryFindByKey(property, propertyValue, out var entry))
+        {
+            return entry;
+        }
+
+        if (TryGetByForeignKey(property, propertyValue, out var entries))
+        {
+            return entries!.FirstOrDefault();
+        }
+
+        var comparer = (ValueComparer<TProperty>)property.GetValueComparer();
+
+        foreach (var candidate in _stateManager.GetEntries(_primaryKey))
+        {
+            if (comparer.Equals(candidate.GetCurrentValue<TProperty>(property), propertyValue))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<InternalEntityEntry> GetEntries<TProperty>(IProperty property, TProperty propertyValue)
+    {
+        ValidateProperty(property, propertyValue);
+
+        if (TryFindByKey(property, propertyValue, out var entry))
+        {
+            return entry != null
+                ? new[] { entry }
+                : Enumerable.Empty<InternalEntityEntry>();
+        }
+
+        if (TryGetByForeignKey(property, propertyValue, out var entries))
+        {
+            return entries!;
+        }
+
+        var comparer = (ValueComparer<TProperty>)property.GetValueComparer();
+
+        return _stateManager.GetEntries(_primaryKey).Where(e => comparer.Equals(e.GetCurrentValue<TProperty>(property), propertyValue));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? FindEntry(IEnumerable<object?> keyValues)
+    {
+        ValidateProperties(_primaryKey.Properties, keyValues, out _, out var valuesList);
+
+        if (valuesList.Any(v => v == null))
+        {
+            return null;
+        }
+
+        return _stateManager.TryGetEntry(_primaryKey, valuesList);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? FindEntry(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
+    {
+        ValidateProperties(properties, propertyValues, out var propertiesList, out var valuesList);
+
+        if (TryFindByKey(propertiesList, valuesList, out var entry))
+        {
+            return entry;
+        }
+
+        if (TryGetByForeignKey(propertiesList, valuesList, out var entries))
+        {
+            return entries!.FirstOrDefault();
+        }
+
+        return GetEntries(propertiesList, valuesList).FirstOrDefault();
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<InternalEntityEntry> GetEntries(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
+    {
+        ValidateProperties(properties, propertyValues, out var propertiesList, out var valuesList);
+
+        if (TryFindByKey(propertiesList, valuesList, out var entry))
+        {
+            return entry != null
+                ? new[] { entry }
+                : Enumerable.Empty<InternalEntityEntry>();
+        }
+
+        if (TryGetByForeignKey(propertiesList, valuesList, out var entries))
+        {
+            return entries!;
+        }
+
+        return GetEntriesByScan(propertiesList, valuesList);
+    }
+
+    private IEnumerable<InternalEntityEntry> GetEntriesByScan(IReadOnlyList<IProperty> propertiesList, IReadOnlyList<object?> valuesList)
+    {
+        var comparers = propertiesList.Select(p => p.GetValueComparer()).ToList();
+
+        foreach (var entry in _stateManager.GetEntries(_primaryKey))
+        {
+            for (var i = 0; i < comparers.Count; i++)
+            {
+                if (!comparers[i].Equals(entry[propertiesList[i]], valuesList[i]))
+                {
+                    goto next;
+                }
+            }
+
+            yield return entry;
+            next: ;
+        }
+    }
+
+    private static void ValidateProperties(
+        IEnumerable<IProperty> properties,
+        IEnumerable<object?> propertyValues,
+        out IReadOnlyList<IProperty> propertiesList,
+        out IReadOnlyList<object?> valuesList)
+    {
+        propertiesList = (properties as IReadOnlyList<IProperty>) ?? properties.ToList();
+        valuesList = (propertyValues as IReadOnlyList<object?>) ?? propertyValues.ToList();
+
+        if (propertiesList.Count != valuesList.Count)
+        {
+            throw new ArgumentException(CoreStrings.FindWrongCount(valuesList.Count, propertiesList.Count));
+        }
+
+        for (var i = 0; i < propertiesList.Count; i++)
+        {
+            var value = valuesList[i];
+            if (value != null
+                && !propertiesList[i].ClrType.UnwrapNullableType().IsInstanceOfType(value))
+            {
+                throw new ArgumentException(
+                    CoreStrings.FindWrongType(
+                        value.GetType().ShortDisplayName(), propertiesList[i].Name, propertiesList[i].ClrType.ShortDisplayName()));
+            }
+        }
+    }
+
+    private static void ValidateProperty<TProperty>(IProperty property, TProperty value)
+    {
+        if (value != null
+            && !property.ClrType.UnwrapNullableType().IsInstanceOfType(value))
+        {
+            throw new ArgumentException(
+                CoreStrings.FindWrongType(
+                    value.GetType().ShortDisplayName(), property.Name, property.ClrType.ShortDisplayName()));
+        }
+    }
+
+    private bool TryFindByKey<TProperty>(IProperty property, TProperty propertyValue, out InternalEntityEntry? entry)
+    {
+        var key = _entityType.FindKey(property);
+        if (key != null)
+        {
+            entry = _stateManager.TryGetEntryTyped(key, propertyValue);
+            return true;
+        }
+
+        entry = null;
+        return false;
+    }
+
+    private bool TryGetByForeignKey<TProperty>(IProperty property, TProperty propertyValue, out IEnumerable<InternalEntityEntry>? entries)
+    {
+        var foreignKeys = _entityType.FindForeignKeys(property).ToList();
+        if (foreignKeys.Count == 0
+            || propertyValue == null)
+        {
+            entries = null;
+            return false;
+        }
+
+        var keyValues = new object[] { propertyValue! };
+        entries = _stateManager.GetDependents(keyValues, foreignKeys[0]).Cast<InternalEntityEntry>();
+        if (foreignKeys.Count == 1)
+        {
+            return true;
+        }
+
+        for (var i = 1; i < foreignKeys.Count; i++)
+        {
+            entries = entries.Concat(_stateManager.GetDependents(keyValues, foreignKeys[i]).Cast<InternalEntityEntry>());
+        }
+
+        entries = entries.Distinct();
+        return true;
+    }
+
+    private bool TryFindByKey(IReadOnlyList<IProperty> properties, IReadOnlyList<object?> propertyValues, out InternalEntityEntry? entry)
+    {
+        var key = _entityType.FindKey(properties);
+        if (key != null)
+        {
+            entry = _stateManager.TryGetEntry(key, propertyValues);
+            return true;
+        }
+
+        entry = null;
+        return false;
+    }
+
+    private bool TryGetByForeignKey(
+        IReadOnlyList<IProperty> properties,
+        IReadOnlyList<object?> propertyValues,
+        out IEnumerable<InternalEntityEntry>? entries)
+    {
+        var foreignKeys = _entityType.FindForeignKeys(properties).ToList();
+        if (foreignKeys.Count == 0
+            || propertyValues.Any(v => v == null))
+        {
+            entries = null;
+            return false;
+        }
+
+        entries = _stateManager.GetDependents(propertyValues!, foreignKeys[0]).Cast<InternalEntityEntry>();
+        if (foreignKeys.Count == 1)
+        {
+            return true;
+        }
+
+        for (var i = 1; i < foreignKeys.Count; i++)
+        {
+            entries = entries.Concat(_stateManager.GetDependents(propertyValues!, foreignKeys[i]).Cast<InternalEntityEntry>());
+        }
+
+        entries = entries.Distinct();
+        return true;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual ValueTask<TEntity?> FindAsync(object?[]? keyValues, CancellationToken cancellationToken = default)
     {
         if (keyValues == null
@@ -82,13 +379,13 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return default;
         }
 
-        var (key, processedKeyValues, ct) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: true, cancellationToken);
+        var (processedKeyValues, ct) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: true, cancellationToken);
 
-        var tracked = FindTracked(key, processedKeyValues);
+        var tracked = FindTracked(processedKeyValues);
         return tracked != null
             ? new ValueTask<TEntity?>(tracked)
             : new ValueTask<TEntity?>(
-                _queryRoot.FirstOrDefaultAsync(BuildLambda(key.Properties, new ValueBuffer(processedKeyValues)), ct));
+                _queryRoot.FirstOrDefaultAsync(BuildLambda(_primaryKey.Properties, new ValueBuffer(processedKeyValues)), ct));
     }
 
     /// <summary>
@@ -105,14 +402,14 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return default;
         }
 
-        var (key, processedKeyValues, ct) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: true, cancellationToken);
+        var (processedKeyValues, ct) = ValidateKeyPropertiesAndExtractCancellationToken(keyValues!, async: true, cancellationToken);
 
-        var tracked = FindTracked(key, processedKeyValues);
+        var tracked = FindTracked(processedKeyValues);
         return tracked != null
             ? new ValueTask<object?>(tracked)
             : new ValueTask<object?>(
                 _queryRoot.FirstOrDefaultAsync(
-                    BuildObjectLambda(key.Properties, new ValueBuffer(processedKeyValues)), ct));
+                    BuildObjectLambda(_primaryKey.Properties, new ValueBuffer(processedKeyValues)), ct));
     }
 
     /// <summary>
@@ -121,18 +418,50 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Load(INavigation navigation, InternalEntityEntry entry)
+    public virtual void Load(INavigation navigation, InternalEntityEntry entry, bool forceIdentityResolution)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
-        }
-
         var keyValues = GetLoadValues(navigation, entry);
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            Query(navigation, keyValues).Load();
+            var queryable = Query(navigation, keyValues, entry, forceIdentityResolution);
+            if (entry.EntityState == EntityState.Detached)
+            {
+                var inverse = navigation.Inverse;
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, forceIdentityResolution);
+                try
+                {
+                    if (navigation.IsCollection)
+                    {
+                        foreach (var loaded in queryable)
+                        {
+                            Fixup(stateManager, entry.Entity, navigation, inverse, forceIdentityResolution, loaded);
+                        }
+                    }
+                    else
+                    {
+                        Fixup(stateManager, entry.Entity, navigation, inverse, forceIdentityResolution, queryable.FirstOrDefault());
+                    }
+                }
+                finally
+                {
+                    if (stateManager != _stateManager)
+                    {
+                        stateManager.Clear(resetting: false);
+                    }
+                }
+            }
+            else
+            {
+                if (navigation.IsCollection)
+                {
+                    queryable.Load();
+                }
+                else
+                {
+                    _ = queryable.FirstOrDefault();
+                }
+            }
         }
 
         entry.SetIsLoaded(navigation);
@@ -147,22 +476,150 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     public virtual async Task LoadAsync(
         INavigation navigation,
         InternalEntityEntry entry,
+        bool forceIdentityResolution,
         CancellationToken cancellationToken = default)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
-        }
-
-        // Short-circuit for any null key values for perf and because of #6129
         var keyValues = GetLoadValues(navigation, entry);
+        // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            await Query(navigation, keyValues).LoadAsync(cancellationToken)
-                .ConfigureAwait(false);
+            var queryable = Query(navigation, keyValues, entry, forceIdentityResolution);
+            if (entry.EntityState == EntityState.Detached)
+            {
+                var inverse = navigation.Inverse;
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, forceIdentityResolution);
+                try
+                {
+                    if (navigation.IsCollection)
+                    {
+                        await foreach (var loaded in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken)
+                                           .ConfigureAwait(false))
+                        {
+                            Fixup(stateManager, entry.Entity, navigation, inverse, forceIdentityResolution, loaded);
+                        }
+                    }
+                    else
+                    {
+                        Fixup(
+                            stateManager, entry.Entity, navigation, inverse, forceIdentityResolution,
+                            await queryable.FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false));
+                    }
+                }
+                finally
+                {
+                    if (stateManager != _stateManager)
+                    {
+                        stateManager.Clear(resetting: false);
+                    }
+                }
+            }
+            else
+            {
+                if (navigation.IsCollection)
+                {
+                    await queryable.LoadAsync(cancellationToken).ConfigureAwait(false);
+                }
+                else
+                {
+                    _ = await queryable.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+                }
+            }
         }
 
         entry.SetIsLoaded(navigation);
+    }
+
+    private static void Fixup(
+        IStateManager stateManager,
+        object entity,
+        INavigation beingLoaded,
+        INavigation? inverse,
+        bool forceIdentityResolution,
+        object? loaded)
+    {
+        SetValue(stateManager.GetOrCreateEntry(entity), beingLoaded, loaded, forceIdentityResolution);
+
+        if (inverse != null && loaded != null)
+        {
+            SetValue(stateManager.GetOrCreateEntry(loaded), inverse, entity, forceIdentityResolution);
+        }
+
+        static void SetValue(InternalEntityEntry entry, INavigation navigation, object? value, bool forceIdentityResolution)
+        {
+            var stateManager = entry.StateManager;
+            if (navigation.IsCollection)
+            {
+                if (value != null
+                    && (!forceIdentityResolution || !TryGetTracked(stateManager, value, out _)))
+                {
+                    entry.AddToCollection(navigation, value, forMaterialization: true);
+                }
+            }
+            else
+            {
+                if (value != null
+                    && forceIdentityResolution
+                    && TryGetTracked(stateManager, value, out var existing))
+                {
+                    value = existing;
+                }
+
+                entry.SetProperty(navigation, value, isMaterialization: true, setModified: false);
+            }
+
+            static bool TryGetTracked(IStateManager stateManager, object value, out object? tracked)
+            {
+                var relatedEntry = stateManager.GetOrCreateEntry(value);
+                var key = relatedEntry.EntityType.FindPrimaryKey();
+                if (key == null)
+                {
+                    tracked = null;
+                    return false;
+                }
+
+                tracked = stateManager.TryGetExistingEntry(relatedEntry.Entity, key)?.Entity;
+                return tracked != null;
+            }
+        }
+    }
+
+    private IStateManager GetOrCreateStateManagerAndStartTrackingIfNeeded(
+        INavigation loading,
+        InternalEntityEntry entry,
+        bool forceIdentityResolution)
+    {
+        if (!forceIdentityResolution)
+        {
+            return _stateManager;
+        }
+
+        var stateManager = new StateManager(_stateManager.Dependencies);
+        StartTracking(stateManager, entry, loading);
+        return stateManager;
+    }
+
+    private static void StartTracking(StateManager stateManager, InternalEntityEntry entry, INavigation navigation)
+    {
+        Track(entry.Entity);
+
+        var navigationValue = entry[navigation];
+        if (navigationValue != null)
+        {
+            if (navigation.IsCollection)
+            {
+                foreach (var related in (IEnumerable)navigationValue)
+                {
+                    Track(related);
+                }
+            }
+            else
+            {
+                Track(navigationValue);
+            }
+        }
+
+        void Track(object entity)
+            => stateManager.StartTracking(stateManager.GetOrCreateEntry(entity)).MarkUnchangedFromQuery();
     }
 
     /// <summary>
@@ -173,11 +630,6 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     /// </summary>
     public virtual IQueryable<TEntity> Query(INavigation navigation, InternalEntityEntry entry)
     {
-        if (entry.EntityState == EntityState.Detached)
-        {
-            throw new InvalidOperationException(CoreStrings.CannotLoadDetached(navigation.Name, entry.EntityType.DisplayName()));
-        }
-
         var keyValues = GetLoadValues(navigation, entry);
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues == null)
@@ -187,7 +639,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return _queryRoot.Where(e => false);
         }
 
-        return Query(navigation, keyValues);
+        return Query(navigation, keyValues, entry, forceIdentityResolution: false);
     }
 
     /// <summary>
@@ -232,8 +684,15 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             .Select(BuildProjection(entityType));
     }
 
-    private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues)
-        => _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues))).AsTracking();
+    private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues, InternalEntityEntry entry, bool forceIdentityResolution)
+    {
+        var queryable = _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
+        return entry.EntityState == EntityState.Detached
+            ? forceIdentityResolution
+                ? queryable.AsNoTrackingWithIdentityResolution()
+                : queryable.AsNoTracking()
+            : queryable.AsTracking();
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -251,10 +710,18 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             : navigation.ForeignKey.PrincipalKey.Properties;
 
         var values = new object[properties.Count];
+        var detached = entry.EntityState == EntityState.Detached;
 
         for (var i = 0; i < values.Length; i++)
         {
-            var value = entry[properties[i]];
+            var property = properties[i];
+            if (property.IsShadowProperty() && (detached || entry.IsUnknown(property)))
+            {
+                throw new InvalidOperationException(
+                    CoreStrings.CannotLoadDetachedShadow(navigation.Name, entry.EntityType.DisplayName()));
+            }
+
+            var value = entry[property];
             if (value == null)
             {
                 return null;
@@ -271,46 +738,43 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             ? navigation.ForeignKey.PrincipalKey.Properties
             : navigation.ForeignKey.Properties;
 
-    private (IKey Key, object[] KeyValues, CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
+    private (object[] KeyValues, CancellationToken CancellationToken) ValidateKeyPropertiesAndExtractCancellationToken(
         object[] keyValues,
         bool async,
         CancellationToken cancellationToken)
     {
-        var key = _entityType.FindPrimaryKey()!;
-        var keyPropertiesCount = key.Properties.Count;
-
-        if (keyPropertiesCount != keyValues.Length)
+        if (_primaryKeyPropertiesCount != keyValues.Length)
         {
             if (async
-                && keyPropertiesCount == keyValues.Length - 1
-                && keyValues[keyPropertiesCount] is CancellationToken ct)
+                && _primaryKeyPropertiesCount == keyValues.Length - 1
+                && keyValues[_primaryKeyPropertiesCount] is CancellationToken ct)
             {
-                var newValues = new object[keyPropertiesCount];
-                Array.Copy(keyValues, newValues, keyPropertiesCount);
-                return (key, newValues, ct);
+                var newValues = new object[_primaryKeyPropertiesCount];
+                Array.Copy(keyValues, newValues, _primaryKeyPropertiesCount);
+                return (newValues, ct);
             }
 
-            if (keyPropertiesCount == 1)
+            if (_primaryKeyPropertiesCount == 1)
             {
                 throw new ArgumentException(
                     CoreStrings.FindNotCompositeKey(typeof(TEntity).ShortDisplayName(), keyValues.Length));
             }
 
             throw new ArgumentException(
-                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), keyPropertiesCount, keyValues.Length));
+                CoreStrings.FindValueCountMismatch(typeof(TEntity).ShortDisplayName(), _primaryKeyPropertiesCount, keyValues.Length));
         }
 
-        return (key, keyValues, cancellationToken);
+        return (keyValues, cancellationToken);
     }
 
-    private TEntity? FindTracked(IKey key, object[] keyValues)
+    private TEntity? FindTracked(object[] keyValues)
     {
-        var keyProperties = key.Properties;
+        var keyProperties = _primaryKey.Properties;
         for (var i = 0; i < keyValues.Length; i++)
         {
             var valueType = keyValues[i].GetType();
             var propertyType = keyProperties[i].ClrType;
-            if (valueType != propertyType.UnwrapNullableType())
+            if (!propertyType.UnwrapNullableType().IsAssignableFrom(valueType))
             {
                 throw new ArgumentException(
                     CoreStrings.FindValueTypeMismatch(
@@ -318,7 +782,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             }
         }
 
-        return _stateManager.TryGetEntry(key, keyValues)?.Entity as TEntity;
+        return _stateManager.TryGetEntry(_primaryKey, keyValues)?.Entity as TEntity;
     }
 
     private static Expression<Func<TEntity, bool>> BuildLambda(IReadOnlyList<IProperty> keyProperties, ValueBuffer keyValues)

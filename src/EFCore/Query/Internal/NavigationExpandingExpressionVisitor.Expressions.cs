@@ -246,6 +246,7 @@ public partial class NavigationExpandingExpressionVisitor
 
         public Expression PendingSelector { get; private set; }
         public MethodInfo? CardinalityReducingGenericMethodInfo { get; private set; }
+        public List<Expression> CardinalityReducingMethodArguments { get; private set; } = new();
 
         public Type SourceElementType
             => CurrentParameter.Type;
@@ -274,8 +275,11 @@ public partial class NavigationExpandingExpressionVisitor
         public void ClearPendingOrderings()
             => _pendingOrderings.Clear();
 
-        public void ConvertToSingleResult(MethodInfo genericMethod)
-            => CardinalityReducingGenericMethodInfo = genericMethod;
+        public void ConvertToSingleResult(MethodInfo genericMethod, params Expression[] arguments)
+        {
+            CardinalityReducingGenericMethodInfo = genericMethod;
+            CardinalityReducingMethodArguments.AddRange(arguments);
+        }
 
         public override ExpressionType NodeType
             => ExpressionType.Extension;

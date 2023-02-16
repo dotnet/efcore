@@ -37,7 +37,7 @@ public class EventSourceTest
         {
             using var context = new SomeDbContext();
 
-            context.Add(new Foo());
+            await context.AddAsync(new Foo());
 
             _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
 
@@ -109,7 +109,7 @@ public class EventSourceTest
             using var context = new SomeDbContext();
 
             var entity = new Foo();
-            context.Add(entity);
+            await context.AddAsync(entity);
             context.SaveChanges();
 
             using (var innerContext = new SomeDbContext())

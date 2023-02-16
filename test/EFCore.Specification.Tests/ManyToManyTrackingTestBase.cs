@@ -5996,6 +5996,13 @@ public abstract partial class ManyToManyTrackingTestBase<TFixture> : IClassFixtu
             return context;
         }
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(
+                w => w.Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
+
         protected override string StoreName
             => "ManyToManyTracking";
     }

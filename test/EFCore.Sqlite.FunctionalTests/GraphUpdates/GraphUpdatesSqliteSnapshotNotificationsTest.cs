@@ -19,7 +19,7 @@ public class GraphUpdatesSqliteSnapshotNotificationsTest
         protected override string StoreName
             => "GraphUpdatesSnapshotTest";
 
-        protected override bool AutoDetectChanges
+        public override bool AutoDetectChanges
             => true;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

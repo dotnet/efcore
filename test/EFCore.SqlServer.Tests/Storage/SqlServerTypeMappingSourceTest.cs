@@ -10,94 +10,39 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
 {
-    [ConditionalFact]
-    public void Does_simple_SQL_Server_mappings_to_DDL_types()
+    [ConditionalTheory]
+    [InlineData(typeof(int), "int", DbType.Int32)]
+    [InlineData(typeof(byte), "tinyint", DbType.Byte)]
+    [InlineData(typeof(double), "float", DbType.Double)]
+    [InlineData(typeof(bool), "bit", DbType.Boolean)]
+    [InlineData(typeof(short), "smallint", DbType.Int16)]
+    [InlineData(typeof(long), "bigint", DbType.Int64)]
+    [InlineData(typeof(float), "real", DbType.Single)]
+    [InlineData(typeof(string), "nvarchar(max)", DbType.String)]
+    [InlineData(typeof(byte[]), "varbinary(max)", DbType.Binary)]
+    [InlineData(typeof(DateTime), "datetime2", DbType.DateTime2)]
+    [InlineData(typeof(DateOnly), "date", DbType.Date)]
+    [InlineData(typeof(TimeOnly), "time", DbType.Time)]
+    [InlineData(typeof(TimeSpan), "time", DbType.Time)]
+    [InlineData(typeof(DateTimeOffset), "datetimeoffset", DbType.DateTimeOffset)]
+    [InlineData(typeof(Guid), "uniqueidentifier", DbType.Guid)]
+    [InlineData(typeof(IntEnum), "int", DbType.Int32)]
+    [InlineData(typeof(ByteEnum), "tinyint", DbType.Byte)]
+    [InlineData(typeof(ShortEnum), "smallint", DbType.Int16)]
+    [InlineData(typeof(LongEnum), "bigint", DbType.Int64)]
+    public void Can_map_by_clr_type(Type clrType, string expectedStoreType, DbType expectedDbType)
     {
-        Assert.Equal("int", GetTypeMapping(typeof(int)).StoreType);
-        Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime)).StoreType);
-        Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid)).StoreType);
-        Assert.Equal("tinyint", GetTypeMapping(typeof(byte)).StoreType);
-        Assert.Equal("float", GetTypeMapping(typeof(double)).StoreType);
-        Assert.Equal("bit", GetTypeMapping(typeof(bool)).StoreType);
-        Assert.Equal("smallint", GetTypeMapping(typeof(short)).StoreType);
-        Assert.Equal("bigint", GetTypeMapping(typeof(long)).StoreType);
-        Assert.Equal("real", GetTypeMapping(typeof(float)).StoreType);
-        Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset)).StoreType);
-    }
+        var mapping = GetTypeMapping(clrType);
+        Assert.Equal(expectedStoreType, mapping.StoreType);
+        Assert.Equal(expectedDbType, mapping.DbType);
 
-    [ConditionalFact]
-    public void Does_simple_SQL_Server_mappings_for_nullable_CLR_types_to_DDL_types()
-    {
-        Assert.Equal("int", GetTypeMapping(typeof(int?)).StoreType);
-        Assert.Equal("datetime2", GetTypeMapping(typeof(DateTime?)).StoreType);
-        Assert.Equal("uniqueidentifier", GetTypeMapping(typeof(Guid?)).StoreType);
-        Assert.Equal("tinyint", GetTypeMapping(typeof(byte?)).StoreType);
-        Assert.Equal("float", GetTypeMapping(typeof(double?)).StoreType);
-        Assert.Equal("bit", GetTypeMapping(typeof(bool?)).StoreType);
-        Assert.Equal("smallint", GetTypeMapping(typeof(short?)).StoreType);
-        Assert.Equal("bigint", GetTypeMapping(typeof(long?)).StoreType);
-        Assert.Equal("real", GetTypeMapping(typeof(float?)).StoreType);
-        Assert.Equal("datetimeoffset", GetTypeMapping(typeof(DateTimeOffset?)).StoreType);
-    }
+        if (clrType.IsValueType)
+        {
+            mapping = GetTypeMapping(typeof(Nullable<>).MakeGenericType(clrType));
 
-    [ConditionalFact]
-    public void Does_simple_SQL_Server_mappings_for_enums_to_DDL_types()
-    {
-        Assert.Equal("int", GetTypeMapping(typeof(IntEnum)).StoreType);
-        Assert.Equal("tinyint", GetTypeMapping(typeof(ByteEnum)).StoreType);
-        Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum)).StoreType);
-        Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum)).StoreType);
-        Assert.Equal("int", GetTypeMapping(typeof(IntEnum?)).StoreType);
-        Assert.Equal("tinyint", GetTypeMapping(typeof(ByteEnum?)).StoreType);
-        Assert.Equal("smallint", GetTypeMapping(typeof(ShortEnum?)).StoreType);
-        Assert.Equal("bigint", GetTypeMapping(typeof(LongEnum?)).StoreType);
-    }
-
-    [ConditionalFact]
-    public void Does_simple_SQL_Server_mappings_to_DbTypes()
-    {
-        Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int)).DbType);
-        Assert.Equal(DbType.String, GetTypeMapping(typeof(string)).DbType);
-        Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
-        Assert.Equal(DbType.Time, GetTypeMapping(typeof(TimeSpan)).DbType);
-        Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid)).DbType);
-        Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte)).DbType);
-        Assert.Equal(DbType.Double, GetTypeMapping(typeof(double)).DbType);
-        Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool)).DbType);
-        Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short)).DbType);
-        Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long)).DbType);
-        Assert.Equal(DbType.Single, GetTypeMapping(typeof(float)).DbType);
-        Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset)).DbType);
-    }
-
-    [ConditionalFact]
-    public void Does_simple_SQL_Server_mappings_for_nullable_CLR_types_to_DbTypes()
-    {
-        Assert.Equal(DbType.Int32, GetTypeMapping(typeof(int?)).DbType);
-        Assert.Equal(DbType.String, GetTypeMapping(typeof(string)).DbType);
-        Assert.Equal(DbType.Binary, GetTypeMapping(typeof(byte[])).DbType);
-        Assert.Equal(DbType.Time, GetTypeMapping(typeof(TimeSpan?)).DbType);
-        Assert.Equal(DbType.Guid, GetTypeMapping(typeof(Guid?)).DbType);
-        Assert.Equal(DbType.Byte, GetTypeMapping(typeof(byte?)).DbType);
-        Assert.Equal(DbType.Double, GetTypeMapping(typeof(double?)).DbType);
-        Assert.Equal(DbType.Boolean, GetTypeMapping(typeof(bool?)).DbType);
-        Assert.Equal(DbType.Int16, GetTypeMapping(typeof(short?)).DbType);
-        Assert.Equal(DbType.Int64, GetTypeMapping(typeof(long?)).DbType);
-        Assert.Equal(DbType.Single, GetTypeMapping(typeof(float?)).DbType);
-        Assert.Equal(DbType.DateTimeOffset, GetTypeMapping(typeof(DateTimeOffset?)).DbType);
-    }
-
-    [ConditionalFact]
-    public void Does_simple_SQL_Server_mappings_for_enums_to_DbTypes()
-    {
-        Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum)).DbType);
-        Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum)).DbType);
-        Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum)).DbType);
-        Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum)).DbType);
-        Assert.Equal(DbType.Int32, GetTypeMapping(typeof(IntEnum?)).DbType);
-        Assert.Equal(DbType.Byte, GetTypeMapping(typeof(ByteEnum?)).DbType);
-        Assert.Equal(DbType.Int16, GetTypeMapping(typeof(ShortEnum?)).DbType);
-        Assert.Equal(DbType.Int64, GetTypeMapping(typeof(LongEnum?)).DbType);
+            Assert.Equal(expectedStoreType, mapping.StoreType);
+            Assert.Equal(expectedDbType, mapping.DbType);
+        }
     }
 
     [ConditionalFact]
@@ -980,16 +925,16 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     [ConditionalTheory]
     [InlineData("bigint", typeof(long), null, false, false)]
     [InlineData("binary varying(333)", typeof(byte[]), 333, false, false)]
-    [InlineData("binary varying(max)", typeof(byte[]), null, false, false)]
+    [InlineData("binary varying(max)", typeof(byte[]), -1, false, false)]
     [InlineData("binary(333)", typeof(byte[]), 333, false, true)]
     [InlineData("bit", typeof(bool), null, false, false)]
     [InlineData("char varying(333)", typeof(string), 333, false, false)]
-    [InlineData("char varying(max)", typeof(string), null, false, false)]
+    [InlineData("char varying(max)", typeof(string), -1, false, false)]
     [InlineData("char(333)", typeof(string), 333, false, true)]
     [InlineData("character varying(333)", typeof(string), 333, false, false)]
-    [InlineData("character varying(max)", typeof(string), null, false, false)]
+    [InlineData("character varying(max)", typeof(string), -1, false, false)]
     [InlineData("character(333)", typeof(string), 333, false, true)]
-    [InlineData("date", typeof(DateTime), null, false, false)]
+    [InlineData("date", typeof(DateOnly), null, false, false)]
     [InlineData("datetime", typeof(DateTime), null, false, false)]
     [InlineData("datetime2", typeof(DateTime), null, false, false)]
     [InlineData("datetimeoffset", typeof(DateTimeOffset), null, false, false)]
@@ -1001,40 +946,54 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     [InlineData("int", typeof(int), null, false, false)]
     [InlineData("money", typeof(decimal), null, false, false)]
     [InlineData("national char varying(333)", typeof(string), 333, true, false)]
-    [InlineData("national char varying(max)", typeof(string), null, true, false)]
+    [InlineData("national char varying(max)", typeof(string), -1, true, false)]
     [InlineData("national character varying(333)", typeof(string), 333, true, false)]
-    [InlineData("national character varying(max)", typeof(string), null, true, false)]
+    [InlineData("national character varying(max)", typeof(string), -1, true, false)]
     [InlineData("national character(333)", typeof(string), 333, true, true)]
     [InlineData("nchar(333)", typeof(string), 333, true, true)]
     [InlineData("ntext", typeof(string), null, true, false)]
     [InlineData("numeric", typeof(decimal), null, false, false, "numeric(18,0)")]
     [InlineData("nvarchar(333)", typeof(string), 333, true, false)]
-    [InlineData("nvarchar(max)", typeof(string), null, true, false)]
+    [InlineData("nvarchar(max)", typeof(string), -1, true, false)]
     [InlineData("real", typeof(float), null, false, false)]
     [InlineData("rowversion", typeof(byte[]), 8, false, false)]
     [InlineData("smalldatetime", typeof(DateTime), null, false, false)]
     [InlineData("smallint", typeof(short), null, false, false)]
     [InlineData("smallmoney", typeof(decimal), null, false, false)]
     [InlineData("text", typeof(string), null, false, false)]
-    [InlineData("time", typeof(TimeSpan), null, false, false)]
+    [InlineData("time", typeof(TimeOnly), null, false, false)]
     [InlineData("timestamp", typeof(byte[]), 8, false, false)] // note: rowversion is a synonym stored the data type as 'timestamp'
     [InlineData("tinyint", typeof(byte), null, false, false)]
     [InlineData("uniqueidentifier", typeof(Guid), null, false, false)]
     [InlineData("varbinary(333)", typeof(byte[]), 333, false, false)]
-    [InlineData("varbinary(max)", typeof(byte[]), null, false, false)]
+    [InlineData("varbinary(max)", typeof(byte[]), -1, false, false)]
     [InlineData("VarCHaR(333)", typeof(string), 333, false, false)] // case-insensitive
     [InlineData("varchar(333)", typeof(string), 333, false, false)]
-    [InlineData("varchar(max)", typeof(string), null, false, false)]
-    [InlineData("VARCHAR(max)", typeof(string), null, false, false, "VARCHAR(max)")]
-    public void Can_map_by_type_name(string typeName, Type type, int? size, bool unicode, bool fixedLength, string expectedType = null)
+    [InlineData("varchar(max)", typeof(string), -1, false, false)]
+    [InlineData("VARCHAR(max)", typeof(string), -1, false, false, "VARCHAR(max)")]
+    public void Can_map_by_store_type(string storeType, Type type, int? size, bool unicode, bool fixedLength, string expectedType = null)
     {
-        var mapping = CreateRelationalTypeMappingSource().FindMapping(typeName);
+        var mapping = CreateRelationalTypeMappingSource().FindMapping(storeType);
 
-        Assert.Equal(type, mapping.ClrType);
+        Assert.Same(type, mapping.ClrType);
         Assert.Equal(size, mapping.Size);
         Assert.Equal(unicode, mapping.IsUnicode);
         Assert.Equal(fixedLength, mapping.IsFixedLength);
-        Assert.Equal(expectedType ?? typeName, mapping.StoreType);
+        Assert.Equal(expectedType ?? storeType, mapping.StoreType);
+    }
+
+    [ConditionalTheory]
+    [InlineData(typeof(int), "int")]
+    [InlineData(typeof(DateOnly), "date")]
+    [InlineData(typeof(DateTime), "date")]
+    [InlineData(typeof(TimeOnly), "time")]
+    [InlineData(typeof(TimeSpan), "time")]
+    public void Can_map_by_clr_and_store_types(Type clrType, string storeType)
+    {
+        var mapping = CreateRelationalTypeMappingSource().FindMapping(clrType, storeType);
+
+        Assert.Equal(storeType, mapping.StoreType);
+        Assert.Same(clrType, mapping.ClrType);
     }
 
     [ConditionalTheory]

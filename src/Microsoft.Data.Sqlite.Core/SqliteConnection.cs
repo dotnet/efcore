@@ -238,6 +238,17 @@ namespace Microsoft.Data.Sqlite
             _state = ConnectionState.Open;
             try
             {
+                if (ConnectionOptions.ForeignKeys.HasValue)
+                {
+                    this.ExecuteNonQuery(
+                        "PRAGMA foreign_keys = " + (ConnectionOptions.ForeignKeys.Value ? "1" : "0") + ";");
+                }
+
+                if (ConnectionOptions.RecursiveTriggers)
+                {
+                    this.ExecuteNonQuery("PRAGMA recursive_triggers = 1;");
+                }
+
                 if (_collations != null)
                 {
                     foreach (var item in _collations)

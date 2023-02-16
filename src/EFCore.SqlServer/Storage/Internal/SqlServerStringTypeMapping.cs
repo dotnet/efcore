@@ -18,6 +18,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
 
+    private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
+
     private readonly bool _isUtf16;
     private readonly SqlDbType? _sqlDbType;
     private readonly int _maxSpecificSize;
@@ -35,10 +37,14 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         int? size = null,
         bool fixedLength = false,
         SqlDbType? sqlDbType = null,
-        StoreTypePostfix? storeTypePostfix = null)
+        StoreTypePostfix? storeTypePostfix = null,
+        bool useKeyComparison = false)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(string)),
+                new CoreTypeMappingParameters(
+                    typeof(string),
+                    comparer: useKeyComparison ? CaseInsensitiveValueComparer : null,
+                    keyComparer: useKeyComparison ? CaseInsensitiveValueComparer : null),
                 storeType ?? GetDefaultStoreName(unicode, fixedLength),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 GetDbType(unicode, fixedLength),
@@ -76,12 +82,12 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     {
         if (parameters.Unicode)
         {
-            _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= UnicodeMax ? parameters.Size.Value : UnicodeMax;
+            _maxSpecificSize = parameters.Size is > 0 and <= UnicodeMax ? parameters.Size.Value : UnicodeMax;
             _maxSize = UnicodeMax;
         }
         else
         {
-            _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= AnsiMax ? parameters.Size.Value : AnsiMax;
+            _maxSpecificSize = parameters.Size is > 0 and <= AnsiMax ? parameters.Size.Value : AnsiMax;
             _maxSize = AnsiMax;
         }
 

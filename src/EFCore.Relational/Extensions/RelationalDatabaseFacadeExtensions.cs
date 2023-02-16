@@ -340,11 +340,14 @@ public static class RelationalDatabaseFacadeExtensions
         Check.NotNull(parameters, nameof(parameters));
 
         var facadeDependencies = GetFacadeDependencies(databaseFacade);
+        var queryProvider = facadeDependencies.QueryProvider;
+        var argumentsExpression = Expression.Constant(parameters);
 
-        return facadeDependencies.QueryProvider
-            .CreateQuery<TResult>(
-                new SqlQueryRootExpression(
-                    facadeDependencies.QueryProvider, typeof(TResult), sql, Expression.Constant(parameters)));
+        return queryProvider.CreateQuery<TResult>(
+            facadeDependencies.TypeMappingSource.FindMapping(typeof(TResult)) != null
+                ? new SqlQueryRootExpression(queryProvider, typeof(TResult), sql, argumentsExpression)
+                : new FromSqlQueryRootExpression(
+                    queryProvider, facadeDependencies.AdHocMapper.GetOrAddEntityType(typeof(TResult)), sql, argumentsExpression));
     }
 
     /// <summary>
@@ -380,17 +383,7 @@ public static class RelationalDatabaseFacadeExtensions
     public static IQueryable<TResult> SqlQuery<TResult>(
         this DatabaseFacade databaseFacade,
         [NotParameterized] FormattableString sql)
-    {
-        Check.NotNull(sql, nameof(sql));
-        Check.NotNull(sql.Format, nameof(sql.Format));
-
-        var facadeDependencies = GetFacadeDependencies(databaseFacade);
-
-        return facadeDependencies.QueryProvider
-            .CreateQuery<TResult>(
-                new SqlQueryRootExpression(
-                    facadeDependencies.QueryProvider, typeof(TResult), sql.Format, Expression.Constant(sql.GetArguments())));
-    }
+        => SqlQueryRaw<TResult>(databaseFacade, sql.Format, sql.GetArguments()!);
 
     /// <summary>
     ///     Executes the given SQL against the database and returns the number of rows affected.
@@ -646,16 +639,18 @@ public static class RelationalDatabaseFacadeExtensions
     ///         The connection can only be set when the existing connection, if any, is not open.
     ///     </para>
     ///     <para>
-    ///         Note that the given connection must be disposed by application code since it was not created by Entity Framework.
-    ///     </para>
-    ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-connections">Connections and connection strings</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="databaseFacade">The <see cref="DatabaseFacade" /> for the context.</param>
     /// <param name="connection">The connection.</param>
-    public static void SetDbConnection(this DatabaseFacade databaseFacade, DbConnection? connection)
-        => GetFacadeDependencies(databaseFacade).RelationalConnection.DbConnection = connection;
+    /// <param name="contextOwnsConnection">
+    ///     If <see langword="true" />, then EF will take ownership of the connection and will
+    ///     dispose it in the same way it would dispose a connection created by EF. If <see langword="false" />, then the caller still
+    ///     owns the connection and is responsible for its disposal. The default value is <see langword="false" />.
+    /// </param>
+    public static void SetDbConnection(this DatabaseFacade databaseFacade, DbConnection? connection, bool contextOwnsConnection = false)
+        => GetFacadeDependencies(databaseFacade).RelationalConnection.SetDbConnection(connection, contextOwnsConnection);
 
     /// <summary>
     ///     Gets the underlying connection string configured for this <see cref="DbContext" />.

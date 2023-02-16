@@ -171,6 +171,9 @@ public class RelationalEventIdTest : EventIdTestBase
 
         public DbConnection DbConnection { get; set; } = new FakeDbConnection();
 
+        public void SetDbConnection(DbConnection value, bool contextOwnsConnection)
+            => throw new NotImplementedException();
+
         public DbContext Context
             => null;
 

@@ -1040,6 +1040,8 @@ public static class EntityFrameworkServiceCollectionExtensions
         ServiceLifetime optionsLifetime)
         where TContextImplementation : DbContext
     {
+        serviceCollection.TryAddSingleton<ServiceProviderAccessor>();
+
         serviceCollection.TryAdd(
             new ServiceDescriptor(
                 typeof(DbContextOptions<TContextImplementation>),

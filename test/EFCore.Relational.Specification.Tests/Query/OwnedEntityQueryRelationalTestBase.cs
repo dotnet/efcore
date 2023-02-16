@@ -257,7 +257,55 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
             t =>
             {
                 Assert.Equal("Buyer2", t.Buyer);
-                // Cannot verify owned entities here since they differ between relational/in-memory
+                Assert.Null(t.Rot);
+                Assert.Null(t.Rut);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_entity_with_all_null_properties_entity_equality_when_not_containing_another_owned_entity(bool async)
+    {
+        var contextFactory = await InitializeAsync<MyContext28247>(seed: c => c.Seed());
+
+        using var context = contextFactory.CreateContext();
+        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot).Where(e => e != null);
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Collection(
+            result,
+            t =>
+            {
+                Assert.Equal(1, t.ServiceType);
+                Assert.Equal("1", t.ApartmentNo);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Owned_entity_with_all_null_properties_property_access_when_not_containing_another_owned_entity(bool async)
+    {
+        var contextFactory = await InitializeAsync<MyContext28247>(seed: c => c.Seed());
+
+        using var context = contextFactory.CreateContext();
+        var query = context.RotRutCases.AsNoTracking().Select(e => e.Rot.ApartmentNo);
+
+        var result = async
+            ? await query.ToListAsync()
+            : query.ToList();
+
+        Assert.Collection(
+            result,
+            t =>
+            {
+                Assert.Equal("1", t);
+            },
+            t =>
+            {
+                Assert.Null(t);
             });
     }
 

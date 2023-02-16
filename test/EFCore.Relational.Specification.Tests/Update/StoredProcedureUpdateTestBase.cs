@@ -1,119 +1,183 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.TestModels.StoredProcedureUpdateModel;
+using System.Text.RegularExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Update;
 
-#nullable enable
-
-public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
-    where TFixture : StoredProcedureUpdateFixtureBase
+public abstract class StoredProcedureUpdateTestBase : NonSharedModelTestBase
 {
-    protected StoredProcedureUpdateTestBase(TFixture fixture)
-    {
-        Fixture = fixture;
-
-        fixture.CleanData();
-
-        ClearLog();
-    }
+    protected override string StoreName
+        => "StoredProcedureUpdateTest";
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Insert_with_output_parameter(bool async)
+    public abstract Task Insert_with_output_parameter(bool async);
+
+    protected async Task Insert_with_output_parameter(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var newEntity1 = new Entity { Name = "New" };
-        context.WithOutputParameter.Add(newEntity1);
+        context.Set<Entity>().Add(newEntity1);
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("New", context.WithOutputParameter.Single(b => b.Id == newEntity1.Id).Name);
+            Assert.Equal("New", context.Set<Entity>().Single(b => b.Id == newEntity1.Id).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Insert_twice_with_output_parameter(bool async)
+    public abstract Task Insert_twice_with_output_parameter(bool async);
+
+    protected async Task Insert_twice_with_output_parameter(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var (newEntity1, newEntity2) = (new Entity { Name = "New1" }, new Entity { Name = "New2" });
 
-        context.WithOutputParameter.AddRange(newEntity1, newEntity2);
+        context.Set<Entity>().AddRange(newEntity1, newEntity2);
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("New1", context.WithOutputParameter.Single(b => b.Id == newEntity1.Id).Name);
-            Assert.Equal("New2", context.WithOutputParameter.Single(b => b.Id == newEntity2.Id).Name);
+            Assert.Equal("New1", context.Set<Entity>().Single(b => b.Id == newEntity1.Id).Name);
+            Assert.Equal("New2", context.Set<Entity>().Single(b => b.Id == newEntity2.Id).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Insert_with_result_column(bool async)
+    public abstract Task Insert_with_result_column(bool async);
+
+    protected async Task Insert_with_result_column(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>().InsertUsingStoredProcedure(
+                nameof(Entity) + "_Insert", spb => spb
+                    .HasParameter(w => w.Name)
+                    .HasResultColumn(w => w.Id)),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Foo" };
-        context.WithResultColumn.Add(entity);
+        context.Set<Entity>().Add(entity);
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Foo", context.WithResultColumn.Single(b => b.Id == entity.Id).Name);
+            Assert.Equal("Foo", context.Set<Entity>().Single(b => b.Id == entity.Id).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Insert_with_two_result_columns(bool async)
+    public abstract Task Insert_with_two_result_columns(bool async);
+
+    protected async Task Insert_with_two_result_columns(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
+                b =>
+                {
+                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+
+                    b.InsertUsingStoredProcedure(
+                        nameof(EntityWithAdditionalProperty) + "_Insert", spb => spb
+                            .HasParameter(w => w.Name)
+                            .HasResultColumn(w => w.AdditionalProperty)
+                            .HasResultColumn(w => w.Id));
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo" };
-        context.WithTwoResultColumns.Add(entity);
+        context.Set<EntityWithAdditionalProperty>().Add(entity);
         await SaveChanges(context, async);
 
         Assert.Equal(1, entity.Id);
         Assert.Equal(8, entity.AdditionalProperty);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Foo", context.WithTwoResultColumns.Single(b => b.Id == entity.Id).Name);
+            Assert.Equal("Foo", context.Set<EntityWithAdditionalProperty>().Single(b => b.Id == entity.Id).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Insert_with_output_parameter_and_result_column(bool async)
+    public abstract Task Insert_with_output_parameter_and_result_column(bool async);
+
+    protected async Task Insert_with_output_parameter_and_result_column(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
+                b =>
+                {
+                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+
+                    b.InsertUsingStoredProcedure(
+                        nameof(EntityWithAdditionalProperty) + "_Insert", spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name)
+                            .HasResultColumn(w => w.AdditionalProperty));
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo" };
-        context.WithOutputParameterAndResultColumn.Add(entity);
+        context.Set<EntityWithAdditionalProperty>().Add(entity);
         await SaveChanges(context, async);
 
         Assert.Equal(8, entity.AdditionalProperty);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Foo", context.WithOutputParameterAndResultColumn.Single(b => b.Id == entity.Id).Name);
+            Assert.Equal("Foo", context.Set<EntityWithAdditionalProperty>().Single(b => b.Id == entity.Id).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update(bool async)
+    public abstract Task Update(bool async);
+
+    protected async Task Update(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>().UpdateUsingStoredProcedure(
+                nameof(Entity) + "_Update",
+                spb => spb
+                    .HasOriginalValueParameter(w => w.Id)
+                    .HasParameter(w => w.Name)),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
-        context.WithOutputParameter.Add(entity);
+        context.Set<Entity>().Add(entity);
         await SaveChanges(context, async);
 
         ClearLog();
@@ -121,20 +185,30 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
         entity.Name = "Updated";
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Updated", (await context.WithOutputParameter.SingleAsync(w => w.Id == entity.Id)).Name);
+            Assert.Equal("Updated", (await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id)).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update_partial(bool async)
+    public abstract Task Update_partial(bool async);
+
+    protected async Task Update_partial(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>().UpdateUsingStoredProcedure(
+                nameof(EntityWithAdditionalProperty) + "_Update", spb => spb
+                    .HasOriginalValueParameter(w => w.Id)
+                    .HasParameter(w => w.Name)
+                    .HasParameter(w => w.AdditionalProperty)),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo", AdditionalProperty = 8 };
-        context.WithTwoInputParameters.Add(entity);
+        context.Set<EntityWithAdditionalProperty>().Add(entity);
         await context.SaveChangesAsync();
 
         entity.Name = "Updated";
@@ -143,9 +217,9 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var actual = await context.WithTwoInputParameters.SingleAsync(w => w.Id == entity.Id);
+            var actual = await context.Set<EntityWithAdditionalProperty>().SingleAsync(w => w.Id == entity.Id);
 
             Assert.Equal("Updated", actual.Name);
             Assert.Equal(8, actual.AdditionalProperty);
@@ -154,12 +228,30 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update_with_output_parameter_and_rows_affected_result_column(bool async)
+    public abstract Task Update_with_output_parameter_and_rows_affected_result_column(bool async);
+
+    protected async Task Update_with_output_parameter_and_rows_affected_result_column(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
+                b =>
+                {
+                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+
+                    b.UpdateUsingStoredProcedure(
+                        nameof(EntityWithAdditionalProperty) + "_Update",
+                        spb => spb
+                            .HasOriginalValueParameter(w => w.Id)
+                            .HasParameter(w => w.Name)
+                            .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
+                            .HasRowsAffectedResultColumn());
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new EntityWithAdditionalProperty { Name = "Foo" };
-        context.WithOutputParameterAndRowsAffectedResultColumn.Add(entity);
+        context.Set<EntityWithAdditionalProperty>().Add(entity);
         await context.SaveChangesAsync();
 
         entity.Name = "Updated";
@@ -168,9 +260,9 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var actual = await context.WithOutputParameterAndRowsAffectedResultColumn.SingleAsync(w => w.Id == entity.Id);
+            var actual = await context.Set<EntityWithAdditionalProperty>().SingleAsync(w => w.Id == entity.Id);
 
             Assert.Equal("Updated", actual.Name);
             Assert.Equal(8, actual.AdditionalProperty);
@@ -179,18 +271,36 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async)
+    public abstract Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async);
+
+    protected async Task Update_with_output_parameter_and_rows_affected_result_column_concurrency_failure(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
+                b =>
+                {
+                    b.Property(w => w.AdditionalProperty).HasComputedColumnSql("8");
+
+                    b.UpdateUsingStoredProcedure(
+                        nameof(EntityWithAdditionalProperty) + "_Update",
+                        spb => spb
+                            .HasOriginalValueParameter(w => w.Id)
+                            .HasParameter(w => w.Name)
+                            .HasParameter(w => w.AdditionalProperty, pb => pb.IsOutput())
+                            .HasRowsAffectedResultColumn());
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new EntityWithAdditionalProperty { Name = "Initial" };
-        context1.WithOutputParameterAndRowsAffectedResultColumn.Add(entity1);
+        context1.Set<EntityWithAdditionalProperty>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithOutputParameterAndRowsAffectedResultColumn.SingleAsync(w => w.Name == "Initial");
-            context2.WithOutputParameterAndRowsAffectedResultColumn.Remove(entity2);
+            var entity2 = await context2.Set<EntityWithAdditionalProperty>().SingleAsync(w => w.Name == "Initial");
+            context2.Set<EntityWithAdditionalProperty>().Remove(entity2);
             await context2.SaveChangesAsync();
         }
 
@@ -205,56 +315,91 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Delete(bool async)
+    public abstract Task Delete(bool async);
+
+    protected async Task Delete(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .DeleteUsingStoredProcedure(
+                    nameof(Entity) + "_Delete",
+                    spb => spb.HasOriginalValueParameter(w => w.Id)),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
-        context.WithOutputParameter.Add(entity);
+        context.Set<Entity>().Add(entity);
         await context.SaveChangesAsync();
 
         ClearLog();
 
-        context.WithOutputParameter.Remove(entity);
+        context.Set<Entity>().Remove(entity);
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal(0, await context.WithOutputParameter.CountAsync(b => b.Name == "Initial"));
+            Assert.Equal(0, await context.Set<Entity>().CountAsync(b => b.Name == "Initial"));
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Delete_and_insert(bool async)
+    public abstract Task Delete_and_insert(bool async);
+
+    protected async Task Delete_and_insert(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .InsertUsingStoredProcedure(
+                    nameof(Entity) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.Id, pb => pb.IsOutput()))
+                .DeleteUsingStoredProcedure(
+                    nameof(Entity) + "_Delete",
+                    spb => spb.HasOriginalValueParameter(w => w.Id)),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity1 = new Entity { Name = "Entity1" };
-        context.WithOutputParameter.Add(entity1);
+        context.Set<Entity>().Add(entity1);
         await context.SaveChangesAsync();
 
         ClearLog();
 
-        context.WithOutputParameter.Remove(entity1);
-        context.WithOutputParameter.Add(new Entity { Name = "Entity2" });
+        context.Set<Entity>().Remove(entity1);
+        context.Set<Entity>().Add(new Entity { Name = "Entity2" });
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal(0, await context.WithOutputParameter.CountAsync(b => b.Name == "Entity1"));
-            Assert.Equal(1, await context.WithOutputParameter.CountAsync(b => b.Name == "Entity2"));
+            Assert.Equal(0, await context.Set<Entity>().CountAsync(b => b.Name == "Entity1"));
+            Assert.Equal(1, await context.Set<Entity>().CountAsync(b => b.Name == "Entity2"));
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Rows_affected_parameter(bool async)
+    public abstract Task Rows_affected_parameter(bool async);
+
+    protected async Task Rows_affected_parameter(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedParameter()),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
-        context.WithRowsAffectedParameter.Add(entity);
+        context.Set<Entity>().Add(entity);
         await context.SaveChangesAsync();
 
         ClearLog();
@@ -263,26 +408,38 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Updated", (await context.WithRowsAffectedParameter.SingleAsync(w => w.Id == entity.Id)).Name);
+            Assert.Equal("Updated", (await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id)).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Rows_affected_parameter_and_concurrency_failure(bool async)
+    public abstract Task Rows_affected_parameter_and_concurrency_failure(bool async);
+
+    protected async Task Rows_affected_parameter_and_concurrency_failure(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedParameter()),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new Entity { Name = "Initial" };
-        context1.WithRowsAffectedParameter.Add(entity1);
+        context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithRowsAffectedParameter.SingleAsync(w => w.Name == "Initial");
-            context2.WithRowsAffectedParameter.Remove(entity2);
+            var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
+            context2.Set<Entity>().Remove(entity2);
             await context2.SaveChangesAsync();
         }
 
@@ -297,12 +454,24 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Rows_affected_result_column(bool async)
+    public abstract Task Rows_affected_result_column(bool async);
+
+    protected async Task Rows_affected_result_column(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedResultColumn()),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
-        context.WithRowsAffectedResultColumn.Add(entity);
+        context.Set<Entity>().Add(entity);
         await context.SaveChangesAsync();
 
         ClearLog();
@@ -311,26 +480,38 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Updated", (await context.WithRowsAffectedResultColumn.SingleAsync(w => w.Id == entity.Id)).Name);
+            Assert.Equal("Updated", (await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id)).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Rows_affected_result_column_and_concurrency_failure(bool async)
+    public abstract Task Rows_affected_result_column_and_concurrency_failure(bool async);
+
+    protected async Task Rows_affected_result_column_and_concurrency_failure(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedResultColumn()),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new Entity { Name = "Initial" };
-        context1.WithRowsAffectedResultColumn.Add(entity1);
+        context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithRowsAffectedResultColumn.SingleAsync(w => w.Name == "Initial");
-            context2.WithRowsAffectedResultColumn.Remove(entity2);
+            var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
+            context2.Set<Entity>().Remove(entity2);
             await context2.SaveChangesAsync();
         }
 
@@ -345,12 +526,24 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Rows_affected_return_value(bool async)
+    public abstract Task Rows_affected_return_value(bool async);
+
+    protected async Task Rows_affected_return_value(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedReturnValue()),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
-        context.WithRowsAffectedReturnValue.Add(entity);
+        context.Set<Entity>().Add(entity);
         await context.SaveChangesAsync();
 
         ClearLog();
@@ -359,26 +552,38 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            Assert.Equal("Updated", (await context.WithRowsAffectedReturnValue.SingleAsync(w => w.Id == entity.Id)).Name);
+            Assert.Equal("Updated", (await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id)).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Rows_affected_return_value_and_concurrency_failure(bool async)
+    public abstract Task Rows_affected_return_value_and_concurrency_failure(bool async);
+
+    protected async Task Rows_affected_return_value_and_concurrency_failure(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name)
+                        .HasRowsAffectedReturnValue()),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new Entity { Name = "Initial" };
-        context1.WithRowsAffectedReturnValue.Add(entity1);
+        context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithRowsAffectedReturnValue.SingleAsync(w => w.Name == "Initial");
-            context2.WithRowsAffectedReturnValue.Remove(entity2);
+            var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
+            context2.Set<Entity>().Remove(entity2);
             await SaveChanges(context2, async);
         }
 
@@ -393,17 +598,35 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Store_generated_concurrency_token_as_in_out_parameter(bool async)
+    public abstract Task Store_generated_concurrency_token_as_in_out_parameter(bool async);
+
+    protected async Task Store_generated_concurrency_token_as_in_out_parameter(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(
+                    b =>
+                    {
+                        ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
+
+                        b.UpdateUsingStoredProcedure(
+                            nameof(Entity) + "_Update",
+                            spb => spb
+                                .HasOriginalValueParameter(w => w.Id)
+                                .HasOriginalValueParameter("ConcurrencyToken", pb => pb.IsInputOutput())
+                                .HasParameter(w => w.Name)
+                                .HasRowsAffectedParameter());
+                    }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new Entity { Name = "Initial" };
-        context1.WithStoreGeneratedConcurrencyTokenAsInOutParameter.Add(entity1);
+        context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithStoreGeneratedConcurrencyTokenAsInOutParameter.SingleAsync(w => w.Name == "Initial");
+            var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
             await SaveChanges(context2, async);
         }
@@ -419,17 +642,39 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Store_generated_concurrency_token_as_two_parameters(bool async)
+    public abstract Task Store_generated_concurrency_token_as_two_parameters(bool async);
+
+    protected async Task Store_generated_concurrency_token_as_two_parameters(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(
+                b =>
+                {
+                    ConfigureStoreGeneratedConcurrencyToken(b, "ConcurrencyToken");
+
+                    b.UpdateUsingStoredProcedure(
+                        nameof(Entity) + "_Update",
+                        spb => spb
+                            .HasOriginalValueParameter(w => w.Id)
+                            .HasOriginalValueParameter("ConcurrencyToken", pb => pb.HasName("ConcurrencyTokenIn"))
+                            .HasParameter(w => w.Name)
+                            .HasParameter(
+                                "ConcurrencyToken", pb => pb
+                                    .HasName("ConcurrencyTokenOut")
+                                    .IsOutput())
+                            .HasRowsAffectedParameter());
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new Entity { Name = "Initial" };
-        context1.WithStoreGeneratedConcurrencyTokenAsTwoParameters.Add(entity1);
+        context1.Set<Entity>().Add(entity1);
         await context1.SaveChangesAsync();
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithStoreGeneratedConcurrencyTokenAsTwoParameters.SingleAsync(w => w.Name == "Initial");
+            var entity2 = await context2.Set<Entity>().SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
             await SaveChanges(context2, async);
         }
@@ -445,24 +690,43 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task User_managed_concurrency_token(bool async)
+    public abstract Task User_managed_concurrency_token(bool async);
+
+    protected async Task User_managed_concurrency_token(bool async, string createSprocSql)
     {
-        await using var context1 = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>(
+                b =>
+                {
+                    b.Property(e => e.AdditionalProperty).IsConcurrencyToken();
+
+                    b.UpdateUsingStoredProcedure(
+                        nameof(EntityWithAdditionalProperty) + "_Update",
+                        spb => spb
+                            .HasOriginalValueParameter(w => w.Id)
+                            .HasOriginalValueParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenOriginal"))
+                            .HasParameter(w => w.Name)
+                            .HasParameter(w => w.AdditionalProperty, pb => pb.HasName("ConcurrencyTokenCurrent"))
+                            .HasRowsAffectedParameter());
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context1 = contextFactory.CreateContext();
 
         var entity1 = new EntityWithAdditionalProperty
         {
             Name = "Initial", AdditionalProperty = 8 // The concurrency token
         };
 
-        context1.WithUserManagedConcurrencyToken.Add(entity1);
+        context1.Set<EntityWithAdditionalProperty>().Add(entity1);
         await context1.SaveChangesAsync();
 
         entity1.Name = "Updated";
         entity1.AdditionalProperty = 9;
 
-        await using (var context2 = CreateContext())
+        await using (var context2 = contextFactory.CreateContext())
         {
-            var entity2 = await context2.WithUserManagedConcurrencyToken.SingleAsync(w => w.Name == "Initial");
+            var entity2 = await context2.Set<EntityWithAdditionalProperty>().SingleAsync(w => w.Name == "Initial");
             entity2.Name = "Preempted";
             entity2.AdditionalProperty = 999;
             await SaveChanges(context2, async);
@@ -476,13 +740,25 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Original_and_current_value_on_non_concurrency_token(bool async)
+    public abstract Task Original_and_current_value_on_non_concurrency_token(bool async);
+
+    protected async Task Original_and_current_value_on_non_concurrency_token(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>()
+                .UpdateUsingStoredProcedure(
+                    nameof(Entity) + "_Update",
+                    spb => spb
+                        .HasOriginalValueParameter(w => w.Id)
+                        .HasParameter(w => w.Name, pb => pb.HasName("NameCurrent"))
+                        .HasOriginalValueParameter(w => w.Name, pb => pb.HasName("NameOriginal"))),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
 
-        context.WithOriginalAndCurrentValueOnNonConcurrencyToken.Add(entity);
+        context.Set<Entity>().Add(entity);
         await context.SaveChangesAsync();
 
         entity.Name = "Updated";
@@ -491,67 +767,132 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
         await SaveChanges(context, async);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
             Assert.Equal(
                 "Updated",
-                (await context.WithOriginalAndCurrentValueOnNonConcurrencyToken.SingleAsync(w => w.Id == entity.Id)).Name);
+                (await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id)).Name);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Input_or_output_parameter_with_input(bool async)
+    public abstract Task Input_or_output_parameter_with_input(bool async);
+
+    protected async Task Input_or_output_parameter_with_input(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(
+                    b =>
+                    {
+                        b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
+
+                        b.InsertUsingStoredProcedure(
+                            nameof(Entity) + "_Insert",
+                            spb => spb
+                                .HasParameter(w => w.Id, pb => pb.IsOutput())
+                                .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
+                    }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity { Name = "Initial" };
-        context.WithInputOrOutputParameter.Add(entity);
+        context.Set<Entity>().Add(entity);
         await SaveChanges(context, async);
 
         Assert.Equal("Initial", entity.Name);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
             Assert.Same(
-                entity, await context.WithInputOrOutputParameter.SingleAsync(w => w.Id == entity.Id && w.Name == "Initial"));
+                entity, await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id && w.Name == "Initial"));
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Input_or_output_parameter_with_output(bool async)
+    public abstract Task Input_or_output_parameter_with_output(bool async);
+
+    protected async Task Input_or_output_parameter_with_output(bool async, string createSprocSql)
     {
-        await using var context = CreateContext();
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<Entity>(
+                b =>
+                {
+                    b.Property(w => w.Name).IsRequired().ValueGeneratedOnAdd();
+
+                    b.InsertUsingStoredProcedure(
+                        nameof(Entity) + "_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name, pb => pb.IsInputOutput()));
+                }),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
 
         var entity = new Entity();
-        context.WithInputOrOutputParameter.Add(entity);
+        context.Set<Entity>().Add(entity);
         await SaveChanges(context, async);
 
         Assert.Equal("Some default value", entity.Name);
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
             Assert.Same(
-                entity, await context.WithInputOrOutputParameter.SingleAsync(w => w.Id == entity.Id && w.Name == "Some default value"));
+                entity, await context.Set<Entity>().SingleAsync(w => w.Id == entity.Id && w.Name == "Some default value"));
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Tph(bool async)
-    {
-        await using var context = CreateContext();
+    public abstract Task Tph(bool async);
 
-        var entity1 = new TphChild1 { Name = "Child", Child1Property = 8 };
-        context.TphChild.Add(entity1);
+    protected async Task Tph(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Child1>();
+
+                modelBuilder.Entity<Child2>(
+                    b =>
+                    {
+                        b.Property(w => w.Child2OutputParameterProperty).HasDefaultValue(8);
+                        b.Property(w => w.Child2ResultColumnProperty).HasDefaultValue(9);
+                    });
+
+                modelBuilder.Entity<Parent>(
+                    b =>
+                    {
+                        b.ToTable("Tph");
+
+                        b.InsertUsingStoredProcedure(
+                            "Tph_Insert",
+                            spb => spb
+                                .HasParameter(w => w.Id, pb => pb.IsOutput())
+                                .HasParameter("Discriminator")
+                                .HasParameter(w => w.Name)
+                                .HasParameter(nameof(Child2.Child2InputProperty))
+                                .HasParameter(nameof(Child2.Child2OutputParameterProperty), o => o.IsOutput())
+                                .HasParameter(nameof(Child1.Child1Property))
+                                .HasResultColumn(nameof(Child2.Child2ResultColumnProperty)));
+                    });
+            },
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
+        context.Set<Child1>().Add(entity1);
         await SaveChanges(context, async);
 
         context.ChangeTracker.Clear();
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var entity2 = context.TphChild.Single(b => b.Id == entity1.Id);
+            var entity2 = context.Set<Child1>().Single(b => b.Id == entity1.Id);
 
             Assert.Equal("Child", entity2.Name);
             Assert.Equal(8, entity2.Child1Property);
@@ -560,68 +901,212 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Tpt(bool async)
-    {
-        await using var context = CreateContext();
+    public abstract Task Tpt(bool async);
 
-        var entity1 = new TptChild { Name = "Child", ChildProperty = 8 };
-        context.TptChild.Add(entity1);
+    protected async Task Tpt(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Parent>(
+                    b =>
+                    {
+                        b.UseTptMappingStrategy();
+
+                        b.InsertUsingStoredProcedure(
+                            "Parent_Insert",
+                            spb => spb
+                                .HasParameter(w => w.Id, pb => pb.IsOutput())
+                                .HasParameter(w => w.Name));
+                    });
+
+                modelBuilder.Entity<Child1>()
+                    .InsertUsingStoredProcedure(
+                        nameof(Child1) + "_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id)
+                            .HasParameter(w => w.Child1Property));
+            },
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
+        context.Set<Child1>().Add(entity1);
         await SaveChanges(context, async);
 
         context.ChangeTracker.Clear();
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var entity2 = context.TptChild.Single(b => b.Id == entity1.Id);
+            var entity2 = context.Set<Child1>().Single(b => b.Id == entity1.Id);
 
             Assert.Equal("Child", entity2.Name);
-            Assert.Equal(8, entity2.ChildProperty);
+            Assert.Equal(8, entity2.Child1Property);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Tpt_mixed_sproc_and_non_sproc(bool async)
-    {
-        await using var context = CreateContext();
+    public abstract Task Tpt_mixed_sproc_and_non_sproc(bool async);
 
-        var entity1 = new TptMixedChild { Name = "Child", ChildProperty = 8 };
-        context.TptMixedChild.Add(entity1);
+    protected async Task Tpt_mixed_sproc_and_non_sproc(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Parent>(
+                    b =>
+                    {
+                        b.UseTptMappingStrategy();
+
+                        b.InsertUsingStoredProcedure(
+                            nameof(Parent) + "_Insert",
+                            spb => spb
+                                .HasParameter(w => w.Id, pb => pb.IsOutput())
+                                .HasParameter(w => w.Name));
+                    });
+
+                // No sproc mapping for Child1, use regular SQL
+                modelBuilder.Entity<Child1>();
+            },
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
+        context.Set<Child1>().Add(entity1);
         await SaveChanges(context, async);
 
         context.ChangeTracker.Clear();
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var entity2 = context.TptMixedChild.Single(b => b.Id == entity1.Id);
+            var entity2 = context.Set<Child1>().Single(b => b.Id == entity1.Id);
 
             Assert.Equal("Child", entity2.Name);
-            Assert.Equal(8, entity2.ChildProperty);
+            Assert.Equal(8, entity2.Child1Property);
         }
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Tpc(bool async)
-    {
-        await using var context = CreateContext();
+    public abstract Task Tpc(bool async);
 
-        var entity1 = new TpcChild { Name = "Child", ChildProperty = 8 };
-        context.TpcChild.Add(entity1);
+    protected async Task Tpc(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder =>
+            {
+                modelBuilder.Entity<Parent>().UseTpcMappingStrategy();
+
+                modelBuilder.Entity<Child1>()
+                    .UseTpcMappingStrategy()
+                    .InsertUsingStoredProcedure(
+                        nameof(Child1) + "_Insert",
+                        spb => spb
+                            .HasParameter(w => w.Id, pb => pb.IsOutput())
+                            .HasParameter(w => w.Name)
+                            .HasParameter(w => w.Child1Property));
+            },
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
+
+        var entity1 = new Child1 { Name = "Child", Child1Property = 8 };
+        context.Set<Child1>().Add(entity1);
         await SaveChanges(context, async);
 
         context.ChangeTracker.Clear();
 
-        using (Fixture.TestSqlLoggerFactory.SuspendRecordingEvents())
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
         {
-            var entity2 = context.TpcChild.Single(b => b.Id == entity1.Id);
+            var entity2 = context.Set<Child1>().Single(b => b.Id == entity1.Id);
 
             Assert.Equal("Child", entity2.Name);
-            Assert.Equal(8, entity2.ChildProperty);
+            Assert.Equal(8, entity2.Child1Property);
         }
     }
 
-    private async Task SaveChanges(StoredProcedureUpdateContext context, bool async)
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public abstract Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async);
+
+    protected async Task Non_sproc_followed_by_sproc_commands_in_the_same_batch(bool async, string createSprocSql)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            modelBuilder => modelBuilder.Entity<EntityWithAdditionalProperty>()
+                .InsertUsingStoredProcedure(
+                    nameof(EntityWithAdditionalProperty) + "_Insert",
+                    spb => spb
+                        .HasParameter(w => w.Name)
+                        .HasParameter(w => w.Id, pb => pb.IsOutput())
+                        .HasParameter(w => w.AdditionalProperty))
+                .Property(e => e.AdditionalProperty).IsConcurrencyToken(),
+            seed: ctx => CreateStoredProcedures(ctx, createSprocSql));
+
+        await using var context = contextFactory.CreateContext();
+
+        // Prepare by adding an entity
+        var entity1 = new EntityWithAdditionalProperty { Name = "Entity1", AdditionalProperty = 1 };
+        context.Set<EntityWithAdditionalProperty>().Add(entity1);
+
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            await SaveChanges(context, async);
+        }
+
+        // Now add a second entity and update the first one. The update gets ordered first, and doesn't use a sproc, and then the insertion
+        // does.
+        var entity2 = new EntityWithAdditionalProperty { Name = "Entity2" };
+        context.Set<EntityWithAdditionalProperty>().Add(entity2);
+        entity1.Name = "Entity1_Modified";
+        entity1.AdditionalProperty = 2;
+        await SaveChanges(context, async);
+
+        using (TestSqlLoggerFactory.SuspendRecordingEvents())
+        {
+            Assert.Equal("Entity2", context.Set<EntityWithAdditionalProperty>().Single(b => b.Id == entity2.Id).Name);
+        }
+    }
+
+    /// <summary>
+    ///     A method to be implement by the provider, to set up a store-generated concurrency token shadow property with the given name.
+    /// </summary>
+    protected abstract void ConfigureStoreGeneratedConcurrencyToken(EntityTypeBuilder entityTypeBuilder, string propertyName);
+
+    protected class Entity
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    protected class EntityWithAdditionalProperty
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int AdditionalProperty { get; set; }
+    }
+
+    protected class Child1 : Parent
+    {
+        public int Child1Property { get; set; }
+    }
+
+    protected class Child2 : Parent
+    {
+        public int Child2InputProperty { get; set; }
+        public int Child2OutputParameterProperty { get; set; }
+        public int Child2ResultColumnProperty { get; set; }
+    }
+
+    protected class Parent
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private async Task SaveChanges(DbContext context, bool async)
     {
         if (async)
         {
@@ -629,20 +1114,27 @@ public class StoredProcedureUpdateTestBase<TFixture> : IClassFixture<TFixture>
         }
         else
         {
+            // ReSharper disable once MethodHasAsyncOverload
             context.SaveChanges();
         }
     }
 
-    protected StoredProcedureUpdateContext CreateContext()
-        => Fixture.CreateContext();
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 
-    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
-
-    protected virtual void AssertSql(params string[] expected)
-        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+    protected void AssertSql(params string[] expected)
+        => TestSqlLoggerFactory.AssertBaseline(expected);
 
     protected virtual void ClearLog()
-        => Fixture.TestSqlLoggerFactory.Clear();
+        => TestSqlLoggerFactory.Clear();
 
-    protected TFixture Fixture { get; }
+    protected virtual void CreateStoredProcedures(DbContext context, string createSprocSql)
+    {
+        foreach (var batch in
+                 new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline, TimeSpan.FromMilliseconds(1000.0))
+                     .Split(createSprocSql).Where(b => !string.IsNullOrEmpty(b)))
+        {
+            context.Database.ExecuteSqlRaw(batch);
+        }
+    }
 }

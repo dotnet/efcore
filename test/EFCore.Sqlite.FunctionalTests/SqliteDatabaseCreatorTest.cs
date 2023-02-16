@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using Microsoft.Data.Sqlite;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class SqliteDatabaseCreatorTest
@@ -143,6 +145,84 @@ public class SqliteDatabaseCreatorTest
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseSqlite(_connectionString);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Delete_works_for_in_memory_database(bool async)
+    {
+        using var connection = new SqliteConnection("Data Source=:memory:");
+        connection.Open();
+
+        using (var context = new ShowerContext(connection))
+        {
+            _ = async ? await context.Database.EnsureCreatedAsync()
+                : context.Database.EnsureCreated();
+
+            context.Add(new Soap());
+            context.SaveChanges();
+        }
+
+        using (var context = new ShowerContext(connection))
+        {
+            Assert.NotNull(context.Soap.FirstOrDefault());
+
+            _ = async ? await context.Database.EnsureDeletedAsync()
+                : context.Database.EnsureDeleted();
+        }
+
+        using (var context = new ShowerContext(connection))
+        {
+            _ = async ? await context.Database.EnsureCreatedAsync()
+                : context.Database.EnsureCreated();
+
+            Assert.Null(context.Soap.FirstOrDefault());
+            context.Add(new Soap());
+            context.SaveChanges();
+        }
+
+        using (var context = new ShowerContext(connection))
+        {
+            Assert.NotNull(context.Soap.FirstOrDefault());
+        }
+
+        // using (var context = new BathtubContext("Command Timeout=60;DataSource=bathtub.db"))
+        // {
+        //     var creator = context.GetService<IRelationalDatabaseCreator>();
+        //
+        //     if (async)
+        //     {
+        //         await context.Database.EnsureDeletedAsync();
+        //         Assert.False(await creator.ExistsAsync());
+        //     }
+        //     else
+        //     {
+        //         context.Database.EnsureDeleted();
+        //         Assert.False(creator.Exists());
+        //     }
+        // }
+    }
+
+    private class Soap
+    {
+        public int Id { get; set; }
+    }
+
+    private class ShowerContext : DbContext
+    {
+        private readonly DbConnection _connection;
+
+        public ShowerContext(DbConnection connection)
+        {
+            _connection = connection;
+        }
+
+        public DbSet<Soap> Soap
+            => Set<Soap>();
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseSqlite(_connection);
     }
 
     [ConditionalTheory]

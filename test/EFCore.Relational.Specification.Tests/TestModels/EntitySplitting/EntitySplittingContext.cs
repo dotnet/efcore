@@ -9,6 +9,4 @@ public class EntitySplittingContext : PoolableDbContext
         : base(options)
     {
     }
-
-    public DbSet<SplitEntityOne> SplitEntityOnes { get; set; }
 }

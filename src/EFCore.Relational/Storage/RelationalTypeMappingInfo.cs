@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -31,38 +33,60 @@ public readonly record struct RelationalTypeMappingInfo
     /// <param name="storeTypeName">The provider-specific relational type name for which mapping is needed.</param>
     /// <param name="storeTypeNameBase">The provider-specific relational type name, with any facets removed.</param>
     /// <param name="fallbackUnicode">
-    ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
-    ///     level, or <see langword="null" /> for default.
+    ///     Specifies Unicode or ANSI for the mapping or <see langword="null" /> for default.
     /// </param>
-    /// <param name="fixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
+    /// <param name="fallbackFixedLength">Specifies a fixed length mapping, or <see langword="null" /> for default.</param>
     /// <param name="fallbackSize">
-    ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
-    ///     default.
+    ///     Specifies a size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackPrecision">
-    ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <see langword="null" />
-    ///     for default.
+    ///     Specifies a precision for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackScale">
-    ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
-    ///     default.
+    ///     Specifies a scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     public RelationalTypeMappingInfo(
         IReadOnlyList<IProperty> principals,
         string? storeTypeName = null,
         string? storeTypeNameBase = null,
         bool? fallbackUnicode = null,
-        bool? fixedLength = null,
+        bool? fallbackFixedLength = null,
         int? fallbackSize = null,
         int? fallbackPrecision = null,
         int? fallbackScale = null)
     {
         _coreTypeMappingInfo = new TypeMappingInfo(principals, fallbackUnicode, fallbackSize, fallbackPrecision, fallbackScale);
 
-        IsFixedLength = fixedLength;
+        ValueConverter? customConverter = null;
+        for (var i = 0; i < principals.Count; i++)
+        {
+            var principal = principals[i];
+            if (customConverter == null)
+            {
+                var converter = principal.GetValueConverter();
+                if (converter != null)
+                {
+                    customConverter = converter;
+                }
+            }
+
+            if (fallbackFixedLength == null)
+            {
+                var fixedLength = principal.IsFixedLength();
+                if (fixedLength != null)
+                {
+                    fallbackFixedLength = fixedLength;
+                }
+            }
+        }
+
+        var mappingHints = customConverter?.MappingHints;
+
+        IsFixedLength = fallbackFixedLength ?? (mappingHints as RelationalConverterMappingHints)?.IsFixedLength;
+        DbType = (mappingHints as RelationalConverterMappingHints)?.DbType;
         StoreTypeName = storeTypeName;
         StoreTypeNameBase = storeTypeNameBase;
-    }
+     }
 
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalTypeMappingInfo" />.
@@ -136,6 +160,7 @@ public readonly record struct RelationalTypeMappingInfo
         StoreTypeName = source.StoreTypeName;
         StoreTypeNameBase = source.StoreTypeNameBase;
         IsFixedLength = source.IsFixedLength ?? (mappingHints as RelationalConverterMappingHints)?.IsFixedLength;
+        DbType = source.DbType ?? (mappingHints as RelationalConverterMappingHints)?.DbType;
     }
 
     /// <summary>
@@ -213,12 +238,26 @@ public readonly record struct RelationalTypeMappingInfo
     public bool? IsFixedLength { get; init; }
 
     /// <summary>
+    ///     The <see cref="DbType"/> of the mapping.
+    /// </summary>
+    public DbType? DbType { get; init; }
+
+    /// <summary>
     ///     Indicates whether or not the mapping is part of a key or index.
     /// </summary>
     public bool IsKeyOrIndex
     {
         get => _coreTypeMappingInfo.IsKeyOrIndex;
         init => _coreTypeMappingInfo = _coreTypeMappingInfo with { IsKeyOrIndex = value };
+    }
+
+    /// <summary>
+    ///     Indicates whether or not the mapping should be compared, etc. as if it is a key.
+    /// </summary>
+    public bool HasKeySemantics
+    {
+        get => _coreTypeMappingInfo.HasKeySemantics;
+        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { HasKeySemantics = value };
     }
 
     /// <summary>

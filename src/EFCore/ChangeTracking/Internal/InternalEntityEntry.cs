@@ -186,7 +186,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         CancellationToken cancellationToken = default)
     {
         var oldState = _stateData.EntityState;
-        bool adding;
+        var adding = false;
         await SetupAsync().ConfigureAwait(false);
 
         if ((adding || oldState is EntityState.Detached)
@@ -470,26 +470,47 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     private void SetServiceProperties(EntityState oldState, EntityState newState)
     {
-        if (oldState == EntityState.Detached)
+        if (EntityType.HasServiceProperties())
         {
+            List<IServiceProperty>? dependentServices = null;
             foreach (var serviceProperty in EntityType.GetServiceProperties())
             {
-                this[serviceProperty]
-                    = serviceProperty
-                        .ParameterBinding
-                        .ServiceDelegate(
-                            new MaterializationContext(
-                                ValueBuffer.Empty,
-                                Context),
-                            EntityType,
-                            Entity);
+                var service = this[serviceProperty] ?? serviceProperty.ParameterBinding.ServiceDelegate(
+                    new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
+
+                if (service == null)
+                {
+                    (dependentServices ??= new List<IServiceProperty>()).Add(serviceProperty);
+                }
+                else
+                {
+                    if (service is IInjectableService injectableService)
+                    {
+                        injectableService.Attaching(Context, EntityType, Entity);
+                    }
+
+                    this[serviceProperty] = service;
+                }
             }
-        }
-        else if (newState == EntityState.Detached)
-        {
-            foreach (var serviceProperty in EntityType.GetServiceProperties())
+
+            if (dependentServices != null)
             {
-                this[serviceProperty] = null;
+                foreach (var serviceProperty in dependentServices)
+                {
+                    this[serviceProperty] = serviceProperty.ParameterBinding.ServiceDelegate(
+                        new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
+                }
+            }
+            else if (newState == EntityState.Detached)
+            {
+                foreach (var serviceProperty in EntityType.GetServiceProperties())
+                {
+                    if (!(this[serviceProperty] is IInjectableService detachable)
+                        || detachable.Detaching(Context, Entity))
+                    {
+                        this[serviceProperty] = null;
+                    }
+                }
             }
         }
     }
@@ -846,7 +867,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private static readonly MethodInfo ReadOriginalValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadOriginalValue))!;
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
     internal static MethodInfo MakeReadOriginalValueMethod(Type type)
         => ReadOriginalValueMethod.MakeGenericMethod(type);
@@ -858,7 +880,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private static readonly MethodInfo ReadRelationshipSnapshotValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadRelationshipSnapshotValue))!;
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
     internal static MethodInfo MakeReadRelationshipSnapshotValueMethod(Type type)
         => ReadRelationshipSnapshotValueMethod.MakeGenericMethod(type);
@@ -867,7 +890,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private T ReadRelationshipSnapshotValue<T>(IPropertyBase propertyBase, int relationshipSnapshotIndex)
         => _relationshipsSnapshot.GetValue<T>(this, propertyBase, relationshipSnapshotIndex);
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
     internal static MethodInfo MakeReadStoreGeneratedValueMethod(Type type)
         => ReadStoreGeneratedValueMethod.MakeGenericMethod(type);
@@ -882,7 +906,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private static readonly MethodInfo ReadTemporaryValueMethod
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethod(nameof(ReadTemporaryValue))!;
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
     internal static MethodInfo MakeReadTemporaryValueMethod(Type type)
         => ReadTemporaryValueMethod.MakeGenericMethod(type);
@@ -895,7 +920,8 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         = typeof(InternalEntityEntry).GetTypeInfo().GetDeclaredMethods(nameof(GetCurrentValue)).Single(
             m => m.IsGenericMethod);
 
-    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+    [UnconditionalSuppressMessage(
+        "ReflectionAnalysis", "IL2060",
         Justification = "MakeGenericMethod wrapper, see https://github.com/dotnet/linker/issues/2482")]
     internal static MethodInfo MakeGetCurrentValueMethod(Type type)
         => GetCurrentValueMethod.MakeGenericMethod(type);
@@ -2001,11 +2027,14 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 CoreStrings.ReferenceMustBeLoaded(navigation.Name, navigation.DeclaringEntityType.DisplayName()));
         }
 
-        _stateData.FlagProperty(navigation.GetIndex(), PropertyFlag.IsLoaded, isFlagged: loaded);
-
-        foreach (var lazyLoaderProperty in EntityType.GetServiceProperties().Where(p => p.ClrType == typeof(ILazyLoader)))
+        var lazyLoader = GetLazyLoader();
+        if (lazyLoader != null)
         {
-            ((ILazyLoader?)this[lazyLoaderProperty])?.SetLoaded(Entity, navigation.Name, loaded);
+            lazyLoader.SetLoaded(Entity, navigation.Name, loaded);
+        }
+        else
+        {
+            _stateData.FlagProperty(navigation.GetIndex(), PropertyFlag.IsLoaded, isFlagged: loaded);
         }
     }
 
@@ -2016,7 +2045,19 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public bool IsLoaded(INavigationBase navigation)
-        => _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
+        => GetLazyLoader()?.IsLoaded(Entity, navigation.Name)
+            ?? _stateData.IsPropertyFlagged(navigation.GetIndex(), PropertyFlag.IsLoaded);
+
+    private ILazyLoader? GetLazyLoader()
+    {
+        if (!EntityType.HasServiceProperties())
+        {
+            return null;
+        }
+
+        var lazyLoaderProperty = EntityType.GetServiceProperties().FirstOrDefault(p => p.ClrType == typeof(ILazyLoader));
+        return lazyLoaderProperty != null ? (ILazyLoader?)this[lazyLoaderProperty] : null;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

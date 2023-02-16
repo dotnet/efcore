@@ -707,7 +707,7 @@ public class NavigationFixer : INavigationFixer
             var dependentEntries = stateManager.GetDependents(entry, foreignKey);
             foreach (InternalEntityEntry dependentEntry in dependentEntries.ToList())
             {
-                if (foreignKey.IsOwnership)
+                if (foreignKey.DeleteBehavior != DeleteBehavior.ClientNoAction)
                 {
                     ConditionallyNullForeignKeyProperties(dependentEntry, entry, foreignKey);
                 }
@@ -780,7 +780,8 @@ public class NavigationFixer : INavigationFixer
                 if (foreignKey.IsUnique)
                 {
                     var dependentEntry = (InternalEntityEntry?)dependents.FirstOrDefault();
-                    if (dependentEntry != null)
+                    if (dependentEntry != null
+                        && dependentEntry.EntityState != EntityState.Deleted)
                     {
                         var toDependent = foreignKey.PrincipalToDependent;
                         if (CanOverrideCurrentValue(entry, toDependent, dependentEntry, fromQuery)
@@ -796,7 +797,8 @@ public class NavigationFixer : INavigationFixer
                 {
                     foreach (InternalEntityEntry dependentEntry in dependents)
                     {
-                        if (!IsAmbiguous(dependentEntry)
+                        if (dependentEntry.EntityState != EntityState.Deleted
+                            && !IsAmbiguous(dependentEntry)
                             && (!fromQuery || CanOverrideCurrentValue(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery)))
                         {
                             SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
@@ -1414,28 +1416,39 @@ public class NavigationFixer : INavigationFixer
 
         if (foreignKey.IsRequired
             && hasOnlyKeyProperties
-            && dependentEntry.EntityState != EntityState.Detached)
+            && dependentEntry.EntityState != EntityState.Detached
+            && dependentEntry.EntityState != EntityState.Deleted)
         {
-            try
+            if (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
+                || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade
+                || foreignKey.IsOwnership)
             {
-                _inFixup = true;
-                switch (dependentEntry.EntityState)
+                try
                 {
-                    case EntityState.Added:
-                        dependentEntry.SetEntityState(EntityState.Detached);
-                        DeleteFixup(dependentEntry);
-                        break;
-                    case EntityState.Unchanged:
-                    case EntityState.Modified:
-                        dependentEntry.SetEntityState(
-                            dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
-                        DeleteFixup(dependentEntry);
-                        break;
+                    _inFixup = true;
+                    switch (dependentEntry.EntityState)
+                    {
+                        case EntityState.Added:
+                            dependentEntry.SetEntityState(EntityState.Detached);
+                            DeleteFixup(dependentEntry);
+                            break;
+                        case EntityState.Unchanged:
+                        case EntityState.Modified:
+                            dependentEntry.SetEntityState(
+                                dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
+                            DeleteFixup(dependentEntry);
+                            break;
+                    }
+                }
+                finally
+                {
+                    _inFixup = false;
                 }
             }
-            finally
+            else
             {
-                _inFixup = false;
+                throw new InvalidOperationException(
+                    CoreStrings.KeyReadOnly(dependentProperties.First().Name, dependentEntry.EntityType.DisplayName()));
             }
         }
     }

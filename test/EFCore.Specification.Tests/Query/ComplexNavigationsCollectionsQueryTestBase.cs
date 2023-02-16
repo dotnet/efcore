@@ -2199,6 +2199,26 @@ public abstract class ComplexNavigationsCollectionsQueryTestBase<TFixture> : Que
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Collection_projection_over_GroupBy_over_parameter(bool async)
+    {
+        var validIds = new List<string> { "L1 01", "L1 02" };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Level1>()
+                .Where(l1 => validIds.Contains(l1.Name))
+                .GroupBy(l => l.Date)
+                .Select(g => new { g.Key, Ids = g.Select(e => e.Id) }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertCollection(e.Ids, a.Ids);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task SelectMany_over_conditional_null_source(bool async)
         => AssertTranslationFailed(
             () => AssertQueryScalar(

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -23,6 +24,20 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         : base(dependencies)
     {
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitExtension(Expression extensionExpression)
+        => extensionExpression switch
+        {
+            GlobExpression globExpression => VisitGlob(globExpression),
+            RegexpExpression regexpExpression => VisitRegexp(regexpExpression),
+            _ => base.VisitExtension(extensionExpression)
+        };
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -72,4 +87,34 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     protected override void GenerateSetOperationOperand(SetOperationBase setOperation, SelectExpression operand)
         // Sqlite doesn't support parentheses around set operation operands
         => Visit(operand);
+
+    private Expression VisitGlob(GlobExpression globExpression)
+    {
+        Visit(globExpression.Match);
+
+        if (globExpression.IsNegated)
+        {
+            Sql.Append(" NOT");
+        }
+
+        Sql.Append(" GLOB ");
+        Visit(globExpression.Pattern);
+
+        return globExpression;
+    }
+
+    private Expression VisitRegexp(RegexpExpression regexpExpression)
+    {
+        Visit(regexpExpression.Match);
+
+        if (regexpExpression.IsNegated)
+        {
+            Sql.Append(" NOT");
+        }
+
+        Sql.Append(" REGEXP ");
+        Visit(regexpExpression.Pattern);
+
+        return regexpExpression;
+    }
 }

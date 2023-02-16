@@ -471,6 +471,9 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
+        public override TestPropertyBuilder<TProperty> HasPrecision(int precision)
+            => Wrap(PropertyBuilder.HasPrecision(precision));
+
         public override TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale)
             => Wrap(PropertyBuilder.HasPrecision(precision, scale));
 
@@ -660,6 +663,9 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
         public override TestNavigationBuilder AutoInclude(bool autoInclude = true)
             => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.AutoInclude(autoInclude));
+
+        public override TestNavigationBuilder EnableLazyLoading(bool lazyLoadingEnabled = true)
+            => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.EnableLazyLoading(lazyLoadingEnabled));
 
         public override TestNavigationBuilder IsRequired(bool required = true)
             => new GenericTestNavigationBuilder<TSource, TTarget>(NavigationBuilder.IsRequired(required));

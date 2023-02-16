@@ -262,6 +262,42 @@ public class InternalSkipNavigationBuilderTest
         Assert.Null(metadata.GetIsEagerLoadedConfigurationSource());
     }
 
+    [ConditionalFact]
+    public void Can_only_override_lower_or_equal_source_LazyLoadingEnabled()
+    {
+        var builder = CreateInternalSkipNavigationBuilder();
+        IConventionSkipNavigation metadata = builder.Metadata;
+
+        Assert.True(metadata.LazyLoadingEnabled);
+        Assert.Null(metadata.GetLazyLoadingEnabledConfigurationSource());
+
+        Assert.True(builder.CanSetLazyLoadingEnabled(lazyLoadingEnabled: false, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.EnableLazyLoading(lazyLoadingEnabled: false, ConfigurationSource.DataAnnotation));
+
+        Assert.False(metadata.LazyLoadingEnabled);
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetLazyLoadingEnabledConfigurationSource());
+
+        Assert.True(builder.CanSetLazyLoadingEnabled(lazyLoadingEnabled: false, ConfigurationSource.Convention));
+        Assert.False(builder.CanSetLazyLoadingEnabled(lazyLoadingEnabled: true, ConfigurationSource.Convention));
+        Assert.NotNull(builder.EnableLazyLoading(lazyLoadingEnabled: false, ConfigurationSource.Convention));
+        Assert.Null(builder.EnableLazyLoading(lazyLoadingEnabled: true, ConfigurationSource.Convention));
+
+        Assert.False(metadata.LazyLoadingEnabled);
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetLazyLoadingEnabledConfigurationSource());
+
+        Assert.True(builder.CanSetLazyLoadingEnabled(lazyLoadingEnabled: true, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.EnableLazyLoading(lazyLoadingEnabled: true, ConfigurationSource.DataAnnotation));
+
+        Assert.True(metadata.LazyLoadingEnabled);
+        Assert.Equal(ConfigurationSource.DataAnnotation, metadata.GetLazyLoadingEnabledConfigurationSource());
+
+        Assert.True(builder.CanSetLazyLoadingEnabled(null, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.EnableLazyLoading(null, ConfigurationSource.DataAnnotation));
+
+        Assert.True(metadata.LazyLoadingEnabled);
+        Assert.Null(metadata.GetLazyLoadingEnabledConfigurationSource());
+    }
+
     private InternalSkipNavigationBuilder CreateInternalSkipNavigationBuilder()
     {
         var modelBuilder = (InternalModelBuilder)

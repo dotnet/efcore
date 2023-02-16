@@ -20,13 +20,13 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         using (var context = CreateContext())
         {
-            context.Add(
+            await context.AddAsync(
                 new HeliumBalloon
                 {
                     Id = Guid.NewGuid().ToString(), Gas = new Helium(),
                 });
 
-            context.Add(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
+            await context.AddAsync(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
 
             _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
         }
@@ -879,6 +879,25 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                 AssertEqual(e.sub.Id, a.sub.Id);
                 AssertEqual(e.sub.c1, a.sub.c1);
                 AssertEqual(e.sub.c2, a.sub.c2);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                    .GroupBy(e => e.Id)
+                    .Select(e => new
+                    {
+                        e.Key,
+                        Sum = e.Sum(i => i.PersonAddress.Country.PlanetId)
+                    }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertEqual(e.Sum, a.Sum);
             });
 
     protected virtual DbContext CreateContext()

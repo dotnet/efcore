@@ -1,10 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable ArrangeAccessorOwnerBody
@@ -31,8 +31,11 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         public virtual bool NoStoreCascades
             => false;
 
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).AddInterceptors(new UpdatingIdentityResolutionInterceptor());
+        public virtual bool HasIdentityResolution
+            => false;
+
+        public virtual bool AutoDetectChanges
+            => true;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -481,62 +484,77 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             modelBuilder.Entity<City>();
 
             modelBuilder.Entity<SomethingCategory>().HasData(
-                new SomethingCategory
-                {
-                    Id = 1,
-                    Name = "A"
-                },
-                new SomethingCategory
-                {
-                    Id = 2,
-                    Name = "B"
-                },
-                new SomethingCategory
-                {
-                    Id = 3,
-                    Name = "C"
-                });
+                new SomethingCategory { Id = 1, Name = "A" },
+                new SomethingCategory { Id = 2, Name = "B" },
+                new SomethingCategory { Id = 3, Name = "C" });
 
             modelBuilder.Entity<Something>().HasOne(s => s.SomethingCategory)
                 .WithMany()
                 .HasForeignKey(s => s.CategoryId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            modelBuilder.Entity<SomethingOfCategoryA>(builder =>
-            {
-                builder.Property<int>("CategoryId").IsRequired();
+            modelBuilder.Entity<SomethingOfCategoryA>(
+                builder =>
+                {
+                    builder.Property<int>("CategoryId").IsRequired();
 
-                builder.HasKey(nameof(SomethingOfCategoryA.SomethingId), "CategoryId");
+                    builder.HasKey(nameof(SomethingOfCategoryA.SomethingId), "CategoryId");
 
-                builder.HasOne(d => d.Something)
-                    .WithOne(p => p.SomethingOfCategoryA)
-                    .HasPrincipalKey<Something>(p => new {p.Id, p.CategoryId})
-                    .HasForeignKey<SomethingOfCategoryA>(nameof(SomethingOfCategoryA.SomethingId), "CategoryId")
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    builder.HasOne(d => d.Something)
+                        .WithOne(p => p.SomethingOfCategoryA)
+                        .HasPrincipalKey<Something>(p => new { p.Id, p.CategoryId })
+                        .HasForeignKey<SomethingOfCategoryA>(nameof(SomethingOfCategoryA.SomethingId), "CategoryId")
+                        .OnDelete(DeleteBehavior.ClientSetNull);
 
-                builder.HasOne<SomethingCategory>()
-                    .WithMany()
-                    .HasForeignKey("CategoryId")
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+                    builder.HasOne<SomethingCategory>()
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+                });
 
-            modelBuilder.Entity<SomethingOfCategoryB>(builder =>
-            {
-                builder.Property(e => e.CategoryId).IsRequired();
+            modelBuilder.Entity<SomethingOfCategoryB>(
+                builder =>
+                {
+                    builder.Property(e => e.CategoryId).IsRequired();
 
-                builder.HasKey(e => new {e.SomethingId, e.CategoryId});
+                    builder.HasKey(e => new { e.SomethingId, e.CategoryId });
 
-                builder.HasOne(d => d.Something)
-                    .WithOne(p => p.SomethingOfCategoryB)
-                    .HasPrincipalKey<Something>(p => new {p.Id, p.CategoryId})
-                    .HasForeignKey<SomethingOfCategoryB>(socb => new {socb.SomethingId, socb.CategoryId})
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    builder.HasOne(d => d.Something)
+                        .WithOne(p => p.SomethingOfCategoryB)
+                        .HasPrincipalKey<Something>(p => new { p.Id, p.CategoryId })
+                        .HasForeignKey<SomethingOfCategoryB>(socb => new { socb.SomethingId, socb.CategoryId })
+                        .OnDelete(DeleteBehavior.ClientSetNull);
 
-                builder.HasOne(e => e.SomethingCategory)
-                    .WithMany()
-                    .HasForeignKey(e => e.CategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
-            });
+                    builder.HasOne(e => e.SomethingCategory)
+                        .WithMany()
+                        .HasForeignKey(e => e.CategoryId)
+                        .OnDelete(DeleteBehavior.ClientSetNull);
+                });
+
+            modelBuilder.Entity<Swede>().HasMany(e => e.TurnipSwedes).WithOne(e => e.Swede).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Parsnip>().HasData(new Parsnip { Id = 1 });
+            modelBuilder.Entity<Carrot>().HasData(new Carrot { Id = 1, ParsnipId = 1 });
+            modelBuilder.Entity<Turnip>().HasData(new Turnip { Id = 1, CarrotsId = 1 });
+            modelBuilder.Entity<Swede>().HasData(new Swede { Id = 1, ParsnipId = 1 });
+            modelBuilder.Entity<TurnipSwede>().HasData(
+                new TurnipSwede
+                {
+                    Id = 1,
+                    SwedesId = 1,
+                    TurnipId = 1
+                });
+
+            modelBuilder.Entity<FirstLaw>();
+            modelBuilder.Entity<Bayaz>();
+            modelBuilder.Entity<SecondLaw>();
+            modelBuilder.Entity<ThirdLaw>();
+
+            modelBuilder.Entity<SneakyChild>(
+                b =>
+                {
+                    b.HasOne(x => x.Parent).WithMany(x => x.Children).OnDelete(DeleteBehavior.Restrict);
+                    b.HasAlternateKey(x => new { x.Id, x.ParentId });
+                });
         }
 
         protected virtual object CreateFullGraph()
@@ -544,28 +562,28 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             {
                 AlternateId = RootAK,
                 RequiredChildren =
-                    new ObservableHashSet<Required1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
-                            Children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                            Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         },
-                        new() { Children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance) { new(), new() } }
+                        new() { Children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance) { new(), new() } }
                     },
                 OptionalChildren =
-                    new ObservableHashSet<Optional1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
-                            Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance) { new(), new() },
+                            Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance) { new(), new() },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                         },
                         new()
                         {
-                            Children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance) { new(), new() },
+                            Children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance) { new(), new() },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance)
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance)
                         }
                     },
                 RequiredSingle = new RequiredSingle1 { Single = new RequiredSingle2() },
@@ -583,51 +601,51 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                         DerivedRoot = new Root()
                     },
                 RequiredChildrenAk =
-                    new ObservableHashSet<RequiredAk1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         },
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         }
                     },
                 OptionalChildrenAk =
-                    new ObservableHashSet<OptionalAk1>(LegacyReferenceEqualityComparer.Instance)
+                    new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance)
                     {
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         },
                         new()
                         {
                             AlternateId = Guid.NewGuid(),
-                            Children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance)
+                            Children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { AlternateId = Guid.NewGuid() }, new() { AlternateId = Guid.NewGuid() }
                             },
                             CompositeChildren =
-                                new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance) { new(), new() }
+                                new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance) { new(), new() }
                         }
                     },
                 RequiredSingleAk =
@@ -674,13 +692,13 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                         Root = new Root(),
                         DerivedRoot = new Root()
                     },
-                RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(LegacyReferenceEqualityComparer.Instance)
+                RequiredCompositeChildren = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance)
                 {
                     new()
                     {
                         Id = 1,
                         CompositeChildren =
-                            new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { Id = 1 }, new() { Id = 2 }
                             }
@@ -689,7 +707,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     {
                         Id = 2,
                         CompositeChildren =
-                            new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
                                 new() { Id = 3 }, new() { Id = 4 }
                             }
@@ -1146,8 +1164,8 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     {
         private int _id;
         private Guid _alternateId;
-        private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>(LegacyReferenceEqualityComparer.Instance);
-        private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Required1> _requiredChildren = new ObservableHashSet<Required1>(ReferenceEqualityComparer.Instance);
+        private IEnumerable<Optional1> _optionalChildren = new ObservableHashSet<Optional1>(ReferenceEqualityComparer.Instance);
         private RequiredSingle1 _requiredSingle;
         private RequiredNonPkSingle1 _requiredNonPkSingle;
         private RequiredNonPkSingle1Derived _requiredNonPkSingleDerived;
@@ -1157,10 +1175,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private OptionalSingle1MoreDerived _optionalSingleMoreDerived;
 
         private IEnumerable<RequiredAk1> _requiredChildrenAk =
-            new ObservableHashSet<RequiredAk1>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<RequiredAk1>(ReferenceEqualityComparer.Instance);
 
         private IEnumerable<OptionalAk1> _optionalChildrenAk =
-            new ObservableHashSet<OptionalAk1>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalAk1>(ReferenceEqualityComparer.Instance);
 
         private RequiredSingleAk1 _requiredSingleAk;
         private RequiredNonPkSingleAk1 _requiredNonPkSingleAk;
@@ -1171,7 +1189,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private OptionalSingleAk1MoreDerived _optionalSingleAkMoreDerived;
 
         private IEnumerable<RequiredComposite1> _requiredCompositeChildren
-            = new ObservableHashSet<RequiredComposite1>(LegacyReferenceEqualityComparer.Instance);
+            = new ObservableHashSet<RequiredComposite1>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -1314,7 +1332,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private int _id;
         private int _parentId;
         private Root _parent;
-        private IEnumerable<Required2> _children = new ObservableHashSet<Required2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Required2> _children = new ObservableHashSet<Required2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -1425,10 +1443,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private int _id;
         private int? _parentId;
         private Root _parent;
-        private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Optional2> _children = new ObservableHashSet<Optional2>(ReferenceEqualityComparer.Instance);
 
         private ICollection<OptionalComposite2> _compositeChildren =
-            new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -1926,10 +1944,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private Guid _alternateId;
         private Guid _parentId;
         private Root _parent;
-        private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<RequiredAk2> _children = new ObservableHashSet<RequiredAk2>(ReferenceEqualityComparer.Instance);
 
         private IEnumerable<RequiredComposite2> _compositeChildren =
-            new ObservableHashSet<RequiredComposite2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<RequiredComposite2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -2043,7 +2061,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private Root _parent;
 
         private ICollection<OptionalOverlapping2> _compositeChildren =
-            new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -2192,10 +2210,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private Guid _alternateId;
         private Guid? _parentId;
         private Root _parent;
-        private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<OptionalAk2> _children = new ObservableHashSet<OptionalAk2>(ReferenceEqualityComparer.Instance);
 
         private ICollection<OptionalComposite2> _compositeChildren =
-            new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance);
+            new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -2874,7 +2892,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     {
         private int _id;
         private int _status;
-        private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>(LegacyReferenceEqualityComparer.Instance);
+        private ICollection<BadOrder> _badOrders = new ObservableHashSet<BadOrder>(ReferenceEqualityComparer.Instance);
 
         public int Id
         {
@@ -3007,7 +3025,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
 
     protected abstract class TaskWithChoices : QuestTask
     {
-        private ICollection<TaskChoice> _choices = new ObservableHashSet<TaskChoice>(LegacyReferenceEqualityComparer.Instance);
+        private ICollection<TaskChoice> _choices = new ObservableHashSet<TaskChoice>(ReferenceEqualityComparer.Instance);
 
         public ICollection<TaskChoice> Choices
         {
@@ -3044,7 +3062,7 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
     protected class Bloog : NotifyingEntity
     {
         private int _id;
-        private IEnumerable<Poost> _poosts = new ObservableHashSet<Poost>(LegacyReferenceEqualityComparer.Instance);
+        private IEnumerable<Poost> _poosts = new ObservableHashSet<Poost>(ReferenceEqualityComparer.Instance);
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id
@@ -3091,10 +3109,10 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         private long _id;
 
         private ICollection<SharedFkDependant> _dependants
-            = new ObservableHashSet<SharedFkDependant>(LegacyReferenceEqualityComparer.Instance);
+            = new ObservableHashSet<SharedFkDependant>(ReferenceEqualityComparer.Instance);
 
         private ICollection<SharedFkParent> _parents
-            = new ObservableHashSet<SharedFkParent>(LegacyReferenceEqualityComparer.Instance);
+            = new ObservableHashSet<SharedFkParent>(ReferenceEqualityComparer.Instance);
 
         public long Id
         {
@@ -3683,6 +3701,332 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         {
             get => _something;
             set => SetWithNotify(value, ref _something);
+        }
+    }
+
+    protected class Parsnip : NotifyingEntity
+    {
+        private int _id;
+        private Carrot _carrot;
+        private Swede _swede;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Carrot Carrot
+        {
+            get => _carrot;
+            set => SetWithNotify(value, ref _carrot);
+        }
+
+        public Swede Swede
+        {
+            get => _swede;
+            set => SetWithNotify(value, ref _swede);
+        }
+    }
+
+    protected class Carrot : NotifyingEntity
+    {
+        private int _id;
+        private int _parsnipId;
+        private Parsnip _parsnip;
+        private ICollection<Turnip> _turnips = new ObservableHashSet<Turnip>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParsnipId
+        {
+            get => _parsnipId;
+            set => SetWithNotify(value, ref _parsnipId);
+        }
+
+        public Parsnip Parsnip
+        {
+            get => _parsnip;
+            set => SetWithNotify(value, ref _parsnip);
+        }
+
+        public ICollection<Turnip> Turnips
+        {
+            get => _turnips;
+            set => SetWithNotify(value, ref _turnips);
+        }
+    }
+
+    protected class Turnip : NotifyingEntity
+    {
+        private int _id;
+        private int _carrotsId;
+        private Carrot _carrot;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int CarrotsId
+        {
+            get => _carrotsId;
+            set => SetWithNotify(value, ref _carrotsId);
+        }
+
+        public Carrot Carrot
+        {
+            get => _carrot;
+            set => SetWithNotify(value, ref _carrot);
+        }
+    }
+
+    protected class Swede : NotifyingEntity
+    {
+        private int _id;
+        private int _parsnipId;
+        private Parsnip _parsnip;
+        private ICollection<TurnipSwede> _turnipSwede = new ObservableHashSet<TurnipSwede>();
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int ParsnipId
+        {
+            get => _parsnipId;
+            set => SetWithNotify(value, ref _parsnipId);
+        }
+
+        public Parsnip Parsnip
+        {
+            get => _parsnip;
+            set => SetWithNotify(value, ref _parsnip);
+        }
+
+        public ICollection<TurnipSwede> TurnipSwedes
+        {
+            get => _turnipSwede;
+            set => SetWithNotify(value, ref _turnipSwede);
+        }
+    }
+
+    protected class TurnipSwede : NotifyingEntity
+    {
+        private int _id;
+        private int _swedesId;
+        private Swede _swede;
+        private int _turnipId;
+        private Turnip _turnip;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public int SwedesId
+        {
+            get => _swedesId;
+            set => SetWithNotify(value, ref _swedesId);
+        }
+
+        public Swede Swede
+        {
+            get => _swede;
+            set => SetWithNotify(value, ref _swede);
+        }
+
+        public int TurnipId
+        {
+            get => _turnipId;
+            set => SetWithNotify(value, ref _turnipId);
+        }
+
+        public Turnip Turnip
+        {
+            get => _turnip;
+            set => SetWithNotify(value, ref _turnip);
+        }
+    }
+
+    protected class Bayaz : NotifyingEntity
+    {
+        private int _bayazId;
+        private string _bayazName;
+        private ICollection<FirstLaw> _firstLaw = new ObservableHashSet<FirstLaw>();
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int BayazId
+        {
+            get => _bayazId;
+            set => SetWithNotify(value, ref _bayazId);
+        }
+
+        public string BayazName
+        {
+            get => _bayazName;
+            set => SetWithNotify(value, ref _bayazName);
+        }
+
+        public virtual ICollection<FirstLaw> FirstLaw
+        {
+            get => _firstLaw;
+            set => SetWithNotify(value, ref _firstLaw);
+        }
+    }
+
+    protected class FirstLaw : NotifyingEntity
+    {
+        private int _firstLawId;
+        private string _firstLawName;
+        private int _bayazId;
+        private Bayaz _bayaz = null!;
+        private readonly ICollection<SecondLaw> _secondLaw = new ObservableHashSet<SecondLaw>();
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int FirstLawId
+        {
+            get => _firstLawId;
+            set => SetWithNotify(value, ref _firstLawId);
+        }
+
+        public string FirstLawName
+        {
+            get => _firstLawName;
+            set => SetWithNotify(value, ref _firstLawName);
+        }
+
+        public int BayazId
+        {
+            get => _bayazId;
+            set => SetWithNotify(value, ref _bayazId);
+        }
+
+        public virtual Bayaz Bayaz
+        {
+            get => _bayaz;
+            set => SetWithNotify(value, ref _bayaz);
+        }
+
+        public virtual ICollection<SecondLaw> SecondLaw
+            => _secondLaw;
+    }
+
+    protected class SecondLaw : NotifyingEntity
+    {
+        private int _secondLawId;
+        private string _secondLawName;
+        private int _firstLawId;
+        private FirstLaw _firstLaw = null!;
+        private readonly ICollection<ThirdLaw> _thirdLaw = new ObservableHashSet<ThirdLaw>();
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int SecondLawId
+        {
+            get => _secondLawId;
+            set => SetWithNotify(value, ref _secondLawId);
+        }
+
+        public string SecondLawName
+        {
+            get => _secondLawName;
+            set => SetWithNotify(value, ref _secondLawName);
+        }
+
+        public int FirstLawId
+        {
+            get => _firstLawId;
+            set => SetWithNotify(value, ref _firstLawId);
+        }
+
+        public virtual FirstLaw FirstLaw
+        {
+            get => _firstLaw;
+            set => SetWithNotify(value, ref _firstLaw);
+        }
+
+        public virtual ICollection<ThirdLaw> ThirdLaw
+            => _thirdLaw;
+    }
+
+    protected class ThirdLaw : NotifyingEntity
+    {
+        private int _thirdLawId;
+        private string _thirdLawName;
+        private int _secondLawId;
+        private SecondLaw _secondLaw = null!;
+
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int ThirdLawId
+        {
+            get => _thirdLawId;
+            set => SetWithNotify(value, ref _thirdLawId);
+        }
+
+        public string ThirdLawName
+        {
+            get => _thirdLawName;
+            set => SetWithNotify(value, ref _thirdLawName);
+        }
+
+        public int SecondLawId
+        {
+            get => _secondLawId;
+            set => SetWithNotify(value, ref _secondLawId);
+        }
+
+        public virtual SecondLaw SecondLaw
+        {
+            get => _secondLaw;
+            set => SetWithNotify(value, ref _secondLaw);
+        }
+    }
+
+    protected class NaiveParent : NotifyingEntity
+    {
+        private Guid _id;
+        private readonly ICollection<SneakyChild> _children = new ObservableHashSet<SneakyChild>();
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public virtual ICollection<SneakyChild> Children
+            => _children;
+    }
+
+    protected class SneakyChild : NotifyingEntity
+    {
+        private Guid _id;
+        private Guid _parentId;
+        private NaiveParent _parent = null!;
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public Guid ParentId
+        {
+            get => _parentId;
+            set => SetWithNotify(value, ref _parentId);
+        }
+
+        public virtual NaiveParent Parent
+        {
+            get => _parent;
+            set => SetWithNotify(value, ref _parent);
         }
     }
 

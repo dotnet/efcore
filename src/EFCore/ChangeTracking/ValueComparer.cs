@@ -82,7 +82,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </summary>
     /// <param name="instance">The instance.</param>
     /// <returns>The hash code.</returns>
-    public abstract int GetHashCode(object instance);
+    public abstract int GetHashCode(object? instance);
 
     /// <summary>
     ///     Creates a snapshot of the given instance.
@@ -183,7 +183,8 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </param>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
     public static ValueComparer CreateDefault(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
             | DynamicallyAccessedMemberTypes.NonPublicMethods
             | DynamicallyAccessedMemberTypes.PublicProperties)]
         Type type,
@@ -212,8 +213,10 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             || nonNullableType == typeof(bool)
             || nonNullableType == typeof(string)
             || nonNullableType == typeof(DateTime)
+            || nonNullableType == typeof(DateOnly)
             || nonNullableType == typeof(Guid)
             || nonNullableType == typeof(TimeSpan)
+            || nonNullableType == typeof(TimeOnly)
                 ? typeof(DefaultValueComparer<>)
                 : typeof(ValueComparer<>);
 

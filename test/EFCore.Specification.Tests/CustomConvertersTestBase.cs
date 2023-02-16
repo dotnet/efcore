@@ -811,6 +811,36 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         Value2
     }
 
+    [ConditionalFact]
+    public virtual void GroupBy_converted_enum()
+    {
+        using var context = CreateContext();
+        var result = context.Set<Entity>().GroupBy(e => e.SomeEnum).ToList();
+
+        Assert.Collection(result,
+            t =>
+            {
+                Assert.Equal(SomeEnum.No, t.Key);
+                Assert.Single(t);
+            },
+            t =>
+            {
+                Assert.Equal(SomeEnum.Yes, t.Key);
+                Assert.Equal(2, t.Count());
+            });
+    }
+
+    public class Entity
+    {
+        public int Id { get; set; }
+        public SomeEnum SomeEnum { get; set; }
+    }
+    public enum SomeEnum
+    {
+        Yes,
+        No
+    }
+
     public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
     {
         protected override string StoreName
@@ -878,7 +908,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(e => e.TestInt64).HasConversion(v => v, v => v);
                     b.Property(e => e.TestDecimal).HasConversion(NumberToBytesConverter<decimal>.DefaultInfo.Create());
                     b.Property(e => e.TestDateTime).HasConversion(v => v.ToBinary(), v => DateTime.FromBinary(v));
+                    b.Property(e => e.TestDateOnly).HasConversion(v => v.ToShortDateString(), v => DateOnly.Parse(v));
                     b.Property(e => e.TestTimeSpan).HasConversion(v => v.TotalMilliseconds, v => TimeSpan.FromMilliseconds(v));
+                    b.Property(e => e.TestTimeOnly).HasConversion(v => v.Ticks, v => new TimeOnly(v));
                     b.Property(e => e.TestSingle).HasConversion(new CastingConverter<float, double>());
                     b.Property(e => e.TestBoolean).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yeps")).HasMaxLength(4);
                     b.Property(e => e.TestByte).HasConversion(v => (ushort)v, v => (byte)v);
@@ -943,9 +975,17 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         v => v.Value.ToBinary(),
                         v => DateTime.FromBinary(v));
 
+                    b.Property(e => e.TestNullableDateOnly).HasConversion(
+                        v => v.Value.ToShortDateString(),
+                        v => DateOnly.Parse(v));
+
                     b.Property(e => e.TestNullableTimeSpan).HasConversion(
                         v => v.Value.TotalMilliseconds,
                         v => TimeSpan.FromMilliseconds(v));
+
+                    b.Property(e => e.TestNullableTimeOnly).HasConversion(
+                        v => v.Value.Ticks,
+                        v => new TimeOnly(v));
 
                     b.Property(e => e.EnumS8).HasConversion(
                         v => v.ToString(),
@@ -977,10 +1017,14 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(nameof(BuiltInDataTypes.TestInt64)).HasConversion(new ValueConverter<long, long>(v => v, v => v));
                     b.Property(nameof(BuiltInDataTypes.TestDecimal))
                         .HasConversion(NumberToBytesConverter<decimal>.DefaultInfo.Create());
+                    b.Property(nameof(BuiltInDataTypes.TestDateOnly)).HasConversion(
+                        new ValueConverter<DateOnly, string>(v => v.ToShortDateString(), v => DateOnly.Parse(v)));
                     b.Property(nameof(BuiltInDataTypes.TestDateTime)).HasConversion(
                         new ValueConverter<DateTime, long>(v => v.ToBinary(), v => DateTime.FromBinary(v)));
                     b.Property(nameof(BuiltInDataTypes.TestTimeSpan)).HasConversion(
                         new ValueConverter<TimeSpan, double>(v => v.TotalMilliseconds, v => TimeSpan.FromMilliseconds(v)));
+                    b.Property(nameof(BuiltInDataTypes.TestTimeOnly)).HasConversion(
+                        new ValueConverter<TimeOnly, long>(v => v.Ticks, v => new TimeOnly(v)));
                     b.Property(nameof(BuiltInDataTypes.TestSingle)).HasConversion(new CastingConverter<float, double>());
                     b.Property(nameof(BuiltInDataTypes.TestBoolean)).HasConversion(new BoolToTwoValuesConverter<string>("Nope", "Yep"));
                     b.Property(nameof(BuiltInDataTypes.TestByte))
@@ -1077,10 +1121,20 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                             v => v.Value.ToBinary(),
                             v => DateTime.FromBinary(v)));
 
+                    b.Property(nameof(BuiltInNullableDataTypes.TestNullableDateOnly)).HasConversion(
+                        new ValueConverter<DateOnly?, string>(
+                            v => v.Value.ToShortDateString(),
+                            v => DateOnly.Parse(v)));
+
                     b.Property(nameof(BuiltInNullableDataTypes.TestNullableTimeSpan)).HasConversion(
                         new ValueConverter<TimeSpan?, double>(
                             v => v.Value.TotalMilliseconds,
                             v => TimeSpan.FromMilliseconds(v)));
+
+                    b.Property(nameof(BuiltInNullableDataTypes.TestNullableTimeOnly)).HasConversion(
+                        new ValueConverter<TimeOnly?, long>(
+                            v => v.Value.Ticks,
+                            v => new TimeOnly(v)));
 
                     b.Property(nameof(BuiltInNullableDataTypes.EnumS8)).HasConversion(
                         new ValueConverter<EnumS8?, string>(
@@ -1111,18 +1165,11 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         v => v.Skip(3).ToArray());
                 });
 
-            var caseInsensitiveComparer = new ValueComparer<string>(
-                (l, r) => (l == null || r == null) ? (l == r) : l.Equals(r, StringComparison.InvariantCultureIgnoreCase),
-                v => StringComparer.InvariantCultureIgnoreCase.GetHashCode(v),
-                v => v);
-
             modelBuilder.Entity<StringKeyDataType>(
                 b =>
                 {
                     var property = b.Property(e => e.Id)
                         .HasConversion(v => "KeyValue=" + v, v => v.Substring(9)).Metadata;
-
-                    property.SetValueComparer(caseInsensitiveComparer);
                 });
 
             modelBuilder.Entity<StringForeignKeyDataType>(
@@ -1131,8 +1178,7 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     b.Property(e => e.StringKeyDataTypeId)
                         .HasConversion(
                             v => "KeyValue=" + v,
-                            v => v.Substring(9),
-                            caseInsensitiveComparer);
+                            v => v.Substring(9));
                 });
 
             modelBuilder.Entity<MaxLengthDataTypes>(
@@ -1149,6 +1195,9 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         .HasMaxLength(12);
 
                     b.Property(e => e.String9000).HasConversion(
+                        StringToBytesConverter.DefaultInfo.Create());
+
+                    b.Property(e => e.StringUnbounded).HasConversion(
                         StringToBytesConverter.DefaultInfo.Create());
 
                     b.Property(e => e.ByteArray5)
@@ -1340,6 +1389,12 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                         v => new List<Layout>(v)));
 
             modelBuilder.Entity<HolderClass>().HasData(new HolderClass { Id = 1, HoldingEnum = HoldingEnum.Value2 });
+
+            modelBuilder.Entity<Entity>().Property(e => e.SomeEnum).HasConversion(e => e.ToString(), e => Enum.Parse<SomeEnum>(e));
+            modelBuilder.Entity<Entity>().HasData(
+                new Entity { Id = 1, SomeEnum = SomeEnum.Yes },
+                new Entity { Id = 2, SomeEnum = SomeEnum.No },
+                new Entity { Id = 3, SomeEnum = SomeEnum.Yes });
         }
 
         private static class StringToDictionarySerializer
@@ -1376,7 +1431,8 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
                     list.Add(
                         new Layout
                         {
-                            Height = int.Parse(parts[0]), Width = int.Parse(parts[1]),
+                            Height = int.Parse(parts[0]),
+                            Width = int.Parse(parts[1]),
                         });
                 }
 

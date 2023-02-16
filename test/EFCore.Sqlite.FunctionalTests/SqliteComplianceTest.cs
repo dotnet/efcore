@@ -10,10 +10,11 @@ public class SqliteComplianceTest : RelationalComplianceTestBase
         typeof(FromSqlSprocQueryTestBase<>),
         typeof(JsonQueryTestBase<>),
         typeof(JsonUpdateTestBase<>),
+        typeof(JsonQueryAdHocTestBase),
         typeof(SqlExecutorTestBase<>),
         typeof(UdfDbFunctionTestBase<>),
         typeof(TPCRelationshipsQueryTestBase<>), // internal class is added
-        typeof(StoredProcedureUpdateTestBase<>) // SQLite doesn't support stored procedures
+        typeof(StoredProcedureUpdateTestBase) // SQLite doesn't support stored procedures
     };
 
     protected override Assembly TargetAssembly { get; } = typeof(SqliteComplianceTest).Assembly;

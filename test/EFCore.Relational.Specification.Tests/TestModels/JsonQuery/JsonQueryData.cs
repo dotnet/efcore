@@ -7,11 +7,11 @@ public class JsonQueryData : ISetSource
 {
     public JsonQueryData()
     {
-        EntitiesBasic = new List<EntityBasic>();
         JsonEntitiesBasic = CreateJsonEntitiesBasic();
+        EntitiesBasic = CreateEntitiesBasic();
         JsonEntitiesBasicForReference = CreateJsonEntitiesBasicForReference();
         JsonEntitiesBasicForCollection = CreateJsonEntitiesBasicForCollection();
-        WireUp(JsonEntitiesBasic, JsonEntitiesBasicForReference, JsonEntitiesBasicForCollection);
+        WireUp(JsonEntitiesBasic, EntitiesBasic, JsonEntitiesBasicForReference, JsonEntitiesBasicForCollection);
 
         JsonEntitiesCustomNaming = CreateJsonEntitiesCustomNaming();
         JsonEntitiesSingleOwned = CreateJsonEntitiesSingleOwned();
@@ -45,6 +45,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2100, 1, 1),
             Fraction = 10.0M,
             Enum = JsonEnum.One,
+            NullableEnum = null,
             OwnedReferenceLeaf = e1_r_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_r_r_c1, e1_r_r_c2 }
         };
@@ -67,6 +68,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2101, 1, 1),
             Fraction = 10.1M,
             Enum = JsonEnum.Two,
+            NullableEnum = JsonEnum.One,
             OwnedReferenceLeaf = e1_r_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_r_c1_c1, e1_r_c1_c2 }
         };
@@ -89,6 +91,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2102, 1, 1),
             Fraction = 10.2M,
             Enum = JsonEnum.Three,
+            NullableEnum = JsonEnum.Two,
             OwnedReferenceLeaf = e1_r_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_r_c2_c1, e1_r_c2_c2 }
         };
@@ -123,6 +126,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2110, 1, 1),
             Fraction = 11.0M,
             Enum = JsonEnum.One,
+            NullableEnum = null,
             OwnedReferenceLeaf = e1_c1_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_c1_r_c1, e1_c1_r_c2 }
         };
@@ -145,6 +149,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2111, 1, 1),
             Fraction = 11.1M,
             Enum = JsonEnum.Two,
+            NullableEnum = JsonEnum.One,
             OwnedReferenceLeaf = e1_c1_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_c1_c1_c1, e1_c1_c1_c2 }
         };
@@ -167,6 +172,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2112, 1, 1),
             Fraction = 11.2M,
             Enum = JsonEnum.Three,
+            NullableEnum = JsonEnum.Two,
             OwnedReferenceLeaf = e1_c1_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_c1_c2_c1, e1_c1_c2_c2 }
         };
@@ -201,6 +207,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2120, 1, 1),
             Fraction = 12.0M,
             Enum = JsonEnum.Three,
+            NullableEnum = JsonEnum.Two,
             OwnedReferenceLeaf = e1_c2_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_c2_r_c1, e1_c2_r_c2 }
         };
@@ -223,6 +230,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2121, 1, 1),
             Fraction = 12.1M,
             Enum = JsonEnum.Two,
+            NullableEnum = JsonEnum.One,
             OwnedReferenceLeaf = e1_c2_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_c2_c1_c1, e1_c2_c1_c2 }
         };
@@ -245,6 +253,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2122, 1, 1),
             Fraction = 12.2M,
             Enum = JsonEnum.One,
+            NullableEnum = null,
             OwnedReferenceLeaf = e1_c2_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { e1_c2_c2_c1, e1_c2_c2_c2 }
         };
@@ -283,6 +292,13 @@ public class JsonQueryData : ISetSource
         return new List<JsonEntityBasic> { entity1 };
     }
 
+    public static IReadOnlyList<EntityBasic> CreateEntitiesBasic()
+    {
+        var entity1 = new EntityBasic { Id = 1, Name = "eb 1" };
+
+        return new List<EntityBasic> { entity1 };
+    }
+
     public static IReadOnlyList<JsonEntityBasicForReference> CreateJsonEntitiesBasicForReference()
     {
         var entity1 = new JsonEntityBasicForReference { Id = 1, Name = "EntityReference1" };
@@ -305,27 +321,30 @@ public class JsonQueryData : ISetSource
     }
 
     public static void WireUp(
-        IReadOnlyList<JsonEntityBasic> entitiesBasic,
+        IReadOnlyList<JsonEntityBasic> jsonEntitiesBasic,
+        IReadOnlyList<EntityBasic> entitiesBasic,
         IReadOnlyList<JsonEntityBasicForReference> entitiesBasicForReference,
         IReadOnlyList<JsonEntityBasicForCollection> entitiesBasicForCollection)
     {
-        entitiesBasic[0].EntityReference = entitiesBasicForReference[0];
-        entitiesBasicForReference[0].Parent = entitiesBasic[0];
-        entitiesBasicForReference[0].ParentId = entitiesBasic[0].Id;
+        entitiesBasic[0].JsonEntityBasics = new List<JsonEntityBasic> { jsonEntitiesBasic[0] };
 
-        entitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection>
+        jsonEntitiesBasic[0].EntityReference = entitiesBasicForReference[0];
+        entitiesBasicForReference[0].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForReference[0].ParentId = jsonEntitiesBasic[0].Id;
+
+        jsonEntitiesBasic[0].EntityCollection = new List<JsonEntityBasicForCollection>
         {
             entitiesBasicForCollection[0],
             entitiesBasicForCollection[1],
             entitiesBasicForCollection[2]
         };
 
-        entitiesBasicForCollection[0].Parent = entitiesBasic[0];
-        entitiesBasicForCollection[0].ParentId = entitiesBasic[0].Id;
-        entitiesBasicForCollection[1].Parent = entitiesBasic[0];
-        entitiesBasicForCollection[1].ParentId = entitiesBasic[0].Id;
-        entitiesBasicForCollection[2].Parent = entitiesBasic[0];
-        entitiesBasicForCollection[2].ParentId = entitiesBasic[0].Id;
+        entitiesBasicForCollection[0].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForCollection[0].ParentId = jsonEntitiesBasic[0].Id;
+        entitiesBasicForCollection[1].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForCollection[1].ParentId = jsonEntitiesBasic[0].Id;
+        entitiesBasicForCollection[2].Parent = jsonEntitiesBasic[0];
+        entitiesBasicForCollection[2].ParentId = jsonEntitiesBasic[0].Id;
     }
 
     public static IReadOnlyList<JsonEntityCustomNaming> CreateJsonEntitiesCustomNaming()
@@ -465,6 +484,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2010, 1, 1),
             Fraction = 1.0M,
             Enum = JsonEnum.One,
+            NullableEnum = null,
             OwnedReferenceLeaf = b1_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b1_r_c1, b1_r_c2 }
         };
@@ -480,6 +500,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2011, 1, 1),
             Fraction = 11.1M,
             Enum = JsonEnum.Three,
+            NullableEnum = JsonEnum.Two,
             OwnedReferenceLeaf = b1_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b1_c1_c1, b1_c1_c2 }
         };
@@ -495,6 +516,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2012, 1, 1),
             Fraction = 12.1M,
             Enum = JsonEnum.Two,
+            NullableEnum = JsonEnum.One,
             OwnedReferenceLeaf = b1_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b1_c2_c1, b1_c2_c2 }
         };
@@ -510,6 +532,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2020, 1, 1),
             Fraction = 2.0M,
             Enum = JsonEnum.Two,
+            NullableEnum = JsonEnum.One,
             OwnedReferenceLeaf = b2_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b2_r_c1, b2_r_c2 }
         };
@@ -525,6 +548,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2021, 1, 1),
             Fraction = 21.1M,
             Enum = JsonEnum.Three,
+            NullableEnum = JsonEnum.Two,
             OwnedReferenceLeaf = b2_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b2_c1_c1, b2_c1_c2 }
         };
@@ -540,6 +564,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2022, 1, 1),
             Fraction = 22.1M,
             Enum = JsonEnum.One,
+            NullableEnum = null,
             OwnedReferenceLeaf = b2_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { b2_c2_c1, b2_c2_c2 }
         };
@@ -555,6 +580,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2220, 1, 1),
             Fraction = 22.0M,
             Enum = JsonEnum.One,
+            NullableEnum = null,
             OwnedReferenceLeaf = d2_r_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { d2_r_c1, d2_r_c2 }
         };
@@ -570,6 +596,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2221, 1, 1),
             Fraction = 221.1M,
             Enum = JsonEnum.Two,
+            NullableEnum = JsonEnum.One,
             OwnedReferenceLeaf = d2_c1_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { d2_c1_c1, d2_c1_c2 }
         };
@@ -585,6 +612,7 @@ public class JsonQueryData : ISetSource
             Date = new DateTime(2222, 1, 1),
             Fraction = 222.1M,
             Enum = JsonEnum.Three,
+            NullableEnum = JsonEnum.Two,
             OwnedReferenceLeaf = d2_c2_r,
             OwnedCollectionLeaf = new List<JsonOwnedLeaf> { d2_c2_c1, d2_c2_c2 }
         };
@@ -612,8 +640,10 @@ public class JsonQueryData : ISetSource
 
     public static IReadOnlyList<JsonEntityAllTypes> CreateJsonEntitiesAllTypes()
     {
-        var r = new JsonOwnedAllTypes
+        var r1 = new JsonOwnedAllTypes
         {
+            TestDefaultString = "MyDefaultStringInReference1",
+            TestMaxLengthString = "Foo",
             TestInt16 = -1234,
             TestInt32 = -123456789,
             TestInt64 = -1234567890123456789L,
@@ -631,10 +661,47 @@ public class JsonQueryData : ISetSource
             TestUnsignedInt64 = 1234567890123456789UL,
             TestCharacter = 'a',
             TestSignedByte = -128,
+            TestNullableInt32 = 78,
+            TestEnum = JsonEnum.One,
+            TestEnumWithIntConverter = JsonEnum.Two,
+            TestNullableEnum = JsonEnum.One,
+            TestNullableEnumWithIntConverter = JsonEnum.Two,
+            TestNullableEnumWithConverterThatHandlesNulls = JsonEnum.Three,
         };
 
-        var c = new JsonOwnedAllTypes
+        var r2 = new JsonOwnedAllTypes
         {
+            TestDefaultString = "MyDefaultStringInReference2",
+            TestMaxLengthString = "Bar",
+            TestInt16 = -123,
+            TestInt32 = -12356789,
+            TestInt64 = -123567890123456789L,
+            TestDouble = -1.2346789,
+            TestDecimal = -123567890.01M,
+            TestDateTime = DateTime.Parse("01/01/3000 12:34:56"),
+            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("01/01/3000 12:34:56"), TimeSpan.FromHours(-8.0)),
+            TestTimeSpan = new TimeSpan(0, 5, 9, 8, 7),
+            TestSingle = -1.24F,
+            TestBoolean = true,
+            TestByte = 25,
+            TestGuid = new Guid("12345678-1243-4321-7777-987654321000"),
+            TestUnsignedInt16 = 134,
+            TestUnsignedInt32 = 123565789U,
+            TestUnsignedInt64 = 123567890123456789UL,
+            TestCharacter = 'b',
+            TestSignedByte = -18,
+            TestNullableInt32 = null,
+            TestEnum = JsonEnum.Two,
+            TestEnumWithIntConverter = JsonEnum.Three,
+            TestNullableEnum = null,
+            TestNullableEnumWithIntConverter = null,
+            TestNullableEnumWithConverterThatHandlesNulls = null,
+        };
+
+        var c1 = new JsonOwnedAllTypes
+        {
+            TestDefaultString = "MyDefaultStringInCollection1",
+            TestMaxLengthString = "Baz",
             TestInt16 = -12,
             TestInt32 = -12345,
             TestInt64 = -1234567890L,
@@ -652,6 +719,41 @@ public class JsonQueryData : ISetSource
             TestUnsignedInt64 = 1234567867UL,
             TestCharacter = 'h',
             TestSignedByte = -18,
+            TestNullableInt32 = 90,
+            TestEnum = JsonEnum.One,
+            TestEnumWithIntConverter = JsonEnum.Two,
+            TestNullableEnum = JsonEnum.One,
+            TestNullableEnumWithIntConverter = JsonEnum.Three,
+            TestNullableEnumWithConverterThatHandlesNulls = JsonEnum.Two,
+        };
+
+        var c2 = new JsonOwnedAllTypes
+        {
+            TestDefaultString = "MyDefaultStringInCollection2",
+            TestMaxLengthString = "Qux",
+            TestInt16 = -1,
+            TestInt32 = -1245,
+            TestInt64 = -123567890L,
+            TestDouble = -1.235,
+            TestDecimal = -12350.01M,
+            TestDateTime = DateTime.Parse("11/11/3100 12:34:56"),
+            TestDateTimeOffset = new DateTimeOffset(DateTime.Parse("11/11/3200 12:34:56"), TimeSpan.FromHours(-5.0)),
+            TestTimeSpan = new TimeSpan(0, 6, 5, 2, 3),
+            TestSingle = -1.4F,
+            TestBoolean = false,
+            TestByte = 25,
+            TestGuid = new Guid("00000000-0000-0000-0000-000000100000"),
+            TestUnsignedInt16 = 1,
+            TestUnsignedInt32 = 1245U,
+            TestUnsignedInt64 = 124567867UL,
+            TestCharacter = 'g',
+            TestSignedByte = -8,
+            TestNullableInt32 = null,
+            TestEnum = JsonEnum.Two,
+            TestEnumWithIntConverter = JsonEnum.Three,
+            TestNullableEnum = null,
+            TestNullableEnumWithIntConverter = null,
+            TestNullableEnumWithConverterThatHandlesNulls = null,
         };
 
         return new List<JsonEntityAllTypes>
@@ -659,8 +761,14 @@ public class JsonQueryData : ISetSource
             new()
             {
                 Id = 1,
-                Reference = r,
-                Collection = new List<JsonOwnedAllTypes> { c }
+                Reference = r1,
+                Collection = new List<JsonOwnedAllTypes> { c1 }
+            },
+            new()
+            {
+                Id = 2,
+                Reference = r2,
+                Collection = new List<JsonOwnedAllTypes> { c2 }
             }
         };
     }
@@ -701,6 +809,16 @@ public class JsonQueryData : ISetSource
         if (typeof(TEntity) == typeof(JsonEntityAllTypes))
         {
             return (IQueryable<TEntity>)JsonEntitiesAllTypes.OfType<JsonEntityAllTypes>().AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(JsonEntityBasicForReference))
+        {
+            return (IQueryable<TEntity>)JsonEntitiesBasicForReference.AsQueryable();
+        }
+
+        if (typeof(TEntity) == typeof(JsonEntityBasicForCollection))
+        {
+            return (IQueryable<TEntity>)JsonEntitiesBasicForCollection.AsQueryable();
         }
 
         throw new InvalidOperationException("Invalid entity type: " + typeof(TEntity));

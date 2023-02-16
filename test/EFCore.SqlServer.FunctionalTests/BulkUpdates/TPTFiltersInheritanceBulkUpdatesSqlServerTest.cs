@@ -35,7 +35,8 @@ public class TPTFiltersInheritanceBulkUpdatesSqlServerTest : TPTFiltersInheritan
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-            @"DELETE FROM [c]
+"""
+DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -43,7 +44,8 @@ WHERE (
     LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
     LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0");
+    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Delete_where_using_hierarchy_derived(bool async)
@@ -51,7 +53,8 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-            @"DELETE FROM [c]
+"""
+DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -59,7 +62,8 @@ WHERE (
     LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
     LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [k].[Id] IS NOT NULL AND [a].[CountryId] > 0) > 0");
+    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND ([k].[Id] IS NOT NULL) AND [a].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
@@ -123,7 +127,8 @@ WHERE (
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-            @"UPDATE [c]
+"""
+UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
@@ -132,7 +137,8 @@ WHERE (
     LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
     LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0");
+    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [a].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Update_where_using_hierarchy_derived(bool async)
@@ -140,7 +146,8 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-            @"UPDATE [c]
+"""
+UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
@@ -149,7 +156,8 @@ WHERE (
     LEFT JOIN [Birds] AS [b] ON [a].[Id] = [b].[Id]
     LEFT JOIN [Eagle] AS [e] ON [a].[Id] = [e].[Id]
     LEFT JOIN [Kiwi] AS [k] ON [a].[Id] = [k].[Id]
-    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND [k].[Id] IS NOT NULL AND [a].[CountryId] > 0) > 0");
+    WHERE [a].[CountryId] = 1 AND [c].[Id] = [a].[CountryId] AND ([k].[Id] IS NOT NULL) AND [a].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Update_where_keyless_entity_mapped_to_sql_query(bool async)

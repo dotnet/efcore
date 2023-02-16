@@ -5,10 +5,13 @@ namespace Microsoft.EntityFrameworkCore.BulkUpdates;
 
 public class TPCInheritanceBulkUpdatesSqlServerTest : TPCInheritanceBulkUpdatesTestBase<TPCInheritanceBulkUpdatesSqlServerFixture>
 {
-    public TPCInheritanceBulkUpdatesSqlServerTest(TPCInheritanceBulkUpdatesSqlServerFixture fixture)
+    public TPCInheritanceBulkUpdatesSqlServerTest(
+        TPCInheritanceBulkUpdatesSqlServerFixture fixture,
+        ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         ClearLog();
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -27,9 +30,11 @@ public class TPCInheritanceBulkUpdatesSqlServerTest : TPCInheritanceBulkUpdatesT
         await base.Delete_where_hierarchy_derived(async);
 
         AssertSql(
-            @"DELETE FROM [k]
+"""
+DELETE FROM [k]
 FROM [Kiwi] AS [k]
-WHERE [k].[Name] = N'Great spotted kiwi'");
+WHERE [k].[Name] = N'Great spotted kiwi'
+""");
     }
 
     public override async Task Delete_where_using_hierarchy(bool async)
@@ -37,7 +42,8 @@ WHERE [k].[Name] = N'Great spotted kiwi'");
         await base.Delete_where_using_hierarchy(async);
 
         AssertSql(
-            @"DELETE FROM [c]
+"""
+DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -48,7 +54,8 @@ WHERE (
         SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
         FROM [Kiwi] AS [k]
     ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0");
+    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Delete_where_using_hierarchy_derived(bool async)
@@ -56,7 +63,8 @@ WHERE (
         await base.Delete_where_using_hierarchy_derived(async);
 
         AssertSql(
-            @"DELETE FROM [c]
+"""
+DELETE FROM [c]
 FROM [Countries] AS [c]
 WHERE (
     SELECT COUNT(*)
@@ -64,7 +72,8 @@ WHERE (
         SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
         FROM [Kiwi] AS [k]
     ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0");
+    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Delete_where_keyless_entity_mapped_to_sql_query(bool async)
@@ -121,10 +130,12 @@ WHERE (
         await base.Update_where_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-            @"UPDATE [k]
+"""
+UPDATE [k]
 SET [k].[Name] = N'Kiwi'
 FROM [Kiwi] AS [k]
-WHERE [k].[Name] = N'Great spotted kiwi'");
+WHERE [k].[Name] = N'Great spotted kiwi'
+""");
     }
 
     public override async Task Update_where_using_hierarchy(bool async)
@@ -132,7 +143,8 @@ WHERE [k].[Name] = N'Great spotted kiwi'");
         await base.Update_where_using_hierarchy(async);
 
         AssertExecuteUpdateSql(
-            @"UPDATE [c]
+"""
+UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
@@ -144,7 +156,8 @@ WHERE (
         SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
         FROM [Kiwi] AS [k]
     ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0");
+    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+""");
     }
 
     public override async Task Update_where_using_hierarchy_derived(bool async)
@@ -152,7 +165,8 @@ WHERE (
         await base.Update_where_using_hierarchy_derived(async);
 
         AssertExecuteUpdateSql(
-            @"UPDATE [c]
+"""
+UPDATE [c]
 SET [c].[Name] = N'Monovia'
 FROM [Countries] AS [c]
 WHERE (
@@ -161,7 +175,32 @@ WHERE (
         SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
         FROM [Kiwi] AS [k]
     ) AS [t]
-    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0");
+    WHERE [c].[Id] = [t].[CountryId] AND [t].[CountryId] > 0) > 0
+""");
+    }
+
+    public override async Task Update_with_interface_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_property_expression(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE [c]
+SET [c].[SugarGrams] = 0
+FROM [Coke] AS [c]
+""");
+    }
+
+    public override async Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+    {
+        await base.Update_with_interface_in_EF_Property_in_property_expression(async);
+
+        AssertExecuteUpdateSql(
+"""
+UPDATE [c]
+SET [c].[SugarGrams] = 0
+FROM [Coke] AS [c]
+""");
     }
 
     public override async Task Update_where_keyless_entity_mapped_to_sql_query(bool async)

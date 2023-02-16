@@ -542,7 +542,8 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                         writeValue = property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
                     }
                     else if (((updating && property.GetAfterSaveBehavior() == PropertySaveBehavior.Save)
-                                 || (!isKey && nonMainEntry))
+                                 || (!isKey && nonMainEntry)
+                                 || entry.SharedIdentityEntry != null)
                              && storedProcedureParameter is not { ForOriginalValue: true })
                     {
                         // Note that for stored procedures we always need to send all parameters, regardless of whether the property
@@ -981,7 +982,14 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     || entry.EntityState == EntityState.Added)
                 {
-                    entry.SetStoreGeneratedValue(property, _currentValue);
+                    var value = _currentValue;
+                    var converter = property.GetTypeMapping().Converter;
+                    if (converter != null)
+                    {
+                        value = converter.ConvertFromProvider(value);
+                    }
+
+                    entry.SetStoreGeneratedValue(property, value);
                 }
 
                 return false;

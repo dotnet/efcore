@@ -24,6 +24,13 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
     protected virtual bool UseGeneratedKeys
         => true;
 
+    public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+        => base.AddOptions(builder).ConfigureWarnings(
+            w => w.Ignore(
+                CoreEventId.MappedEntityTypeIgnoredWarning,
+                CoreEventId.MappedPropertyIgnoredWarning,
+                CoreEventId.MappedNavigationIgnoredWarning));
+
     public Func<DbContext> GetContextCreator()
         => () => CreateContext();
 
@@ -377,7 +384,18 @@ public abstract class InheritanceQueryFixtureBase : SharedStoreFixtureBase<Inher
         if (HasDiscriminator)
         {
             modelBuilder.Entity<Bird>().HasDiscriminator<string>("Discriminator").IsComplete(IsDiscriminatorMappingComplete);
-            modelBuilder.Entity<Drink>().HasDiscriminator().IsComplete(IsDiscriminatorMappingComplete);
+
+            modelBuilder.Entity<Drink>()
+                .HasDiscriminator(e => e.Discriminator)
+                .HasValue<Drink>(DrinkType.Drink)
+                .HasValue<Coke>(DrinkType.Coke)
+                .HasValue<Lilt>(DrinkType.Lilt)
+                .HasValue<Tea>(DrinkType.Tea)
+                .IsComplete(IsDiscriminatorMappingComplete);
+        }
+        else
+        {
+            modelBuilder.Entity<Drink>().Ignore(e => e.Discriminator);
         }
 
         modelBuilder.Entity<KiwiQuery>().HasDiscriminator().IsComplete(IsDiscriminatorMappingComplete);

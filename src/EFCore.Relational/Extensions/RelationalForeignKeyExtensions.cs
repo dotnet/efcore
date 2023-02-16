@@ -154,9 +154,14 @@ public static class RelationalForeignKeyExtensions
         this IReadOnlyForeignKey foreignKey,
         in StoreObjectIdentifier storeObject)
     {
+        if (foreignKey.PrincipalEntityType.GetTableName() is not { } principalTableName)
+        {
+            return null;
+        }
+
         var foreignKeyName = foreignKey.GetConstraintName(
             storeObject,
-            StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName()!, foreignKey.PrincipalEntityType.GetSchema()));
+            StoreObjectIdentifier.Table(principalTableName, foreignKey.PrincipalEntityType.GetSchema()));
         var rootForeignKey = foreignKey;
 
         // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -168,11 +173,16 @@ public static class RelationalForeignKeyExtensions
                          .FindRowInternalForeignKeys(storeObject)
                          .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
             {
+                principalTableName = otherForeignKey.PrincipalEntityType.GetTableName();
+
+                if (principalTableName is null)
+                {
+                    return null;
+                }
+
                 if (otherForeignKey.GetConstraintName(
                         storeObject,
-                        StoreObjectIdentifier.Table(
-                            otherForeignKey.PrincipalEntityType.GetTableName()!,
-                            otherForeignKey.PrincipalEntityType.GetSchema()))
+                        StoreObjectIdentifier.Table(principalTableName, otherForeignKey.PrincipalEntityType.GetSchema()))
                     == foreignKeyName)
                 {
                     linkedForeignKey = otherForeignKey;

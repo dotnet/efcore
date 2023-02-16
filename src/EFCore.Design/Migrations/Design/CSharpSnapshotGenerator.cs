@@ -845,9 +845,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation tableNameAnnotation);
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
-        var explicitName = tableNameAnnotation != null
-            || entityType.BaseType == null
-            || entityType.BaseType.GetTableName() != tableName;
 
         annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
         var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
@@ -861,6 +858,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var hasTriggers = entityType.GetDeclaredTriggers().Any(t => t.GetTableName() == tableName! && t.GetTableSchema() == schema);
         var hasOverrides = table != null
             && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
+
+        var explicitName = tableNameAnnotation != null
+            || entityType.BaseType == null
+            || (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy && entityType.IsAbstract())
+            || entityType.BaseType.GetTableName() != tableName
+            || hasOverrides;
+
         var requiresTableBuilder = isExcludedFromMigrations
             || comment != null
             || hasTriggers

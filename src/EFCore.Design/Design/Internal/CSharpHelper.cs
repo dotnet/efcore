@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Security;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
@@ -693,6 +694,54 @@ public class CSharpHelper : ICSharpHelper
         return builder.ToString();
     }
 
+    private string ValueTuple(ITuple tuple)
+    {
+        var builder = new StringBuilder();
+
+        Type[]? typeArguments = null;
+        var i = 0;
+
+        if (tuple.Length == 1)
+        {
+            builder.Append("ValueTuple.Create(");
+            AppendItem(tuple[i]);
+            builder.Append(')');
+
+            return builder.ToString();
+        }
+
+        builder.Append('(');
+
+        for (; i < tuple.Length; i++)
+        {
+            if (i > 0)
+            {
+                builder.Append(", ");
+            }
+
+            AppendItem(tuple[i]);
+        }
+
+        builder.Append(')');
+
+        return builder.ToString();
+
+        void AppendItem(object? item)
+        {
+            if (item is null)
+            {
+                typeArguments ??= tuple.GetType().GenericTypeArguments;
+
+                builder
+                    .Append('(')
+                    .Append(Reference(typeArguments[i]))
+                    .Append(')');
+            }
+
+            builder.Append(UnknownLiteral(item));
+        }
+    }
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -968,6 +1017,12 @@ public class CSharpHelper : ICSharpHelper
         if (value is Array array)
         {
             return Array(literalType.GetElementType()!, array);
+        }
+
+        if (value is ITuple tuple
+            && value.GetType().FullName?.StartsWith("System.ValueTuple`", StringComparison.Ordinal) == true)
+        {
+            return ValueTuple(tuple);
         }
 
         var valueType = value.GetType();
@@ -1455,10 +1510,11 @@ public class CSharpHelper : ICSharpHelper
     {
         if (ch < 'a')
         {
-            return ch < 'A'
+            return (ch < 'A'
                 ? ch >= '0'
                 && ch <= '9'
-                : ch <= 'Z';
+                : ch <= 'Z')
+                || ch == '_';
         }
 
         if (ch <= 'z')

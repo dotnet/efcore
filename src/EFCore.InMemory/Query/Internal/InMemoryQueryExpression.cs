@@ -21,7 +21,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         = typeof(ValueBuffer).GetTypeInfo().GetProperty(nameof(ValueBuffer.Count))!;
 
     private static readonly MethodInfo LeftJoinMethodInfo = typeof(InMemoryQueryExpression).GetTypeInfo()
-        .GetDeclaredMethods(nameof(LeftJoin)).Single(mi => mi.GetParameters().Length == 6);
+        .GetDeclaredMethods(nameof(LeftJoin)).Single(mi => mi.GetParameters().Length == 7);
 
     private static readonly ConstructorInfo ResultEnumerableConstructor
         = typeof(ResultEnumerable).GetConstructors().Single();
@@ -706,9 +706,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             outerKeySelector,
             innerKeySelector,
             resultSelector,
-            Constant(
-                new ValueBuffer(
-                    Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())));
+            Constant(new ValueBuffer(Enumerable.Repeat((object?)null, selectorExpressions.Count - outerIndex).ToArray())),
+            Constant(null, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
 
         var entityShaper = new EntityShaperExpression(innerEntityProjection.EntityType, innerEntityProjection, nullable: true);
         entityProjectionExpression.AddNavigationBinding(navigation, entityShaper);
@@ -872,7 +871,8 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
             case EntityShaperExpression entityShaperExpression
                 when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
-                var entityProjectionExpression = (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
+                var entityProjectionExpression =
+                    (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                     .GetProjection(projectionBindingExpression);
                 var readExpressions = new Dictionary<IProperty, MethodCallExpression>();
                 foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
@@ -1054,6 +1054,15 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         if (outerKeySelector != null
             && innerKeySelector != null)
         {
+            var comparer = ((InferPropertyFromInner(outerKeySelector.Body)
+                    ?? InferPropertyFromInner(outerKeySelector.Body))
+                as IProperty)?.GetValueComparer();
+
+            if (comparer?.Type != outerKeySelector.ReturnType)
+            {
+                comparer = null;
+            }
+
             if (innerNullable)
             {
                 ServerQueryExpression = Call(
@@ -1064,20 +1073,29 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                     outerKeySelector,
                     innerKeySelector,
                     resultSelector,
-                    Constant(
-                        new ValueBuffer(
-                            Enumerable.Repeat((object?)null, resultSelectorExpressions.Count - outerIndex).ToArray())));
+                    Constant(new ValueBuffer(Enumerable.Repeat((object?)null, resultSelectorExpressions.Count - outerIndex).ToArray())),
+                    Constant(comparer, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
             }
             else
             {
-                ServerQueryExpression = Call(
-                    EnumerableMethods.Join.MakeGenericMethod(
-                        typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
-                    ServerQueryExpression,
-                    innerQueryExpression.ServerQueryExpression,
-                    outerKeySelector,
-                    innerKeySelector,
-                    resultSelector);
+                ServerQueryExpression = comparer == null
+                    ? Call(
+                        EnumerableMethods.Join.MakeGenericMethod(
+                            typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
+                        ServerQueryExpression,
+                        innerQueryExpression.ServerQueryExpression,
+                        outerKeySelector,
+                        innerKeySelector,
+                        resultSelector)
+                    : Call(
+                        EnumerableMethods.JoinWithComparer.MakeGenericMethod(
+                            typeof(ValueBuffer), typeof(ValueBuffer), outerKeySelector.ReturnType, typeof(ValueBuffer)),
+                        ServerQueryExpression,
+                        innerQueryExpression.ServerQueryExpression,
+                        outerKeySelector,
+                        innerKeySelector,
+                        resultSelector,
+                        Constant(comparer, typeof(IEqualityComparer<>).MakeGenericType(outerKeySelector.ReturnType)));
             }
         }
         else
@@ -1235,8 +1253,11 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
         Func<TOuter, TKey> outerKeySelector,
         Func<TInner, TKey> innerKeySelector,
         Func<TOuter, TInner, TResult> resultSelector,
-        TInner defaultValue)
-        => outer.GroupJoin(inner, outerKeySelector, innerKeySelector, (oe, ies) => new { oe, ies })
+        TInner defaultValue,
+        IEqualityComparer<TKey>? comparer)
+        => (comparer == null
+                ? outer.GroupJoin(inner, outerKeySelector, innerKeySelector, (oe, ies) => new { oe, ies })
+                : outer.GroupJoin(inner, outerKeySelector, innerKeySelector, (oe, ies) => new { oe, ies }, comparer))
             .SelectMany(t => t.ies.DefaultIfEmpty(defaultValue), (t, i) => resultSelector(t.oe, i));
 
     private static MethodCallExpression MakeReadValueNullable(Expression expression)

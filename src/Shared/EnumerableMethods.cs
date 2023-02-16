@@ -89,7 +89,7 @@ internal static class EnumerableMethods
 
     public static MethodInfo Join { get; }
 
-    //public static MethodInfo JoinWithComparer { get; }
+    public static MethodInfo JoinWithComparer { get; }
 
     public static MethodInfo LastWithoutPredicate { get; }
 
@@ -395,6 +395,18 @@ internal static class EnumerableMethods
                 typeof(Func<,>).MakeGenericType(types[0], types[2]),
                 typeof(Func<,>).MakeGenericType(types[1], types[2]),
                 typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3])
+            });
+
+        JoinWithComparer = GetMethod(
+            nameof(Enumerable.Join), 4,
+            types => new[]
+            {
+                typeof(IEnumerable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Func<,>).MakeGenericType(types[0], types[2]),
+                typeof(Func<,>).MakeGenericType(types[1], types[2]),
+                typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
             });
 
         LastWithoutPredicate = GetMethod(

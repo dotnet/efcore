@@ -92,7 +92,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
         }
         else if (DbType == System.Data.DbType.Date)
         {
-            // Workaround for a SQLClient bug
+            // Workaround for SqlClient issue: https://github.com/dotnet/runtime/issues/22386
             ((SqlParameter)parameter).SqlDbType = SqlDbType.Date;
         }
 
@@ -104,8 +104,9 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
 
         if (Precision.HasValue)
         {
-            // Workaround for inconsistent definition of precision/scale between EF and SQLClient for VarTime types
-            parameter.Scale = unchecked((byte)Precision.Value);
+            // SQL Server accepts a scale, but in EF a scale along isn't supported (without precision).
+            // So the actual value is contained as precision in scale, but sent as Scale to SQL Server.
+            parameter.Scale = (byte)Precision.Value;
         }
     }
 
@@ -124,30 +125,11 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override string SqlLiteralFormatString
-    {
-        get
+        => StoreType switch
         {
-            switch (StoreType)
-            {
-                case "date":
-                    return DateFormatConst;
-                case "datetime":
-                    return DateTimeFormatConst;
-                case "smalldatetime":
-                    return SmallDateTimeFormatConst;
-                default:
-                    if (Precision.HasValue)
-                    {
-                        var precision = Precision.Value;
-                        if (precision <= 7
-                            && precision >= 0)
-                        {
-                            return _dateTime2Formats[precision];
-                        }
-                    }
-
-                    return _dateTime2Formats[7];
-            }
-        }
-    }
+            "date" => DateFormatConst,
+            "datetime" => DateTimeFormatConst,
+            "smalldatetime" => SmallDateTimeFormatConst,
+            _ => _dateTime2Formats[Precision is >= 0 and <= 7 ? Precision.Value : 7]
+        };
 }

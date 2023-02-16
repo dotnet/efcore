@@ -764,5 +764,5 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
-        => jsonScalarExpression;
+        => ApplyConversion(jsonScalarExpression, condition: false);
 }

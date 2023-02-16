@@ -28,11 +28,13 @@ public readonly struct MaterializationInterceptionData
     public MaterializationInterceptionData(
         MaterializationContext materializationContext,
         IEntityType entityType,
+        QueryTrackingBehavior? queryTrackingBehavior,
         Dictionary<IPropertyBase, (object TypedAccessor, Func<MaterializationContext, object?> Accessor)> valueAccessor)
     {
         _materializationContext = materializationContext;
         _valueAccessor = valueAccessor;
         EntityType = entityType;
+        QueryTrackingBehavior = queryTrackingBehavior;
     }
 
     /// <summary>
@@ -45,6 +47,11 @@ public readonly struct MaterializationInterceptionData
     ///     The type of the entity being materialized.
     /// </summary>
     public IEntityType EntityType { get; }
+
+    /// <summary>
+    ///     The query tracking behavior, or <see langword="null" /> if this materialization is not from a query.
+    /// </summary>
+    public QueryTrackingBehavior? QueryTrackingBehavior { get; }
 
     /// <summary>
     ///     Gets the property value for the property with the given name.

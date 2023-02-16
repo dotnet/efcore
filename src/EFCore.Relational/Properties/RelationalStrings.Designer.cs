@@ -54,6 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotChangeWhenOpen");
 
         /// <summary>
+        ///     Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.
+        /// </summary>
+        public static string CannotConfigureTriggerNonRootTphEntity(object? entityType, object? rootEntityType)
+            => string.Format(
+                GetString("CannotConfigureTriggerNonRootTphEntity", nameof(entityType), nameof(rootEntityType)),
+                entityType, rootEntityType);
+
+        /// <summary>
         ///     Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.
         /// </summary>
         public static string ClientGroupByNotSupported
@@ -278,6 +286,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DbFunctionNonScalarCustomTranslation", nameof(function)),
                 function);
+
+        /// <summary>
+        ///     The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return null.
+        /// </summary>
+        public static string DbFunctionNullableValueReturnType(object? function, object? type)
+            => string.Format(
+                GetString("DbFunctionNullableValueReturnType", nameof(function), nameof(type)),
+                function, type);
 
         /// <summary>
         ///     The default value SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.
@@ -654,6 +670,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject);
 
         /// <summary>
+        ///     Entity type '{entityType}' has a split mapping and is an optional dependent sharing a store object, but it doesn't map any required non-shared property to the main store object. Keep at least one required non-shared property mapped to a column on '{storeObject}' or mark '{entityType}' as a required dependent by calling '{requiredDependentConfig}'.
+        /// </summary>
+        public static string EntitySplittingMissingRequiredPropertiesOptionalDependent(object? entityType, object? storeObject, object? requiredDependentConfig)
+            => string.Format(
+                GetString("EntitySplittingMissingRequiredPropertiesOptionalDependent", nameof(entityType), nameof(storeObject), nameof(requiredDependentConfig)),
+                entityType, storeObject, requiredDependentConfig);
+
+        /// <summary>
         ///     Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.
         /// </summary>
         public static string EntitySplittingUnmappedMainFragment(object? entityType, object? storeObject, object? storeObjectType)
@@ -662,12 +686,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, storeObject, storeObjectType);
 
         /// <summary>
-        ///     Entity type '{entityType}' has a split mapping for '{storeObject}' that shares the table with '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to a table that '{principalEntityType}' is also mapped to.
+        ///     Entity type '{entityType}' has a split mapping for '{storeObject}' that is shared with the entity type '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to '{principalStoreObject}'.
         /// </summary>
-        public static string EntitySplittingUnmatchedMainTableSplitting(object? entityType, object? storeObject, object? principalEntityType)
+        public static string EntitySplittingUnmatchedMainTableSplitting(object? entityType, object? storeObject, object? principalEntityType, object? principalStoreObject)
             => string.Format(
-                GetString("EntitySplittingUnmatchedMainTableSplitting", nameof(entityType), nameof(storeObject), nameof(principalEntityType)),
-                entityType, storeObject, principalEntityType);
+                GetString("EntitySplittingUnmatchedMainTableSplitting", nameof(entityType), nameof(storeObject), nameof(principalEntityType), nameof(principalStoreObject)),
+                entityType, storeObject, principalEntityType, principalStoreObject);
 
         /// <summary>
         ///     An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.
@@ -1272,6 +1296,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoDbCommand");
 
         /// <summary>
+        ///     Expression of type '{type}' isn't supported as the Values of an InExpression; only constants and parameters are supported.
+        /// </summary>
+        public static string NonConstantOrParameterAsInExpressionValues(object? type)
+            => string.Format(
+                GetString("NonConstantOrParameterAsInExpressionValues", nameof(type)),
+                type);
+
+        /// <summary>
         ///     'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.
         /// </summary>
         public static string NoneRelationalTypeMappingOnARelationalTypeMappingSource
@@ -1474,14 +1506,6 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("SqlQueryUnmappedType", nameof(elementType)),
                 elementType);
-
-        /// <summary>
-        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.
-        /// </summary>
-        public static string StoredProcedureConcurrencyTokenNotMapped(object? entityType, object? sproc, object? token)
-            => string.Format(
-                GetString("StoredProcedureConcurrencyTokenNotMapped", nameof(entityType), nameof(sproc), nameof(token)),
-                entityType, sproc, token);
 
         /// <summary>
         ///     Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.
@@ -1748,7 +1772,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
-        ///     The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. Foreign key column types must be comparable with principal key column types.
+        ///     The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. To use 'SaveChanges` or 'SaveChangesAsync', foreign key column types must be comparable with principal key column types.
         /// </summary>
         public static string StoredKeyTypesNotConvertable(object? fkColumnName, object? fkColumnType, object? pkColumnType, object? pkColumnName)
             => string.Format(
@@ -3476,6 +3500,31 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
+        ///     The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.
+        /// </summary>
+        public static EventDefinition<string, string, string> LogStoredProcedureConcurrencyTokenNotMapped(IDiagnosticsLogger logger)
+        {
+            var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogStoredProcedureConcurrencyTokenNotMapped;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((RelationalLoggingDefinitions)logger.Definitions).LogStoredProcedureConcurrencyTokenNotMapped,
+                    logger,
+                    static logger => new EventDefinition<string, string, string>(
+                        logger.Options,
+                        RelationalEventId.StoredProcedureConcurrencyTokenNotMapped,
+                        LogLevel.Warning,
+                        "RelationalEventId.StoredProcedureConcurrencyTokenNotMapped",
+                        level => LoggerMessage.Define<string, string, string>(
+                            level,
+                            RelationalEventId.StoredProcedureConcurrencyTokenNotMapped,
+                            _resourceManager.GetString("LogStoredProcedureConcurrencyTokenNotMapped")!)));
+            }
+
+            return (EventDefinition<string, string, string>)definition;
+        }
+
+        /// <summary>
         ///     Possible unintended use of method 'Equals' for arguments '{left}' and '{right}' of different types in a query. This comparison will always return false.
         /// </summary>
         public static EventDefinition<string, string> LogPossibleUnintendedUseOfEquals(IDiagnosticsLogger logger)
@@ -3740,7 +3789,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                         logger.Options,
                         RelationalEventId.UnexpectedTrailingResultSetWhenSaving,
                         LogLevel.Warning,
-                        "CoreEventId.UnexpectedTrailingResultSetWhenSaving",
+                        "RelationalEventId.UnexpectedTrailingResultSetWhenSaving",
                         level => LoggerMessage.Define(
                             level,
                             RelationalEventId.UnexpectedTrailingResultSetWhenSaving,

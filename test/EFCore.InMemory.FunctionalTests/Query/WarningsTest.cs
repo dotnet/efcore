@@ -207,6 +207,8 @@ public class WarningsTest
                     .GenerateMessage("WarningAsErrorEntity", "Nav"),
                 loggerFactory.Log.Select(l => l.Message));
 
+            var entityEntry = context.Entry(entity);
+            Assert.True(entityEntry.Navigation("Nav").IsLoaded);
             loggerFactory.Clear();
             Assert.NotNull(entity.Nav);
             Assert.DoesNotContain(

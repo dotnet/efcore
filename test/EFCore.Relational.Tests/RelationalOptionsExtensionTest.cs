@@ -21,6 +21,21 @@ public class RelationalOptionsExtensionTest
         optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithConnection(connection);
 
         Assert.Same(connection, optionsExtension.Connection);
+        Assert.False(optionsExtension.ConnectionOwned);
+    }
+
+    [ConditionalFact]
+    public void Can_set_owned_Connection()
+    {
+        var optionsExtension = new FakeRelationalOptionsExtension();
+
+        Assert.Null(optionsExtension.Connection);
+
+        var connection = new FakeDbConnection("A=B");
+        optionsExtension = (FakeRelationalOptionsExtension)optionsExtension.WithConnection(connection, owned: true);
+
+        Assert.Same(connection, optionsExtension.Connection);
+        Assert.True(optionsExtension.ConnectionOwned);
     }
 
     [ConditionalFact]

@@ -17,6 +17,7 @@ public class ChangeDetector : IChangeDetector
 {
     private readonly IDiagnosticsLogger<DbLoggerCategory.ChangeTracking> _logger;
     private readonly ILoggingOptions _loggingOptions;
+    private bool _inCascadeDelete;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,37 +113,51 @@ public class ChangeDetector : IChangeDetector
     /// </summary>
     public virtual void DetectChanges(IStateManager stateManager)
     {
-        OnDetectingAllChanges(stateManager);
-        var changesFound = false;
-
-        _logger.DetectChangesStarting(stateManager.Context);
-
-        foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+        if (_inCascadeDelete)
         {
-            switch (entry.EntityState)
-            {
-                case EntityState.Detached:
-                    break;
-                case EntityState.Deleted:
-                    if (entry.SharedIdentityEntry != null)
-                    {
-                        continue;
-                    }
-
-                    goto default;
-                default:
-                    if (LocalDetectChanges(entry))
-                    {
-                        changesFound = true;
-                    }
-
-                    break;
-            }
+            return;
         }
 
-        _logger.DetectChangesCompleted(stateManager.Context);
+        try
+        {
+            _inCascadeDelete = true;
 
-        OnDetectedAllChanges(stateManager, changesFound);
+            OnDetectingAllChanges(stateManager);
+            var changesFound = false;
+
+            _logger.DetectChangesStarting(stateManager.Context);
+
+            foreach (var entry in stateManager.ToList()) // Might be too big, but usually _all_ entities are using Snapshot tracking
+            {
+                switch (entry.EntityState)
+                {
+                    case EntityState.Detached:
+                        break;
+                    case EntityState.Deleted:
+                        if (entry.SharedIdentityEntry != null)
+                        {
+                            continue;
+                        }
+
+                        goto default;
+                    default:
+                        if (LocalDetectChanges(entry))
+                        {
+                            changesFound = true;
+                        }
+
+                        break;
+                }
+            }
+
+            _logger.DetectChangesCompleted(stateManager.Context);
+
+            OnDetectedAllChanges(stateManager, changesFound);
+        }
+        finally
+        {
+            _inCascadeDelete = false;
+        }
     }
 
     /// <summary>
@@ -152,7 +167,22 @@ public class ChangeDetector : IChangeDetector
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual void DetectChanges(InternalEntityEntry entry)
-        => DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+    {
+        if (_inCascadeDelete)
+        {
+            return;
+        }
+
+        try
+        {
+            _inCascadeDelete = true;
+            DetectChanges(entry, new HashSet<InternalEntityEntry> { entry });
+        }
+        finally
+        {
+            _inCascadeDelete = false;
+        }
+    }
 
     private bool DetectChanges(InternalEntityEntry entry, HashSet<InternalEntityEntry> visited)
     {
@@ -334,7 +364,7 @@ public class ChangeDetector : IChangeDetector
             var snapshotCollection = (IEnumerable?)snapshotValue;
             var currentCollection = (IEnumerable?)currentValue;
 
-            var removed = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
+            var removed = new HashSet<object>(ReferenceEqualityComparer.Instance);
             if (snapshotCollection != null)
             {
                 foreach (var entity in snapshotCollection)
@@ -343,7 +373,7 @@ public class ChangeDetector : IChangeDetector
                 }
             }
 
-            var added = new HashSet<object>(LegacyReferenceEqualityComparer.Instance);
+            var added = new HashSet<object>(ReferenceEqualityComparer.Instance);
             if (currentCollection != null)
             {
                 foreach (var entity in currentCollection)

@@ -68,6 +68,22 @@ public class SqlServerDbContextOptionsExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
+        Assert.False(extension.ConnectionOwned);
+        Assert.Null(extension.ConnectionString);
+    }
+
+    [ConditionalFact]
+    public void Can_add_extension_with_owned_connection()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        var connection = new SqlConnection();
+
+        optionsBuilder.UseSqlServer(connection, contextOwnsConnection: true);
+
+        var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+        Assert.Same(connection, extension.Connection);
+        Assert.True(extension.ConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 
@@ -82,6 +98,22 @@ public class SqlServerDbContextOptionsExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
+        Assert.False(extension.ConnectionOwned);
+        Assert.Null(extension.ConnectionString);
+    }
+
+    [ConditionalFact]
+    public void Can_add_extension_with_owned_connection_using_generic_options()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+        var connection = new SqlConnection();
+
+        optionsBuilder.UseSqlServer(connection, contextOwnsConnection: true);
+
+        var extension = optionsBuilder.Options.Extensions.OfType<SqlServerOptionsExtension>().Single();
+
+        Assert.Same(connection, extension.Connection);
+        Assert.True(extension.ConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 

@@ -53,29 +53,29 @@ public class RowForeignKeyValueFactoryFactory : IRowForeignKeyValueFactoryFactor
         IValueConverterSelector valueConverterSelector)
         where TKey : notnull
     {
-        var dependentColumn = foreignKey.Columns.Single();
-        var dependentType = dependentColumn.ProviderClrType;
-        var principalType = foreignKey.PrincipalColumns.Single().ProviderClrType;
+        var dependentColumn = foreignKey.Columns.First();
+        var principalColumn = foreignKey.PrincipalColumns.First();
         var columnAccessors = ((Column)dependentColumn).Accessors;
 
-        if (dependentType.IsNullableType()
-            && principalType.IsNullableType())
+        if (principalColumn.ProviderClrType.IsNullableType()
+            || (dependentColumn.IsNullable
+                && principalColumn.IsNullable))
         {
             return new SimpleFullyNullableRowForeignKeyValueFactory<TKey, TForeignKey>(
                 foreignKey, dependentColumn, columnAccessors, valueConverterSelector);
         }
 
-        if (dependentType.IsNullableType())
+        if (dependentColumn.IsNullable)
         {
             return (IRowForeignKeyValueFactory<TKey>)Activator.CreateInstance(
                 typeof(SimpleNullableRowForeignKeyValueFactory<,>).MakeGenericType(
                     typeof(TKey), typeof(TForeignKey)), foreignKey, dependentColumn, columnAccessors, valueConverterSelector)!;
         }
 
-        return principalType.IsNullableType()
+        return principalColumn.IsNullable
             ? (IRowForeignKeyValueFactory<TKey>)Activator.CreateInstance(
-                typeof(SimpleNullablePrincipalRowForeignKeyValueFactory<,,>).MakeGenericType(
-                    typeof(TKey), typeof(TKey).UnwrapNullableType(), typeof(TForeignKey)), foreignKey, dependentColumn, columnAccessors)!
+                typeof(SimpleNullablePrincipalRowForeignKeyValueFactory<,>).MakeGenericType(
+                    typeof(TKey), typeof(TKey), typeof(TForeignKey)), foreignKey, dependentColumn, columnAccessors)!
             : new SimpleNonNullableRowForeignKeyValueFactory<TKey, TForeignKey>(
                 foreignKey, dependentColumn, columnAccessors, valueConverterSelector);
     }

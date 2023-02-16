@@ -421,22 +421,26 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Passes_on_not_configured_shared_columns_with_shared_table()
+    public virtual void Passes_on_shared_columns_with_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
         modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
         modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0));
+        modelBuilder.Entity<A>().Property(a => a.P3).HasColumnName(nameof(A.P3))
+            .HasConversion(e => (long?)e, e => (int?)e);
         modelBuilder.Entity<A>().Property(a => a.P1).IsRequired();
         modelBuilder.Entity<A>().ToTable("Table");
         modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().Property(b => b.P3).HasColumnName(nameof(A.P3))
+            .HasConversion(e => (long)e, e => (int?)e);
         modelBuilder.Entity<B>().ToTable("Table");
 
         Validate(modelBuilder);
     }
 
     [ConditionalFact]
-    public virtual void Throws_on_not_configured_shared_columns_with_shared_table_with_dependents()
+    public virtual void Throws_on_nullable_shared_columns_with_shared_table_with_dependents()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -450,7 +454,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Warns_on_not_configured_shared_columns_with_shared_table()
+    public virtual void Warns_on_no_required_columns_with_shared_table()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -493,7 +497,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types()
+    public virtual void Passes_for_incompatible_shared_columns_in_shared_table_with_different_provider_types()
     {
         var modelBuilder = CreateConventionModelBuilder();
 
@@ -502,6 +506,57 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         modelBuilder.Entity<A>().ToTable("Table");
         modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
         modelBuilder.Entity<B>().ToTable("Table");
+
+        Validate(modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types_for_unique_indexes()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt").HasConversion<long>();
+        modelBuilder.Entity<A>().ToTable("Table");
+        modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().HasIndex(a => a.P0).IsUnique();
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "long", "int"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types_for_keys()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt").HasConversion<long>();
+        modelBuilder.Entity<A>().ToTable("Table");
+        modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().HasAlternateKey(a => a.P0);
+
+        VerifyError(
+            RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
+                nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "long", "int"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_shared_columns_in_shared_table_with_different_provider_types_for_foreign_keys()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne(b => b.A).HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt").HasConversion<long>();
+        modelBuilder.Entity<A>().ToTable("Table");
+        modelBuilder.Entity<B>().Property(b => b.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
+        modelBuilder.Entity<B>().ToTable("Table");
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.P0).HasPrincipalKey<B>(b => b.Id);
 
         VerifyError(
             RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
@@ -767,6 +822,44 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
+    public void Detects_entity_splitting_with_optional_table_splitting_without_required_properties()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Order>(
+            cb =>
+            {
+                cb.Ignore(c => c.Customer);
+
+                cb.ToTable("Order");
+
+                cb.SplitToTable(
+                    "OrderDetails", tb =>
+                    {
+                        tb.Property(c => c.PartitionId);
+                    });
+
+                cb.OwnsOne(
+                    c => c.OrderDetails, db =>
+                    {
+                        db.ToTable("Order");
+
+                        db.Property<string>("OtherAddress");
+                        db.SplitToTable(
+                            "Details", tb =>
+                            {
+                                tb.Property("OtherAddress");
+                            });
+                    });
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingMissingRequiredPropertiesOptionalDependent(
+                nameof(OrderDetails), "Order", ".Navigation(p => p.OrderDetails).IsRequired()"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
     public void Detects_entity_splitting_with_partial_table_splitting()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -800,7 +893,45 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
             });
 
         VerifyError(
-            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(nameof(OrderDetails), "Order", nameof(Order)),
+            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(nameof(OrderDetails), "Order", nameof(Order), "Order"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_entity_splitting_with_reverse_table_splitting()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Order>(
+            cb =>
+            {
+                cb.Ignore(c => c.Customer);
+
+                cb.ToTable("Order");
+
+                cb.SplitToTable(
+                    "OrderDetails", tb =>
+                    {
+                        tb.Property(c => c.PartitionId);
+                    });
+
+                cb.OwnsOne(
+                    c => c.OrderDetails, db =>
+                    {
+                        db.ToTable("OrderDetails");
+
+                        db.Property<string>("OtherAddress");
+                        db.SplitToTable(
+                            "Order", tb =>
+                            {
+                                tb.Property("OtherAddress");
+                            });
+                    });
+                cb.Navigation(c => c.OrderDetails).IsRequired();
+            });
+
+        VerifyError(
+            RelationalStrings.EntitySplittingUnmatchedMainTableSplitting(nameof(OrderDetails), "Order", nameof(Order), "Order"),
             modelBuilder);
     }
 
@@ -1758,7 +1889,7 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         var personType = model.FindEntityType(typeof(Person))!;
         var concurrencyProperty = personType.GetDeclaredProperties().Single(p => p.IsConcurrencyToken);
         Assert.Equal("Version", concurrencyProperty.GetColumnName());
-        Assert.Equal(typeof(byte[]), concurrencyProperty.ClrType);
+        Assert.Equal(typeof(ulong), concurrencyProperty.ClrType);
     }
 
     [ConditionalFact]
@@ -2960,9 +3091,9 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                     .HasRowsAffectedReturnValue())
             .Property(a => a.Name).IsRowVersion();
 
-        VerifyError(
-            RelationalStrings.StoredProcedureConcurrencyTokenNotMapped(nameof(Animal), "Animal_Update", nameof(Animal.Name)),
-            modelBuilder);
+        VerifyWarning(
+            RelationalResources.LogStoredProcedureConcurrencyTokenNotMapped(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage(nameof(Animal), "Animal_Update", nameof(Animal.Name)), modelBuilder);
     }
 
     [ConditionalFact]
@@ -3532,6 +3663,21 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
         Assert.Equal(nameof(CarbonComposite.Id2), keyProperties[1].Name);
         Assert.Equal(ValueGenerated.Never, keyProperties[0].ValueGenerated);
         Assert.Equal(ValueGenerated.OnAdd, keyProperties[1].ValueGenerated);
+    }
+
+    [ConditionalFact]
+    public void Detects_trigger_on_TPH_non_root()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Animal>();
+        modelBuilder.Entity<Cat>().ToTable(tb => tb.HasTrigger("SomeTrigger"));
+
+        VerifyError(
+            RelationalStrings.CannotConfigureTriggerNonRootTphEntity(
+                modelBuilder.Model.FindEntityType(typeof(Cat))!.DisplayName(),
+                modelBuilder.Model.FindEntityType(typeof(Animal))!.DisplayName()),
+            modelBuilder);
     }
 
     private class TpcBase

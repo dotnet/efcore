@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -212,9 +213,11 @@ public class TPTGearsOfWarQuerySqliteTest : TPTGearsOfWarQueryRelationalTestBase
         await base.Negate_on_binary_expression(async);
 
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE ""s"".""Id"" = -(""s"".""Id"" + ""s"".""Id"")");
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE "s"."Id" = -("s"."Id" + "s"."Id")
+""");
     }
 
     public override async Task Negate_on_column(bool async)
@@ -222,9 +225,11 @@ WHERE ""s"".""Id"" = -(""s"".""Id"" + ""s"".""Id"")");
         await base.Negate_on_column(async);
 
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE ""s"".""Id"" = -""s"".""Id""");
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE "s"."Id" = -"s"."Id"
+""");
     }
 
     public override async Task Negate_on_like_expression(bool async)
@@ -232,9 +237,11 @@ WHERE ""s"".""Id"" = -""s"".""Id""");
         await base.Negate_on_like_expression(async);
 
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE ""s"".""Name"" IS NOT NULL AND NOT (""s"".""Name"" LIKE 'us%')");
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE ("s"."Name" IS NOT NULL) AND NOT ("s"."Name" LIKE 'us%')
+""");
     }
 
     public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
@@ -242,8 +249,10 @@ WHERE ""s"".""Name"" IS NOT NULL AND NOT (""s"".""Name"" LIKE 'us%')");
         await base.Select_datetimeoffset_comparison_in_projection(async);
 
         AssertSql(
-            @"SELECT ""m"".""Timeline""
-FROM ""Missions"" AS ""m""");
+"""
+SELECT "m"."Timeline"
+FROM "Missions" AS "m"
+""");
     }
 
     public override async Task Byte_array_contains_literal(bool async)
@@ -251,9 +260,11 @@ FROM ""Missions"" AS ""m""");
         await base.Byte_array_contains_literal(async);
 
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE instr(""s"".""Banner"", X'01') > 0");
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner", X'01') > 0
+""");
     }
 
     public override async Task Byte_array_contains_parameter(bool async)
@@ -261,11 +272,13 @@ WHERE instr(""s"".""Banner"", X'01') > 0");
         await base.Byte_array_contains_parameter(async);
 
         AssertSql(
-            @"@__someByte_0='1'
+"""
+@__someByte_0='1'
 
-SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE instr("s"."Banner", char(@__someByte_0)) > 0
+""");
     }
 
     public override async Task Byte_array_filter_by_length_literal(bool async)
@@ -273,9 +286,11 @@ WHERE instr(""s"".""Banner"", char(@__someByte_0)) > 0");
         await base.Byte_array_filter_by_length_literal(async);
 
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE length(""s"".""Banner"") = 1");
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE length("s"."Banner") = 1
+""");
     }
 
     public override async Task Byte_array_filter_by_length_parameter(bool async)
@@ -283,11 +298,13 @@ WHERE length(""s"".""Banner"") = 1");
         await base.Byte_array_filter_by_length_parameter(async);
 
         AssertSql(
-            @"@__p_0='1'
+"""
+@__p_0='1'
 
-SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE length(""s"".""Banner"") = @__p_0");
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE length("s"."Banner") = @__p_0
+""");
     }
 
     public override void Byte_array_filter_by_length_parameter_compiled()
@@ -295,11 +312,13 @@ WHERE length(""s"".""Banner"") = @__p_0");
         base.Byte_array_filter_by_length_parameter_compiled();
 
         AssertSql(
-            @"@__byteArrayParam='0x2A80' (Size = 2)
+"""
+@__byteArrayParam='0x2A80' (Size = 2)
 
 SELECT COUNT(*)
-FROM ""Squads"" AS ""s""
-WHERE length(""s"".""Banner"") = length(@__byteArrayParam)");
+FROM "Squads" AS "s"
+WHERE length("s"."Banner") = length(@__byteArrayParam)
+""");
     }
 
     public override async Task Byte_array_filter_by_SequenceEqual(bool async)
@@ -307,11 +326,13 @@ WHERE length(""s"".""Banner"") = length(@__byteArrayParam)");
         await base.Byte_array_filter_by_SequenceEqual(async);
 
         AssertSql(
-            @"@__byteArrayParam_0='0x0405060708' (Size = 5)
+"""
+@__byteArrayParam_0='0x0405060708' (Size = 5)
 
-SELECT ""s"".""Id"", ""s"".""Banner"", ""s"".""Banner5"", ""s"".""InternalNumber"", ""s"".""Name""
-FROM ""Squads"" AS ""s""
-WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE "s"."Banner5" = @__byteArrayParam_0
+""");
     }
 
     public override Task Where_TimeSpan_Hours(bool async)
@@ -373,6 +394,27 @@ WHERE ""s"".""Banner5"" = @__byteArrayParam_0");
     public override Task Where_TimeOnly_subtract_TimeOnly(bool async)
         // TimeSpan. Issue #18844.
         => AssertTranslationFailed(() => base.Where_TimeOnly_subtract_TimeOnly(async));
+
+    public override async Task Where_subquery_with_ElementAt_using_column_as_index(bool async)
+    {
+        var message = (await Assert.ThrowsAsync<SqliteException>(
+            () => base.Where_subquery_with_ElementAt_using_column_as_index(async))).Message;
+
+        Assert.Equal("SQLite Error 1: 'no such column: s.Id'.", message);
+
+        AssertSql(
+"""
+SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
+FROM "Squads" AS "s"
+WHERE (
+    SELECT "g"."Nickname"
+    FROM "Gears" AS "g"
+    LEFT JOIN "Officers" AS "o" ON "g"."Nickname" = "o"."Nickname" AND "g"."SquadId" = "o"."SquadId"
+    WHERE "s"."Id" = "g"."SquadId"
+    ORDER BY "g"."Nickname"
+    LIMIT 1 OFFSET "s"."Id") = 'Cole Train'
+""");
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

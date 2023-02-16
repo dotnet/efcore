@@ -69,7 +69,13 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     will not be run.
     /// </summary>
     /// <remarks>
-    ///     If setting an externally created model <see cref="ModelBuilder.FinalizeModel()" /> should be called first.
+    ///     <para>
+    ///         If setting an externally created model <see cref="ModelBuilder.FinalizeModel()" /> should be called first.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-modeling">Model Building</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="model">The model to be used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -90,6 +96,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         through a call to <see cref="UseInternalServiceProvider" />. In this case, the <see cref="ILoggerFactory" />
     ///         should be configured directly in that service provider.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="loggerFactory">The logger factory to be used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -101,16 +111,22 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     log to the console.
     /// </summary>
     /// <remarks>
-    ///     This overload allows the minimum level of logging and the log formatting to be controlled.
-    ///     Use the
-    ///     <see
-    ///         cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
-    ///     overload to log only specific events.
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
-    ///     overload to log only events in specific categories.
-    ///     Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
-    ///     overload to use a custom filter for events.
-    ///     Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     <para>
+    ///         This overload allows the minimum level of logging and the log formatting to be controlled.
+    ///         Use the
+    ///         <see
+    ///             cref="LogTo(Action{string},System.Collections.Generic.IEnumerable{Microsoft.Extensions.Logging.EventId},LogLevel,DbContextLoggerOptions?)" />
+    ///         overload to log only specific events.
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+    ///         overload to log only events in specific categories.
+    ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+    ///         overload to use a custom filter for events.
+    ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="action">Delegate called when there is a message to log.</param>
     /// <param name="minimumLevel">The minimum level of logging event to log. Defaults to <see cref="LogLevel.Debug" /></param>
@@ -130,13 +146,19 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     <see cref="CoreEventId.ContextInitialized" /> event to the console.
     /// </summary>
     /// <remarks>
-    ///     Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
-    ///     all events.
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
-    ///     overload to log only events in specific categories.
-    ///     Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
-    ///     overload to use a custom filter for events.
-    ///     Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     <para>
+    ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+    ///         all events.
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+    ///         overload to log only events in specific categories.
+    ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+    ///         overload to use a custom filter for events.
+    ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="action">Delegate called when there is a message to log.</param>
     /// <param name="events">The <see cref="EventId" /> of each event to log.</param>
@@ -170,13 +192,19 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     events in the <see cref="DbLoggerCategory.Infrastructure" /> category.
     /// </summary>
     /// <remarks>
-    ///     Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
-    ///     all events.
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
-    ///     overload to log only specific events.
-    ///     Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
-    ///     overload to use a custom filter for events.
-    ///     Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     <para>
+    ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+    ///         all events.
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+    ///         overload to log only specific events.
+    ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+    ///         overload to use a custom filter for events.
+    ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="action">Delegate called when there is a message to log.</param>
     /// <param name="categories">The <see cref="DbLoggerCategory" /> of each event to log.</param>
@@ -237,12 +265,18 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     log a message, or false to filter it out of the log.
     /// </summary>
     /// <remarks>
-    ///     Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
-    ///     all events.
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
-    ///     overload to log only events in specific categories.
-    ///     Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     <para>
+    ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+    ///         all events.
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+    ///         overload to log only events in specific categories.
+    ///         Use the <see cref="LogTo(Func{EventId,LogLevel,bool},Action{EventData})" /> overload to log to a fully custom logger.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="action">Delegate called when there is a message to log.</param>
     /// <param name="filter">Delegate that returns true to log the message or false to ignore it.</param>
@@ -266,13 +300,19 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     log a message, or false to filter it out of the log.
     /// </summary>
     /// <remarks>
-    ///     Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
-    ///     all events.
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
-    ///     Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
-    ///     overload to log only events in specific categories.
-    ///     Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
-    ///     overload to use a custom filter for events.
+    ///     <para>
+    ///         Use the <see cref="LogTo(Action{string},LogLevel,DbContextLoggerOptions?)" /> overload for default logging of
+    ///         all events.
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{EventId},LogLevel,DbContextLoggerOptions?)" />
+    ///         Use the <see cref="LogTo(Action{string},IEnumerable{string},LogLevel,DbContextLoggerOptions?)" />
+    ///         overload to log only events in specific categories.
+    ///         Use the <see cref="LogTo(Action{string},Func{EventId,LogLevel,bool},DbContextLoggerOptions?)" />
+    ///         overload to use a custom filter for events.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="filter">Delegate that returns true to log the message or false to ignore it.</param>
     /// <param name="logger">Delegate called when there is a message to log.</param>
@@ -308,6 +348,9 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
     ///         so that EF will manage the service providers and can create new instances as required.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder EnableThreadSafetyChecks(bool enableChecks = true)
@@ -330,6 +373,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
     ///         so that EF will manage the service providers and can create new instances as required.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder EnableDetailedErrors(bool detailedErrorsEnabled = true)
@@ -348,6 +395,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         This method cannot be used if the application is setting the internal service provider
     ///         through a call to <see cref="UseInternalServiceProvider" />. In this case, the <see cref="IMemoryCache" />
     ///         should be configured directly in that service provider.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>  and
+    ///         <see href="https://learn.microsoft.com/dotnet/core/extensions/caching">Caching in .NET</see> for more information.
     ///     </para>
     /// </remarks>
     /// <param name="memoryCache">The memory cache to be used.</param>
@@ -371,6 +422,9 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         <see cref="DbContextOptions{TContext}" /> registered, then this will be used as the options for
     ///         this context instance.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="serviceProvider">The service provider to be used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -382,10 +436,50 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     is done automatically when using 'AddDbContext' or 'AddDbContextPool',
     ///     so it is rare that this method needs to be called.
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <param name="serviceProvider">The service provider to be used.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder UseApplicationServiceProvider(IServiceProvider? serviceProvider)
         => WithOption(e => e.WithApplicationServiceProvider(serviceProvider));
+
+    /// <summary>
+    ///     Sets the root <see cref="IServiceProvider" /> from which singleton application services can be obtained from singleton
+    ///     internal services.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is an advanced option that is rarely needed by normal applications. Calling this method will result in a new internal
+    ///         service provider being created for every different root application service provider.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="rootServiceProvider">The service provider to be used.</param>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual DbContextOptionsBuilder UseRootApplicationServiceProvider(IServiceProvider? rootServiceProvider)
+        => WithOption(e => e.WithRootApplicationServiceProvider(rootServiceProvider));
+
+    /// <summary>
+    ///     Resolves the root <see cref="IServiceProvider" /> from from the scoped application service provider. The root provider can
+    ///     be used to obtain singleton application services from singleton internal services.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This is an advanced option that is rarely needed by normal applications. Calling this method will result in a new internal
+    ///         service provider being created for every different root application service provider.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <returns>The same builder instance so that multiple calls can be chained.</returns>
+    public virtual DbContextOptionsBuilder ResolveRootApplicationServiceProvider()
+        => WithOption(e => e.WithAutoResolveRootApplicationServiceProvider(true));
 
     /// <summary>
     ///     Enables application data to be included in exception messages, logging, etc. This can include the
@@ -394,10 +488,16 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     security measures in place based on the sensitivity of this data.
     /// </summary>
     /// <remarks>
-    ///     Note that if the application is setting the internal service provider through a call to
-    ///     <see cref="UseInternalServiceProvider" />, then this option must configured the same way
-    ///     for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
-    ///     so that EF will manage the service providers and can create new instances as required.
+    ///     <para>
+    ///         Note that if the application is setting the internal service provider through a call to
+    ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
+    ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
+    ///         so that EF will manage the service providers and can create new instances as required.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="sensitiveDataLoggingEnabled">If <see langword="true" />, then sensitive data is logged.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -410,8 +510,13 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     build many service providers for test isolation.
     /// </summary>
     /// <remarks>
-    ///     Note that if the application is setting the internal service provider through a call to
-    ///     <see cref="UseInternalServiceProvider" />, then setting this option wil have no effect.
+    ///     <para>
+    ///         Note that if the application is setting the internal service provider through a call to
+    ///         <see cref="UseInternalServiceProvider" />, then setting this option will have no effect.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="cacheServiceProvider">If <see langword="true" />, then the internal service provider is cached.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -435,6 +540,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         The default value is <see cref="QueryTrackingBehavior.TrackAll" />. This means
     ///         the change tracker will keep track of changes for all entities that are returned from a LINQ query.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-query">Querying data with EF Core</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public virtual DbContextOptionsBuilder UseQueryTrackingBehavior(QueryTrackingBehavior queryTrackingBehavior)
@@ -455,6 +564,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         <see cref="UseInternalServiceProvider" />, then this option must configured the same way
     ///         for all uses of that service provider. Consider instead not calling <see cref="UseInternalServiceProvider" />
     ///         so that EF will manage the service providers and can create new instances as required.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="warningsConfigurationBuilderAction">
@@ -485,6 +598,9 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     <para>
     ///         The replacement service gets the same scope as the EF service that it is replacing.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <typeparam name="TService">The type (usually an interface) that defines the contract of the service to replace.</typeparam>
     /// <typeparam name="TImplementation">The new implementation type for the service.</typeparam>
@@ -510,6 +626,9 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     </para>
     ///     <para>
     ///         The replacement service gets the same scope as the EF service that it is replacing.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <typeparam name="TService">The type (usually an interface) that defines the contract of the service to replace.</typeparam>
@@ -542,6 +661,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     <para>
     ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
     ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information and examples.
     ///     </para>
     /// </remarks>
     /// <param name="interceptors">The interceptors to add.</param>
@@ -578,6 +701,10 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///         Calling this method multiple times will result in all interceptors in every call being added to the context.
     ///         Interceptors added in a previous call are not overridden by interceptors added in a later call.
     ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-interceptors">EF Core interceptors</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="interceptors">The interceptors to add.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
@@ -590,7 +717,13 @@ public class DbContextOptionsBuilder : IDbContextOptionsBuilderInfrastructure
     ///     new <see cref="DiagnosticListener" /> may not be taken into account right away).
     /// </summary>
     /// <remarks>
-    ///     Defaults to one second.
+    ///     <para>
+    ///         Defaults to one second.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see> and
+    ///         <see href="https://aka.ms/efcore-docs-logging">Logging</see> for more information and examples.
+    ///     </para>
     /// </remarks>
     /// <param name="timeSpan">The maximum time period over which to skip logging checks before checking again.</param>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>

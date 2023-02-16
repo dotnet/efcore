@@ -24,6 +24,8 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
     private static readonly DateTimeOffset _dateTimeOffset2 = new(1973, 9, 3, 12, 10, 0, new TimeSpan(8, 0, 0));
     private static readonly DateTime _dateTime1 = new(1973, 9, 3, 12, 10, 0);
     private static readonly DateTime _dateTime2 = new(1973, 9, 3, 12, 10, 1);
+    private static readonly DateOnly _dateOnly1 = new(1973, 9, 3);
+    private static readonly DateOnly _dateOnly2 = new(1973, 9, 4);
     private static readonly IPAddress _ipAddress1 = IPAddress.Parse("127.0.0.1");
     private static readonly IPAddress _ipAddress2 = IPAddress.Parse("127.0.0.2");
     private static readonly PhysicalAddress _physicalAddress1 = PhysicalAddress.Parse("1D4E55D69273");
@@ -33,6 +35,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
     private static readonly Uri _uri1 = new("http://localhost/");
     private static readonly Uri _uri2 = new("http://microsoft.com/");
     private static readonly string _dateTimeFormat = @"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFF";
+    private static readonly string _dateOnlyFormat = @"yyyy\-MM\-dd";
     private static readonly string _dateTimeOffsetFormat = @"yyyy\-MM\-dd HH\:mm\:ss.FFFFFFFzzz";
 
     protected static Dictionary<Type, object?[]> TestValues = new()
@@ -43,6 +46,7 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
         { typeof(byte[]), new object?[] { new byte[] { 1 }, new byte[] { 2 }, new byte[] { 3 }, new byte[] { 4 } } },
         { typeof(DateTimeOffset), new object?[] { _dateTimeOffset1, _dateTimeOffset2, _dateTimeOffset1, _dateTimeOffset2 } },
         { typeof(DateTime), new object?[] { _dateTime1, _dateTime2, _dateTime1, _dateTime2 } },
+        { typeof(DateOnly), new object?[] { _dateOnly1, _dateOnly2, _dateOnly1, _dateOnly2 } },
         { typeof(TheExperience), new object?[] { TheExperience.Jimi, TheExperience.Mitch, TheExperience.Noel, TheExperience.Jimi } },
         { typeof(Guid), new object?[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() } },
         { typeof(IPAddress), new object?[] { _ipAddress1, _ipAddress2, _ipAddress1, _ipAddress2 } },
@@ -142,6 +146,16 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                 _dateTime2.ToString(_dateTimeFormat),
                 _dateTime1.ToString(_dateTimeFormat),
                 _dateTime2.ToString(_dateTimeFormat)
+            }
+        },
+        {
+            typeof(DateOnly),
+            new object?[]
+            {
+                _dateOnly1.ToString(_dateOnlyFormat),
+                _dateOnly2.ToString(_dateOnlyFormat),
+                _dateOnly1.ToString(_dateOnlyFormat),
+                _dateOnly2.ToString(_dateOnlyFormat)
             }
         },
         { typeof(string), new object?[] { "A", "<null>", "C", "<null>" } },
@@ -535,6 +549,11 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
         public DateTime? NullableDateTimeToString { get; set; }
         public DateTime? NullableDateTimeToNullableString { get; set; }
 
+        public DateOnly DateOnlyToString { get; set; }
+        public DateOnly DateOnlyToNullableString { get; set; }
+        public DateOnly? NullableDateOnlyToString { get; set; }
+        public DateOnly? NullableDateOnlyToNullableString { get; set; }
+
         public TheExperience EnumToString { get; set; }
         public TheExperience EnumToNullableString { get; set; }
         public TheExperience? NullableEnumToString { get; set; }
@@ -668,6 +687,13 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
         protected override string StoreName
             => "ValueConvertersEndToEnd";
 
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(
+                w => w.Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
+
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<ConvertingEntity>(
                 b =>
@@ -727,6 +753,11 @@ public abstract class ValueConvertersEndToEndTestBase<TFixture> : IClassFixture<
                     b.Property(e => e.DateTimeToNullableString).HasConversion(new DateTimeToStringConverter());
                     b.Property(e => e.NullableDateTimeToString).HasConversion(new DateTimeToStringConverter());
                     b.Property(e => e.NullableDateTimeToNullableString).HasConversion(new DateTimeToStringConverter());
+
+                    b.Property(e => e.DateOnlyToString).HasConversion(new DateOnlyToStringConverter());
+                    b.Property(e => e.DateOnlyToNullableString).HasConversion(new DateOnlyToStringConverter());
+                    b.Property(e => e.NullableDateOnlyToString).HasConversion(new DateOnlyToStringConverter());
+                    b.Property(e => e.NullableDateOnlyToNullableString).HasConversion(new DateOnlyToStringConverter());
 
                     b.Property(e => e.EnumToString).HasConversion(new EnumToStringConverter<TheExperience>());
                     b.Property(e => e.EnumToNullableString).HasConversion(new EnumToStringConverter<TheExperience>());

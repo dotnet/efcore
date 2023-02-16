@@ -26,9 +26,11 @@ public class OwnedQueryCosmosTest : OwnedQueryTestBase<OwnedQueryCosmosTest.Owne
         await base.Navigation_rewrite_on_owned_collection(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))");
+WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"") OR ((c[""Discriminator""] = ""Branch"") OR (c[""Discriminator""] = ""OwnedPerson""))))
+""");
     }
 
     [ConditionalTheory(Skip = "Issue#16926")]
@@ -52,9 +54,11 @@ WHERE ((c[""Discriminator""] = ""LeafB"") OR ((c[""Discriminator""] = ""LeafA"")
         await base.Navigation_rewrite_on_owned_reference_projecting_entity(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
+""");
     }
 
     public override async Task Navigation_rewrite_on_owned_reference_projecting_scalar(bool async)
@@ -62,9 +66,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Navigation_rewrite_on_owned_reference_projecting_scalar(async);
 
         AssertSql(
-            @"SELECT c[""PersonAddress""][""Country""][""Name""]
+"""
+SELECT c["PersonAddress"]["Country"]["Name"]
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""Country""][""Name""] = ""USA""))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["Country"]["Name"] = "USA"))
+""");
     }
 
     public override async Task Query_for_base_type_loads_all_owned_navs(bool async)
@@ -72,9 +78,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Query_for_base_type_loads_all_owned_navs(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
     }
 
     public override async Task Query_for_branch_type_loads_all_owned_navs(bool async)
@@ -82,9 +90,11 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         await base.Query_for_branch_type_loads_all_owned_navs(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("Branch", "LeafA")
+""");
     }
 
     public override async Task Query_for_branch_type_loads_all_owned_navs_tracking(bool async)
@@ -92,9 +102,11 @@ WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
         await base.Query_for_branch_type_loads_all_owned_navs_tracking(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("Branch", "LeafA")
+""");
     }
 
     public override async Task Query_for_leaf_type_loads_all_owned_navs(bool async)
@@ -102,9 +114,11 @@ WHERE c[""Discriminator""] IN (""Branch"", ""LeafA"")");
         await base.Query_for_leaf_type_loads_all_owned_navs(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""LeafA"")");
+WHERE (c["Discriminator"] = "LeafA")
+""");
     }
 
     [ConditionalTheory(Skip = "LeftJoin #17314")]
@@ -178,9 +192,11 @@ WHERE (c[""Discriminator""] = ""LeafA"")");
         await base.Query_with_OfType_eagerly_loads_correct_owned_navigations(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""Discriminator""] = ""LeafA""))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Discriminator"] = "LeafA"))
+""");
     }
 
     [ConditionalTheory(Skip = "Distinct ordering #16156")]
@@ -228,9 +244,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Can_query_on_indexer_properties(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""Name""] = ""Mona Cy""))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
+""");
     }
 
     public override async Task Can_query_on_owned_indexer_properties(bool async)
@@ -238,9 +256,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Can_query_on_owned_indexer_properties(async);
 
         AssertSql(
-            @"SELECT c[""Name""]
+"""
+SELECT c["Name"]
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""ZipCode""] = 38654))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
+""");
     }
 
     public override async Task Can_query_on_indexer_property_when_property_name_from_closure(bool async)
@@ -248,9 +268,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Can_query_on_indexer_property_when_property_name_from_closure(async);
 
         AssertSql(
-            @"SELECT c[""Name""]
+"""
+SELECT c["Name"]
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""Name""] = ""Mona Cy""))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["Name"] = "Mona Cy"))
+""");
     }
 
     public override async Task Can_project_indexer_properties(bool async)
@@ -258,9 +280,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Can_project_indexer_properties(async);
 
         AssertSql(
-            @"SELECT c[""Name""]
+"""
+SELECT c["Name"]
 FROM root c
-WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
     }
 
     public override async Task Can_project_owned_indexer_properties(bool async)
@@ -268,9 +292,11 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         await base.Can_project_owned_indexer_properties(async);
 
         AssertSql(
-            @"SELECT c[""PersonAddress""][""AddressLine""]
+"""
+SELECT c["PersonAddress"]["AddressLine"]
 FROM root c
-WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
     }
 
     public override async Task Can_project_indexer_properties_converted(bool async)
@@ -278,9 +304,11 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         await base.Can_project_indexer_properties_converted(async);
 
         AssertSql(
-            @"SELECT c[""Name""]
+"""
+SELECT c["Name"]
 FROM root c
-WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
     }
 
     public override async Task Can_project_owned_indexer_properties_converted(bool async)
@@ -363,9 +391,11 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         await base.Projecting_indexer_property_ignores_include(isAsync);
 
         AssertSql(
-            @"SELECT VALUE {""Nation"" : c[""PersonAddress""][""ZipCode""]}
+"""
+SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
 FROM root c
-WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
     }
 
     public override async Task Projecting_indexer_property_ignores_include_converted(bool isAsync)
@@ -373,9 +403,11 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         await base.Projecting_indexer_property_ignores_include_converted(isAsync);
 
         AssertSql(
-            @"SELECT VALUE {""Nation"" : c[""PersonAddress""][""ZipCode""]}
+"""
+SELECT VALUE {"Nation" : c["PersonAddress"]["ZipCode"]}
 FROM root c
-WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"")");
+WHERE c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA")
+""");
     }
 
     [ConditionalTheory(Skip = "Subquery #17246")]
@@ -441,14 +473,24 @@ WHERE c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA""
         AssertSql(" ");
     }
 
+    [ConditionalTheory(Skip = "GroupBy #17314")]
+    public override async Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+    {
+        await base.GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(async);
+
+        AssertSql();
+    }
+
     public override async Task Filter_on_indexer_using_closure(bool async)
     {
         await base.Filter_on_indexer_using_closure(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""ZipCode""] = 38654))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
+""");
     }
 
     public override async Task Filter_on_indexer_using_function_argument(bool async)
@@ -456,9 +498,11 @@ WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"
         await base.Filter_on_indexer_using_function_argument(async);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""OwnedPerson"", ""Branch"", ""LeafB"", ""LeafA"") AND (c[""PersonAddress""][""ZipCode""] = 38654))");
+WHERE (c["Discriminator"] IN ("OwnedPerson", "Branch", "LeafB", "LeafA") AND (c["PersonAddress"]["ZipCode"] = 38654))
+""");
     }
 
     private void AssertSql(params string[] expected)

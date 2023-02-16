@@ -129,6 +129,9 @@
   <data name="DuplicateColumnNameSridMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different SRIDs.</value>
   </data>
+  <data name="IncompatibleSqlReturningClauseMismatch" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlReturningClause}' is configured to use the SQL RETURNING clause, but entity type '{entityTypeWithoutSqlReturningClause}' is not.</value>
+  </data>
   <data name="InvalidMigrationOperation" xml:space="preserve">
     <value>SQLite does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.</value>
   </data>

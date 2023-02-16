@@ -247,7 +247,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             }
             else
             {
-                _relationalCommandBuilder.Append("1");
+                GenerateEmptyProjection(selectExpression);
             }
 
             if (selectExpression.Tables.Any())
@@ -304,6 +304,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual void GeneratePseudoFromClause()
     {
+    }
+
+    /// <summary>
+    ///     Generates empty projection for a SelectExpression.
+    /// </summary>
+    /// <param name="selectExpression">SelectExpression for which the empty projection will be generated.</param>
+    protected virtual void GenerateEmptyProjection(SelectExpression selectExpression)
+    {
+        _relationalCommandBuilder.Append("1");
     }
 
     /// <inheritdoc />
@@ -598,20 +607,32 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         var invariantName = sqlParameterExpression.Name;
         var parameterName = sqlParameterExpression.Name;
 
-        if (_relationalCommandBuilder.Parameters
-            .All(
-                p => p.InvariantName != parameterName
-                    || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
-                        && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
-                            || typeMappedRelationalParameter.RelationalTypeMapping.Converter
-                            != sqlParameterExpression.TypeMapping!.Converter))))
+        // Try to see if a parameter already exists - if so, just integrate the same placeholder into the SQL instead of sending the same
+        // data twice.
+        // Note that if the type mapping differs, we do send the same data twice (e.g. the same string may be sent once as Unicode, once as
+        // non-Unicode).
+        var parameter = _relationalCommandBuilder.Parameters.FirstOrDefault(
+            p =>
+                p.InvariantName == parameterName
+                && p is TypeMappedRelationalParameter typeMappedRelationalParameter
+                && string.Equals(
+                    typeMappedRelationalParameter.RelationalTypeMapping.StoreType, sqlParameterExpression.TypeMapping!.StoreType,
+                    StringComparison.OrdinalIgnoreCase)
+                && typeMappedRelationalParameter.RelationalTypeMapping.Converter == sqlParameterExpression.TypeMapping!.Converter);
+
+        if (parameter is null)
         {
             parameterName = GetUniqueParameterName(parameterName);
+
             _relationalCommandBuilder.AddParameter(
                 invariantName,
                 _sqlGenerationHelper.GenerateParameterName(parameterName),
                 sqlParameterExpression.TypeMapping!,
                 sqlParameterExpression.IsNullable);
+        }
+        else
+        {
+            parameterName = ((TypeMappedRelationalParameter)parameter).Name;
         }
 
         _relationalCommandBuilder
@@ -958,10 +979,8 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
             case SqlUnaryExpression sqlUnaryExpression:
             {
-                // Wrap IS (NOT) NULL operation when applied on bool column.
-                if ((sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                        || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
-                    && sqlUnaryExpression.Operand.Type == typeof(bool))
+                // Wrap IS (NOT) NULL operation
+                if (sqlUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
                 {
                     return true;
                 }

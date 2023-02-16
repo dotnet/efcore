@@ -20,16 +20,21 @@ public class EntityMaterializerSourceTest
     public void Throws_for_abstract_types()
     {
         var entityType = CreateConventionalModelBuilder().Model.AddEntityType(typeof(SomeAbstractEntity));
-        var source = new EntityMaterializerSource(new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
+        var source = (IEntityMaterializerSource)new EntityMaterializerSource(
+            new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>()));
 
         Assert.Equal(
             CoreStrings.CannotMaterializeAbstractType(nameof(SomeAbstractEntity)),
-            Assert.Throws<InvalidOperationException>(() => source.CreateMaterializeExpression((IEntityType)entityType, "", null!))
+            Assert.Throws<InvalidOperationException>(
+                    () => source.CreateMaterializeExpression(
+                        new EntityMaterializerSourceParameters((IEntityType)entityType, "", null), null!))
                 .Message);
     }
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_with_constructor_properties()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_with_constructor_properties(bool useParameters)
     {
         var entityType = CreateEntityType();
 
@@ -47,7 +52,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -67,8 +72,10 @@ public class EntityMaterializerSourceTest
         Assert.False(entity.GooSetterCalled);
     }
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_with_factory_method()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_with_factory_method(bool useParameters)
     {
         var entityType = CreateEntityType();
 
@@ -86,7 +93,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -106,8 +113,10 @@ public class EntityMaterializerSourceTest
         Assert.False(entity.GooSetterCalled);
     }
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_with_factory_method_with_object_array()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_with_factory_method_with_object_array(bool useParameters)
     {
         var entityType = CreateEntityType();
 
@@ -129,7 +138,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -149,8 +158,10 @@ public class EntityMaterializerSourceTest
         Assert.False(entity.GooSetterCalled);
     }
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_with_instance_factory_method()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_with_instance_factory_method(bool useParameters)
     {
         var entityType = CreateEntityType();
 
@@ -165,7 +176,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -196,15 +207,17 @@ public class EntityMaterializerSourceTest
     private EntityType CreateEntityType()
         => (EntityType)CreateConventionalModelBuilder().Entity<SomeEntity>().Metadata;
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_with_auto_properties()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_with_auto_properties(bool useParameters)
     {
         var entityType = CreateEntityType();
         entityType.Model.FinalizeModel();
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -219,8 +232,10 @@ public class EntityMaterializerSourceTest
         Assert.Equal(SomeEnum.EnumValue, entity.MaybeEnum);
     }
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_with_fields()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_with_fields(bool useParameters)
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.Entity<SomeEntityWithFields>(
@@ -239,7 +254,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntityWithFields)factory(
@@ -254,8 +269,10 @@ public class EntityMaterializerSourceTest
         Assert.Null(entity.MaybeEnum);
     }
 
-    [ConditionalFact]
-    public void Can_read_nulls()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_read_nulls(bool useParameters)
     {
         var modelBuilder = CreateConventionalModelBuilder();
         modelBuilder.Entity<SomeEntity>(
@@ -269,7 +286,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var entity = (SomeEntity)factory(
             new MaterializationContext(
@@ -281,8 +298,10 @@ public class EntityMaterializerSourceTest
         Assert.Null(entity.Goo);
     }
 
-    [ConditionalFact]
-    public void Can_create_materializer_for_entity_ignoring_shadow_fields()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_create_materializer_for_entity_ignoring_shadow_fields(bool useParameters)
     {
         var modelBuilder = CreateConventionalModelBuilder();
 
@@ -303,7 +322,7 @@ public class EntityMaterializerSourceTest
 
         var factory = GetMaterializer(
             new EntityMaterializerSource(
-                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType);
+                new EntityMaterializerSourceDependencies(Array.Empty<ISingletonInterceptor>())), entityType, useParameters);
 
         var gu = Guid.NewGuid();
         var entity = (SomeEntity)factory(
@@ -587,9 +606,15 @@ public class EntityMaterializerSourceTest
 
     public virtual Func<MaterializationContext, object> GetMaterializer(
         IEntityMaterializerSource source,
-        IReadOnlyEntityType entityType)
+        IReadOnlyEntityType entityType,
+        bool useParameters)
         => Expression.Lambda<Func<MaterializationContext, object>>(
-                source.CreateMaterializeExpression((IEntityType)entityType, "instance", _contextParameter),
+                useParameters
+                    ? source.CreateMaterializeExpression(
+                        new EntityMaterializerSourceParameters((IEntityType)entityType, "instance", null), _contextParameter)
+#pragma warning disable CS0618
+                    : source.CreateMaterializeExpression((IEntityType)entityType, "instance", _contextParameter),
+#pragma warning restore CS0618
                 _contextParameter)
             .Compile();
 

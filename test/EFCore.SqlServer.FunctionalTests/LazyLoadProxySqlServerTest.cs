@@ -16,11 +16,15 @@ public class LazyLoadProxySqlServerTest : LazyLoadProxyTestBase<LazyLoadProxySql
         base.Lazy_load_collection(state, useAttach, useDetach);
 
         AssertSql(
-            @"@__p_0='707' (Nullable = true)
+            state == EntityState.Detached && useAttach
+                ? ""
+                : """
+@__p_0='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE [c].[ParentId] = @__p_0");
+WHERE [c].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
@@ -28,11 +32,15 @@ WHERE [c].[ParentId] = @__p_0");
         base.Lazy_load_many_to_one_reference_to_principal(state, useAttach, useDetach);
 
         AssertSql(
-            @"@__p_0='707'
+            state == EntityState.Detached && useAttach
+                ? ""
+                : """
+@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_principal(EntityState state, bool useAttach, bool useDetach)
@@ -40,11 +48,15 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_principal(state, useAttach, useDetach);
 
         AssertSql(
-            @"@__p_0='707'
+            state == EntityState.Detached && useAttach
+                ? ""
+                : """
+@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_dependent(EntityState state, bool useAttach, bool useDetach)
@@ -52,11 +64,15 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_dependent(state, useAttach, useDetach);
 
         AssertSql(
-            @"@__p_0='707' (Nullable = true)
+            state == EntityState.Detached && useAttach
+                ? ""
+                : """
+@__p_0='707' (Nullable = true)
 
-SELECT [s].[Id], [s].[ParentId]
+SELECT TOP(1) [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE [s].[ParentId] = @__p_0");
+WHERE [s].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_PK_to_PK_reference_to_principal(EntityState state)
@@ -64,11 +80,13 @@ WHERE [s].[ParentId] = @__p_0");
         base.Lazy_load_one_to_one_PK_to_PK_reference_to_principal(state);
 
         AssertSql(
-            @"@__p_0='707'
+            """
+@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(EntityState state)
@@ -76,11 +94,13 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_PK_to_PK_reference_to_dependent(state);
 
         AssertSql(
-            @"@__p_0='707'
+            """
+@__p_0='707'
 
-SELECT [s].[Id]
+SELECT TOP(1) [s].[Id]
 FROM [SinglePkToPk] AS [s]
-WHERE [s].[Id] = @__p_0");
+WHERE [s].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_null_FK(EntityState state)
@@ -102,11 +122,13 @@ WHERE [s].[Id] = @__p_0");
         base.Lazy_load_collection_not_found(state);
 
         AssertSql(
-            @"@__p_0='767' (Nullable = true)
+            """
+@__p_0='767' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE [c].[ParentId] = @__p_0");
+WHERE [c].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_not_found(EntityState state)
@@ -114,11 +136,13 @@ WHERE [c].[ParentId] = @__p_0");
         base.Lazy_load_many_to_one_reference_to_principal_not_found(state);
 
         AssertSql(
-            @"@__p_0='787'
+            """
+@__p_0='787'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_principal_not_found(EntityState state)
@@ -126,11 +150,13 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_principal_not_found(state);
 
         AssertSql(
-            @"@__p_0='787'
+            """
+@__p_0='787'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_dependent_not_found(EntityState state)
@@ -138,11 +164,13 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_dependent_not_found(state);
 
         AssertSql(
-            @"@__p_0='767' (Nullable = true)
+            """
+@__p_0='767' (Nullable = true)
 
-SELECT [s].[Id], [s].[ParentId]
+SELECT TOP(1) [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE [s].[ParentId] = @__p_0");
+WHERE [s].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_collection_already_loaded(EntityState state, CascadeTiming cascadeDeleteTiming)
@@ -196,11 +224,13 @@ WHERE [s].[ParentId] = @__p_0");
         base.Lazy_load_many_to_one_reference_to_principal_alternate_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @__p_0");
+WHERE [p].[AlternateId] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_principal_alternate_key(EntityState state)
@@ -208,11 +238,13 @@ WHERE [p].[AlternateId] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_principal_alternate_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @__p_0");
+WHERE [p].[AlternateId] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_dependent_alternate_key(EntityState state)
@@ -220,11 +252,13 @@ WHERE [p].[AlternateId] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_dependent_alternate_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 
-SELECT [s].[Id], [s].[ParentId]
+SELECT TOP(1) [s].[Id], [s].[ParentId]
 FROM [SingleAk] AS [s]
-WHERE [s].[ParentId] = @__p_0");
+WHERE [s].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_null_FK_alternate_key(EntityState state)
@@ -246,11 +280,13 @@ WHERE [s].[ParentId] = @__p_0");
         base.Lazy_load_collection_shadow_fk(state);
 
         AssertSql(
-            @"@__p_0='707' (Nullable = true)
+            """
+@__p_0='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [ChildShadowFk] AS [c]
-WHERE [c].[ParentId] = @__p_0");
+WHERE [c].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_shadow_fk(EntityState state)
@@ -258,11 +294,15 @@ WHERE [c].[ParentId] = @__p_0");
         base.Lazy_load_many_to_one_reference_to_principal_shadow_fk(state);
 
         AssertSql(
-            @"@__p_0='707'
+            state == EntityState.Detached
+                ? ""
+                : """
+@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_principal_shadow_fk(EntityState state)
@@ -270,11 +310,15 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_principal_shadow_fk(state);
 
         AssertSql(
-            @"@__p_0='707'
+            state == EntityState.Detached
+                ? ""
+                : """
+@__p_0='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[Id] = @__p_0");
+WHERE [p].[Id] = @__p_0
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_dependent_shadow_fk(EntityState state)
@@ -282,11 +326,13 @@ WHERE [p].[Id] = @__p_0");
         base.Lazy_load_one_to_one_reference_to_dependent_shadow_fk(state);
 
         AssertSql(
-            @"@__p_0='707' (Nullable = true)
+            """
+@__p_0='707' (Nullable = true)
 
-SELECT [s].[Id], [s].[ParentId]
+SELECT TOP(1) [s].[Id], [s].[ParentId]
 FROM [SingleShadowFk] AS [s]
-WHERE [s].[ParentId] = @__p_0");
+WHERE [s].[ParentId] = @__p_0
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_null_FK_shadow_fk(EntityState state)
@@ -308,12 +354,14 @@ WHERE [s].[ParentId] = @__p_0");
         base.Lazy_load_collection_composite_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 @__p_1='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentAlternateId], [c].[ParentId]
 FROM [ChildCompositeKey] AS [c]
-WHERE [c].[ParentAlternateId] = @__p_0 AND [c].[ParentId] = @__p_1");
+WHERE [c].[ParentAlternateId] = @__p_0 AND [c].[ParentId] = @__p_1
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_composite_key(EntityState state)
@@ -321,12 +369,14 @@ WHERE [c].[ParentAlternateId] = @__p_0 AND [c].[ParentId] = @__p_1");
         base.Lazy_load_many_to_one_reference_to_principal_composite_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 @__p_1='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1");
+WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_principal_composite_key(EntityState state)
@@ -334,12 +384,14 @@ WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1");
         base.Lazy_load_one_to_one_reference_to_principal_composite_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 @__p_1='707'
 
-SELECT [p].[Id], [p].[AlternateId], [p].[Discriminator]
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
-WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1");
+WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1
+""");
     }
 
     public override void Lazy_load_one_to_one_reference_to_dependent_composite_key(EntityState state)
@@ -347,12 +399,14 @@ WHERE [p].[AlternateId] = @__p_0 AND [p].[Id] = @__p_1");
         base.Lazy_load_one_to_one_reference_to_dependent_composite_key(state);
 
         AssertSql(
-            @"@__p_0='Root' (Size = 450)
+            """
+@__p_0='Root' (Size = 450)
 @__p_1='707' (Nullable = true)
 
-SELECT [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
+SELECT TOP(1) [s].[Id], [s].[ParentAlternateId], [s].[ParentId]
 FROM [SingleCompositeKey] AS [s]
-WHERE [s].[ParentAlternateId] = @__p_0 AND [s].[ParentId] = @__p_1");
+WHERE [s].[ParentAlternateId] = @__p_0 AND [s].[ParentId] = @__p_1
+""");
     }
 
     public override void Lazy_load_many_to_one_reference_to_principal_null_FK_composite_key(EntityState state)
@@ -376,11 +430,13 @@ WHERE [s].[ParentAlternateId] = @__p_0 AND [s].[ParentId] = @__p_1");
         if (!async)
         {
             AssertSql(
-                @"@__p_0='707' (Nullable = true)
+                """
+@__p_0='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
-WHERE [c].[ParentId] = @__p_0");
+WHERE [c].[ParentId] = @__p_0
+""");
         }
     }
 
@@ -390,15 +446,17 @@ WHERE [c].[ParentId] = @__p_0");
         base.Top_level_projection_track_entities_before_passing_to_client_method();
 
         AssertSql(
-            @"SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
+            """
+SELECT TOP(1) [p].[Id], [p].[AlternateId], [p].[Discriminator]
 FROM [Parent] AS [p]
 ORDER BY [p].[Id]
 
 @__p_0='707' (Nullable = true)
 
-SELECT [s].[Id], [s].[ParentId]
+SELECT TOP(1) [s].[Id], [s].[ParentId]
 FROM [Single] AS [s]
-WHERE [s].[ParentId] = @__p_0");
+WHERE [s].[ParentId] = @__p_0
+""");
     }
 
     public override async Task Entity_equality_with_proxy_parameter(bool async)
@@ -406,12 +464,14 @@ WHERE [s].[ParentId] = @__p_0");
         await base.Entity_equality_with_proxy_parameter(async);
 
         AssertSql(
-            @"@__entity_equality_called_0_Id='707' (Nullable = true)
+            """
+@__entity_equality_called_0_Id='707' (Nullable = true)
 
 SELECT [c].[Id], [c].[ParentId]
 FROM [Child] AS [c]
 LEFT JOIN [Parent] AS [p] ON [c].[ParentId] = [p].[Id]
-WHERE [p].[Id] = @__entity_equality_called_0_Id");
+WHERE [p].[Id] = @__entity_equality_called_0_Id
+""");
     }
 
     protected override void ClearLog()
@@ -425,10 +485,12 @@ WHERE [p].[Id] = @__entity_equality_called_0_Id");
 
     private void AssertSql(string expected)
     {
+        expected ??= "";
+        var sql = Sql ?? "";
         try
         {
             Assert.Equal(
-                expected, Sql, ignoreLineEndingDifferences: true);
+                expected, sql, ignoreLineEndingDifferences: true);
         }
         catch
         {
@@ -453,7 +515,7 @@ WHERE [p].[Id] = @__entity_equality_called_0_Id");
 
             var testInfo = testName + " : " + lineNumber + FileNewLine;
             var newBaseLine = $@"            AssertSql(
-                {"@\"" + Sql.Replace("\"", "\"\"") + "\""});
+                {"@\"" + sql.Replace("\"", "\"\"") + "\""});
 
 ";
 

@@ -102,7 +102,7 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             async,
             ss => ss.Set<Animal>().Where(e => e.Name == "Great spotted kiwi"),
             e => e,
-            s => s.SetProperty(e => e.Name, e => "Animal"),
+            s => s.SetProperty(e => e.Name, "Animal"),
             rowsAffectedCount: 1,
             (b, a) => a.ForEach(e => Assert.Equal("Animal", e.Name)));
 
@@ -113,7 +113,7 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             async,
             ss => ss.Set<Animal>().Where(e => e.Name == "Great spotted kiwi").OrderBy(e => e.Name).Skip(0).Take(3),
             e => e,
-            s => s.SetProperty(e => e.Name, e => "Animal"),
+            s => s.SetProperty(e => e.Name, "Animal"),
             rowsAffectedCount: 1);
 
     [ConditionalTheory]
@@ -123,7 +123,7 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             async,
             ss => ss.Set<Kiwi>().Where(e => e.Name == "Great spotted kiwi"),
             e => e,
-            s => s.SetProperty(e => e.Name, e => "Kiwi"),
+            s => s.SetProperty(e => e.Name, "Kiwi"),
             rowsAffectedCount: 1);
 
     [ConditionalTheory]
@@ -133,7 +133,7 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             async,
             ss => ss.Set<Country>().Where(e => e.Animals.Where(a => a.CountryId > 0).Count() > 0),
             e => e,
-            s => s.SetProperty(e => e.Name, e => "Monovia"),
+            s => s.SetProperty(e => e.Name, "Monovia"),
             rowsAffectedCount: 2);
 
     [ConditionalTheory]
@@ -143,7 +143,7 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
             async,
             ss => ss.Set<Country>().Where(e => e.Animals.OfType<Kiwi>().Where(a => a.CountryId > 0).Count() > 0),
             e => e,
-            s => s.SetProperty(e => e.Name, e => "Monovia"),
+            s => s.SetProperty(e => e.Name, "Monovia"),
             rowsAffectedCount: 1);
 
     [ConditionalTheory]
@@ -155,8 +155,29 @@ public abstract class InheritanceBulkUpdatesTestBase<TFixture> : BulkUpdatesTest
                 async,
                 ss => ss.Set<EagleQuery>().Where(e => e.CountryId > 0),
                 e => e,
-                s => s.SetProperty(e => e.Name, e => "Eagle"),
+                s => s.SetProperty(e => e.Name, "Eagle"),
                 rowsAffectedCount: 1));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_interface_in_property_expression(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Coke>(),
+            e => e,
+            s => s.SetProperty(c => ((ISugary)c).SugarGrams, 0),
+            rowsAffectedCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Update_with_interface_in_EF_Property_in_property_expression(bool async)
+        => AssertUpdate(
+            async,
+            ss => ss.Set<Coke>(),
+            e => e,
+            // ReSharper disable once RedundantCast
+            s => s.SetProperty(c => EF.Property<int>((ISugary)c, nameof(ISugary.SugarGrams)), 0),
+            rowsAffectedCount: 1);
 
     protected abstract void ClearLog();
 }

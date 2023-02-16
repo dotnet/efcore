@@ -14,6 +14,9 @@ public class InheritanceContext : PoolableDbContext
     public DbSet<AnimalQuery> AnimalQueries { get; set; }
     public DbSet<Country> Countries { get; set; }
     public DbSet<Drink> Drinks { get; set; }
+    public DbSet<Coke> Coke { get; set; }
+    public DbSet<Lilt> Lilt { get; set; }
+    public DbSet<Tea> Tea { get; set; }
     public DbSet<Plant> Plants { get; set; }
 
     public static void Seed(InheritanceContext context, bool useGeneratedKeys)

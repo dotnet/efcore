@@ -257,11 +257,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 generatorType, method);
 
         /// <summary>
-        ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because the entity is not being tracked. Navigations can only be loaded for tracked entities.
+        ///     The navigation '{1_entityType}.{0_navigation}' cannot be loaded because one or more of the key or foreign key properties are shadow properties and the entity is not being tracked. Relationships using shadow values can only be loaded for tracked entities.
         /// </summary>
-        public static string CannotLoadDetached(object? navigation, object? entityType)
+        public static string CannotLoadDetachedShadow(object? navigation, object? entityType)
             => string.Format(
-                GetString("CannotLoadDetached", "0_navigation", "1_entityType"),
+                GetString("CannotLoadDetachedShadow", "0_navigation", "1_entityType"),
                 navigation, entityType);
 
         /// <summary>
@@ -423,6 +423,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ComparerPropertyMismatch", nameof(type), nameof(entityType), nameof(propertyName), nameof(propertyType)),
                 type, entityType, propertyName, propertyType);
+
+        /// <summary>
+        ///     The compiled query '{queryExpression}' was executed with a different model than it was compiled against. Compiled queries can only be used with a single model.
+        /// </summary>
+        public static string CompiledQueryDifferentModel(object? queryExpression)
+            => string.Format(
+                GetString("CompiledQueryDifferentModel", nameof(queryExpression)),
+                queryExpression);
 
         /// <summary>
         ///     There are multiple properties with the [ForeignKey] attribute pointing to navigation '{1_entityType}.{0_navigation}'. To define a composite foreign key using data annotations, use the [ForeignKey] attribute on the navigation.
@@ -961,6 +969,22 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("FindValueTypeMismatch", nameof(index), nameof(entityType), nameof(valueType), nameof(propertyType)),
                 index, entityType, valueType, propertyType);
+
+        /// <summary>
+        ///     {values} value(s) were passed to the 'FindEntry' or 'GetEntries' method for {properties} properties. The number of values must match the number of properties.
+        /// </summary>
+        public static string FindWrongCount(object? values, object? properties)
+            => string.Format(
+                GetString("FindWrongCount", nameof(values), nameof(properties)),
+                values, properties);
+
+        /// <summary>
+        ///     The 'FindEntry' or 'GetEntries' method was passed a '{valueType}' value for the '{propertyName}' property, when a '{propertyType}' value was expected.
+        /// </summary>
+        public static string FindWrongType(object? valueType, object? propertyName, object? propertyType)
+            => string.Format(
+                GetString("FindWrongType", nameof(valueType), nameof(propertyName), nameof(propertyType)),
+                valueType, propertyName, propertyType);
 
         /// <summary>
         ///     The [ForeignKey] attribute for the navigation '{navigation}' cannot be specified on the entity type '{principalType}' since it represents a one-to-many relationship. Move the [ForeignKey] attribute to a property on '{dependentType}'.
@@ -1686,6 +1710,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, navigation, propertyType);
 
         /// <summary>
+        ///     The property '{entityType}.{navigation}' of type '{propertyType}' appears to be a navigation to another entity type. Navigations are not supported when using 'SqlQuery". Either include this type in the model and use 'FromSql' for the query, or ignore this property using the '[NotMapped]' attribute.
+        /// </summary>
+        public static string NavigationNotAddedAdHoc(object? entityType, object? navigation, object? propertyType)
+            => string.Format(
+                GetString("NavigationNotAddedAdHoc", nameof(entityType), nameof(navigation), nameof(propertyType)),
+                entityType, navigation, propertyType);
+
+        /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.
         /// </summary>
         public static string NavigationSingleWrongClrType(object? navigation, object? entityType, object? clrType, object? targetType)
@@ -2142,6 +2174,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, property, propertyType);
 
         /// <summary>
+        ///     The property '{entityType}.{property}' could not be mapped because it is of type '{propertyType}', which is not a supported primitive type or a valid entity type. The property can be ignored using the '[NotMapped]' attribute.
+        /// </summary>
+        public static string PropertyNotAddedAdHoc(object? entityType, object? property, object? propertyType)
+            => string.Format(
+                GetString("PropertyNotAddedAdHoc", nameof(entityType), nameof(property), nameof(propertyType)),
+                entityType, property, propertyType);
+
+        /// <summary>
         ///     The property '{1_entityType}.{0_property}' could not be found. Ensure that the property exists and has been included in the model.
         /// </summary>
         public static string PropertyNotFound(object? property, object? entityType)
@@ -2330,6 +2370,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("RelationshipConceptualNullSensitive", nameof(firstType), nameof(secondType), nameof(secondKeyValue)),
                 firstType, secondType, secondKeyValue);
+
+        /// <summary>
+        ///     A relationship cycle involving the property '{entityType}.{property}' was detected. This prevents Entity Framework from determining the correct configuration. Review the foreign keys defined on the property and the corresponding principal property and either remove one of them or specify '{configuration}' explicitly on one of the properties.
+        /// </summary>
+        public static string RelationshipCycle(object? entityType, object? property, object? configuration)
+            => string.Format(
+                GetString("RelationshipCycle", nameof(entityType), nameof(property), nameof(configuration)),
+                entityType, property, configuration);
 
         /// <summary>
         ///     '{entityType}.{navigation}' cannot be configured as required since it represents a skip navigation.
@@ -3568,7 +3616,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed.
+        ///     An attempt was made to lazy-load navigation '{entityType}.{navigation}' after the associated DbContext was disposed or returned to the pool, or the entity was explicitly detached from the context.
         /// </summary>
         public static EventDefinition<string, string> LogLazyLoadOnDisposedContext(IDiagnosticsLogger logger)
         {
@@ -3615,6 +3663,81 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
             }
 
             return (EventDefinition)definition;
+        }
+
+        /// <summary>
+        ///     The entity type '{entityType}' was first mapped explicitly and then ignored. Consider not mapping the entity type in the first place.
+        /// </summary>
+        public static EventDefinition<string> LogMappedEntityTypeIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMappedEntityTypeIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMappedEntityTypeIgnored,
+                    logger,
+                    static logger => new EventDefinition<string>(
+                        logger.Options,
+                        CoreEventId.MappedEntityTypeIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MappedEntityTypeIgnoredWarning",
+                        level => LoggerMessage.Define<string>(
+                            level,
+                            CoreEventId.MappedEntityTypeIgnoredWarning,
+                            _resourceManager.GetString("LogMappedEntityTypeIgnored")!)));
+            }
+
+            return (EventDefinition<string>)definition;
+        }
+
+        /// <summary>
+        ///     The navigation '{entityType}.{navigation}' was first mapped explicitly and then ignored. Consider not mapping the navigation in the first place.
+        /// </summary>
+        public static EventDefinition<string, string> LogMappedNavigationIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMappedNavigationIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMappedNavigationIgnored,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.MappedNavigationIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MappedNavigationIgnoredWarning",
+                        level => LoggerMessage.Define<string, string?>(
+                            level,
+                            CoreEventId.MappedNavigationIgnoredWarning,
+                            _resourceManager.GetString("LogMappedNavigationIgnored")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
+        }
+
+        /// <summary>
+        ///     The property '{entityType}.{property}' was first mapped explicitly and then ignored. Consider not mapping the property in the first place.
+        /// </summary>
+        public static EventDefinition<string, string> LogMappedPropertyIgnored(IDiagnosticsLogger logger)
+        {
+            var definition = ((LoggingDefinitions)logger.Definitions).LogMappedPropertyIgnored;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((LoggingDefinitions)logger.Definitions).LogMappedPropertyIgnored,
+                    logger,
+                    static logger => new EventDefinition<string, string>(
+                        logger.Options,
+                        CoreEventId.MappedPropertyIgnoredWarning,
+                        LogLevel.Warning,
+                        "CoreEventId.MappedPropertyIgnoredWarning",
+                        level => LoggerMessage.Define<string, string?>(
+                            level,
+                            CoreEventId.MappedPropertyIgnoredWarning,
+                            _resourceManager.GetString("LogMappedPropertyIgnored")!)));
+            }
+
+            return (EventDefinition<string, string>)definition;
         }
 
         /// <summary>
@@ -4593,7 +4716,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated a temporary value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        ///     '{contextType}' generated a temporary value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string, string> LogTempValueGenerated(IDiagnosticsLogger logger)
         {
@@ -4618,7 +4741,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated temporary value '{keyValue}' for the property '{3_entityType}.{2_property}'.
+        ///     '{contextType}' generated temporary value '{keyValue}' for the property '{entityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, object?, string, string> LogTempValueGeneratedSensitive(IDiagnosticsLogger logger)
         {
@@ -4643,7 +4766,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated a value for the property '{2_entityType}.{1_property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
+        ///     '{contextType}' generated a value for the property '{entityType}.{property}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see key values.
         /// </summary>
         public static EventDefinition<string, string, string> LogValueGenerated(IDiagnosticsLogger logger)
         {
@@ -4668,7 +4791,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     '{contextType}' generated value '{keyValue}' for the property '{3_entityType}.{2_property}'.
+        ///     '{contextType}' generated value '{keyValue}' for the property '{entityType}.{property}'.
         /// </summary>
         public static EventDefinition<string, object?, string, string> LogValueGeneratedSensitive(IDiagnosticsLogger logger)
         {

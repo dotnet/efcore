@@ -26,20 +26,16 @@ public readonly record struct TypeMappingInfo
     /// </summary>
     /// <param name="principals">The principal property chain for the property for which mapping is needed.</param>
     /// <param name="fallbackUnicode">
-    ///     Specifies a fallback Specifies Unicode or ANSI mapping for the mapping, in case one isn't found at the core
-    ///     level, or <see langword="null" /> for default.
+    ///     Specifies Unicode or ANSI for the mapping or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackSize">
-    ///     Specifies a fallback size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
-    ///     default.
+    ///     Specifies a size for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackPrecision">
-    ///     Specifies a fallback precision for the mapping, in case one isn't found at the core level, or <see langword="null" />
-    ///     for default.
+    ///     Specifies a precision for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     /// <param name="fallbackScale">
-    ///     Specifies a fallback scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for
-    ///     default.
+    ///     Specifies a scale for the mapping, in case one isn't found at the core level, or <see langword="null" /> for default.
     /// </param>
     public TypeMappingInfo(
         IReadOnlyList<IProperty> principals,
@@ -49,10 +45,6 @@ public readonly record struct TypeMappingInfo
         int? fallbackScale = null)
     {
         ValueConverter? customConverter = null;
-        int? size = null;
-        int? precision = null;
-        int? scale = null;
-        bool? isUnicode = null;
         for (var i = 0; i < principals.Count; i++)
         {
             var principal = principals[i];
@@ -65,39 +57,39 @@ public readonly record struct TypeMappingInfo
                 }
             }
 
-            if (size == null)
+            if (fallbackSize == null)
             {
                 var maxLength = principal.GetMaxLength();
                 if (maxLength != null)
                 {
-                    size = maxLength;
+                    fallbackSize = maxLength;
                 }
             }
 
-            if (precision == null)
+            if (fallbackPrecision == null)
             {
                 var precisionFromProperty = principal.GetPrecision();
                 if (precisionFromProperty != null)
                 {
-                    precision = precisionFromProperty;
+                    fallbackPrecision = precisionFromProperty;
                 }
             }
 
-            if (scale == null)
+            if (fallbackScale == null)
             {
                 var scaleFromProperty = principal.GetScale();
                 if (scaleFromProperty != null)
                 {
-                    scale = scaleFromProperty;
+                    fallbackScale = scaleFromProperty;
                 }
             }
 
-            if (isUnicode == null)
+            if (fallbackUnicode == null)
             {
                 var unicode = principal.IsUnicode();
                 if (unicode != null)
                 {
-                    isUnicode = unicode;
+                    fallbackUnicode = unicode;
                 }
             }
         }
@@ -105,13 +97,14 @@ public readonly record struct TypeMappingInfo
         var mappingHints = customConverter?.MappingHints;
         var property = principals[0];
 
-        IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
-        Size = size ?? mappingHints?.Size ?? fallbackSize;
-        IsUnicode = isUnicode ?? mappingHints?.IsUnicode ?? fallbackUnicode;
+        HasKeySemantics = property.IsKey() || property.IsForeignKey();
+        IsKeyOrIndex = HasKeySemantics || property.IsIndex();
+        Size = fallbackSize ?? mappingHints?.Size;
+        IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
         IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
         ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
-        Scale = scale ?? mappingHints?.Scale ?? fallbackScale;
-        Precision = precision ?? mappingHints?.Precision ?? fallbackPrecision;
+        Scale = fallbackScale ?? mappingHints?.Scale;
+        Precision = fallbackPrecision ?? mappingHints?.Precision;
     }
 
     /// <summary>
@@ -146,6 +139,7 @@ public readonly record struct TypeMappingInfo
     /// <param name="rowVersion">Specifies a row-version, or <see langword="null" /> for default.</param>
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
+    /// <param name="keySemantics">If <see langword="true" />, then a special mapping for a key or foreign key may be returned.</param>
     public TypeMappingInfo(
         Type? type = null,
         bool keyOrIndex = false,
@@ -153,11 +147,13 @@ public readonly record struct TypeMappingInfo
         int? size = null,
         bool? rowVersion = null,
         int? precision = null,
-        int? scale = null)
+        int? scale = null,
+        bool keySemantics = false)
     {
         ClrType = type?.UnwrapNullableType();
 
         IsKeyOrIndex = keyOrIndex;
+        HasKeySemantics = keySemantics;
         Size = size;
         IsUnicode = unicode;
         IsRowVersion = rowVersion;
@@ -184,6 +180,7 @@ public readonly record struct TypeMappingInfo
     {
         IsRowVersion = source.IsRowVersion;
         IsKeyOrIndex = source.IsKeyOrIndex;
+        HasKeySemantics = source.HasKeySemantics;
 
         var mappingHints = converter.MappingHints;
 
@@ -207,6 +204,11 @@ public readonly record struct TypeMappingInfo
     ///     Indicates whether or not the mapping is part of a key or index.
     /// </summary>
     public bool IsKeyOrIndex { get; init; }
+
+    /// <summary>
+    ///     Indicates whether or not the mapping should be compared, etc. as if it is a key.
+    /// </summary>
+    public bool HasKeySemantics { get; init; }
 
     /// <summary>
     ///     Indicates the store-size to use for the mapping, or null if none.

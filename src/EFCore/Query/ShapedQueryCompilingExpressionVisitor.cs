@@ -579,7 +579,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             var blockExpressions = new List<Expression>(2);
 
             var materializer = _entityMaterializerSource
-                .CreateMaterializeExpression(concreteEntityType, "instance", materializationContextVariable);
+                .CreateMaterializeExpression(
+                    new EntityMaterializerSourceParameters(
+                        concreteEntityType, "instance", _queryTrackingBehavior), materializationContextVariable);
 
             if (_queryStateManager
                 && concreteEntityType.ShadowPropertyCount() > 0)

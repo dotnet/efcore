@@ -440,6 +440,12 @@ public class ValueConverterSelectorTest
             (typeof(StringToDateTimeOffsetConverter), new ConverterMappingHints(size: 48)));
 
     [ConditionalFact]
+    public void Can_get_converters_for_string_to_TimeOnly()
+        => AssertConverters(
+            _selector.Select(typeof(string), typeof(TimeOnly)).ToList(),
+            (typeof(StringToTimeOnlyConverter), new ConverterMappingHints(size: 48)));
+
+    [ConditionalFact]
     public void Can_get_converters_for_string_to_TimeSpan()
         => AssertConverters(
             _selector.Select(typeof(string), typeof(TimeSpan)).ToList(),
@@ -538,6 +544,32 @@ public class ValueConverterSelectorTest
         => AssertConverters(
             _selector.Select(typeof(DateTimeOffset), typeof(long)).ToList(),
             (typeof(DateTimeOffsetToBinaryConverter), default));
+
+    [ConditionalFact]
+    public void Can_get_converters_for_TimeOnly()
+        => AssertConverters(
+            _selector.Select(typeof(TimeOnly)).ToList(),
+            (typeof(TimeOnlyToStringConverter), new ConverterMappingHints(size: 48)),
+            (typeof(TimeOnlyToTicksConverter), default),
+            (typeof(CompositeValueConverter<TimeOnly, long, byte[]>), new ConverterMappingHints(size: 8)));
+
+    [ConditionalFact]
+    public void Can_get_converters_for_TimeOnly_to_bytes()
+        => AssertConverters(
+            _selector.Select(typeof(TimeOnly), typeof(byte[])).ToList(),
+            (typeof(CompositeValueConverter<TimeOnly, long, byte[]>), new ConverterMappingHints(size: 8)));
+
+    [ConditionalFact]
+    public void Can_get_converters_for_TimeOnly_to_string()
+        => AssertConverters(
+            _selector.Select(typeof(TimeOnly), typeof(string)).ToList(),
+            (typeof(TimeOnlyToStringConverter), new ConverterMappingHints(size: 48)));
+
+    [ConditionalFact]
+    public void Can_get_converters_for_TimeOnly_to_long()
+        => AssertConverters(
+            _selector.Select(typeof(TimeOnly), typeof(long)).ToList(),
+            (typeof(TimeOnlyToTicksConverter), default));
 
     [ConditionalFact]
     public void Can_get_converters_for_TimeSpan()

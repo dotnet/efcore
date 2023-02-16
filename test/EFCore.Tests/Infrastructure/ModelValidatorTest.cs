@@ -472,16 +472,59 @@ public partial class ModelValidatorTest : ModelValidatorTestBase
     }
 
     [ConditionalFact]
-    public virtual void Detects_relationship_cycle()
+    public virtual void Detects_identifying_relationship_cycle()
     {
         var modelBuilder = base.CreateConventionModelBuilder();
 
-        modelBuilder.Entity<A>();
-        modelBuilder.Entity<B>();
         modelBuilder.Entity<C>().HasBaseType((string)null);
         modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
         modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
         modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
+
+        VerifyError(
+            CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_relationship_cycle_for_property_configuration()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasOne<B>().WithOne().HasForeignKey<D>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+
+        var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
+
+        Assert.Equal(CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ValueConverter"),
+            Assert.Throws<InvalidOperationException>(dId.GetValueConverter).Message);
+        Assert.Equal(CoreStrings.RelationshipCycle(nameof(D), nameof(D.Id), "ProviderClrType"),
+            Assert.Throws<InvalidOperationException>(dId.GetProviderClrType).Message);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_relationship_cycle_for_explicit_property_configuration()
+    {
+        var modelBuilder = base.CreateConventionModelBuilder();
+
+        modelBuilder.Entity<C>().HasBaseType((string)null);
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+        modelBuilder.Entity<A>().HasOne<C>().WithOne().HasForeignKey<C>(a => a.Id).HasPrincipalKey<A>(b => b.Id).IsRequired();
+        modelBuilder.Entity<C>().HasOne<B>().WithOne().HasForeignKey<B>(a => a.Id).HasPrincipalKey<C>(b => b.Id).IsRequired();
+        modelBuilder.Entity<D>().HasBaseType((string)null);
+        modelBuilder.Entity<D>().HasOne<B>().WithOne().HasForeignKey<D>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+
+        var aId = modelBuilder.Model.FindEntityType(typeof(A)).FindProperty(nameof(A.Id));
+        aId.SetValueConverter((ValueConverter)null);
+        aId.SetProviderClrType(null);
+
+        var dId = modelBuilder.Model.FindEntityType(typeof(D)).FindProperty(nameof(D.Id));
+        Assert.Null(dId.GetValueConverter());
+        Assert.Null(dId.GetProviderClrType());
 
         VerifyError(
             CoreStrings.IdentifyingRelationshipCycle("A -> B -> C"),

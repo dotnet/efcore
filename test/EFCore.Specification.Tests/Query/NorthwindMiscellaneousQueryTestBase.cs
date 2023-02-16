@@ -5781,4 +5781,36 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
             assertOrder: true,
             elementAsserter: (e, a) => AssertCollection(e.Orders, a.Orders),
             entryCount: 14);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(0).OrderDetails == null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(0) == null),
+            entryCount: 2);
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(1).OrderDetails == null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(1) == null),
+            entryCount: 3);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(bool async)
+    {
+        var prm = 2;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(prm).OrderDetails == null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.OrderBy(o => o.OrderID).ElementAtOrDefault(prm) == null),
+            entryCount: 5);
+    }
 }

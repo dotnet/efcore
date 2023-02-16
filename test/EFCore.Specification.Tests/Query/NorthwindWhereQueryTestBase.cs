@@ -2328,6 +2328,24 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAt_over_custom_projection_compared_to_not_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAt(3) != null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAtOrDefault(3) != null),
+            entryCount: 79);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAtOrDefault_over_custom_projection_compared_to_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAtOrDefault(7) == null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAtOrDefault(7) == null),
+            entryCount: 43);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Single_over_custom_projection_compared_to_null(bool async)
         => AssertQuery(
             async,

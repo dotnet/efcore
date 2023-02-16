@@ -21,7 +21,7 @@ public class TemporaryValuesFactoryFactory : SidecarValuesFactoryFactory
     /// </summary>
     protected override Expression CreateSnapshotExpression(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type? entityType,
-        ParameterExpression parameter,
+        ParameterExpression? parameter,
         Type[] types,
         IList<IPropertyBase> propertyBases)
     {

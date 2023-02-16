@@ -11,6 +11,7 @@ internal abstract class TestContext<TEntity> : DbContext
     private readonly IServiceProvider _internalServiceProvider;
     private readonly string _dbName;
     private readonly bool _useLazyLoadingProxies;
+    private readonly bool _ignoreNonVirtualNavigations;
     private readonly bool _useChangeDetectionProxies;
     private readonly bool _checkEquality;
     private readonly ChangeTrackingStrategy? _changeTrackingStrategy;
@@ -20,7 +21,8 @@ internal abstract class TestContext<TEntity> : DbContext
         bool useLazyLoading = false,
         bool useChangeDetection = false,
         bool checkEquality = true,
-        ChangeTrackingStrategy? changeTrackingStrategy = null)
+        ChangeTrackingStrategy? changeTrackingStrategy = null,
+        bool ignoreNonVirtualNavigations = false)
     {
         _internalServiceProvider
             = new ServiceCollection()
@@ -33,13 +35,14 @@ internal abstract class TestContext<TEntity> : DbContext
         _useChangeDetectionProxies = useChangeDetection;
         _checkEquality = checkEquality;
         _changeTrackingStrategy = changeTrackingStrategy;
+        _ignoreNonVirtualNavigations = ignoreNonVirtualNavigations;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (_useLazyLoadingProxies)
         {
-            optionsBuilder.UseLazyLoadingProxies();
+            optionsBuilder.UseLazyLoadingProxies(ignoreNonVirtualNavigations: _ignoreNonVirtualNavigations);
         }
 
         if (_useChangeDetectionProxies)

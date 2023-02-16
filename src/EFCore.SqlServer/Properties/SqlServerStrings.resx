@@ -124,7 +124,7 @@
     <value>To change the memory-optimized setting on a table, the table needs to be dropped and recreated.</value>
   </data>
   <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
-    <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .</value>
+    <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.</value>
   </data>
   <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.</value>
@@ -167,6 +167,9 @@
   </data>
   <data name="IncludePropertyNotFound" xml:space="preserve">
     <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
+  </data>
+  <data name="IncompatibleSqlOutputClauseMismatch" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.</value>
   </data>
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>
@@ -278,17 +281,14 @@
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.</value>
   </data>
-  <data name="NonKeyValueGeneration" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.</value>
-  </data>
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
   <data name="SaveChangesFailedBecauseOfComputedColumnWithFunction" xml:space="preserve">
-    <value>Could not save changes because the target table has computed column with a function that performs data access. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-computed-columns for more information.</value>
+    <value>Could not save changes because the target table has computed column with a function that performs data access. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.</value>
   </data>
   <data name="SaveChangesFailedBecauseOfTriggers" xml:space="preserve">
-    <value>Could not save changes because the target table has database triggers. Please configure your entity type accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-triggers for more information.</value>
+    <value>Could not save changes because the target table has database triggers. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.</value>
   </data>
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>

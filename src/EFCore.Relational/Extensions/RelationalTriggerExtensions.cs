@@ -108,9 +108,19 @@ public static class RelationalTriggerExtensions
     /// </summary>
     /// <param name="trigger">The trigger.</param>
     /// <returns>The name of the table on which this trigger is defined.</returns>
-    public static string? GetTableName(this IReadOnlyTrigger trigger)
-        => (string?)trigger.FindAnnotation(RelationalAnnotationNames.TableName)?.Value
-            ?? trigger.EntityType.GetTableName()!;
+    public static string GetTableName(this IReadOnlyTrigger trigger)
+    {
+        if (trigger.FindAnnotation(RelationalAnnotationNames.TableName) is { Value: string tableName })
+        {
+            return tableName;
+        }
+
+        var mainTableName = trigger.EntityType.GetTableName();
+
+        Check.DebugAssert(mainTableName is not null, "Trigger defined on entity not mapped to a table");
+
+        return mainTableName;
+    }
 
     /// <summary>
     ///     Sets the name of the table on which this trigger is defined.

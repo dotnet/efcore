@@ -720,26 +720,28 @@ public class SqlNullabilityProcessor
         {
             var inValues = new List<object?>();
             var hasNullValue = false;
-            RelationalTypeMapping? typeMapping = null;
+            RelationalTypeMapping? typeMapping;
 
-            IEnumerable? values = null;
-            if (valuesExpression is SqlConstantExpression sqlConstant)
+            IEnumerable values;
+            switch (valuesExpression)
             {
-                typeMapping = sqlConstant.TypeMapping;
-                values = (IEnumerable)sqlConstant.Value!;
-            }
-            else if (valuesExpression is SqlParameterExpression sqlParameter)
-            {
-                DoNotCache();
-                typeMapping = sqlParameter.TypeMapping;
-                values = (IEnumerable?)ParameterValues[sqlParameter.Name];
-                if (values == null)
-                {
-                    throw new NullReferenceException();
-                }
+                case SqlConstantExpression sqlConstant:
+                    typeMapping = sqlConstant.TypeMapping;
+                    values = (IEnumerable)sqlConstant.Value!;
+                    break;
+
+                case SqlParameterExpression sqlParameter:
+                    DoNotCache();
+                    typeMapping = sqlParameter.TypeMapping;
+                    values = (IEnumerable?)ParameterValues[sqlParameter.Name] ?? throw new NullReferenceException();
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        RelationalStrings.NonConstantOrParameterAsInExpressionValues(valuesExpression.GetType().Name));
             }
 
-            foreach (var value in values!)
+            foreach (var value in values)
             {
                 if (value == null && extractNullValues)
                 {
@@ -1527,7 +1529,12 @@ public class SqlNullabilityProcessor
         return sqlBinaryExpression;
     }
 
-    private SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
+    /// <summary>
+    ///     Attempts to simplify a unary not operation on a non-nullable operand.
+    /// </summary>
+    /// <param name="sqlUnaryExpression">The expression to simplify.</param>
+    /// <returns>The simplified expression, or the original expression if it cannot be simplified.</returns>
+    protected virtual SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
     {
         if (sqlUnaryExpression.OperatorType != ExpressionType.Not)
         {
@@ -1632,7 +1639,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
@@ -1842,7 +1849,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;

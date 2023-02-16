@@ -27,20 +27,23 @@ public class SqlServerTypeAliasTest : IClassFixture<SqlServerFixture>
         using (var context = new TypeAliasContext(options))
         {
             context.Database.ExecuteSqlRaw(
-                @"
+"""
 CREATE TYPE datetimeAlias FROM datetime2(6);
 CREATE TYPE datetimeoffsetAlias FROM datetimeoffset(6);
+CREATE TYPE timeAlias FROM time(6);
 CREATE TYPE decimalAlias FROM decimal(10, 6);
 CREATE TYPE doubleAlias FROM float(26);
 CREATE TYPE floatAlias FROM real;
 CREATE TYPE binaryAlias FROM varbinary(50);
-CREATE TYPE stringAlias FROM nvarchar(50);");
+CREATE TYPE stringAlias FROM nvarchar(50);
+""");
 
             var model = context.Model;
 
             var aliasEntityType = model.FindEntityType(typeof(TypeAliasEntity));
             Assert.Equal("datetimeAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.DateTimeAlias)));
             Assert.Equal("datetimeoffsetAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.DateTimeOffsetAlias)));
+            Assert.Equal("timeAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.TimeAlias)));
             Assert.Equal("decimalAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.DecimalAlias)));
             Assert.Equal("doubleAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.DoubleAlias)));
             Assert.Equal("floatAlias", GetColumnType(aliasEntityType!, nameof(TypeAliasEntity.FloatAlias)));
@@ -51,6 +54,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
             Assert.Equal("datetimeAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeAlias)));
             Assert.Equal(
                 "datetimeoffsetAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DateTimeOffsetAlias)));
+            Assert.Equal("timeAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.TimeAlias)));
             Assert.Equal("decimalAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DecimalAlias)));
             Assert.Equal("doubleAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.DoubleAlias)));
             Assert.Equal("floatAlias", GetColumnType(facetedAliasEntityType!, nameof(TypeAliasEntityWithFacets.FloatAlias)));
@@ -64,6 +68,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
                 {
                     DateTimeAlias = new DateTime(),
                     DateTimeOffsetAlias = new DateTimeOffset(),
+                    TimeAlias = new TimeOnly(),
                     DecimalAlias = 3.14159m,
                     DoubleAlias = 3.14159,
                     FloatAlias = 3.14159f,
@@ -74,6 +79,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
                 {
                     DateTimeAlias = new DateTime(),
                     DateTimeOffsetAlias = new DateTimeOffset(),
+                    TimeAlias = new TimeOnly(),
                     DecimalAlias = 3.14159m,
                     DoubleAlias = 3.14159,
                     FloatAlias = 3.14159f,
@@ -90,6 +96,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
 
             Assert.Equal(new DateTime(), entity.DateTimeAlias);
             Assert.Equal(new DateTimeOffset(), entity.DateTimeOffsetAlias);
+            Assert.Equal(new TimeOnly(), entity.TimeAlias);
             Assert.Equal(3.14m, entity.DecimalAlias);
             Assert.Equal(3.14159, entity.DoubleAlias);
             Assert.Equal(3.14159f, entity.FloatAlias);
@@ -100,6 +107,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
 
             Assert.Equal(new DateTime(), entityWithFacets.DateTimeAlias);
             Assert.Equal(new DateTimeOffset(), entityWithFacets.DateTimeOffsetAlias);
+            Assert.Equal(new TimeOnly(), entity.TimeAlias);
             Assert.Equal(3.14159m, entityWithFacets.DecimalAlias);
             Assert.Equal(3.14159, entityWithFacets.DoubleAlias);
             Assert.Equal(3.14159f, entityWithFacets.FloatAlias);
@@ -108,7 +116,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
         }
 
         string GetColumnType(IEntityType entityType, string propertyName)
-            => entityType!.FindProperty(propertyName)!.GetColumnType(new StoreObjectIdentifier());
+            => entityType.FindProperty(propertyName)!.GetColumnType(new StoreObjectIdentifier());
     }
 
     private class TypeAliasContext : DbContext
@@ -126,6 +134,7 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
                 {
                     b.Property(e => e.DateTimeAlias).HasPrecision(6);
                     b.Property(e => e.DateTimeOffsetAlias).HasPrecision(6);
+                    b.Property(e => e.TimeAlias).HasPrecision(6);
                     b.Property(e => e.DecimalAlias).HasPrecision(10, 6);
                     b.Property(e => e.DoubleAlias).HasPrecision(26);
                     b.Property(e => e.BinaryAlias).HasMaxLength(50);
@@ -143,6 +152,9 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
 
         [Column(TypeName = "datetimeoffsetAlias")]
         public DateTimeOffset DateTimeOffsetAlias { get; set; }
+
+        [Column(TypeName = "timeAlias")]
+        public TimeOnly TimeAlias { get; set; }
 
         [Column(TypeName = "decimalAlias")]
         public decimal DecimalAlias { get; set; }
@@ -169,6 +181,9 @@ CREATE TYPE stringAlias FROM nvarchar(50);");
 
         [Column(TypeName = "datetimeoffsetAlias")]
         public DateTimeOffset DateTimeOffsetAlias { get; set; }
+
+        [Column(TypeName = "timeAlias")]
+        public TimeOnly TimeAlias { get; set; }
 
         [Column(TypeName = "decimalAlias")]
         public decimal DecimalAlias { get; set; }

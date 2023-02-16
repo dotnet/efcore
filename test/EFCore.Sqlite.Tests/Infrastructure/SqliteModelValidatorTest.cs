@@ -85,6 +85,21 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
         VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
     }
 
+    [ConditionalFact]
+    public virtual void Detects_incompatible_sql_returning_clause_shared_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.UseSqlReturningClause(false));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.UseSqlReturningClause());
+
+        VerifyError(
+            SqliteStrings.IncompatibleSqlReturningClauseMismatch("Table", nameof(A), nameof(B), nameof(B), nameof(A)),
+            modelBuilder);
+    }
+
     public override void Passes_for_stored_procedure_without_parameter_for_insert_non_save_property()
     {
         var exception =
@@ -123,6 +138,14 @@ public class SqliteModelValidatorTest : RelationalModelValidatorTest
     {
         var exception =
             Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Detects_unmapped_concurrency_token()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Detects_unmapped_concurrency_token());
 
         Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
     }

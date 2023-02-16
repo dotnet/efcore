@@ -25,6 +25,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
 
     private string? _connectionString;
     private DbConnection? _connection;
+    private bool _connectionOwned;
     private int? _commandTimeout;
     private int? _maxBatchSize;
     private int? _minBatchSize;
@@ -50,6 +51,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     {
         _connectionString = copyFrom._connectionString;
         _connection = copyFrom._connection;
+        _connectionOwned = copyFrom._connectionOwned;
         _commandTimeout = copyFrom._commandTimeout;
         _maxBatchSize = copyFrom._maxBatchSize;
         _minBatchSize = copyFrom._minBatchSize;
@@ -102,16 +104,33 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
         => _connection;
 
     /// <summary>
+    ///     <see langword="true"/> if the <see cref="Connection"/> is owned by the context and should be disposed appropriately.
+    /// </summary>
+    public virtual bool ConnectionOwned
+        => _connectionOwned;
+
+    /// <summary>
     ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
     ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
     /// </summary>
     /// <param name="connection">The option to change.</param>
     /// <returns>A new instance with the option changed.</returns>
     public virtual RelationalOptionsExtension WithConnection(DbConnection? connection)
+        => WithConnection(connection, owned: false);
+
+    /// <summary>
+    ///     Creates a new instance with all options the same as for this instance, but with the given option changed.
+    ///     It is unusual to call this method directly. Instead use <see cref="DbContextOptionsBuilder" />.
+    /// </summary>
+    /// <param name="connection">The option to change.</param>
+    /// <param name="owned">If <see langword="true"/>, then the connection will become owned by the context, and will be disposed in the same way that a connection created by the context is disposed.</param>
+    /// <returns>A new instance with the option changed.</returns>
+    public virtual RelationalOptionsExtension WithConnection(DbConnection? connection, bool owned)
     {
         var clone = Clone();
 
         clone._connection = connection;
+        clone._connectionOwned = owned;
 
         return clone;
     }
@@ -386,7 +405,8 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
                 .TryWithExplicit(RelationalEventId.AmbientTransactionWarning, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.IndexPropertiesBothMappedAndNotMappedToTable, WarningBehavior.Throw)
                 .TryWithExplicit(RelationalEventId.IndexPropertiesMappedToNonOverlappingTables, WarningBehavior.Throw)
-                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw));
+                .TryWithExplicit(RelationalEventId.ForeignKeyPropertiesMappedToUnrelatedTables, WarningBehavior.Throw)
+                .TryWithExplicit(RelationalEventId.StoredProcedureConcurrencyTokenNotMapped, WarningBehavior.Throw));
 
     /// <summary>
     ///     Information/metadata for a <see cref="RelationalOptionsExtension" />.

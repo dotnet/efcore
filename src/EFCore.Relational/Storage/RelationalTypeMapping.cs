@@ -137,7 +137,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
                 CoreParameters,
                 mappingInfo.StoreTypeName ?? StoreType,
                 StoreTypePostfix,
-                DbType,
+                mappingInfo.DbType ?? DbType,
                 mappingInfo.IsUnicode ?? Unicode,
                 mappingInfo.Size ?? Size,
                 mappingInfo.IsFixedLength ?? FixedLength,
@@ -454,7 +454,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         if (size != null
             && parameters.StoreTypePostfix == StoreTypePostfix.Size)
         {
-            storeType = storeTypeNameBase + "(" + size + ")";
+            storeType = storeTypeNameBase + "(" + (size < 0 ? "max" : size.ToString()) + ")";
         }
         else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
                  || parameters.StoreTypePostfix == StoreTypePostfix.Precision)

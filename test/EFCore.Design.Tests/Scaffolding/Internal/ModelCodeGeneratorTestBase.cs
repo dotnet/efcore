@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -106,5 +107,19 @@ public abstract class ModelCodeGeneratorTestBase
     protected static void AssertFileContents(
         string expectedCode,
         ScaffoldedFile file)
-        => Assert.Equal(expectedCode, file.Code, ignoreLineEndingDifferences: true);
+        => Assert.Equal(expectedCode, file.Code.TrimEnd(), ignoreLineEndingDifferences: true);
+
+    protected static void AssertContains(
+        string expected,
+        string actual)
+    {
+        // Normalize line endings to Environment.Newline
+        expected = expected
+            .Replace("\r\n", "\n")
+            .Replace("\n\r", "\n")
+            .Replace("\r", "\n")
+            .Replace("\n", Environment.NewLine);
+
+        Assert.Contains(expected, actual);
+    }
 }

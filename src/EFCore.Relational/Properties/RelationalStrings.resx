@@ -130,6 +130,9 @@
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
+  <data name="CannotConfigureTriggerNonRootTphEntity" xml:space="preserve">
+    <value>Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.</value>
+  </data>
   <data name="ClientGroupByNotSupported" xml:space="preserve">
     <value>Unable to translate the given 'GroupBy' pattern. Call 'AsEnumerable' before 'GroupBy' to evaluate it client-side.</value>
   </data>
@@ -216,6 +219,9 @@
   </data>
   <data name="DbFunctionNonScalarCustomTranslation" xml:space="preserve">
     <value>Cannot set custom translation on the DbFunction '{function}' since it is not a scalar function.</value>
+  </data>
+  <data name="DbFunctionNullableValueReturnType" xml:space="preserve">
+    <value>The DbFunction '{function}' returns a SqlExpression of type '{type}', which is a nullable value type. DbFunctions must return expressions with non-nullable value types, even when they may return null.</value>
   </data>
   <data name="DefaultValueSqlUnspecified" xml:space="preserve">
     <value>The default value SQL has not been specified for the column '{table}.{column}'. Specify the SQL before using Entity Framework to create the database schema.</value>
@@ -358,11 +364,14 @@
   <data name="EntitySplittingMissingPropertiesMainFragment" xml:space="preserve">
     <value>Entity type '{entityType}' has a split mapping, but it doesn't map any non-primary key property to the main store object. Keep at least one non-primary key property mapped to a column on '{storeObject}'.</value>
   </data>
+  <data name="EntitySplittingMissingRequiredPropertiesOptionalDependent" xml:space="preserve">
+    <value>Entity type '{entityType}' has a split mapping and is an optional dependent sharing a store object, but it doesn't map any required non-shared property to the main store object. Keep at least one required non-shared property mapped to a column on '{storeObject}' or mark '{entityType}' as a required dependent by calling '{requiredDependentConfig}'.</value>
+  </data>
   <data name="EntitySplittingUnmappedMainFragment" xml:space="preserve">
     <value>Entity type '{entityType}' has a split mapping for '{storeObject}', but it doesn't have a main mapping of the same type. Map '{entityType}' to '{storeObjectType}'.</value>
   </data>
   <data name="EntitySplittingUnmatchedMainTableSplitting" xml:space="preserve">
-    <value>Entity type '{entityType}' has a split mapping for '{storeObject}' that shares the table with '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to a table that '{principalEntityType}' is also mapped to.</value>
+    <value>Entity type '{entityType}' has a split mapping for '{storeObject}' that is shared with the entity type '{principalEntityType}', but the main mappings of these types do not share a table. Map the split fragments of '{entityType}' to non-shared tables or map the main fragment to '{principalStoreObject}'.</value>
   </data>
   <data name="ErrorMaterializingProperty" xml:space="preserve">
     <value>An error occurred while reading a database value for property '{entityType}.{property}'. See the inner exception for more information.</value>
@@ -801,6 +810,10 @@
     <value>Rolling back transaction.</value>
     <comment>Debug RelationalEventId.TransactionRollingBack</comment>
   </data>
+  <data name="LogStoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
+    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
+    <comment>Warning RelationalEventId.StoredProcedureConcurrencyTokenNotMapped string string string</comment>
+  </data>
   <data name="LogTpcStoreGeneratedIdentity" xml:space="preserve">
     <value>The entity type '{entityType}' is using the table per concrete type mapping strategy, but property '{property}' is configured with an incompatible database-generated default. Configure a compatible value generation strategy if available, or use non-generated key values.</value>
     <comment>Warning RelationalEventId.TpcStoreGeneratedIdentityWarning string string</comment>
@@ -811,7 +824,7 @@
   </data>
   <data name="LogUnexpectedTrailingResultSetWhenSaving" xml:space="preserve">
     <value>An unexpected trailing result set was found when reading the results of a SaveChanges operation; this may indicate that a stored procedure returned a result set without being configured for it in the EF model. Check your stored procedure definitions.</value>
-    <comment>Warning CoreEventId.UnexpectedTrailingResultSetWhenSaving</comment>
+    <comment>Warning RelationalEventId.UnexpectedTrailingResultSetWhenSaving</comment>
   </data>
   <data name="LogUnnamedIndexAllPropertiesNotToMappedToAnyTable" xml:space="preserve">
     <value>The unnamed index on the entity type '{entityType}' specifies properties {indexProperties}, but none of these properties are mapped to a column in any table. This index will not be created in the database.</value>
@@ -891,6 +904,9 @@
   </data>
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a DbCommand for a non-relational query.</value>
+  </data>
+  <data name="NonConstantOrParameterAsInExpressionValues" xml:space="preserve">
+    <value>Expression of type '{type}' isn't supported as the Values of an InExpression; only constants and parameters are supported.</value>
   </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>
@@ -976,8 +992,8 @@
   <data name="SqlQueryUnmappedType" xml:space="preserve">
     <value>The element type '{elementType}' used in 'SqlQuery' method is not natively supported by your database provider. Either use a supported element type, or use ModelConfigurationBuilder.DefaultTypeMapping to define a mapping for your type.</value>
   </data>
-  <data name="StoredProcedureConcurrencyTokenNotMapped" xml:space="preserve">
-    <value>The entity type '{entityType}' is mapped to the stored procedure '{sproc}', but the concurrency token '{token}' is not mapped to any original value parameter.</value>
+  <data name="StoredKeyTypesNotConvertable" xml:space="preserve">
+    <value>The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. To use 'SaveChanges` or 'SaveChangesAsync', foreign key column types must be comparable with principal key column types.</value>
   </data>
   <data name="StoredProcedureCurrentValueParameterOnDelete" xml:space="preserve">
     <value>Current value parameter '{parameter}' is not allowed on delete stored procedure '{sproc}'. Use HasOriginalValueParameter() instead.</value>
@@ -1057,11 +1073,11 @@
   <data name="StoredProcedureResultColumnParameterConflict" xml:space="preserve">
     <value>The property '{entityType}.{property}' is mapped to a result column of the stored procedure '{sproc}', but it is also mapped to an output parameter. A store-generated property can only be mapped to one of these.</value>
   </data>
-  <data name="StoredProcedureRowsAffectedNotPopulated" xml:space="preserve">
-    <value>Stored procedure '{sproc}' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.</value>
-  </data>
   <data name="StoredProcedureRowsAffectedForInsert" xml:space="preserve">
     <value>A rows affected parameter, result column or return value cannot be configured on stored procedure '{sproc}' because it is used for insertion. Rows affected values are only allowed on stored procedures performing updating or deletion.</value>
+  </data>
+  <data name="StoredProcedureRowsAffectedNotPopulated" xml:space="preserve">
+    <value>Stored procedure '{sproc}' was configured with a rows affected output parameter or return value, but a valid value was not found when executing the procedure.</value>
   </data>
   <data name="StoredProcedureRowsAffectedReturnConflictingParameter" xml:space="preserve">
     <value>The stored procedure '{sproc}' cannot be configured to return the rows affected because a rows affected parameter or a rows affected result column for this stored procedure already exists.</value>
@@ -1077,9 +1093,6 @@
   </data>
   <data name="StoredProcedureUnmapped" xml:space="preserve">
     <value>The entity type '{entityType}' was configured to use some stored procedures and is not mapped to any table. An entity type that isn't mapped to a table must be mapped to insert, update and delete stored procedures.</value>
-  </data>
-  <data name="StoredKeyTypesNotConvertable" xml:space="preserve">
-    <value>The foreign key column '{fkColumnName}' has '{fkColumnType}' values which cannot be compared to the '{pkColumnType}' values of the associated principal key column '{pkColumnName}'. To use 'SaveChanges` or 'SaveChangesAsync', foreign key column types must be comparable with principal key column types.</value>
   </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>

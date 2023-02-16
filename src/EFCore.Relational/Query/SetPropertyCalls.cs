@@ -34,11 +34,27 @@ public sealed class SetPropertyCalls<TSource>
     /// <param name="valueExpression">A value expression.</param>
     /// <returns>
     ///     The same instance so that multiple calls to
-    ///     <see cref="SetProperty{TProperty}(Expression{Func{TSource, TProperty}}, Expression{Func{TSource, TProperty}})" /> can be chained.
+    ///     <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, Func{TSource, TProperty})" />
+    ///     can be chained.
     /// </returns>
     public SetPropertyCalls<TSource> SetProperty<TProperty>(
-        Expression<Func<TSource, TProperty>> propertyExpression,
-        Expression<Func<TSource, TProperty>> valueExpression)
+        Func<TSource, TProperty> propertyExpression,
+        Func<TSource, TProperty> valueExpression)
+        => throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
+
+    /// <summary>
+    ///     Specifies a property and corresponding value it should be updated to in ExecuteUpdate method.
+    /// </summary>
+    /// <typeparam name="TProperty">The type of property.</typeparam>
+    /// <param name="propertyExpression">A property access expression.</param>
+    /// <param name="valueExpression">A value expression.</param>
+    /// <returns>
+    ///     The same instance so that multiple calls to
+    ///     <see cref="SetPropertyCalls{TSource}.SetProperty{TProperty}(Func{TSource, TProperty}, TProperty)" /> can be chained.
+    /// </returns>
+    public SetPropertyCalls<TSource> SetProperty<TProperty>(
+        Func<TSource, TProperty> propertyExpression,
+        TProperty valueExpression)
         => throw new InvalidOperationException(RelationalStrings.SetPropertyMethodInvoked);
 
     #region Hidden System.Object members

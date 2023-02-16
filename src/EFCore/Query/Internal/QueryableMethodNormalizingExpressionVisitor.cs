@@ -165,7 +165,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 {
                     throw new InvalidOperationException(
                         CoreStrings.QueryInvalidMaterializationType(
-                            new ExpressionPrinter().Print(Expression.Lambda(expression, lambdaParameter)),
+                            new ExpressionPrinter().PrintExpression(Expression.Lambda(expression, lambdaParameter)),
                             expression.Type.ShortDisplayName()));
                 }
 

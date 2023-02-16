@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -210,7 +211,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 _projectionMapping[new ProjectionMember()] = entityProjection;
             }
 
-                break;
+            break;
 
             case RelationalAnnotationNames.TpcMappingStrategy:
             {
@@ -344,7 +345,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
             }
 
-                break;
+            break;
 
             default:
             {
@@ -424,7 +425,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
             }
 
-                break;
+            break;
         }
 
         void GenerateNonHierarchyNonSplittingEntityType(ITableBase table, TableExpressionBase tableExpression)
@@ -439,52 +440,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
-
-            foreach (var ownedJsonNavigation in GetAllNavigationsInHierarchy(entityType)
-                         .Where(
-                             n => n.ForeignKey.IsOwnership
-                                 && n.TargetEntityType.IsMappedToJson()
-                                 && n.ForeignKey.PrincipalToDependent == n))
-            {
-                var targetEntityType = ownedJsonNavigation.TargetEntityType;
-                var jsonColumnName = targetEntityType.GetContainerColumnName()!;
-                var jsonColumnTypeMapping = targetEntityType.GetContainerColumnTypeMapping()!;
-
-                var jsonColumn = new ConcreteColumnExpression(
-                    jsonColumnName,
-                    tableReferenceExpression,
-                    jsonColumnTypeMapping.ClrType,
-                    jsonColumnTypeMapping,
-                    nullable: !ownedJsonNavigation.ForeignKey.IsRequiredDependent || ownedJsonNavigation.IsCollection);
-
-                // for json collections we need to skip ordinal key (which is always the last one)
-                // simple copy from parent is safe here, because we only do it at top level
-                // so there is no danger of multiple keys being synthesized (like we have in multi-level nav chains)
-                var keyPropertiesMap = new Dictionary<IProperty, ColumnExpression>();
-                var keyProperties = targetEntityType.FindPrimaryKey()!.Properties;
-                var keyPropertiesCount = ownedJsonNavigation.IsCollection
-                    ? keyProperties.Count - 1
-                    : keyProperties.Count;
-
-                for (var i = 0; i < keyPropertiesCount; i++)
-                {
-                    var correspondingParentKeyProperty = ownedJsonNavigation.ForeignKey.PrincipalKey.Properties[i];
-                    keyPropertiesMap[keyProperties[i]] = propertyExpressions[correspondingParentKeyProperty];
-                }
-
-                var entityShaperExpression = new RelationalEntityShaperExpression(
-                    targetEntityType,
-                    new JsonQueryExpression(
-                        targetEntityType,
-                        jsonColumn,
-                        keyPropertiesMap,
-                        ownedJsonNavigation.ClrType,
-                        ownedJsonNavigation.IsCollection),
-                    !ownedJsonNavigation.ForeignKey.IsRequiredDependent);
-
-                entityProjection.AddNavigationBinding(ownedJsonNavigation, entityShaperExpression);
-            }
-
+            AddJsonNavigationBindings(entityType, entityProjection, propertyExpressions, tableReferenceExpression);
             _projectionMapping[new ProjectionMember()] = entityProjection;
 
             var primaryKey = entityType.FindPrimaryKey();
@@ -521,6 +477,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
 
         var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
+        AddJsonNavigationBindings(entityType, entityProjection, propertyExpressions, tableReferenceExpression);
         _projectionMapping[new ProjectionMember()] = entityProjection;
 
         var primaryKey = entityType.FindPrimaryKey();
@@ -530,6 +487,58 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 _identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
             }
+        }
+    }
+
+    private void AddJsonNavigationBindings(
+        IEntityType entityType,
+        EntityProjectionExpression entityProjection,
+        Dictionary<IProperty, ColumnExpression> propertyExpressions,
+        TableReferenceExpression tableReferenceExpression)
+    {
+        foreach (var ownedJsonNavigation in GetAllNavigationsInHierarchy(entityType)
+                     .Where(
+                         n => n.ForeignKey.IsOwnership
+                             && n.TargetEntityType.IsMappedToJson()
+                             && n.ForeignKey.PrincipalToDependent == n))
+        {
+            var targetEntityType = ownedJsonNavigation.TargetEntityType;
+            var jsonColumnName = targetEntityType.GetContainerColumnName()!;
+            var jsonColumnTypeMapping = targetEntityType.GetContainerColumnTypeMapping()!;
+
+            var jsonColumn = new ConcreteColumnExpression(
+                jsonColumnName,
+                tableReferenceExpression,
+                jsonColumnTypeMapping.ClrType,
+                jsonColumnTypeMapping,
+                nullable: !ownedJsonNavigation.ForeignKey.IsRequiredDependent || ownedJsonNavigation.IsCollection);
+
+            // for json collections we need to skip ordinal key (which is always the last one)
+            // simple copy from parent is safe here, because we only do it at top level
+            // so there is no danger of multiple keys being synthesized (like we have in multi-level nav chains)
+            var keyPropertiesMap = new Dictionary<IProperty, ColumnExpression>();
+            var keyProperties = targetEntityType.FindPrimaryKey()!.Properties;
+            var keyPropertiesCount = ownedJsonNavigation.IsCollection
+                ? keyProperties.Count - 1
+                : keyProperties.Count;
+
+            for (var i = 0; i < keyPropertiesCount; i++)
+            {
+                var correspondingParentKeyProperty = ownedJsonNavigation.ForeignKey.PrincipalKey.Properties[i];
+                keyPropertiesMap[keyProperties[i]] = propertyExpressions[correspondingParentKeyProperty];
+            }
+
+            var entityShaperExpression = new RelationalEntityShaperExpression(
+                targetEntityType,
+                new JsonQueryExpression(
+                    targetEntityType,
+                    jsonColumn,
+                    keyPropertiesMap,
+                    ownedJsonNavigation.ClrType,
+                    ownedJsonNavigation.IsCollection),
+                !ownedJsonNavigation.ForeignKey.IsRequiredDependent);
+
+            entityProjection.AddNavigationBinding(ownedJsonNavigation, entityShaperExpression);
         }
     }
 
@@ -866,37 +875,43 @@ public sealed partial class SelectExpression : TableExpressionBase
             if (shaperExpression is RelationalGroupByShaperExpression groupByShaper)
             {
                 // We need to add key to projection and generate key selector in terms of projectionBindings
-                var projectionBindingMap = new Dictionary<SqlExpression, ProjectionBindingExpression>();
+                var projectionBindingMap = new Dictionary<SqlExpression, Expression>();
                 var keySelector = AddGroupByKeySelectorToProjection(
                     this, newClientProjections, projectionBindingMap, groupByShaper.KeySelector);
-                var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(projectionBindingMap, _identifier);
+                var (keyIdentifier, keyIdentifierValueComparers) = GetIdentifierAccessor(
+                    this, newClientProjections, projectionBindingMap, _identifier);
                 _identifier.Clear();
                 _identifier.AddRange(_preGroupByIdentifier!);
                 _preGroupByIdentifier!.Clear();
 
-                static Expression AddGroupByKeySelectorToProjection(
+                Expression AddGroupByKeySelectorToProjection(
                     SelectExpression selectExpression,
                     List<Expression> clientProjectionList,
-                    Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
+                    Dictionary<SqlExpression, Expression> projectionBindingMap,
                     Expression keySelector)
                 {
                     switch (keySelector)
                     {
                         case SqlExpression sqlExpression:
+                        {
                             var index = selectExpression.AddToProjection(sqlExpression);
                             var clientProjectionToAdd = Constant(index);
                             var existingIndex = clientProjectionList.FindIndex(
                                 e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
                             if (existingIndex == -1)
                             {
-                                clientProjectionList.Add(Constant(index));
+                                clientProjectionList.Add(clientProjectionToAdd);
                                 existingIndex = clientProjectionList.Count - 1;
                             }
 
-                            var projectionBindingExpression = new ProjectionBindingExpression(
-                                selectExpression, existingIndex, sqlExpression.Type.MakeNullable());
+                            var projectionBindingExpression = sqlExpression.Type.IsNullableType()
+                                ? (Expression)new ProjectionBindingExpression(selectExpression, existingIndex, sqlExpression.Type)
+                                : Convert(new ProjectionBindingExpression(
+                                    selectExpression, existingIndex, sqlExpression.Type.MakeNullable()),
+                                    sqlExpression.Type);
                             projectionBindingMap[sqlExpression] = projectionBindingExpression;
                             return projectionBindingExpression;
+                        }
 
                         case NewExpression newExpression:
                             var newArguments = new Expression[newExpression.Arguments.Count];
@@ -935,6 +950,22 @@ public sealed partial class SelectExpression : TableExpressionBase
                                 AddGroupByKeySelectorToProjection(
                                     selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
 
+                        case EntityShaperExpression entityShaperExpression
+                        when entityShaperExpression.ValueBufferExpression is EntityProjectionExpression entityProjectionExpression:
+                        {
+                            var clientProjectionToAdd = AddEntityProjection(entityProjectionExpression);
+                            var existingIndex = clientProjectionList.FindIndex(
+                                e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
+                            if (existingIndex == -1)
+                            {
+                                clientProjectionList.Add(clientProjectionToAdd);
+                                existingIndex = clientProjectionList.Count - 1;
+                            }
+
+                            return entityShaperExpression.Update(
+                                new ProjectionBindingExpression(selectExpression, existingIndex, typeof(ValueBuffer)));
+                        }
+
                         default:
                             throw new InvalidOperationException(
                                 RelationalStrings.InvalidKeySelectorForGroupBy(keySelector, keySelector.GetType()));
@@ -942,18 +973,34 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
 
                 static (Expression, IReadOnlyList<ValueComparer>) GetIdentifierAccessor(
-                    Dictionary<SqlExpression, ProjectionBindingExpression> projectionBindingMap,
+                    SelectExpression selectExpression,
+                    List<Expression> clientProjectionList,
+                    Dictionary<SqlExpression, Expression> projectionBindingMap,
                     IEnumerable<(ColumnExpression Column, ValueComparer Comparer)> identifyingProjection)
                 {
                     var updatedExpressions = new List<Expression>();
                     var comparers = new List<ValueComparer>();
                     foreach (var (column, comparer) in identifyingProjection)
                     {
-                        var projectionBindingExpression = projectionBindingMap[column];
+                        if (!projectionBindingMap.TryGetValue(column, out var mappedExpresssion))
+                        {
+                            var index = selectExpression.AddToProjection(column);
+                            var clientProjectionToAdd = Constant(index);
+                            var existingIndex = clientProjectionList.FindIndex(
+                                e => ExpressionEqualityComparer.Instance.Equals(e, clientProjectionToAdd));
+                            if (existingIndex == -1)
+                            {
+                                clientProjectionList.Add(clientProjectionToAdd);
+                                existingIndex = clientProjectionList.Count - 1;
+                            }
+
+                            mappedExpresssion = new ProjectionBindingExpression(selectExpression, existingIndex, column.Type.MakeNullable());
+                        }
+
                         updatedExpressions.Add(
-                            projectionBindingExpression.Type.IsValueType
-                                ? Convert(projectionBindingExpression, typeof(object))
-                                : projectionBindingExpression);
+                            mappedExpresssion.Type.IsValueType
+                                ? Convert(mappedExpresssion, typeof(object))
+                                : mappedExpresssion);
                         comparers.Add(comparer);
                     }
 
@@ -1482,15 +1529,19 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                         remappedConstant = Constant(newDictionary);
                     }
-                    else if (constantValue is ValueTuple<int, List<ValueTuple<IProperty, int>>, string[]> tuple)
+                    else if (constantValue is JsonProjectionInfo jsonProjectionInfo)
                     {
-                        var newList = new List<ValueTuple<IProperty, int>>();
-                        foreach (var item in tuple.Item2)
+                        var newKeyAccessInfo = new List<(IProperty?, int?, int?)>();
+                        foreach (var (keyProperty, constantKeyValue, keyProjectionIndex) in jsonProjectionInfo.KeyAccessInfo)
                         {
-                            newList.Add((item.Item1, projectionIndexMap[item.Item2]));
+                            newKeyAccessInfo.Add((keyProperty, constantKeyValue, keyProjectionIndex != null ? projectionIndexMap[keyProjectionIndex.Value] : null));
                         }
 
-                        remappedConstant = Constant((projectionIndexMap[tuple.Item1], newList, tuple.Item3));
+                        remappedConstant = Constant(
+                            new JsonProjectionInfo(
+                                projectionIndexMap[jsonProjectionInfo.JsonColumnIndex],
+                                newKeyAccessInfo,
+                                jsonProjectionInfo.AdditionalPath));
                     }
                     else
                     {
@@ -1510,7 +1561,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 return innerShaperExpression;
             }
         }
-
+        else
         {
             var jsonProjectionDeduplicationMap = BuildJsonProjectionDeduplicationMap(
                 _projectionMapping.Select(x => x.Value).OfType<JsonQueryExpression>());
@@ -1543,7 +1594,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 var ordered = projections
                     .OrderBy(x => $"{x.JsonColumn.TableAlias}.{x.JsonColumn.Name}")
-                    .ThenBy(x => x.Path.Count);
+                    .ThenBy(x => x.Path.Count)
+                    .ThenBy(x => x.Path[^1].ArrayIndex != null);
 
                 var needed = new List<JsonScalarExpression>();
                 foreach (var orderedElement in ordered)
@@ -1591,25 +1643,54 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         ConstantExpression AddJsonProjection(JsonQueryExpression jsonQueryExpression, JsonScalarExpression jsonScalarToAdd)
         {
-            var additionalPath = new string[0];
-
-            // this will be more tricky once we support more complicated json path options
-            additionalPath = jsonQueryExpression.Path
+            var additionalPath = jsonQueryExpression.Path
                 .Skip(jsonScalarToAdd.Path.Count)
-                .Select(x => x.Key)
                 .ToArray();
 
             var jsonColumnIndex = AddToProjection(jsonScalarToAdd);
 
-            var keyInfo = new List<(IProperty, int)>();
+            var keyAccessInfo = new List<(IProperty?, int?, int?)>();
             var keyProperties = GetMappedKeyProperties(jsonQueryExpression.EntityType.FindPrimaryKey()!);
             foreach (var keyProperty in keyProperties)
             {
                 var keyColumn = jsonQueryExpression.BindProperty(keyProperty);
-                keyInfo.Add((keyProperty, AddToProjection(keyColumn)));
+                keyAccessInfo.Add((keyProperty, null, AddToProjection(keyColumn)));
             }
 
-            return Constant((jsonColumnIndex, keyInfo, additionalPath));
+            foreach (var elementAccessSegment in jsonScalarToAdd.Path.Where(x => x.ArrayIndex != null))
+            {
+                if (elementAccessSegment.ArrayIndex is SqlConstantExpression { Value: int intValue })
+                {
+                    keyAccessInfo.Add((null, intValue, null));
+                }
+                else
+                {
+                    keyAccessInfo.Add((null, null, AddToProjection(elementAccessSegment.ArrayIndex!)));
+                }
+            }
+
+            var additionalPathList = new List<(string?, int?, int?)>();
+            foreach (var additionalPathSegment in additionalPath)
+            {
+                if (additionalPathSegment.PropertyName is not null)
+                {
+                    additionalPathList.Add((additionalPathSegment.PropertyName, null, null));
+                }
+                else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue } sqlConstant)
+                {
+                    additionalPathList.Add((null, intValue, null));
+                }
+                else
+                {
+                    additionalPathList.Add((null, null, AddToProjection(additionalPathSegment.ArrayIndex!)));
+                }
+            }
+
+            return Constant(
+                new JsonProjectionInfo(
+                    jsonColumnIndex,
+                    keyAccessInfo,
+                    additionalPathList.ToArray()));
         }
 
         static IReadOnlyList<IProperty> GetMappedKeyProperties(IKey key)
@@ -2004,9 +2085,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 break;
 
             case EntityShaperExpression entityShaperExpression
-                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
-                var entityProjectionExpression = (EntityProjectionExpression)((SelectExpression)projectionBindingExpression.QueryExpression)
-                        .GetProjection(projectionBindingExpression);
+                when entityShaperExpression.ValueBufferExpression is EntityProjectionExpression entityProjectionExpression:
                 foreach (var property in GetAllPropertiesInHierarchy(entityProjectionExpression.EntityType))
                 {
                     PopulateGroupByTerms(entityProjectionExpression.BindProperty(property), groupByTerms, groupByAliases, name: null);
@@ -2520,114 +2599,272 @@ public sealed partial class SelectExpression : TableExpressionBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [EntityFrameworkInternal]
-    public EntityProjectionExpression? GenerateWeakEntityProjectionExpression(
-        IEntityType entityType,
-        ITableBase table,
-        string? columnName,
-        TableExpressionBase tableExpressionBase,
-        bool nullable = true)
+    public EntityShaperExpression GenerateOwnedReferenceEntityProjectionExpression(
+        EntityProjectionExpression principalEntityProjection,
+        INavigation navigation,
+        ISqlExpressionFactory sqlExpressionFactory)
     {
-        if (columnName == null)
-        {
-            // This is when projections are coming from a joined table.
-            var propertyExpressions = GetPropertyExpressionsFromJoinedTable(
-                entityType, table, FindTableReference(this, tableExpressionBase));
+        // We first find the select expression where principal tableExpressionBase is located
+        // That is where we find shared tableExpressionBase to pull columns from or add joins
+        var identifyingColumn = principalEntityProjection.BindProperty(
+            navigation.DeclaringEntityType.FindPrimaryKey()!.Properties.First());
 
-            return new EntityProjectionExpression(entityType, propertyExpressions);
-        }
-        else
-        {
-            var propertyExpressions = GetPropertyExpressionFromSameTable(
-                entityType, table, this, tableExpressionBase, columnName, nullable);
+        var expressions = GetPropertyExpressions(sqlExpressionFactory, navigation, this, identifyingColumn);
 
-            return propertyExpressions == null
-                ? null
-                : new EntityProjectionExpression(entityType, propertyExpressions);
-        }
+        var entityShaper = new RelationalEntityShaperExpression(
+            navigation.TargetEntityType,
+            new EntityProjectionExpression(navigation.TargetEntityType, expressions),
+            identifyingColumn.IsNullable || navigation.DeclaringEntityType.BaseType != null || !navigation.ForeignKey.IsRequiredDependent);
+        principalEntityProjection.AddNavigationBinding(navigation, entityShaper);
 
-        static TableReferenceExpression FindTableReference(SelectExpression selectExpression, TableExpressionBase tableExpression)
-        {
-            var tableIndex = selectExpression._tables.FindIndex(e => ReferenceEquals(e, tableExpression));
-            return selectExpression._tableReferences[tableIndex];
-        }
+        return entityShaper;
 
-        static IReadOnlyDictionary<IProperty, ColumnExpression>? GetPropertyExpressionFromSameTable(
-            IEntityType entityType,
-            ITableBase table,
+        // Owned types don't support inheritance See https://github.com/dotnet/efcore/issues/9630
+        // So there is no handling for dependent having hierarchy
+        // TODO: The following code should also handle Function and SqlQuery mappings when supported on owned type
+        static IReadOnlyDictionary<IProperty, ColumnExpression> GetPropertyExpressions(
+            ISqlExpressionFactory sqlExpressionFactory,
+            INavigation navigation,
             SelectExpression selectExpression,
-            TableExpressionBase tableExpressionBase,
-            string columnName,
-            bool nullable)
+            ColumnExpression identifyingColumn)
         {
-            var unwrappedTable = UnwrapJoinExpression(tableExpressionBase);
-            if (unwrappedTable is TableExpression tableExpression)
+            var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+            var tableExpressionBase = UnwrapJoinExpression(identifyingColumn.Table);
+            if (tableExpressionBase is SelectExpression subquery)
             {
-                if (!string.Equals(tableExpression.Name, table.Name, StringComparison.OrdinalIgnoreCase))
-                {
-                    // Fetch the table for the type which is defining the navigation since dependent would be in that table
-                    tableExpressionBase = selectExpression.Tables
-                        .First(
-                            e =>
-                            {
-                                var t = (TableExpression)UnwrapJoinExpression(e);
-                                return t.Name == table.Name && t.Schema == table.Schema;
-                            });
-                }
+                // If identifying column is from a subquery then the owner table is inside subquery
+                // so we need to traverse in
+                var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
+                    .Single(e => string.Equals(e.Alias, identifyingColumn.Name, StringComparison.OrdinalIgnoreCase))
+                    .Expression;
 
-                var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                var tableReferenceExpression = FindTableReference(selectExpression, tableExpressionBase);
-                foreach (var property in entityType
-                             .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                             .SelectMany(t => t.GetDeclaredProperties()))
+                var subqueryPropertyExpressions = GetPropertyExpressions(
+                    sqlExpressionFactory, navigation, subquery, subqueryIdentifyingColumn);
+                var changeNullability = identifyingColumn.IsNullable && !subqueryIdentifyingColumn.IsNullable;
+                var tableIndex = selectExpression._tables.FindIndex(e => ReferenceEquals(e, identifyingColumn.Table));
+                var subqueryTableReferenceExpression = selectExpression._tableReferences[tableIndex];
+                foreach (var (property, columnExpression) in subqueryPropertyExpressions)
                 {
-                    propertyExpressions[property] = new ConcreteColumnExpression(
-                        property, table.FindColumn(property)!, tableReferenceExpression, nullable || !property.IsPrimaryKey());
+                    var outerColumn = subquery.GenerateOuterColumn(subqueryTableReferenceExpression, columnExpression);
+                    if (changeNullability)
+                    {
+                        outerColumn = outerColumn.MakeNullable();
+                    }
+                    propertyExpressions[property] = outerColumn;
                 }
 
                 return propertyExpressions;
             }
 
-            if (unwrappedTable is SelectExpression subquery)
+            // This is the select expression where owner table exists
+            // where we would look for same table or generate joins
+            var sourceTableForAnnotations = FindRootTableExpressionForColumn(identifyingColumn.Table, identifyingColumn.Name);
+            var ownerType = navigation.DeclaringEntityType;
+            var entityType = navigation.TargetEntityType;
+            var principalMappings = ownerType.GetViewOrTableMappings().Select(e => e.Table);
+            var derivedType = ownerType.BaseType != null;
+            var derivedTpt = derivedType && ownerType.GetMappingStrategy() == RelationalAnnotationNames.TptMappingStrategy;
+            var parentNullable = identifyingColumn.IsNullable;
+            var pkColumnsNullable = parentNullable
+                || (derivedType && ownerType.GetMappingStrategy() != RelationalAnnotationNames.TphMappingStrategy);
+            var newColumnsNullable = pkColumnsNullable || !navigation.ForeignKey.IsRequiredDependent;
+            if (derivedTpt)
             {
-                var subqueryIdentifyingColumn = (ColumnExpression)subquery.Projection
-                    .Single(e => string.Equals(e.Alias, columnName, StringComparison.OrdinalIgnoreCase))
-                    .Expression;
-
-                var subqueryPropertyExpressions = GetPropertyExpressionFromSameTable(
-                    entityType, table, subquery, subqueryIdentifyingColumn.Table, subqueryIdentifyingColumn.Name, nullable);
-                if (subqueryPropertyExpressions == null)
-                {
-                    return null;
-                }
-
-                var newPropertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-                var tableReferenceExpression = FindTableReference(selectExpression, tableExpressionBase);
-                foreach (var (property, columnExpression) in subqueryPropertyExpressions)
-                {
-                    newPropertyExpressions[property] = subquery.GenerateOuterColumn(tableReferenceExpression, columnExpression);
-                }
-
-                return newPropertyExpressions;
+                principalMappings = principalMappings.Except(ownerType.BaseType!.GetViewOrTableMappings().Select(e => e.Table));
             }
 
-            return null;
-        }
-
-        static IReadOnlyDictionary<IProperty, ColumnExpression> GetPropertyExpressionsFromJoinedTable(
-            IEntityType entityType,
-            ITableBase table,
-            TableReferenceExpression tableReferenceExpression)
-        {
-            var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
-            foreach (var property in entityType
-                         .GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
-                         .SelectMany(t => t.GetDeclaredProperties()))
+            var principalTables = principalMappings.ToList();
+            var dependentTables = entityType.GetViewOrTableMappings().Select(e => e.Table).ToList();
+            var baseTableIndex = selectExpression._tables.FindIndex(teb => ReferenceEquals(teb, identifyingColumn.Table));
+            var dependentMainTable = dependentTables[0];
+            var tableReferenceExpressionMap = new Dictionary<ITableBase, TableReferenceExpression>();
+            var keyProperties = entityType.FindPrimaryKey()!.Properties;
+            TableReferenceExpression mainTableReferenceExpression;
+            TableReferenceExpression tableReferenceExpression;
+            if (tableExpressionBase is TableExpression)
             {
-                propertyExpressions[property] = new ConcreteColumnExpression(
-                    property, table.FindColumn(property)!, tableReferenceExpression, nullable: true);
+                // This has potential to pull data from existing table
+                // PrincipalTables count will be 1 except for entity splitting
+                var matchingTableIndex = principalTables.FindIndex(e => e == dependentMainTable);
+                // If dependent main table is not sharing then there is no table sharing at all in fragment
+                if (matchingTableIndex != -1)
+                {
+                    // Dependent is table sharing with principal in some form, we don't need to generate join to owner
+                    // TableExpression from identifying column will point to base type for TPT
+                    // This may not be table which originates Owned type
+                    if (derivedTpt)
+                    {
+                        baseTableIndex = selectExpression._tables.FindIndex(
+                            teb => ((TableExpression)UnwrapJoinExpression(teb)).Table == principalTables[0]);
+                    }
+                    var tableIndex = baseTableIndex + matchingTableIndex;
+                    mainTableReferenceExpression = selectExpression._tableReferences[tableIndex];
+                    tableReferenceExpressionMap[dependentMainTable] = mainTableReferenceExpression;
+                    if (dependentTables.Count > 1)
+                    {
+                        var joinColumns = new List<ColumnExpression>();
+                        foreach (var property in keyProperties)
+                        {
+                            var columnExpression = new ConcreteColumnExpression(
+                                property, dependentMainTable.FindColumn(property)!, mainTableReferenceExpression,
+                                pkColumnsNullable);
+                            propertyExpressions[property] = columnExpression;
+                            joinColumns.Add(columnExpression);
+                        }
+
+                        for (var i = 1; i < dependentTables.Count; i++)
+                        {
+                            var table = dependentTables[i];
+                            matchingTableIndex = principalTables.FindIndex(e => e == table);
+                            if (matchingTableIndex != -1)
+                            {
+                                // We don't need to generate join for this
+                                tableReferenceExpressionMap[table] = selectExpression._tableReferences[baseTableIndex + matchingTableIndex];
+                            }
+                            else
+                            {
+                                TableExpressionBase tableExpression = new TableExpression(table);
+                                foreach (var annotation in sourceTableForAnnotations.GetAnnotations())
+                                {
+                                    tableExpression = tableExpression.AddAnnotation(annotation.Name, annotation.Value);
+                                }
+                                tableReferenceExpression = new TableReferenceExpression(selectExpression, tableExpression.Alias!);
+                                tableReferenceExpressionMap[table] = tableReferenceExpression;
+
+                                var innerColumns = keyProperties.Select(
+                                    p => CreateColumnExpression(p, table, tableReferenceExpression, nullable: false));
+                                var joinPredicate = joinColumns.Zip(innerColumns, (l, r) => sqlExpressionFactory.Equal(l, r))
+                                        .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
+
+                                var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
+                                selectExpression._removableJoinTables.Add(selectExpression._tables.Count);
+                                selectExpression.AddTable(joinExpression, tableReferenceExpression);
+                            }
+                        }
+                    }
+
+                    foreach (var property in entityType.GetProperties())
+                    {
+                        if (property.IsPrimaryKey()
+                            && dependentTables.Count > 1)
+                        {
+                            continue;
+                        }
+
+                        var columnBase = dependentTables.Count == 1
+                            ? dependentMainTable.FindColumn(property)!
+                            : dependentTables.Select(e => e.FindColumn(property)).First(e => e != null)!;
+                        propertyExpressions[property] = CreateColumnExpression(
+                            property, columnBase, tableReferenceExpressionMap[columnBase.Table],
+                            nullable: property.IsPrimaryKey() ? pkColumnsNullable : newColumnsNullable);
+                    }
+
+                    return propertyExpressions;
+                }
+            }
+
+            // Either we encountered a custom table source or dependent is not sharing table
+            // In either case we need to generate join to owner
+            var ownerJoinColumns = new List<ColumnExpression>();
+            var ownerTableReferenceExpression = selectExpression._tableReferences[baseTableIndex];
+            foreach (var property in navigation.ForeignKey.PrincipalKey.Properties)
+            {
+                var columnBase = principalTables.Select(e => e.FindColumn(property)).First(e => e != null)!;
+                var columnExpression = new ConcreteColumnExpression(
+                    property, columnBase, ownerTableReferenceExpression, pkColumnsNullable);
+                ownerJoinColumns.Add(columnExpression);
+            }
+            TableExpressionBase ownedTable = new TableExpression(dependentMainTable);
+            foreach (var annotation in sourceTableForAnnotations.GetAnnotations())
+            {
+                ownedTable = ownedTable.AddAnnotation(annotation.Name, annotation.Value);
+            }
+            mainTableReferenceExpression = new TableReferenceExpression(selectExpression, ownedTable.Alias!);
+            var outerJoinPredicate = ownerJoinColumns
+                .Zip(navigation.ForeignKey.Properties
+                    .Select(p => CreateColumnExpression(p, dependentMainTable, mainTableReferenceExpression, nullable: false)))
+                .Select(i => sqlExpressionFactory.Equal(i.First, i.Second))
+                .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
+            var joinedTable = new LeftJoinExpression(ownedTable, outerJoinPredicate);
+            tableReferenceExpressionMap[dependentMainTable] = mainTableReferenceExpression;
+            selectExpression.AddTable(joinedTable, mainTableReferenceExpression);
+            if (dependentTables.Count > 1)
+            {
+                var joinColumns = new List<ColumnExpression>();
+                foreach (var property in keyProperties)
+                {
+                    var columnExpression = new ConcreteColumnExpression(
+                        property, dependentMainTable.FindColumn(property)!, mainTableReferenceExpression, newColumnsNullable);
+                    propertyExpressions[property] = columnExpression;
+                    joinColumns.Add(columnExpression);
+                }
+
+                for (var i = 1; i < dependentTables.Count; i++)
+                {
+                    var table = dependentTables[i];
+                    TableExpressionBase tableExpression = new TableExpression(table);
+                    foreach (var annotation in sourceTableForAnnotations.GetAnnotations())
+                    {
+                        tableExpression = tableExpression.AddAnnotation(annotation.Name, annotation.Value);
+                    }
+                    tableReferenceExpression = new TableReferenceExpression(selectExpression, tableExpression.Alias!);
+                    tableReferenceExpressionMap[table] = tableReferenceExpression;
+
+                    var innerColumns = keyProperties.Select(
+                        p => CreateColumnExpression(p, table, tableReferenceExpression, nullable: false));
+                    var joinPredicate = joinColumns.Zip(innerColumns, (l, r) => sqlExpressionFactory.Equal(l, r))
+                            .Aggregate((l, r) => sqlExpressionFactory.AndAlso(l, r));
+
+                    var joinExpression = new LeftJoinExpression(tableExpression, joinPredicate);
+                    selectExpression._removableJoinTables.Add(selectExpression._tables.Count);
+                    selectExpression.AddTable(joinExpression, tableReferenceExpression);
+                }
+            }
+
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.IsPrimaryKey()
+                    && dependentTables.Count > 1)
+                {
+                    continue;
+                }
+
+                var columnBase = dependentTables.Count == 1
+                    ? dependentMainTable.FindColumn(property)!
+                    : dependentTables.Select(e => e.FindColumn(property)).First(e => e != null)!;
+                propertyExpressions[property] = CreateColumnExpression(
+                    property, columnBase, tableReferenceExpressionMap[columnBase.Table],
+                    nullable: newColumnsNullable);
+            }
+
+            foreach (var property in keyProperties)
+            {
+                selectExpression._identifier.Add((propertyExpressions[property], property.GetKeyValueComparer()));
             }
 
             return propertyExpressions;
+        }
+
+        static TableExpressionBase FindRootTableExpressionForColumn(TableExpressionBase table, string columnName)
+        {
+            if (table is JoinExpressionBase joinExpressionBase)
+            {
+                table = joinExpressionBase.Table;
+            }
+            else if (table is SetOperationBase setOperationBase)
+            {
+                table = setOperationBase.Source1;
+            }
+
+            if (table is SelectExpression selectExpression)
+            {
+                var matchingProjection =
+                    (ColumnExpression)selectExpression.Projection.Where(p => p.Alias == columnName).Single().Expression;
+
+                return FindRootTableExpressionForColumn(matchingProjection.Table, matchingProjection.Name);
+            }
+
+            return table;
         }
     }
 

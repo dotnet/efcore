@@ -144,14 +144,14 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         => BatchingTopologicalSort(null, null);
 
     public IReadOnlyList<List<TVertex>> BatchingTopologicalSort(
-        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? canBreakEdges,
         Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
         Func<string, string>? formatException = null)
-        => TopologicalSortCore(withBatching: true, tryBreakEdge, formatCycle, formatException);
+        => TopologicalSortCore(withBatching: true, canBreakEdges, formatCycle, formatException);
 
     private IReadOnlyList<List<TVertex>> TopologicalSortCore(
         bool withBatching,
-        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? tryBreakEdge,
+        Func<TVertex, TVertex, IEnumerable<TEdge>, bool>? canBreakEdges,
         Func<IReadOnlyList<Tuple<TVertex, TVertex, IEnumerable<TEdge>>>, string>? formatCycle,
         Func<string, string>? formatException = null)
     {
@@ -218,21 +218,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                         if (predecessorCounts[successor] == 0)
                         {
                             nextRootsQueue.Add(successor);
-
-                            // Detect batch boundary (if batching is enabled).
-                            // If the successor has any predecessor where the edge requires a batching boundary, and that predecessor is
-                            // already in the current batch, then the next batch will have to be executed in a separate batch.
-                            // TODO: Optimization: Instead of currentBatchSet, store a batch counter on each vertex, and check if later
-                            // vertexes have a boundary-requiring dependency on a vertex with the same batch counter.
-                            if (withBatching
-                                && _predecessorMap[successor].Any(
-                                    kv =>
-                                        (kv.Value is Edge { RequiresBatchingBoundary: true }
-                                            || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
-                                        && currentBatchSet.Contains(kv.Key)))
-                            {
-                                batchBoundaryRequired = true;
-                            }
+                            CheckBatchingBoundary(successor);
                         }
                     }
                 }
@@ -252,7 +238,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
 
                 while ((candidateIndex < candidateVertices.Count)
                        && !broken
-                       && tryBreakEdge != null)
+                       && canBreakEdges != null)
                 {
                     var candidateVertex = candidateVertices[candidateIndex];
                     if (predecessorCounts[candidateVertex] == 0)
@@ -267,7 +253,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                             neighbor => predecessorCounts.TryGetValue(neighbor, out var neighborPredecessors)
                                 && neighborPredecessors > 0);
 
-                    if (tryBreakEdge(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
+                    if (canBreakEdges(incomingNeighbor, candidateVertex, GetEdges(incomingNeighbor, candidateVertex)))
                     {
                         var removed = _successorMap[incomingNeighbor].Remove(candidateVertex);
                         Check.DebugAssert(removed, "Candidate vertex not found in successor map");
@@ -278,6 +264,7 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
                         if (predecessorCounts[candidateVertex] == 0)
                         {
                             currentRootsQueue.Add(candidateVertex);
+                            CheckBatchingBoundary(candidateVertex);
                             broken = true;
                         }
 
@@ -334,6 +321,24 @@ internal class Multigraph<TVertex, TEdge> : Graph<TVertex>
         }
 
         return result;
+
+        // Detect batch boundary (if batching is enabled).
+        // If the successor has any predecessor where the edge requires a batching boundary, and that predecessor is
+        // already in the current batch, then the next batch will have to be executed in a separate batch.
+        // TODO: Optimization: Instead of currentBatchSet, store a batch counter on each vertex, and check if later
+        // vertexes have a boundary-requiring dependency on a vertex with the same batch counter.
+        void CheckBatchingBoundary(TVertex vertex)
+        {
+            if (withBatching
+                && _predecessorMap[vertex].Any(
+                    kv =>
+                        (kv.Value is Edge { RequiresBatchingBoundary: true }
+                         || kv.Value is IEnumerable<Edge> edges && edges.Any(e => e.RequiresBatchingBoundary))
+                        && currentBatchSet.Contains(kv.Key)))
+            {
+                batchBoundaryRequired = true;
+            }
+        }
     }
 
     private void ThrowCycle(

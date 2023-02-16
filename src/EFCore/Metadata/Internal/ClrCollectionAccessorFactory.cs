@@ -257,7 +257,7 @@ public class ClrCollectionAccessorFactory
         where TCollection : class
         where TElement : class
     {
-        var collection = (TCollection)(ICollection<TElement>)new HashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
+        var collection = (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
         setterDelegate(entity, collection);
         return collection;
     }
@@ -266,7 +266,7 @@ public class ClrCollectionAccessorFactory
     private static TCollection CreateHashSet<TCollection, TElement>()
         where TCollection : class
         where TElement : class
-        => (TCollection)(ICollection<TElement>)new HashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
+        => (TCollection)(ICollection<TElement>)new HashSet<TElement>(ReferenceEqualityComparer.Instance);
 
     [UsedImplicitly]
     private static TCollection CreateAndSetObservableHashSet<TEntity, TCollection, TElement>(
@@ -276,7 +276,7 @@ public class ClrCollectionAccessorFactory
         where TCollection : class
         where TElement : class
     {
-        var collection = (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
+        var collection = (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
         setterDelegate(entity, collection);
         return collection;
     }
@@ -285,5 +285,5 @@ public class ClrCollectionAccessorFactory
     private static TCollection CreateObservableHashSet<TCollection, TElement>()
         where TCollection : class
         where TElement : class
-        => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(LegacyReferenceEqualityComparer.Instance);
+        => (TCollection)(ICollection<TElement>)new ObservableHashSet<TElement>(ReferenceEqualityComparer.Instance);
 }

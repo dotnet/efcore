@@ -21,7 +21,7 @@ public class UpdatesSqlServerTPCTest : UpdatesSqlServerTestBase<UpdatesSqlServer
 
         AssertContainsSql(
             @"@p0=NULL (Size = 8000) (DbType = Binary)
-@p1='ProductWithBytes' (Nullable = false) (Size = 4000)
+@p1='ProductWithBytes' (Nullable = false) (Size = 21)
 @p2=NULL (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -44,44 +44,54 @@ VALUES (@p0, @p1);");
         base.Save_replaced_principal();
 
         AssertSql(
-            @"SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
+"""
+SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
 FROM (
     SELECT [c].[Id], [c].[Name], [c].[PrincipalId], N'Category' AS [Discriminator]
     FROM [Categories] AS [c]
     UNION ALL
     SELECT [s].[Id], [s].[Name], [s].[PrincipalId], N'SpecialCategory' AS [Discriminator]
     FROM [SpecialCategory] AS [s]
-) AS [t]",
+) AS [t]
+""",
             //
-            @"@__category_PrincipalId_0='778' (Nullable = true)
+"""
+@__category_PrincipalId_0='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0",
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+""",
             //
-            @"@p1='1'
+"""
+@p1='1'
 @p0='New Category' (Size = 4000)
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
 UPDATE [Categories] SET [Name] = @p0
 OUTPUT 1
-WHERE [Id] = @p1;",
+WHERE [Id] = @p1;
+""",
             //
-            @"SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
+"""
+SELECT TOP(2) [t].[Id], [t].[Name], [t].[PrincipalId], [t].[Discriminator]
 FROM (
     SELECT [c].[Id], [c].[Name], [c].[PrincipalId], N'Category' AS [Discriminator]
     FROM [Categories] AS [c]
     UNION ALL
     SELECT [s].[Id], [s].[Name], [s].[PrincipalId], N'SpecialCategory' AS [Discriminator]
     FROM [SpecialCategory] AS [s]
-) AS [t]",
+) AS [t]
+""",
             //
-            @"@__category_PrincipalId_0='778' (Nullable = true)
+"""
+@__category_PrincipalId_0='778' (Nullable = true)
 
 SELECT [p].[Id], [p].[Discriminator], [p].[DependentId], [p].[Name], [p].[Price]
 FROM [ProductBase] AS [p]
-WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0");
+WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_PrincipalId_0
+""");
     }
 
     public class UpdatesSqlServerTPCFixture : UpdatesSqlServerFixtureBase
@@ -100,8 +110,9 @@ WHERE [p].[Discriminator] = N'Product' AND [p].[DependentId] = @__category_Princ
         {
             base.OnModelCreating(modelBuilder, context);
 
-            modelBuilder.Entity<Category>()
-                .UseTpcMappingStrategy();
+            modelBuilder.Entity<Category>().UseTpcMappingStrategy();
+            // modelBuilder.Entity<GiftObscurer>().UseTpcMappingStrategy(); Issue #29874
+            modelBuilder.Entity<LiftObscurer>().UseTpcMappingStrategy();
         }
     }
 }

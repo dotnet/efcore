@@ -340,6 +340,9 @@ public class BadDataSqliteTest : IClassFixture<BadDataSqliteTest.BadDataSqliteFi
         public string ConnectionString { get; set; }
         public DbConnection DbConnection { get; set; } = new SqliteConnection();
 
+        public void SetDbConnection(DbConnection value, bool contextOwnsConnection)
+            => throw new NotImplementedException();
+
         public DbContext Context
             => null;
 

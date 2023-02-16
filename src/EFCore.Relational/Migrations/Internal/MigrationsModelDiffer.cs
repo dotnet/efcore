@@ -784,7 +784,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
                 var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
                 var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
-                if (linkingNavigationProperty == null)
+                if (linkingNavigationProperty == null
+                    || (linkingForeignKey.PrincipalToDependent!.IsIndexerProperty()))
                 {
                     leastPriorityProperties.AddRange(properties);
 

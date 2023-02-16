@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class IdentityMap<TKey> : IIdentityMap
+public class IdentityMap<TKey> : IIdentityMap<TKey>
     where TKey : notnull
 {
     private readonly bool _sensitiveLoggingEnabled;
@@ -67,6 +67,15 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual IEnumerable<InternalEntityEntry> All()
+        => _identityMap.Values;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual bool Contains(in ValueBuffer valueBuffer)
     {
         var key = PrincipalKeyValueFactory.CreateFromBuffer(valueBuffer);
@@ -103,7 +112,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalEntityEntry? TryGetEntry(object?[] keyValues)
+    public virtual InternalEntityEntry? TryGetEntry(IReadOnlyList<object?> keyValues)
     {
         var key = PrincipalKeyValueFactory.CreateFromKeyValues(keyValues);
         return key != null && _identityMap.TryGetValue((TKey)key, out var entry) ? entry : null;
@@ -115,7 +124,16 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalEntityEntry? TryGetEntry(object?[] keyValues, bool throwOnNullKey, out bool hasNullKey)
+    public virtual InternalEntityEntry? TryGetEntryTyped(TKey keyValue)
+        => _identityMap.TryGetValue(keyValue, out var entry) ? entry : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityEntry? TryGetEntry(IReadOnlyList<object?> keyValues, bool throwOnNullKey, out bool hasNullKey)
     {
         var key = PrincipalKeyValueFactory.CreateFromKeyValues(keyValues);
 
@@ -225,7 +243,7 @@ public class IdentityMap<TKey> : IIdentityMap
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Add(object[] keyValues, InternalEntityEntry entry)
+    public virtual void Add(IReadOnlyList<object?> keyValues, InternalEntityEntry entry)
         => Add((TKey)PrincipalKeyValueFactory.CreateFromKeyValues(keyValues)!, entry);
 
     /// <summary>
@@ -337,7 +355,7 @@ public class IdentityMap<TKey> : IIdentityMap
     /// </summary>
     public virtual IDependentsMap GetDependentsMap(IForeignKey foreignKey)
     {
-        _dependentMaps ??= new Dictionary<IForeignKey, IDependentsMap>(LegacyReferenceEqualityComparer.Instance);
+        _dependentMaps ??= new Dictionary<IForeignKey, IDependentsMap>(ReferenceEqualityComparer.Instance);
 
         if (!_dependentMaps.TryGetValue(foreignKey, out var map))
         {

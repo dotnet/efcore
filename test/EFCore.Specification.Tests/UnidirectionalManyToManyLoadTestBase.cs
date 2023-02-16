@@ -31,7 +31,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
     {
         using var context = Fixture.CreateContext();
 
-        context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        context.ChangeTracker.QueryTrackingBehavior = queryTrackingBehavior;
 
         var left = context.Set<UnidirectionalEntityOne>().Find(3);
 
@@ -721,20 +721,14 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             context.Entry(left).State = EntityState.Detached;
         }
 
-        Assert.Equal(
-            CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(UnidirectionalEntityOne)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () =>
-                {
-                    if (async)
-                    {
-                        await collectionEntry.LoadAsync();
-                    }
-                    else
-                    {
-                        collectionEntry.Load();
-                    }
-                })).Message);
+        if (async)
+        {
+            await collectionEntry.LoadAsync();
+        }
+        else
+        {
+            collectionEntry.Load();
+        }
     }
 
     [ConditionalTheory]
@@ -754,9 +748,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture>
             context.Entry(left).State = EntityState.Detached;
         }
 
-        Assert.Equal(
-            CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(UnidirectionalEntityOne)),
-            Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+        var query = collectionEntry.Query();
     }
 
     [ConditionalTheory]

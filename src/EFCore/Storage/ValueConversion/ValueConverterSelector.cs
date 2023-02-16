@@ -209,11 +209,23 @@ public class ValueConverterSelector : IValueConverterSelector
                     (modelClrType, typeof(DateTimeOffset)),
                     _ => StringToDateTimeOffsetConverter.DefaultInfo);
             }
+            else if (providerClrType == typeof(DateOnly))
+            {
+                yield return _converters.GetOrAdd(
+                    (modelClrType, typeof(DateOnly)),
+                    _ => StringToDateOnlyConverter.DefaultInfo);
+            }
             else if (providerClrType == typeof(TimeSpan))
             {
                 yield return _converters.GetOrAdd(
                     (modelClrType, typeof(TimeSpan)),
                     _ => StringToTimeSpanConverter.DefaultInfo);
+            }
+            else if (providerClrType == typeof(TimeOnly))
+            {
+                yield return _converters.GetOrAdd(
+                    (modelClrType, typeof(TimeOnly)),
+                    _ => StringToTimeOnlyConverter.DefaultInfo);
             }
             else if (providerClrType == typeof(Guid))
             {
@@ -242,7 +254,8 @@ public class ValueConverterSelector : IValueConverterSelector
         }
         else if (modelClrType == typeof(DateTime)
                  || modelClrType == typeof(DateTimeOffset)
-                 || modelClrType == typeof(TimeSpan))
+                 || modelClrType == typeof(TimeSpan)
+                 || modelClrType == typeof(TimeOnly))
         {
             if (providerClrType == null
                 || providerClrType == typeof(string))
@@ -253,7 +266,9 @@ public class ValueConverterSelector : IValueConverterSelector
                         ? DateTimeToStringConverter.DefaultInfo
                         : k.ModelClrType == typeof(DateTimeOffset)
                             ? DateTimeOffsetToStringConverter.DefaultInfo
-                            : TimeSpanToStringConverter.DefaultInfo);
+                            : k.ModelClrType == typeof(TimeSpan)
+                                ? TimeSpanToStringConverter.DefaultInfo
+                                : TimeOnlyToStringConverter.DefaultInfo);
             }
 
             if (providerClrType == null
@@ -265,7 +280,9 @@ public class ValueConverterSelector : IValueConverterSelector
                         ? DateTimeToBinaryConverter.DefaultInfo
                         : k.ModelClrType == typeof(DateTimeOffset)
                             ? DateTimeOffsetToBinaryConverter.DefaultInfo
-                            : TimeSpanToTicksConverter.DefaultInfo);
+                            : k.ModelClrType == typeof(TimeSpan)
+                                ? TimeSpanToTicksConverter.DefaultInfo
+                                : TimeOnlyToTicksConverter.DefaultInfo);
             }
 
             if (providerClrType == null
@@ -282,10 +299,35 @@ public class ValueConverterSelector : IValueConverterSelector
                             typeof(byte[]),
                             i => (i.ModelClrType == typeof(DateTime)
                                     ? DateTimeToBinaryConverter.DefaultInfo.Create()
-                                    : TimeSpanToTicksConverter.DefaultInfo.Create())
+                                    : i.ModelClrType == typeof(TimeSpan)
+                                        ? TimeSpanToTicksConverter.DefaultInfo.Create()
+                                        : TimeOnlyToTicksConverter.DefaultInfo.Create())
                                 .ComposeWith(
                                     NumberToBytesConverter<long>.DefaultInfo.Create()),
                             NumberToBytesConverter<long>.DefaultInfo.MappingHints));
+            }
+        }
+        else if (modelClrType == typeof(DateOnly))
+        {
+            if (providerClrType == null
+                || providerClrType == typeof(string))
+            {
+                yield return _converters.GetOrAdd(
+                    (modelClrType, typeof(string)),
+                    _ => DateOnlyToStringConverter.DefaultInfo);
+            }
+
+            if (providerClrType == null
+                || providerClrType == typeof(byte[]))
+            {
+                yield return _converters.GetOrAdd(
+                    (modelClrType, typeof(byte[])),
+                    static k => new ValueConverterInfo(
+                        k.ModelClrType,
+                        typeof(byte[]),
+                        _ => new DateOnlyToStringConverter().ComposeWith(
+                            StringToBytesConverter.DefaultInfo.Create()),
+                        StringToBytesConverter.DefaultInfo.MappingHints));
             }
         }
         else if (modelClrType == typeof(IPAddress) || modelClrType == _readOnlyIPAddressType)

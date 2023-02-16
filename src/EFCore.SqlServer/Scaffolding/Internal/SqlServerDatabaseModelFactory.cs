@@ -175,18 +175,19 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
         static int GetEngineEdition(DbConnection connection)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = @"
-SELECT SERVERPROPERTY('EngineEdition');";
+            command.CommandText = "SELECT SERVERPROPERTY('EngineEdition');";
             return (int)command.ExecuteScalar()!;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = $@"
+            command.CommandText =
+$"""
 SELECT compatibility_level
 FROM sys.databases
-WHERE name = '{connection.Database}';";
+WHERE name = '{connection.Database}'
+""";
 
             var result = command.ExecuteScalar();
             return result != null ? Convert.ToByte(result) : (byte)0;
@@ -195,32 +196,28 @@ WHERE name = '{connection.Database}';";
         static string? GetServerCollation(DbConnection connection)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = @"
-SELECT SERVERPROPERTY('Collation');";
-            return command.ExecuteScalar() is string collation
-                ? collation
-                : null;
+            command.CommandText = "SELECT SERVERPROPERTY('Collation');";
+            return command.ExecuteScalar() as string;
         }
 
         static string? GetDatabaseCollation(DbConnection connection)
         {
             using var command = connection.CreateCommand();
-            command.CommandText = $@"
+            command.CommandText =
+$"""
 SELECT collation_name
 FROM sys.databases
-WHERE name = '{connection.Database}';";
+WHERE name = '{connection.Database}';
+""";
 
-            return command.ExecuteScalar() is string collation
-                ? collation
-                : null;
+            return command.ExecuteScalar() as string;
         }
     }
 
     private void CheckViewDefinitionRights(DbConnection connection)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = @"
-SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
+        command.CommandText = "SELECT HAS_PERMS_BY_NAME(QUOTENAME(DB_NAME()), 'DATABASE', 'VIEW DEFINITION');";
         var hasAccess = (int)command.ExecuteScalar()!;
 
         if (hasAccess == 0)
@@ -232,7 +229,7 @@ SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
     private string? GetDefaultSchema(DbConnection connection)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = "SELECT SCHEMA_NAME()";
+        command.CommandText = "SELECT SCHEMA_NAME();";
 
         if (command.ExecuteScalar() is string schema)
         {
@@ -352,7 +349,8 @@ SELECT HAS_PERMS_BY_NAME(DB_NAME(), 'DATABASE', 'VIEW DEFINITION');";
         using var command = connection.CreateCommand();
         var typeAliasMap = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
 
-        command.CommandText = @"
+        command.CommandText =
+"""
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema_name],
     [t].[name] AS [type_name],
@@ -362,7 +360,8 @@ SELECT
     CAST([t].[scale] AS int) AS [scale]
 FROM [sys].[types] AS [t]
 JOIN [sys].[types] AS [t2] ON [t].[system_type_id] = [t2].[user_type_id]
-WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id]";
+WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id];
+""";
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -391,7 +390,8 @@ WHERE [t].[is_user_defined] = 1 OR [t].[system_type_id] <> [t].[user_type_id]";
         IReadOnlyDictionary<string, (string storeType, string)> typeAliases)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = @"
+        command.CommandText =
+"""
 SELECT
     OBJECT_SCHEMA_NAME([s].[object_id]) AS [schema_name],
     [s].[name],
@@ -401,30 +401,32 @@ SELECT
     CAST([s].[scale] AS int) AS [scale],
     [s].[is_cycling],
     CAST([s].[increment] AS int) AS [increment],
-    CAST(CASE 
+    CAST(CASE
         WHEN [s].[start_value] >  9223372036854775807 THEN  9223372036854775807
         WHEN [s].[start_value] < -9223372036854775808 THEN -9223372036854775808
-        ELSE [s].[start_value] 
+        ELSE [s].[start_value]
         END AS bigint) AS start_value,
-    CAST(CASE 
+    CAST(CASE
         WHEN [s].[minimum_value] >  9223372036854775807 THEN  9223372036854775807
-        WHEN [s].[minimum_value] < -9223372036854775808 THEN -9223372036854775808 
-        ELSE [s].[minimum_value] 
+        WHEN [s].[minimum_value] < -9223372036854775808 THEN -9223372036854775808
+        ELSE [s].[minimum_value]
         END AS bigint) AS minimum_value,
-    CAST(CASE 
+    CAST(CASE
         WHEN [s].[maximum_value] >  9223372036854775807 THEN  9223372036854775807
         WHEN [s].[maximum_value] < -9223372036854775808 THEN -9223372036854775808
-        ELSE [s].[maximum_value] 
+        ELSE [s].[maximum_value]
         END AS bigint) AS maximum_value
 FROM [sys].[sequences] AS [s]
-JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]";
+JOIN [sys].[types] AS [t] ON [s].[user_type_id] = [t].[user_type_id]
+""";
 
         if (schemaFilter != null)
         {
             command.CommandText += @"
-WHERE "
-                + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
+WHERE " + schemaFilter("OBJECT_SCHEMA_NAME([s].[object_id])");
         }
+
+        command.CommandText += ';';
 
         using var reader = command.ExecuteReader();
         while (reader.Read())
@@ -492,34 +494,41 @@ WHERE "
         var supportsMemoryOptimizedTable = SupportsMemoryOptimizedTable();
         var supportsTemporalTable = SupportsTemporalTable();
 
-        var commandText = @"
+        var builder = new StringBuilder(
+"""
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [schema],
     [t].[name],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
-    'table' AS [type]";
+    'table' AS [type]
+""");
 
         if (supportsMemoryOptimizedTable)
         {
-            commandText += @",
-    [t].[is_memory_optimized]";
+            builder.AppendLine(",").Append("    [t].[is_memory_optimized]");
         }
 
         if (supportsTemporalTable)
         {
-            commandText += @",
+            builder.AppendLine(",").Append(
+"""
     [t].[temporal_type],
     (SELECT [t2].[name] FROM [sys].[tables] AS t2 WHERE [t2].[object_id] = [t].[history_table_id]) AS [history_table_name],
     (SELECT SCHEMA_NAME([t2].[schema_id]) FROM [sys].[tables] AS t2 WHERE [t2].[object_id] = [t].[history_table_id]) AS [history_table_schema],
     (SELECT [c].[name] FROM [sys].[columns] as [c] WHERE [c].[object_id] = [t].[object_id] AND [c].[generated_always_type] = 1) as [period_start_column],
-    (SELECT [c].[name] FROM [sys].[columns] as [c] WHERE [c].[object_id] = [t].[object_id] AND [c].[generated_always_type] = 2) as [period_end_column]";
+    (SELECT [c].[name] FROM [sys].[columns] as [c] WHERE [c].[object_id] = [t].[object_id] AND [c].[generated_always_type] = 2) as [period_end_column]
+""");
         }
 
-        commandText += @"
+        builder.AppendLine().Append(
+"""
 FROM [sys].[tables] AS [t]
-LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [t].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'";
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [t].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
+""");
 
-        var filter = @"[t].[is_ms_shipped] = 0
+        var tableFilterBuilder = new StringBuilder(
+$"""
+[t].[is_ms_shipped] = 0
 AND NOT EXISTS (SELECT *
     FROM [sys].[extended_properties] AS [ep]
     WHERE [ep].[major_id] = [t].[object_id]
@@ -527,72 +536,86 @@ AND NOT EXISTS (SELECT *
         AND [ep].[class] = 1
         AND [ep].[name] = N'microsoft_database_tools_support'
     )
-AND [t].[name] <> '"
-            + HistoryRepository.DefaultTableName
-            + "'";
+AND [t].[name] <> '{HistoryRepository.DefaultTableName}'
+""");
 
         if (supportsTemporalTable)
         {
-            filter += @"
-AND [t].[temporal_type] <> 1";
+            tableFilterBuilder.AppendLine().Append("AND [t].[temporal_type] <> 1");
         }
 
         if (tableFilter != null)
         {
-            filter += @"
-AND "
-                + tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]");
+            tableFilterBuilder
+                .AppendLine()
+                .Append("AND ")
+                .Append(tableFilter("SCHEMA_NAME([t].[schema_id])", "[t].[name]"));
         }
 
-        commandText = commandText
-            + @"
-WHERE "
-            + filter;
+        var tableFilterSql = tableFilterBuilder.ToString();
 
-        var viewCommandText = @"
+        builder.AppendLine().Append("WHERE ").Append(tableFilterSql);
+
+        // If views are supported, scaffold them too.
+        string? viewFilter = null;
+
+        if (SupportsViews())
+        {
+            builder.AppendLine().Append(
+"""
 UNION
 SELECT
     SCHEMA_NAME([v].[schema_id]) AS [schema],
     [v].[name],
     CAST([e].[value] AS nvarchar(MAX)) AS [comment],
-    'view' AS [type]";
+    'view' AS [type]
+""");
 
-        if (supportsMemoryOptimizedTable)
-        {
-            viewCommandText += @",
-    CAST(0 AS bit) AS [is_memory_optimized]";
-        }
 
-        if (supportsTemporalTable)
-        {
-            viewCommandText += @",
-    1 AS [temporal_type],
-    NULL AS [history_table_name],
-    NULL AS [history_table_schema],
-    NULL AS [period_start_column],
-    NULL AS [period_end_column]";
-        }
+            if (supportsMemoryOptimizedTable)
+            {
+                builder.AppendLine(",").Append("     CAST(0 AS bit) AS [is_memory_optimized]");
+            }
 
-        viewCommandText += @"
+            if (supportsTemporalTable)
+            {
+                builder.AppendLine(",").Append(
+"""
+     1 AS [temporal_type],
+     NULL AS [history_table_name],
+     NULL AS [history_table_schema],
+     NULL AS [period_start_column],
+     NULL AS [period_end_column]
+""");
+            }
+
+            builder.Append(
+"""
 FROM [sys].[views] AS [v]
-LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [v].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'";
+LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [v].[object_id] AND [e].[minor_id] = 0 AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
+""");
 
-        var viewFilter = @"[v].[is_ms_shipped] = 0
-AND [v].[is_date_correlation_view] = 0 ";
+            var viewFilterBuilder = new StringBuilder(
+"""
+[v].[is_ms_shipped] = 0
+AND [v].[is_date_correlation_view] = 0
+""");
 
-        if (tableFilter != null)
-        {
-            viewFilter += @"
-AND "
-                + tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]");
+            if (tableFilter != null)
+            {
+                viewFilterBuilder
+                    .AppendLine()
+                    .Append("AND ")
+                    .Append(tableFilter("SCHEMA_NAME([v].[schema_id])", "[v].[name]"));
+            }
+
+            viewFilter = viewFilterBuilder.ToString();
+
+            builder.AppendLine().Append("WHERE ").Append(viewFilter);
         }
 
-        viewCommandText = viewCommandText
-            + @"
-WHERE "
-            + viewFilter;
-
-        command.CommandText = commandText + viewCommandText;
+        builder.Append(";");
+        command.CommandText = builder.ToString();
 
         using (var reader = command.ExecuteReader())
         {
@@ -645,10 +668,15 @@ WHERE "
         }
 
         // This is done separately due to MARS property may be turned off
-        GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseCollation);
-        GetIndexes(connection, tables, filter);
-        GetForeignKeys(connection, tables, filter);
-        GetTriggers(connection, tables, filter);
+        GetColumns(connection, tables, tableFilterSql, viewFilter, typeAliases, databaseCollation);
+
+        if (SupportsIndexes())
+        {
+            GetIndexes(connection, tables, tableFilterSql);
+        }
+
+        GetForeignKeys(connection, tables, tableFilterSql);
+        GetTriggers(connection, tables, tableFilterSql);
 
         foreach (var table in tables)
         {
@@ -660,12 +688,13 @@ WHERE "
         DbConnection connection,
         IReadOnlyList<DatabaseTable> tables,
         string tableFilter,
-        string viewFilter,
+        string? viewFilter,
         IReadOnlyDictionary<string, (string storeType, string typeName)> typeAliases,
         string? databaseCollation)
     {
         using var command = connection.CreateCommand();
-        var commandText = @"
+        var builder = new StringBuilder(
+$"""
 SELECT
     SCHEMA_NAME([o].[schema_id]) AS [table_schema],
     [o].[name] AS [table_name],
@@ -686,35 +715,42 @@ SELECT
     [c].[is_sparse]
 FROM
 (
-    SELECT[v].[name], [v].[object_id], [v].[schema_id]
-    FROM [sys].[views] v WHERE ";
-
-        commandText += viewFilter;
-
-        commandText += @"
-UNION ALL
     SELECT [t].[name], [t].[object_id], [t].[schema_id]
-    FROM [sys].[tables] t WHERE ";
+    FROM [sys].[tables] t
+    WHERE {tableFilter}
+""");
 
-        commandText += tableFilter;
+        if (SupportsViews())
+        {
+            Check.DebugAssert(viewFilter is not null, "viewFilter is not null");
 
-        commandText += @"
+            builder.AppendLine().Append(
+$"""
+    UNION ALL
+    SELECT[v].[name], [v].[object_id], [v].[schema_id]
+    FROM [sys].[views] v
+    WHERE {viewFilter}
+""");
+        }
+
+        builder.AppendLine().Append(
+"""
 ) o
 JOIN [sys].[columns] AS [c] ON [o].[object_id] = [c].[object_id]
 LEFT JOIN [sys].[types] AS [tp] ON [c].[user_type_id] = [tp].[user_type_id]
 LEFT JOIN [sys].[extended_properties] AS [e] ON [e].[major_id] = [o].[object_id] AND [e].[minor_id] = [c].[column_id] AND [e].[class] = 1 AND [e].[name] = 'MS_Description'
 LEFT JOIN [sys].[computed_columns] AS [cc] ON [c].[object_id] = [cc].[object_id] AND [c].[column_id] = [cc].[column_id]
-LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]";
+LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_object_id] AND [c].[column_id] = [dc].[parent_column_id]
+""");
 
         if (SupportsTemporalTable())
         {
-            commandText += " WHERE [c].[generated_always_type] <> 1 AND [c].[generated_always_type] <> 2";
+            builder.AppendLine().Append("WHERE [c].[generated_always_type] <> 1 AND [c].[generated_always_type] <> 2");
         }
 
-        commandText += @"
-ORDER BY [table_schema], [table_name], [c].[column_id]";
+        builder.AppendLine().Append("ORDER BY [table_schema], [table_name], [c].[column_id];");
 
-        command.CommandText = commandText;
+        command.CommandText = builder.ToString();
 
         using var reader = command.ExecuteReader();
         var tableColumnGroups = reader.Cast<DbDataRecord>()
@@ -835,29 +871,15 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
 
         if (defaultValue == "((0))" || defaultValue == "(0)")
         {
-            if (dataTypeName == "bigint"
-                || dataTypeName == "bit"
-                || dataTypeName == "decimal"
-                || dataTypeName == "float"
-                || dataTypeName == "int"
-                || dataTypeName == "money"
-                || dataTypeName == "numeric"
-                || dataTypeName == "real"
-                || dataTypeName == "smallint"
-                || dataTypeName == "smallmoney"
-                || dataTypeName == "tinyint")
+            if (dataTypeName is "bigint" or "bit" or "decimal" or "float" or "int" or "money" or "numeric" or "real" or "smallint"
+                or "smallmoney" or "tinyint")
             {
                 return null;
             }
         }
         else if (defaultValue == "((0.0))" || defaultValue == "(0.0)")
         {
-            if (dataTypeName == "decimal"
-                || dataTypeName == "float"
-                || dataTypeName == "money"
-                || dataTypeName == "numeric"
-                || dataTypeName == "real"
-                || dataTypeName == "smallmoney")
+            if (dataTypeName is "decimal" or "float" or "money" or "numeric" or "real" or "smallmoney")
             {
                 return null;
             }
@@ -885,8 +907,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
             return "rowversion";
         }
 
-        if (dataTypeName == "decimal"
-            || dataTypeName == "numeric")
+        if (dataTypeName is "decimal" or "numeric")
         {
             return $"{dataTypeName}({precision}, {scale})";
         }
@@ -904,8 +925,7 @@ ORDER BY [table_schema], [table_name], [c].[column_id]";
                 return $"{dataTypeName}(max)";
             }
 
-            if (dataTypeName == "nvarchar"
-                || dataTypeName == "nchar")
+            if (dataTypeName is "nvarchar" or "nchar")
             {
                 maxLength /= 2;
             }
@@ -962,7 +982,7 @@ AND CAST([i].[object_id] AS nvarchar(12)) + '#' + CAST([i].[index_id] AS nvarcha
         }
 
         commandText += @"
-ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
+ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
 
         command.CommandText = commandText;
 
@@ -987,7 +1007,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
                             TypeDesc: ddr.GetValueOrDefault<string>("type_desc")))
                 .ToArray();
 
-            Check.DebugAssert(primaryKeyGroups.Length == 0 || primaryKeyGroups.Length == 1, "Multiple primary keys found");
+            Check.DebugAssert(primaryKeyGroups.Length is 0 or 1, "Multiple primary keys found");
 
             if (primaryKeyGroups.Length == 1)
             {
@@ -1151,23 +1171,26 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal]";
     private void GetForeignKeys(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = @"
+        command.CommandText =
+$"""
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
     [f].[name],
-    OBJECT_SCHEMA_NAME([f].[referenced_object_id]) AS [principal_table_schema],
-    OBJECT_NAME([f].[referenced_object_id]) AS [principal_table_name],
-    [f].[delete_referential_action_desc],
-    col_name([fc].[parent_object_id], [fc].[parent_column_id]) AS [column_name],
-    col_name([fc].[referenced_object_id], [fc].[referenced_column_id]) AS [referenced_column_name]
-FROM [sys].[foreign_keys] AS [f]
-JOIN [sys].[tables] AS [t] ON [f].[parent_object_id] = [t].[object_id]
-JOIN [sys].[foreign_key_columns] AS [fc] ON [f].[object_id] = [fc].[constraint_object_id]
-WHERE "
-            + tableFilter
-            + @"
-ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
+	SCHEMA_NAME(tab2.[schema_id]) AS [principal_table_schema],
+	[tab2].name AS [principal_table_name],	
+	[f].[delete_referential_action_desc],
+    [col1].[name] AS [column_name],
+    [col2].[name] AS [referenced_column_name]
+FROM [sys].[foreign_keys] AS [f] 
+JOIN [sys].[foreign_key_columns] AS fc ON [fc].[constraint_object_id] = [f].[object_id]
+JOIN [sys].[tables] AS [t] ON [t].[object_id] = [fc].[parent_object_id]
+JOIN [sys].[columns] AS [col1] ON [col1].[column_id] = [fc].[parent_column_id] AND [col1].[object_id] = [t].[object_id]
+JOIN [sys].[tables] AS [tab2] ON [tab2].[object_id] = [fc].[referenced_object_id]
+JOIN [sys].[columns] AS [col2] ON [col2].[column_id] = [fc].[referenced_column_id] AND [col2].[object_id] = [tab2].[object_id]
+WHERE {tableFilter}
+ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
+""";
 
         using var reader = command.ExecuteReader();
         var tableForeignKeyGroups = reader.Cast<DbDataRecord>()
@@ -1298,17 +1321,17 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id]";
     private void GetTriggers(DbConnection connection, IReadOnlyList<DatabaseTable> tables, string tableFilter)
     {
         using var command = connection.CreateCommand();
-        command.CommandText = @"
+        command.CommandText =
+$"""
 SELECT
     SCHEMA_NAME([t].[schema_id]) AS [table_schema],
     [t].[name] AS [table_name],
     [tr].[name] AS [trigger_name]
 FROM [sys].[triggers] AS [tr]
 JOIN [sys].[tables] AS [t] ON [tr].[parent_id] = [t].[object_id]
-WHERE "
-            + tableFilter
-            + @"
-ORDER BY [table_schema], [table_name], [tr].[name]";
+WHERE {tableFilter}
+ORDER BY [table_schema], [table_name], [tr].[name];
+""";
 
         using var reader = command.ExecuteReader();
         var tableGroups = reader.Cast<DbDataRecord>()
@@ -1335,13 +1358,19 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
     }
 
     private bool SupportsTemporalTable()
-        => _compatibilityLevel >= 130 && _engineEdition != 6;
+        => _compatibilityLevel >= 130 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsMemoryOptimizedTable()
-        => _compatibilityLevel >= 120 && _engineEdition != 6;
+        => _compatibilityLevel >= 120 && (_engineEdition is not 6 and not 11 and not 1000);
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && _engineEdition != 6;
+        => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
+
+    private bool SupportsIndexes()
+        => _engineEdition != 1000;
+
+    private bool SupportsViews()
+        => _engineEdition != 1000;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;

@@ -43,6 +43,8 @@ public static class TestEnvironment
 
     private static bool? _supportsFunctions2019;
 
+    private static bool? _supportsJsonPathExpressions;
+
     private static byte? _productMajorVersion;
 
     private static int? _engineEdition;
@@ -324,6 +326,35 @@ public static class TestEnvironment
             }
 
             return _supportsFunctions2019.Value;
+        }
+    }
+
+    public static bool SupportsJsonPathExpressions
+    {
+        get
+        {
+            if (!IsConfigured)
+            {
+                return false;
+            }
+
+            if (_supportsJsonPathExpressions.HasValue)
+            {
+                return _supportsJsonPathExpressions.Value;
+            }
+
+            try
+            {
+                _productMajorVersion = GetProductMajorVersion();
+
+                _supportsJsonPathExpressions = _productMajorVersion >= 14 || IsSqlAzure;
+            }
+            catch (PlatformNotSupportedException)
+            {
+                _supportsJsonPathExpressions = false;
+            }
+
+            return _supportsJsonPathExpressions.Value;
         }
     }
 

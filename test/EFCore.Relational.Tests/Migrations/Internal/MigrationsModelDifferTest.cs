@@ -1460,6 +1460,37 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                 }));
 
     [ConditionalFact]
+    public void Add_owned_types()
+        => Execute(
+            _ => { },
+            _ => { },
+            modelBuilder =>
+            {
+                modelBuilder.Entity(
+                    "Order",
+                    x =>
+                    {
+                        x.Property<int>("Id");
+                        x.OwnsOne("Address", "ShippingAddress");
+                        x.OwnsOne("Address", "BillingAddress");
+                    });
+            },
+            upOps => Assert.Collection(
+                upOps,
+                o =>
+                {
+                    var m = Assert.IsType<CreateTableOperation>(o);
+                    Assert.Equal("Order", m.Name);
+                }),
+            downOps => Assert.Collection(
+                downOps,
+                o =>
+                {
+                    var m = Assert.IsType<DropTableOperation>(o);
+                    Assert.Equal("Order", m.Name);
+                }));
+
+    [ConditionalFact]
     public void Add_owned_type_with_seed_data()
         => Execute(
             modelBuilder =>
@@ -8350,7 +8381,17 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         x.HasIndex("HunterId").HasDatabaseName("IX_Animal_HunterId");
                     });
             },
-            operations => Assert.Equal(0, operations.Count));
+            operations =>
+            {
+                Assert.Equal(1, operations.Count);
+
+                var operation = Assert.IsType<AlterColumnOperation>(operations[0]);
+                Assert.Equal("Animal", operation.Table);
+                Assert.Equal("Discriminator", operation.Name);
+                Assert.Equal(typeof(string), operation.ClrType);
+                Assert.Equal("just_string(21)", operation.ColumnType);
+                Assert.Equal(21, operation.MaxLength);
+            });
 
     [ConditionalFact]
     public void Add_foreign_key_to_subtype()
@@ -10246,6 +10287,36 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
                         .HasConversion(e => e.ToString(), e => int.Parse(e));
                     x.HasData(
                         new { Id = 42, Value1 = 32 });
+                }),
+            Assert.Empty,
+            Assert.Empty);
+
+    [ConditionalFact] // Issue #29985
+    public void SeedData_value_conversion_nullable_datetime()
+        => Execute(
+            common => common.Entity(
+                "EntityWithOneProperty",
+                x =>
+                {
+                    x.Property<int>("Id");
+                    x.HasData(new { Id = 42 });
+                }),
+            source => source.Entity(
+                "EntityWithOneProperty",
+                x =>
+                {
+                    x.Property<DateTime?>("Value1")
+                        .HasColumnType("datetime2")
+                        .HasConversion(
+                            p => p,
+                            p => p != null ? DateTime.SpecifyKind(p.Value, DateTimeKind.Utc) : null);
+                }),
+            target => target.Entity(
+                "EntityWithOneProperty",
+                x =>
+                {
+                    x.Property<DateTime?>("Value1")
+                        .HasColumnType("datetime2");
                 }),
             Assert.Empty,
             Assert.Empty);

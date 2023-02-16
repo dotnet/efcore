@@ -108,7 +108,10 @@ public class ScaffoldingTypeMapper : IScaffoldingTypeMapper
                 precision: mapping.Precision,
                 scale: mapping.Scale)!;
 
-            scaffoldMaxLength = sizedMapping.Size != defaultTypeMapping.Size ? defaultTypeMapping.Size : null;
+            scaffoldMaxLength = (sizedMapping.Size == null && defaultTypeMapping.Size == -1)
+                || sizedMapping.Size == defaultTypeMapping.Size
+                    ? null
+                    : defaultTypeMapping.Size;
 
             // Check for precision
             var precisionMapping = _typeMappingSource.FindMapping(

@@ -1,8 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable MethodHasAsyncOverload
@@ -27,19 +31,51 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
             .EnableServiceProviderCaching(false);
 
-    private static IServiceProvider BuildServiceProvider<TContextService, TContext>()
+    private static IServiceProvider BuildServiceProvider<TContextService, TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContextService : class
         where TContext : DbContext, TContextService
         => new ServiceCollection()
-            .AddDbContextPool<TContextService, TContext>(ob => ConfigureOptions(ob))
-            .AddDbContextPool<ISecondContext, SecondContext>(ob => ConfigureOptions(ob))
+            .AddDbContextPool<TContextService, TContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
+            .AddDbContextPool<ISecondContext, SecondContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
             .BuildServiceProvider(validateScopes: true);
 
-    private static IServiceProvider BuildServiceProvider<TContext>()
+    private static IServiceProvider BuildServiceProvider<TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContext : DbContext
         => new ServiceCollection()
-            .AddDbContextPool<TContext>(ob => ConfigureOptions(ob))
-            .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob))
+            .AddDbContextPool<TContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
+            .AddDbContextPool<SecondContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
             .BuildServiceProvider(validateScopes: true);
 
     private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
@@ -137,7 +173,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().ToTable("Customers");
+        {
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+        }
 
         public override void Dispose()
         {
@@ -157,13 +196,26 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().ToTable("Customers");
+        {
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+        }
     }
 
     public class Customer
     {
         public string CustomerId { get; set; }
         public string CompanyName { get; set; }
+        public ILazyLoader LazyLoader { get; set; }
+        public ObservableCollection<Order> Orders { get; } = new();
+    }
+
+    public class Order
+    {
+        public int OrderId { get; set; }
+        public ILazyLoader LazyLoader { get; set; }
+        public string CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 
     private interface ISecondContext
@@ -749,15 +801,27 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     }
 
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public async Task Context_configuration_is_reset(bool useInterface, bool async)
+    [InlineData(false, false, null)]
+    [InlineData(true, false, null)]
+    [InlineData(false, true, null)]
+    [InlineData(true, true, null)]
+    [InlineData(false, false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(false, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Context_configuration_is_reset(bool useInterface, bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
         var serviceProvider = useInterface
-            ? BuildServiceProvider<IPooledContext, PooledContext>()
-            : BuildServiceProvider<PooledContext>();
+            ? BuildServiceProvider<IPooledContext, PooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior))
+            : BuildServiceProvider<PooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -767,6 +831,20 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             : scopedProvider.GetService<PooledContext>();
 
         Assert.Null(context1!.Database.GetCommandTimeout());
+
+        var set = context1.Customers;
+        var localView = set.Local;
+        localView.PropertyChanged += LocalView_OnPropertyChanged;
+        localView.PropertyChanging += LocalView_OnPropertyChanging;
+        localView.CollectionChanged += LocalView_OnCollectionChanged;
+        var customer1 = new Customer { CustomerId = "C" };
+        context1.Customers.Attach(customer1);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer1, localView.ToBindingList().Single());
+        Assert.Same(customer1, localView.ToObservableCollection().Single());
+        Assert.True(_localView_OnPropertyChanging);
+        Assert.True(_localView_OnPropertyChanged);
+        Assert.True(_localView_OnCollectionChanged);
 
         context1.ChangeTracker.AutoDetectChangesEnabled = true;
         context1.ChangeTracker.LazyLoadingEnabled = true;
@@ -788,6 +866,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.SavedChanges += Context_OnSavedChanges;
         context1.SaveChangesFailed += Context_OnSaveChangesFailed;
 
+        _localView_OnPropertyChanging = false;
+        _localView_OnPropertyChanged = false;
+        _localView_OnCollectionChanged = false;
+
         await Dispose(serviceScope, async);
 
         serviceScope = serviceProvider.CreateScope();
@@ -801,16 +883,20 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+        Assert.Equal(queryTrackingBehavior ?? QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
         Assert.Equal(AutoTransactionBehavior.Never, context2.Database.AutoTransactionBehavior);
         Assert.False(context2.Database.AutoSavepointsEnabled);
         Assert.Null(context1.Database.GetCommandTimeout());
 
-        var customer = new Customer { CustomerId = "C" };
-        context2.Customers.Attach(customer).State = EntityState.Modified;
-        context2.Customers.Attach(customer).State = EntityState.Unchanged;
+        Assert.Empty(localView);
+        Assert.Empty(localView.ToBindingList());
+        Assert.Empty(localView.ToObservableCollection());
+
+        var customer2 = new Customer { CustomerId = "C" };
+        context2.Customers.Attach(customer2).State = EntityState.Modified;
+        context2.Customers.Attach(customer2).State = EntityState.Unchanged;
 
         Assert.False(_changeTracker_OnTracking);
         Assert.False(_changeTracker_OnTracked);
@@ -826,14 +912,29 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_context_OnSavedChanges);
         Assert.False(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
+
+        Assert.Same(set, context2!.Customers);
+        Assert.Same(localView, context2!.Customers.Local);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer2, localView.ToBindingList().Single());
+        Assert.Same(customer2, localView.ToObservableCollection().Single());
+        Assert.False(_localView_OnPropertyChanging);
+        Assert.False(_localView_OnPropertyChanged);
+        Assert.False(_localView_OnCollectionChanged);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Uninitialized_context_configuration_is_reset_properly(bool async)
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Uninitialized_context_configuration_is_reset_properly(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
-        var serviceProvider = BuildServiceProvider<SecondContext>();
+        var serviceProvider = BuildServiceProvider<SecondContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var ctx = serviceScope.ServiceProvider.GetRequiredService<SecondContext>();
@@ -865,6 +966,20 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
 
         var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        var set = context1.Customers;
+
+        var localView = set.Local;
+        localView.PropertyChanged += LocalView_OnPropertyChanged;
+        localView.PropertyChanging += LocalView_OnPropertyChanging;
+        localView.CollectionChanged += LocalView_OnCollectionChanged;
+        var customer1 = new Customer { CustomerId = "C" };
+        context1.Customers.Attach(customer1);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer1, localView.ToBindingList().Single());
+        Assert.Same(customer1, localView.ToObservableCollection().Single());
+        Assert.True(_localView_OnPropertyChanging);
+        Assert.True(_localView_OnPropertyChanged);
+        Assert.True(_localView_OnCollectionChanged);
 
         context1.ChangeTracker.AutoDetectChangesEnabled = true;
         context1.ChangeTracker.LazyLoadingEnabled = true;
@@ -885,15 +1000,23 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.SavedChanges += Context_OnSavedChanges;
         context1.SaveChangesFailed += Context_OnSaveChangesFailed;
 
+        _localView_OnPropertyChanging = false;
+        _localView_OnPropertyChanged = false;
+        _localView_OnCollectionChanged = false;
+
         await Dispose(context1, async);
 
         var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
 
         Assert.Same(context1, context2);
 
-        var customer = new Customer { CustomerId = "C" };
-        context2.Customers.Attach(customer).State = EntityState.Modified;
-        context2.Customers.Attach(customer).State = EntityState.Unchanged;
+        Assert.Empty(localView);
+        Assert.Empty(localView.ToBindingList());
+        Assert.Empty(localView.ToObservableCollection());
+
+        var customer2 = new Customer { CustomerId = "C" };
+        context2.Customers.Attach(customer2).State = EntityState.Modified;
+        context2.Customers.Attach(customer2).State = EntityState.Unchanged;
 
         Assert.False(_changeTracker_OnTracking);
         Assert.False(_changeTracker_OnTracked);
@@ -909,6 +1032,15 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.False(_context_OnSavedChanges);
         Assert.False(_context_OnSavingChanges);
         Assert.False(_context_OnSaveChangesFailed);
+
+        Assert.Same(set, context2!.Customers);
+        Assert.Same(localView, context2!.Customers.Local);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer2, localView.ToBindingList().Single());
+        Assert.Same(customer2, localView.ToObservableCollection().Single());
+        Assert.False(_localView_OnPropertyChanging);
+        Assert.False(_localView_OnPropertyChanged);
+        Assert.False(_localView_OnCollectionChanged);
     }
 
     [ConditionalFact]
@@ -995,6 +1127,21 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
     private bool _context_OnSaveChangesFailed;
 
+    private bool _localView_OnPropertyChanged;
+
+    private void LocalView_OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        => _localView_OnPropertyChanged = true;
+
+    private bool _localView_OnPropertyChanging;
+
+    private void LocalView_OnPropertyChanging(object sender, PropertyChangingEventArgs e)
+        => _localView_OnPropertyChanging = true;
+
+    private bool _localView_OnCollectionChanged;
+
+    private void LocalView_OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        => _localView_OnCollectionChanged = true;
+
     private bool _changeTracker_OnTracking;
 
     private void ChangeTracker_OnTracking(object sender, EntityTrackingEventArgs e)
@@ -1036,11 +1183,17 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         => _changeTracker_OnDetectedEntityChanges = true;
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Default_Context_configuration_is_reset(bool async)
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Default_Context_configuration_is_reset(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
-        var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
+        var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -1066,7 +1219,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.True(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+        Assert.Equal(queryTrackingBehavior ?? QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
         Assert.Equal(AutoTransactionBehavior.WhenNeeded, context2.Database.AutoTransactionBehavior);
@@ -1187,6 +1340,101 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.False(weakRef.IsAlive);
     }
+
+    [ConditionalTheory] // Issue #25486
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Service_properties_are_disposed(bool useInterface, bool async, bool load)
+    {
+        var serviceProvider = useInterface
+            ? BuildServiceProvider<IPooledContext, PooledContext>()
+            : BuildServiceProvider<PooledContext>();
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = useInterface
+            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+            : scopedProvider.GetService<PooledContext>();
+
+        context1.ChangeTracker.LazyLoadingEnabled = true;
+
+        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+        var orderLoader = entity.LazyLoader;
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+        }
+
+        Assert.Equal(load ? 7 : 1, context1.ChangeTracker.Entries().Count());
+
+        await Dispose(serviceScope, async);
+
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+            orderLoader.SetLoaded(entity, nameof(Customer.Orders), loaded: false);
+        }
+
+        AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
+    }
+
+    [ConditionalTheory] // Issue #25486
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Service_properties_are_disposed_with_factory(bool async, bool withDependencyInjection, bool load)
+    {
+        var factory = BuildFactory<PooledContext>(withDependencyInjection);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+
+        context1.ChangeTracker.LazyLoadingEnabled = true;
+
+        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+        var orderLoader = entity.LazyLoader;
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+        }
+
+        Assert.Equal(load ? 7 : 1, context1.ChangeTracker.Entries().Count());
+
+        await Dispose(context1, async);
+
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+            orderLoader.SetLoaded(entity, nameof(Customer.Orders), loaded: false);
+        }
+
+        AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
+    }
+
+    private static void AssertDisposed(Action testCode, string entityTypeName, string navigationName)
+        => Assert.Equal(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(entityTypeName, navigationName),
+                "CoreEventId.LazyLoadOnDisposedContextWarning"),
+            Assert.Throws<InvalidOperationException>(
+                testCode).Message);
 
     [ConditionalTheory]
     [InlineData(false, false)]
@@ -1355,7 +1603,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     {
         var serviceProvider = useInterface
             ? BuildServiceProvider<IPooledContext, PooledContext>()
-            : BuildServiceProvider<PooledContext>();
+            : BuildServiceProvider<PooledContext>(o => o.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -1880,6 +2128,14 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
                             }
                         }
                     })));
+    }
+
+    private void UseQueryTrackingBehavior(DbContextOptionsBuilder optionsBuilder, QueryTrackingBehavior? queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior.HasValue)
+        {
+            optionsBuilder.UseQueryTrackingBehavior(queryTrackingBehavior.Value);
+        }
     }
 
     private async Task Dispose(IDisposable disposable, bool async)

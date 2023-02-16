@@ -126,6 +126,12 @@
   <data name="BundleFullName" xml:space="preserve">
     <value>Entity Framework Core Migrations Bundle</value>
   </data>
+  <data name="CannotCreateContextInstance" xml:space="preserve">
+    Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+  </data>
+  <data name="CannotFindDbContextTypes" xml:space="preserve">
+    The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+  </data>
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
     <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
   </data>
@@ -325,9 +331,6 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NonRelationalProvider" xml:space="preserve">
     <value>The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.</value>
-  </data>
-  <data name="NoParameterlessConstructor" xml:space="preserve">
-    <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
   <data name="NoReferencedServices" xml:space="preserve">
     <value>No referenced design-time services were found.</value>

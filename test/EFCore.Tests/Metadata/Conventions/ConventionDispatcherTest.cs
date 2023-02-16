@@ -2507,6 +2507,147 @@ public class ConventionDispatcherTest
     [InlineData(false, true)]
     [InlineData(true, true)]
     [ConditionalTheory]
+    public void OnTriggerAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new TriggerAddedConvention(terminate: false);
+        var convention2 = new TriggerAddedConvention(terminate: true);
+        var convention3 = new TriggerAddedConvention(terminate: false);
+        conventions.TriggerAddedConventions.Add(convention1);
+        conventions.TriggerAddedConventions.Add(convention2);
+        conventions.TriggerAddedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = entityBuilder.HasTrigger("MyTrigger", ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+        else
+        {
+            var result = entityBuilder.Metadata.AddTrigger("MyTrigger", ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { "MyTrigger" }, convention1.Calls);
+        Assert.Equal(new[] { "MyTrigger" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    private class TriggerAddedConvention : ITriggerAddedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public TriggerAddedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessTriggerAdded(IConventionTriggerBuilder triggerBuilder, IConventionContext<IConventionTriggerBuilder> context)
+        {
+            Assert.True(triggerBuilder.Metadata.IsInModel);
+
+            Calls.Add(triggerBuilder.Metadata.ModelName);
+
+            if (_terminate)
+            {
+                triggerBuilder.Metadata.EntityType.RemoveTrigger(triggerBuilder.Metadata.ModelName);
+
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false)]
+    [InlineData(true)]
+    [ConditionalTheory]
+    public void OnTriggerRemoved_calls_conventions_in_order(bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new TriggerRemovedConvention(terminate: false);
+        var convention2 = new TriggerRemovedConvention(terminate: true);
+        var convention3 = new TriggerRemovedConvention(terminate: false);
+        conventions.TriggerRemovedConventions.Add(convention1);
+        conventions.TriggerRemovedConventions.Add(convention2);
+        conventions.TriggerRemovedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+
+        var trigger = entityBuilder.Metadata.AddTrigger("MyTrigger", ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        var result = entityBuilder.Metadata.RemoveTrigger(trigger.ModelName);
+
+        if (useScope)
+        {
+            Assert.Same(trigger, result);
+        }
+        else
+        {
+            Assert.Null(result);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { "MyTrigger" }, convention1.Calls);
+        Assert.Equal(new[] { "MyTrigger" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    private class TriggerRemovedConvention : ITriggerRemovedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public TriggerRemovedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessTriggerRemoved(
+            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTrigger trigger,
+            IConventionContext<IConventionTrigger> context)
+        {
+            Assert.NotNull(entityTypeBuilder.Metadata.Builder);
+
+            Calls.Add(trigger.ModelName);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
     public void OnKeyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
     {
         var conventions = new ConventionSet();

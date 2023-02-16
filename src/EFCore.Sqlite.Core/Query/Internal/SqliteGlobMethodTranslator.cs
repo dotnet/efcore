@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Query.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 
@@ -17,7 +16,7 @@ public class SqliteGlobMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo MethodInfo = typeof(SqliteDbFunctionsExtensions)
         .GetMethod(nameof(SqliteDbFunctionsExtensions.Glob), new[] { typeof(DbFunctions), typeof(string), typeof(string) })!;
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -25,7 +24,7 @@ public class SqliteGlobMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteGlobMethodTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqliteGlobMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -46,18 +45,8 @@ public class SqliteGlobMethodTranslator : IMethodCallTranslator
         {
             var matchExpression = arguments[1];
             var pattern = arguments[2];
-            var stringTypeMapping = ExpressionExtensions.InferTypeMapping(matchExpression, pattern);
 
-            return _sqlExpressionFactory.Function(
-                "glob",
-                new[]
-                {
-                    _sqlExpressionFactory.ApplyTypeMapping(pattern, stringTypeMapping),
-                    _sqlExpressionFactory.ApplyTypeMapping(matchExpression, stringTypeMapping)
-                },
-                nullable: true,
-                argumentsPropagateNullability: new[] { true, true },
-                typeof(bool));
+            return _sqlExpressionFactory.Glob(matchExpression, pattern);
         }
 
         return null;

@@ -29,10 +29,51 @@ public class LazyLoadingProxyTests
     }
 
     [ConditionalFact]
+    public void Does_not_throw_if_non_virtual_navigation_to_non_owned_type_is_allowed()
+    {
+        using var context = new LazyContextIgnoreVirtuals<LazyNonVirtualNavEntity>();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyNonVirtualNavEntity))!.FindNavigation(nameof(LazyNonVirtualNavEntity.SelfRef)));
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_if_field_navigation_to_non_owned_type_is_allowed()
+    {
+        using var context = new LazyContextAllowingFieldNavigation();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyFieldNavEntity))!.FindNavigation(nameof(LazyFieldNavEntity.SelfRef)));
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_if_non_virtual_navigation_is_set_to_not_eager_load()
+    {
+        using var context = new LazyContextDisabledNavigation();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyNonVirtualNavEntity))!.FindNavigation(nameof(LazyNonVirtualNavEntity.SelfRef)));
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_if_field_navigation_is_set_to_not_eager_load()
+    {
+        using var context = new LazyContextDisabledFieldNavigation();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyFieldNavEntity))!.FindNavigation(nameof(LazyFieldNavEntity.SelfRef)));
+    }
+
+    [ConditionalFact]
     public void Does_not_throw_if_non_virtual_navigation_to_owned_type()
     {
         using var context = new LazyContext<LazyNonVirtualOwnedNavEntity>();
-        var model = context.Model;
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyNonVirtualOwnedNavEntity))!.FindNavigation(nameof(LazyNonVirtualOwnedNavEntity.NavigationToOwned)));
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_if_field_navigation_to_owned_type()
+    {
+        using var context = new LazyContextOwnedFieldNavigation();
+        Assert.NotNull(
+            context.Model.FindEntityType(typeof(LazyFieldOwnedNavEntity))!.FindNavigation(nameof(LazyFieldOwnedNavEntity.NavigationToOwned)));
     }
 
     [ConditionalFact]
@@ -82,12 +123,82 @@ public class LazyLoadingProxyTests
                 () => phone.Texts).Message);
     }
 
+    private class LazyContextIgnoreVirtuals<TEntity> : TestContext<TEntity>
+        where TEntity : class
+    {
+        public LazyContextIgnoreVirtuals()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
+        {
+        }
+    }
+
     private class LazyContext<TEntity> : TestContext<TEntity>
         where TEntity : class
     {
         public LazyContext()
             : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
         {
+        }
+    }
+
+    private class LazyContextDisabledNavigation : TestContext<LazyNonVirtualNavEntity>
+    {
+        public LazyContextDisabledNavigation()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<LazyNonVirtualNavEntity>().Navigation(e => e.SelfRef).EnableLazyLoading(false);
+        }
+    }
+
+    private class LazyContextAllowingFieldNavigation : TestContext<LazyFieldNavEntity>
+    {
+        public LazyContextAllowingFieldNavigation()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false, ignoreNonVirtualNavigations: true)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<LazyFieldNavEntity>().HasOne(e => e.SelfRef).WithOne();
+        }
+    }
+
+    private class LazyContextDisabledFieldNavigation : TestContext<LazyFieldNavEntity>
+    {
+        public LazyContextDisabledFieldNavigation()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<LazyFieldNavEntity>().HasOne(e => e.SelfRef).WithOne();
+            modelBuilder.Entity<LazyFieldNavEntity>().Navigation(e => e.SelfRef).EnableLazyLoading(false);
+        }
+    }
+
+    private class LazyContextOwnedFieldNavigation : TestContext<LazyFieldOwnedNavEntity>
+    {
+        public LazyContextOwnedFieldNavigation()
+            : base(dbName: "LazyLoadingContext", useLazyLoading: true, useChangeDetection: false)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<LazyFieldOwnedNavEntity>().OwnsOne(e => e.NavigationToOwned).WithOwner(e => e.Owner);
         }
     }
 
@@ -101,6 +212,13 @@ public class LazyLoadingProxyTests
         public int Id { get; set; }
 
         public LazyNonVirtualNavEntity SelfRef { get; set; }
+    }
+
+    public class LazyFieldNavEntity
+    {
+        public int Id { get; set; }
+
+        public LazyFieldNavEntity SelfRef;
     }
 
     public class LazyNonVirtualOwnedNavEntity
@@ -118,6 +236,23 @@ public class LazyLoadingProxyTests
         public string Name { get; set; }
 
         public LazyNonVirtualOwnedNavEntity Owner { get; set; }
+    }
+
+    public class LazyFieldOwnedNavEntity
+    {
+        public int Id { get; set; }
+
+        public OwnedFieldNavEntity NavigationToOwned;
+    }
+
+    [Owned]
+    public class OwnedFieldNavEntity
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
+        public LazyFieldOwnedNavEntity Owner;
     }
 
     public class LazyHiddenFieldEntity

@@ -116,10 +116,34 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
             ResultSetMappings.Add(resultSetMapping);
         }
 
-        if (resultSetMapping != ResultSetMapping.NoResults)
+        // All result mappings are marked as "not last", mark the last one as "last".
+        if (resultSetMapping.HasFlag(ResultSetMapping.HasResultRow))
         {
-            ResultSetMappings[^1] = ResultSetMapping.LastInResultSet;
+            ResultSetMappings[^1] &= ~ResultSetMapping.NotLastInResultSet;
+            ResultSetMappings[^1] |= ResultSetMapping.LastInResultSet;
         }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override bool TryAddCommand(IReadOnlyModificationCommand modificationCommand)
+    {
+        // If there are any pending bulk insert commands and the new command is incompatible with them (not an insert, insert into a
+        // separate table..), apply the pending commands.
+        if (_pendingBulkInsertCommands.Count > 0
+            && (modificationCommand.EntityState != EntityState.Added
+                || modificationCommand.StoreStoredProcedure is not null
+                || !CanBeInsertedInSameStatement(_pendingBulkInsertCommands[0], modificationCommand)))
+        {
+            ApplyPendingBulkInsertCommands();
+            _pendingBulkInsertCommands.Clear();
+        }
+
+        return base.TryAddCommand(modificationCommand);
     }
 
     /// <summary>
@@ -130,31 +154,15 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     /// </summary>
     protected override void AddCommand(IReadOnlyModificationCommand modificationCommand)
     {
+        // TryAddCommand above already applied any pending commands if the new command is incompatible with them.
+        // So if the new command is an insert, just append it to pending, otherwise do the regular add logic.
         if (modificationCommand.EntityState == EntityState.Added && modificationCommand.StoreStoredProcedure is null)
         {
-            if (_pendingBulkInsertCommands.Count > 0
-                && !CanBeInsertedInSameStatement(_pendingBulkInsertCommands[0], modificationCommand))
-            {
-                // The new Add command cannot be added to the pending bulk insert commands (e.g. different table).
-                // Write out the pending commands before starting a new pending chain.
-                ApplyPendingBulkInsertCommands();
-                _pendingBulkInsertCommands.Clear();
-            }
-
             _pendingBulkInsertCommands.Add(modificationCommand);
             AddParameters(modificationCommand);
         }
         else
         {
-            // If we have any pending bulk insert commands, write them out before the next non-Add command
-            if (_pendingBulkInsertCommands.Count > 0)
-            {
-                // Note that we don't care about the transactionality of the bulk insert SQL, since there's the additional non-Add
-                // command coming right afterwards, and so a transaction is required in any case.
-                ApplyPendingBulkInsertCommands();
-                _pendingBulkInsertCommands.Clear();
-            }
-
             base.AddCommand(modificationCommand);
         }
     }

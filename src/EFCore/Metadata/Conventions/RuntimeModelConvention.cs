@@ -385,6 +385,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     private static RuntimeServiceProperty Create(IServiceProperty property, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddServiceProperty(
             property.Name,
+            property.ClrType,
             property.PropertyInfo,
             property.FieldInfo,
             property.GetPropertyAccessMode());
@@ -550,7 +551,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                 navigation.PropertyInfo,
                 navigation.FieldInfo,
                 navigation.GetPropertyAccessMode(),
-                navigation.IsEagerLoaded);
+                navigation.IsEagerLoaded,
+                navigation.LazyLoadingEnabled);
 
     /// <summary>
     ///     Updates the navigation annotations that will be set on the read-only object.
@@ -589,7 +591,8 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             navigation.PropertyInfo,
             navigation.FieldInfo,
             navigation.GetPropertyAccessMode(),
-            navigation.IsEagerLoaded);
+            navigation.IsEagerLoaded,
+            navigation.LazyLoadingEnabled);
 
     /// <summary>
     ///     Gets the corresponding foreign key in the read-optimized model.

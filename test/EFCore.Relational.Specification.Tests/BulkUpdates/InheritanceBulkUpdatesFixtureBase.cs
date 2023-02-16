@@ -9,7 +9,12 @@ public abstract class InheritanceBulkUpdatesFixtureBase : InheritanceQueryFixtur
         => "InheritanceBulkUpdatesTest";
 
     public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder).ConfigureWarnings(w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning));
+        => base.AddOptions(builder).ConfigureWarnings(
+            w => w.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning)
+                .Ignore(
+                    CoreEventId.MappedEntityTypeIgnoredWarning,
+                    CoreEventId.MappedPropertyIgnoredWarning,
+                    CoreEventId.MappedNavigationIgnoredWarning));
 
     public void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)
         => facade.UseTransaction(transaction.GetDbTransaction());

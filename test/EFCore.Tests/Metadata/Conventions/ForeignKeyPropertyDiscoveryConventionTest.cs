@@ -777,7 +777,7 @@ public class ForeignKeyPropertyDiscoveryConventionTest
         dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
         dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
 
-        dependentTypeBuilder.HasRelationship(PrincipalType, new[] { fkProperty }, ConfigurationSource.Convention);
+        var relationshipBuilder = dependentTypeBuilder.HasRelationship(PrincipalType, new[] { fkProperty }, ConfigurationSource.Convention);
 
         var newRelationshipBuilder = dependentTypeBuilder.HasRelationship(
             PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
@@ -787,10 +787,6 @@ public class ForeignKeyPropertyDiscoveryConventionTest
             newRelationshipBuilder.Metadata.Properties.Single().Name);
 
         newRelationshipBuilder = RunConvention(newRelationshipBuilder);
-
-        var relationshipBuilder = DependentType.GetForeignKeys()
-            .Single(foreignKey => foreignKey != newRelationshipBuilder.Metadata)
-            .Builder.HasForeignKey(new[] { fkProperty }, ConfigurationSource.Convention);
 
         var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
         Assert.Same(fkProperty, fk.Properties.Single());
@@ -808,7 +804,45 @@ public class ForeignKeyPropertyDiscoveryConventionTest
                 nameof(DependentEntity) + ".SomeNav",
                 nameof(PrincipalEntity),
                 "{'" + nameof(DependentEntity.SomeNavPeEKaY) + "'}"),
-            Assert.Throws<InvalidOperationException>(() => ValidateModel()).Message);
+            Assert.Throws<InvalidOperationException>(ValidateModel).Message);
+    }
+
+    [ConditionalFact]
+    public void Does_not_match_if_a_foreign_key_on_the_best_candidate_property_already_configured_explicitly()
+    {
+        var dependentTypeBuilder = DependentType.Builder;
+        var fkProperty = dependentTypeBuilder.Property(DependentEntity.SomeNavPeEKaYProperty, ConfigurationSource.Convention).Metadata;
+        dependentTypeBuilder.Property(DependentEntity.PrincipalEntityIDProperty, ConfigurationSource.Convention);
+        dependentTypeBuilder.Property(DependentEntity.PrincipalEntityPeEKaYProperty, ConfigurationSource.Convention);
+        dependentTypeBuilder.Property(DependentEntity.PeEKaYProperty, ConfigurationSource.Convention);
+
+        var derivedTypeBuilder = _model.Entity(typeof(DerivedPrincipalEntity), ConfigurationSource.Convention);
+        derivedTypeBuilder.HasBaseType(PrincipalType, ConfigurationSource.Convention);
+
+        var relationshipBuilder = dependentTypeBuilder
+            .HasRelationship(derivedTypeBuilder.Metadata, new[] { fkProperty }, ConfigurationSource.Explicit);
+        var compositeRelationshipBuilder = dependentTypeBuilder
+            .HasRelationship(PrincipalTypeWithCompositeKey, new[] { fkProperty }, ConfigurationSource.Explicit);
+
+        var newRelationshipBuilder = dependentTypeBuilder.HasRelationship(
+            PrincipalType, "SomeNav", null, ConfigurationSource.Convention);
+
+        Assert.Equal(
+            "SomeNav" + nameof(PrincipalEntity.PeeKay),
+            newRelationshipBuilder.Metadata.Properties.Single().Name);
+
+        newRelationshipBuilder = RunConvention(newRelationshipBuilder);
+
+        var fk = (IReadOnlyForeignKey)relationshipBuilder.Metadata;
+        Assert.Same(fkProperty, fk.Properties.Single());
+        Assert.False(fk.IsUnique);
+
+        var newFk = newRelationshipBuilder.Metadata;
+        Assert.Equal(3, DependentType.GetForeignKeys().Count());
+        Assert.Equal("SomeNav" + nameof(PrincipalEntity.PeeKay), newFk.Properties.Single().Name);
+        Assert.Null(newFk.GetPropertiesConfigurationSource());
+
+        ValidateModel();
     }
 
     [ConditionalFact]

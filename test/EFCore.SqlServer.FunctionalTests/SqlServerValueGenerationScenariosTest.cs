@@ -144,6 +144,51 @@ public class SqlServerValueGenerationScenariosTest
     }
 
     [ConditionalFact]
+    public void Insert_with_non_key_sequence()
+    {
+        using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
+        using (var context = new BlogContextNonKeySequence(testStore.Name))
+        {
+            context.Database.EnsureCreatedResiliently();
+
+            context.AddRange(
+                new Blog { Name = "One Unicorn" }, new Blog { Name = "Two Unicorns" });
+
+            context.SaveChanges();
+        }
+
+        using (var context = new BlogContextNonKeySequence(testStore.Name))
+        {
+            var blogs = context.Blogs.OrderBy(e => e.Id).ToList();
+
+            Assert.Equal(1, blogs[0].Id);
+            Assert.Equal(1, blogs[0].OtherId);
+            Assert.Equal(2, blogs[1].Id);
+            Assert.Equal(2, blogs[1].OtherId);
+        }
+    }
+
+    public class BlogContextNonKeySequence : ContextBase
+    {
+        public BlogContextNonKeySequence(string databaseName)
+            : base(databaseName)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Blog>(
+                eb =>
+                {
+                    eb.Property(b => b.OtherId).UseSequence();
+                    eb.Property(b => b.OtherId).ValueGeneratedOnAdd();
+                });
+        }
+    }
+
+    [ConditionalFact]
     public void Insert_with_default_value_from_sequence()
     {
         using var testStore = SqlServerTestStore.CreateInitialized(DatabaseName);
@@ -1011,7 +1056,7 @@ END");
         {
             using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                context.Add(new FullNameBlog());
+                await context.AddAsync(new FullNameBlog());
 
                 var exception = async
                     ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
@@ -1056,7 +1101,7 @@ END");
         {
             using (var context = new BlogContextComputedColumn(testStore.Name))
             {
-                context.Add(new FullNameBlog());
+                await context.AddAsync(new FullNameBlog());
 
                 var exception = async
                     ? await Assert.ThrowsAsync<DbUpdateException>(() => context.SaveChangesAsync())
@@ -1234,12 +1279,7 @@ END");
         // inner exception for details.
         // SqlException : Cannot insert explicit value for identity column in table
         // 'Blog' when IDENTITY_INSERT is set to OFF.
-        context.Database.CreateExecutionStrategy().Execute(
-            context, c =>
-            {
-                var updateException = Assert.Throws<DbUpdateException>(() => c.SaveChanges());
-                Assert.Single(updateException.Entries);
-            });
+        context.Database.CreateExecutionStrategy().Execute(context, c => Assert.Throws<DbUpdateException>(() => c.SaveChanges()));
     }
 
     [ConditionalFact]

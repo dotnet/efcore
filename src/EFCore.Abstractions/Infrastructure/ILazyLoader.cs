@@ -35,6 +35,17 @@ public interface ILazyLoader : IDisposable
         bool loaded = true);
 
     /// <summary>
+    ///     Gets whether or not the given navigation as known to be completely loaded or known to be
+    ///     no longer completely loaded.
+    /// </summary>
+    /// <param name="entity">The entity on which the navigation property is located.</param>
+    /// <param name="navigationName">The navigation property name.</param>
+    /// <returns><see langword="true" />if the navigation is known to be loaded.</returns>
+    bool IsLoaded(
+        object entity,
+        [CallerMemberName] string navigationName = "");
+
+    /// <summary>
     ///     Loads a navigation property if it has not already been loaded.
     /// </summary>
     /// <param name="entity">The entity on which the navigation property is located.</param>
