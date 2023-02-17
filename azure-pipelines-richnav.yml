@@ -3,6 +3,9 @@ trigger:
     include:
       - main
 
+variables:
+- template: /eng/common/templates/variables/pool-providers.yml
+
 stages:
 - stage: build
   displayName: Build
@@ -18,7 +21,7 @@ stages:
             timeoutInMinutes: 90
             enablePublishTestResults: true
             pool:
-              name: NetCore-Public
+              name: $(DncEngPublicBuildPool)
               demands: ImageOverride -equals 1es-windows-2019-open
             steps:
               - task: NuGetCommand@2
