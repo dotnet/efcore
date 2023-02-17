@@ -80,6 +80,7 @@ stages:
         enablePublishBuildAssets: ${{ ne(variables.runCodeQL3000, 'true') }}
         enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
         publishAssetsImmediately: true
+        enableSourceIndex: ${{ and(ne(variables['System.TeamProject'], 'public'), eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}
         enableTelemetry: true
         helixRepo: dotnet/efcore
         jobs:
