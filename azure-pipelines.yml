@@ -120,6 +120,8 @@ stages:
                 - Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
                 # Default expects tsaoptions.json under SourceRoot.
                 - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
+              - ${{ else }}:
+                _AdditionalBuildArgs: ''
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'

@@ -7,6 +7,9 @@
   "tools": {
     "dotnet": "8.0.100-alpha.1.23061.8",
     "runtimes": {
+      "aspnetcore": [
+        "7.0.3"
+      ],
       "dotnet": [
         "7.0.3"
       ]
