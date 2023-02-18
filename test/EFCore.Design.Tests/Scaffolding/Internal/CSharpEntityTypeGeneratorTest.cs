@@ -940,7 +940,7 @@ public partial class Entity
                 for (var i = 1; i <= 4; i++)
                 {
                     Assert.Contains(
-                        "public virtual ICollection<Entity> Entity { get; }",
+                        "public virtual ICollection<Entity> Entity { get; set; }",
                         code.AdditionalFiles.Single(f => f.Path == $"Dependent{i}.cs").Code);
                 }
             },
@@ -1426,7 +1426,7 @@ public partial class Post
     public virtual Person Author { get; set; }
 
     [InverseProperty("Post")]
-    public virtual ICollection<Contribution> Contributions { get; } = new List<Contribution>();
+    public virtual ICollection<Contribution> Contributions { get; set; } = new List<Contribution>();
 }
 """,
                     code.AdditionalFiles.Single(f => f.Path == "Post.cs"));
@@ -1447,7 +1447,7 @@ public partial class Person
     public int Id { get; set; }
 
     [InverseProperty("Author")]
-    public virtual ICollection<Post> Posts { get; } = new List<Post>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
 """,
                     code.AdditionalFiles.Single(f => f.Path == "Person.cs"));
@@ -1708,7 +1708,7 @@ public partial class Color
     public string ColorCode { get; set; } = null!;
 
     [InverseProperty("Color")]
-    public virtual ICollection<Car> Cars { get; } = new List<Car>();
+    public virtual ICollection<Car> Cars { get; set; } = new List<Car>();
 }
 """,
                     code.AdditionalFiles.Single(f => f.Path == "Color.cs"));
@@ -2335,7 +2335,7 @@ public partial class Blog
 {
     public int Id { get; set; }
 
-    public virtual ICollection<Post> Posts { get; } = new List<Post>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
@@ -2351,7 +2351,7 @@ public partial class Post
 {
     public int Id { get; set; }
 
-    public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
+    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
@@ -2460,7 +2460,7 @@ public partial class Blog
 {
     public int Id { get; set; }
 
-    public virtual ICollection<Post> Posts { get; } = new List<Post>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
@@ -2476,7 +2476,7 @@ public partial class Post
 {
     public string Id { get; set; }
 
-    public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
+    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
@@ -2591,7 +2591,7 @@ public partial class Blog
 
     [ForeignKey("BlogsId")]
     [InverseProperty("Blogs")]
-    public virtual ICollection<Post> Posts { get; } = new List<Post>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
@@ -2613,7 +2613,7 @@ public partial class Post
 
     [ForeignKey("PostsId")]
     [InverseProperty("Posts")]
-    public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
+    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
@@ -2736,7 +2736,7 @@ public partial class Blog
 
     [ForeignKey("BlogsKey")]
     [InverseProperty("Blogs")]
-    public virtual ICollection<Post> Posts { get; } = new List<Post>();
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Blog.cs"));
@@ -2758,7 +2758,7 @@ public partial class Post
 
     [ForeignKey("PostsId")]
     [InverseProperty("Posts")]
-    public virtual ICollection<Blog> Blogs { get; } = new List<Blog>();
+    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
 }
 """,
                     code.AdditionalFiles.Single(e => e.Path == "Post.cs"));
