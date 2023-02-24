@@ -36,22 +36,22 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo CollectionAccessorAddMethodInfo
             = typeof(IClrCollectionAccessor).GetTypeInfo().GetDeclaredMethod(nameof(IClrCollectionAccessor.Add))!;
 
-        private static readonly MethodInfo JsonElementGetPropertyMethod
-            = typeof(JsonElement).GetMethod(nameof(JsonElement.GetProperty), new[] { typeof(string) })!;
+        private static readonly MethodInfo JsonElementTryGetPropertyMethod
+            = typeof(JsonElement).GetMethod(nameof(JsonElement.TryGetProperty), new[] { typeof(string), typeof(JsonElement).MakeByRefType() })!;
 
         private static readonly MethodInfo JsonElementGetItemMethodInfo
             = typeof(JsonElement).GetMethod("get_Item", new[] { typeof(int) })!;
 
-        private static readonly PropertyInfo _objectArrayIndexerPropertyInfo
+        private static readonly PropertyInfo ObjectArrayIndexerPropertyInfo
             = typeof(object[]).GetProperty("Item")!;
 
-        private static readonly PropertyInfo _nullableJsonElementHasValuePropertyInfo
+        private static readonly PropertyInfo NullableJsonElementHasValuePropertyInfo
             = typeof(JsonElement?).GetProperty(nameof(Nullable<JsonElement>.HasValue))!;
 
-        private static readonly PropertyInfo _nullableJsonElementValuePropertyInfo
+        private static readonly PropertyInfo NullableJsonElementValuePropertyInfo
             = typeof(JsonElement?).GetProperty(nameof(Nullable<JsonElement>.Value))!;
 
-        private static readonly MethodInfo _arrayCopyMethodInfo
+        private static readonly MethodInfo ArrayCopyMethodInfo
             = typeof(Array).GetMethod(nameof(Array.Copy), new[] { typeof(Array), typeof(Array), typeof(int) })!;
 
         private readonly RelationalShapedQueryCompilingExpressionVisitor _parentVisitor;
@@ -1074,7 +1074,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return property!.IsPrimaryKey()
                         ? Expression.MakeIndex(
                             keyPropertyValuesParameter,
-                            _objectArrayIndexerPropertyInfo,
+                            ObjectArrayIndexerPropertyInfo,
                             new[] { Expression.Constant(index) })
                         : CreateExtractJsonPropertyExpression(jsonElementParameter, property);
                 }
@@ -1154,15 +1154,25 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 shaperBlockVariables.Add(innerJsonElementParameter);
 
-                // TODO: do TryGetProperty and short circuit if failed instead
+                // JsonElement temp;
+                // JsonElement? innerJsonElement = jsonElement.TryGetProperty("PropertyName", temp)
+                //  ? (JsonElement?)temp
+                //  : null;
+                var tempParameter = Expression.Variable(typeof(JsonElement));
+                shaperBlockVariables.Add(tempParameter);
+
                 var innerJsonElementAssignment = Expression.Assign(
                     innerJsonElementParameter,
-                    Expression.Convert(
+                    Expression.Condition(
                         Expression.Call(
                             jsonElementShaperLambdaParameter,
-                            JsonElementGetPropertyMethod,
-                            Expression.Constant(ownedNavigation.TargetEntityType.GetJsonPropertyName())),
-                        typeof(JsonElement?)));
+                            JsonElementTryGetPropertyMethod,
+                            Expression.Constant(ownedNavigation.TargetEntityType.GetJsonPropertyName()),
+                            tempParameter),
+                        Expression.Convert(
+                            tempParameter,
+                            typeof(JsonElement?)),
+                        Expression.Constant(null, typeof(JsonElement?))));
 
                 shaperBlockExpressions.Add(innerJsonElementAssignment);
 
@@ -1398,12 +1408,40 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     Expression jsonElementAccessExpressionFragment;
                     if (currentPath.JsonPropertyName is string stringPath)
                     {
-                        jsonElementAccessExpressionFragment = Expression.Call(
+                        // JsonElement? jsonElement = (...) <- this is the previous one
+                        // JsonElement temp;
+                        // JsonElement? newJsonElement = jsonElement.HasValue && jsonElement.Value.TryGetProperty("PropertyName", temp)
+                        //   ? (JsonElement?)temp
+                        //   : null;
+                        var tempParameter = Expression.Variable(typeof(JsonElement));
+                        _variables.Add(tempParameter);
+
+                        var tryGetPropertyCall = Expression.Call(
                             Expression.MakeMemberAccess(
                                 currentJsonElementVariable!,
-                                _nullableJsonElementValuePropertyInfo),
-                            JsonElementGetPropertyMethod,
-                            Expression.Constant(stringPath));
+                                NullableJsonElementValuePropertyInfo),
+                            JsonElementTryGetPropertyMethod,
+                            Expression.Constant(stringPath),
+                            tempParameter);
+
+                        var newJsonElementVariable = Expression.Variable(
+                            typeof(JsonElement?));
+
+                        var newJsonElementAssignment = Expression.Assign(
+                            newJsonElementVariable,
+                            Expression.Condition(
+                                Expression.AndAlso(
+                                    Expression.MakeMemberAccess(
+                                        currentJsonElementVariable!,
+                                        NullableJsonElementHasValuePropertyInfo),
+                                    tryGetPropertyCall),
+                                Expression.Convert(tempParameter, typeof(JsonElement?)),
+                                Expression.Constant(null, typeof(JsonElement?))));
+
+                        _variables.Add(newJsonElementVariable);
+                        _expressions.Add(newJsonElementAssignment);
+
+                        currentJsonElementVariable = newJsonElementVariable;
                     }
                     else
                     {
@@ -1416,7 +1454,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         jsonElementAccessExpressionFragment = Expression.Call(
                             Expression.MakeMemberAccess(
                                 currentJsonElementVariable!,
-                                _nullableJsonElementValuePropertyInfo),
+                                NullableJsonElementValuePropertyInfo),
                             JsonElementGetItemMethodInfo,
                             elementAccessExpression);
 
@@ -1442,15 +1480,15 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     Expression.Constant(currentKeyValuesCount)));
 
                             var keyValuesArrayCopyFromPrevious = Expression.Call(
-                                _arrayCopyMethodInfo,
+                                ArrayCopyMethodInfo,
                                 previousKeyValuesVariable!,
-                                currentKeyValuesVariable!,
+                                currentKeyValuesVariable,
                                 Expression.Constant(currentKeyValuesCount - 1));
 
                             var missingKeyValueAssignment = Expression.Assign(
                                 Expression.MakeIndex(
                                     currentKeyValuesVariable,
-                                    _objectArrayIndexerPropertyInfo,
+                                    ObjectArrayIndexerPropertyInfo,
                                     new[] { Expression.Constant(currentKeyValuesCount - 1) }),
                                 Expression.Convert(
                                     Expression.Add(elementAccessExpression, Expression.Constant(1)),
@@ -1461,26 +1499,26 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             _expressions.Add(keyValuesArrayCopyFromPrevious);
                             _expressions.Add(missingKeyValueAssignment);
                         }
+
+                        var jsonElementValueExpression = Expression.Condition(
+                            Expression.MakeMemberAccess(
+                                currentJsonElementVariable,
+                                NullableJsonElementHasValuePropertyInfo),
+                            Expression.Convert(
+                                jsonElementAccessExpressionFragment,
+                                currentJsonElementVariable!.Type),
+                            Expression.Default(currentJsonElementVariable.Type));
+
+                        currentJsonElementVariable = Expression.Variable(
+                            typeof(JsonElement?));
+
+                        var jsonElementAssignment = Expression.Assign(
+                            currentJsonElementVariable,
+                            jsonElementValueExpression);
+
+                        _variables.Add(currentJsonElementVariable);
+                        _expressions.Add(jsonElementAssignment);
                     }
-
-                    var jsonElementValueExpression = Expression.Condition(
-                        Expression.MakeMemberAccess(
-                            currentJsonElementVariable!,
-                            _nullableJsonElementHasValuePropertyInfo),
-                        Expression.Convert(
-                            jsonElementAccessExpressionFragment,
-                            currentJsonElementVariable!.Type),
-                        Expression.Default(currentJsonElementVariable!.Type));
-
-                    currentJsonElementVariable = Expression.Variable(
-                        typeof(JsonElement?));
-
-                    var jsonElementAssignment = Expression.Assign(
-                        currentJsonElementVariable,
-                        jsonElementValueExpression);
-
-                    _variables.Add(currentJsonElementVariable);
-                    _expressions.Add(jsonElementAssignment);
                 }
             }
 

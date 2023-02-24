@@ -313,7 +313,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor : ShapedQue
         }
         else
         {
-
             var nonComposedFromSql = selectExpression.IsNonComposedFromSql();
             var shaper = new ShaperProcessingExpressionVisitor(this, selectExpression, _tags, splitQuery, nonComposedFromSql).ProcessShaper(
                 shapedQueryExpression.ShaperExpression,
