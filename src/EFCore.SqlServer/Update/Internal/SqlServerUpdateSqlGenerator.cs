@@ -142,8 +142,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         string name,
         string? schema)
     {
-        if (columnModification.JsonPath != null
-            && columnModification.JsonPath != "$")
+        if (columnModification.JsonPath is not (null or "$"))
         {
             stringBuilder.Append("JSON_MODIFY(");
             updateSqlGeneratorHelper.DelimitIdentifier(stringBuilder, columnModification.ColumnName);

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
+
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 /// <summary>
@@ -80,7 +82,8 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { typeof(decimal), new SqliteDecimalTypeMapping(TextTypeName) },
         { typeof(double), Real },
         { typeof(float), new FloatTypeMapping(RealTypeName) },
-        { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) }
+        { typeof(Guid), new SqliteGuidTypeMapping(TextTypeName) },
+        { typeof(JsonElement), new SqliteJsonTypeMapping(TextTypeName) }
     };
 
     private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings = new(StringComparer.OrdinalIgnoreCase)

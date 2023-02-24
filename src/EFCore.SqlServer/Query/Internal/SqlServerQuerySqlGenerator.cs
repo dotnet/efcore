@@ -335,7 +335,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         Visit(jsonScalarExpression.JsonColumn);
 
-        Sql.Append(",'");
+        Sql.Append(", '");
         foreach (var pathSegment in jsonScalarExpression.Path)
         {
             if (pathSegment.PropertyName != null)

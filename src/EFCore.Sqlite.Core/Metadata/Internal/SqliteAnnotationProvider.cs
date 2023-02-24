@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Metadata.Internal;
@@ -47,6 +48,12 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+        // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
+        if (column is JsonColumn)
+        {
+            yield break;
+        }
+
         // Model validation ensures that these facets are the same on all mapped properties
         var property = column.PropertyMappings.First().Property;
         // Only return auto increment for integer single column primary key

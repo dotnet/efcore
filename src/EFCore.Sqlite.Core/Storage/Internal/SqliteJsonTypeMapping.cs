@@ -1,9 +1,10 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
 using System.Text.Json;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -11,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqlServerJsonTypeMapping : JsonTypeMapping
+public class SqliteJsonTypeMapping : JsonTypeMapping
 {
     private static readonly MethodInfo GetStringMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), new[] { typeof(int) })!;
@@ -23,13 +24,22 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
         = typeof(JsonDocument).GetRuntimeProperty(nameof(JsonDocument.RootElement))!;
 
     /// <summary>
+    ///     Initializes a new instance of the <see cref="SqliteJsonTypeMapping" /> class.
+    /// </summary>
+    /// <param name="storeType">The name of the database type.</param>
+    public SqliteJsonTypeMapping(string storeType)
+        : base(storeType, typeof(JsonElement), System.Data.DbType.String)
+    {
+    }
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerJsonTypeMapping(string storeType)
-        : base(storeType, typeof(JsonElement), System.Data.DbType.String)
+    protected SqliteJsonTypeMapping(RelationalTypeMappingParameters parameters)
+        : base(parameters)
     {
     }
 
@@ -62,10 +72,8 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected SqlServerJsonTypeMapping(RelationalTypeMappingParameters parameters)
-        : base(parameters)
-    {
-    }
+    protected override string GenerateNonNullSqlLiteral(object value)
+        => $"'{EscapeSqlLiteral(JsonSerializer.Serialize(value))}'";
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -82,15 +90,6 @@ public class SqlServerJsonTypeMapping : JsonTypeMapping
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override string GenerateNonNullSqlLiteral(object value)
-        => $"'{EscapeSqlLiteral(JsonSerializer.Serialize(value))}'";
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected override RelationalTypeMapping Clone(RelationalTypeMappingParameters parameters)
-        => new SqlServerJsonTypeMapping(parameters);
+        => new SqliteJsonTypeMapping(parameters);
 }
