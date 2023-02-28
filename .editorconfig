@@ -247,3 +247,9 @@ dotnet_naming_symbols.everything_else.applicable_accessibilities = *
 dotnet_naming_rule.everything_else_naming.symbols = everything_else
 dotnet_naming_rule.everything_else_naming.style = camel_case_style
 dotnet_naming_rule.everything_else_naming.severity = suggestion
+
+# Microsoft .NET properties
+csharp_style_expression_bodied_methods = true:suggestion
+
+# ReSharper properties
+resharper_local_function_body = expression_body
