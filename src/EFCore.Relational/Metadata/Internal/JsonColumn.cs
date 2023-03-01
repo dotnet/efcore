@@ -11,18 +11,15 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public class JsonColumn : Column, IColumn
 {
-    private readonly ValueComparer _providerValueComparer;
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public JsonColumn(string name, string type, Table table, ValueComparer provierValueComparer)
-        : base(name, type, table)
+    public JsonColumn(string name, Table table, RelationalTypeMapping storeTypeMapping)
+        : base(name, storeTypeMapping.StoreType, table, storeTypeMapping)
     {
-        _providerValueComparer = provierValueComparer;
     }
 
     /// <summary>
@@ -149,7 +146,7 @@ public class JsonColumn : Column, IColumn
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     ValueComparer IColumnBase.ProviderValueComparer
-        => _providerValueComparer;
+        => StoreTypeMapping.ProviderValueComparer;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

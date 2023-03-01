@@ -160,7 +160,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
         foreach (var entityType in model.GetEntityTypes())
         {
-            AddDefaultMappings(databaseModel, entityType);
+            AddDefaultMappings(databaseModel, entityType, relationalTypeMappingSource);
 
             AddTables(databaseModel, entityType, relationalTypeMappingSource);
 
@@ -291,7 +291,10 @@ public class RelationalModel : Annotatable, IRelationalModel
         return databaseModel;
     }
 
-    private static void AddDefaultMappings(RelationalModel databaseModel, IEntityType entityType)
+    private static void AddDefaultMappings(
+        RelationalModel databaseModel,
+        IEntityType entityType,
+        IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         var mappedType = entityType;
         Check.DebugAssert(entityType.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultMappings) == null, "not null");
@@ -312,42 +315,52 @@ public class RelationalModel : Annotatable, IRelationalModel
             var tableMapping = new TableMappingBase<ColumnMappingBase>(
                 entityType, defaultTable, includesDerivedTypes: !isTpc && mappedType == entityType);
 
-            foreach (var property in entityType.GetProperties())
+            var containerColumnName = mappedType.GetContainerColumnName();
+            if (!string.IsNullOrEmpty(containerColumnName))
             {
-                var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringEntityType == mappedType
-                    ? property.GetColumnName()
-                    : null;
-                if (columnName == null)
+                CreateContainerColumn(
+                    defaultTable, containerColumnName, mappedType, relationalTypeMappingSource,
+                    static (c, t, m) => new ColumnBase<ColumnMappingBase>(c, m.StoreType, t, m));
+            }
+            else
+            {
+                foreach (var property in entityType.GetProperties())
                 {
-                    continue;
-                }
-
-                var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
-                if (column == null)
-                {
-                    column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                    var columnName = property.IsPrimaryKey() || isTpc || isTph || property.DeclaringEntityType == mappedType
+                        ? property.GetColumnName()
+                        : null;
+                    if (columnName == null)
                     {
-                        IsNullable = property.IsColumnNullable()
-                    };
-                    defaultTable.Columns.Add(columnName, column);
-                }
-                else if (!property.IsColumnNullable())
-                {
-                    column.IsNullable = false;
-                }
+                        continue;
+                    }
 
-                var columnMapping = new ColumnMappingBase(property, column, tableMapping);
-                tableMapping.AddColumnMapping(columnMapping);
-                column.AddPropertyMapping(columnMapping);
+                    var column = (ColumnBase<ColumnMappingBase>?)defaultTable.FindColumn(columnName);
+                    if (column == null)
+                    {
+                        column = new ColumnBase<ColumnMappingBase>(columnName, property.GetColumnType(), defaultTable)
+                        {
+                            IsNullable = property.IsColumnNullable()
+                        };
+                        defaultTable.Columns.Add(columnName, column);
+                    }
+                    else if (!property.IsColumnNullable())
+                    {
+                        column.IsNullable = false;
+                    }
 
-                if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
-                    is not SortedSet<ColumnMappingBase> columnMappings)
-                {
-                    columnMappings = new SortedSet<ColumnMappingBase>(ColumnMappingBaseComparer.Instance);
-                    property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
+                    var columnMapping = new ColumnMappingBase(property, column, tableMapping);
+                    tableMapping.AddColumnMapping(columnMapping);
+                    column.AddPropertyMapping(columnMapping);
+
+                    if (property.FindRuntimeAnnotationValue(RelationalAnnotationNames.DefaultColumnMappings)
+                        is not SortedSet<ColumnMappingBase> columnMappings)
+                    {
+                        columnMappings = new SortedSet<ColumnMappingBase>(ColumnMappingBaseComparer.Instance);
+                        property.AddRuntimeAnnotation(RelationalAnnotationNames.DefaultColumnMappings, columnMappings);
+                    }
+
+                    columnMappings.Add(columnMapping);
                 }
-
-                columnMappings.Add(columnMapping);
             }
 
             if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
@@ -460,23 +473,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var containerColumnName = mappedType.GetContainerColumnName();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
-            var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
-            if (!ownership.PrincipalEntityType.IsMappedToJson())
-            {
-                Debug.Assert(table.FindColumn(containerColumnName) == null);
-
-                var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
-                var jsonColumn = new JsonColumn(
-                    containerColumnName, jsonColumnTypeMapping.StoreType, table, jsonColumnTypeMapping.ProviderValueComparer);
-                table.Columns.Add(containerColumnName, jsonColumn);
-                jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
-
-                if (ownership.PrincipalEntityType.BaseType != null)
-                {
-                    // if navigation is defined on a derived type, the column must be made nullable
-                    jsonColumn.IsNullable = true;
-                }
-            }
+            CreateContainerColumn(
+                table, containerColumnName, mappedType, relationalTypeMappingSource,
+                static (c, t, m) => new JsonColumn(c, (Table)t, m));
         }
         else
         {
@@ -523,6 +522,32 @@ public class RelationalModel : Annotatable, IRelationalModel
         {
             tableMappings.Add(tableMapping);
             table.EntityTypeMappings.Add(tableMapping);
+        }
+    }
+
+    private static void CreateContainerColumn<TColumnMappingBase>(
+        TableBase tableBase,
+        string containerColumnName,
+        IEntityType mappedType,
+        IRelationalTypeMappingSource relationalTypeMappingSource,
+        Func<string, TableBase, RelationalTypeMapping, ColumnBase<TColumnMappingBase>> createColumn)
+        where TColumnMappingBase : class, IColumnMappingBase
+    {
+        var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
+        if (!ownership.PrincipalEntityType.IsMappedToJson())
+        {
+            Check.DebugAssert(tableBase.FindColumn(containerColumnName) == null, $"Table does not have column '{containerColumnName}'.");
+
+            var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
+            var jsonColumn = createColumn(containerColumnName, tableBase, jsonColumnTypeMapping);// new JsonColumn(containerColumnName, table, jsonColumnTypeMapping);
+            tableBase.Columns.Add(containerColumnName, jsonColumn);
+            jsonColumn.IsNullable = !ownership.IsRequiredDependent || !ownership.IsUnique;
+
+            if (ownership.PrincipalEntityType.BaseType != null)
+            {
+                // if navigation is defined on a derived type, the column must be made nullable
+                jsonColumn.IsNullable = true;
+            }
         }
     }
 
@@ -618,22 +643,9 @@ public class RelationalModel : Annotatable, IRelationalModel
         var containerColumnName = mappedType.GetContainerColumnName();
         if (!string.IsNullOrEmpty(containerColumnName))
         {
-            var ownership = mappedType.GetForeignKeys().Single(fk => fk.IsOwnership);
-            if (!ownership.PrincipalEntityType.IsMappedToJson())
-            {
-                Debug.Assert(view.FindColumn(containerColumnName) == null);
-
-                var jsonColumnTypeMapping = relationalTypeMappingSource.FindMapping(typeof(JsonElement))!;
-                var jsonColumn = new JsonViewColumn(containerColumnName, jsonColumnTypeMapping.StoreType, view);
-                view.Columns.Add(containerColumnName, jsonColumn);
-                jsonColumn.IsNullable = !ownership.IsRequired || !ownership.IsUnique;
-
-                if (ownership.PrincipalEntityType.BaseType != null)
-                {
-                    // if navigation is defined on a derived type, the column must be made nullable
-                    jsonColumn.IsNullable = true;
-                }
-            }
+            CreateContainerColumn(
+                view, containerColumnName, mappedType, relationalTypeMappingSource,
+                static (c, t, m) => new JsonViewColumn(c, (View)t, m));
         }
         else
         {

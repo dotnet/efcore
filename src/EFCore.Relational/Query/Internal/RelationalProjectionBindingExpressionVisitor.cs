@@ -158,7 +158,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                             if (subquery is JsonQueryExpression jsonQueryExpression)
                             {
-                                Debug.Assert(
+                                Check.DebugAssert(
                                     jsonQueryExpression.IsCollection,
                                     "JsonQueryExpression inside materialize collection should always be a collection.");
 

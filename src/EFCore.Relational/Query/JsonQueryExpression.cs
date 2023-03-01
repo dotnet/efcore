@@ -169,7 +169,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     {
         // this needs to be changed IF JsonQueryExpression will also be used for collection of primitives
         // see issue #28688
-        Debug.Assert(
+        Check.DebugAssert(
             Path.Last().ArrayIndex == null,
             "Already accessing JSON array element.");
 

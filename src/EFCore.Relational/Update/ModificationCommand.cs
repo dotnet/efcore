@@ -294,11 +294,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
         if (jsonEntry)
         {
-            var jsonColumnsUpdateMap = new Dictionary<string, JsonPartialUpdateInfo>();
+            var jsonColumnsUpdateMap = new Dictionary<IColumn, JsonPartialUpdateInfo>();
             var processedEntries = new List<IUpdateEntry>();
             foreach (var entry in _entries.Where(e => e.EntityType.IsMappedToJson()))
             {
-                var jsonColumn = entry.EntityType.GetContainerColumnName()!;
+                var jsonColumn = GetTableMapping(entry.EntityType)!.Table.FindColumn(entry.EntityType.GetContainerColumnName()!)!;
                 var jsonPartialUpdateInfo = FindJsonPartialUpdateInfo(entry, processedEntries);
 
                 if (jsonPartialUpdateInfo == null)
@@ -316,12 +316,11 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 jsonColumnsUpdateMap[jsonColumn] = jsonPartialUpdateInfo;
             }
 
-            foreach (var (jsonColumnName, updateInfo) in jsonColumnsUpdateMap)
+            foreach (var (jsonColumn, updateInfo) in jsonColumnsUpdateMap)
             {
                 var finalUpdatePathElement = updateInfo.Path.Last();
                 var navigation = finalUpdatePathElement.Navigation;
-
-                var jsonColumnTypeMapping = navigation.TargetEntityType.GetContainerColumnTypeMapping()!;
+                var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
                 var navigationValue = finalUpdatePathElement.ParentEntry.GetCurrentValue(navigation);
 
                 var json = default(JsonNode?);
@@ -367,7 +366,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
 
                 var columnModificationParameters = new ColumnModificationParameters(
-                    jsonColumnName,
+                    jsonColumn.Name,
                     value: json?.ToJsonString(),
                     property: updateInfo.Property,
                     columnType: jsonColumnTypeMapping.StoreType,
@@ -693,7 +692,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 }
             }
 
-            Debug.Assert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
+            Check.DebugAssert(result.Path.Count > 0, "Common denominator should always have at least one node - the root.");
 
             return result;
         }

@@ -37,6 +37,7 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
     /// <inheritdoc />
+    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
     public virtual void ProcessEntityTypeAnnotationChanged(
         IConventionEntityTypeBuilder entityTypeBuilder,
         string name,
@@ -44,23 +45,6 @@ public class RelationalMapToJsonConvention : IEntityTypeAnnotationChangedConvent
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name != RelationalAnnotationNames.ContainerColumnName)
-        {
-            return;
-        }
-
-        var jsonColumnName = annotation?.Value as string;
-        if (!string.IsNullOrEmpty(jsonColumnName))
-        {
-            var jsonColumnTypeMapping = ((IRelationalTypeMappingSource)Dependencies.TypeMappingSource).FindMapping(
-                typeof(JsonElement))!;
-
-            entityTypeBuilder.Metadata.SetContainerColumnTypeMapping(jsonColumnTypeMapping);
-        }
-        else
-        {
-            entityTypeBuilder.Metadata.SetContainerColumnTypeMapping(null);
-        }
     }
 
     /// <inheritdoc />
