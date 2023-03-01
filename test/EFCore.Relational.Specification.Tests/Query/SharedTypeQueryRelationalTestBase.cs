@@ -38,7 +38,8 @@ public abstract class SharedTypeQueryRelationalTestBase : SharedTypeQueryTestBas
 
         using var context = contextFactory.CreateContext();
 
-        var result = context.Database.SqlQueryRaw<ViewQuery24601>(@"SELECT * FROM ViewQuery24601");
+        var result = context.Database.SqlQueryRaw<ViewQuery24601>(
+            ((RelationalTestStore)TestStore).NormalizeDelimitersInRawString((@"SELECT * FROM [ViewQuery24601]")));
 
         Assert.Empty(result);
     }
