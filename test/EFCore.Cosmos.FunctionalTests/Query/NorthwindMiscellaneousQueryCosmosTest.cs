@@ -1901,19 +1901,21 @@ WHERE ((c["Discriminator"] = "Order") AND (c["OrderDate"] > @__p_0))
         AssertSql();
     }
 
-    [ConditionalTheory(Skip = "Issue#27222")]
     public override async Task Environment_newline_is_funcletized(bool async)
     {
         await base.Environment_newline_is_funcletized(async);
 
-        AssertSql(
+        var sql = Fixture.TestSqlLoggerFactory.SqlStatements[0];
+        Assert.StartsWith("@__NewLine_0='", sql);
+        Assert.EndsWith(
 """
-@__NewLine_0='\r\n'
+'
 
 SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND CONTAINS(c[""CustomerID""], @__NewLine_0))
-""");
+WHERE ((c["Discriminator"] = "Customer") AND CONTAINS(c["CustomerID"], @__NewLine_0))
+""",
+sql);
     }
 
     public override async Task String_concat_with_navigation1(bool async)
