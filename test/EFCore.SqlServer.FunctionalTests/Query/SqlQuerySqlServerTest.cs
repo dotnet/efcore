@@ -445,7 +445,7 @@ SELECT * FROM "Customers" WHERE "ContactName" LIKE '%z%'
 """,
             //
             """
-SELECT * FROM [Customers]
+SELECT * FROM "Customers"
 """);
     }
 
@@ -568,7 +568,7 @@ p0='10300'
 
 SELECT [m].[OrderID]
 FROM (
-    SELECT * FROM [Orders]
+    SELECT * FROM "Orders"
 ) AS [m]
 WHERE [m].[OrderID] <= @__max_1 AND EXISTS (
     SELECT 1
@@ -584,7 +584,7 @@ p0='10300'
 
 SELECT [m].[OrderID]
 FROM (
-    SELECT * FROM [Orders]
+    SELECT * FROM "Orders"
 ) AS [m]
 WHERE [m].[OrderID] <= @__max_1 AND EXISTS (
     SELECT 1

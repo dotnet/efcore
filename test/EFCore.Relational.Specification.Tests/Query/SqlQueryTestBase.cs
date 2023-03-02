@@ -45,11 +45,11 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         using var context = CreateContext();
         var query = context.Database.SqlQueryRaw<UnmappedProduct>(
             NormalizeDelimitersInRawString(
-                @"SELECT [ProductID], [SupplierID] AS [UnitPrice], [ProductName], [SupplierID], [UnitsInStock], [Discontinued]
+                @"SELECT [ProductID], [ProductName] AS [UnitPrice], [ProductName], [SupplierID], [UnitsInStock], [Discontinued]
                       FROM [Products]"));
 
         Assert.Equal(
-            CoreStrings.ErrorMaterializingPropertyInvalidCast("UnmappedProduct", "UnitPrice", typeof(decimal?), typeof(int)),
+            CoreStrings.ErrorMaterializingPropertyInvalidCast("UnmappedProduct", "UnitPrice", typeof(decimal?), typeof(string)),
             (async
                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
@@ -62,12 +62,12 @@ public abstract class SqlQueryTestBase<TFixture> : QueryTestBase<TFixture>
         using var context = CreateContext();
         var query = context.Database.SqlQueryRaw<UnmappedProduct>(
                 NormalizeDelimitersInRawString(
-                    @"SELECT [ProductID], [SupplierID] AS [UnitPrice], [ProductName], [UnitsInStock], [Discontinued]
+                    @"SELECT [ProductID], [ProductName] AS [UnitPrice], [ProductName], [UnitsInStock], [Discontinued]
                       FROM [Products]"))
             .Select(p => p.UnitPrice);
 
         Assert.Equal(
-            RelationalStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(int)),
+            RelationalStrings.ErrorMaterializingValueInvalidCast(typeof(decimal?), typeof(string)),
             (async
                 ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToListAsync())
                 : Assert.Throws<InvalidOperationException>(() => query.ToList())).Message);
@@ -809,7 +809,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
 
         Assert.Equal(14, actual.Length);
 
-        query = context.Database.SqlQueryRaw<UnmappedCustomer>("SELECT * FROM [Customers]");
+        query = context.Database.SqlQueryRaw<UnmappedCustomer>(NormalizeDelimitersInRawString("SELECT * FROM [Customers]"));
         actual = async
             ? await query.ToArrayAsync()
             : query.ToArray();
@@ -967,7 +967,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ? await query1.ToArrayAsync()
             : query1.ToArray();
 
-        var query2 = context.Database.SqlQueryRaw<UnmappedOrder>("SELECT * FROM [Orders]")
+        var query2 = context.Database.SqlQueryRaw<UnmappedOrder>(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
             .Where(o => o.OrderID <= max && query1.Contains(o.OrderID))
             .Select(o => o.OrderID);
 
@@ -975,7 +975,7 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             ? await query2.ToArrayAsync()
             : query2.ToArray();
 
-        var query3 = context.Database.SqlQueryRaw<UnmappedOrder>("SELECT * FROM [Orders]")
+        var query3 = context.Database.SqlQueryRaw<UnmappedOrder>(NormalizeDelimitersInRawString("SELECT * FROM [Orders]"))
             .Where(
                 o => o.OrderID <= max
                     && context.Database.SqlQuery<UnmappedOrder>(
@@ -1185,10 +1185,12 @@ AND (([UnitsInStock] + [UnitsOnOrder]) < [ReorderLevel])"))
             async,
             _ => Fixture.CreateContext().Database.SqlQueryRaw<UnmappedCustomer>(
                     NormalizeDelimitersInRawString(
-                        @"WITH [Customers2] AS (
+"""
+WITH [Customers2] AS (
     SELECT * FROM [Customers]
 )
-SELECT * FROM [Customers2]"))
+SELECT * FROM [Customers2]
+"""))
                 .Where(c => c.ContactName.Contains("z")),
             ss => ss.Set<Customer>().Where(c => c.ContactName.Contains("z")).Select(e => UnmappedCustomer.FromCustomer(e)),
             elementSorter: e => e.CustomerID,
