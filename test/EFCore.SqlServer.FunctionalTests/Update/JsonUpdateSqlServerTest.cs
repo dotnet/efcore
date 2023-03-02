@@ -558,7 +558,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', CAST(JSON_VALUE(@p0, '$[0]') AS nvarchar(1)))
+UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1270,7 +1270,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', CAST(JSON_VALUE(@p0, '$[0]') AS nvarchar(5)))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringTrueFalse', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1293,7 +1293,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', CAST(JSON_VALUE(@p0, '$[0]') AS nvarchar(1)))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToStringYN', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1328,20 +1328,52 @@ WHERE [j].[Id] = 1
 """);
     }
 
-    [ConditionalFact(Skip = "issue #30330")]
+    [ConditionalFact]
     public override async Task Edit_single_property_with_converter_string_True_False_to_bool()
     {
         await base.Edit_single_property_with_converter_string_True_False_to_bool();
 
-        AssertSql();
+        AssertSql(
+"""
+@p0='[false]' (Nullable = false) (Size = 7)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.StringTrueFalseConvertedToBool', CAST(JSON_VALUE(@p0, '$[0]') AS bit))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[Reference]
+FROM [JsonEntitiesConverters] AS [j]
+WHERE [j].[Id] = 1
+""");
     }
 
-    [ConditionalFact(Skip = "issue #30330")]
+    [ConditionalFact]
     public override async Task Edit_single_property_with_converter_string_Y_N_to_bool()
     {
         await base.Edit_single_property_with_converter_string_Y_N_to_bool();
 
-        AssertSql();
+        AssertSql(
+"""
+@p0='[true]' (Nullable = false) (Size = 6)
+@p1='1'
+
+SET IMPLICIT_TRANSACTIONS OFF;
+SET NOCOUNT ON;
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.StringYNConvertedToBool', CAST(JSON_VALUE(@p0, '$[0]') AS bit))
+OUTPUT 1
+WHERE [Id] = @p1;
+""",
+                //
+                """
+SELECT TOP(2) [j].[Id], [j].[Reference]
+FROM [JsonEntitiesConverters] AS [j]
+WHERE [j].[Id] = 1
+""");
     }
 
     protected override void ClearLog()
