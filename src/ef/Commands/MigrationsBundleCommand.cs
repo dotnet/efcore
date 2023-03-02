@@ -192,6 +192,12 @@ internal partial class MigrationsBundleCommand
                 File.Delete(destination);
             }
 
+            var destinationDir = Path.GetDirectoryName(destination);
+            if (!string.IsNullOrWhiteSpace(destinationDir))
+            {
+                Directory.CreateDirectory(destinationDir);
+            }
+
             File.Move(
                 Path.Combine(publishPath, bundleName + exe),
                 destination);
