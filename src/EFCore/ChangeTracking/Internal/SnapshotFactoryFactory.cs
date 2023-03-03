@@ -180,6 +180,11 @@ public abstract class SnapshotFactoryFactory
 
             if (comparer != null)
             {
+                if (expression.Type != comparer.Type)
+                {
+                    expression = Expression.Convert(expression, comparer.Type);
+                }
+
                 var snapshotExpression = ReplacingExpressionVisitor.Replace(
                     comparer.SnapshotExpression.Parameters.Single(),
                     expression,
