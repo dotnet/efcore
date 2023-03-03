@@ -71,6 +71,27 @@ VALUES(
 N'{{""RootName"":""e4"",""Collection"":[{{""BranchName"":""e4 c1"",""Nested"":{{""LeafName"":""e4 c1 l""}}}},{{""BranchName"":""e4 c2"",""Nested"":{{""LeafName"":""e4 c2 l""}}}}],""OptionalReference"":{{""BranchName"":""e4 or"",""Nested"":{{""LeafName"":""e4 or l""}}}}}}')");
     }
 
+    protected override void Seed30244(MyContext30244 ctx)
+    {
+        var entity = new TestEntity30244
+        {
+            Name = "TestIssue",
+            Settings = new List<KeyValueSetting30244>
+            {
+                new KeyValueSetting30244("Value1", "1"),
+                new KeyValueSetting30244("Value2", "9")
+            }
+        };
+
+        ctx.TestEntities.Add(entity);
+        ctx.SaveChanges();
+    }
+
+    public override Task Materialize_entity_using_default_materialization_interceptor(bool async)
+    {
+        return base.Materialize_entity_using_default_materialization_interceptor(async);
+    }
+
     protected override void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx)
     {
         var entity1 = new MyEntityArrayOfPrimitives
