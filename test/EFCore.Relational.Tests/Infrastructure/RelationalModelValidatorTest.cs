@@ -149,6 +149,24 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
                 .GenerateMessage("ImBool", "E"), modelBuilder);
     }
 
+    [ConditionalFact] // Issue #28509
+    public virtual void Bool_with_default_value_and_nullable_backing_field_is_fine()
+    {
+        var modelBuilder = CreateConventionlessModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(E2));
+        SetPrimaryKey(entityType);
+        var property = entityType.AddProperty(typeof(E2).GetAnyProperty("ImBool")!);
+        property.SetField("_imBool");
+        property.SetDefaultValue(true);
+        property.ValueGenerated = ValueGenerated.OnAdd;
+
+        VerifyLogDoesNotContain(
+            RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage("ImBool", "E2"), modelBuilder);
+    }
+
     [ConditionalFact]
     public virtual void Detects_bool_with_default_expression()
     {

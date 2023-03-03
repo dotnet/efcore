@@ -167,6 +167,19 @@ public abstract class ModelValidatorTestBase
         public bool? ImNot { get; set; }
     }
 
+    protected class E2
+    {
+        private bool? _imBool;
+
+        public int Id { get; set; }
+
+        public bool ImBool
+        {
+            get => _imBool ?? true;
+            set => _imBool = value;
+        }
+    }
+
     protected class EntityWithInvalidProperties
     {
         public int Id { get; set; }
