@@ -1344,7 +1344,7 @@ WHERE [c0].[ContactTitle] = N'Owner'
 
     [ConditionalTheory] // Issue #29020
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Union_with_store_types_differing_only_by_case(bool async)
+    public virtual async Task Union_with_type_mappings_to_same_store_type(bool async)
     {
         await AssertQuery(
             async,

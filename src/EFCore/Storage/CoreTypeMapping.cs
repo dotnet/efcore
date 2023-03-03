@@ -224,4 +224,14 @@ public abstract class CoreTypeMapping
     /// <returns>An expression tree that can be used to generate code for the literal value.</returns>
     public virtual Expression GenerateCodeLiteral(object value)
         => throw new NotSupportedException(CoreStrings.LiteralGenerationNotSupported(ClrType.ShortDisplayName()));
+
+    /// <summary>
+    ///     Determines whether this type mapping is to the same store type as the given mapping.
+    /// </summary>
+    /// <param name="otherMapping">The other type mapping.</param>
+    /// <returns><see langword="true"/> if the two mappings map to the same type, <see langword="false"/> otherwise.</returns>
+    public virtual bool MapsToSameStoreType(CoreTypeMapping otherMapping)
+        => GetType() == otherMapping.GetType()
+            && (Converter?.ProviderClrType ?? ClrType)
+            == (otherMapping.Converter?.ProviderClrType ?? otherMapping.ClrType);
 }

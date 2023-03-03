@@ -615,9 +615,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             p =>
                 p.InvariantName == parameterName
                 && p is TypeMappedRelationalParameter typeMappedRelationalParameter
-                && string.Equals(
-                    typeMappedRelationalParameter.RelationalTypeMapping.StoreType, sqlParameterExpression.TypeMapping!.StoreType,
-                    StringComparison.OrdinalIgnoreCase)
+                && typeMappedRelationalParameter.RelationalTypeMapping.MapsToSameStoreType(sqlParameterExpression.TypeMapping!)
                 && typeMappedRelationalParameter.RelationalTypeMapping.Converter == sqlParameterExpression.TypeMapping!.Converter);
 
         if (parameter is null)

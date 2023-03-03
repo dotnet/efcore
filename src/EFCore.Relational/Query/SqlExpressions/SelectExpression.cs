@@ -2334,10 +2334,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             var innerColumn2 = (SqlExpression)expression2;
             // For now, make sure that both sides output the same store type, otherwise the query may fail.
             // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
-            if (!string.Equals(
-                    innerColumn1.TypeMapping!.StoreType,
-                    innerColumn2.TypeMapping!.StoreType,
-                    StringComparison.OrdinalIgnoreCase))
+            if (!innerColumn1.TypeMapping!.MapsToSameStoreType(innerColumn2.TypeMapping!))
             {
                 throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
             }

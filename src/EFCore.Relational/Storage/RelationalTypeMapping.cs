@@ -627,4 +627,22 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <returns>The expression with customization added.</returns>
     public virtual Expression CustomizeDataReaderExpression(Expression expression)
         => expression;
+
+    /// <inheritdoc />
+    public override bool MapsToSameStoreType(CoreTypeMapping otherMapping)
+    {
+        if (!base.MapsToSameStoreType(otherMapping))
+        {
+            return false;
+        }
+
+        var otherRelationalMapping = ((RelationalTypeMapping)otherMapping);
+        return
+            Size == otherRelationalMapping.Size
+            && Precision == otherRelationalMapping.Precision
+            && DbType == otherRelationalMapping.DbType
+            && Scale == otherRelationalMapping.Scale
+            && IsUnicode == otherRelationalMapping.IsUnicode
+            && IsFixedLength == otherRelationalMapping.IsFixedLength;
+    }
 }
