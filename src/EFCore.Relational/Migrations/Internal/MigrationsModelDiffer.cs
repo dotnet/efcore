@@ -19,6 +19,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     private static readonly bool QuirkEnabled27504
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27504", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior30321
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30321", out var enabled) && enabled;
+
     private static readonly Type[] DropOperationTypes =
     {
         typeof(DropIndexOperation),
@@ -942,7 +945,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var sourceTable = diffContext.FindTable(source);
         var targetTable = diffContext.FindTable(target);
 
-        if ((sourceTable == null
+        if ((!UseOldBehavior30321
+                && sourceTable == null
                 && targetTable == null)
             || (sourceTable?.EntityTypeMappings.Count() == 1
                 && targetTable?.EntityTypeMappings.Count() == 1))
