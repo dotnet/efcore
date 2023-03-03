@@ -675,15 +675,12 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                if (property.ClrType != typeof(bool)
-                    || property.ValueGenerated == ValueGenerated.Never)
-                {
-                    continue;
-                }
-
-                if (StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table) is { } table
-                    && (IsNotNullAndFalse(property.GetDefaultValue(table))
-                        || property.GetDefaultValueSql(table) != null))
+                if (property.ClrType == typeof(bool)
+                    && property.ValueGenerated != ValueGenerated.Never
+                    && property.FieldInfo?.FieldType != typeof(bool?)
+                    && (StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table) is { } table
+                        && (IsNotNullAndFalse(property.GetDefaultValue(table))
+                            || property.GetDefaultValueSql(table) != null)))
                 {
                     logger.BoolWithDefaultWarning(property);
                 }
