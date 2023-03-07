@@ -158,7 +158,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(targetType));
             this.Write("> ");
             this.Write(this.ToStringHelper.ToStringWithCulture(navigation.Name));
-            this.Write(" { get; } = new List<");
+            this.Write(" { get; set; } = new List<");
             this.Write(this.ToStringHelper.ToStringWithCulture(targetType));
             this.Write(">();\r\n");
 
@@ -200,7 +200,7 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.TargetEntityType.Name));
             this.Write("> ");
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.Name));
-            this.Write(" { get; } = new List<");
+            this.Write(" { get; set; } = new List<");
             this.Write(this.ToStringHelper.ToStringWithCulture(skipNavigation.TargetEntityType.Name));
             this.Write(">();\r\n");
 
