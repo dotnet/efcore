@@ -14,6 +14,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 {
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
+        private static readonly bool UseOldBehavior30028
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30028", out var enabled30028) && enabled30028;
+
         // Reading database values
         private static readonly MethodInfo IsDbNullMethod =
             typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
@@ -33,6 +36,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         private static readonly MethodInfo JsonElementGetPropertyMethod
             = typeof(JsonElement).GetMethod(nameof(JsonElement.GetProperty), new[] { typeof(string) })!;
+
+        private static readonly MethodInfo JsonElementTryGetPropertyMethod
+            = typeof(JsonElement).GetMethod(nameof(JsonElement.TryGetProperty), new[] { typeof(string), typeof(JsonElement).MakeByRefType() })!;
 
         private static readonly PropertyInfo _objectArrayIndexerPropertyInfo
             = typeof(object[]).GetProperty("Item")!;
@@ -1112,17 +1118,43 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 shaperBlockVariables.Add(innerJsonElementParameter);
 
-                // TODO: do TryGetProperty and short circuit if failed instead
-                var innerJsonElementAssignment = Expression.Assign(
-                    innerJsonElementParameter,
-                    Expression.Convert(
-                        Expression.Call(
-                            jsonElementShaperLambdaParameter,
-                            JsonElementGetPropertyMethod,
-                            Expression.Constant(ownedNavigation.TargetEntityType.GetJsonPropertyName())),
-                        typeof(JsonElement?)));
+                if (UseOldBehavior30028)
+                {
+                    var innerJsonElementAssignment = Expression.Assign(
+                        innerJsonElementParameter,
+                        Expression.Convert(
+                            Expression.Call(
+                                jsonElementShaperLambdaParameter,
+                                JsonElementGetPropertyMethod,
+                                Expression.Constant(ownedNavigation.TargetEntityType.GetJsonPropertyName())),
+                            typeof(JsonElement?)));
 
-                shaperBlockExpressions.Add(innerJsonElementAssignment);
+                    shaperBlockExpressions.Add(innerJsonElementAssignment);
+                }
+                else
+                {
+                    // JsonElement temp;
+                    // JsonElement? innerJsonElement = jsonElement.TryGetProperty("PropertyName", temp)
+                    //  ? (JsonElement?)temp
+                    //  : null;
+                    var tempParameter = Expression.Variable(typeof(JsonElement));
+                    shaperBlockVariables.Add(tempParameter);
+
+                    var innerJsonElementAssignment = Expression.Assign(
+                        innerJsonElementParameter,
+                        Expression.Condition(
+                            Expression.Call(
+                                jsonElementShaperLambdaParameter,
+                                JsonElementTryGetPropertyMethod,
+                                Expression.Constant(ownedNavigation.TargetEntityType.GetJsonPropertyName()),
+                                tempParameter),
+                            Expression.Convert(
+                                tempParameter,
+                                typeof(JsonElement?)),
+                            Expression.Constant(null, typeof(JsonElement?))));
+
+                    shaperBlockExpressions.Add(innerJsonElementAssignment);
+                }
 
                 var innerShaperResult = CreateJsonShapers(
                     ownedNavigation.TargetEntityType,
@@ -1288,37 +1320,86 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var jsonElementVariable = Expression.Variable(
                         typeof(JsonElement?));
 
-                    var jsonElementValueExpression = index == 0
-                        ? CreateGetValueExpression(
-                            _dataReaderParameter,
-                            jsonColumnProjectionIndex,
-                            nullable: true,
-                            jsonColumnTypeMapping,
-                            typeof(JsonElement?),
-                            property: null)
-                        : Expression.Condition(
-                            Expression.MakeMemberAccess(
-                                currentJsonElementVariable!,
-                                _nullableJsonElementHasValuePropertyInfo),
-                            Expression.Convert(
-                                Expression.Call(
+                    if (UseOldBehavior30028)
+                    {
+                        var jsonElementValueExpression = index == 0
+                            ? CreateGetValueExpression(
+                                _dataReaderParameter,
+                                jsonColumnProjectionIndex,
+                                nullable: true,
+                                jsonColumnTypeMapping,
+                                typeof(JsonElement?),
+                                property: null)
+                            : Expression.Condition(
+                                Expression.MakeMemberAccess(
+                                    currentJsonElementVariable!,
+                                    _nullableJsonElementHasValuePropertyInfo),
+                                Expression.Convert(
+                                    Expression.Call(
+                                        Expression.MakeMemberAccess(
+                                            currentJsonElementVariable!,
+                                            _nullableJsonElementValuePropertyInfo),
+                                        JsonElementGetPropertyMethod,
+                                        Expression.Constant(additionalPath[index - 1])),
+                                    currentJsonElementVariable!.Type),
+                                Expression.Default(currentJsonElementVariable!.Type));
+
+                        var jsonElementAssignment = Expression.Assign(
+                            jsonElementVariable,
+                            jsonElementValueExpression);
+
+                        _variables.Add(jsonElementVariable);
+                        _expressions.Add(jsonElementAssignment);
+                        _existingJsonElementMap[(jsonColumnProjectionIndex, additionalPath[..index])] = jsonElementVariable;
+
+                        currentJsonElementVariable = jsonElementVariable;
+                    }
+                    else
+                    {
+                        Expression jsonElementValueExpression;
+                        if (index == 0)
+                        {
+                            jsonElementValueExpression = CreateGetValueExpression(
+                                _dataReaderParameter,
+                                jsonColumnProjectionIndex,
+                                nullable: true,
+                                jsonColumnTypeMapping,
+                                typeof(JsonElement?),
+                                property: null);
+                        }
+                        else
+                        {
+                            var tempParameter = Expression.Variable(typeof(JsonElement));
+                            _variables.Add(tempParameter);
+
+                            var tryGetPropertyCall = Expression.Call(
+                                Expression.MakeMemberAccess(
+                                    currentJsonElementVariable!,
+                                    _nullableJsonElementValuePropertyInfo),
+                                JsonElementTryGetPropertyMethod,
+                                Expression.Constant(additionalPath[index - 1]),
+                                tempParameter);
+
+                            jsonElementValueExpression = Expression.Condition(
+                                Expression.AndAlso(
                                     Expression.MakeMemberAccess(
                                         currentJsonElementVariable!,
-                                        _nullableJsonElementValuePropertyInfo),
-                                    JsonElementGetPropertyMethod,
-                                    Expression.Constant(additionalPath[index - 1])),
-                                currentJsonElementVariable!.Type),
-                            Expression.Default(currentJsonElementVariable!.Type));
+                                        _nullableJsonElementHasValuePropertyInfo),
+                                    tryGetPropertyCall),
+                                Expression.Convert(tempParameter, typeof(JsonElement?)),
+                                Expression.Constant(null, typeof(JsonElement?)));
+                        }
 
-                    var jsonElementAssignment = Expression.Assign(
-                        jsonElementVariable,
-                        jsonElementValueExpression);
+                        var jsonElementAssignment = Expression.Assign(
+                            jsonElementVariable,
+                            jsonElementValueExpression);
 
-                    _variables.Add(jsonElementVariable);
-                    _expressions.Add(jsonElementAssignment);
-                    _existingJsonElementMap[(jsonColumnProjectionIndex, additionalPath[..index])] = jsonElementVariable;
+                        _variables.Add(jsonElementVariable);
+                        _expressions.Add(jsonElementAssignment);
+                        _existingJsonElementMap[(jsonColumnProjectionIndex, additionalPath[..index])] = jsonElementVariable;
 
-                    currentJsonElementVariable = jsonElementVariable;
+                        currentJsonElementVariable = jsonElementVariable;
+                    }
                 }
                 else
                 {

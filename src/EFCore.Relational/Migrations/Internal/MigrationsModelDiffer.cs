@@ -19,6 +19,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     private static readonly bool QuirkEnabled27504
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue27504", out var enabled) && enabled;
 
+    private static readonly bool UseOldBehavior30321
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30321", out var enabled) && enabled;
+
     private static readonly Type[] DropOperationTypes =
     {
         typeof(DropIndexOperation),
@@ -939,11 +942,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
     private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
     {
-        var sourceTable = diffContext.GetTable(source);
-        var targetTable = diffContext.GetTable(target);
+        var sourceTable = diffContext.FindTable(source);
+        var targetTable = diffContext.FindTable(target);
 
-        if (sourceTable.EntityTypeMappings.Count() == 1
-            && targetTable.EntityTypeMappings.Count() == 1)
+        if ((!UseOldBehavior30321
+                && sourceTable == null
+                && targetTable == null)
+            || (sourceTable?.EntityTypeMappings.Count() == 1
+                && targetTable?.EntityTypeMappings.Count() == 1))
         {
             return true;
         }
@@ -953,8 +959,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return false;
         }
 
-        var nextSource = sourceTable.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
-        var nextTarget = targetTable.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
+        var nextSource = sourceTable?.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
+        var nextTarget = targetTable?.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
         return (nextSource == null && nextTarget == null)
             || (nextSource != null
                 && nextTarget != null
@@ -1516,7 +1522,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             Add,
             Remove,
-            (s, t, c) => c.GetTable(s.EntityType) == c.FindSource(c.GetTable(t.EntityType))
+            (s, t, c) => c.FindTable(s.EntityType) == c.FindSource(c.FindTable(t.EntityType))
                 && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(s.Sql, t.Sql, StringComparison.OrdinalIgnoreCase));
 
@@ -2563,8 +2569,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ITable GetTable(IEntityType entityType)
-            => entityType.GetTableMappings().First().Table;
+        public virtual ITable? FindTable(IEntityType entityType)
+            => entityType.GetTableMappings().FirstOrDefault()?.Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

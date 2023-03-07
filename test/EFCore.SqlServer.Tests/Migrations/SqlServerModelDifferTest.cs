@@ -250,6 +250,146 @@ public class SqlServerModelDifferTest : MigrationsModelDifferTestBase
                 Assert.Equal("CAST(CURRENT_TIMESTAMP AS int)", operation.ComputedColumnSql);
             });
 
+    [ConditionalFact] // Issue #30321
+    public void Rename_column_TPC()
+        => Execute(
+            source =>
+            {
+                source.Entity(
+                    "Campaign",
+                    x =>
+                    {
+                        x.ToTable((string)null);
+                        x.UseTpcMappingStrategy();
+                        x.Property<int>("Id");
+                        x.Property<int>("Status");
+                    });
+
+                source.Entity(
+                    "SearchCampaign",
+                    x =>
+                    {
+                        x.HasBaseType("Campaign");
+                    });
+            },
+            source =>
+            {
+            },
+            target =>
+            {
+                target.Entity(
+                    "Campaign",
+                    x =>
+                    {
+                        x.Property<int>("Status").HasColumnName("status_new");
+                    });
+            },
+            operations =>
+            {
+                Assert.Equal(1, operations.Count);
+
+                var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                Assert.Null(operation.Schema);
+                Assert.Equal("SearchCampaign", operation.Table);
+                Assert.Equal("Status", operation.Name);
+                Assert.Equal("status_new", operation.NewName);
+            });
+
+    [ConditionalFact]
+    public void Rename_column_TPT()
+        => Execute(
+            source =>
+            {
+                source.Entity(
+                    "Campaign",
+                    x =>
+                    {
+                        x.UseTptMappingStrategy();
+                        x.Property<int>("Id");
+                        x.Property<int>("Status");
+                    });
+
+                source.Entity(
+                    "SearchCampaign",
+                    x =>
+                    {
+                        x.HasBaseType("Campaign");
+                    });
+            },
+            source =>
+            {
+            },
+            target =>
+            {
+                target.Entity(
+                    "Campaign",
+                    x =>
+                    {
+                        x.Property<int>("Status").HasColumnName("status_new");
+                    });
+            },
+            operations =>
+            {
+                Assert.Equal(1, operations.Count);
+
+                var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                Assert.Null(operation.Schema);
+                Assert.Equal("Campaign", operation.Table);
+                Assert.Equal("Status", operation.Name);
+                Assert.Equal("status_new", operation.NewName);
+            });
+
+
+    [ConditionalFact]
+    public void Rename_column_TPC_non_abstract()
+        => Execute(
+            source =>
+            {
+                source.Entity(
+                    "Campaign",
+                    x =>
+                    {
+                        x.UseTpcMappingStrategy();
+                        x.Property<int>("Id");
+                        x.Property<int>("Status");
+                    });
+
+                source.Entity(
+                    "SearchCampaign",
+                    x =>
+                    {
+                        x.HasBaseType("Campaign");
+                    });
+            },
+            source =>
+            {
+            },
+            target =>
+            {
+                target.Entity(
+                    "Campaign",
+                    x =>
+                    {
+                        x.Property<int>("Status").HasColumnName("status_new");
+                    });
+            },
+            operations =>
+            {
+                Assert.Equal(2, operations.Count);
+
+                var operation = Assert.IsType<RenameColumnOperation>(operations[0]);
+                Assert.Null(operation.Schema);
+                Assert.Equal("SearchCampaign", operation.Table);
+                Assert.Equal("Status", operation.Name);
+                Assert.Equal("status_new", operation.NewName);
+
+                operation = Assert.IsType<RenameColumnOperation>(operations[1]);
+                Assert.Null(operation.Schema);
+                Assert.Equal("Campaign", operation.Table);
+                Assert.Equal("Status", operation.Name);
+                Assert.Equal("status_new", operation.NewName);
+            });
+
     [ConditionalFact]
     public void Alter_primary_key_clustering()
         => Execute(
