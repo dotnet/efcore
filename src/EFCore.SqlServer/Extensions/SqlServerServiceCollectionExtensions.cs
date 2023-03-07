@@ -106,6 +106,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IEvaluatableExpressionFilter, SqlServerEvaluatableExpressionFilter>()
             .TryAdd<IRelationalTransactionFactory, SqlServerTransactionFactory>()
             .TryAdd<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+            .TryAdd<IModificationCommandFactory, SqlServerModificationCommandFactory>()
             .TryAdd<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
             .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqlServerConnection>())
             .TryAdd<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()

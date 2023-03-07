@@ -162,24 +162,25 @@ public class SqliteUpdateSqlGenerator : UpdateAndSelectSqlGenerator
 
             if (columnModification.Property != null)
             {
+                var providerClrType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
+                    ?? columnModification.Property.ClrType).UnwrapNullableType();
+
                 // special handling for bool
                 // json_extract converts true/false into native 0/1 values,
                 // but we want to store the values as true/false in JSON
                 // in order to do that we modify the parameter value to "true"/"false"
                 // and wrap json() function around it to avoid conversion to 0/1
-                var boolProviderType = (columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
-                    ?? columnModification.Property.ClrType).UnwrapNullableType() == typeof(bool);
-
-                if (boolProviderType)
+                //
+                // for decimal, sqlite generates string parameter for decimal values
+                // but don't want to store the values as strings, we use json to "unwrap" it
+                if (providerClrType == typeof(bool) || providerClrType == typeof(decimal))
                 {
                     stringBuilder.Append("json(");
                 }
 
-                stringBuilder.Append("json_extract(");
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-                stringBuilder.Append(", '$[0]')");
 
-                if (boolProviderType)
+                if (providerClrType == typeof(bool) || providerClrType == typeof(decimal))
                 {
                     stringBuilder.Append(")");
                 }
