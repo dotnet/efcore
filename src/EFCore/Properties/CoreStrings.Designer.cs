@@ -2414,6 +2414,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("RuntimeParameterMissingParameter");
 
         /// <summary>
+        ///     The same parameter instance with name '{parameterName}' was used in multiple lambdas in the query tree. Each lambda must have its own parameter instances.
+        /// </summary>
+        public static string SameParameterInstanceUsedInMultipleLambdas(object? parameterName)
+            => string.Format(
+                GetString("SameParameterInstanceUsedInMultipleLambdas", nameof(parameterName)),
+                parameterName);
+
+        /// <summary>
         ///     Cannot save instance of '{entityType}' because it is an owned entity without any reference to its owner. Owned entities can only be saved as part of an aggregate also including the owner entity.
         /// </summary>
         public static string SaveOwnedWithoutOwner(object? entityType)

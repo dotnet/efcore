@@ -1343,6 +1343,9 @@
   <data name="RuntimeParameterMissingParameter" xml:space="preserve">
     <value>While registering a runtime parameter, the lambda expression must have only one parameter which must be same as 'QueryCompilationContext.QueryContextParameter' expression.</value>
   </data>
+  <data name="SameParameterInstanceUsedInMultipleLambdas" xml:space="preserve">
+    <value>The same parameter instance with name '{parameterName}' was used in multiple lambdas in the query tree. Each lambda must have its own parameter instances.</value>
+  </data>
   <data name="SaveOwnedWithoutOwner" xml:space="preserve">
     <value>Cannot save instance of '{entityType}' because it is an owned entity without any reference to its owner. Owned entities can only be saved as part of an aggregate also including the owner entity.</value>
   </data>
