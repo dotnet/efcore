@@ -8,6 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 /// <summary>
 ///     Describes metadata needed to decide on a relational type mapping for
 ///     a property, type, or provider-specific relational type name.
+///     just some random stuff to trigger CI run
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
