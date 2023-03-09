@@ -44,6 +44,62 @@ public class OperatorsQuerySqliteTest : OperatorsQueryTestBase
     {
         await base.Projection_with_not_and_negation_on_integer();
 
-        AssertSql("");
+        AssertSql(
+"""
+SELECT ~(-(-("o1"."Value" + "o"."Value" + 2))) % (-("o0"."Value" + "o0"."Value") - "o"."Value")
+FROM "OperatorEntityLong" AS "o"
+CROSS JOIN "OperatorEntityLong" AS "o0"
+CROSS JOIN "OperatorEntityLong" AS "o1"
+ORDER BY "o"."Id", "o0"."Id", "o1"."Id"
+""");
+    }
+
+    public override async Task Negate_on_column(bool async)
+    {
+        await base.Negate_on_column(async);
+
+        AssertSql(
+"""
+SELECT "o"."Id"
+FROM "OperatorEntityInt" AS "o"
+WHERE "o"."Id" = -"o"."Value"
+""");
+    }
+
+    public override async Task Double_negate_on_column()
+    {
+        await base.Double_negate_on_column();
+
+        AssertSql(
+"""
+SELECT "o"."Id"
+FROM "OperatorEntityInt" AS "o"
+WHERE -(-"o"."Value") = "o"."Value"
+""");
+    }
+
+    public override async Task Negate_on_binary_expression(bool async)
+    {
+        await base.Negate_on_binary_expression(async);
+
+        AssertSql(
+"""
+SELECT "o"."Id" AS "Id1", "o0"."Id" AS "Id2"
+FROM "OperatorEntityInt" AS "o"
+CROSS JOIN "OperatorEntityInt" AS "o0"
+WHERE -"o"."Value" = -("o"."Id" + "o0"."Value")
+""");
+    }
+
+    public override async Task Negate_on_like_expression(bool async)
+    {
+        await base.Negate_on_like_expression(async);
+
+        AssertSql(
+"""
+SELECT "o"."Id"
+FROM "OperatorEntityString" AS "o"
+WHERE "o"."Value" IS NOT NULL AND NOT ("o"."Value" LIKE 'A%')
+""");
     }
 }

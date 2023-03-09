@@ -43,7 +43,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [JoinOneToThreePayloadFull] AS [j]
     INNER JOIN [EntityThrees] AS [e0] ON [j].[ThreeId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[OneId] AND ([e0].[Name] LIKE N'%B%'))
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Name] LIKE N'%B%')
 """);
     }
 
@@ -59,7 +59,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [EntityOneEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
-    WHERE [e].[Id] = [e0].[OneSkipSharedId] AND ([e1].[Name] LIKE N'%B%'))
+    WHERE [e].[Id] = [e0].[OneSkipSharedId] AND [e1].[Name] LIKE N'%B%')
 """);
     }
 
@@ -111,7 +111,7 @@ ORDER BY (
         FROM [EntityRoots] AS [e0]
         WHERE [e0].[Discriminator] IN (N'EntityBranch', N'EntityLeaf')
     ) AS [t] ON [j].[EntityBranchId] = [t].[Id]
-    WHERE [e].[Id] = [j].[EntityOneId] AND ([t].[Name] IS NOT NULL) AND ([t].[Name] LIKE N'L%')), [e].[Id]
+    WHERE [e].[Id] = [j].[EntityOneId] AND [t].[Name] IS NOT NULL AND [t].[Name] LIKE N'L%'), [e].[Id]
 """);
     }
 
@@ -143,7 +143,7 @@ ORDER BY (
     SELECT COUNT_BIG(*)
     FROM [EntityTwoEntityTwo] AS [e0]
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[SelfSkipSharedLeftId] = [e1].[Id]
-    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND ([e1].[Name] IS NOT NULL) AND ([e1].[Name] LIKE N'L%')) DESC, [e].[Id]
+    WHERE [e].[Id] = [e0].[SelfSkipSharedRightId] AND [e1].[Name] IS NOT NULL AND [e1].[Name] LIKE N'L%') DESC, [e].[Id]
 """);
     }
 

@@ -190,7 +190,7 @@ WHERE CAST(strftime('%S', "o"."OrderDate") AS INTEGER) = 44
 """
 SELECT "o"."OrderID", "o"."CustomerID", "o"."EmployeeID", "o"."OrderDate"
 FROM "Orders" AS "o"
-WHERE ((CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0) = 88.0
+WHERE (CAST(strftime('%f', "o"."OrderDate") AS REAL) * 1000.0) % 1000.0 = 88.0
 """);
     }
 
@@ -214,7 +214,7 @@ WHERE length("c"."City") = 6
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE (instr("c"."City", 'Sea') - 1) <> -1 OR ("c"."City" IS NULL)
+WHERE instr("c"."City", 'Sea') - 1 <> -1 OR "c"."City" IS NULL
 """);
     }
 

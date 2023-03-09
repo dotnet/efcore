@@ -208,42 +208,6 @@ public class TPCGearsOfWarQuerySqliteTest : TPCGearsOfWarQueryRelationalTestBase
                     .Correlated_collection_with_groupby_with_complex_grouping_key_not_projecting_identifier_column_with_group_aggregate_in_final_projection(
                         async))).Message);
 
-    public override async Task Negate_on_binary_expression(bool async)
-    {
-        await base.Negate_on_binary_expression(async);
-
-        AssertSql(
-"""
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE "s"."Id" = -("s"."Id" + "s"."Id")
-""");
-    }
-
-    public override async Task Negate_on_column(bool async)
-    {
-        await base.Negate_on_column(async);
-
-        AssertSql(
-"""
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE "s"."Id" = -"s"."Id"
-""");
-    }
-
-    public override async Task Negate_on_like_expression(bool async)
-    {
-        await base.Negate_on_like_expression(async);
-
-        AssertSql(
-"""
-SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
-FROM "Squads" AS "s"
-WHERE ("s"."Name" IS NOT NULL) AND NOT ("s"."Name" LIKE 'us%')
-""");
-    }
-
     public override async Task Select_datetimeoffset_comparison_in_projection(bool async)
     {
         await base.Select_datetimeoffset_comparison_in_projection(async);

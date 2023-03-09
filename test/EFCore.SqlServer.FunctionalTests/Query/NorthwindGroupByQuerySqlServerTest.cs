@@ -274,7 +274,7 @@ GROUP BY [t].[Name], [t].[CustomerID]
 SELECT [o].[OrderDate] AS [Key], CASE
     WHEN COUNT(*) = 0 THEN 1
     ELSE COALESCE(SUM(CASE
-        WHEN ([o].[OrderID] % 2) = 0 THEN 1
+        WHEN [o].[OrderID] % 2 = 0 THEN 1
         ELSE 0
     END), 0) / COUNT(*)
 END AS [SomeValue]
@@ -1520,7 +1520,7 @@ GROUP BY [t].[Key]
 SELECT [t].[Key] AS [Month], COALESCE(SUM([t].[OrderID]), 0) AS [Total], (
     SELECT COALESCE(SUM([o0].[OrderID]), 0)
     FROM [Orders] AS [o0]
-    WHERE DATEPART(month, [o0].[OrderDate]) = [t].[Key] OR (([o0].[OrderDate] IS NULL) AND ([t].[Key] IS NULL))) AS [Payment]
+    WHERE DATEPART(month, [o0].[OrderDate]) = [t].[Key] OR ([o0].[OrderDate] IS NULL AND [t].[Key] IS NULL)) AS [Payment]
 FROM (
     SELECT [o].[OrderID], DATEPART(month, [o].[OrderDate]) AS [Key]
     FROM [Orders] AS [o]
@@ -1592,7 +1592,7 @@ WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
     GROUP BY [o0].[CustomerID]
-    HAVING COUNT(*) > 30 AND ([o0].[CustomerID] = [o].[CustomerID] OR (([o0].[CustomerID] IS NULL) AND ([o].[CustomerID] IS NULL))))
+    HAVING COUNT(*) > 30 AND ([o0].[CustomerID] = [o].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [o].[CustomerID] IS NULL)))
 """);
     }
 
@@ -2035,7 +2035,7 @@ OUTER APPLY (
     FROM [Products] AS [p0]
     GROUP BY [p0].[ProductID]
 ) AS [t0]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 ORDER BY [o].[OrderID], [t].[ProductID]
 """);
     }
@@ -2051,7 +2051,7 @@ SELECT CASE
         SELECT 1
         FROM [Orders] AS [o]
         GROUP BY [o].[CustomerID]
-        HAVING [o].[CustomerID] <> N'ALFKI' OR ([o].[CustomerID] IS NULL)) THEN CAST(1 AS bit)
+        HAVING [o].[CustomerID] <> N'ALFKI' OR [o].[CustomerID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2148,7 +2148,7 @@ GROUP BY [o].[CustomerID]
         AssertSql(
 """
 SELECT COUNT(CASE
-    WHEN [o].[OrderID] < 10300 AND ([o].[OrderDate] IS NOT NULL) AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -2162,7 +2162,7 @@ GROUP BY [o].[CustomerID]
         AssertSql(
 """
 SELECT COUNT(CASE
-    WHEN [o].[OrderID] < 10300 AND ([o].[OrderDate] IS NOT NULL) AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -2176,7 +2176,7 @@ GROUP BY [o].[CustomerID]
         AssertSql(
 """
 SELECT COUNT(CASE
-    WHEN [o].[OrderID] < 10300 AND ([o].[OrderDate] IS NOT NULL) AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN 1
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -2190,7 +2190,7 @@ GROUP BY [o].[CustomerID]
         AssertSql(
 """
 SELECT MIN(CASE
-    WHEN [o].[OrderID] < 10300 AND ([o].[OrderDate] IS NOT NULL) AND DATEPART(year, [o].[OrderDate]) = 1997 THEN [o].[OrderID]
+    WHEN [o].[OrderID] < 10300 AND [o].[OrderDate] IS NOT NULL AND DATEPART(year, [o].[OrderDate]) = 1997 THEN [o].[OrderID]
 END)
 FROM [Orders] AS [o]
 GROUP BY [o].[CustomerID]
@@ -2283,7 +2283,7 @@ SELECT (
     SELECT MAX([c].[Region])
     FROM [Orders] AS [o0]
     LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
-    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR (([o].[EmployeeID] IS NULL) AND ([o0].[EmployeeID] IS NULL))) AS [max]
+    WHERE [o].[EmployeeID] = [o0].[EmployeeID] OR ([o].[EmployeeID] IS NULL AND [o0].[EmployeeID] IS NULL)) AS [max]
 FROM [Orders] AS [o]
 GROUP BY [o].[EmployeeID]
 """);
@@ -2298,7 +2298,7 @@ GROUP BY [o].[EmployeeID]
 SELECT [o].[EmployeeID] AS [Key], (
     SELECT MAX([o0].[OrderID])
     FROM [Orders] AS [o0]
-    WHERE CAST([o0].[EmployeeID] AS bigint) = CAST((MAX([o].[OrderID]) * 6) AS bigint) OR (([o0].[EmployeeID] IS NULL) AND (MAX([o].[OrderID]) IS NULL))) AS [Max]
+    WHERE CAST([o0].[EmployeeID] AS bigint) = CAST(MAX([o].[OrderID]) * 6 AS bigint) OR ([o0].[EmployeeID] IS NULL AND MAX([o].[OrderID]) IS NULL)) AS [Max]
 FROM [Orders] AS [o]
 GROUP BY [o].[EmployeeID]
 """);
@@ -2313,7 +2313,7 @@ GROUP BY [o].[EmployeeID]
 SELECT (
     SELECT TOP(1) [e0].[Title]
     FROM [Employees] AS [e0]
-    WHERE [e0].[Title] = N'Sales Representative' AND [e0].[EmployeeID] = 1 AND ([e].[Title] = [e0].[Title] OR (([e].[Title] IS NULL) AND ([e0].[Title] IS NULL))))
+    WHERE [e0].[Title] = N'Sales Representative' AND [e0].[EmployeeID] = 1 AND ([e].[Title] = [e0].[Title] OR ([e].[Title] IS NULL AND [e0].[Title] IS NULL)))
 FROM [Employees] AS [e]
 WHERE [e].[Title] = N'Sales Representative' AND [e].[EmployeeID] = 1
 GROUP BY [e].[Title]
@@ -3025,7 +3025,7 @@ FROM (
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
 ) AS [t]
-INNER JOIN [Orders] AS [o0] ON ([t].[Key] = [o0].[CustomerID] OR (([t].[Key] IS NULL) AND ([o0].[CustomerID] IS NULL))) AND ([t].[LastOrderDate] = [o0].[OrderDate] OR (([t].[LastOrderDate] IS NULL) AND ([o0].[OrderDate] IS NULL)))
+INNER JOIN [Orders] AS [o0] ON ([t].[Key] = [o0].[CustomerID] OR ([t].[Key] IS NULL AND [o0].[CustomerID] IS NULL)) AND ([t].[LastOrderDate] = [o0].[OrderDate] OR ([t].[LastOrderDate] IS NULL AND [o0].[OrderDate] IS NULL))
 """);
     }
 
@@ -3287,14 +3287,14 @@ GROUP BY [o].[OrderID]
         AssertSql(
 """
 SELECT [o].[CustomerID] AS [Key], COALESCE(SUM(CASE
-    WHEN (2020 - DATEPART(year, [o].[OrderDate])) <= 30 THEN [o].[OrderID]
+    WHEN 2020 - DATEPART(year, [o].[OrderDate]) <= 30 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [Sum1], COALESCE(SUM(CASE
-    WHEN (2020 - DATEPART(year, [o].[OrderDate])) > 30 AND (2020 - DATEPART(year, [o].[OrderDate])) <= 60 THEN [o].[OrderID]
+    WHEN 2020 - DATEPART(year, [o].[OrderDate]) > 30 AND 2020 - DATEPART(year, [o].[OrderDate]) <= 60 THEN [o].[OrderID]
     ELSE 0
 END), 0) AS [Sum2]
 FROM [Orders] AS [o]
-WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
+WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 GROUP BY [o].[CustomerID]
 """);
     }
@@ -3478,7 +3478,7 @@ FROM (
     SELECT DISTINCT [c].[City]
     FROM [Orders] AS [o]
     LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-    WHERE ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'A%')
+    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 ) AS [t]
 OUTER APPLY (
     SELECT [p].[ProductID]
@@ -3523,7 +3523,7 @@ FROM (
     SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
     GROUP BY [o].[CustomerID]
-    HAVING ([o].[CustomerID] IS NOT NULL) AND ([o].[CustomerID] LIKE N'F%')
+    HAVING [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
 ) AS [t]
 LEFT JOIN [Orders] AS [o0] ON [t].[CustomerID] = [o0].[CustomerID]
 ORDER BY [t].[CustomerID]
@@ -3542,7 +3542,7 @@ ORDER BY [t].[CustomerID]
 """
 SELECT [t].[c], [t].[ProductID], [t0].[CustomerID], [t0].[City]
 FROM (
-    SELECT COALESCE(SUM([o].[ProductID] + ([o].[OrderID] * 1000)), 0) AS [c], [o].[ProductID], MIN([o].[OrderID] / 100) AS [c0]
+    SELECT COALESCE(SUM([o].[ProductID] + [o].[OrderID] * 1000), 0) AS [c], [o].[ProductID], MIN([o].[OrderID] / 100) AS [c0]
     FROM [Order Details] AS [o]
     INNER JOIN [Orders] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
     LEFT JOIN [Customers] AS [c] ON [o0].[CustomerID] = [c].[CustomerID]
@@ -3576,7 +3576,7 @@ OUTER APPLY (
             WHERE [c].[CustomerID] = [o0].[CustomerID]
         ) AS [t0]
         LEFT JOIN [Customers] AS [c0] ON [t0].[CustomerID] = [c0].[CustomerID]
-        WHERE ([t].[Key] = [t0].[Key] OR (([t].[Key] IS NULL) AND ([t0].[Key] IS NULL))) AND (COALESCE([c0].[City], N'') + COALESCE([t0].[CustomerID], N'') LIKE N'Lon%')) AS [Count], [t].[Key]
+        WHERE ([t].[Key] = [t0].[Key] OR ([t].[Key] IS NULL AND [t0].[Key] IS NULL)) AND COALESCE([c0].[City], N'') + COALESCE([t0].[CustomerID], N'') LIKE N'Lon%') AS [Count], [t].[Key]
     FROM (
         SELECT [o].[OrderID], COALESCE([c2].[City], N'') + COALESCE([o].[CustomerID], N'') AS [Key]
         FROM [Orders] AS [o]

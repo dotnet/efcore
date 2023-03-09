@@ -155,7 +155,7 @@ LEFT JOIN (
         FROM [Customers] AS [c0]
         WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-    WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
 ORDER BY [c].[CustomerID], [t0].[OrderID]
@@ -191,7 +191,7 @@ LEFT JOIN (
     FROM [Customers] AS [c]
     WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -215,7 +215,7 @@ INNER JOIN (
         FROM [Customers] AS [c]
         WHERE @__ef_filter__TenantPrefix_1 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_1_1)) = @__ef_filter__TenantPrefix_1_1
     ) AS [t] ON [o0].[CustomerID] = [t].[CustomerID]
-    WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [o].[OrderID] = [t0].[OrderID]
 WHERE [o].[Quantity] > @__ef_filter___quantity_0
 """);
@@ -241,7 +241,7 @@ INNER JOIN (
         FROM [Customers] AS [c0]
         WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c0].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
     ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-    WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+    WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID]
 INNER JOIN (
     SELECT [o0].[OrderID], [o0].[Discount]
@@ -254,7 +254,7 @@ INNER JOIN (
             FROM [Customers] AS [c1]
             WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c1].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
         ) AS [t3] ON [o1].[CustomerID] = [t3].[CustomerID]
-        WHERE ([t3].[CustomerID] IS NOT NULL) AND ([t3].[CompanyName] IS NOT NULL)
+        WHERE [t3].[CustomerID] IS NOT NULL AND [t3].[CompanyName] IS NOT NULL
     ) AS [t2] ON [o0].[OrderID] = [t2].[OrderID]
     WHERE [o0].[Quantity] > @__ef_filter___quantity_1
 ) AS [t1] ON [t0].[OrderID] = [t1].[OrderID]
@@ -309,7 +309,7 @@ LEFT JOIN (
     FROM [Customers] AS [c]
     WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
 ) AS [t] ON [m].[CustomerID] = [t].[CustomerID]
-WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -355,7 +355,7 @@ LEFT JOIN (
     FROM [Customers] AS [c]
     WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 """);
     }
 
@@ -382,7 +382,7 @@ LEFT JOIN (
     FROM [Customers] AS [c]
     WHERE @__ef_filter__TenantPrefix_0 = N'' OR LEFT([c].[CompanyName], LEN(@__ef_filter__TenantPrefix_0_1)) = @__ef_filter__TenantPrefix_0_1
 ) AS [t] ON [o].[CustomerID] = [t].[CustomerID]
-WHERE ([t].[CustomerID] IS NOT NULL) AND ([t].[CompanyName] IS NOT NULL)
+WHERE [t].[CustomerID] IS NOT NULL AND [t].[CompanyName] IS NOT NULL
 """);
     }
 

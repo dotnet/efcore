@@ -166,7 +166,7 @@ ORDER BY [r].[Buyer]
 """
 SELECT [r].[Id], [r].[Rot_ApartmentNo], [r].[Rot_ServiceType]
 FROM [RotRutCases] AS [r]
-WHERE ([r].[Rot_ApartmentNo] IS NOT NULL) AND ([r].[Rot_ServiceType] IS NOT NULL)
+WHERE [r].[Rot_ApartmentNo] IS NOT NULL AND [r].[Rot_ServiceType] IS NOT NULL
 """);
     }
 

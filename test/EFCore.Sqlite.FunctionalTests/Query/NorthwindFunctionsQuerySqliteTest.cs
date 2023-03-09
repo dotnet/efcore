@@ -197,7 +197,7 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE 'M%')
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE 'M%'
 """);
     }
 
@@ -209,7 +209,7 @@ WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE 'M%')
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND ((("c"."ContactName" LIKE "c"."ContactName" || '%') AND substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName") OR "c"."ContactName" = ''))
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (("c"."ContactName" LIKE "c"."ContactName" || '%' AND substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName") OR "c"."ContactName" = ''))
 """);
     }
 
@@ -221,7 +221,7 @@ WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND ((("c"."Con
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND ((("c"."ContactName" LIKE "c"."ContactName" || '%') AND substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName") OR "c"."ContactName" = ''))
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (("c"."ContactName" LIKE "c"."ContactName" || '%' AND substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName") OR "c"."ContactName" = ''))
 """);
     }
 
@@ -233,7 +233,7 @@ WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND ((("c"."Con
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE 'M%')
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE 'M%'
 """);
     }
 
@@ -245,7 +245,7 @@ WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE 'M%')
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE '%b')
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE '%b'
 """);
     }
 
@@ -257,7 +257,7 @@ WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE '%b')
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = ''))
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = ''))
 """);
     }
 
@@ -269,7 +269,7 @@ WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND (substr("c"
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = ''))
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = ''))
 """);
     }
 
@@ -281,7 +281,7 @@ WHERE "c"."ContactName" = '' OR (("c"."ContactName" IS NOT NULL) AND (substr("c"
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."ContactName" IS NOT NULL) AND ("c"."ContactName" LIKE '%m')
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE '%m'
 """);
     }
 
@@ -431,7 +431,7 @@ GROUP BY "c"."City"
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."Region" IS NULL) OR trim("c"."Region") = ''
+WHERE "c"."Region" IS NULL OR trim("c"."Region") = ''
 """);
     }
 
@@ -443,7 +443,7 @@ WHERE ("c"."Region" IS NULL) OR trim("c"."Region") = ''
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE (instr("c"."ContactName", '') - 1) = 0
+WHERE instr("c"."ContactName", '') - 1 = 0
 """);
     }
 
@@ -455,7 +455,7 @@ WHERE (instr("c"."ContactName", '') - 1) = 0
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE (instr("c"."ContactName", 'a') - 1) = 1
+WHERE instr("c"."ContactName", 'a') - 1 = 1
 """);
     }
 
@@ -469,7 +469,7 @@ WHERE (instr("c"."ContactName", 'a') - 1) = 1
 
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE (instr("c"."ContactName", @__pattern_0) - 1) = 1
+WHERE instr("c"."ContactName", @__pattern_0) - 1 = 1
 """);
     }
 
@@ -856,7 +856,7 @@ WHERE "c"."CustomerID" NOT REGEXP '^[^T]'
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."Region" IS NULL) OR "c"."Region" = ''
+WHERE "c"."Region" IS NULL OR "c"."Region" = ''
 """);
     }
 
@@ -866,7 +866,7 @@ WHERE ("c"."Region" IS NULL) OR "c"."Region" = ''
 
         AssertSql(
 """
-SELECT "c"."CustomerID" AS "Id", ("c"."Region" IS NULL) OR "c"."Region" = '' AS "Value"
+SELECT "c"."CustomerID" AS "Id", "c"."Region" IS NULL OR "c"."Region" = '' AS "Value"
 FROM "Customers" AS "c"
 """);
     }
@@ -879,7 +879,7 @@ FROM "Customers" AS "c"
 """
 SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
 FROM "Customers" AS "c"
-WHERE ("c"."Region" IS NOT NULL) AND "c"."Region" <> ''
+WHERE "c"."Region" IS NOT NULL AND "c"."Region" <> ''
 """);
     }
 

@@ -32,9 +32,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 """);
     }
@@ -60,18 +60,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 """);
     }
@@ -87,18 +87,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 GROUP BY [t0].[Level3_Name]
 """);
@@ -115,49 +115,49 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 GROUP BY [t0].[Level3_Name]
 HAVING (
     SELECT MIN(COALESCE(CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END, 0))
     FROM [Level1] AS [l2]
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l2].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END = CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l5].[Id], [l5].[OneToOne_Required_PK_Date], [l5].[Level1_Optional_Id], [l5].[Level1_Required_Id], [l5].[Level2_Name], [l5].[OneToMany_Optional_Inverse2Id], [l5].[OneToMany_Required_Inverse2Id], [l5].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l5]
-        WHERE ([l5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l5].[Level1_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l2].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE [t0].[Level3_Name] = [t2].[Level3_Name] OR (([t0].[Level3_Name] IS NULL) AND ([t2].[Level3_Name] IS NULL))) > 0
+    WHERE [t0].[Level3_Name] = [t2].[Level3_Name] OR ([t0].[Level3_Name] IS NULL AND [t2].[Level3_Name] IS NULL)) > 0
 """);
     }
 
@@ -172,27 +172,27 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
 END
 """);
     }
@@ -215,11 +215,11 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
 ) AS [t1]
@@ -229,13 +229,13 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l2].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id00]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id00]
 END = [t2].[Level1_Optional_Id]
 ORDER BY [t1].[Id]
 """);
@@ -257,13 +257,13 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
-    WHERE [t0].[Level2_Name] <> N'Foo' OR ([t0].[Level2_Name] IS NULL)
+    WHERE [t0].[Level2_Name] <> N'Foo' OR [t0].[Level2_Name] IS NULL
 ) AS [t1]
 """);
     }
@@ -275,7 +275,7 @@ FROM (
         AssertSql(
 """
 SELECT COALESCE(SUM(CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NULL) OR ([t0].[Level1_Required_Id] IS NULL) OR ([t0].[OneToMany_Required_Inverse2Id] IS NULL) THEN 0
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NULL OR [t0].[Level1_Required_Id] IS NULL OR [t0].[OneToMany_Required_Inverse2Id] IS NULL THEN 0
     ELSE [t0].[Level1_Required_Id]
 END), 0)
 FROM [Level1] AS [l]
@@ -285,11 +285,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -308,36 +308,36 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT [l].[Id], [l].[Name], CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NULL) OR ([t].[Level1_Required_Id] IS NULL) OR ([t].[OneToMany_Required_Inverse2Id] IS NULL) THEN CAST(1 AS bit)
+    WHEN [t].[OneToOne_Required_PK_Date] IS NULL OR [t].[Level1_Required_Id] IS NULL OR [t].[OneToMany_Required_Inverse2Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END, [t].[Level2_Name], CASE
-    WHEN ([t0].[Level2_Required_Id] IS NULL) OR ([t0].[OneToMany_Required_Inverse3Id] IS NULL) THEN CAST(1 AS bit)
+    WHEN [t0].[Level2_Required_Id] IS NULL OR [t0].[OneToMany_Required_Inverse3Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END, [t0].[Level3_Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NULL) OR ([t].[Level1_Required_Id] IS NULL) OR ([t].[OneToMany_Required_Inverse2Id] IS NULL) THEN NULL
+    WHEN [t].[OneToOne_Required_PK_Date] IS NULL OR [t].[Level1_Required_Id] IS NULL OR [t].[OneToMany_Required_Inverse2Id] IS NULL THEN NULL
     ELSE [t0].[Level3_Name]
-END <> N'L' OR (CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NULL) OR ([t].[Level1_Required_Id] IS NULL) OR ([t].[OneToMany_Required_Inverse2Id] IS NULL) THEN NULL
+END <> N'L' OR CASE
+    WHEN [t].[OneToOne_Required_PK_Date] IS NULL OR [t].[Level1_Required_Id] IS NULL OR [t].[OneToMany_Required_Inverse2Id] IS NULL THEN NULL
     ELSE [t0].[Level3_Name]
-END IS NULL)
+END IS NULL
 """);
     }
 
@@ -357,11 +357,11 @@ OUTER APPLY (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t] ON CASE
-        WHEN ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l0].[Id]
+        WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
     END = CASE
-        WHEN ([t].[Level2_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[Level2_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t].[Id]
     END
     CROSS APPLY (
         SELECT [l].[Name] AS [l1Name], [t].[Level3_Name] AS [l2Name], [t1].[Level3_Name] AS [l3Name]
@@ -369,19 +369,19 @@ OUTER APPLY (
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[Level2_Required_Id], [l3].[Level3_Name], [l3].[OneToMany_Required_Inverse3Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[Level2_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l3].[Level2_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t1] ON [l2].[OneToOne_Optional_PK_Inverse4Id] = CASE
-            WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
+            WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
         END
-        WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL) AND (CASE
-            WHEN ([t].[Level2_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t].[Id]
-        END IS NOT NULL) AND (CASE
-            WHEN ([t].[Level2_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t].[Id]
-        END = [l2].[OneToMany_Optional_Inverse4Id] OR ((CASE
-            WHEN ([t].[Level2_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t].[Id]
-        END IS NULL) AND ([l2].[OneToMany_Optional_Inverse4Id] IS NULL)))
+        WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL AND CASE
+            WHEN [t].[Level2_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t].[Id]
+        END IS NOT NULL AND (CASE
+            WHEN [t].[Level2_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t].[Id]
+        END = [l2].[OneToMany_Optional_Inverse4Id] OR (CASE
+            WHEN [t].[Level2_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t].[Id]
+        END IS NULL AND [l2].[OneToMany_Optional_Inverse4Id] IS NULL))
     ) AS [t0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ) AS [t2]
 """);
     }
@@ -397,22 +397,22 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 ORDER BY (
     SELECT COUNT(*)
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NOT NULL) AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END = [l2].[OneToMany_Required_Inverse3Id]), [t0].[Level3_Name]
 """);
     }
@@ -428,51 +428,51 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 GROUP BY [t0].[Level3_Name]
 HAVING (
     SELECT MIN(COALESCE(CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END, 0) + COALESCE(CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END, 0))
     FROM [Level1] AS [l2]
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l2].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END = CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l5].[Id], [l5].[OneToOne_Required_PK_Date], [l5].[Level1_Optional_Id], [l5].[Level1_Required_Id], [l5].[Level2_Name], [l5].[OneToMany_Optional_Inverse2Id], [l5].[OneToMany_Required_Inverse2Id], [l5].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l5]
-        WHERE ([l5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l5].[Level1_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l2].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE [t0].[Level3_Name] = [t2].[Level3_Name] OR (([t0].[Level3_Name] IS NULL) AND ([t2].[Level3_Name] IS NULL))) > 0
+    WHERE [t0].[Level3_Name] = [t2].[Level3_Name] OR ([t0].[Level3_Name] IS NULL AND [t2].[Level3_Name] IS NULL)) > 0
 """);
     }
 
@@ -497,10 +497,10 @@ SELECT [l].[Id], [l].[Date], [l].[Name]
 FROM [Level1] AS [l]
 WHERE [l].[Id] > (
     SELECT COALESCE(SUM(CASE
-        WHEN ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l0].[Id]
+        WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
     END), 0)
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id])
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id])
 """);
     }
 
@@ -518,23 +518,23 @@ SELECT (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t0] ON CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END = CASE
-            WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t1]
     ORDER BY CASE
-        WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
     END)
 FROM [Level1] AS [l]
 WHERE [l].[Id] < 3
@@ -555,28 +555,28 @@ OUTER APPLY (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t0] ON CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END = CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND EXISTS (
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND EXISTS (
         SELECT 1
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l3].[OneToMany_Required_Inverse2Id] AND [l3].[Id] = [t0].[Level2_Required_Id])
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l3].[OneToMany_Required_Inverse2Id] AND [l3].[Id] = [t0].[Level2_Required_Id])
 ) AS [t1]
 LEFT JOIN (
     SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l4]
-    WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON [l].[Id] = [t2].[OneToMany_Required_Inverse2Id]
 ORDER BY [l].[Id], [t1].[Id0], [t1].[Id1], [t1].[Id]
 """);
@@ -593,25 +593,25 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Level3_Optional_Id], [l2].[Level4_Name]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level3_Optional_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NULL) OR ([t].[Level1_Required_Id] IS NULL) OR ([t].[OneToMany_Required_Inverse2Id] IS NULL) THEN NULL
-    WHEN ([t0].[Level2_Required_Id] IS NULL) OR ([t0].[OneToMany_Required_Inverse3Id] IS NULL) THEN NULL
+    WHEN [t].[OneToOne_Required_PK_Date] IS NULL OR [t].[Level1_Required_Id] IS NULL OR [t].[OneToMany_Required_Inverse2Id] IS NULL THEN NULL
+    WHEN [t0].[Level2_Required_Id] IS NULL OR [t0].[OneToMany_Required_Inverse3Id] IS NULL THEN NULL
     ELSE [t1].[Level4_Name]
 END = N'L4 01'
 """);
@@ -628,9 +628,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [t].[Level2_Name] = N'L2 01'
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t].[Level2_Name] = N'L2 01'
 """);
     }
 
@@ -641,7 +641,7 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END, [t0].[Level3_Name], CASE
     WHEN [l2].[Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
@@ -650,19 +650,19 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Level2_Optional_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 LEFT JOIN [Level1] AS [l2] ON [t].[Level1_Optional_Id] = [l2].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -673,7 +673,7 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
         AssertSql(
 """
 SELECT [l].[Id], [l].[Name], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NULL) OR ([t0].[Level1_Required_Id] IS NULL) OR ([t0].[OneToMany_Required_Inverse2Id] IS NULL) THEN N'Foo'
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NULL OR [t0].[Level1_Required_Id] IS NULL OR [t0].[OneToMany_Required_Inverse2Id] IS NULL THEN N'Foo'
     ELSE N'Bar'
 END AS [Foo]
 FROM [Level1] AS [l]
@@ -683,11 +683,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [t3].[Level3_Name] AS [Key], COUNT(*) AS [Count]
@@ -695,23 +695,23 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t3] ON CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END = CASE
-        WHEN ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL
     GROUP BY [t3].[Level3_Name]
 ) AS [t1] ON [l].[Name] = [t1].[Key]
-WHERE ([t0].[Level2_Name] IS NOT NULL) OR [t1].[Count] > 0
+WHERE [t0].[Level2_Name] IS NOT NULL OR [t1].[Count] > 0
 """);
     }
 
@@ -724,20 +724,20 @@ WHERE ([t0].[Level2_Name] IS NOT NULL) OR [t1].[Count] > 0
 SELECT [t1].[Id], [t1].[Name], [t1].[Date], [t1].[InnerId] AS [Id], [t1].[Level2_Name0] AS [Name], [t1].[OneToOne_Required_PK_Date] AS [Date], [t1].[Level1_Optional_Id], [t1].[Level1_Required_Id], COALESCE(SUM(CAST(LEN([t1].[Name]) AS int)), 0) AS [Aggregate]
 FROM (
     SELECT [l].[Id], [l].[Date], [l].[Name], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t0].[Level2_Name] AS [Level2_Name0], CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END AS [InnerId]
     FROM [Level1] AS [l]
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
     LEFT JOIN (
         SELECT [l1].[Level1_Required_Id], [l1].[Level2_Name]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Required_Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1]
 GROUP BY [t1].[Id], [t1].[Date], [t1].[Name], [t1].[InnerId], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Optional_Id], [t1].[Level1_Required_Id], [t1].[Level2_Name0]
 """);
@@ -756,10 +756,10 @@ SELECT CASE
         LEFT JOIN (
             SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l0]
-            WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
         WHERE CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -773,16 +773,16 @@ END
         AssertSql(
 """
 SELECT [l].[Id], [l].[Name], CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NULL) OR ([t].[Level1_Required_Id] IS NULL) OR ([t].[OneToMany_Required_Inverse2Id] IS NULL) THEN CAST(1 AS bit)
+    WHEN [t].[OneToOne_Required_PK_Date] IS NULL OR [t].[Level1_Required_Id] IS NULL OR [t].[OneToMany_Required_Inverse2Id] IS NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END, [t].[Level2_Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 ORDER BY [t].[Level2_Name], [l].[Id]
 """);
@@ -799,10 +799,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 """);
     }
@@ -818,43 +818,43 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [t0].[Key], (
         SELECT COALESCE(SUM(CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END), 0)
         FROM (
             SELECT [l1].[Id], [l1].[Date], [l1].[Name], [t4].[Id] AS [Id0], [t4].[OneToOne_Required_PK_Date], [t4].[Level1_Optional_Id], [t4].[Level1_Required_Id], [t4].[Level2_Name], [t4].[OneToMany_Optional_Inverse2Id], [t4].[OneToMany_Required_Inverse2Id], [t4].[OneToOne_Optional_PK_Inverse2Id], CASE
-                WHEN ([t4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t4].[Level1_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t4].[Id]
+                WHEN [t4].[OneToOne_Required_PK_Date] IS NOT NULL AND [t4].[Level1_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t4].[Id]
             END % 3 AS [Key]
             FROM [Level1] AS [l1]
             LEFT JOIN (
                 SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
                 FROM [Level1] AS [l2]
-                WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t4] ON [l1].[Id] = CASE
-                WHEN ([t4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t4].[Level1_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t4].[Id]
+                WHEN [t4].[OneToOne_Required_PK_Date] IS NOT NULL AND [t4].[Level1_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t4].[Id]
             END
-            WHERE ([t4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t4].[Level1_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [t4].[OneToOne_Required_PK_Date] IS NOT NULL AND [t4].[Level1_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t2]
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t3] ON [t2].[Id] = CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END
-        WHERE [t0].[Key] = [t2].[Key] OR (([t0].[Key] IS NULL) AND ([t2].[Key] IS NULL))) AS [Sum]
+        WHERE [t0].[Key] = [t2].[Key] OR ([t0].[Key] IS NULL AND [t2].[Key] IS NULL)) AS [Sum]
     FROM (
         SELECT CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END % 3 AS [Key]
         FROM [Level1] AS [l0]
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Required_Id], [l4].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0]
     GROUP BY [t0].[Key]
 ) AS [t1] ON [l].[Id] = [t1].[Key] AND CAST(1 AS bit) = CASE
@@ -877,29 +877,29 @@ SELECT [l].[Name], [t].[Level2_Name] AS [OptionalName], CASE
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t1] ON [l2].[Id] = [t1].[Level1_Optional_Id]
         WHERE CASE
-            WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+            WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
         END = CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
-        END OR ((CASE
-            WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
-        END IS NULL) AND (CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
-        END IS NULL))) THEN CAST(1 AS bit)
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+        END OR (CASE
+            WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
+        END IS NULL AND CASE
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+        END IS NULL)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Contains]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToOne_Optional_PK_Inverse2Id]
 """);
     }
@@ -953,21 +953,21 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Required_Inverse2Id]
 LEFT JOIN (
     SELECT [t2].[Id], [t2].[OneToOne_Required_PK_Date], [t2].[Level1_Optional_Id], [t2].[Level1_Required_Id], [t2].[Level2_Name], [t2].[OneToMany_Optional_Inverse2Id], [t2].[OneToMany_Required_Inverse2Id], [t2].[OneToOne_Optional_PK_Inverse2Id]
     FROM (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l2].[OneToMany_Required_Inverse2Id] ORDER BY CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
         END DESC) AS [row]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2]
     WHERE [t2].[row] <= 1
 ) AS [t1] ON [l].[Id] = [t1].[OneToMany_Required_Inverse2Id]
@@ -989,11 +989,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 UNION ALL
 SELECT [l3].[Id]
@@ -1001,12 +1001,12 @@ FROM [Level1] AS [l2]
 LEFT JOIN (
     SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l4]
-    WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON [l2].[Id] = CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t2].[Level1_Optional_Id] = [l3].[Id]
-WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([l3].[Id] IS NULL)
+WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l3].[Id] IS NULL
 """);
     }
 
@@ -1026,26 +1026,26 @@ SELECT (
             LEFT JOIN (
                 SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
                 FROM [Level1] AS [l1]
-                WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t] ON [l0].[Id] = CASE
-                WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+                WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
             END
             LEFT JOIN (
                 SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
                 FROM [Level1] AS [l2]
-                WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+                WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
             ) AS [t0] ON CASE
-                WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+                WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
             END = CASE
-                WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+                WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
             END
-            WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t1]
         ORDER BY (SELECT 1)
         OFFSET 1 ROWS
     ) AS [t2]
     ORDER BY CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END)
 FROM [Level1] AS [l]
 WHERE [l].[Id] < 3
@@ -1103,16 +1103,16 @@ SELECT [l].[Name], [t].[Level2_Name] AS [OptionalName], CASE
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l1].[Id] = [t0].[Level1_Optional_Id]
-        WHERE [t0].[Level2_Name] = [t].[Level2_Name] OR (([t0].[Level2_Name] IS NULL) AND ([t].[Level2_Name] IS NULL))) THEN CAST(1 AS bit)
+        WHERE [t0].[Level2_Name] = [t].[Level2_Name] OR ([t0].[Level2_Name] IS NULL AND [t].[Level2_Name] IS NULL)) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Contains]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -1126,7 +1126,7 @@ LEFT JOIN (
 SELECT [l].[Id], (
     SELECT TOP(1) [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND [l0].[Level2_Name] = N'L2 02') AS [Pushdown]
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id] AND [l0].[Level2_Name] = N'L2 02') AS [Pushdown]
 FROM [Level1] AS [l]
 WHERE [l].[Id] < 3
 """);
@@ -1146,11 +1146,11 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Required_Id]
 INNER JOIN (
     SELECT [t3].[Id] AS [Id1], [t3].[Level2_Required_Id], [t3].[OneToMany_Required_Inverse3Id]
@@ -1158,22 +1158,22 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Required_Id], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t3] ON CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END = CASE
-        WHEN ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END = [t1].[Level2_Required_Id]
 INNER JOIN (
     SELECT [t7].[Level3_Required_Id], [t7].[Level4_Name]
@@ -1181,35 +1181,35 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l6].[Id], [l6].[OneToOne_Required_PK_Date], [l6].[Level1_Required_Id], [l6].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l6]
-        WHERE ([l6].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l6].[Level1_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l6].[OneToOne_Required_PK_Date] IS NOT NULL AND [l6].[Level1_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t5] ON [l5].[Id] = CASE
-        WHEN ([t5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t5].[Level1_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t5].[Id]
+        WHEN [t5].[OneToOne_Required_PK_Date] IS NOT NULL AND [t5].[Level1_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t5].[Id]
     END
     LEFT JOIN (
         SELECT [l7].[Id], [l7].[Level2_Required_Id], [l7].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l7]
-        WHERE ([l7].[Level2_Required_Id] IS NOT NULL) AND ([l7].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l7].[Level2_Required_Id] IS NOT NULL AND [l7].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t6] ON CASE
-        WHEN ([t5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t5].[Level1_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t5].[Id]
+        WHEN [t5].[OneToOne_Required_PK_Date] IS NOT NULL AND [t5].[Level1_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t5].[Id]
     END = CASE
-        WHEN ([t6].[Level2_Required_Id] IS NOT NULL) AND ([t6].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t6].[Id]
+        WHEN [t6].[Level2_Required_Id] IS NOT NULL AND [t6].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t6].[Id]
     END
     LEFT JOIN (
         SELECT [l8].[Id], [l8].[Level3_Required_Id], [l8].[Level4_Name], [l8].[OneToMany_Required_Inverse4Id]
         FROM [Level1] AS [l8]
-        WHERE ([l8].[Level3_Required_Id] IS NOT NULL) AND ([l8].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+        WHERE [l8].[Level3_Required_Id] IS NOT NULL AND [l8].[OneToMany_Required_Inverse4Id] IS NOT NULL
     ) AS [t7] ON CASE
-        WHEN ([t6].[Level2_Required_Id] IS NOT NULL) AND ([t6].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t6].[Id]
+        WHEN [t6].[Level2_Required_Id] IS NOT NULL AND [t6].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t6].[Id]
     END = CASE
-        WHEN ([t7].[Level3_Required_Id] IS NOT NULL) AND ([t7].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t7].[Id]
+        WHEN [t7].[Level3_Required_Id] IS NOT NULL AND [t7].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t7].[Id]
     END
-    WHERE ([t5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t5].[Level1_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t6].[Level2_Required_Id] IS NOT NULL) AND ([t6].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([t7].[Level3_Required_Id] IS NOT NULL) AND ([t7].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [t5].[OneToOne_Required_PK_Date] IS NOT NULL AND [t5].[Level1_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t6].[Level2_Required_Id] IS NOT NULL AND [t6].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t7].[Level3_Required_Id] IS NOT NULL AND [t7].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t4] ON CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id1]
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id1]
 END = [t4].[Level3_Required_Id]
 LEFT JOIN [Level1] AS [l9] ON CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
-END >= [l9].[Id] AND ([t4].[Level4_Name] = [l9].[Name] OR (([t4].[Level4_Name] IS NULL) AND ([l9].[Name] IS NULL)))
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
+END >= [l9].[Id] AND ([t4].[Level4_Name] = [l9].[Name] OR ([t4].[Level4_Name] IS NULL AND [l9].[Name] IS NULL))
 """);
     }
 
@@ -1226,10 +1226,10 @@ SELECT CASE
         LEFT JOIN (
             SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l0]
-            WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
         WHERE CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -1377,9 +1377,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l0].[Id] > 5
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l0].[Id] > 5
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -1394,16 +1394,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
-WHERE ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -1418,16 +1418,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND [l1].[Id] > 5
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l1].[Id] > 5
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
-WHERE ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -1447,12 +1447,12 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END < 5
 ) AS [t0] ON 1 = 1
 CROSS APPLY (
@@ -1475,9 +1475,9 @@ CROSS APPLY (
 SELECT [t4].[Id1] AS [Foo], [t4].[Id2] AS [Bar], [t4].[Id3] AS [Baz]
 FROM (
     SELECT DISTINCT TOP(@__p_0) [l].[Id] AS [Id1], CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
     END AS [Id2], CASE
-        WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id1]
+        WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id1]
     END AS [Id3], [l].[Name] AS [Name1], [t0].[Level2_Name] AS [Name2]
     FROM [Level1] AS [l]
     INNER JOIN (
@@ -1486,11 +1486,11 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
     INNER JOIN (
         SELECT [t3].[Id] AS [Id1], [t3].[Level2_Optional_Id], [t3].[Level2_Required_Id], [t3].[OneToMany_Required_Inverse3Id]
@@ -1498,22 +1498,22 @@ FROM (
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t2] ON [l2].[Id] = CASE
-            WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+            WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
         END
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[OneToMany_Required_Inverse3Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t3] ON CASE
-            WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+            WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
         END = CASE
-            WHEN ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t3].[Id]
         END
-        WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t1] ON CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
     END = [t1].[Level2_Optional_Id]
 ) AS [t4]
 """);
@@ -1528,24 +1528,24 @@ FROM (
 SELECT [l].[Id], (
     SELECT TOP(1) [l0].[Level3_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[Level2_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ((
+    WHERE [l0].[Level2_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND (
         SELECT TOP(1) CASE
-            WHEN ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l1].[Id]
+            WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[Id]
         END
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id] AND [l1].[Level2_Name] = N'L2 02') IS NOT NULL) AND ((
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id] AND [l1].[Level2_Name] = N'L2 02') IS NOT NULL AND ((
         SELECT TOP(1) CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
         END
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id] AND [l2].[Level2_Name] = N'L2 02') = [l0].[OneToMany_Optional_Inverse3Id] OR (((
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id] AND [l2].[Level2_Name] = N'L2 02') = [l0].[OneToMany_Optional_Inverse3Id] OR ((
         SELECT TOP(1) CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
         END
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id] AND [l2].[Level2_Name] = N'L2 02') IS NULL) AND ([l0].[OneToMany_Optional_Inverse3Id] IS NULL)))
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id] AND [l2].[Level2_Name] = N'L2 02') IS NULL AND [l0].[OneToMany_Optional_Inverse3Id] IS NULL))
     ORDER BY CASE
-        WHEN ([l0].[Level2_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [l0].[Id]
+        WHEN [l0].[Level2_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [l0].[Id]
     END) AS [Pushdown]
 FROM [Level1] AS [l]
 WHERE [l].[Id] < 2
@@ -1565,16 +1565,16 @@ LEFT JOIN (
     FROM (
         SELECT 1 AS [c], [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToMany_Optional_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Optional_Inverse2Id] ORDER BY [l0].[Id]) AS [row]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l0].[Level2_Name] = N'L2 02'
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l0].[Level2_Name] = N'L2 02'
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[OneToMany_Optional_Inverse3Id]
 WHERE [l].[Id] < 2
 ORDER BY [l].[Id], [t0].[Id]
@@ -1597,11 +1597,11 @@ LEFT JOIN (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t] ON CASE
-            WHEN ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l0].[Id]
+            WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
         END = [t].[Level2_Optional_Id]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l0].[Level2_Name] = N'L2 02'
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l0].[Level2_Name] = N'L2 02'
     ) AS [t0]
     WHERE [t0].[row] <= 1
 ) AS [t1] ON [l].[Id] = [t1].[OneToMany_Optional_Inverse2Id]
@@ -1623,12 +1623,12 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END < 10
 ) AS [t0]
 """);
@@ -1645,18 +1645,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [t2].[Id0] AS [Id00], [t2].[OneToOne_Required_PK_Date], [t2].[Level1_Optional_Id], [t2].[Level1_Required_Id], [t2].[Level2_Name], [t2].[OneToMany_Optional_Inverse2Id], [t2].[OneToMany_Required_Inverse2Id], [t2].[OneToOne_Optional_PK_Inverse2Id]
@@ -1667,16 +1667,16 @@ LEFT JOIN (
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t3] ON [l3].[Id] = CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END
-        WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = [t2].[Level1_Optional_Id]
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id00]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id00]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -1692,21 +1692,21 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[OneToMany_Required_Inverse4Id]
 LEFT JOIN (
     SELECT [t3].[Id] AS [Id0], [t3].[OneToOne_Required_PK_Date], [t3].[Level1_Optional_Id], [t3].[Level1_Required_Id], [t3].[Level2_Name], [t3].[OneToMany_Optional_Inverse2Id], [t3].[OneToMany_Required_Inverse2Id], [t3].[OneToOne_Optional_PK_Inverse2Id]
@@ -1714,15 +1714,15 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l3].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON CASE
-    WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
 END = CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id0]
+    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id0]
 END
 """);
     }
@@ -1741,26 +1741,26 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = COALESCE((
     SELECT TOP(1) CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
     FROM [Level1] AS [l2]
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l2].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
-    WHERE ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END), 0)
 """);
     }
@@ -1784,11 +1784,11 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
 ) AS [t1]
@@ -1808,18 +1808,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [t2].[Id0] AS [Id00], [t2].[OneToOne_Required_PK_Date], [t2].[Level1_Required_Id], [t2].[Level2_Name], [t2].[OneToMany_Required_Inverse2Id]
@@ -1830,16 +1830,16 @@ LEFT JOIN (
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t3] ON [l3].[Id] = CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END
-        WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = [t2].[Level1_Optional_Id]
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id00]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id00]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -1854,23 +1854,23 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE EXISTS (
     SELECT 1
     FROM (
         SELECT DISTINCT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-        END IS NOT NULL) AND (CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-        END = [l1].[OneToMany_Optional_Inverse3Id] OR ((CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-        END IS NULL) AND ([l1].[OneToMany_Optional_Inverse3Id] IS NULL)))
+        WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+        END IS NOT NULL AND (CASE
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+        END = [l1].[OneToMany_Optional_Inverse3Id] OR (CASE
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+        END IS NULL AND [l1].[OneToMany_Optional_Inverse3Id] IS NULL))
     ) AS [t0]
     WHERE CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
     END = 1)
 """);
     }
@@ -1886,18 +1886,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [t2].[Id0] AS [Id00], [t2].[OneToOne_Required_PK_Date], [t2].[Level1_Required_Id], [t2].[Level2_Name], [t2].[OneToMany_Required_Inverse2Id]
@@ -1908,16 +1908,16 @@ LEFT JOIN (
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t3] ON [l3].[Id] = CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END
-        WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = [t2].[Level1_Optional_Id]
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id00]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id00]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -1932,16 +1932,16 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND [l1].[Id] > 5
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l1].[Id] > 5
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
-WHERE ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -1956,18 +1956,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE EXISTS (
     SELECT DISTINCT 1
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END = [l1].[OneToMany_Optional_Inverse3Id] OR ((CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NULL) AND ([l1].[OneToMany_Optional_Inverse3Id] IS NULL))) AND CAST(LEN([l1].[Level3_Name]) AS int) = 1)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END = [l1].[OneToMany_Optional_Inverse3Id] OR (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NULL AND [l1].[OneToMany_Optional_Inverse3Id] IS NULL)) AND CAST(LEN([l1].[Level3_Name]) AS int) = 1)
 """);
     }
 
@@ -1978,7 +1978,7 @@ WHERE EXISTS (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -1987,12 +1987,12 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     INNER JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -2008,16 +2008,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND [l1].[Id] > 5
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l1].[Id] > 5
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Required_Inverse3Id]
-WHERE ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -2033,26 +2033,26 @@ SELECT (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l1].[Id] = CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END
     INNER JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
     LEFT JOIN [Level1] AS [l3] ON [t0].[Level1_Required_Id] = [l3].[Id]
-    WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 7
 """);
     }
@@ -2069,21 +2069,21 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[OneToMany_Required_Inverse4Id]
 INNER JOIN (
     SELECT [t3].[Id] AS [Id0], [t3].[OneToOne_Required_PK_Date], [t3].[Level1_Optional_Id], [t3].[Level1_Required_Id], [t3].[Level2_Name], [t3].[OneToMany_Optional_Inverse2Id], [t3].[OneToMany_Required_Inverse2Id], [t3].[OneToOne_Optional_PK_Inverse2Id]
@@ -2091,15 +2091,15 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l3].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON CASE
-    WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
 END = CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id0]
+    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id0]
 END
 """);
     }
@@ -2115,26 +2115,26 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 7 AND (
     SELECT TOP(1) [l2].[Name]
     FROM [Level1] AS [l1]
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l1].[Id] = CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
-    WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END) = N'L1 02'
 """);
     }
@@ -2153,14 +2153,14 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
-WHERE [l2].[Name] <> N'L3 02' OR ([l2].[Name] IS NULL)
+WHERE [l2].[Name] <> N'L3 02' OR [l2].[Name] IS NULL
 """);
     }
 
@@ -2179,24 +2179,24 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[OneToMany_Optional_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END = [l3].[Id]
 """);
     }
@@ -2208,15 +2208,15 @@ END = [l3].[Id]
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END AS [Id2]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [t1].[Id] AS [Id0], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Required_Id], [t1].[OneToMany_Required_Inverse2Id]
@@ -2224,13 +2224,13 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
-    WHERE ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [t].[Level1_Required_Id] = CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 """);
     }
@@ -2248,7 +2248,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 ORDER BY [t].[Level2_Name], [l].[Id]
 """);
@@ -2269,60 +2269,60 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Required_Id], [l2].[OneToMany_Required_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN (
     SELECT [l3].[Id], [l3].[Level2_Required_Id], [l3].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l3]
-    WHERE ([l3].[Level2_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l3].[Level2_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t2] ON [t1].[Level3_Required_Id] = CASE
-    WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+    WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
 END
 LEFT JOIN (
     SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Required_Id], [l4].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l4]
-    WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t3] ON [t2].[Level2_Required_Id] = CASE
-    WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+    WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
 END
 LEFT JOIN (
     SELECT [l5].[Level2_Required_Id], [l5].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l5]
-    WHERE ([l5].[Level2_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l5].[Level2_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t4] ON CASE
-    WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+    WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
 END = [t4].[OneToMany_Required_Inverse3Id]
 LEFT JOIN (
     SELECT [l6].[Id], [l6].[OneToOne_Required_PK_Date], [l6].[Level1_Required_Id], [l6].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l6]
-    WHERE ([l6].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l6].[Level1_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l6].[OneToOne_Required_PK_Date] IS NOT NULL AND [l6].[Level1_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t5] ON [t4].[Level2_Required_Id] = CASE
-    WHEN ([t5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t5].[Level1_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t5].[Id]
+    WHEN [t5].[OneToOne_Required_PK_Date] IS NOT NULL AND [t5].[Level1_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t5].[Id]
 END
 LEFT JOIN [Level1] AS [l7] ON CASE
-    WHEN ([t5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t5].[Level1_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t5].[Id]
+    WHEN [t5].[OneToOne_Required_PK_Date] IS NOT NULL AND [t5].[Level1_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t5].[Id]
 END = [l7].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL
 """);
     }
 
@@ -2338,25 +2338,25 @@ SELECT (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l1].[Id] = CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
-    WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 7
 """);
     }
@@ -2368,7 +2368,7 @@ END = 7
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -2377,12 +2377,12 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     INNER JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -2394,7 +2394,7 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -2403,12 +2403,12 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Required_Id]
 """);
     }
@@ -2431,11 +2431,11 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
 ) AS [t1]
@@ -2456,14 +2456,14 @@ LEFT JOIN (
     SELECT [t].[OneToOne_Required_PK_Date], [t].[Level1_Required_Id], [t].[OneToMany_Required_Inverse2Id]
     FROM (
         SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], ROW_NUMBER() OVER(PARTITION BY [l0].[OneToMany_Required_Inverse2Id] ORDER BY CASE
-            WHEN ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l0].[Id]
+            WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
         END) AS [row]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l0].[Id] > 5
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l0].[Id] > 5
     ) AS [t]
     WHERE [t].[row] <= 3
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Required_Inverse2Id]
-WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -2481,12 +2481,12 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END > 2
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
@@ -2503,18 +2503,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [t2].[Id] AS [Id0], [t2].[OneToOne_Required_PK_Date], [t2].[Level1_Required_Id], [t2].[Level2_Name], [t2].[OneToMany_Required_Inverse2Id]
@@ -2522,12 +2522,12 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = [t2].[Level1_Optional_Id]
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id0]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id0]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -2549,11 +2549,11 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
     ORDER BY [l].[Id]
 ) AS [t1]
@@ -2563,11 +2563,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l2].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON [t1].[Id] = [t2].[Level1_Optional_Id]
 ORDER BY [t1].[Id]
 """);
@@ -2584,16 +2584,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
-WHERE [t0].[Level3_Name] <> N'L3 05' OR ([t0].[Level3_Name] IS NULL)
+WHERE [t0].[Level3_Name] <> N'L3 05' OR [t0].[Level3_Name] IS NULL
 """);
     }
 
@@ -2604,15 +2604,15 @@ WHERE [t0].[Level3_Name] <> N'L3 05' OR ([t0].[Level3_Name] IS NULL)
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS [Id2], [t].[Level2_Name] AS [Name2], [t0].[Id] AS [Id1], [t0].[Name] AS [Name1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 INNER JOIN (
     SELECT [l1].[Id], [l1].[Name], [t1].[Level2_Name]
@@ -2620,10 +2620,10 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Level1_Optional_Id], [l2].[Level2_Name]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = [t1].[Level1_Optional_Id]
 ) AS [t0] ON [t].[Level2_Name] = [t0].[Level2_Name]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -2638,12 +2638,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Optional_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -2658,54 +2658,54 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t1].[OneToOne_Optional_PK_Inverse3Id]
 LEFT JOIN (
     SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l3]
-    WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON [l].[Id] = [t2].[OneToOne_Optional_PK_Inverse2Id]
 LEFT JOIN (
     SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l4]
-    WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t3] ON CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
 END = [t3].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l5].[Id], [l5].[Level3_Optional_Id], [l5].[Level3_Required_Id], [l5].[Level4_Name], [l5].[OneToMany_Optional_Inverse4Id], [l5].[OneToMany_Required_Inverse4Id], [l5].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l5]
-    WHERE ([l5].[Level3_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l5].[Level3_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t4] ON CASE
-    WHEN ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t3].[Id]
+    WHEN [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t3].[Id]
 END = [t4].[Level3_Optional_Id]
 LEFT JOIN (
     SELECT [l6].[Id], [l6].[Level3_Optional_Id], [l6].[Level3_Required_Id], [l6].[Level4_Name], [l6].[OneToMany_Optional_Inverse4Id], [l6].[OneToMany_Required_Inverse4Id], [l6].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l6]
-    WHERE ([l6].[Level3_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l6].[Level3_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t5] ON CASE
-    WHEN ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t3].[Id]
+    WHEN [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t3].[Id]
 END = [t5].[OneToOne_Optional_PK_Inverse4Id]
 LEFT JOIN (
     SELECT [l7].[Id], [l7].[Level2_Optional_Id], [l7].[Level2_Required_Id], [l7].[Level3_Name], [l7].[OneToMany_Optional_Inverse3Id], [l7].[OneToMany_Required_Inverse3Id], [l7].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l7]
-    WHERE ([l7].[Level2_Required_Id] IS NOT NULL) AND ([l7].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l7].[Level2_Required_Id] IS NOT NULL AND [l7].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t6] ON CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
 END = [t6].[OneToOne_Optional_PK_Inverse3Id]
 """);
     }
@@ -2723,15 +2723,15 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level2_Optional_Id]
 """);
     }
@@ -2765,24 +2765,24 @@ ORDER BY [i].[Id], [i0].[Id], [t].[Id]
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END AS [Id3], [t1].[Id] AS [Id1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 INNER JOIN (
     SELECT [l2].[Id], [t3].[Id] AS [Id1], [t3].[Level2_Required_Id], [t3].[OneToMany_Required_Inverse3Id]
@@ -2790,21 +2790,21 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = [t2].[Level1_Required_Id]
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t3] ON CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END = [t3].[Level2_Optional_Id]
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id1]
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id1]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -2821,14 +2821,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Name] = N'L1 03'
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Name] = N'L1 03'
 ORDER BY CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 """);
     }
@@ -2846,9 +2846,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 INNER JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
 INNER JOIN (
@@ -2857,22 +2857,22 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l2].[Id] = CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END = CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END
-    WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON [l1].[Id] = [t1].[Level2_Required_Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Name] = N'L1 03' AND [t1].[Level3_Name] = N'L3 08'
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Name] = N'L1 03' AND [t1].[Level3_Name] = N'L3 08'
 ORDER BY [l1].[Id]
 """);
     }
@@ -2888,19 +2888,19 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToOne_Optional_PK_Inverse2Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t1].[Level2_Optional_Id]
 """);
     }
@@ -2916,12 +2916,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] = 7
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] = 7
 """);
     }
 
@@ -2936,35 +2936,35 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
 SELECT [l3].[Name]
 FROM (
     SELECT TOP(@__p_0) [t1].[Level1_Required_Id] AS [Level1_Required_Id0], CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END AS [c]
     FROM [Level1] AS [l]
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t0] ON CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END = CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
 ) AS [t2]
 LEFT JOIN [Level1] AS [l3] ON [t2].[Level1_Required_Id0] = [l3].[Id]
@@ -2979,7 +2979,7 @@ ORDER BY [t2].[c]
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
 END AS [Id2]
 FROM [Level1] AS [l]
 CROSS JOIN (
@@ -2988,19 +2988,19 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0]
 LEFT JOIN (
     SELECT [l2].[Level1_Optional_Id], [l2].[Level2_Name]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [l].[Id] = [t1].[Level1_Optional_Id]
 LEFT JOIN [Level1] AS [l3] ON [t0].[Level1_Required_Id] = [l3].[Id]
-WHERE [t1].[Level2_Name] = N'L2 01' OR [l3].[Name] <> N'Bar' OR ([l3].[Name] IS NULL)
+WHERE [t1].[Level2_Name] = N'L2 01' OR [l3].[Name] <> N'Bar' OR [l3].[Name] IS NULL
 """);
     }
 
@@ -3015,7 +3015,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 ORDER BY [t].[Level2_Name], [l].[Id]
 """);
@@ -3038,12 +3038,12 @@ FROM (
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[OneToOne_Optional_PK_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t].[Id] = [t1].[Level1_Optional_Id]
 ORDER BY [t].[Id]
 """);
@@ -3073,12 +3073,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToOne_Optional_PK_Inverse2Id]
 """);
     }
@@ -3090,7 +3090,7 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END AS [Id2]
 FROM [Level1] AS [l]
 INNER JOIN (
@@ -3099,12 +3099,12 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Optional_Id] = [l1].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Id1]
 """);
     }
@@ -3120,9 +3120,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE ([t].[Level2_Name] IS NOT NULL) AND ([t].[Level2_Name] LIKE N'L%')
+WHERE [t].[Level2_Name] IS NOT NULL AND [t].[Level2_Name] LIKE N'L%'
 """);
     }
 
@@ -3133,34 +3133,34 @@ WHERE ([t].[Level2_Name] IS NOT NULL) AND ([t].[Level2_Name] LIKE N'L%')
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[OneToMany_Optional_Inverse3Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Required_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([l3].[Name] <> N'L1 07' OR ([l3].[Name] IS NULL)) AND ([l3].[Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND ([l3].[Name] <> N'L1 07' OR [l3].[Name] IS NULL) AND [l3].[Id] IS NOT NULL
 """);
     }
 
@@ -3171,34 +3171,34 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[OneToMany_Optional_Inverse3Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Required_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([l3].[Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l3].[Id] IS NOT NULL
 """);
     }
 
@@ -3213,16 +3213,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
-WHERE ([t0].[Level2_Required_Id] IS NULL) OR ([t0].[OneToMany_Required_Inverse3Id] IS NULL)
+WHERE [t0].[Level2_Required_Id] IS NULL OR [t0].[OneToMany_Required_Inverse3Id] IS NULL
 """);
     }
 
@@ -3237,21 +3237,21 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l2].[Level2_Optional_Id], [l2].[Level3_Name]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level2_Optional_Id]
-WHERE [t].[Level2_Name] <> N'L2 05' OR ([t].[Level2_Name] IS NULL) OR [t1].[Level3_Name] = N'L3 05'
+WHERE [t].[Level2_Name] <> N'L2 05' OR [t].[Level2_Name] IS NULL OR [t1].[Level3_Name] = N'L3 05'
 """);
     }
 
@@ -3266,7 +3266,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -3278,15 +3278,15 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS [Id2], [t0].[Id] AS [Id1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 INNER JOIN (
     SELECT [l1].[Id], [t1].[Id] AS [Id0], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Required_Id], [t1].[OneToMany_Required_Inverse2Id]
@@ -3294,14 +3294,14 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = [t1].[Level1_Optional_Id]
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -3316,7 +3316,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -3328,7 +3328,7 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
 END AS [Id2]
 FROM [Level1] AS [l]
 CROSS JOIN (
@@ -3337,26 +3337,26 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [l].[Id] = [t1].[Level1_Optional_Id]
 WHERE CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END = CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
-END OR ((CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
-END IS NULL) AND (CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
-END IS NULL))
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+END OR (CASE
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
+END IS NULL AND CASE
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+END IS NULL)
 """);
     }
 
@@ -3371,28 +3371,28 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Required_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -3407,14 +3407,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 """);
     }
@@ -3426,13 +3426,13 @@ END = [t0].[Level2_Optional_Id]
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END AS [Id2]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 INNER JOIN (
     SELECT [t1].[Id] AS [Id0], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Required_Id], [t1].[OneToMany_Required_Inverse2Id]
@@ -3440,15 +3440,15 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
-    WHERE ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 """);
     }
@@ -3464,16 +3464,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Optional_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
-WHERE [t0].[Level3_Name] <> N'L3 05' OR ([t0].[Level3_Name] IS NULL)
+WHERE [t0].[Level3_Name] <> N'L3 05' OR [t0].[Level3_Name] IS NULL
 """);
     }
 
@@ -3488,7 +3488,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -3504,10 +3504,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 7
 """);
     }
@@ -3530,13 +3530,13 @@ FROM (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
-    WHERE [t0].[Level2_Name] <> N'Foo' OR ([t0].[Level2_Name] IS NULL)
+    WHERE [t0].[Level2_Name] <> N'Foo' OR [t0].[Level2_Name] IS NULL
 ) AS [t1]
 ORDER BY [t1].[Id]
 """);
@@ -3553,14 +3553,14 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 """);
     }
@@ -3576,14 +3576,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 INNER JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
 """);
     }
@@ -3599,10 +3599,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END > 7
 """);
     }
@@ -3618,7 +3618,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE DATEADD(day, CAST(10.0E0 AS int), [t].[OneToOne_Required_PK_Date]) > '2000-02-01T00:00:00.0000000'
 """);
@@ -3635,14 +3635,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToOne_Optional_PK_Inverse3Id]
 """);
     }
@@ -3661,13 +3661,13 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
-WHERE [t0].[Level2_Name] <> N'Foo' OR ([t0].[Level2_Name] IS NULL)
+WHERE [t0].[Level2_Name] <> N'Foo' OR [t0].[Level2_Name] IS NULL
 """);
     }
 
@@ -3686,14 +3686,14 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
     ORDER BY [t].[Level2_Name]
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Id] = [t1].[Level1_Optional_Id]
 ORDER BY [t0].[Level2_Name]
 """);
@@ -3706,16 +3706,16 @@ ORDER BY [t0].[Level2_Name]
         AssertSql(
 """
 SELECT [l].[Id], [l].[Name], CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN CAST(1 AS bit)
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END, [t].[Level2_Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -3727,24 +3727,24 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END AS [Id3], [t1].[Id] AS [Id1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 INNER JOIN (
     SELECT [l2].[Id], [t3].[Id] AS [Id1], [t3].[Level2_Required_Id], [t3].[OneToMany_Required_Inverse3Id]
@@ -3752,21 +3752,21 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = [t2].[Level1_Required_Id]
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t3] ON CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END = [t3].[Level2_Optional_Id]
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id1]
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id1]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -3781,10 +3781,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 7
 """);
     }
@@ -3796,18 +3796,18 @@ END = 7
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[OneToOne_Optional_PK_Inverse2Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] > 5
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] > 5
 """);
     }
 
@@ -3822,7 +3822,7 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 """);
     }
@@ -3834,15 +3834,15 @@ INNER JOIN (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS [Id2], [t].[Level2_Name] AS [Name2], [t0].[Id] AS [Id1], [t0].[Name] AS [Name1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 INNER JOIN (
     SELECT [l1].[Id], [l1].[Name], [t1].[Level2_Name]
@@ -3850,10 +3850,10 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Level1_Optional_Id], [l2].[Level2_Name]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = [t1].[Level1_Optional_Id]
 ) AS [t0] ON [t].[Level2_Name] = [t0].[Level2_Name]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -3864,7 +3864,7 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
         AssertSql(
 """
 SELECT [l].[Name] AS [Name1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END AS [Id2]
 FROM [Level1] AS [l]
 INNER JOIN (
@@ -3873,12 +3873,12 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Optional_Id] = [l1].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Id1]
 WHERE EXISTS (
     SELECT 1
@@ -3886,11 +3886,11 @@ WHERE EXISTS (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l3].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
-    WHERE ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [t1].[Level1_Required_Id] = [l].[Id])
+    WHERE [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t1].[Level1_Required_Id] = [l].[Id])
 """);
     }
 
@@ -3905,7 +3905,7 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 """);
     }
@@ -3921,30 +3921,30 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Required_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ORDER BY CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 """);
     }
@@ -3960,13 +3960,13 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[OneToMany_Required_Inverse2Id] = [l1].[Id]
 LEFT JOIN [Level1] AS [l2] ON [t].[OneToOne_Optional_PK_Inverse2Id] = [l2].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([l1].[Id] = [l2].[Id] OR (([l1].[Id] IS NULL) AND ([l2].[Id] IS NULL)))
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l1].[Id] = [l2].[Id] OR ([l1].[Id] IS NULL AND [l2].[Id] IS NULL))
 """);
     }
 
@@ -3981,9 +3981,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -4007,11 +4007,11 @@ WHERE (
             LEFT JOIN (
                 SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
                 FROM [Level1] AS [l2]
-                WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t] ON [l1].[Id] = CASE
-                WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+                WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
             END
-            WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l0].[Id] = [t0].[Level1_Optional_Id]
     ) AS [t1]) > 4
 """);
@@ -4028,29 +4028,29 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ORDER BY CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 """);
     }
@@ -4066,21 +4066,21 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level3_Required_Id]
 """);
     }
@@ -4096,9 +4096,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] = N'' OR (([t].[Level2_Name] IS NOT NULL) AND LEFT([t].[Level2_Name], LEN([t].[Level2_Name])) = [t].[Level2_Name])
+WHERE [t].[Level2_Name] = N'' OR ([t].[Level2_Name] IS NOT NULL AND LEFT([t].[Level2_Name], LEN([t].[Level2_Name])) = [t].[Level2_Name])
 """);
     }
 
@@ -4115,7 +4115,7 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Level2_Name] AS [Name], [l0].[OneToMany_Optional_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 ORDER BY [l].[Id]
 """);
@@ -4135,16 +4135,16 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [l].[Id] = [t1].[Level1_Optional_Id]
 """);
     }
@@ -4179,12 +4179,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] = 1
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] = 1
 """);
     }
 
@@ -4199,33 +4199,33 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToOne_Optional_PK_Inverse3Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [l].[Id] = [t1].[OneToOne_Optional_PK_Inverse2Id]
 LEFT JOIN (
     SELECT [l3].[Id], [l3].[Level2_Optional_Id], [l3].[Level2_Required_Id], [l3].[Level3_Name], [l3].[OneToMany_Optional_Inverse3Id], [l3].[OneToMany_Required_Inverse3Id], [l3].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l3]
-    WHERE ([l3].[Level2_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l3].[Level2_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t2] ON CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END = [t2].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l4].[Id], [l4].[Level3_Optional_Id], [l4].[Level3_Required_Id], [l4].[Level4_Name], [l4].[OneToMany_Optional_Inverse4Id], [l4].[OneToMany_Required_Inverse4Id], [l4].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l4]
-    WHERE ([l4].[Level3_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l4].[Level3_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t3] ON CASE
-    WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+    WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
 END = [t3].[OneToOne_Optional_PK_Inverse4Id]
 """);
     }
@@ -4241,15 +4241,15 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[OneToMany_Required_Inverse2Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND (
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND (
     SELECT COUNT(*)
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([l1].[Id] IS NOT NULL) AND [l1].[Id] = [l2].[OneToMany_Optional_Inverse2Id]) > 0
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] IS NOT NULL AND [l1].[Id] = [l2].[OneToMany_Optional_Inverse2Id]) > 0
 """);
     }
 
@@ -4264,28 +4264,28 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Optional_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Optional_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([l3].[Id] IS NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l3].[Id] IS NULL
 """);
     }
 
@@ -4300,13 +4300,13 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-END <> 6 OR (CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-END IS NULL)
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+END <> 6 OR CASE
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+END IS NULL
 """);
     }
 
@@ -4324,30 +4324,30 @@ WHERE EXISTS (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND EXISTS (
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND EXISTS (
         SELECT 1
         FROM [Level1] AS [l2]
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l2].[Id] = CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
         END
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t1] ON CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
         END = CASE
-            WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
+            WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
         END
-        WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL)))
+        WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL))
 """);
     }
 
@@ -4365,11 +4365,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 ORDER BY [t0].[Level2_Name], [l].[Id]
 """);
@@ -4386,16 +4386,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Required_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
-WHERE [t0].[Level3_Name] = N'L3 05' OR [t].[Level2_Name] <> N'L2 05' OR ([t].[Level2_Name] IS NULL)
+WHERE [t0].[Level3_Name] = N'L3 05' OR [t].[Level2_Name] <> N'L2 05' OR [t].[Level2_Name] IS NULL
 """);
     }
 
@@ -4410,9 +4410,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE ([t].[Level2_Name] IS NOT NULL) AND (UPPER([t].[Level2_Name]) LIKE N'L%')
+WHERE [t].[Level2_Name] IS NOT NULL AND UPPER([t].[Level2_Name]) LIKE N'L%'
 """);
     }
 
@@ -4427,14 +4427,14 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 INNER JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
 """);
     }
@@ -4450,9 +4450,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
-WHERE ([t].[Level2_Name] IS NOT NULL) AND ([t].[Level2_Name] LIKE N'L%')
+WHERE [t].[Level2_Name] IS NOT NULL AND [t].[Level2_Name] LIKE N'L%'
 """);
     }
 
@@ -4467,14 +4467,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToOne_Optional_PK_Inverse3Id]
 """);
     }
@@ -4504,27 +4504,27 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND EXISTS (
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL) AND (CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-    END = [l2].[OneToMany_Optional_Inverse4Id] OR ((CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-    END IS NULL) AND ([l2].[OneToMany_Optional_Inverse4Id] IS NULL))))
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL AND CASE
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+    END = [l2].[OneToMany_Optional_Inverse4Id] OR (CASE
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+    END IS NULL AND [l2].[OneToMany_Optional_Inverse4Id] IS NULL)))
 """);
     }
 
@@ -4539,21 +4539,21 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 LEFT JOIN (
     SELECT [l2].[Level3_Optional_Id], [l2].[Level4_Name]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level3_Optional_Id]
 WHERE [t1].[Level4_Name] = N'L4 01'
 """);
@@ -4570,15 +4570,15 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Required_Inverse2Id]
 WHERE EXISTS (
     SELECT 1
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NOT NULL) AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END = [l1].[OneToMany_Required_Inverse3Id])
 """);
     }
@@ -4594,7 +4594,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -4606,41 +4606,41 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT [l].[Name], CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
 END AS [Id]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t1].[Level2_Optional_Id]
 WHERE (CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
-END OR ((CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-END IS NULL) AND (CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
-END IS NULL))) AND (CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
-END <> 7 OR (CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
-END IS NULL))
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
+END OR (CASE
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+END IS NULL AND CASE
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
+END IS NULL)) AND (CASE
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
+END <> 7 OR CASE
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
+END IS NULL)
 """);
     }
 
@@ -4658,11 +4658,11 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -4678,12 +4678,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 1 OR CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 2
 """);
     }
@@ -4695,20 +4695,20 @@ END = 2
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 """);
     }
@@ -4722,18 +4722,18 @@ END = [t0].[Level2_Required_Id]
 SELECT [l].[Id], (
     SELECT COUNT(*)
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END = [l1].[OneToMany_Optional_Inverse3Id] OR ((CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NULL) AND ([l1].[OneToMany_Optional_Inverse3Id] IS NULL)))) AS [Count]
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END = [l1].[OneToMany_Optional_Inverse3Id] OR (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NULL AND [l1].[OneToMany_Optional_Inverse3Id] IS NULL))) AS [Count]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -4751,14 +4751,14 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
-    WHERE [t].[Level2_Name] <> N'Foo' OR ([t].[Level2_Name] IS NULL)
+    WHERE [t].[Level2_Name] <> N'Foo' OR [t].[Level2_Name] IS NULL
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Id] = [t1].[Level1_Optional_Id]
 """);
     }
@@ -4774,7 +4774,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -4790,9 +4790,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] <> N'L2 05' OR ([t].[Level2_Name] IS NULL)
+WHERE [t].[Level2_Name] <> N'L2 05' OR [t].[Level2_Name] IS NULL
 """);
     }
 
@@ -4805,15 +4805,15 @@ WHERE [t].[Level2_Name] <> N'L2 05' OR ([t].[Level2_Name] IS NULL)
 @__p_0='2'
 
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS [Id], [t0].[Name]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT TOP(@__p_0) [l1].[Id], [l1].[Name]
@@ -4821,11 +4821,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l2].[Level1_Optional_Id], [l2].[Level2_Name]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = [t1].[Level1_Optional_Id]
     ORDER BY [t1].[Level2_Name]
 ) AS [t0] ON [t].[Level1_Optional_Id] = [t0].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -4840,21 +4840,21 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 INNER JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level3_Required_Id]
 """);
     }
@@ -4870,36 +4870,36 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND (
     SELECT COUNT(*)
     FROM [Level1] AS [l3]
-    WHERE ([l3].[Level2_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
-    END = [l3].[OneToMany_Optional_Inverse3Id] OR ((CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
-    END IS NULL) AND ([l3].[OneToMany_Optional_Inverse3Id] IS NULL)))) > 0
+    WHERE [l3].[Level2_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
+    END = [l3].[OneToMany_Optional_Inverse3Id] OR (CASE
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
+    END IS NULL AND [l3].[OneToMany_Optional_Inverse3Id] IS NULL))) > 0
 """);
     }
 
@@ -4920,11 +4920,11 @@ WHERE (
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l1].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l0].[Id] = [t0].[Level1_Optional_Id]) > 7 AND [l].[Id] < 3
 """);
     }
@@ -4940,32 +4940,32 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 INNER JOIN [Level1] AS [l2] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = (
     SELECT TOP(1) CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id1]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id1]
     END
     FROM [Level1] AS [l3]
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l3].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
     LEFT JOIN (
         SELECT [l5].[Id], [l5].[Date], [l5].[Name], [t3].[Id] AS [Id0], [t3].[OneToOne_Required_PK_Date], [t3].[Level1_Optional_Id], [t3].[Level1_Required_Id], [t3].[Level2_Name], [t3].[OneToMany_Optional_Inverse2Id], [t3].[OneToMany_Required_Inverse2Id], [t3].[OneToOne_Optional_PK_Inverse2Id], [t4].[Id] AS [Id1], [t4].[Level2_Optional_Id], [t4].[Level2_Required_Id], [t4].[Level3_Name], [t4].[OneToMany_Optional_Inverse3Id], [t4].[OneToMany_Required_Inverse3Id], [t4].[OneToOne_Optional_PK_Inverse3Id]
@@ -4973,28 +4973,28 @@ END = (
         LEFT JOIN (
             SELECT [l6].[Id], [l6].[OneToOne_Required_PK_Date], [l6].[Level1_Optional_Id], [l6].[Level1_Required_Id], [l6].[Level2_Name], [l6].[OneToMany_Optional_Inverse2Id], [l6].[OneToMany_Required_Inverse2Id], [l6].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l6]
-            WHERE ([l6].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l6].[Level1_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l6].[OneToOne_Required_PK_Date] IS NOT NULL AND [l6].[Level1_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t3] ON [l5].[Id] = CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END
         LEFT JOIN (
             SELECT [l7].[Id], [l7].[Level2_Optional_Id], [l7].[Level2_Required_Id], [l7].[Level3_Name], [l7].[OneToMany_Optional_Inverse3Id], [l7].[OneToMany_Required_Inverse3Id], [l7].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l7]
-            WHERE ([l7].[Level2_Required_Id] IS NOT NULL) AND ([l7].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l7].[Level2_Required_Id] IS NOT NULL AND [l7].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t4] ON CASE
-            WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+            WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
         END = CASE
-            WHEN ([t4].[Level2_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t4].[Id]
+            WHEN [t4].[Level2_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t4].[Id]
         END
-        WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t4].[Level2_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t4].[Level2_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END = [t2].[Level2_Optional_Id]
-    WHERE ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id1]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id1]
     END)
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -5005,7 +5005,7 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t4].[Level3_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t4].[Id2]
+    WHEN [t4].[Level3_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t4].[Id2]
 END AS [Id4], [t4].[Level4_Name] AS [Name4], [l].[Id] AS [Id1], [l].[Name] AS [Name1]
 FROM [Level1] AS [l]
 INNER JOIN (
@@ -5014,46 +5014,46 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[Level2_Required_Id], [l2].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t0] ON CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END = CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[Level3_Required_Id], [l3].[Level4_Name], [l3].[OneToMany_Required_Inverse4Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[Level3_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+        WHERE [l3].[Level3_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse4Id] IS NOT NULL
     ) AS [t1] ON CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
     END = CASE
-        WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Required_Id], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON [t1].[Level3_Required_Id] = CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l6].[Id], [l6].[OneToOne_Required_PK_Date], [l6].[Level1_Required_Id], [l6].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l6]
-        WHERE ([l6].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l6].[Level1_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l6].[OneToOne_Required_PK_Date] IS NOT NULL AND [l6].[Level1_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [t2].[Level2_Required_Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
     LEFT JOIN [Level1] AS [l5] ON CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END = [l5].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t4] ON [l].[Name] = [t4].[Name0]
 """);
     }
@@ -5071,7 +5071,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE [t].[Level2_Name] = N'L2 03'
 ORDER BY [l].[Id]
@@ -5089,20 +5089,20 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND EXISTS (
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END = [l1].[OneToMany_Optional_Inverse3Id] OR ((CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NULL) AND ([l1].[OneToMany_Optional_Inverse3Id] IS NULL))))
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END = [l1].[OneToMany_Optional_Inverse3Id] OR (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NULL AND [l1].[OneToMany_Optional_Inverse3Id] IS NULL)))
 """);
     }
 
@@ -5117,23 +5117,23 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 LEFT JOIN (
     SELECT [l2].[Level3_Required_Id], [l2].[OneToMany_Required_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level3_Required_Id]
-WHERE ([t1].[Level3_Required_Id] IS NULL) OR ([t1].[OneToMany_Required_Inverse4Id] IS NULL)
+WHERE [t1].[Level3_Required_Id] IS NULL OR [t1].[OneToMany_Required_Inverse4Id] IS NULL
 """);
     }
 
@@ -5151,28 +5151,28 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[OneToMany_Required_Inverse3Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Required_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND [l3].[Name] = N'L1 03'
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l3].[Name] = N'L1 03'
 ORDER BY [t0].[Level2_Required_Id]
 OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
 """);
@@ -5192,9 +5192,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 INNER JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
 INNER JOIN (
@@ -5203,22 +5203,22 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l2].[Id] = CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END = CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END
-    WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON [l1].[Id] = [t1].[Level2_Required_Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Name] = N'L1 03' AND [t1].[Level3_Name] = N'L3 08'
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Name] = N'L1 03' AND [t1].[Level3_Name] = N'L3 08'
 ORDER BY [l1].[Id]
 """);
     }
@@ -5234,14 +5234,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToOne_Optional_PK_Inverse3Id]
 """);
     }
@@ -5257,7 +5257,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToOne_Optional_PK_Inverse2Id]
 """);
     }
@@ -5276,23 +5276,23 @@ SELECT (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t0] ON CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END = CASE
-            WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t1]
     ORDER BY CASE
-        WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
     END
     OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY)
 FROM [Level1] AS [l]
@@ -5314,30 +5314,30 @@ WHERE EXISTS (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND EXISTS (
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND EXISTS (
         SELECT 1
         FROM [Level1] AS [l2]
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l2].[Id] = CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
         END
         LEFT JOIN (
             SELECT [l4].[Id], [l4].[Level2_Optional_Id], [l4].[Level2_Required_Id], [l4].[Level3_Name], [l4].[OneToMany_Optional_Inverse3Id], [l4].[OneToMany_Required_Inverse3Id], [l4].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l4]
-            WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t1] ON CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
         END = CASE
-            WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id]
+            WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id]
         END
-        WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL)))
+        WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL))
 """);
     }
 
@@ -5352,29 +5352,29 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ORDER BY CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 """);
     }
@@ -5386,13 +5386,13 @@ END
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -5408,9 +5408,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] NOT IN (N'Name1', N'Name2') OR ([t].[Level2_Name] IS NULL)
+WHERE [t].[Level2_Name] NOT IN (N'Name1', N'Name2') OR [t].[Level2_Name] IS NULL
 """);
     }
 
@@ -5425,28 +5425,28 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Optional_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Optional_Id] = [l3].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([l3].[Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [l3].[Id] IS NOT NULL
 """);
     }
 
@@ -5470,7 +5470,7 @@ LEFT JOIN (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t2] ON [l0].[Id] = [t2].[Level1_Optional_Id]
     ) AS [t0]
     WHERE [t0].[row] <= 1
@@ -5478,9 +5478,9 @@ LEFT JOIN (
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t3] ON CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id0]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id0]
 END = [t3].[OneToMany_Optional_Inverse3Id]
 ORDER BY [t].[Name], [t1].[Id], [t1].[Id0]
 """);
@@ -5493,33 +5493,33 @@ ORDER BY [t].[Name], [t1].[Id], [t1].[Id0]
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
 END AS [Id4], [t1].[Level4_Name] AS [Name4], [t2].[Id] AS [Id1], [t2].[Name] AS [Name1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Required_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t1].[Id]
 END
 INNER JOIN (
     SELECT [l3].[Id], [l3].[Name], [t5].[Level4_Name]
@@ -5527,26 +5527,26 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Required_Id], [l4].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l3].[Id] = [t3].[Level1_Required_Id]
     LEFT JOIN (
         SELECT [l5].[Id], [l5].[Level2_Optional_Id], [l5].[Level2_Required_Id], [l5].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l5]
-        WHERE ([l5].[Level2_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l5].[Level2_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t4] ON CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END = [t4].[Level2_Optional_Id]
     LEFT JOIN (
         SELECT [l6].[Id], [l6].[Level3_Required_Id], [l6].[Level4_Name], [l6].[OneToMany_Required_Inverse4Id]
         FROM [Level1] AS [l6]
-        WHERE ([l6].[Level3_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+        WHERE [l6].[Level3_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse4Id] IS NOT NULL
     ) AS [t5] ON CASE
-        WHEN ([t4].[Level2_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t4].[Id]
+        WHEN [t4].[Level2_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t4].[Id]
     END = CASE
-        WHEN ([t5].[Level3_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse4Id] IS NOT NULL) THEN [t5].[Id]
+        WHEN [t5].[Level3_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse4Id] IS NOT NULL THEN [t5].[Id]
     END
 ) AS [t2] ON [t1].[Level4_Name] = [t2].[Level4_Name]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([t1].[Level3_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t1].[Level3_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse4Id] IS NOT NULL
 """);
     }
 
@@ -5557,20 +5557,20 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id1]
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id1]
 END AS [Id3]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 INNER JOIN (
     SELECT [t3].[Id] AS [Id1], [t3].[Level2_Required_Id], [t3].[OneToMany_Required_Inverse3Id]
@@ -5578,24 +5578,24 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[Level2_Required_Id], [l4].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[Level2_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l4].[Level2_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t3] ON CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END = CASE
-        WHEN ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t3].[Id]
     END
-    WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t3].[Level2_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t3].[Level2_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = CASE
-    WHEN ([t1].[Level2_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t1].[Id1]
+    WHEN [t1].[Level2_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t1].[Id1]
 END
 """);
     }
@@ -5611,9 +5611,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] = N'L2 05' OR [t].[Level2_Name] <> N'L2 42' OR ([t].[Level2_Name] IS NULL)
+WHERE [t].[Level2_Name] = N'L2 05' OR [t].[Level2_Name] <> N'L2 42' OR [t].[Level2_Name] IS NULL
 """);
     }
 
@@ -5631,11 +5631,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -5651,34 +5651,34 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t1].[OneToOne_Optional_PK_Inverse3Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND EXISTS (
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND EXISTS (
     SELECT 1
     FROM [Level1] AS [l3]
-    WHERE ([l3].[Level3_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse4Id] IS NOT NULL) AND (CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-    END = [l3].[OneToMany_Optional_Inverse4Id] OR ((CASE
-        WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
-    END IS NULL) AND ([l3].[OneToMany_Optional_Inverse4Id] IS NULL))))
+    WHERE [l3].[Level3_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse4Id] IS NOT NULL AND CASE
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+    END = [l3].[OneToMany_Optional_Inverse4Id] OR (CASE
+        WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
+    END IS NULL AND [l3].[OneToMany_Optional_Inverse4Id] IS NULL)))
 """);
     }
 
@@ -5693,12 +5693,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Required_Inverse2Id]
 ORDER BY [l].[Id], [t].[Id]
 """);
@@ -5715,12 +5715,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] > 7
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] > 7
 """);
     }
 
@@ -5730,15 +5730,15 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
 
         AssertSql(
 """
-SELECT (COALESCE([l].[Name], N'') + N' ') + COALESCE(CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Level2_Name]
+SELECT COALESCE([l].[Name], N'') + N' ' + COALESCE(CASE
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Level2_Name]
     ELSE N'NULL'
 END, N'')
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l0].[Id] > 5
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l0].[Id] > 5
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 """);
     }
@@ -5750,35 +5750,35 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END AS [Id3], [l4].[Id] AS [Id1]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Optional_Id] = [l3].[Id]
 INNER JOIN [Level1] AS [l4] ON [l3].[Id] = [l4].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -5795,12 +5795,12 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l].[Id] = [t0].[OneToOne_Optional_PK_Inverse2Id]
 ) AS [t1]
 """);
@@ -5817,7 +5817,7 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 WHERE [l].[Id] = 1
 """);
@@ -5837,20 +5837,20 @@ SELECT [l].[Id] AS [Key], (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l0].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[Level2_Optional_Id], [l2].[Level2_Required_Id], [l2].[Level3_Name], [l2].[OneToMany_Optional_Inverse3Id], [l2].[OneToMany_Required_Inverse3Id], [l2].[OneToOne_Optional_PK_Inverse3Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[Level2_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+            WHERE [l2].[Level2_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse3Id] IS NOT NULL
         ) AS [t0] ON CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END = CASE
-            WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t1]
     ORDER BY (SELECT 1)
     OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) AS [Subquery]
@@ -5870,7 +5870,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -5886,9 +5886,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NULL) OR ([t].[Level1_Required_Id] IS NULL) OR ([t].[OneToMany_Required_Inverse2Id] IS NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NULL OR [t].[Level1_Required_Id] IS NULL OR [t].[OneToMany_Required_Inverse2Id] IS NULL
 """);
     }
 
@@ -5906,11 +5906,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [t2].[Level1_Optional_Id], [t2].[Level2_Name]
@@ -5918,13 +5918,13 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END
-    WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [l].[Id] = [t1].[Level1_Optional_Id]
-WHERE [t0].[Level2_Name] = N'L2 05' OR [t1].[Level2_Name] <> N'L2 42' OR ([t1].[Level2_Name] IS NULL)
+WHERE [t0].[Level2_Name] = N'L2 05' OR [t1].[Level2_Name] <> N'L2 42' OR [t1].[Level2_Name] IS NULL
 """);
     }
 
@@ -5939,7 +5939,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -5955,7 +5955,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE [t].[Level2_Name] = N'L2 01'
 """);
@@ -5974,10 +5974,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE DATEADD(day, CAST(CAST(CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS float) AS int), DATEADD(day, CAST(15.0E0 AS int), [t].[OneToOne_Required_PK_Date])) > '2002-02-01T00:00:00.0000000'
 """);
     }
@@ -5993,12 +5993,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] = 7
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] = 7
 """);
     }
 
@@ -6022,7 +6022,7 @@ LEFT JOIN (
         LEFT JOIN (
             SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l1]
-            WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t2] ON [l0].[Id] = [t2].[Level1_Optional_Id]
     ) AS [t0]
     WHERE [t0].[row] <= 1
@@ -6037,7 +6037,7 @@ LEFT JOIN (
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
 END AS [Id2]
 FROM [Level1] AS [l]
 CROSS JOIN (
@@ -6046,11 +6046,11 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0]
 LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Optional_Id] = [l2].[Id]
 WHERE [l].[Id] = [l2].[Id]
@@ -6068,10 +6068,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 7
 """);
     }
@@ -6087,18 +6087,18 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
 WHERE (
     SELECT COUNT(*)
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NOT NULL) AND (CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END = [l1].[OneToMany_Optional_Inverse3Id] OR ((CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
-    END IS NULL) AND ([l1].[OneToMany_Optional_Inverse3Id] IS NULL)))) > 0
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NOT NULL AND (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END = [l1].[OneToMany_Optional_Inverse3Id] OR (CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
+    END IS NULL AND [l1].[OneToMany_Optional_Inverse3Id] IS NULL))) > 0
 """);
     }
 
@@ -6109,20 +6109,20 @@ WHERE (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 """);
     }
@@ -6138,7 +6138,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE [t].[Level2_Name] IN (N'L2 05', N'L2 07')
 """);
@@ -6158,11 +6158,11 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t] ON CASE
-        WHEN ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l0].[Id]
+        WHEN [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l0].[Id]
     END = [t].[Level2_Optional_Id]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[OneToMany_Optional_Inverse2Id]
 """);
     }
@@ -6174,17 +6174,17 @@ INNER JOIN (
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END AS [Id2], [t0].[Id] AS [Id1], CASE
-    WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id1]
+    WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id1]
 END AS [Id3]
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 INNER JOIN (
     SELECT [l1].[Id], [t1].[Id] AS [Id0], [t1].[OneToOne_Required_PK_Date], [t1].[Level1_Required_Id], [t1].[OneToMany_Required_Inverse2Id]
@@ -6192,12 +6192,12 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l1].[Id] = [t1].[Level1_Optional_Id]
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 INNER JOIN (
     SELECT [t4].[Id] AS [Id1], [t4].[Level2_Required_Id], [t4].[OneToMany_Required_Inverse3Id], [t5].[Id] AS [Id2], [t5].[OneToOne_Required_PK_Date] AS [OneToOne_Required_PK_Date0], [t5].[Level1_Required_Id] AS [Level1_Required_Id0], [t5].[OneToMany_Required_Inverse2Id] AS [OneToMany_Required_Inverse2Id0]
@@ -6205,33 +6205,33 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Required_Id], [l4].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [l3].[Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
     LEFT JOIN (
         SELECT [l5].[Id], [l5].[Level2_Optional_Id], [l5].[Level2_Required_Id], [l5].[OneToMany_Required_Inverse3Id]
         FROM [Level1] AS [l5]
-        WHERE ([l5].[Level2_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l5].[Level2_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t4] ON CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END = CASE
-        WHEN ([t4].[Level2_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t4].[Id]
+        WHEN [t4].[Level2_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t4].[Id]
     END
     LEFT JOIN (
         SELECT [l6].[Id], [l6].[OneToOne_Required_PK_Date], [l6].[Level1_Required_Id], [l6].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l6]
-        WHERE ([l6].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l6].[Level1_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l6].[OneToOne_Required_PK_Date] IS NOT NULL AND [l6].[Level1_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t5] ON [t4].[Level2_Optional_Id] = CASE
-        WHEN ([t5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t5].[Level1_Required_Id] IS NOT NULL) AND ([t5].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t5].[Id]
+        WHEN [t5].[OneToOne_Required_PK_Date] IS NOT NULL AND [t5].[Level1_Required_Id] IS NOT NULL AND [t5].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t5].[Id]
     END
-    WHERE ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t4].[Level2_Required_Id] IS NOT NULL) AND ([t4].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t4].[Level2_Required_Id] IS NOT NULL AND [t4].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t2] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date0] IS NOT NULL) AND ([t2].[Level1_Required_Id0] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id0] IS NOT NULL) THEN [t2].[Id2]
+    WHEN [t2].[OneToOne_Required_PK_Date0] IS NOT NULL AND [t2].[Level1_Required_Id0] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id0] IS NOT NULL THEN [t2].[Id2]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -6246,7 +6246,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE DATEADD(month, CAST(2 AS int), DATEADD(day, CAST(15.0E0 AS int), DATEADD(day, CAST(10.0E0 AS int), [t].[OneToOne_Required_PK_Date]))) > '2002-02-01T00:00:00.0000000'
 """);
@@ -6263,7 +6263,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -6285,11 +6285,11 @@ WHERE (
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l1].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l0].[Id] = [t0].[Level1_Optional_Id]
     WHERE (
         SELECT COUNT(*)
@@ -6300,11 +6300,11 @@ WHERE (
             LEFT JOIN (
                 SELECT [l5].[Id], [l5].[OneToOne_Required_PK_Date], [l5].[Level1_Optional_Id], [l5].[Level1_Required_Id], [l5].[Level2_Name], [l5].[OneToMany_Optional_Inverse2Id], [l5].[OneToMany_Required_Inverse2Id], [l5].[OneToOne_Optional_PK_Inverse2Id]
                 FROM [Level1] AS [l5]
-                WHERE ([l5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l5].[Level1_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t2] ON [l4].[Id] = CASE
-                WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+                WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
             END
-            WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t1] ON [l3].[Id] = [t1].[Level1_Optional_Id]) > 7) > 4 AND [l].[Id] < 2
 """);
     }
@@ -6320,29 +6320,29 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN [Level1] AS [l3] ON [t1].[Level1_Required_Id] = [l3].[Id]
 LEFT JOIN [Level1] AS [l4] ON [t1].[Level1_Optional_Id] = [l4].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([l3].[Id] = [l4].[Id] OR (([l3].[Id] IS NULL) AND ([l4].[Id] IS NULL))) AND ([l4].[Id] <> 7 OR ([l4].[Id] IS NULL))
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND ([l3].[Id] = [l4].[Id] OR ([l3].[Id] IS NULL AND [l4].[Id] IS NULL)) AND ([l4].[Id] <> 7 OR [l4].[Id] IS NULL)
 """);
     }
 
@@ -6358,24 +6358,24 @@ SELECT (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l1].[Id] = CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END
     LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
-    WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+        WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
     END)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -6404,7 +6404,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -6426,11 +6426,11 @@ WHERE (
         LEFT JOIN (
             SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l2]
-            WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t] ON [l1].[Id] = CASE
-            WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+            WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
         END
-        WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t0] ON [l0].[Id] = [t0].[Level1_Optional_Id]) > 4
 """);
     }
@@ -6446,9 +6446,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToOne_Optional_PK_Inverse2Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -6463,7 +6463,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -6479,13 +6479,13 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ORDER BY CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 """);
     }
@@ -6501,27 +6501,27 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([t1].[Level2_Name] IS NOT NULL) AND ([t1].[Level2_Name] LIKE N'L%')
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND [t1].[Level2_Name] IS NOT NULL AND [t1].[Level2_Name] LIKE N'L%'
 """);
     }
 
@@ -6539,11 +6539,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -6559,16 +6559,16 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
-WHERE ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -6583,12 +6583,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[OneToMany_Required_Inverse2Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([l1].[Id] = [l1].[Id] OR ([l1].[Id] IS NULL))
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l1].[Id] = [l1].[Id] OR [l1].[Id] IS NULL)
 """);
     }
 
@@ -6605,9 +6605,9 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level2_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
-WHERE [t].[Level2_Name] <> N'Foo' OR ([t].[Level2_Name] IS NULL)
+WHERE [t].[Level2_Name] <> N'Foo' OR [t].[Level2_Name] IS NULL
 ORDER BY [l].[Id]
 """);
     }
@@ -6626,11 +6626,11 @@ WHERE EXISTS (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [t].[Level1_Required_Id] = [l].[Id])
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t].[Level1_Required_Id] = [l].[Id])
 """);
     }
 
@@ -6647,40 +6647,40 @@ SELECT CASE
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l1].[Id] = CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
         END
         LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
-        WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ORDER BY CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
-        END) = N'L1 02' AND ((
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+        END) = N'L1 02' AND (
         SELECT TOP(1) [l2].[Name]
         FROM [Level1] AS [l1]
         LEFT JOIN (
             SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Optional_Inverse2Id], [l3].[OneToMany_Required_Inverse2Id], [l3].[OneToOne_Optional_PK_Inverse2Id]
             FROM [Level1] AS [l3]
-            WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l1].[Id] = CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
         END
         LEFT JOIN [Level1] AS [l2] ON [t0].[Level1_Required_Id] = [l2].[Id]
-        WHERE ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ORDER BY CASE
-            WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id]
-        END) IS NOT NULL) THEN CAST(1 AS bit)
+            WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id]
+        END) IS NOT NULL THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 """);
     }
 
@@ -6698,7 +6698,7 @@ FROM (
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -6717,12 +6717,12 @@ FROM (
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [t].[Id] = [t0].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t].[Id] = [t1].[Level1_Optional_Id]
 """);
     }
@@ -6738,7 +6738,7 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 """);
     }
@@ -6757,29 +6757,29 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ORDER BY CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 """);
     }
@@ -6798,11 +6798,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [t2].[Level1_Optional_Id], [t2].[Level2_Name]
@@ -6810,11 +6810,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[Level2_Name], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END
-    WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [l].[Id] = [t1].[Level1_Optional_Id]
 WHERE [t0].[Level2_Name] = N'L2 05' OR [t1].[Level2_Name] = N'L2 07'
 """);
@@ -6827,7 +6827,7 @@ WHERE [t0].[Level2_Name] = N'L2 05' OR [t1].[Level2_Name] = N'L2 07'
         AssertSql(
 """
 SELECT [l].[Id] AS [Id1], CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END AS [Id2]
 FROM [Level1] AS [l]
 INNER JOIN (
@@ -6836,12 +6836,12 @@ INNER JOIN (
     LEFT JOIN (
         SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
     LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Id1]
 """);
     }
@@ -6856,7 +6856,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Level1] AS [l]
-        WHERE [l].[Name] = N'Foo' AND ([l].[Name] IS NOT NULL)) THEN CAST(1 AS bit)
+        WHERE [l].[Name] = N'Foo' AND [l].[Name] IS NOT NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -6877,14 +6877,14 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
     ORDER BY [t].[Level2_Name]
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Id] = [t1].[Level1_Optional_Id]
 ORDER BY [t0].[Level2_Name]
 """);
@@ -6897,7 +6897,7 @@ ORDER BY [t0].[Level2_Name]
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
@@ -6906,11 +6906,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 """);
     }
@@ -6926,29 +6926,29 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ORDER BY CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 """);
     }
@@ -6960,41 +6960,41 @@ END
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Level2_Optional_Id] = CASE
-    WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+    WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
 END
 LEFT JOIN (
     SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Optional_Id], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l3]
-    WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t2] ON [t0].[Level2_Required_Id] = CASE
-    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
 END
 LEFT JOIN [Level1] AS [l4] ON [t2].[Level1_Optional_Id] = [l4].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ([t1].[Level2_Name] <> N'L2 05' OR ([t1].[Level2_Name] IS NULL) OR [l4].[Name] = N'L1 05')
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND ([t1].[Level2_Name] <> N'L2 05' OR [t1].[Level2_Name] IS NULL OR [l4].[Name] = N'L1 05')
 """);
     }
 
@@ -7023,49 +7023,49 @@ SELECT (
     LEFT JOIN (
         SELECT [l4].[Id], [l4].[OneToOne_Required_PK_Date], [l4].[Level1_Optional_Id], [l4].[Level1_Required_Id], [l4].[Level2_Name], [l4].[OneToMany_Optional_Inverse2Id], [l4].[OneToMany_Required_Inverse2Id], [l4].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l4]
-        WHERE ([l4].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l4].[Level1_Required_Id] IS NOT NULL) AND ([l4].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l4].[OneToOne_Required_PK_Date] IS NOT NULL AND [l4].[Level1_Required_Id] IS NOT NULL AND [l4].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t1] ON [l2].[Id] = CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END
     LEFT JOIN (
         SELECT [l5].[Id], [l5].[Level2_Optional_Id], [l5].[Level2_Required_Id], [l5].[Level3_Name], [l5].[OneToMany_Optional_Inverse3Id], [l5].[OneToMany_Required_Inverse3Id], [l5].[OneToOne_Optional_PK_Inverse3Id]
         FROM [Level1] AS [l5]
-        WHERE ([l5].[Level2_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+        WHERE [l5].[Level2_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ) AS [t2] ON CASE
-        WHEN ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t1].[Id]
+        WHEN [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t1].[Id]
     END = CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END
     LEFT JOIN (
         SELECT [l6].[Id], [l6].[OneToOne_Required_PK_Date], [l6].[Level1_Optional_Id], [l6].[Level1_Required_Id], [l6].[Level2_Name], [l6].[OneToMany_Optional_Inverse2Id], [l6].[OneToMany_Required_Inverse2Id], [l6].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l6]
-        WHERE ([l6].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l6].[Level1_Required_Id] IS NOT NULL) AND ([l6].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l6].[OneToOne_Required_PK_Date] IS NOT NULL AND [l6].[Level1_Required_Id] IS NOT NULL AND [l6].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t3] ON [t2].[Level2_Required_Id] = CASE
-        WHEN ([t3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t3].[Level1_Required_Id] IS NOT NULL) AND ([t3].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t3].[Id]
+        WHEN [t3].[OneToOne_Required_PK_Date] IS NOT NULL AND [t3].[Level1_Required_Id] IS NOT NULL AND [t3].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t3].[Id]
     END
     LEFT JOIN [Level1] AS [l3] ON [t3].[Level1_Required_Id] = [l3].[Id]
-    WHERE ([t1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t1].[Level1_Required_Id] IS NOT NULL) AND ([t1].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [t1].[OneToOne_Required_PK_Date] IS NOT NULL AND [t1].[Level1_Required_Id] IS NOT NULL AND [t1].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL
     ORDER BY CASE
-        WHEN ([t2].[Level2_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[Level2_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t2].[Id]
     END)
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL
 """);
     }
 
@@ -7080,24 +7080,24 @@ WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id
 SELECT [t1].[Level3_Name]
 FROM (
     SELECT TOP(@__p_0) [t].[Id] AS [Id0], [t].[OneToOne_Required_PK_Date], [t].[Level1_Required_Id], [t].[OneToMany_Required_Inverse2Id], CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END AS [c]
     FROM [Level1] AS [l]
     LEFT JOIN (
         SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
     ORDER BY CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Level2_Optional_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t0].[Level1_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t0].[Id0]
+    WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t0].[Id0]
 END = [t1].[Level2_Optional_Id]
 ORDER BY [t0].[c]
 """);
@@ -7114,14 +7114,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 INNER JOIN (
     SELECT [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
 """);
     }
@@ -7141,14 +7141,14 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
     ORDER BY [t].[Level2_Name]
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Id] = [t1].[Level1_Optional_Id]
 ORDER BY [t0].[Level2_Name]
 """);
@@ -7161,18 +7161,18 @@ ORDER BY [t0].[Level2_Name]
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[OneToMany_Required_Inverse2Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND ([l1].[Name] <> N'L1 07' OR ([l1].[Name] IS NULL)) AND ([l1].[Id] IS NOT NULL)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND ([l1].[Name] <> N'L1 07' OR [l1].[Name] IS NULL) AND [l1].[Id] IS NOT NULL
 """);
     }
 
@@ -7192,13 +7192,13 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
-WHERE [t0].[Level2_Name] <> N'Foo' OR ([t0].[Level2_Name] IS NULL)
+WHERE [t0].[Level2_Name] <> N'Foo' OR [t0].[Level2_Name] IS NULL
 ORDER BY [l].[Id]
 """);
     }
@@ -7210,20 +7210,20 @@ ORDER BY [l].[Id]
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] > 5
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] > 5
 """);
     }
 
@@ -7259,11 +7259,11 @@ WHERE (
             LEFT JOIN (
                 SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
                 FROM [Level1] AS [l2]
-                WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t] ON [l1].[Id] = CASE
-                WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+                WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
             END
-            WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l0].[Id] = [t0].[Level1_Optional_Id]
     ) AS [t1]) > 7 AND [l].[Id] < 3
 """);
@@ -7284,14 +7284,14 @@ FROM (
     LEFT JOIN (
         SELECT [l0].[Level1_Required_Id], [l0].[Level2_Name]
         FROM [Level1] AS [l0]
-        WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l].[Id] = [t].[Level1_Required_Id]
     ORDER BY [t].[Level2_Name]
 ) AS [t0]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1] ON [t0].[Id] = [t1].[Level1_Optional_Id]
 ORDER BY [t0].[Level2_Name]
 """);
@@ -7308,12 +7308,12 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END
 LEFT JOIN [Level1] AS [l1] ON [t].[Level1_Required_Id] = [l1].[Id]
-WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l1].[Id] IN (1, 2)
+WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l1].[Id] IN (1, 2)
 """);
     }
 
@@ -7328,10 +7328,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 0
 """);
     }
@@ -7345,33 +7345,33 @@ END = 0
 SELECT (
     SELECT TOP(1) [l0].[Level3_Name]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[Level2_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse3Id] IS NOT NULL) AND ((
+    WHERE [l0].[Level2_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse3Id] IS NOT NULL AND (
         SELECT TOP(1) CASE
-            WHEN ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l1].[Id]
+            WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[Id]
         END
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l1].[OneToMany_Optional_Inverse2Id]
         ORDER BY CASE
-            WHEN ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l1].[Id]
-        END) IS NOT NULL) AND ((
+            WHEN [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l1].[Id]
+        END) IS NOT NULL AND ((
         SELECT TOP(1) CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
         END
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
         ORDER BY CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
-        END) = [l0].[OneToMany_Optional_Inverse3Id] OR (((
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
+        END) = [l0].[OneToMany_Optional_Inverse3Id] OR ((
         SELECT TOP(1) CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
         END
         FROM [Level1] AS [l2]
-        WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
+        WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [l2].[OneToMany_Optional_Inverse2Id]
         ORDER BY CASE
-            WHEN ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [l2].[Id]
-        END) IS NULL) AND ([l0].[OneToMany_Optional_Inverse3Id] IS NULL)))
+            WHEN [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [l2].[Id]
+        END) IS NULL AND [l0].[OneToMany_Optional_Inverse3Id] IS NULL))
     ORDER BY CASE
-        WHEN ([l0].[Level2_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [l0].[Id]
+        WHEN [l0].[Level2_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [l0].[Id]
     END)
 FROM [Level1] AS [l]
 """);
@@ -7391,11 +7391,11 @@ LEFT JOIN (
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t0] ON [l].[Id] = [t0].[Level1_Optional_Id]
 CROSS JOIN (
     SELECT [t2].[Level1_Required_Id]
@@ -7403,11 +7403,11 @@ CROSS JOIN (
     LEFT JOIN (
         SELECT [l3].[Id], [l3].[OneToOne_Required_PK_Date], [l3].[Level1_Required_Id], [l3].[OneToMany_Required_Inverse2Id]
         FROM [Level1] AS [l3]
-        WHERE ([l3].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l3].[Level1_Required_Id] IS NOT NULL) AND ([l3].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l3].[OneToOne_Required_PK_Date] IS NOT NULL AND [l3].[Level1_Required_Id] IS NOT NULL AND [l3].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t2] ON [l2].[Id] = CASE
-        WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+        WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
     END
-    WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t1]
 INNER JOIN [Level1] AS [l4] ON [t1].[Level1_Required_Id] = [l4].[Id]
 """);
@@ -7444,20 +7444,20 @@ ORDER BY [f].[Name], [m].[DefaultText], [m0].[DefaultText], [t].[Text], [t].[Nam
         AssertSql(
 """
 SELECT CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END
 FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[OneToMany_Required_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 """);
     }
@@ -7473,14 +7473,14 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 LEFT JOIN (
     SELECT [l1].[Level2_Optional_Id], [l1].[Level3_Name]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Optional_Id]
 WHERE [t0].[Level3_Name] IS NOT NULL
 """);
@@ -7505,11 +7505,11 @@ WHERE (
             LEFT JOIN (
                 SELECT [l2].[Id], [l2].[OneToOne_Required_PK_Date], [l2].[Level1_Optional_Id], [l2].[Level1_Required_Id], [l2].[Level2_Name], [l2].[OneToMany_Optional_Inverse2Id], [l2].[OneToMany_Required_Inverse2Id], [l2].[OneToOne_Optional_PK_Inverse2Id]
                 FROM [Level1] AS [l2]
-                WHERE ([l2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l2].[Level1_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [l2].[OneToOne_Required_PK_Date] IS NOT NULL AND [l2].[Level1_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t] ON [l1].[Id] = CASE
-                WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+                WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
             END
-            WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+            WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL
         ) AS [t0] ON [l0].[Id] = [t0].[Level1_Optional_Id]
         WHERE (
             SELECT COUNT(*)
@@ -7520,11 +7520,11 @@ WHERE (
                 LEFT JOIN (
                     SELECT [l5].[Id], [l5].[OneToOne_Required_PK_Date], [l5].[Level1_Optional_Id], [l5].[Level1_Required_Id], [l5].[Level2_Name], [l5].[OneToMany_Optional_Inverse2Id], [l5].[OneToMany_Required_Inverse2Id], [l5].[OneToOne_Optional_PK_Inverse2Id]
                     FROM [Level1] AS [l5]
-                    WHERE ([l5].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l5].[Level1_Required_Id] IS NOT NULL) AND ([l5].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                    WHERE [l5].[OneToOne_Required_PK_Date] IS NOT NULL AND [l5].[Level1_Required_Id] IS NOT NULL AND [l5].[OneToMany_Required_Inverse2Id] IS NOT NULL
                 ) AS [t2] ON [l4].[Id] = CASE
-                    WHEN ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t2].[Id]
+                    WHEN [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t2].[Id]
                 END
-                WHERE ([t2].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t2].[Level1_Required_Id] IS NOT NULL) AND ([t2].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+                WHERE [t2].[OneToOne_Required_PK_Date] IS NOT NULL AND [t2].[Level1_Required_Id] IS NOT NULL AND [t2].[OneToMany_Required_Inverse2Id] IS NOT NULL
             ) AS [t1] ON [l3].[Id] = [t1].[Level1_Optional_Id]) > 7
         ORDER BY [l0].[Id]
     ) AS [t3]) > 4 AND [l].[Id] < 2
@@ -7542,10 +7542,10 @@ FROM [Level1] AS [l]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = 0
 """);
     }
@@ -7613,21 +7613,21 @@ SELECT [l].[Id]
 FROM [Level1] AS [l]
 OUTER APPLY (
     SELECT TOP(10) [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id] AS [Id0], CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END AS [c]
     FROM [Level1] AS [l0]
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [t].[Level1_Optional_Id] AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [t].[Level1_Optional_Id] AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END > 0
     ORDER BY CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
 ) AS [t0]
 """);
@@ -7643,21 +7643,21 @@ SELECT [l].[Id]
 FROM [Level1] AS [l]
 CROSS APPLY (
     SELECT TOP(10) [t].[Id], [t].[OneToOne_Required_PK_Date], [t].[Level1_Optional_Id], [t].[Level1_Required_Id], [t].[Level2_Name], [t].[OneToMany_Optional_Inverse2Id], [t].[OneToMany_Required_Inverse2Id], [t].[OneToOne_Optional_PK_Inverse2Id], [l0].[Id] AS [Id0], CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END AS [c]
     FROM [Level1] AS [l0]
     LEFT JOIN (
         SELECT [l1].[Id], [l1].[OneToOne_Required_PK_Date], [l1].[Level1_Optional_Id], [l1].[Level1_Required_Id], [l1].[Level2_Name], [l1].[OneToMany_Optional_Inverse2Id], [l1].[OneToMany_Required_Inverse2Id], [l1].[OneToOne_Optional_PK_Inverse2Id]
         FROM [Level1] AS [l1]
-        WHERE ([l1].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l1].[Level1_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+        WHERE [l1].[OneToOne_Required_PK_Date] IS NOT NULL AND [l1].[Level1_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse2Id] IS NOT NULL
     ) AS [t] ON [l0].[Id] = CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
-    WHERE ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) AND [l].[Id] = [t].[Level1_Optional_Id] AND CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHERE [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [l].[Id] = [t].[Level1_Optional_Id] AND CASE
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END > 0
     ORDER BY CASE
-        WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+        WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
     END
 ) AS [t0]
 """);
@@ -7808,14 +7808,14 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Optional_Id], [l0].[Level1_Required_Id], [l0].[Level2_Name], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id], [l0].[OneToOne_Optional_PK_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 LEFT JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[Level2_Required_Id]
 """);
     }
@@ -7831,21 +7831,21 @@ FROM [Level1] AS [l]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[OneToOne_Required_PK_Date], [l0].[Level1_Required_Id], [l0].[OneToMany_Optional_Inverse2Id], [l0].[OneToMany_Required_Inverse2Id]
     FROM [Level1] AS [l0]
-    WHERE ([l0].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([l0].[Level1_Required_Id] IS NOT NULL) AND ([l0].[OneToMany_Required_Inverse2Id] IS NOT NULL)
+    WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 INNER JOIN (
     SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Level3_Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id]
     FROM [Level1] AS [l1]
-    WHERE ([l1].[Level2_Required_Id] IS NOT NULL) AND ([l1].[OneToMany_Required_Inverse3Id] IS NOT NULL)
+    WHERE [l1].[Level2_Required_Id] IS NOT NULL AND [l1].[OneToMany_Required_Inverse3Id] IS NOT NULL
 ) AS [t0] ON CASE
-    WHEN ([t].[OneToOne_Required_PK_Date] IS NOT NULL) AND ([t].[Level1_Required_Id] IS NOT NULL) AND ([t].[OneToMany_Required_Inverse2Id] IS NOT NULL) THEN [t].[Id]
+    WHEN [t].[OneToOne_Required_PK_Date] IS NOT NULL AND [t].[Level1_Required_Id] IS NOT NULL AND [t].[OneToMany_Required_Inverse2Id] IS NOT NULL THEN [t].[Id]
 END = [t0].[OneToMany_Optional_Inverse3Id]
 LEFT JOIN (
     SELECT [l2].[Id], [l2].[Level3_Optional_Id], [l2].[Level3_Required_Id], [l2].[Level4_Name], [l2].[OneToMany_Optional_Inverse4Id], [l2].[OneToMany_Required_Inverse4Id], [l2].[OneToOne_Optional_PK_Inverse4Id]
     FROM [Level1] AS [l2]
-    WHERE ([l2].[Level3_Required_Id] IS NOT NULL) AND ([l2].[OneToMany_Required_Inverse4Id] IS NOT NULL)
+    WHERE [l2].[Level3_Required_Id] IS NOT NULL AND [l2].[OneToMany_Required_Inverse4Id] IS NOT NULL
 ) AS [t1] ON CASE
-    WHEN ([t0].[Level2_Required_Id] IS NOT NULL) AND ([t0].[OneToMany_Required_Inverse3Id] IS NOT NULL) THEN [t0].[Id]
+    WHEN [t0].[Level2_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse3Id] IS NOT NULL THEN [t0].[Id]
 END = [t1].[Level3_Required_Id]
 """);
     }
