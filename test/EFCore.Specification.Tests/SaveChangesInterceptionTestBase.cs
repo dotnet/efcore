@@ -337,7 +337,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
         Assert.Equal(async, interceptor.AsyncCalled);
         Assert.NotEqual(async, interceptor.SyncCalled);
         Assert.NotEqual(interceptor.AsyncCalled, interceptor.SyncCalled);
-        Assert.True(interceptor.FailedCalled);
+        Assert.Equal(concurrencyError, !interceptor.FailedCalled);
         Assert.Same(context, interceptor.Context);
         Assert.Same(thrown, interceptor.Exception);
 
