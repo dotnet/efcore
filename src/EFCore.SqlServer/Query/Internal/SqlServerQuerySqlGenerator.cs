@@ -16,6 +16,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
+    private static readonly bool UseOldBehavior28881
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue28881", out var enabled28881) && enabled28881;
+
     private static readonly bool UseOldBehavior29667
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29667", out var enabled29667) && enabled29667;
 
@@ -323,18 +326,41 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
         else
         {
-            Sql.Append("CAST(JSON_VALUE(");
+            if (UseOldBehavior28881)
+            {
+                Sql.Append("CAST(JSON_VALUE(");
+            }
+            else
+            {
+                // JSON_VALUE always returns nvarchar(4000) (https://learn.microsoft.com/sql/t-sql/functions/json-value-transact-sql),
+                // so we cast the result to the expected type - except if it's a string (since the cast interferes with indexes over
+                // the JSON property).
+                Sql.Append(jsonScalarExpression.TypeMapping is StringTypeMapping ? "JSON_VALUE(" : "CAST(JSON_VALUE(");
+            }
         }
 
         Visit(jsonScalarExpression.JsonColumn);
 
         Sql.Append($",'{string.Join("", jsonScalarExpression.Path.Select(e => e.ToString()))}')");
 
-        if (jsonScalarExpression.Type != typeof(JsonElement))
+
+        if (UseOldBehavior28881)
         {
-            Sql.Append(" AS ");
-            Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
-            Sql.Append(")");
+            if (jsonScalarExpression.Type != typeof(JsonElement))
+            {
+                Sql.Append(" AS ");
+                Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
+                Sql.Append(")");
+            }
+        }
+        else
+        {
+            if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
+            {
+                Sql.Append(" AS ");
+                Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
+                Sql.Append(")");
+            }
         }
 
         return jsonScalarExpression;

@@ -110,7 +110,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max))
+SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -123,7 +123,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE CAST(LEN(CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max))) AS int) > 2
+WHERE CAST(LEN(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name')) AS int) > 2
 """);
     }
 
@@ -133,7 +133,7 @@ WHERE CAST(LEN(CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(ma
 
         AssertSql(
 """
-SELECT [j].[Id], CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.Enum') AS nvarchar(max)) AS [Enum]
+SELECT [j].[Id], JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.Enum') AS [Enum]
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -155,7 +155,7 @@ FROM [JsonEntitiesCustomNaming] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$'), CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') AS nvarchar(max))
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], JSON_QUERY([j].[OwnedCollectionRoot],'$'), JSON_QUERY([j].[OwnedReferenceRoot],'$'), JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -195,7 +195,7 @@ SELECT CAST(LEN([t0].[c]) AS int)
 FROM (
     SELECT DISTINCT [t].[c]
     FROM (
-        SELECT TOP(@__p_0) CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') AS nvarchar(max)) AS [c]
+        SELECT TOP(@__p_0) JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') AS [c]
         FROM [JsonEntitiesBasic] AS [j]
         ORDER BY [j].[Id]
     ) AS [t]
@@ -291,7 +291,7 @@ FROM (
                 ORDER BY [j].[Id]
             ) AS [t]
         ) AS [t0]
-        ORDER BY CAST(JSON_VALUE([t0].[c0],'$.Name') AS nvarchar(max))
+        ORDER BY JSON_VALUE([t0].[c0],'$.Name')
     ) AS [t1]
 ) AS [t2]
 """);
@@ -318,7 +318,7 @@ FROM (
                 ORDER BY [j].[Id]
             ) AS [t]
         ) AS [t0]
-        ORDER BY CAST(JSON_VALUE([t0].[c0],'$.Name') AS nvarchar(max))
+        ORDER BY JSON_VALUE([t0].[c0],'$.Name')
     ) AS [t1]
 ) AS [t2]
 """);
@@ -332,7 +332,7 @@ FROM (
 """
 @__p_0='10'
 
-SELECT CAST(JSON_VALUE([t0].[c],'$.SomethingSomething') AS nvarchar(max))
+SELECT JSON_VALUE([t0].[c],'$.SomethingSomething')
 FROM (
     SELECT DISTINCT JSON_QUERY([t].[c],'$') AS [c], [t].[Id]
     FROM (
@@ -395,7 +395,7 @@ FROM [JsonEntitiesCustomNaming] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[Title], JSON_QUERY([j].[json_collection_custom_naming],'$'), JSON_QUERY([j].[json_reference_custom_naming],'$'), CAST(JSON_VALUE([j].[json_reference_custom_naming],'$.CustomName') AS nvarchar(max)), CAST(JSON_VALUE([j].[json_reference_custom_naming],'$.CustomOwnedReferenceBranch.CustomFraction') AS float)
+SELECT [j].[Id], [j].[Title], JSON_QUERY([j].[json_collection_custom_naming],'$'), JSON_QUERY([j].[json_reference_custom_naming],'$'), JSON_VALUE([j].[json_reference_custom_naming],'$.CustomName'), CAST(JSON_VALUE([j].[json_reference_custom_naming],'$.CustomOwnedReferenceBranch.CustomFraction') AS float)
 FROM [JsonEntitiesCustomNaming] AS [j]
 """);
     }
@@ -484,7 +484,7 @@ ORDER BY [j].[Id]
 SELECT JSON_QUERY([t].[c],'$'), [t].[Id], JSON_QUERY([t].[c0],'$'), [t].[Id0], JSON_QUERY([t].[c1],'$'), [t].[c2], [t].[c3], [t].[c4]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot],'$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot],'$.OwnedReferenceBranch') AS [c1], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [c2], CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.Enum') AS nvarchar(max)) AS [c3], 1 AS [c4]
+    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot],'$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot],'$.OwnedReferenceBranch') AS [c1], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [c2], JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.Enum') AS [c3], 1 AS [c4]
     FROM [JsonEntitiesBasic] AS [j0]
     ORDER BY [j0].[Id]
 ) AS [t]
@@ -501,7 +501,7 @@ ORDER BY [j].[Id]
 SELECT JSON_QUERY([t].[c],'$'), [t].[Id], JSON_QUERY([t].[c0],'$'), [t].[Id0], JSON_QUERY([t].[c1],'$'), [t].[c2], [t].[c3], [t].[c4]
 FROM [JsonEntitiesBasic] AS [j]
 OUTER APPLY (
-    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot],'$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot],'$.OwnedReferenceBranch') AS [c1], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [c2], CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.Enum') AS nvarchar(max)) AS [c3], 1 AS [c4]
+    SELECT TOP(1) JSON_QUERY([j].[OwnedReferenceRoot],'$.OwnedCollectionBranch') AS [c], [j].[Id], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], [j0].[Id] AS [Id0], JSON_QUERY([j0].[OwnedReferenceRoot],'$.OwnedReferenceBranch') AS [c1], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [c2], JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.Enum') AS [c3], 1 AS [c4]
     FROM [JsonEntitiesBasic] AS [j0]
     ORDER BY [j0].[Id]
 ) AS [t]
@@ -608,7 +608,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Number') AS int) <> CAST(LEN(CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max))) AS int) OR (CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) IS NULL)
+WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Number') AS int) <> CAST(LEN(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name')) AS int) OR (JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') IS NULL)
 """);
     }
 
@@ -620,7 +620,7 @@ WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Number') AS int) <> CAST(LEN(C
 """
 SELECT [j].[Name]
 FROM [JsonEntitiesBasic] AS [j]
-WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) = CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') AS nvarchar(max)) OR ((CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) IS NULL) AND (CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') AS nvarchar(max)) IS NULL))
+WHERE JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') = JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') OR ((JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') IS NULL) AND (JSON_VALUE([j].[OwnedReferenceRoot],'$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething') IS NULL))
 """);
     }
 
@@ -632,7 +632,7 @@ WHERE CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) = CAS
 """
 SELECT [t].[Key], COUNT(*) AS [Count]
 FROM (
-    SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+    SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS [Key]
     FROM [JsonEntitiesBasic] AS [j]
 ) AS [t]
 GROUP BY [t].[Key]
@@ -649,7 +649,7 @@ SELECT [t1].[Id], [t1].[EntityBasicId], [t1].[Name], JSON_QUERY([t1].[c],'$'), J
 FROM (
     SELECT [t].[Key]
     FROM (
-        SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [t]
     GROUP BY [t].[Key]
@@ -659,7 +659,7 @@ LEFT JOIN (
     FROM (
         SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], JSON_QUERY([t3].[c],'$') AS [c], JSON_QUERY([t3].[c0],'$') AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
         FROM (
-            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [Key]
             FROM [JsonEntitiesBasic] AS [j0]
         ) AS [t3]
     ) AS [t2]
@@ -678,7 +678,7 @@ SELECT [t1].[Id], [t1].[EntityBasicId], [t1].[Name], JSON_QUERY([t1].[c],'$'), J
 FROM (
     SELECT [t].[Key]
     FROM (
-        SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [t]
     GROUP BY [t].[Key]
@@ -688,7 +688,7 @@ LEFT JOIN (
     FROM (
         SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], JSON_QUERY([t3].[c],'$') AS [c], JSON_QUERY([t3].[c0],'$') AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
         FROM (
-            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [Key]
             FROM [JsonEntitiesBasic] AS [j0]
         ) AS [t3]
     ) AS [t2]
@@ -707,7 +707,7 @@ SELECT [t0].[Key], [t1].[Id], [t1].[EntityBasicId], [t1].[Name], [t1].[c], [t1].
 FROM (
     SELECT [t].[Key]
     FROM (
-        SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS [Key]
         FROM [JsonEntitiesBasic] AS [j]
     ) AS [t]
     GROUP BY [t].[Key]
@@ -717,7 +717,7 @@ LEFT JOIN (
     FROM (
         SELECT [t3].[Id], [t3].[EntityBasicId], [t3].[Name], JSON_QUERY([t3].[c],'$') AS [c], JSON_QUERY([t3].[c0],'$') AS [c0], [t3].[Key], ROW_NUMBER() OVER(PARTITION BY [t3].[Key] ORDER BY [t3].[Id]) AS [row]
         FROM (
-            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+            SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [Key]
             FROM [JsonEntitiesBasic] AS [j0]
         ) AS [t3]
     ) AS [t2]
@@ -742,14 +742,14 @@ ORDER BY [t0].[Key], [t1].[Key], [t1].[Id]
         AssertSql(
 """
 SELECT (
-    SELECT TOP(1) CAST(JSON_VALUE([t0].[c0],'$.OwnedReferenceBranch.Enum') AS nvarchar(max))
+    SELECT TOP(1) JSON_VALUE([t0].[c0],'$.OwnedReferenceBranch.Enum')
     FROM (
-        SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], CAST(JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+        SELECT [j0].[Id], [j0].[EntityBasicId], [j0].[Name], JSON_QUERY([j0].[OwnedCollectionRoot],'$') AS [c], JSON_QUERY([j0].[OwnedReferenceRoot],'$') AS [c0], JSON_VALUE([j0].[OwnedReferenceRoot],'$.Name') AS [Key]
         FROM [JsonEntitiesBasic] AS [j0]
     ) AS [t0]
     WHERE [t].[Key] = [t0].[Key] OR (([t].[Key] IS NULL) AND ([t0].[Key] IS NULL)))
 FROM (
-    SELECT CAST(JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS nvarchar(max)) AS [Key]
+    SELECT JSON_VALUE([j].[OwnedReferenceRoot],'$.Name') AS [Key]
     FROM [JsonEntitiesBasic] AS [j]
 ) AS [t]
 GROUP BY [t].[Key]
@@ -836,8 +836,343 @@ FROM [JsonEntitiesAllTypes] AS [j]
 
         AssertSql(
 """
-SELECT CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) AS [TestBoolean], CAST(JSON_VALUE([j].[Reference],'$.TestByte') AS tinyint) AS [TestByte], CAST(JSON_VALUE([j].[Reference],'$.TestCharacter') AS nvarchar(1)) AS [TestCharacter], CAST(JSON_VALUE([j].[Reference],'$.TestDateTime') AS datetime2) AS [TestDateTime], CAST(JSON_VALUE([j].[Reference],'$.TestDateTimeOffset') AS datetimeoffset) AS [TestDateTimeOffset], CAST(JSON_VALUE([j].[Reference],'$.TestDecimal') AS decimal(18,3)) AS [TestDecimal], CAST(JSON_VALUE([j].[Reference],'$.TestDouble') AS float) AS [TestDouble], CAST(JSON_VALUE([j].[Reference],'$.TestGuid') AS uniqueidentifier) AS [TestGuid], CAST(JSON_VALUE([j].[Reference],'$.TestInt16') AS smallint) AS [TestInt16], CAST(JSON_VALUE([j].[Reference],'$.TestInt32') AS int) AS [TestInt32], CAST(JSON_VALUE([j].[Reference],'$.TestInt64') AS bigint) AS [TestInt64], CAST(JSON_VALUE([j].[Reference],'$.TestSignedByte') AS smallint) AS [TestSignedByte], CAST(JSON_VALUE([j].[Reference],'$.TestSingle') AS real) AS [TestSingle], CAST(JSON_VALUE([j].[Reference],'$.TestTimeSpan') AS time) AS [TestTimeSpan], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt16') AS int) AS [TestUnsignedInt16], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt32') AS bigint) AS [TestUnsignedInt32], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt64') AS decimal(20,0)) AS [TestUnsignedInt64], CAST(JSON_VALUE([j].[Reference],'$.TestNullableInt32') AS int) AS [TestNullableInt32], CAST(JSON_VALUE([j].[Reference],'$.TestEnum') AS nvarchar(max)) AS [TestEnum], CAST(JSON_VALUE([j].[Reference],'$.TestEnumWithIntConverter') AS int) AS [TestEnumWithIntConverter], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnum') AS nvarchar(max)) AS [TestNullableEnum], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithIntConverter') AS int) AS [TestNullableEnumWithIntConverter], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithConverterThatHandlesNulls') AS nvarchar(max)) AS [TestNullableEnumWithConverterThatHandlesNulls]
+SELECT JSON_VALUE([j].[Reference],'$.TestDefaultString') AS [TestDefaultString], JSON_VALUE([j].[Reference],'$.TestMaxLengthString') AS [TestMaxLengthString], CAST(JSON_VALUE([j].[Reference],'$.TestBoolean') AS bit) AS [TestBoolean], CAST(JSON_VALUE([j].[Reference],'$.TestByte') AS tinyint) AS [TestByte], JSON_VALUE([j].[Reference],'$.TestCharacter') AS [TestCharacter], CAST(JSON_VALUE([j].[Reference],'$.TestDateTime') AS datetime2) AS [TestDateTime], CAST(JSON_VALUE([j].[Reference],'$.TestDateTimeOffset') AS datetimeoffset) AS [TestDateTimeOffset], CAST(JSON_VALUE([j].[Reference],'$.TestDecimal') AS decimal(18,3)) AS [TestDecimal], CAST(JSON_VALUE([j].[Reference],'$.TestDouble') AS float) AS [TestDouble], CAST(JSON_VALUE([j].[Reference],'$.TestGuid') AS uniqueidentifier) AS [TestGuid], CAST(JSON_VALUE([j].[Reference],'$.TestInt16') AS smallint) AS [TestInt16], CAST(JSON_VALUE([j].[Reference],'$.TestInt32') AS int) AS [TestInt32], CAST(JSON_VALUE([j].[Reference],'$.TestInt64') AS bigint) AS [TestInt64], CAST(JSON_VALUE([j].[Reference],'$.TestSignedByte') AS smallint) AS [TestSignedByte], CAST(JSON_VALUE([j].[Reference],'$.TestSingle') AS real) AS [TestSingle], CAST(JSON_VALUE([j].[Reference],'$.TestTimeSpan') AS time) AS [TestTimeSpan], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt16') AS int) AS [TestUnsignedInt16], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt32') AS bigint) AS [TestUnsignedInt32], CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt64') AS decimal(20,0)) AS [TestUnsignedInt64], CAST(JSON_VALUE([j].[Reference],'$.TestNullableInt32') AS int) AS [TestNullableInt32], JSON_VALUE([j].[Reference],'$.TestEnum') AS [TestEnum], CAST(JSON_VALUE([j].[Reference],'$.TestEnumWithIntConverter') AS int) AS [TestEnumWithIntConverter], JSON_VALUE([j].[Reference],'$.TestNullableEnum') AS [TestNullableEnum], CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithIntConverter') AS int) AS [TestNullableEnumWithIntConverter], JSON_VALUE([j].[Reference],'$.TestNullableEnumWithConverterThatHandlesNulls') AS [TestNullableEnumWithConverterThatHandlesNulls]
 FROM [JsonEntitiesAllTypes] AS [j]
+""");
+    }
+
+
+    public override async Task Json_predicate_on_default_string(bool async)
+    {
+        await base.Json_predicate_on_default_string(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestDefaultString') <> N'MyDefaultStringInReference1' OR (JSON_VALUE([j].[Reference],'$.TestDefaultString') IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_max_length_string(bool async)
+    {
+        await base.Json_predicate_on_max_length_string(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestMaxLengthString') <> N'Foo' OR (JSON_VALUE([j].[Reference],'$.TestMaxLengthString') IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_byte(bool async)
+    {
+        await base.Json_predicate_on_byte(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestByte') AS tinyint) <> CAST(3 AS tinyint) OR (CAST(JSON_VALUE([j].[Reference],'$.TestByte') AS tinyint) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_character(bool async)
+    {
+        await base.Json_predicate_on_character(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestCharacter') <> N'z' OR (JSON_VALUE([j].[Reference],'$.TestCharacter') IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_datetime(bool async)
+    {
+        await base.Json_predicate_on_datetime(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestDateTime') AS datetime2) <> '2000-01-03T00:00:00.0000000' OR (CAST(JSON_VALUE([j].[Reference],'$.TestDateTime') AS datetime2) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_datetimeoffset(bool async)
+    {
+        await base.Json_predicate_on_datetimeoffset(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestDateTimeOffset') AS datetimeoffset) <> '2000-01-04T00:00:00.0000000+03:02' OR (CAST(JSON_VALUE([j].[Reference],'$.TestDateTimeOffset') AS datetimeoffset) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_decimal(bool async)
+    {
+        await base.Json_predicate_on_decimal(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestDecimal') AS decimal(18,3)) <> 1.35 OR (CAST(JSON_VALUE([j].[Reference],'$.TestDecimal') AS decimal(18,3)) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_double(bool async)
+    {
+        await base.Json_predicate_on_double(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestDouble') AS float) <> 33.25E0 OR (CAST(JSON_VALUE([j].[Reference],'$.TestDouble') AS float) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_enum(bool async)
+    {
+        await base.Json_predicate_on_enum(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestEnum') <> N'Two' OR (JSON_VALUE([j].[Reference],'$.TestEnum') IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_enumwithintconverter(bool async)
+    {
+        await base.Json_predicate_on_enumwithintconverter(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestEnumWithIntConverter') AS int) <> 2 OR (CAST(JSON_VALUE([j].[Reference],'$.TestEnumWithIntConverter') AS int) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_guid(bool async)
+    {
+        await base.Json_predicate_on_guid(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestGuid') AS uniqueidentifier) <> '00000000-0000-0000-0000-000000000000' OR (CAST(JSON_VALUE([j].[Reference],'$.TestGuid') AS uniqueidentifier) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_int16(bool async)
+    {
+        await base.Json_predicate_on_int16(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestInt16') AS smallint) <> CAST(3 AS smallint) OR (CAST(JSON_VALUE([j].[Reference],'$.TestInt16') AS smallint) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_int32(bool async)
+    {
+        await base.Json_predicate_on_int32(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestInt32') AS int) <> 33 OR (CAST(JSON_VALUE([j].[Reference],'$.TestInt32') AS int) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_int64(bool async)
+    {
+        await base.Json_predicate_on_int64(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestInt64') AS bigint) <> CAST(333 AS bigint) OR (CAST(JSON_VALUE([j].[Reference],'$.TestInt64') AS bigint) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableenum1(bool async)
+    {
+        await base.Json_predicate_on_nullableenum1(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestNullableEnum') <> N'One' OR (JSON_VALUE([j].[Reference],'$.TestNullableEnum') IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableenum2(bool async)
+    {
+        await base.Json_predicate_on_nullableenum2(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestNullableEnum') IS NOT NULL
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableenumwithconverter1(bool async)
+    {
+        await base.Json_predicate_on_nullableenumwithconverter1(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithIntConverter') AS int) <> 1 OR (CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithIntConverter') AS int) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableenumwithconverter2(bool async)
+    {
+        await base.Json_predicate_on_nullableenumwithconverter2(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestNullableEnumWithIntConverter') AS int) IS NOT NULL
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableenumwithconverterthathandlesnulls1(bool async)
+    {
+        await base.Json_predicate_on_nullableenumwithconverterthathandlesnulls1(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE JSON_VALUE([j].[Reference],'$.TestNullableEnumWithConverterThatHandlesNulls') <> N'One' OR (JSON_VALUE([j].[Reference],'$.TestNullableEnumWithConverterThatHandlesNulls') IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableenumwithconverterthathandlesnulls2(bool async)
+    {
+        await base.Json_predicate_on_nullableenumwithconverterthathandlesnulls2(async);
+
+        AssertSql(
+"""
+x
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableint321(bool async)
+    {
+        await base.Json_predicate_on_nullableint321(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestNullableInt32') AS int) <> 100 OR (CAST(JSON_VALUE([j].[Reference],'$.TestNullableInt32') AS int) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_nullableint322(bool async)
+    {
+        await base.Json_predicate_on_nullableint322(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestNullableInt32') AS int) IS NOT NULL
+""");
+    }
+
+    public override async Task Json_predicate_on_signedbyte(bool async)
+    {
+        await base.Json_predicate_on_signedbyte(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestSignedByte') AS smallint) <> CAST(100 AS smallint) OR (CAST(JSON_VALUE([j].[Reference],'$.TestSignedByte') AS smallint) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_single(bool async)
+    {
+        await base.Json_predicate_on_single(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestSingle') AS real) <> CAST(10.4 AS real) OR (CAST(JSON_VALUE([j].[Reference],'$.TestSingle') AS real) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_timespan(bool async)
+    {
+        await base.Json_predicate_on_timespan(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestTimeSpan') AS time) <> '03:02:00' OR (CAST(JSON_VALUE([j].[Reference],'$.TestTimeSpan') AS time) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_unisgnedint16(bool async)
+    {
+        await base.Json_predicate_on_unisgnedint16(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt16') AS int) <> 100 OR (CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt16') AS int) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_unsignedint32(bool async)
+    {
+        await base.Json_predicate_on_unsignedint32(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt32') AS bigint) <> CAST(1000 AS bigint) OR (CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt32') AS bigint) IS NULL)
+""");
+    }
+
+    public override async Task Json_predicate_on_unsignedint64(bool async)
+    {
+        await base.Json_predicate_on_unsignedint64(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], JSON_QUERY([j].[Collection],'$'), JSON_QUERY([j].[Reference],'$')
+FROM [JsonEntitiesAllTypes] AS [j]
+WHERE CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt64') AS decimal(20,0)) <> 10000.0 OR (CAST(JSON_VALUE([j].[Reference],'$.TestUnsignedInt64') AS decimal(20,0)) IS NULL)
 """);
     }
 
