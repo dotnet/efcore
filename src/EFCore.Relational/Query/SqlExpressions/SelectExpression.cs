@@ -3997,6 +3997,12 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
             else if (table is SetOperationBase { IsDistinct: false } setOperation)
             {
+                if (setOperation.Source1.IsDistinct
+                    || setOperation.Source2.IsDistinct)
+                {
+                    continue;
+                }
+
 #if DEBUG
                 setOperation.Source1.Prune(columnsMap[tableAlias], removedAliases);
                 setOperation.Source2.Prune(columnsMap[tableAlias], removedAliases);
