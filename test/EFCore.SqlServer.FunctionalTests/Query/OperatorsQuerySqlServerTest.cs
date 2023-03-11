@@ -42,6 +42,29 @@ public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
         AssertSql("");
     }
 
+    public override async Task Or_on_two_nested_binaries_and_another_simple_comparison()
+    {
+        await base.Or_on_two_nested_binaries_and_another_simple_comparison();
+
+        AssertSql(
+"""
+SELECT [o].[Id] AS [Id1], [o0].[Id] AS [Id2], [o1].[Id] AS [Id3], [o2].[Id] AS [Id4], [o3].[Id] AS [Id5]
+FROM [OperatorEntityString] AS [o]
+CROSS JOIN [OperatorEntityString] AS [o0]
+CROSS JOIN [OperatorEntityString] AS [o1]
+CROSS JOIN [OperatorEntityString] AS [o2]
+CROSS JOIN [OperatorEntityInt] AS [o3]
+WHERE CASE
+    WHEN [o].[Value] = N'A' AND [o].[Value] IS NOT NULL AND [o0].[Value] = N'A' AND [o0].[Value] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END | CASE
+    WHEN [o1].[Value] = N'B' AND [o1].[Value] IS NOT NULL AND [o2].[Value] = N'B' AND [o2].[Value] IS NOT NULL THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END = CAST(1 AS bit) AND [o3].[Value] = 2
+ORDER BY [o].[Id], [o0].[Id], [o1].[Id], [o2].[Id], [o3].[Id]
+""");
+    }
+
     public override async Task Projection_with_not_and_negation_on_integer()
     {
         await base.Projection_with_not_and_negation_on_integer();

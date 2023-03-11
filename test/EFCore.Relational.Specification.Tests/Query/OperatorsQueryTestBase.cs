@@ -118,6 +118,41 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
     }
 
     [ConditionalFact]
+    public virtual async Task Or_on_two_nested_binaries_and_another_simple_comparison()
+    {
+        var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
+        using var context = contextFactory.CreateContext();
+
+        var expected = (from e1 in ExpectedData.OperatorEntitiesString
+                        from e2 in ExpectedData.OperatorEntitiesString
+                        from e3 in ExpectedData.OperatorEntitiesString
+                        from e4 in ExpectedData.OperatorEntitiesString
+                        from e5 in ExpectedData.OperatorEntitiesInt
+                        where ((e1.Value == "A" && e2.Value == "A") | (e3.Value == "B" && e4.Value == "B")) && e5.Value == 2
+                        orderby e1.Id, e2.Id, e3.Id, e4.Id, e5.Id
+                        select new { Id1 = e1.Id, Id2 = e2.Id, Id3 = e3.Id, Id4 = e4.Id, Id5 = e5.Id }).ToList();
+
+        var actual = (from e1 in context.Set<OperatorEntityString>()
+                      from e2 in context.Set<OperatorEntityString>()
+                      from e3 in context.Set<OperatorEntityString>()
+                      from e4 in context.Set<OperatorEntityString>()
+                      from e5 in context.Set<OperatorEntityInt>()
+                      where ((e1.Value == "A" && e2.Value == "A") | (e3.Value == "B" && e4.Value == "B")) && e5.Value == 2
+                      orderby e1.Id, e2.Id, e3.Id, e4.Id, e5.Id
+                      select new { Id1 = e1.Id, Id2 = e2.Id, Id3 = e3.Id, Id4 = e4.Id, Id5 = e5.Id }).ToList();
+
+        Assert.Equal(expected.Count, actual.Count);
+        for (var i = 0; i < expected.Count; i++)
+        {
+            Assert.Equal(expected[i].Id1, actual[i].Id1);
+            Assert.Equal(expected[i].Id2, actual[i].Id2);
+            Assert.Equal(expected[i].Id3, actual[i].Id3);
+            Assert.Equal(expected[i].Id4, actual[i].Id4);
+            Assert.Equal(expected[i].Id5, actual[i].Id5);
+        }
+    }
+
+    [ConditionalFact]
     public virtual async Task Projection_with_not_and_negation_on_integer()
     {
         var contextFactory = await InitializeAsync<OperatorsContext>(seed: Seed);
