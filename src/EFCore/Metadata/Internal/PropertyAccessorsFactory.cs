@@ -52,6 +52,8 @@ public class PropertyAccessorsFactory
 
         var shadowIndex = propertyBase.GetShadowIndex();
         Expression currentValueExpression;
+        var propertyDefault = Expression.Constant(default(TProperty), typeof(TProperty));
+
         if (shadowIndex >= 0)
         {
             currentValueExpression = Expression.Call(
@@ -72,7 +74,7 @@ public class PropertyAccessorsFactory
             {
                 currentValueExpression = Expression.Condition(
                     currentValueExpression.MakeHasDefaultValue(propertyBase),
-                    Expression.Constant(default(TProperty), typeof(TProperty)),
+                    propertyDefault,
                     Expression.Convert(currentValueExpression, typeof(TProperty)));
             }
         }
@@ -83,6 +85,10 @@ public class PropertyAccessorsFactory
             var comparer = (propertyBase as IProperty)?.GetValueComparer()
                 ?? ValueComparer.CreateDefault(propertyBase.ClrType, favorStructuralComparisons: true);
 
+            var comparerDefault = comparer.Type != typeof(TProperty)
+                ? (Expression)Expression.Convert(propertyDefault, comparer.Type)
+                : propertyDefault;
+
             if (useStoreGeneratedValues)
             {
                 currentValueExpression = Expression.Condition(
@@ -90,7 +96,7 @@ public class PropertyAccessorsFactory
                         comparer.Type != currentValueExpression.Type
                             ? Expression.Convert(currentValueExpression, comparer.Type)
                             : currentValueExpression,
-                        Expression.Constant(default(TProperty), typeof(TProperty))),
+                        comparerDefault),
                     Expression.Call(
                         entryParameter,
                         InternalEntityEntry.MakeReadStoreGeneratedValueMethod(typeof(TProperty)),
@@ -103,7 +109,7 @@ public class PropertyAccessorsFactory
                     comparer.Type != currentValueExpression.Type
                         ? Expression.Convert(currentValueExpression, comparer.Type)
                         : currentValueExpression,
-                    Expression.Constant(default(TProperty), typeof(TProperty))),
+                    comparerDefault),
                 Expression.Call(
                     entryParameter,
                     InternalEntityEntry.MakeReadTemporaryValueMethod(typeof(TProperty)),

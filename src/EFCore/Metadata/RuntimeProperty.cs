@@ -23,9 +23,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, IEntityType, ValueGenerator>? _valueGeneratorFactory;
     private readonly ValueConverter? _valueConverter;
-    private readonly bool _explicitValueComparer;
     private ValueComparer? _valueComparer;
-    private readonly bool _explicitKeyValueComparer;
     private ValueComparer? _keyValueComparer;
     private readonly ValueComparer? _providerValueComparer;
     private CoreTypeMapping? _typeMapping;
@@ -99,9 +97,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
         _typeMapping = typeMapping;
         _valueComparer = valueComparer;
-        _explicitValueComparer = _valueComparer != null;
         _keyValueComparer = keyValueComparer ?? valueComparer;
-        _explicitKeyValueComparer = keyValueComparer != null;
         _providerValueComparer = providerValueComparer;
     }
 
@@ -184,8 +180,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     private ValueComparer? GetValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
-        if (_explicitValueComparer // This condition is needed due to #28944
-            && _valueComparer != null)
+        if (_valueComparer != null)
         {
             return _valueComparer;
         }
@@ -211,8 +206,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
-        if (_explicitKeyValueComparer // This condition is needed due to #28944
-            && _keyValueComparer != null)
+        if ( _keyValueComparer != null)
         {
             return _keyValueComparer;
         }
