@@ -17,6 +17,18 @@ public class ModelCacheKey
     private readonly bool _designTime;
 
     /// <summary>
+    /// X
+    /// </summary>
+    public virtual Type ContextType
+        => _dbContextType;
+
+    /// <summary>
+    /// X
+    /// </summary>
+    public virtual bool DesignTime
+        => _designTime;
+
+    /// <summary>
     ///     Initializes a new instance of the <see cref="ModelCacheKey" /> class.
     /// </summary>
     /// <param name="context">

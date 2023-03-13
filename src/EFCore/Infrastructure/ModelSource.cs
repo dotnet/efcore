@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
+using System.Text;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -30,6 +32,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 public class ModelSource : IModelSource
 {
     private readonly object _syncObject = new();
+    private Dictionary<object, IModel?> _dictionary = new();
 
     /// <summary>
     ///     Creates a new <see cref="ModelSource" /> instance.
@@ -66,6 +69,55 @@ public class ModelSource : IModelSource
             {
                 if (!cache.TryGetValue(cacheKey, out model))
                 {
+                    if (_dictionary.TryGetValue(cacheKey, out var existingModel))
+                    {
+                        var builder = new StringBuilder();
+                        builder.AppendLine(
+                            cacheKey is ModelCacheKey modelCacheKey
+                                ? $"Dictionary contains key not in cache: {modelCacheKey.ContextType.Name} (Design time: {modelCacheKey.DesignTime})"
+                                : $"Dictionary contains key not in cache: {cacheKey.GetType()}: {cacheKey}");
+
+                        var memoryCache = (MemoryCache)cache;
+                        builder.AppendLine($"Count: {memoryCache.Count}");
+
+                        var size = typeof(MemoryCache).GetRuntimeProperties().Single(e => e.Name == "Size")
+                            .GetValue(memoryCache)!;
+                        builder.AppendLine($"Size: {size}");
+
+                        var options = (MemoryCacheOptions)typeof(MemoryCache).GetRuntimeFields().Single(e => e.Name == "_options")
+                            .GetValue(memoryCache)!;
+                        builder.AppendLine($"SizeLimit: {options.SizeLimit}");
+
+                        var coherentState = typeof(MemoryCache).GetRuntimeFields().Single(e => e.Name == "_coherentState")
+                            .GetValue(memoryCache)!;
+                        var entries = (IEnumerable)coherentState.GetType().GetRuntimeFields().Single(e => e.Name == "_entries")
+                            .GetValue(coherentState)!;
+
+                        foreach (var entry in entries)
+                        {
+                            var key = entry.GetType().GetProperty("Key")!.GetValue(entry);
+                            var cacheEntry = entry.GetType().GetProperty("Value")!.GetValue(entry)!;
+                            var value = cacheEntry.GetType().GetRuntimeFields().Single(e => e.Name == "_value").GetValue(cacheEntry);
+
+                            if (key is ModelCacheKey modelCacheKeyFromCache)
+                            {
+                                builder.AppendLine(
+                                    $"{modelCacheKeyFromCache.ContextType.Name} (Design time: {modelCacheKeyFromCache.DesignTime}: {value}");
+
+                                if (key.Equals(cacheKey))
+                                {
+                                    builder.AppendLine("Match!");
+                                }
+                            }
+                            else
+                            {
+                                builder.AppendLine($"{key}: {value}");
+                            }
+                        }
+
+                        throw new Exception(builder.ToString());
+                    }
+
                     model = CreateModel(
                         context, modelCreationDependencies.ConventionSetBuilder, modelCreationDependencies.ModelDependencies);
 
@@ -73,6 +125,8 @@ public class ModelSource : IModelSource
                         model, designTime, modelCreationDependencies.ValidationLogger);
 
                     model = cache.Set(cacheKey, model, new MemoryCacheEntryOptions { Size = 100, Priority = CacheItemPriority.High });
+
+                    _dictionary[cacheKey] = model;
                 }
             }
         }
