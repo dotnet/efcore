@@ -295,7 +295,7 @@ public class EntityFrameworkServicesBuilder
         TryAdd<IParameterBindingFactory, LazyLoaderParameterBindingFactory>();
         TryAdd<IParameterBindingFactory, ContextParameterBindingFactory>();
         TryAdd<IParameterBindingFactory, EntityTypeParameterBindingFactory>();
-        TryAdd<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions { SizeLimit = 10240 }));
+        TryAdd<IMemoryCache>(_ => new MemoryCache(new MemoryCacheOptions { SizeLimit = 1000000 }));
         TryAdd<IUpdateAdapterFactory, UpdateAdapterFactory>();
         TryAdd<IQueryCompilationContextFactory, QueryCompilationContextFactory>();
         TryAdd<IQueryTranslationPreprocessorFactory, QueryTranslationPreprocessorFactory>();
