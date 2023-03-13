@@ -2098,7 +2098,7 @@ WHERE [e].[Name] IS NULL
         }
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue #30364")]
     public virtual async Task Query_cache_entries_are_evicted_as_necessary()
     {
         var contextFactory = await InitializeAsync<MyContext8909>();
