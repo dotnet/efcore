@@ -51,7 +51,7 @@
     <PackageReference Include="NetTopologySuite" Version="2.5.0" />
     <PackageReference Include="xunit.assert" Version="$(XUnitVersion)" />
     <PackageReference Include="xunit.core" Version="$(XUnitVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
 </Project>
