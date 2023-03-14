@@ -18,7 +18,7 @@ public class InMemoryTableFactory : IInMemoryTableFactory
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _nullabilityCheckEnabled;
 
-    private readonly ConcurrentDictionary<(IEntityType EntityType, IInMemoryTable? BaseTable), Func<IInMemoryTable>> _factories = new();
+    private readonly ConcurrentDictionary<Type, Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable>> _factories = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,20 +41,18 @@ public class InMemoryTableFactory : IInMemoryTableFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IInMemoryTable Create(IEntityType entityType, IInMemoryTable? baseTable)
-        => _factories.GetOrAdd((entityType, baseTable), e => CreateTable(e.EntityType, e.BaseTable))();
+        => _factories.GetOrAdd(entityType.FindPrimaryKey()!.GetKeyType(), CreateTable)
+            (entityType, baseTable, _sensitiveLoggingEnabled, _nullabilityCheckEnabled);
 
-    private Func<IInMemoryTable> CreateTable(IEntityType entityType, IInMemoryTable? baseTable)
-        => (Func<IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
+    private Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable> CreateTable(Type keyType)
+        => (Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable>)typeof(InMemoryTableFactory).GetTypeInfo()
             .GetDeclaredMethod(nameof(CreateFactory))!
-            .MakeGenericMethod(entityType.FindPrimaryKey()!.GetKeyType())
-            .Invoke(null, new object?[] { entityType, baseTable, _sensitiveLoggingEnabled, _nullabilityCheckEnabled })!;
+            .MakeGenericMethod(keyType)
+            .Invoke(null, Array.Empty<object>())!;
 
     [UsedImplicitly]
-    private static Func<IInMemoryTable> CreateFactory<TKey>(
-        IEntityType entityType,
-        IInMemoryTable baseTable,
-        bool sensitiveLoggingEnabled,
-        bool nullabilityCheckEnabled)
+    private static Func<IEntityType, IInMemoryTable?, bool, bool, IInMemoryTable> CreateFactory<TKey>()
         where TKey : notnull
-        => () => new InMemoryTable<TKey>(entityType, baseTable, sensitiveLoggingEnabled, nullabilityCheckEnabled);
+        => (entityType, baseTable, sensitiveLoggingEnabled, nullabilityCheckEnabled)
+            => new InMemoryTable<TKey>(entityType, baseTable, sensitiveLoggingEnabled, nullabilityCheckEnabled);
 }
