@@ -1427,21 +1427,27 @@ WHERE [c1].[CustomerID] LIKE N'A%'
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Union_with_different_store_types_throws(bool async)
+    public virtual async Task Union_with_different_store_types_is_fine_if_database_can_translate_it(bool async)
     {
-        AssertEqual(
-            RelationalStrings.SetOperationsOnDifferentStoreTypes,
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                () => AssertQuery(
-                    async,
-                    ss => ss.Set<Customer>()
-                        .Select(e => e.CompanyName)
-                        .Union(ss.Set<Customer>().Select(e => e.ContactName))))).Message);
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>()
+                .Select(e => e.CompanyName)
+                .Union(ss.Set<Customer>().Select(e => e.ContactName)));
+
+        AssertSql(
+"""
+SELECT [c].[CompanyName]
+FROM [Customers] AS [c]
+UNION
+SELECT [c0].[ContactName] AS [CompanyName]
+FROM [Customers] AS [c0]
+""");
     }
 
     [ConditionalTheory] // Issue #29020
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Union_with_store_types_differing_only_by_case(bool async)
+    public virtual async Task Union_with_type_mappings_to_same_store_type(bool async)
     {
         await AssertQuery(
             async,

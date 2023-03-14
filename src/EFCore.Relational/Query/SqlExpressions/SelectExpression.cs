@@ -2332,15 +2332,6 @@ public sealed partial class SelectExpression : TableExpressionBase
 
             var innerColumn1 = (SqlExpression)expression1;
             var innerColumn2 = (SqlExpression)expression2;
-            // For now, make sure that both sides output the same store type, otherwise the query may fail.
-            // TODO: with #15586 we'll be able to also allow different store types which are implicitly convertible to one another.
-            if (!string.Equals(
-                    innerColumn1.TypeMapping!.StoreType,
-                    innerColumn2.TypeMapping!.StoreType,
-                    StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidOperationException(RelationalStrings.SetOperationsOnDifferentStoreTypes);
-            }
 
             // We have to unique-fy left side since those projections were never uniquified
             // Right side is unique already when we did it when running select2 through it.
