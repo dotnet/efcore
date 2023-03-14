@@ -369,6 +369,91 @@ public abstract class OwnedEntityQueryRelationalTestBase : OwnedEntityQueryTestB
         public int? Value { get; set; }
     }
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(bool async)
+    {
+        var contextFactory = await InitializeAsync<MyContext30358>(seed: c => c.Seed());
+        using var context = contextFactory.CreateContext();
+
+        var query = from monarch in context.Monarchs
+                    join magus in context.Magi.Where(x => x.Name.Contains("Bayaz")) on monarch.RulerOf equals magus.Affiliation
+                    select new { monarch, magus };
+
+        var result = async ? await query.ToListAsync() : query.ToList();
+
+        Assert.Single(result);
+        Assert.Equal("The Union", result[0].monarch.RulerOf);
+        Assert.Equal("The Divider", result[0].magus.ToolUsed.Name);
+    }
+
+    protected class MyContext30358 : DbContext
+    {
+        public DbSet<Monarch30358> Monarchs { get; set; }
+        public DbSet<Magus30358> Magi { get; set; }
+
+        public MyContext30358(DbContextOptions options)
+           : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Magus30358>().OwnsOne(x => x.ToolUsed, x => x.ToTable("MagicTools"));
+        }
+
+        public void Seed()
+        {
+            Add(new Monarch30358
+            {
+                Name = "His August Majesty Guslav the Fifth",
+                RulerOf = "The Union",
+            });
+
+            Add(new Monarch30358
+            {
+                Name = "Emperor Uthman-ul-Dosht",
+                RulerOf = "The Gurkish Empire",
+            });
+
+            Add(new Magus30358
+            {
+                Name = "Bayaz, the First of the Magi",
+                Affiliation = "The Union",
+                ToolUsed = new MagicTool30358 { Name = "The Divider" }
+            });
+
+            Add(new Magus30358
+            {
+                Name = "The Prophet Khalul",
+                Affiliation = "The Gurkish Empire",
+                ToolUsed = new MagicTool30358 { Name = "The Hundred Words" }
+            });
+
+            SaveChanges();
+        }
+    }
+
+    public class Monarch30358
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string RulerOf { get; set; }
+    }
+
+    public class Magus30358
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Affiliation { get; set; }
+        public MagicTool30358 ToolUsed { get; set; }
+    }
+
+    public class MagicTool30358
+    {
+        public string Name { get; set; }
+    }
+
     protected override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
         => base.AddOptions(builder).ConfigureWarnings(
             c => c
