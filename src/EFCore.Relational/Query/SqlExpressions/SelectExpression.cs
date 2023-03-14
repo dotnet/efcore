@@ -26,6 +26,10 @@ public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
     private const string SqlQuerySingleColumnAlias = "Value";
+
+    private static readonly bool UseOldBehavior30273
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30273", out var enabled30273) && enabled30273;
+
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
     private static readonly Dictionary<ExpressionType, ExpressionType> MirroredOperationMap =
@@ -3961,6 +3965,14 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
             else if (table is SetOperationBase { IsDistinct: false } setOperation)
             {
+                if (!UseOldBehavior30273)
+                {
+                    if (setOperation.Source1.IsDistinct
+                        || setOperation.Source2.IsDistinct)
+                    {
+                        continue;
+                    }
+                }
 #if DEBUG
                 setOperation.Source1.Prune(columnsMap[tableAlias], removedAliases);
                 setOperation.Source2.Prune(columnsMap[tableAlias], removedAliases);

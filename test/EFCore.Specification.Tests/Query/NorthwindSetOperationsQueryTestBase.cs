@@ -877,4 +877,51 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
                 AssertCollection(e.Orders, a.Orders);
             },
             entryCount: 11);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Concat_with_pruning(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")))
+                .Select(x => x.City));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Concat_with_distinct_on_one_source_and_pruning(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")).Distinct())
+                .Select(x => x.City));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Concat_with_distinct_on_both_source_and_pruning(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")).Distinct()
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")).Distinct())
+                .Select(x => x.City));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nested_concat_with_pruning(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")))
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")))
+                .Select(x => x.City));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Nested_concat_with_distinct_in_the_middle_and_pruning(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A"))
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("B")).Distinct())
+                .Concat(ss.Set<Customer>().Where(c => c.CustomerID.StartsWith("A")))
+                .Select(x => x.City));
 }
