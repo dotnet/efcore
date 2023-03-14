@@ -364,7 +364,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <summary>
     ///     Adds a new navigation property to this entity type.
     /// </summary>
-    /// <param name="name">The name of the skip navigation property to add.</param>
+    /// <param name="name">The name of the navigation property to add.</param>
     /// <param name="foreignKey">The foreign key that defines the relationship this navigation property will navigate.</param>
     /// <param name="onDependent">
     ///     A value indicating whether the navigation property is defined on the dependent side of the underlying foreign key.
