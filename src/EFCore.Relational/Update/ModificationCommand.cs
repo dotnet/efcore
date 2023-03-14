@@ -327,9 +327,10 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 var jsonPathString = string.Join(
                     ".", updateInfo.Path.Select(x => x.PropertyName + (x.Ordinal != null ? "[" + x.Ordinal + "]" : "")));
 
+                object? singlePropertyValue = default;
                 if (updateInfo.Property != null)
                 {
-                    json = new JsonArray(GenerateJsonForSinglePropertyUpdate(updateInfo.Property, updateInfo.PropertyValue));
+                    singlePropertyValue = GenerateValueForSinglePropertyUpdate(updateInfo.Property, updateInfo.PropertyValue);
                     jsonPathString = jsonPathString + "." + updateInfo.Property.GetJsonPropertyName();
                 }
                 else
@@ -367,7 +368,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
 
                 var columnModificationParameters = new ColumnModificationParameters(
                     jsonColumn.Name,
-                    value: json?.ToJsonString(),
+                    value: updateInfo.Property != null ? singlePropertyValue : json?.ToJsonString(),
                     property: updateInfo.Property,
                     columnType: jsonColumnTypeMapping.StoreType,
                     jsonColumnTypeMapping,
@@ -699,14 +700,23 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     }
 
     /// <summary>
-    ///     Generates <see cref="JsonNode" /> representing the value to use for update in case a single property is being updated.
+    ///     Generates value to use for update in case a single property is being updated.
     /// </summary>
     /// <param name="property">Property to be updated.</param>
     /// <param name="propertyValue">Value object that the property will be updated to.</param>
-    /// <returns><see cref="JsonNode" /> representing the value that the property will be updated to.</returns>
+    /// <returns>Value that the property will be updated to.</returns>
     [EntityFrameworkInternal]
-    protected virtual JsonNode? GenerateJsonForSinglePropertyUpdate(IProperty property, object? propertyValue)
-        => JsonValue.Create(propertyValue);
+    protected virtual object? GenerateValueForSinglePropertyUpdate(IProperty property, object? propertyValue)
+    {
+        var propertyProviderClrType = (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
+
+        return (propertyProviderClrType == typeof(DateTime)
+            || propertyProviderClrType == typeof(DateTimeOffset)
+            || propertyProviderClrType == typeof(TimeSpan)
+            || propertyProviderClrType == typeof(Guid))
+            ? JsonValue.Create(propertyValue)?.ToJsonString().Replace("\"", "")
+            : propertyValue;
+    }
 
     private JsonNode? CreateJson(object? navigationValue, IUpdateEntry parentEntry, IEntityType entityType, int? ordinal, bool isCollection)
     {

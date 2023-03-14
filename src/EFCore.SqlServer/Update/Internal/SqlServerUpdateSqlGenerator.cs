@@ -164,9 +164,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
                     stringBuilder.Append("CAST(");
                 }
 
-                stringBuilder.Append("JSON_VALUE(");
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-                stringBuilder.Append(", '$[0]')");
 
                 if (needsTypeConversion)
                 {

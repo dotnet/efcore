@@ -1,7 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
+using System.Text.Json.Nodes;
+
+namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -9,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Update.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteModificationCommand : ModificationCommand
+public class SqlServerModificationCommand : ModificationCommand
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -17,7 +19,7 @@ public class SqliteModificationCommand : ModificationCommand
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteModificationCommand(in ModificationCommandParameters modificationCommandParameters)
+    public SqlServerModificationCommand(in ModificationCommandParameters modificationCommandParameters)
         : base(modificationCommandParameters)
     {
     }
@@ -28,7 +30,7 @@ public class SqliteModificationCommand : ModificationCommand
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteModificationCommand(in NonTrackedModificationCommandParameters modificationCommandParameters)
+    public SqlServerModificationCommand(in NonTrackedModificationCommandParameters modificationCommandParameters)
         : base(modificationCommandParameters)
     {
     }
@@ -43,14 +45,19 @@ public class SqliteModificationCommand : ModificationCommand
     {
         var propertyProviderClrType = (property.GetTypeMapping().Converter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
 
-        if (propertyProviderClrType == typeof(bool) && propertyValue is bool boolPropertyValue)
+        // when we generate SqlParameter when updating single property in JSON entity
+        // we always use SqlServerJsonTypeMapping as type mapping for the parameter
+        // (since we don't have dedicated type mapping for individual JSON properties)
+        // later, when we generate DbParameter we assign the value and then the DbType from the type mapping.
+        // in case of byte value, when we assign the value to the DbParameter it sets its type to Byte and its size to 1
+        // then, we change DbType to String, but keep size as is
+        // so, if value was, say, 15 we initially generate DbParameter of type Byte, value 25 and size 1
+        // but when we change the type we end up with type String, value 25 and size 1, which effectively is "2"
+        // to mitigate this, we convert the value to string, to guarantee the correct parameter size.
+        // this can be removed when we have dedicated JSON type mapping for individual (leaf) properties
+        if (propertyProviderClrType == typeof(byte))
         {
-            // Sqlite converts true/false into native 0/1 when using json_extract
-            // so we convert those values to strings so that they stay as true/false
-            // which is what we want to store in json object in the end
-            return boolPropertyValue
-                ? "true"
-                : "false";
+            return JsonValue.Create(propertyValue)?.ToJsonString().Replace("\"", "");
         }
 
 #pragma warning disable EF1001 // Internal EF Core API usage.
