@@ -180,4 +180,21 @@ SELECT [r].[Rot_ApartmentNo]
 FROM [RotRutCases] AS [r]
 """);
     }
+
+    public override async Task Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(bool async)
+    {
+        await base.Join_selects_with_duplicating_aliases_and_owned_expansion_uniquifies_correctly(async);
+
+        AssertSql(
+"""
+SELECT [m].[Id], [m].[Name], [m].[RulerOf], [t].[Id], [t].[Affiliation], [t].[Name], [t].[Magus30358Id], [t].[Name0]
+FROM [Monarchs] AS [m]
+INNER JOIN (
+    SELECT [m0].[Id], [m0].[Affiliation], [m0].[Name], [m1].[Magus30358Id], [m1].[Name] AS [Name0]
+    FROM [Magi] AS [m0]
+    LEFT JOIN [MagicTools] AS [m1] ON [m0].[Id] = [m1].[Magus30358Id]
+    WHERE [m0].[Name] LIKE N'%Bayaz%'
+) AS [t] ON [m].[RulerOf] = [t].[Affiliation]
+""");
+    }
 }
