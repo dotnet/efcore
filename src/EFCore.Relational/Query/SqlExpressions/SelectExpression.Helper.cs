@@ -385,6 +385,9 @@ public sealed partial class SelectExpression
 
     private sealed class AliasUniquifier : ExpressionVisitor
     {
+        private static readonly bool UseOldBehavior30358
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30358", out var enabled30358) && enabled30358;
+
         private readonly HashSet<string> _usedAliases;
         private readonly List<SelectExpression> _visitedSelectExpressions = new();
 
@@ -401,7 +404,30 @@ public sealed partial class SelectExpression
             {
                 for (var i = 0; i < innerSelectExpression._tableReferences.Count; i++)
                 {
-                    var newAlias = GenerateUniqueAlias(_usedAliases, innerSelectExpression._tableReferences[i].Alias);
+                    string newAlias;
+                    if (UseOldBehavior30358)
+                    {
+                        newAlias = GenerateUniqueAlias(_usedAliases, innerSelectExpression._tableReferences[i].Alias);
+                    }
+                    else
+                    {
+                        var currentAlias = innerSelectExpression._tableReferences[i].Alias;
+                        newAlias = GenerateUniqueAlias(_usedAliases, currentAlias);
+
+                        if (newAlias != currentAlias)
+                        {
+                            // we keep the old alias in the list (even though it's not actually being used anymore)
+                            // to disambiguate the APPLY case, e.g. something like this:
+                            // SELECT * FROM EntityOne as e
+                            // OUTER APPLY (
+                            //    SELECT * FROM EntityTwo as e1
+                            //    LEFT JOIN EntityThree as e ON (...) -- reuse alias e, since we use e1 after uniqification
+                            //    WHERE e.Foo == e1.Bar -- ambiguity! e could refer to EntityOne or EntityThree
+                            // ) as t
+                            innerSelectExpression._usedAliases.Add(newAlias);
+                        }
+                    }
+
                     innerSelectExpression._tableReferences[i].Alias = newAlias;
                     UnwrapJoinExpression(innerSelectExpression._tables[i]).Alias = newAlias;
                 }
