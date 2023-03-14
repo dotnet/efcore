@@ -21,7 +21,7 @@ public class NorthwindQuerySqlServerFixture<TModelCustomizer> : NorthwindQueryRe
                 b.Property(c => c.CustomerID).HasColumnType("nchar(5)");
                 b.Property(cm => cm.CompanyName).HasMaxLength(40);
                 b.Property(cm => cm.ContactName).HasMaxLength(30);
-                b.Property(cm => cm.ContactTitle).HasColumnType("NVarChar(30)");
+                b.Property(cm => cm.ContactTitle).HasColumnType("national character varying(30)");
             });
 
         modelBuilder.Entity<Employee>(
