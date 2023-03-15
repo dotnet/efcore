@@ -5,7 +5,8 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class MaterializationInterceptionTestBase : SingletonInterceptorsTestBase
+public abstract class MaterializationInterceptionTestBase<TContext> : SingletonInterceptorsTestBase<TContext>
+    where TContext : DbContext
 {
     protected MaterializationInterceptionTestBase(SingletonInterceptorsFixtureBase fixture)
         : base(fixture)
@@ -166,6 +167,97 @@ public abstract class MaterializationInterceptionTestBase : SingletonInterceptor
             Assert.Contains(titles, t => t == "Amiga Hardware Reference Manual");
             Assert.Contains(authors, t => t == "Commodore Business Machines Inc.");
             Assert.Contains(authors, t => t == "Agnes");
+        }
+    }
+
+    private static int _id;
+
+    [ConditionalTheory] // Issue #30244
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Intercept_query_materialization_with_owned_types(bool async)
+    {
+        var creatingInstanceCounts = new Dictionary<Type, int>();
+        var createdInstanceCounts = new Dictionary<Type, int>();
+        var initializingInstanceCounts = new Dictionary<Type, int>();
+        var initializedInstanceCounts = new Dictionary<Type, int>();
+        LibraryContext? context = null;
+
+        var interceptors = new[]
+        {
+            new ValidatingMaterializationInterceptor(
+                (data, instance, method) =>
+                {
+                    Assert.Same(context, data.Context);
+                    Assert.Equal(QueryTrackingBehavior.TrackAll, data.QueryTrackingBehavior);
+
+                    int count;
+                    var clrType = data.EntityType.ClrType;
+                    switch (method)
+                    {
+                        case nameof(IMaterializationInterceptor.CreatingInstance):
+                            count = creatingInstanceCounts.GetOrAddNew(clrType);
+                            creatingInstanceCounts[clrType] = count + 1;
+                            Assert.Null(instance);
+                            break;
+                        case nameof(IMaterializationInterceptor.CreatedInstance):
+                            count = createdInstanceCounts.GetOrAddNew(clrType);
+                            createdInstanceCounts[clrType] = count + 1;
+                            Assert.Same(clrType, instance!.GetType());
+                            break;
+                        case nameof(IMaterializationInterceptor.InitializingInstance):
+                            count = initializingInstanceCounts.GetOrAddNew(clrType);
+                            initializingInstanceCounts[clrType] = count + 1;
+                            Assert.Same(clrType, instance!.GetType());
+                            break;
+                        case nameof(IMaterializationInterceptor.InitializedInstance):
+                            count = initializedInstanceCounts.GetOrAddNew(clrType);
+                            initializedInstanceCounts[clrType] = count + 1;
+                            Assert.Same(clrType, instance!.GetType());
+                            break;
+                    }
+                })
+        };
+
+        using (context = CreateContext(interceptors, inject: true))
+        {
+            context.Add(
+                new TestEntity30244
+                {
+                    Id = _id++,
+                    Name = "TestIssue",
+                    Settings = { new("Value1", "1"), new("Value2", "9") }
+                });
+
+            _ = async
+                ? await context.SaveChangesAsync()
+                : context.SaveChanges();
+
+            context.ChangeTracker.Clear();
+
+            var entity = async
+                ? await context.Set<TestEntity30244>().OrderBy(e => e.Id).FirstOrDefaultAsync()
+                : context.Set<TestEntity30244>().OrderBy(e => e.Id).FirstOrDefault();
+
+            Assert.NotNull(entity);
+            Assert.Contains(("Value1", "1"), entity.Settings.Select(e => (e.Key, e.Value)));
+            Assert.Contains(("Value2", "9"), entity.Settings.Select(e => (e.Key, e.Value)));
+
+            Assert.Equal(2, creatingInstanceCounts.Count);
+            Assert.Equal(1, creatingInstanceCounts[typeof(TestEntity30244)]);
+            Assert.Equal(2, creatingInstanceCounts[typeof(KeyValueSetting30244)]);
+
+            Assert.Equal(2, createdInstanceCounts.Count);
+            Assert.Equal(1, createdInstanceCounts[typeof(TestEntity30244)]);
+            Assert.Equal(2, createdInstanceCounts[typeof(KeyValueSetting30244)]);
+
+            Assert.Equal(2, initializingInstanceCounts.Count);
+            Assert.Equal(1, initializingInstanceCounts[typeof(TestEntity30244)]);
+            Assert.Equal(2, initializingInstanceCounts[typeof(KeyValueSetting30244)]);
+
+            Assert.Equal(2, initializedInstanceCounts.Count);
+            Assert.Equal(1, initializedInstanceCounts[typeof(TestEntity30244)]);
+            Assert.Equal(2, initializedInstanceCounts[typeof(KeyValueSetting30244)]);
         }
     }
 

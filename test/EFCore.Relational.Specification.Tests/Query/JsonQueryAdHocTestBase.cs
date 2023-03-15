@@ -322,7 +322,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
             else
             {
                 Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }    
+            }
         }
     }
 

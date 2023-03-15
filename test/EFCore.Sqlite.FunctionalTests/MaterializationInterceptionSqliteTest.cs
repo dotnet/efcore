@@ -5,13 +5,31 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class MaterializationInterceptionSqliteTest : MaterializationInterceptionTestBase,
+public class MaterializationInterceptionSqliteTest : MaterializationInterceptionTestBase<MaterializationInterceptionSqliteTest.SqliteLibraryContext>,
     IClassFixture<MaterializationInterceptionSqliteTest.MaterializationInterceptionSqliteFixture>
 {
     public MaterializationInterceptionSqliteTest(MaterializationInterceptionSqliteFixture fixture)
         : base(fixture)
     {
     }
+
+    public class SqliteLibraryContext : LibraryContext
+    {
+        public SqliteLibraryContext(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TestEntity30244>().OwnsMany(e => e.Settings, b => b.ToJson());
+        }
+    }
+
+    public override LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
+        => new SqliteLibraryContext(Fixture.CreateOptions(interceptors, inject));
 
     public class MaterializationInterceptionSqliteFixture : SingletonInterceptorsFixtureBase
     {
@@ -25,5 +43,8 @@ public class MaterializationInterceptionSqliteTest : MaterializationInterception
             IServiceCollection serviceCollection,
             IEnumerable<ISingletonInterceptor> injectedInterceptors)
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(e => e.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
     }
 }

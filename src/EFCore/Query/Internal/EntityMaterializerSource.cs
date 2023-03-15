@@ -372,8 +372,14 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                 Expression CreateAccessorReadExpression()
                     => property is IServiceProperty serviceProperty
                         ? serviceProperty.ParameterBinding.BindToParameter(bindingInfo)
-                        : valueBufferExpression
-                            .CreateValueBufferReadValueExpression(
+                        : (property as IProperty)?.IsPrimaryKey() == true
+                            ? Expression.Convert(
+                                valueBufferExpression.CreateValueBufferReadValueExpression(
+                                    typeof(object),
+                                    property.GetIndex(),
+                                    property),
+                                property.ClrType)
+                            : valueBufferExpression.CreateValueBufferReadValueExpression(
                                 property.ClrType,
                                 property.GetIndex(),
                                 property);
