@@ -185,6 +185,7 @@ public class KeyPropagatorTest
         var dependent = new ProductDetail { Product = principal };
 
         var contextServices = CreateContextServices(model);
+        model = contextServices.GetService<IModel>();
         var stateManager = contextServices.GetRequiredService<IStateManager>();
         var principalEntry = stateManager.GetOrCreateEntry(principal);
         principalEntry.SetEntityState(EntityState.Added);
@@ -200,7 +201,7 @@ public class KeyPropagatorTest
         Assert.NotEqual(0, principalEntry[principalProperty]);
         Assert.Equal(generateTemporary, principalEntry.HasTemporaryValue(principalProperty));
         Assert.NotEqual(0, dependentEntry[dependentProperty]);
-        Assert.True(dependentEntry.HasTemporaryValue(dependentProperty));
+        Assert.Equal(generateTemporary, dependentEntry.HasTemporaryValue(dependentProperty));
         Assert.Equal(principalEntry[principalProperty], dependentEntry[dependentProperty]);
     }
 
