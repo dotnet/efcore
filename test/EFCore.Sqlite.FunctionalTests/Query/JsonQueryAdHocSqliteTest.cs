@@ -79,22 +79,6 @@ VALUES(
 '{{""RootName"":""e4"",""Collection"":[{{""BranchName"":""e4 c1"",""Nested"":{{""LeafName"":""e4 c1 l""}}}},{{""BranchName"":""e4 c2"",""Nested"":{{""LeafName"":""e4 c2 l""}}}}],""OptionalReference"":{{""BranchName"":""e4 or"",""Nested"":{{""LeafName"":""e4 or l""}}}}}}')");
     }
 
-    protected override void Seed30244(MyContext30244 ctx)
-    {
-        var entity = new TestEntity30244
-        {
-            Name = "TestIssue",
-            Settings = new List<KeyValueSetting30244>
-            {
-                new KeyValueSetting30244("Value1", "1"),
-                new KeyValueSetting30244("Value2", "9")
-            }
-        };
-
-        ctx.TestEntities.Add(entity);
-        ctx.SaveChanges();
-    }
-
     // issue #26708
     protected override void OnConfiguringArrayOfPrimitives(DbContextOptionsBuilder builder)
         => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));

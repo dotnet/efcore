@@ -3,13 +3,31 @@
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
 
-public class MaterializationInterceptionCosmosTest : MaterializationInterceptionTestBase,
+public class MaterializationInterceptionCosmosTest : MaterializationInterceptionTestBase<MaterializationInterceptionCosmosTest.CosmosLibraryContext>,
     IClassFixture<MaterializationInterceptionCosmosTest.MaterializationInterceptionCosmosFixture>
 {
     public MaterializationInterceptionCosmosTest(MaterializationInterceptionCosmosFixture fixture)
         : base(fixture)
     {
     }
+
+    public class CosmosLibraryContext : LibraryContext
+    {
+        public CosmosLibraryContext(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TestEntity30244>();
+        }
+    }
+
+    public override LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
+        => new CosmosLibraryContext(Fixture.CreateOptions(interceptors, inject));
 
     public class MaterializationInterceptionCosmosFixture : SingletonInterceptorsFixtureBase
     {

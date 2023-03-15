@@ -231,87 +231,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 
     #endregion
 
-    #region 30244
-
-    protected virtual void OnConfiguring30244(DbContextOptionsBuilder builder)
-    {
-        builder.AddInterceptors(new IssueReproMaterialization30244());
-    }
-
-    private class IssueReproMaterialization30244 : IMaterializationInterceptor
-    {
-        public InterceptionResult<object> CreatingInstance(
-            MaterializationInterceptionData materializationData,
-            InterceptionResult<object> result) => result;
-
-        public object CreatedInstance(
-            MaterializationInterceptionData materializationData,
-            object entity) => entity;
-
-        public InterceptionResult InitializingInstance(
-            MaterializationInterceptionData materializationData,
-            object entity, InterceptionResult result) => result;
-
-        public object InitializedInstance(
-            MaterializationInterceptionData materializationData,
-            object entity) => entity;
-    }
-
-    protected abstract void Seed30244(MyContext30244 ctx);
-
-    public class MyContext30244 : DbContext
-    {
-        public MyContext30244(DbContextOptions options)
-            : base(options)
-        {
-        }
-
-        public DbSet<TestEntity30244> TestEntities => Set<TestEntity30244>();
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<TestEntity30244>().OwnsMany(e => e.Settings, nb => nb.ToJson());
-        }
-    }
-
-    public class TestEntity30244
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public List<KeyValueSetting30244> Settings { get; set; }
-    }
-
-    public class KeyValueSetting30244
-    {
-        public KeyValueSetting30244(string key, string value)
-        {
-            Key = key;
-            Value = value;
-        }
-
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Materialize_entity_using_default_materialization_interceptor(bool async)
-    {
-        var contextFactory = await InitializeAsync<MyContext30244>(
-            onConfiguring: OnConfiguring30244,
-            seed: Seed30244);
-
-        using var context = contextFactory.CreateContext();
-
-        var entity = async
-            ? await context.TestEntities.FirstOrDefaultAsync(x => x.Id == 1)
-            : context.TestEntities.FirstOrDefault(x => x.Id == 1);
-
-        Assert.NotNull(entity);
-    }
-
-    #endregion
-
     #region ArrayOfPrimitives
 
     [ConditionalTheory]
@@ -403,7 +322,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
             else
             {
                 Assert.Throws<InvalidOperationException>(() => query.ToList());
-            }    
+            }
         }
     }
 
