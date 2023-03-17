@@ -911,9 +911,14 @@ INNER JOIN [Entities2] AS [e0] ON [e].[NullableIntA] = [e0].[NullableIntB]
 
         AssertSql(
 """
+@__ids_0='["Foo",null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] = N'Foo' OR [e].[NullableStringA] IS NULL
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
 """);
     }
 
@@ -923,9 +928,14 @@ WHERE [e].[NullableStringA] = N'Foo' OR [e].[NullableStringA] IS NULL
 
         AssertSql(
 """
+@__ids_0='["Foo",null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] <> N'Foo' AND [e].[NullableStringA] IS NOT NULL
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL)))
 """);
     }
 
@@ -935,9 +945,14 @@ WHERE [e].[NullableStringA] <> N'Foo' AND [e].[NullableStringA] IS NOT NULL
 
         AssertSql(
 """
+@__ids_0='["Foo"]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] <> N'Foo' OR [e].[NullableStringA] IS NULL
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL)))
 """);
     }
 
@@ -947,9 +962,14 @@ WHERE [e].[NullableStringA] <> N'Foo' OR [e].[NullableStringA] IS NULL
 
         AssertSql(
 """
+@__ids_0='[null,"Foo",null,null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] = N'Foo' OR [e].[NullableStringA] IS NULL
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
 """);
     }
 
@@ -1223,9 +1243,14 @@ END
 
         AssertSql(
 """
+@__list_0='["Foo","Bar"]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[StringA] IN (N'Foo', N'Bar')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__list_0) AS [l]
+    WHERE [l].[value] = [e].[StringA])
 """,
             //
 """
@@ -1264,9 +1289,14 @@ WHERE [e].[NullableBoolA] = [e].[NullableBoolB]
 
         AssertSql(
 """
+@__names_0='["Foo","Bar"]' (Size = 4000)
+
 SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] IN (N'Foo', N'Bar')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__names_0) AS [n]
+    WHERE [n].[value] = [e].[NullableStringA])
 """);
     }
 
@@ -1276,9 +1306,14 @@ WHERE [e].[NullableStringA] IN (N'Foo', N'Bar')
 
         AssertSql(
 """
+@__names_0='[]' (Size = 4000)
+
 SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
-WHERE 0 = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__names_0) AS [n]
+    WHERE [n].[value] = [e].[NullableStringA])
 """);
     }
 
@@ -1288,9 +1323,14 @@ WHERE 0 = 1
 
         AssertSql(
 """
+@__names_0='[null]' (Size = 4000)
+
 SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableStringA] = NULL
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__names_0) AS [n]
+    WHERE [n].[value] = [e].[NullableStringA])
 """);
     }
 
@@ -1740,27 +1780,47 @@ END = COALESCE([e0].[NullableBoolA], [e0].[BoolC])
 
         AssertSql(
 """
+@__ids_0='[1,2]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] IN (1, 2)
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
 """
+@__ids_0='[1,2]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] NOT IN (1, 2) OR [e].[NullableIntA] IS NULL
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
 """
+@__ids2_0='[1,2,null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] IN (1, 2) OR [e].[NullableIntA] IS NULL
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids2_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
 """
+@__ids2_0='[1,2,null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] NOT IN (1, 2) AND [e].[NullableIntA] IS NOT NULL
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids2_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
 """
@@ -1794,26 +1854,47 @@ WHERE [e].[NullableIntA] NOT IN (1, 2) AND [e].[NullableIntA] IS NOT NULL
 
         AssertSql(
 """
+@__ids_0='[]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
 """
+@__ids_0='[]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
 """
+@__ids2_0='[null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] IS NULL
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids2_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
 """
+@__ids2_0='[null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[NullableIntA] IS NOT NULL
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids2_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
 """
@@ -1846,49 +1927,91 @@ WHERE [e].[NullableIntA] IS NOT NULL
 
         AssertSql(
 """
+@__ids_0='[1,2,null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[IntA] IN (1, 2)
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
 """
+@__ids_0='[1,2,null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[IntA] NOT IN (1, 2)
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """,
             //
 """
+@__ids2_0='[1,2]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[IntA] IN (1, 2)
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids2_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
 """
+@__ids2_0='[1,2]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE [e].[IntA] NOT IN (1, 2)
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids2_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """,
             //
 """
+@__ids3_0='[]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids3_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
 """
+@__ids3_0='[]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids3_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """,
             //
 """
+@__ids4_0='[null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
-WHERE 0 = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids4_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
 """
+@__ids4_0='[null]' (Size = 4000)
+
 SELECT [e].[Id]
 FROM [Entities1] AS [e]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids4_0) AS [i]
+    WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """);
     }
 

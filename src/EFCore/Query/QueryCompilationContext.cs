@@ -163,7 +163,7 @@ public class QueryCompilationContext
 
         query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
         // Convert EntityQueryable to ShapedQueryExpression
-        query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Visit(query);
+        query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(query);
         query = _queryTranslationPostprocessorFactory.Create(this).Process(query);
 
         // Inject actual entity materializer

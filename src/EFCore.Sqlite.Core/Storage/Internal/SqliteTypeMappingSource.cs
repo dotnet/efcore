@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text.Json;
+using Microsoft.Data.Sqlite;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -94,6 +95,8 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         { TextTypeName, Text }
     };
 
+    private readonly bool _areJsonFunctionsSupported;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -105,6 +108,9 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
         RelationalTypeMappingSourceDependencies relationalDependencies)
         : base(dependencies, relationalDependencies)
     {
+        // Support for JSON functions was added in Sqlite 3.38.0 (2022-02-22, see https://www.sqlite.org/json1.html).
+        // This determines whether we have json_each, which is needed to query into JSON columns.
+        _areJsonFunctionsSupported = new Version(new SqliteConnection().ServerVersion) >= new Version(3, 38);
     }
 
     /// <summary>
@@ -124,7 +130,9 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
     {
-        var mapping = base.FindMapping(mappingInfo) ?? FindRawMapping(mappingInfo);
+        var mapping = base.FindMapping(mappingInfo)
+            ?? FindRawMapping(mappingInfo)
+            ?? FindCollectionMapping(mappingInfo);
 
         return mapping != null
             && mappingInfo.StoreTypeName != null
@@ -164,6 +172,69 @@ public class SqliteTypeMappingSource : RelationalTypeMappingSource
             {
                 return Blob;
             }
+        }
+
+        return null;
+    }
+
+    private RelationalTypeMapping? FindCollectionMapping(RelationalTypeMappingInfo mappingInfo)
+    {
+        // Make sure the element type is mapped and isn't itself a collection (nested collections not supported)
+        if (mappingInfo is { StoreTypeName: TextTypeName or null }
+            && mappingInfo.ClrType?.TryGetElementType(typeof(IEnumerable<>)) is { } elementClrType
+            && FindMapping(elementClrType) is { ElementTypeMapping: null } elementTypeMapping)
+        {
+            var stringMappingInfo = new RelationalTypeMappingInfo(
+                typeof(string),
+                mappingInfo.StoreTypeName,
+                mappingInfo.StoreTypeNameBase,
+                mappingInfo.IsKeyOrIndex,
+                mappingInfo.IsUnicode,
+                mappingInfo.Size,
+                mappingInfo.IsRowVersion,
+                mappingInfo.IsFixedLength,
+                mappingInfo.Precision,
+                mappingInfo.Scale);
+
+            if (FindMapping(stringMappingInfo) is not SqliteStringTypeMapping stringTypeMapping)
+            {
+                return null;
+            }
+
+            // Specifically exclude collections over Geometry, since there's a dedicated GeometryCollection type for that (see #30630)
+            if (elementClrType.Namespace == "NetTopologySuite.Geometries")
+            {
+                return null;
+            }
+
+            stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping
+                .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
+
+            // json_each was introduced in SQLite 3.38.0; on older SQLite version we allow mapping the column, but don't set the element
+            // type mapping on the mapping, so that it isn't queryable. This causes us to go into the old translation path for Contains
+            // over parameter via IN with constants.
+            if (_areJsonFunctionsSupported)
+            {
+                switch (elementTypeMapping)
+                {
+                    // The JSON representation for DateTimeOffset is ISO8601 (2023-01-01T12:30:00+02:00), but our SQL literal representation
+                    // is 2023-01-01 12:30:00+02:00 (no T).
+                    // datetime('2023-01-01T12:30:00+02:00') yields '2023-01-01 10:30:00' - converted to UTC, no timezone.
+                    case SqliteDateTimeOffsetTypeMapping:
+                    // The JSON representation for decimal is e.g. 1 (JSON int), whereas our literal representation is "1.0" (string)
+                    case SqliteDecimalTypeMapping:
+                    // The JSON representation for new[] { 1, 2 } is AQI= (base64?), our SQL literal representation is X'0102'
+                    case ByteArrayTypeMapping:
+                        break;
+
+
+                    default:
+                        stringTypeMapping = (SqliteStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
+                        break;
+                }
+            }
+
+            return stringTypeMapping;
         }
 
         return null;

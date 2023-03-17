@@ -168,6 +168,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
+        ///     Store type '{storeType1}' was inferred for a primitive collection, but that primitive collection was previously inferred to have store type '{storeType2}'.
+        /// </summary>
+        public static string ConflictingTypeMappingsForPrimitiveCollection(object? storeType1, object? storeType2)
+            => string.Format(
+                GetString("ConflictingTypeMappingsForPrimitiveCollection", nameof(storeType1), nameof(storeType2)),
+                storeType1, storeType2);
+
+        /// <summary>
         ///     A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.
         /// </summary>
         public static string ConflictingSeedValues(object? entityType, object? table, object? column)
@@ -620,6 +628,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("EitherOfTwoValuesMustBeNull", nameof(param1), nameof(param2)),
                 param1, param2);
+
+        /// <summary>
+        ///     Empty collections are not supported as constant query roots.
+        /// </summary>
+        public static string EmptyCollectionNotSupportedAsInlineQueryRoot
+            => GetString("EmptyCollectionNotSupportedAsInlineQueryRoot");
 
         /// <summary>
         ///     The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").
@@ -1410,6 +1424,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType);
 
         /// <summary>
+        ///     Only constants are supported inside inline collection query roots.
+        /// </summary>
+        public static string OnlyConstantsSupportedInInlineCollectionQueryRoots
+            => GetString("OnlyConstantsSupportedInInlineCollectionQueryRoots");
+
+        /// <summary>
         ///     Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].
         /// </summary>
         public static string ParameterNotObjectArray(object? parameter)
@@ -1966,7 +1986,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 nodeType, expressionType);
 
         /// <summary>
-        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'. 
+        ///     No relational type mapping can be found for property '{entity}.{property}' and the current provider doesn't specify a default store type for the properties of type '{clrType}'.
         /// </summary>
         public static string UnsupportedPropertyType(object? entity, object? property, object? clrType)
             => string.Format(

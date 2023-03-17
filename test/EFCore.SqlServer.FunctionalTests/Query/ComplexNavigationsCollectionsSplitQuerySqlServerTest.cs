@@ -3187,22 +3187,32 @@ ORDER BY [l].[Id], [l0].[Id], [l1].[Id]
 
         AssertSql(
 """
+@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+
 SELECT CASE
     WHEN [l0].[Id] IS NULL THEN 0
     ELSE [l0].[Id]
 END, [l].[Id], [l0].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
-WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__validIds_0) AS [v]
+    WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
 ORDER BY [l].[Id], [l0].[Id]
 """,
             //
 """
+@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+
 SELECT [l1].[Id], [l1].[Level2_Optional_Id], [l1].[Level2_Required_Id], [l1].[Name], [l1].[OneToMany_Optional_Inverse3Id], [l1].[OneToMany_Optional_Self_Inverse3Id], [l1].[OneToMany_Required_Inverse3Id], [l1].[OneToMany_Required_Self_Inverse3Id], [l1].[OneToOne_Optional_PK_Inverse3Id], [l1].[OneToOne_Optional_Self3Id], [l].[Id], [l0].[Id]
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Required_Id]
 INNER JOIN [LevelThree] AS [l1] ON [l0].[Id] = [l1].[OneToMany_Required_Inverse3Id]
-WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__validIds_0) AS [v]
+    WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
 ORDER BY [l].[Id], [l0].[Id]
 """);
     }
@@ -3734,25 +3744,38 @@ ORDER BY [l].[Id], [t].[Date], [t0].[Name], [t0].[Date]
 
         AssertSql(
 """
+@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+
 SELECT [l].[Date]
 FROM [LevelOne] AS [l]
-WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__validIds_0) AS [v]
+    WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
 GROUP BY [l].[Date]
 ORDER BY [l].[Date]
 """,
             //
 """
+@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+
 SELECT [t0].[Id], [t].[Date]
 FROM (
     SELECT [l].[Date]
     FROM [LevelOne] AS [l]
-    WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+    WHERE EXISTS (
+        SELECT 1
+        FROM OpenJson(@__validIds_0) AS [v]
+        WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
     GROUP BY [l].[Date]
 ) AS [t]
 INNER JOIN (
     SELECT [l0].[Id], [l0].[Date]
     FROM [LevelOne] AS [l0]
-    WHERE [l0].[Name] IN (N'L1 01', N'L1 02')
+    WHERE EXISTS (
+        SELECT 1
+        FROM OpenJson(@__validIds_0) AS [v0]
+        WHERE [v0].[value] = [l0].[Name] OR ([v0].[value] IS NULL AND [l0].[Name] IS NULL))
 ) AS [t0] ON [t].[Date] = [t0].[Date]
 ORDER BY [t].[Date]
 """);

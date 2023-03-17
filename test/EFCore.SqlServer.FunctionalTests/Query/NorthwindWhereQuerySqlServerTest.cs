@@ -12,7 +12,7 @@ public class NorthwindWhereQuerySqlServerTest : NorthwindWhereQueryRelationalTes
         : base(fixture)
     {
         ClearLog();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override bool CanExecuteQueryString
@@ -2081,9 +2081,14 @@ WHERE [o].[OrderID] = 1
 
         AssertSql(
 """
+@__cities_0='["Seattle"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[City] = N'Seattle'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__cities_0) AS [c0]
+    WHERE CAST([c0].[value] AS nvarchar(15)) = [c].[City] OR ([c0].[value] IS NULL AND [c].[City] IS NULL))
 """);
     }
 
@@ -2441,9 +2446,14 @@ ORDER BY [o].[OrderID], [o1].[OrderID]
 
         AssertSql(
 """
+@__orderIds_0='[10248,10249]' (Size = 4000)
+
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] IN (10248, 10249)
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__orderIds_0) AS [o0]
+    WHERE CAST([o0].[value] AS int) = [o].[OrderID])
 """);
     }
 
@@ -2453,9 +2463,14 @@ WHERE [o].[OrderID] IN (10248, 10249)
 
         AssertSql(
 """
+@__orderIds_0='[10248,10249]' (Size = 4000)
+
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] IN (10248, 10249)
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__orderIds_0) AS [o0]
+    WHERE CAST([o0].[value] AS int) = [o].[OrderID])
 """);
     }
 
@@ -2555,9 +2570,14 @@ WHERE [c].[CustomerID] <> @__prm1_0 AND [c].[CustomerID] <> @__prm2_1 AND [c].[C
         // issue #21462
         AssertSql(
 """
+@__p_0='["ALFKI","ANATR"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR [c].[CustomerID] = N'ANTON'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__p_0) AS [p]
+    WHERE CAST([p].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = N'ANTON'
 """);
     }
 
@@ -2580,9 +2600,14 @@ WHERE [c].[Region] IN (N'WA', N'OR') OR [c].[Region] IS NULL OR [c].[Region] = N
 
         AssertSql(
 """
+@__array_0='["ALFKI","ANATR"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR [c].[CustomerID] = N'ANTON'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__array_0) AS [a]
+    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = N'ANTON'
 """);
     }
 
@@ -2593,11 +2618,15 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR [c].[CustomerID] = N'ANTON'
         AssertSql(
 """
 @__prm1_0='ANTON' (Size = 5) (DbType = StringFixedLength)
+@__array_1='["ALFKI","ANATR"]' (Size = 4000)
 @__prm2_2='ALFKI' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__prm1_0 OR [c].[CustomerID] IN (N'ALFKI', N'ANATR') OR [c].[CustomerID] = @__prm2_2
+WHERE [c].[CustomerID] = @__prm1_0 OR EXISTS (
+    SELECT 1
+    FROM OpenJson(@__array_1) AS [a]
+    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = @__prm2_2
 """);
     }
 
@@ -2899,9 +2928,14 @@ WHERE EXISTS (
 
         AssertSql(
 """
+@__customerIds_0='["ALFKI","FISSA"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'FISSA') AND [c].[City] = N'Seattle'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__customerIds_0) AS [c0]
+    WHERE CAST([c0].[value] AS nchar(5)) = [c].[CustomerID]) AND [c].[City] = N'Seattle'
 """);
     }
 
@@ -2911,9 +2945,14 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'FISSA') AND [c].[City] = N'Seattle'
 
         AssertSql(
 """
+@__customerIds_0='["ALFKI","FISSA"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'FISSA') OR [c].[City] = N'Seattle'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__customerIds_0) AS [c0]
+    WHERE CAST([c0].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[City] = N'Seattle'
 """);
     }
 
