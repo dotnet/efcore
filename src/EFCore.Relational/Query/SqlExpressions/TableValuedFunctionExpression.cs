@@ -24,20 +24,66 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     public TableValuedFunctionExpression(IStoreFunction storeFunction, IReadOnlyList<SqlExpression> arguments)
         : this(
             storeFunction.Name[..1].ToLowerInvariant(),
-            storeFunction,
+            storeFunction.Name,
+            storeFunction.Schema,
+            storeFunction.IsBuiltIn,
             arguments,
             annotations: null)
     {
+        StoreFunction = storeFunction;
     }
 
-    private TableValuedFunctionExpression(
-        string alias,
-        IStoreFunction storeFunction,
+    /// <summary>
+    ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
+    /// </summary>
+    /// <param name="name">The name of the function.</param>
+    /// <param name="arguments">The arguments of the function.</param>
+    /// <param name="annotations">A collection of annotations associated with this expression.</param>
+    public TableValuedFunctionExpression(
+        string name,
         IReadOnlyList<SqlExpression> arguments,
-        IEnumerable<IAnnotation>? annotations)
+        IEnumerable<IAnnotation>? annotations = null)
+        : this(name[..1].ToLowerInvariant(), name, schema: null, builtIn: true, arguments, annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
+    /// </summary>
+    /// <param name="alias">A string alias for the table source.</param>
+    /// <param name="name">The name of the function.</param>
+    /// <param name="arguments">The arguments of the function.</param>
+    /// <param name="annotations">A collection of annotations associated with this expression.</param>
+    public TableValuedFunctionExpression(
+        string alias,
+        string name,
+        IReadOnlyList<SqlExpression> arguments,
+        IEnumerable<IAnnotation>? annotations = null)
+        : this(alias, name, schema: null, builtIn: true, arguments, annotations)
+    {
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="TableValuedFunctionExpression" /> class.
+    /// </summary>
+    /// <param name="alias">A string alias for the table source.</param>
+    /// <param name="name">The name of the function.</param>
+    /// <param name="schema">The schema of the function.</param>
+    /// <param name="builtIn">Whether the function is built-in.</param>
+    /// <param name="arguments">The arguments of the function.</param>
+    /// <param name="annotations">A collection of annotations associated with this expression.</param>
+    protected TableValuedFunctionExpression(
+        string alias,
+        string name,
+        string? schema,
+        bool builtIn,
+        IReadOnlyList<SqlExpression> arguments,
+        IEnumerable<IAnnotation>? annotations = null)
         : base(alias, annotations)
     {
-        StoreFunction = storeFunction;
+        Name = name;
+        Schema = schema;
+        IsBuiltIn = builtIn;
         Arguments = arguments;
     }
 
@@ -54,16 +100,31 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <summary>
     ///     The store function.
     /// </summary>
-    public virtual IStoreFunction StoreFunction { get; }
+    public virtual IStoreFunction? StoreFunction { get; }
+
+    /// <inheritdoc />
+    ITableBase? ITableBasedExpression.Table
+        => StoreFunction;
+
+    /// <summary>
+    ///     The name of the function.
+    /// </summary>
+    public virtual string Name { get; }
+
+    /// <summary>
+    ///     The schema of the function.
+    /// </summary>
+    public virtual string? Schema { get; }
+
+    /// <summary>
+    ///     Gets the value indicating whether the function is built-in.
+    /// </summary>
+    public virtual bool IsBuiltIn { get; }
 
     /// <summary>
     ///     The list of arguments of this function.
     /// </summary>
     public virtual IReadOnlyList<SqlExpression> Arguments { get; }
-
-    /// <inheritdoc />
-    ITableBase ITableBasedExpression.Table
-        => StoreFunction;
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -77,7 +138,7 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
         }
 
         return changed
-            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
+            ? new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, arguments, GetAnnotations())
             : this;
     }
 
@@ -89,22 +150,22 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
     public virtual TableValuedFunctionExpression Update(IReadOnlyList<SqlExpression> arguments)
         => !arguments.SequenceEqual(Arguments)
-            ? new TableValuedFunctionExpression(Alias, StoreFunction, arguments, GetAnnotations())
+            ? new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, arguments, GetAnnotations())
             : this;
 
     /// <inheritdoc />
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
-        => new TableValuedFunctionExpression(Alias, StoreFunction, Arguments, annotations);
+        => new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, Arguments, annotations);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
-        if (!string.IsNullOrEmpty(StoreFunction.Schema))
+        if (!string.IsNullOrEmpty(Schema))
         {
-            expressionPrinter.Append(StoreFunction.Schema).Append(".");
+            expressionPrinter.Append(Schema).Append(".");
         }
 
-        expressionPrinter.Append(StoreFunction.Name);
+        expressionPrinter.Append(Name);
         expressionPrinter.Append("(");
         expressionPrinter.VisitCollection(Arguments);
         expressionPrinter.Append(")");
@@ -122,6 +183,9 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
 
     private bool Equals(TableValuedFunctionExpression tableValuedFunctionExpression)
         => base.Equals(tableValuedFunctionExpression)
+            && Name == tableValuedFunctionExpression.Name
+            && Schema == tableValuedFunctionExpression.Schema
+            && IsBuiltIn == tableValuedFunctionExpression.IsBuiltIn
             && StoreFunction == tableValuedFunctionExpression.StoreFunction
             && Arguments.SequenceEqual(tableValuedFunctionExpression.Arguments);
 
@@ -130,6 +194,9 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
     {
         var hash = new HashCode();
         hash.Add(base.GetHashCode());
+        hash.Add(Name);
+        hash.Add(Schema);
+        hash.Add(IsBuiltIn);
         hash.Add(StoreFunction);
         for (var i = 0; i < Arguments.Count; i++)
         {

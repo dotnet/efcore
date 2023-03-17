@@ -25,7 +25,6 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
-    private const string SqlQuerySingleColumnAlias = "Value";
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
     private static readonly Dictionary<ExpressionType, ExpressionType> MirroredOperationMap =
@@ -112,14 +111,32 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
     }
 
-    internal SelectExpression(Type type, RelationalTypeMapping typeMapping, FromSqlExpression fromSqlExpression)
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SelectExpression" /> class given a <see cref="TableExpressionBase" />, with a single
+    ///     column projection.
+    /// </summary>
+    /// <param name="tableExpression">The table expression.</param>
+    /// <param name="columnName">The name of the column to add as the projection.</param>
+    /// <param name="columnType">The type of the column to add as the projection.</param>
+    /// <param name="columnTypeMapping">The type mapping of the column to add as the projection.</param>
+    /// <param name="isColumnNullable">Whether the column projected out is nullable.</param>
+    public SelectExpression(
+        TableExpressionBase tableExpression,
+        string columnName,
+        Type columnType,
+        RelationalTypeMapping? columnTypeMapping,
+        bool? isColumnNullable = null)
         : base(null)
     {
-        var tableReferenceExpression = new TableReferenceExpression(this, fromSqlExpression.Alias!);
-        AddTable(fromSqlExpression, tableReferenceExpression);
+        var tableReferenceExpression = new TableReferenceExpression(this, tableExpression.Alias!);
+        AddTable(tableExpression, tableReferenceExpression);
 
         var columnExpression = new ConcreteColumnExpression(
-            SqlQuerySingleColumnAlias, tableReferenceExpression, type, typeMapping, type.IsNullableType());
+            columnName,
+            tableReferenceExpression,
+            columnType.UnwrapNullableType(),
+            columnTypeMapping,
+            isColumnNullable ?? columnType.IsNullableType());
 
         _projectionMapping[new ProjectionMember()] = columnExpression;
     }
@@ -466,7 +483,9 @@ public sealed partial class SelectExpression : TableExpressionBase
             throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTphWithCustomTable(entityType.DisplayName()));
         }
 
-        var table = (tableExpressionBase as FromSqlExpression)?.Table ?? ((ITableBasedExpression)tableExpressionBase).Table;
+        var table = (tableExpressionBase as ITableBasedExpression)?.Table;
+        Check.DebugAssert(table is not null, "SelectExpression with unexpected missing table");
+
         var tableReferenceExpression = new TableReferenceExpression(this, tableExpressionBase.Alias!);
         AddTable(tableExpressionBase, tableReferenceExpression);
 
@@ -3910,6 +3929,32 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             PushdownIntoSubquery();
         }
+    }
+
+    /// <summary>
+    ///     Creates a <see cref="ColumnExpression" /> that references a table on this <see cref="SelectExpression" />.
+    /// </summary>
+    /// <param name="tableExpression">The table expression referenced by the column.</param>
+    /// <param name="columnName">The column name.</param>
+    /// <param name="type">The column CLR type.</param>
+    /// <param name="typeMapping">The column's type mapping.</param>
+    /// <param name="columnNullable">Whether the column is nullable.</param>
+    public ColumnExpression CreateColumnExpression(
+        TableExpressionBase tableExpression,
+        string columnName,
+        Type type,
+        RelationalTypeMapping? typeMapping,
+        bool? columnNullable = null)
+    {
+        var tableIndex = _tables.FindIndex(teb => ReferenceEquals(teb, tableExpression));
+        var tableReferenceExpression = _tableReferences[tableIndex];
+
+        return new ConcreteColumnExpression(
+            columnName,
+            tableReferenceExpression,
+            type.UnwrapNullableType(),
+            typeMapping,
+            columnNullable ?? type.IsNullableType());
     }
 
     /// <summary>

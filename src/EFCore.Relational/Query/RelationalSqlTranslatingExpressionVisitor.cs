@@ -66,7 +66,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     private readonly IModel _model;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly QueryableMethodTranslatingExpressionVisitor _queryableMethodTranslatingExpressionVisitor;
-    private readonly SqlTypeMappingVerifyingExpressionVisitor _sqlTypeMappingVerifyingExpressionVisitor;
 
     private bool _throwForNotTranslatedEfProperty;
 
@@ -86,7 +85,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         _queryCompilationContext = queryCompilationContext;
         _model = queryCompilationContext.Model;
         _queryableMethodTranslatingExpressionVisitor = queryableMethodTranslatingExpressionVisitor;
-        _sqlTypeMappingVerifyingExpressionVisitor = new SqlTypeMappingVerifyingExpressionVisitor();
         _throwForNotTranslatedEfProperty = true;
     }
 
@@ -148,8 +146,6 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 // The return type is not-mappable hence return null
                 return null;
             }
-
-            _sqlTypeMappingVerifyingExpressionVisitor.Visit(translation);
 
             return translation;
         }
@@ -704,6 +700,12 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                 return scalarSubqueryExpression;
 
+            // We have e.g. an array parameter inside a Where clause; this is represented as a QueryableParameterQueryRootExpression so
+            // that we can translate queryable operators over it (query root in subquery context), but in normal SQL translation context
+            // we just unwrap the query root expression to get the parameter out.
+            case ParameterQueryRootExpression queryableParameterQueryRootExpression:
+                return Visit(queryableParameterQueryRootExpression.ParameterExpression);
+
             default:
                 return QueryCompilationContext.NotTranslatedExpression;
         }
@@ -737,6 +739,36 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
         => GetConstantOrNotTranslated(memberInitExpression);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual bool TryTranslatePropertyAccess(Expression expression, [NotNullWhen(true)] out SqlExpression? propertyAccessExpression)
+    {
+        if (expression is MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.TryGetEFPropertyArguments(out var source, out var propertyName)
+                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is { } result)
+            {
+                propertyAccessExpression = result;
+                return true;
+            }
+
+            if (methodCallExpression.TryGetIndexerArguments(_model, out source, out propertyName)
+                && TryBindMember(Visit(source), MemberIdentity.Create(propertyName)) is { } indexerResult)
+            {
+                propertyAccessExpression = indexerResult;
+                return true;
+            }
+        }
+
+        propertyAccessExpression = null;
+        return false;
+    }
 
     /// <inheritdoc />
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
@@ -1912,14 +1944,5 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 ? QueryCompilationContext.NotTranslatedExpression
                 : new EntityReferenceExpression(this, derivedEntityType);
         }
-    }
-
-    private sealed class SqlTypeMappingVerifyingExpressionVisitor : ExpressionVisitor
-    {
-        protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is SqlExpression { TypeMapping: null } sqlExpression
-                && extensionExpression is not SqlFragmentExpression
-                ? throw new InvalidOperationException(RelationalStrings.NullTypeMappingInSqlTree(sqlExpression.Print()))
-                : base.VisitExtension(extensionExpression);
     }
 }

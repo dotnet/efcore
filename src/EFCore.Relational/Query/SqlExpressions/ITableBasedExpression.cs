@@ -5,7 +5,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 /// <summary>
 ///     <para>
-///         An interface that gives access to <see cref="ITableBase" /> associated with given table source.
+///         An interface that gives access to an optional <see cref="ITableBase" /> associated with given table source.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 public interface ITableBasedExpression
 {
     /// <summary>
-    ///     The <see cref="ITableBase" /> associated with given table source.
+    ///     The <see cref="ITableBase" /> associated with given table source, if any.
     /// </summary>
-    ITableBase Table { get; }
+    ITableBase? Table { get; }
 }

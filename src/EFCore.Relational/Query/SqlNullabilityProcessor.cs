@@ -185,6 +185,33 @@ public class SqlNullabilityProcessor
             case OuterApplyExpression outerApplyExpression:
                 return outerApplyExpression.Update(Visit(outerApplyExpression.Table));
 
+            case ValuesExpression valuesExpression:
+            {
+                RowValueExpression[]? newRowValues = null;
+
+                for (var i = 0; i < valuesExpression.RowValues.Count; i++)
+                {
+                    var rowValue = valuesExpression.RowValues[i];
+                    var newRowValue = (RowValueExpression)VisitRowValue(rowValue, allowOptimizedExpansion: false, out _);
+
+                    if (newRowValue != rowValue && newRowValues is null)
+                    {
+                        newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
+                        for (var j = 0; j < i; j++)
+                        {
+                            newRowValues[j] = valuesExpression.RowValues[j];
+                        }
+                    }
+
+                    if (newRowValues is not null)
+                    {
+                        newRowValues[i] = newRowValue;
+                    }
+                }
+
+                return newRowValues is null ? valuesExpression : valuesExpression.Update(newRowValues);
+            }
+
             case SelectExpression selectExpression:
                 return Visit(selectExpression);
 
@@ -403,6 +430,8 @@ public class SqlNullabilityProcessor
                 => VisitLike(likeExpression, allowOptimizedExpansion, out nullable),
             RowNumberExpression rowNumberExpression
                 => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
+            RowValueExpression rowValueExpression
+                => VisitRowValue(rowValueExpression, allowOptimizedExpansion, out nullable),
             ScalarSubqueryExpression scalarSubqueryExpression
                 => VisitScalarSubquery(scalarSubqueryExpression, allowOptimizedExpansion, out nullable),
             SqlBinaryExpression sqlBinaryExpression
@@ -733,7 +762,7 @@ public class SqlNullabilityProcessor
                 case SqlParameterExpression sqlParameter:
                     DoNotCache();
                     typeMapping = sqlParameter.TypeMapping;
-                    values = (IEnumerable?)ParameterValues[sqlParameter.Name] ?? throw new NullReferenceException();
+                    values = (IEnumerable?)ParameterValues[sqlParameter.Name] ?? Array.Empty<object>();
                     break;
 
                 default:
@@ -824,6 +853,47 @@ public class SqlNullabilityProcessor
         return changed
             ? rowNumberExpression.Update(partitions, orderings)
             : rowNumberExpression;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="RowValueExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="rowValueExpression">A row value expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitRowValue(
+        RowValueExpression rowValueExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        SqlExpression[]? newValues = null;
+
+        for (var i = 0; i < rowValueExpression.Values.Count; i++)
+        {
+            var value = rowValueExpression.Values[i];
+
+            // Note that we disallow optimized expansion, since the null vs. false distinction does matter inside the row's values
+            var newValue = Visit(value, allowOptimizedExpansion: false, out _);
+            if (newValue != value && newValues is null)
+            {
+                newValues = new SqlExpression[rowValueExpression.Values.Count];
+                for (var j = 0; j < i; j++)
+                {
+                    newValues[j] = rowValueExpression.Values[j];
+                }
+            }
+
+            if (newValues is not null)
+            {
+                newValues[i] = newValue;
+            }
+        }
+
+        // The row value expression itself can never be null
+        nullable = false;
+
+        return rowValueExpression.Update(newValues ?? rowValueExpression.Values);
     }
 
     /// <summary>

@@ -1636,19 +1636,6 @@ public abstract partial class ModelBuilderTest
         {
         }
 
-        [ConditionalFact]
-        public virtual void Throws_for_collection_of_string()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<StringCollectionEntity>();
-
-            Assert.Equal(
-                CoreStrings.PropertyNotAdded(
-                    nameof(StringCollectionEntity), nameof(StringCollectionEntity.Property), "ICollection<string>"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
-        }
-
         protected class StringCollectionEntity
         {
             public ICollection<string> Property { get; set; }
@@ -1677,19 +1664,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        protected virtual void Mapping_throws_for_non_ignored_array()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<OneDee>();
-
-            Assert.Equal(
-                CoreStrings.PropertyNotAdded(
-                    typeof(OneDee).ShortDisplayName(), "One", typeof(int[]).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
-        }
-
-        [ConditionalFact]
         protected virtual void Mapping_ignores_ignored_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1699,19 +1673,6 @@ public abstract partial class ModelBuilderTest
             var model = modelBuilder.FinalizeModel();
 
             Assert.Null(model.FindEntityType(typeof(OneDee)).FindProperty("One"));
-        }
-
-        [ConditionalFact]
-        protected virtual void Mapping_throws_for_non_ignored_two_dimensional_array()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<TwoDee>();
-
-            Assert.Equal(
-                CoreStrings.PropertyNotAdded(
-                    typeof(TwoDee).ShortDisplayName(), "Two", typeof(int[,]).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
         [ConditionalFact]

@@ -106,7 +106,7 @@ public class SqlServerDbContextOptionsBuilder
 
     /// <summary>
     ///     Sets the SQL Server compatibility level that EF Core will use when interacting with the database. This allows configuring EF
-    ///     Core to work with older (or newer) versions of SQL Server. Defaults to <c>150</c> (SQL Server 2019).
+    ///     Core to work with older (or newer) versions of SQL Server. Defaults to <c>160</c> (SQL Server 2022).
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-dbcontext-options">Using DbContextOptions</see>, and
@@ -114,7 +114,6 @@ public class SqlServerDbContextOptionsBuilder
     ///     documentation on compatibility level</see> for more information and examples.
     /// </remarks>
     /// <param name="compatibilityLevel"><see langword="false" /> to have null resource</param>
-    // TODO: Naming; Cosmos doesn't have Use/Set, so just CompatibilityLevel? SetCompatibilityLevel?
     public virtual SqlServerDbContextOptionsBuilder UseCompatibilityLevel(int compatibilityLevel)
         => WithOption(e => e.WithCompatibilityLevel(compatibilityLevel));
 }

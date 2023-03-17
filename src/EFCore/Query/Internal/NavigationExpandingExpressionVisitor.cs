@@ -1954,17 +1954,6 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
         return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
     }
 
-    private NavigationExpansionExpression CreateNavigationExpansionExpression(
-        Expression sourceExpression,
-        OwnedNavigationReference ownedNavigationReference)
-    {
-        var parameterName = GetParameterName("o");
-        var entityReference = ownedNavigationReference.EntityReference;
-        var currentTree = new NavigationTreeExpression(entityReference);
-
-        return new NavigationExpansionExpression(sourceExpression, currentTree, currentTree, parameterName);
-    }
-
     private Expression ExpandNavigationsForSource(NavigationExpansionExpression source, Expression expression)
     {
         expression = _removeRedundantNavigationComparisonExpressionVisitor.Visit(expression);
@@ -2048,14 +2037,37 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             expression = materializeCollectionNavigationExpression.Subquery;
         }
 
-        return expression is OwnedNavigationReference ownedNavigationReference
-            && ownedNavigationReference.Navigation.IsCollection
-                ? CreateNavigationExpansionExpression(
+        switch (expression)
+        {
+            case OwnedNavigationReference { Navigation.IsCollection: true } ownedNavigationReference:
+            {
+                var currentTree = new NavigationTreeExpression(ownedNavigationReference.EntityReference);
+
+                return new NavigationExpansionExpression(
                     Expression.Call(
                         QueryableMethods.AsQueryable.MakeGenericMethod(ownedNavigationReference.Type.GetSequenceType()),
                         ownedNavigationReference),
-                    ownedNavigationReference)
-                : expression;
+                    currentTree,
+                    currentTree,
+                    GetParameterName("o"));
+            }
+
+            case PrimitiveCollectionReference primitiveCollectionReference:
+            {
+                var currentTree = new NavigationTreeExpression(Expression.Default(primitiveCollectionReference.Type.GetSequenceType()));
+
+                return new NavigationExpansionExpression(
+                    Expression.Call(
+                        QueryableMethods.AsQueryable.MakeGenericMethod(primitiveCollectionReference.Type.GetSequenceType()),
+                        primitiveCollectionReference),
+                    currentTree,
+                    currentTree,
+                    GetParameterName("p"));
+            }
+
+            default:
+                return expression;
+        }
     }
 
     private string GetParameterName(string prefix)

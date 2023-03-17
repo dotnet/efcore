@@ -13,7 +13,7 @@ public class NorthwindCompiledQuerySqlServerTest : NorthwindCompiledQueryTestBas
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
@@ -178,15 +178,25 @@ WHERE [c].[CustomerID] = @__customerID
 
         AssertSql(
 """
+@__args='["ALFKI"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__args) AS [a]
+    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID])
 """,
             //
 """
+@__args='["ANATR"]' (Size = 4000)
+
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ANATR'
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__args) AS [a]
+    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID])
 """);
     }
 
@@ -385,66 +395,64 @@ WHERE [c].[CustomerID] = @__s1 OR [c].[CustomerID] = @__s2 OR [c].[CustomerID] =
 """);
     }
 
-    public override void MakeBinary_does_not_throw_for_unsupported_operator()
-        => Assert.Equal(
-            CoreStrings.TranslationFailedWithDetails(
-                "DbSet<Customer>()    .Where(c => c.CustomerID == (string)__parameters        .ElementAt(0))",
-                CoreStrings.QueryUnableToTranslateMethod("System.Linq.Enumerable", nameof(Enumerable.ElementAt))),
-            Assert.Throws<InvalidOperationException>(
-                () => base.MakeBinary_does_not_throw_for_unsupported_operator()).Message.Replace("\r", "").Replace("\n", ""));
-
     public override void Query_with_array_parameter()
     {
-        var query = EF.CompileQuery(
-            (NorthwindContext context, string[] args)
-                => context.Customers.Where(c => c.CustomerID == args[0]));
+        base.Query_with_array_parameter();
 
-        using (var context = CreateContext())
-        {
-            Assert.Equal(
-                CoreStrings.TranslationFailedWithDetails(
-                    "DbSet<Customer>()    .Where(c => c.CustomerID == __args        .ElementAt(0))",
-                    CoreStrings.QueryUnableToTranslateMethod("System.Linq.Enumerable", nameof(Enumerable.ElementAt))),
-                Assert.Throws<InvalidOperationException>(
-                    () => query(context, new[] { "ALFKI" }).First().CustomerID).Message.Replace("\r", "").Replace("\n", ""));
-        }
+        AssertSql(
+"""
+@__args='["ALFKI"]' (Size = 4000)
 
-        using (var context = CreateContext())
-        {
-            Assert.Equal(
-                CoreStrings.TranslationFailedWithDetails(
-                    "DbSet<Customer>()    .Where(c => c.CustomerID == __args        .ElementAt(0))",
-                    CoreStrings.QueryUnableToTranslateMethod("System.Linq.Enumerable", nameof(Enumerable.ElementAt))),
-                Assert.Throws<InvalidOperationException>(
-                    () => query(context, new[] { "ANATR" }).First().CustomerID).Message.Replace("\r", "").Replace("\n", ""));
-        }
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
+    FROM OpenJson(@__args) AS [a]
+    ORDER BY CAST([a].[key] AS int)
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+""",
+            //
+"""
+@__args='["ANATR"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
+    FROM OpenJson(@__args) AS [a]
+    ORDER BY CAST([a].[key] AS int)
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+""");
     }
 
     public override async Task Query_with_array_parameter_async()
     {
-        var query = EF.CompileAsyncQuery(
-            (NorthwindContext context, string[] args)
-                => context.Customers.Where(c => c.CustomerID == args[0]));
+        await base.Query_with_array_parameter_async();
 
-        using (var context = CreateContext())
-        {
-            Assert.Equal(
-                CoreStrings.TranslationFailedWithDetails(
-                    "DbSet<Customer>()    .Where(c => c.CustomerID == __args        .ElementAt(0))",
-                    CoreStrings.QueryUnableToTranslateMethod("System.Linq.Enumerable", nameof(Enumerable.ElementAt))),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => Enumerate(query(context, new[] { "ALFKI" })))).Message.Replace("\r", "").Replace("\n", ""));
-        }
+        AssertSql(
+"""
+@__args='["ALFKI"]' (Size = 4000)
 
-        using (var context = CreateContext())
-        {
-            Assert.Equal(
-                CoreStrings.TranslationFailedWithDetails(
-                    "DbSet<Customer>()    .Where(c => c.CustomerID == __args        .ElementAt(0))",
-                    CoreStrings.QueryUnableToTranslateMethod("System.Linq.Enumerable", nameof(Enumerable.ElementAt))),
-                (await Assert.ThrowsAsync<InvalidOperationException>(
-                    () => Enumerate(query(context, new[] { "ANATR" })))).Message.Replace("\r", "").Replace("\n", ""));
-        }
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
+    FROM OpenJson(@__args) AS [a]
+    ORDER BY CAST([a].[key] AS int)
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+""",
+            //
+"""
+@__args='["ANATR"]' (Size = 4000)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[CustomerID] = (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
+    FROM OpenJson(@__args) AS [a]
+    ORDER BY CAST([a].[key] AS int)
+    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+""");
     }
 
     public override void Multiple_queries()

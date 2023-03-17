@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Data;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -175,6 +176,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
 
     private readonly Dictionary<string, RelationalTypeMapping[]> _storeTypeMappings;
 
+    private readonly bool _supportsOpenJson;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -183,7 +186,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     public SqlServerTypeMappingSource(
         TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies)
+        RelationalTypeMappingSourceDependencies relationalDependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies, relationalDependencies)
     {
         _clrTypeMappings
@@ -270,6 +274,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { "xml", new[] { _xml } }
             };
         // ReSharper restore CoVariantArrayConversion
+
+        _supportsOpenJson = sqlServerSingletonOptions.CompatibilityLevel >= 130;
     }
 
     /// <summary>
@@ -279,7 +285,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-        => base.FindMapping(mappingInfo) ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+        => base.FindMapping(mappingInfo)
+            ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo)
+            ?? FindCollectionMapping(mappingInfo)?.Clone(mappingInfo);
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
@@ -413,6 +421,87 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         }
 
         return null;
+    }
+
+    private RelationalTypeMapping? FindCollectionMapping(RelationalTypeMappingInfo mappingInfo)
+    {
+        // Support mapping to a JSON array when the following is satisfied:
+        // 1. The ClrType is an IEnumerable.
+        // 2. The store type is either not given or a string type.
+        // 3. The element CLR type has a supported type mapping which isn't itself a collection (nested collections not yet supported).
+
+        // Note that e.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
+        if (mappingInfo.ClrType?.TryGetElementType(typeof(IEnumerable<>)) is not { } elementClrType
+            || elementClrType == mappingInfo.ClrType)
+        {
+            return null;
+        }
+
+        switch (mappingInfo.StoreTypeNameBase)
+        {
+            case "char varying":
+            case "char":
+            case "character varying":
+            case "character":
+            case "national char varying":
+            case "national character varying":
+            case "national character":
+            case "varchar":
+            case null:
+                break;
+            default:
+                return null;
+        }
+
+        // TODO: need to allow the user to set the element store type
+
+        // Make sure the element type is mapped and isn't itself a collection (nested collections not supported)
+        if (FindMapping(elementClrType) is not { ElementTypeMapping: null } elementTypeMapping)
+        {
+            return null;
+        }
+
+        // Specifically exclude collections over Geometry, since there's a dedicated GeometryCollection type for that (see #30630)
+        if (elementClrType.Namespace == "NetTopologySuite.Geometries")
+        {
+            return null;
+        }
+
+        // TODO: This can be moved into a SQL Server implementation of ValueConverterSelector.. But it seems better for this method's logic
+        // to be in the type mapping source.
+        var stringMappingInfo = new RelationalTypeMappingInfo(
+                typeof(string),
+                mappingInfo.StoreTypeName,
+                mappingInfo.StoreTypeNameBase,
+                mappingInfo.IsKeyOrIndex,
+                mappingInfo.IsUnicode,
+                mappingInfo.Size,
+                mappingInfo.IsRowVersion,
+                mappingInfo.IsFixedLength,
+                mappingInfo.Precision,
+                mappingInfo.Scale);
+
+        if (FindMapping(stringMappingInfo) is not SqlServerStringTypeMapping stringTypeMapping)
+        {
+            return null;
+        }
+
+        stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping
+            .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
+
+        // OpenJson was introduced in SQL Server 2016 (compatibility level 130). If the user configures an older compatibility level,
+        // we allow mapping the column, but don't set the element type mapping on the mapping, so that it isn't queryable.
+        // This causes us to go into the old translation path for Contains over parameter via IN with constants.
+        if (_supportsOpenJson)
+        {
+            // The JSON representation for new[] { 1, 2 } is AQI= (base64?), this cannot simply be cast to varbinary(max) (0x0102)
+            if (elementTypeMapping is not SqlServerByteArrayTypeMapping)
+            {
+                stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
+            }
+        }
+
+        return stringTypeMapping;
     }
 
     private static readonly List<string> NameBasesUsingPrecision = new()
