@@ -804,13 +804,18 @@ WHERE COALESCE("w"."SynergyWithId", length("w"."Name") + 42) > 10
 SELECT "t"."Id"
 FROM "Tags" AS "t"
 """,
-                //
-                """
+            //
+"""
+@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","a8ad98f9-e023-4e2a-9a70-c2728455bd34","b39a6fba-9026-4d69-828e-fd7068673e57","df36f493-463f-4123-83f9-6b135deeb7ba"]' (Size = 235)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 INNER JOIN "Cities" AS "c" ON "g"."CityOfBirthName" = "c"."Name"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "c"."Location" IS NOT NULL AND "t"."Id" IN ('34C8D86E-A4AC-4BE5-827F-584DDA348A07', '70534E05-782C-4052-8720-C2C54481CE5F', 'A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69', 'A8AD98F9-E023-4E2A-9A70-C2728455BD34', 'B39A6FBA-9026-4D69-828E-FD7068673E57', 'DF36F493-463F-4123-83F9-6B135DEEB7BA')
+WHERE "c"."Location" IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM json_each(@__tags_0) AS "t0"
+    WHERE upper("t0"."value") = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
 """);
     }
 
@@ -1171,9 +1176,14 @@ FROM "Weapons" AS "w"
 
         AssertSql(
 """
+@__cities_0='["Unknown","Jacinto\u0027s location","Ephyra\u0027s location"]' (Size = 62)
+
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
-WHERE "c"."Location" IN ('Unknown', 'Jacinto''s location', 'Ephyra''s location')
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each(@__cities_0) AS "c0"
+    WHERE "c0"."value" = "c"."Location" OR ("c0"."value" IS NULL AND "c"."Location" IS NULL))
 """);
     }
 
@@ -1889,10 +1899,15 @@ WHERE "g"."Rank" & @__parameter_0 = @__parameter_0
 
         AssertSql(
 """
+@__nicknames_0='[]' (Size = 2)
+
 SELECT "g"."Nickname", "g"."SquadId", "w"."Name", "w"."Id"
 FROM "Gears" AS "g"
 LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
-ORDER BY "g"."Nickname", "g"."SquadId"
+ORDER BY EXISTS (
+    SELECT 1
+    FROM json_each(@__nicknames_0) AS "n"
+    WHERE "n"."value" = "g"."Nickname") DESC, "g"."Nickname", "g"."SquadId"
 """);
     }
 
@@ -2149,9 +2164,14 @@ ORDER BY "f"."Id", "t"."Name", "f0"."Id"
 
         AssertSql(
 """
+@__values_0='[false,true]' (Size = 12)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" AND "g"."HasSoulPatch" IN (0, 1)
+WHERE "g"."HasSoulPatch" AND EXISTS (
+    SELECT 1
+    FROM json_each(@__values_0) AS "v"
+    WHERE "v"."value" = "g"."HasSoulPatch")
 """);
     }
 
@@ -2726,10 +2746,15 @@ ORDER BY (
 
         AssertSql(
 """
+@__cities_0='["Ephyra",null]' (Size = 15)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Cities" AS "c" ON "g"."AssignedCityName" = "c"."Name"
-WHERE "g"."SquadId" < 2 AND ("c"."Name" = 'Ephyra' OR "c"."Name" IS NULL)
+WHERE "g"."SquadId" < 2 AND EXISTS (
+    SELECT 1
+    FROM json_each(@__cities_0) AS "c0"
+    WHERE "c0"."value" = "c"."Name" OR ("c0"."value" IS NULL AND "c"."Name" IS NULL))
 """);
     }
 
@@ -3010,10 +3035,15 @@ WHERE COALESCE("w"."Id", 0) = 0
 
         AssertSql(
 """
+@__types_0='[null,1]' (Size = 8)
+
 SELECT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
 FROM "Weapons" AS "w"
 LEFT JOIN "Weapons" AS "w0" ON "w"."SynergyWithId" = "w0"."Id"
-WHERE "w0"."Id" IS NOT NULL AND ("w0"."AmmunitionType" = 1 OR "w0"."AmmunitionType" IS NULL)
+WHERE "w0"."Id" IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM json_each(@__types_0) AS "t"
+    WHERE "t"."value" = "w0"."AmmunitionType" OR ("t"."value" IS NULL AND "w0"."AmmunitionType" IS NULL))
 """);
     }
 
@@ -3633,12 +3663,17 @@ ORDER BY "t"."Id", "g"."Nickname", "g"."SquadId"
 SELECT "t"."Id"
 FROM "Tags" AS "t"
 """,
-                //
-                """
+            //
+"""
+@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","a8ad98f9-e023-4e2a-9a70-c2728455bd34","b39a6fba-9026-4d69-828e-fd7068673e57","df36f493-463f-4123-83f9-6b135deeb7ba"]' (Size = 235)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN ('34C8D86E-A4AC-4BE5-827F-584DDA348A07', '70534E05-782C-4052-8720-C2C54481CE5F', 'A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69', 'A8AD98F9-E023-4E2A-9A70-C2728455BD34', 'B39A6FBA-9026-4D69-828E-FD7068673E57', 'DF36F493-463F-4123-83F9-6B135DEEB7BA')
+WHERE "t"."Id" IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM json_each(@__tags_0) AS "t0"
+    WHERE upper("t0"."value") = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
 """);
     }
 
@@ -4466,9 +4501,14 @@ FROM "Missions" AS "m"
 
         AssertSql(
 """
+@__values_0='[false,true]' (Size = 12)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE "g"."HasSoulPatch" AND "g"."HasSoulPatch" IN (0, 1)
+WHERE "g"."HasSoulPatch" AND EXISTS (
+    SELECT 1
+    FROM json_each(@__values_0) AS "v"
+    WHERE "v"."value" = "g"."HasSoulPatch")
 """);
     }
 
@@ -4790,12 +4830,17 @@ FROM "Factions" AS "f"
 SELECT "t"."Id"
 FROM "Tags" AS "t"
 """,
-                //
-                """
+            //
+"""
+@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","a8ad98f9-e023-4e2a-9a70-c2728455bd34","b39a6fba-9026-4d69-828e-fd7068673e57","df36f493-463f-4123-83f9-6b135deeb7ba"]' (Size = 235)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank", "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Gears" AS "g"
 LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-WHERE "t"."Id" IS NOT NULL AND "t"."Id" IN ('34C8D86E-A4AC-4BE5-827F-584DDA348A07', '70534E05-782C-4052-8720-C2C54481CE5F', 'A7BE028A-0CF2-448F-AB55-CE8BC5D8CF69', 'A8AD98F9-E023-4E2A-9A70-C2728455BD34', 'B39A6FBA-9026-4D69-828E-FD7068673E57', 'DF36F493-463F-4123-83F9-6B135DEEB7BA')
+WHERE "t"."Id" IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM json_each(@__tags_0) AS "t0"
+    WHERE upper("t0"."value") = "t"."Id" OR ("t0"."value" IS NULL AND "t"."Id" IS NULL))
 """);
     }
 
@@ -5545,8 +5590,14 @@ ORDER BY "t"."Id", "g"."Nickname", "g"."SquadId", "g0"."Nickname"
 
         AssertSql(
 """
+@__ids_0='[]' (Size = 2)
+
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
+ORDER BY EXISTS (
+    SELECT 1
+    FROM json_each(@__ids_0) AS "i"
+    WHERE "i"."value" = "g"."SquadId")
 """);
     }
 
@@ -7921,9 +7972,14 @@ ORDER BY "g"."FullName"
 
         AssertSql(
 """
+@__ids_0='["d2c26679-562b-44d1-ab96-23d1775e0926","23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3","ab1b82d7-88db-42bd-a132-7eef9aa68af4"]' (Size = 118)
+
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Tags" AS "t"
-WHERE "t"."Id" IN ('D2C26679-562B-44D1-AB96-23D1775E0926', '23CBCF9B-CE14-45CF-AAFA-2C2667EBFDD3', 'AB1B82D7-88DB-42BD-A132-7EEF9AA68AF4')
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each(@__ids_0) AS "i"
+    WHERE upper("i"."value") = "t"."Id")
 """);
     }
 

@@ -77,6 +77,18 @@ public class QueryTranslationPreprocessor
     /// <param name="expression">The query expression to normalize.</param>
     /// <returns>A query expression after normalization has been done.</returns>
     public virtual Expression NormalizeQueryableMethod(Expression expression)
-        => new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext)
-            .Normalize(expression);
+    {
+        expression = new QueryableMethodNormalizingExpressionVisitor(QueryCompilationContext).Normalize(expression);
+        expression = ProcessQueryRoots(expression);
+
+        return expression;
+    }
+
+    /// <summary>
+    ///     Adds additional query root nodes to the query.
+    /// </summary>
+    /// <param name="expression">The query expression to process.</param>
+    /// <returns>A query expression after query roots have been added.</returns>
+    protected virtual Expression ProcessQueryRoots(Expression expression)
+        => expression;
 }

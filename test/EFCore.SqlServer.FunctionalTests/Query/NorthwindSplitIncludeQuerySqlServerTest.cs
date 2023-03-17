@@ -2046,24 +2046,44 @@ ORDER BY [o].[OrderID]
 
         AssertSql(
 """
+@__list_0='[]' (Size = 4000)
 @__p_1='1'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY (SELECT 1), [c].[CustomerID]
+ORDER BY CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM OpenJson(@__list_0) AS [l]
+        WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [c].[CustomerID]
 OFFSET @__p_1 ROWS
 """,
             //
 """
+@__list_0='[]' (Size = 4000)
 @__p_1='1'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT [c].[CustomerID], CAST(0 AS bit) AS [c]
+    SELECT [c].[CustomerID], CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
-    ORDER BY (SELECT 1)
+    ORDER BY CASE
+        WHEN EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
     OFFSET @__p_1 ROWS
 ) AS [t]
 INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
@@ -2077,24 +2097,44 @@ ORDER BY [t].[c], [t].[CustomerID]
 
         AssertSql(
 """
+@__list_0='[]' (Size = 4000)
 @__p_1='1'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'
-ORDER BY (SELECT 1), [c].[CustomerID]
+ORDER BY CASE
+    WHEN NOT (EXISTS (
+        SELECT 1
+        FROM OpenJson(@__list_0) AS [l]
+        WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END, [c].[CustomerID]
 OFFSET @__p_1 ROWS
 """,
             //
 """
+@__list_0='[]' (Size = 4000)
 @__p_1='1'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
-    SELECT [c].[CustomerID], CAST(1 AS bit) AS [c]
+    SELECT [c].[CustomerID], CASE
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
-    ORDER BY (SELECT 1)
+    ORDER BY CASE
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
+        ELSE CAST(0 AS bit)
+    END
     OFFSET @__p_1 ROWS
 ) AS [t]
 INNER JOIN [Orders] AS [o] ON [t].[CustomerID] = [o].[CustomerID]
@@ -2108,31 +2148,42 @@ ORDER BY [t].[c], [t].[CustomerID]
 
         AssertSql(
 """
+@__list_0='["ALFKI"]' (Size = 4000)
 @__p_1='1'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
-    WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
+    WHEN EXISTS (
+        SELECT 1
+        FROM OpenJson(@__list_0) AS [l]
+        WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [c].[CustomerID]
 OFFSET @__p_1 ROWS
 """,
             //
 """
+@__list_0='["ALFKI"]' (Size = 4000)
 @__p_1='1'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
     SELECT [c].[CustomerID], CASE
-        WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
+        WHEN EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN [c].[CustomerID] = N'ALFKI' THEN CAST(1 AS bit)
+        WHEN EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -2148,31 +2199,42 @@ ORDER BY [t].[c], [t].[CustomerID]
 
         AssertSql(
 """
+@__list_0='["ALFKI"]' (Size = 4000)
 @__p_1='1'
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
-    WHEN [c].[CustomerID] <> N'ALFKI' THEN CAST(1 AS bit)
+    WHEN NOT (EXISTS (
+        SELECT 1
+        FROM OpenJson(@__list_0) AS [l]
+        WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [c].[CustomerID]
 OFFSET @__p_1 ROWS
 """,
             //
 """
+@__list_0='["ALFKI"]' (Size = 4000)
 @__p_1='1'
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [t].[CustomerID]
 FROM (
     SELECT [c].[CustomerID], CASE
-        WHEN [c].[CustomerID] <> N'ALFKI' THEN CAST(1 AS bit)
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
     WHERE [c].[CustomerID] LIKE N'A%'
     ORDER BY CASE
-        WHEN [c].[CustomerID] <> N'ALFKI' THEN CAST(1 AS bit)
+        WHEN NOT (EXISTS (
+            SELECT 1
+            FROM OpenJson(@__list_0) AS [l]
+            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS

@@ -226,12 +226,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             subQueryIndent = _relationalCommandBuilder.Indent();
         }
 
-        if (IsNonComposedSetOperation(selectExpression))
-        {
-            // Naked set operation
-            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
-        }
-        else
+        if (!TryGenerateWithoutWrappingSelect(selectExpression))
         {
             _relationalCommandBuilder.Append("SELECT ");
 
@@ -298,6 +293,43 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         return selectExpression;
+    }
+
+    /// <summary>
+    ///     If possible, generates the expression contained within the provided <paramref name="selectExpression" /> without the wrapping
+    ///     SELECT. This can be done for set operations and VALUES, which can appear as top-level statements without needing to be wrapped
+    ///     in SELECT.
+    /// </summary>
+    protected virtual bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
+    {
+        if (IsNonComposedSetOperation(selectExpression))
+        {
+            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+            return true;
+        }
+
+        if (selectExpression is
+            {
+                Tables: [ValuesExpression valuesExpression],
+                Offset: null,
+                Limit: null,
+                IsDistinct: false,
+                Predicate: null,
+                Having: null,
+                Orderings.Count: 0,
+                GroupBy.Count: 0,
+            }
+            && selectExpression.Projection.Count == valuesExpression.ColumnNames.Count
+            && selectExpression.Projection.Select(
+                    (pe, index) => pe.Expression is ColumnExpression column
+                        && column.Name == valuesExpression.ColumnNames[index])
+                .All(e => e))
+        {
+            GenerateValues(valuesExpression);
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -371,16 +403,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
     {
-        if (!string.IsNullOrEmpty(tableValuedFunctionExpression.StoreFunction.Schema))
+        if (!string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
         {
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Schema))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Schema))
                 .Append(".");
         }
 
-        var name = tableValuedFunctionExpression.StoreFunction.IsBuiltIn
-            ? tableValuedFunctionExpression.StoreFunction.Name
-            : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name);
+        var name = tableValuedFunctionExpression.IsBuiltIn
+            ? tableValuedFunctionExpression.Name
+            : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Name);
 
         _relationalCommandBuilder
             .Append(name)
@@ -607,19 +639,22 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         var invariantName = sqlParameterExpression.Name;
         var parameterName = sqlParameterExpression.Name;
+        var typeMapping = sqlParameterExpression.TypeMapping!;
 
         // Try to see if a parameter already exists - if so, just integrate the same placeholder into the SQL instead of sending the same
         // data twice.
         // Note that if the type mapping differs, we do send the same data twice (e.g. the same string may be sent once as Unicode, once as
         // non-Unicode).
+        // TODO: Note that we perform Equals comparison on the value converter. We should be able to do reference comparison, but for
+        // that we need to ensure that there's only ever one type mapping instance (i.e. no type mappings are ever instantiated out of the
+        // type mapping source). See #30677.
         var parameter = _relationalCommandBuilder.Parameters.FirstOrDefault(
             p =>
                 p.InvariantName == parameterName
-                && p is TypeMappedRelationalParameter typeMappedRelationalParameter
-                && string.Equals(
-                    typeMappedRelationalParameter.RelationalTypeMapping.StoreType, sqlParameterExpression.TypeMapping!.StoreType,
-                    StringComparison.OrdinalIgnoreCase)
-                && typeMappedRelationalParameter.RelationalTypeMapping.Converter == sqlParameterExpression.TypeMapping!.Converter);
+                && p is TypeMappedRelationalParameter { RelationalTypeMapping: var existingTypeMapping }
+                && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
+                && (existingTypeMapping.Converter is null && typeMapping.Converter is null
+                    || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)));
 
         if (parameter is null)
         {
@@ -1132,6 +1167,28 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return rowNumberExpression;
     }
 
+    /// <inheritdoc />
+    protected override Expression VisitRowValue(RowValueExpression rowValueExpression)
+    {
+        Sql.Append("(");
+
+        var values = rowValueExpression.Values;
+        var count = values.Count;
+        for (var i = 0; i < count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Visit(values[i]);
+        }
+
+        Sql.Append(")");
+
+        return rowValueExpression;
+    }
+
     /// <summary>
     ///     Generates a set operation in the relational command.
     /// </summary>
@@ -1309,6 +1366,65 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
         throw new InvalidOperationException(
             RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitValues(ValuesExpression valuesExpression)
+    {
+        _relationalCommandBuilder.Append("(");
+
+        GenerateValues(valuesExpression);
+
+        _relationalCommandBuilder
+            .Append(")")
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(valuesExpression.Alias));
+
+        return valuesExpression;
+    }
+
+    /// <summary>
+    ///     Generates a VALUES expression.
+    /// </summary>
+    protected virtual void GenerateValues(ValuesExpression valuesExpression)
+    {
+        var rowValues = valuesExpression.RowValues;
+
+        // Some databases support providing the names of columns projected out of VALUES, e.g.
+        // SQL Server/PG: (VALUES (1, 3), (2, 4)) AS x(a, b). Others unfortunately don't; so by default, we extract out the first row,
+        // and generate a SELECT for it with the names, and a UNION ALL over the rest of the values.
+        _relationalCommandBuilder.Append("SELECT ");
+
+        Check.DebugAssert(rowValues.Count > 0, "rowValues.Count > 0");
+        var firstRowValues = rowValues[0].Values;
+        for (var i = 0; i < firstRowValues.Count; i++)
+        {
+            if (i > 0)
+            {
+                _relationalCommandBuilder.Append(", ");
+            }
+
+            Visit(firstRowValues[i]);
+
+            _relationalCommandBuilder
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(valuesExpression.ColumnNames[i]));
+        }
+
+        if (rowValues.Count > 1)
+        {
+            _relationalCommandBuilder.Append(" UNION ALL VALUES ");
+
+            for (var i = 1; i < rowValues.Count; i++)
+            {
+                if (i > 1)
+                {
+                    _relationalCommandBuilder.Append(", ");
+                }
+
+                Visit(valuesExpression.RowValues[i]);
+            }
+        }
     }
 
     /// <inheritdoc />

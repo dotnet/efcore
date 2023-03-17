@@ -90,39 +90,49 @@ WHERE [m].[Tenant] = @__ef_filter__p_0
 
     public override void DbContext_list_is_parameterized()
     {
-        using var context = CreateContext();
-        // Default value of TenantIds is null InExpression over null values throws
-        Assert.Throws<NullReferenceException>(() => context.Set<ListFilter>().ToList());
-
-        context.TenantIds = new List<int>();
-        var query = context.Set<ListFilter>().ToList();
-        Assert.Empty(query);
-
-        context.TenantIds = new List<int> { 1 };
-        query = context.Set<ListFilter>().ToList();
-        Assert.Single(query);
-
-        context.TenantIds = new List<int> { 2, 3 };
-        query = context.Set<ListFilter>().ToList();
-        Assert.Equal(2, query.Count);
+        base.DbContext_list_is_parameterized();
 
         AssertSql(
 """
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE 0 = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(N'[]') AS [e]
+    WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """,
             //
 """
+@__ef_filter__TenantIds_0='[]' (Size = 4000)
+
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] = 1
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ef_filter__TenantIds_0) AS [e]
+    WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """,
             //
 """
+@__ef_filter__TenantIds_0='[1]' (Size = 4000)
+
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE [l].[Tenant] IN (2, 3)
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ef_filter__TenantIds_0) AS [e]
+    WHERE CAST([e].[value] AS int) = [l].[Tenant])
+""",
+            //
+"""
+@__ef_filter__TenantIds_0='[2,3]' (Size = 4000)
+
+SELECT [l].[Id], [l].[Tenant]
+FROM [ListFilter] AS [l]
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ef_filter__TenantIds_0) AS [e]
+    WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """);
     }
 

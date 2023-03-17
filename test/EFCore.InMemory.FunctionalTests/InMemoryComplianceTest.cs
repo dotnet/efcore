@@ -8,6 +8,8 @@ public class InMemoryComplianceTest : ComplianceTestBase
     protected override ICollection<Type> IgnoredTestBases { get; } = new HashSet<Type>
     {
         // No in-memory tests
+        typeof(PrimitiveCollectionsQueryTestBase<>),
+        typeof(NonSharedPrimitiveCollectionsQueryTestBase),
         typeof(FunkyDataQueryTestBase<>),
         typeof(StoreGeneratedTestBase<>),
         typeof(ConferencePlannerTestBase<>),

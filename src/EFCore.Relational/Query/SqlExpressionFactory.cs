@@ -57,9 +57,11 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
             CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
+            ColumnExpression e => e.ApplyTypeMapping(typeMapping),
             DistinctExpression e => ApplyTypeMappingOnDistinct(e, typeMapping),
             InExpression e => ApplyTypeMappingOnIn(e),
             LikeExpression e => ApplyTypeMappingOnLike(e),
+            ScalarSubqueryExpression e => e.ApplyTypeMapping(typeMapping),
             SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
             SqlConstantExpression e => e.ApplyTypeMapping(typeMapping),
             SqlFragmentExpression e => e,
@@ -641,8 +643,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             return;
         }
 
-        var firstTable = selectExpression.Tables[0];
-        var table = (firstTable as FromSqlExpression)?.Table ?? ((ITableBasedExpression)firstTable).Table;
+        var table = (selectExpression.Tables[0] as ITableBasedExpression)?.Table;
+        Check.DebugAssert(table is not null, "SelectExpression with unexpected missing table");
+
         if (table.IsOptional(entityType))
         {
             SqlExpression? predicate = null;

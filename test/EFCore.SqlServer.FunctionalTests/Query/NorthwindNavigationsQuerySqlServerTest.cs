@@ -12,6 +12,7 @@ public class NorthwindNavigationsQuerySqlServerTest : NorthwindNavigationsQueryR
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
+        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override bool CanExecuteQueryString
@@ -773,6 +774,8 @@ ORDER BY [c].[CustomerID]
 
         AssertSql(
 """
+@__orderIds_0='[10643,10692,10702,10835,10952,11011]' (Size = 4000)
+
 SELECT [t0].[CustomerID], [t0].[Address], [t0].[City], [t0].[CompanyName], [t0].[ContactName], [t0].[ContactTitle], [t0].[Country], [t0].[Fax], [t0].[Phone], [t0].[PostalCode], [t0].[Region]
 FROM [Customers] AS [c]
 LEFT JOIN (
@@ -781,7 +784,10 @@ LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID], [c0].[CustomerID]) AS [row]
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-        WHERE [o].[OrderID] IN (10643, 10692, 10702, 10835, 10952, 11011)
+        WHERE EXISTS (
+            SELECT 1
+            FROM OpenJson(@__orderIds_0) AS [o0]
+            WHERE CAST([o0].[value] AS int) = [o].[OrderID])
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID0]

@@ -175,6 +175,9 @@
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
+  <data name="ConflictingTypeMappingsForPrimitiveCollection" xml:space="preserve">
+    <value>Store type '{storeType1}' was inferred for a primitive collection, but that primitive collection was previously inferred to have store type '{storeType2}'.</value>
+  </data>
   <data name="ConflictingSeedValues" xml:space="preserve">
     <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>
   </data>
@@ -345,6 +348,9 @@
   </data>
   <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
     <value>Either {param1} or {param2} must be null.</value>
+  </data>
+  <data name="EmptyCollectionNotSupportedAsInlineQueryRoot" xml:space="preserve">
+    <value>Empty collections are not supported as inline query roots.</value>
   </data>
   <data name="EntityShortNameNotUnique" xml:space="preserve">
     <value>The short name for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique short name. Either rename one of the types or call modelBuilder.Entity&lt;TEntity&gt;().Metadata.SetDiscriminatorValue("NewShortName").</value>
@@ -949,6 +955,9 @@
   </data>
   <data name="OptionalDependentWithDependentWithoutIdentifyingProperty" xml:space="preserve">
     <value>Entity type '{entityType}' is an optional dependent using table sharing and containing other dependents without any required non shared property to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query causing nested dependent's values to be lost. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.</value>
+  </data>
+  <data name="OnlyConstantsSupportedInInlineCollectionQueryRoots" xml:space="preserve">
+    <value>Only constants are supported inside inline collection query roots.</value>
   </data>
   <data name="ParameterNotObjectArray" xml:space="preserve">
     <value>Cannot use the value provided for parameter '{parameter}' because it isn't assignable to type object[].</value>

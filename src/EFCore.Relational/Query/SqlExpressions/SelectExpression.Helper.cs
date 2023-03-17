@@ -605,7 +605,7 @@ public sealed partial class SelectExpression
             string name,
             TableReferenceExpression table,
             Type type,
-            RelationalTypeMapping typeMapping,
+            RelationalTypeMapping? typeMapping,
             bool nullable)
             : base(type, typeMapping)
         {
@@ -629,7 +629,10 @@ public sealed partial class SelectExpression
             => this;
 
         public override ConcreteColumnExpression MakeNullable()
-            => IsNullable ? this : new ConcreteColumnExpression(Name, _table, Type, TypeMapping!, true);
+            => IsNullable ? this : new ConcreteColumnExpression(Name, _table, Type, TypeMapping, true);
+
+        public override SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
+            => new ConcreteColumnExpression(Name, _table, Type, typeMapping, IsNullable);
 
         public void UpdateTableReference(SelectExpression oldSelect, SelectExpression newSelect)
             => _table.UpdateTableReference(oldSelect, newSelect);
@@ -1019,12 +1022,11 @@ public sealed partial class SelectExpression
                         newArguments[i] = (SqlExpression)Visit(tableValuedFunctionExpression.Arguments[i]);
                     }
 
-                    var newTableValuedFunctionExpression = new TableValuedFunctionExpression(
-                        tableValuedFunctionExpression.StoreFunction,
-                        newArguments)
-                    {
-                        Alias = tableValuedFunctionExpression.Alias
-                    };
+                    var newTableValuedFunctionExpression = tableValuedFunctionExpression.StoreFunction is null
+                        ? new TableValuedFunctionExpression(
+                            tableValuedFunctionExpression.Alias, tableValuedFunctionExpression.Name, newArguments)
+                        : new TableValuedFunctionExpression(
+                            tableValuedFunctionExpression.StoreFunction, newArguments) { Alias = tableValuedFunctionExpression.Alias };
 
                     foreach (var annotation in tableValuedFunctionExpression.GetAnnotations())
                     {

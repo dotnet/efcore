@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 
@@ -10,13 +11,19 @@ namespace Microsoft.EntityFrameworkCore.Update;
 public class SqlServerUpdateSqlGeneratorTest : UpdateSqlGeneratorTestBase
 {
     protected override IUpdateSqlGenerator CreateSqlGenerator()
-        => new SqlServerUpdateSqlGenerator(
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        optionsBuilder.UseSqlServer("Database=Foo");
+
+        return new SqlServerUpdateSqlGenerator(
             new UpdateSqlGeneratorDependencies(
                 new SqlServerSqlGenerationHelper(
                     new RelationalSqlGenerationHelperDependencies()),
                 new SqlServerTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())));
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                    new SqlServerSingletonOptions())));
+    }
 
     protected override TestHelpers TestHelpers
         => SqlServerTestHelpers.Instance;
