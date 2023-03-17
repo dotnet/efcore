@@ -20,7 +20,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Optional_json_properties_materialized_as_null_when_the_element_in_json_is_not_present(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext29219>(
-            onConfiguring: OnConfiguring29219,
             seed: Seed29219);
 
         using (var context = contextFactory.CreateContext())
@@ -42,7 +41,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Can_project_nullable_json_property_when_the_element_in_json_is_not_present(bool async)
     {
         var contextFactory = await InitializeAsync<MyContext29219>(
-            onConfiguring: OnConfiguring29219,
             seed: Seed29219);
 
         using (var context = contextFactory.CreateContext())
@@ -58,10 +56,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
             Assert.Equal(null, result[1]);
             Assert.Equal(null, result[2]);
         }
-    }
-
-    protected virtual void OnConfiguring29219(DbContextOptionsBuilder builder)
-    {
     }
 
     protected abstract void Seed29219(MyContext29219 ctx);
@@ -99,10 +93,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     #endregion
 
     #region 30028
-
-    protected virtual void OnConfiguring30028(DbContextOptionsBuilder builder)
-    {
-    }
 
     protected abstract void Seed30028(MyContext30028 ctx);
 
@@ -238,7 +228,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Project_json_array_of_primitives_on_reference(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            onConfiguring: OnConfiguringArrayOfPrimitives,
             seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
@@ -262,7 +251,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Project_json_array_of_primitives_on_collection(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            onConfiguring: OnConfiguringArrayOfPrimitives,
             seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
@@ -286,7 +274,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Project_element_of_json_array_of_primitives(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            onConfiguring: OnConfiguringArrayOfPrimitives,
             seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
@@ -308,7 +295,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives1(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            onConfiguring: OnConfiguringArrayOfPrimitives,
             seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
@@ -331,7 +317,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives2(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            onConfiguring: OnConfiguringArrayOfPrimitives,
             seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
@@ -354,7 +339,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     public virtual async Task Predicate_based_on_element_of_json_array_of_primitives3(bool async)
     {
         var contextFactory = await InitializeAsync<MyContextArrayOfPrimitives>(
-            onConfiguring: OnConfiguringArrayOfPrimitives,
             seed: SeedArrayOfPrimitives);
 
         using (var context = contextFactory.CreateContext())
@@ -375,10 +359,6 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 
 
     protected abstract void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx);
-
-    protected virtual void OnConfiguringArrayOfPrimitives(DbContextOptionsBuilder builder)
-    {
-    }
 
     protected class MyContextArrayOfPrimitives : DbContext
     {
