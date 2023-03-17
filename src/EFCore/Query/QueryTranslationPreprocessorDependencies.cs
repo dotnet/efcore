@@ -46,12 +46,19 @@ public sealed record QueryTranslationPreprocessorDependencies
     /// </remarks>
     [EntityFrameworkInternal]
     public QueryTranslationPreprocessorDependencies(
+        ITypeMappingSource typeMappingSource,
         IEvaluatableExpressionFilter evaluatableExpressionFilter,
         INavigationExpansionExtensibilityHelper navigationExpansionExtensibilityHelper)
     {
+        TypeMappingSource = typeMappingSource;
         EvaluatableExpressionFilter = evaluatableExpressionFilter;
         NavigationExpansionExtensibilityHelper = navigationExpansionExtensibilityHelper;
     }
+
+    /// <summary>
+    ///     Type mapping source.
+    /// </summary>
+    public ITypeMappingSource TypeMappingSource { get; init; }
 
     /// <summary>
     ///     Evaluatable expression filter.

@@ -676,6 +676,27 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitRowValue(RowValueExpression rowValueExpression)
+    {
+        var parentSearchCondition = _isSearchCondition;
+        _isSearchCondition = false;
+
+        var values = new SqlExpression[rowValueExpression.Values.Count];
+        for (var i = 0; i < values.Length; i++)
+        {
+            values[i] = (SqlExpression)Visit(rowValueExpression.Values[i]);
+        }
+
+        _isSearchCondition = parentSearchCondition;
+        return rowValueExpression.Update(values);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitExcept(ExceptExpression exceptExpression)
     {
         var parentSearchCondition = _isSearchCondition;
@@ -765,4 +786,25 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
         => ApplyConversion(jsonScalarExpression, condition: false);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitValues(ValuesExpression valuesExpression)
+    {
+        var parentSearchCondition = _isSearchCondition;
+        _isSearchCondition = false;
+
+        var rowValues = new RowValueExpression[valuesExpression.RowValues.Count];
+        for (var i = 0; i < rowValues.Length; i++)
+        {
+            rowValues[i] = (RowValueExpression)Visit(valuesExpression.RowValues[i]);
+        }
+
+        _isSearchCondition = parentSearchCondition;
+        return valuesExpression.Update(rowValues);
+    }
 }

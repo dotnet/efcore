@@ -14,7 +14,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-public class FromSqlExpression : TableExpressionBase, IClonableTableExpressionBase
+public class FromSqlExpression : TableExpressionBase, ITableBasedExpression, IClonableTableExpressionBase
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="FromSqlExpression" /> class.

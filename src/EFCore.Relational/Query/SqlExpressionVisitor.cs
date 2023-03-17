@@ -43,6 +43,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             ProjectionExpression projectionExpression => VisitProjection(projectionExpression),
             TableValuedFunctionExpression tableValuedFunctionExpression => VisitTableValuedFunction(tableValuedFunctionExpression),
             RowNumberExpression rowNumberExpression => VisitRowNumber(rowNumberExpression),
+            RowValueExpression rowValueExpression => VisitRowValue(rowValueExpression),
             ScalarSubqueryExpression scalarSubqueryExpression => VisitScalarSubquery(scalarSubqueryExpression),
             SelectExpression selectExpression => VisitSelect(selectExpression),
             SqlBinaryExpression sqlBinaryExpression => VisitSqlBinary(sqlBinaryExpression),
@@ -55,6 +56,7 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
             UnionExpression unionExpression => VisitUnion(unionExpression),
             UpdateExpression updateExpression => VisitUpdate(updateExpression),
             JsonScalarExpression jsonScalarExpression => VisitJsonScalar(jsonScalarExpression),
+            ValuesExpression valuesExpression => VisitValues(valuesExpression),
             _ => base.VisitExtension(extensionExpression),
         };
 
@@ -206,6 +208,13 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     protected abstract Expression VisitRowNumber(RowNumberExpression rowNumberExpression);
 
     /// <summary>
+    ///     Visits the children of the row value expression.
+    /// </summary>
+    /// <param name="rowValueExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitRowValue(RowValueExpression rowValueExpression);
+
+    /// <summary>
     ///     Visits the children of the scalar subquery expression.
     /// </summary>
     /// <param name="scalarSubqueryExpression">The expression to visit.</param>
@@ -288,4 +297,11 @@ public abstract class SqlExpressionVisitor : ExpressionVisitor
     /// <param name="jsonScalarExpression">The expression to visit.</param>
     /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
     protected abstract Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression);
+
+    /// <summary>
+    ///     Visits the children of the values expression.
+    /// </summary>
+    /// <param name="valuesExpression">The expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    protected abstract Expression VisitValues(ValuesExpression valuesExpression);
 }

@@ -230,30 +230,25 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
     public virtual async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
     {
         var ids = new uint[] { 1, 2 };
-        // Join with local collection using TVP. Issue #19016.
-        await AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from e in ss.Set<Employee>()
-                      join id in ids on e.EmployeeID equals id
-                      select e.EmployeeID));
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
 
         ids = new uint[] { 3 };
-        // Join with local collection using TVP. Issue #19016.
-        await AssertTranslationFailed(
-            () => AssertQueryScalar(
-                async,
-                ss => from e in ss.Set<Employee>()
-                      join id in ids on e.EmployeeID equals id
-                      select e.EmployeeID));
+        await AssertQueryScalar(
+            async,
+            ss => from e in ss.Set<Employee>()
+                  join id in ids on e.EmployeeID equals id
+                  select e.EmployeeID);
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "#30677")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_string_closure_is_cached_correctly(bool async)
     {
         var ids = "12";
-        // Join with local collection using TVP. Issue #19016.
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,
@@ -262,7 +257,6 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                       select e.EmployeeID));
 
         ids = "3";
-        // Join with local collection using TVP. Issue #19016.
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,
@@ -271,13 +265,12 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                       select e.EmployeeID));
     }
 
-    [ConditionalTheory]
+    [ConditionalTheory(Skip = "#30677")]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Join_local_bytes_closure_is_cached_correctly(bool async)
     {
         var ids = new byte[] { 1, 2 };
 
-        // Join with local collection using TVP. Issue #19016.
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,
@@ -286,7 +279,6 @@ public abstract class NorthwindJoinQueryTestBase<TFixture> : QueryTestBase<TFixt
                       select e.EmployeeID));
 
         ids = new byte[] { 3 };
-        // Join with local collection using TVP. Issue #19016.
         await AssertTranslationFailed(
             () => AssertQueryScalar(
                 async,

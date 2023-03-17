@@ -252,9 +252,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         if (methodCallExpression.Arguments.Count > 0
-            && ClientSource(methodCallExpression.Arguments[0]))
+            && methodCallExpression.Arguments[0] is MemberInitExpression or NewExpression)
         {
-            // this is methodCall over closure variable or constant
             return base.VisitMethodCall(methodCallExpression);
         }
 
@@ -386,9 +385,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
     private Expression TryConvertListContainsToQueryableContains(MethodCallExpression methodCallExpression)
     {
-        if (ClientSource(methodCallExpression.Object))
+        if (methodCallExpression.Object is MemberInitExpression or NewExpression)
         {
-            // this is methodCall over closure variable or constant
             return base.VisitMethodCall(methodCallExpression);
         }
 
@@ -401,13 +399,6 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 methodCallExpression.Object!),
             methodCallExpression.Arguments[0]);
     }
-
-    private static bool ClientSource(Expression? expression)
-        => expression is ConstantExpression
-            || expression is MemberInitExpression
-            || expression is NewExpression
-            || expression is ParameterExpression parameter
-            && parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true;
 
     private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
     {

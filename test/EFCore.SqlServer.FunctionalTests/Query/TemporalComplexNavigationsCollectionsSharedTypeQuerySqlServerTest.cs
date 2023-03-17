@@ -1842,6 +1842,8 @@ ORDER BY [l].[Id], [t].[Id], [t0].[Id]
 
         AssertSql(
 """
+@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+
 SELECT CASE
     WHEN [t0].[OneToOne_Required_PK_Date] IS NULL OR [t0].[Level1_Required_Id] IS NULL OR [t0].[OneToMany_Required_Inverse2Id] IS NULL OR CASE
         WHEN [t0].[PeriodEnd0] IS NOT NULL AND [t0].[PeriodStart0] IS NOT NULL THEN [t0].[PeriodEnd0]
@@ -1874,7 +1876,10 @@ LEFT JOIN (
 ) AS [t1] ON CASE
     WHEN [t0].[OneToOne_Required_PK_Date] IS NOT NULL AND [t0].[Level1_Required_Id] IS NOT NULL AND [t0].[OneToMany_Required_Inverse2Id] IS NOT NULL AND [t0].[PeriodEnd0] IS NOT NULL AND [t0].[PeriodStart0] IS NOT NULL THEN [t0].[Id0]
 END = [t1].[OneToMany_Required_Inverse3Id]
-WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__validIds_0) AS [v]
+    WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
 ORDER BY [l].[Id], [t0].[Id], [t0].[Id0]
 """);
     }
@@ -3029,17 +3034,25 @@ ORDER BY [l].[Id], [t2].[Date], [t2].[Date0], [t2].[Name]
 
         AssertSql(
 """
+@__validIds_0='["L1 01","L1 02"]' (Size = 4000)
+
 SELECT [t].[Date], [t0].[Id]
 FROM (
     SELECT [l].[Date]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
-    WHERE [l].[Name] IN (N'L1 01', N'L1 02')
+    WHERE EXISTS (
+        SELECT 1
+        FROM OpenJson(@__validIds_0) AS [v]
+        WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
     GROUP BY [l].[Date]
 ) AS [t]
 LEFT JOIN (
     SELECT [l0].[Id], [l0].[Date]
     FROM [Level1] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-    WHERE [l0].[Name] IN (N'L1 01', N'L1 02')
+    WHERE EXISTS (
+        SELECT 1
+        FROM OpenJson(@__validIds_0) AS [v0]
+        WHERE [v0].[value] = [l0].[Name] OR ([v0].[value] IS NULL AND [l0].[Name] IS NULL))
 ) AS [t0] ON [t].[Date] = [t0].[Date]
 ORDER BY [t].[Date]
 """);

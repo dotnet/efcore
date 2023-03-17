@@ -305,6 +305,8 @@ FROM [Tags] AS [t]
 """,
             //
 """
+@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator], [t0].[Id], [t0].[GearNickName], [t0].[GearSquadId], [t0].[IssueDate], [t0].[Note]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -314,7 +316,10 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 LEFT JOIN [Tags] AS [t0] ON [t].[Nickname] = [t0].[GearNickName] AND [t].[SquadId] = [t0].[GearSquadId]
-WHERE [t0].[Id] IS NOT NULL AND [t0].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57')
+WHERE [t0].[Id] IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__tags_0) AS [t1]
+    WHERE CAST([t1].[value] AS uniqueidentifier) = [t0].[Id] OR ([t1].[value] IS NULL AND [t0].[Id] IS NULL))
 """);
     }
 
@@ -329,6 +334,8 @@ FROM [Tags] AS [t]
 """,
             //
 """
+@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator], [t0].[Id], [t0].[GearNickName], [t0].[GearSquadId], [t0].[IssueDate], [t0].[Note]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -339,7 +346,10 @@ FROM (
 ) AS [t]
 INNER JOIN [Cities] AS [c] ON [t].[CityOfBirthName] = [c].[Name]
 LEFT JOIN [Tags] AS [t0] ON [t].[Nickname] = [t0].[GearNickName] AND [t].[SquadId] = [t0].[GearSquadId]
-WHERE [c].[Location] IS NOT NULL AND [t0].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57')
+WHERE [c].[Location] IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__tags_0) AS [t1]
+    WHERE CAST([t1].[value] AS uniqueidentifier) = [t0].[Id] OR ([t1].[value] IS NULL AND [t0].[Id] IS NULL))
 """);
     }
 
@@ -354,6 +364,8 @@ FROM [Tags] AS [t]
 """,
             //
 """
+@__tags_0='["34c8d86e-a4ac-4be5-827f-584dda348a07","df36f493-463f-4123-83f9-6b135deeb7ba","a8ad98f9-e023-4e2a-9a70-c2728455bd34","70534e05-782c-4052-8720-c2c54481ce5f","a7be028a-0cf2-448f-ab55-ce8bc5d8cf69","b39a6fba-9026-4d69-828e-fd7068673e57"]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -363,7 +375,10 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 LEFT JOIN [Tags] AS [t0] ON [t].[Nickname] = [t0].[GearNickName] AND [t].[SquadId] = [t0].[GearSquadId]
-WHERE [t0].[Id] IS NOT NULL AND [t0].[Id] IN ('34c8d86e-a4ac-4be5-827f-584dda348a07', 'df36f493-463f-4123-83f9-6b135deeb7ba', 'a8ad98f9-e023-4e2a-9a70-c2728455bd34', '70534e05-782c-4052-8720-c2c54481ce5f', 'a7be028a-0cf2-448f-ab55-ce8bc5d8cf69', 'b39a6fba-9026-4d69-828e-fd7068673e57')
+WHERE [t0].[Id] IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__tags_0) AS [t1]
+    WHERE CAST([t1].[value] AS uniqueidentifier) = [t0].[Id] OR ([t1].[value] IS NULL AND [t0].[Id] IS NULL))
 """);
     }
 
@@ -2907,9 +2922,14 @@ WHERE [c].[Location] = @__value_0
 
         AssertSql(
 """
+@__cities_0='["Unknown","Jacinto\u0027s location","Ephyra\u0027s location"]' (Size = 4000)
+
 SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
-WHERE [c].[Location] IN ('Unknown', 'Jacinto''s location', 'Ephyra''s location')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__cities_0) AS [c0]
+    WHERE CAST([c0].[value] AS varchar(100)) = [c].[Location] OR ([c0].[value] IS NULL AND [c].[Location] IS NULL))
 """);
     }
 
@@ -4124,9 +4144,14 @@ END
 
         AssertSql(
 """
+@__ids_0='["d2c26679-562b-44d1-ab96-23d1775e0926","23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3","ab1b82d7-88db-42bd-a132-7eef9aa68af4"]' (Size = 4000)
+
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
-WHERE [t].[Id] IN ('d2c26679-562b-44d1-ab96-23d1775e0926', '23cbcf9b-ce14-45cf-aafa-2c2667ebfdd3', 'ab1b82d7-88db-42bd-a132-7eef9aa68af4')
+WHERE EXISTS (
+    SELECT 1
+    FROM OpenJson(@__ids_0) AS [i]
+    WHERE CAST([i].[value] AS uniqueidentifier) = [t].[Id])
 """);
     }
 
@@ -4772,6 +4797,8 @@ ORDER BY [t].[Nickname], [t0].[Nickname]
 
         AssertSql(
 """
+@__cities_0='["Ephyra",null]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -4781,7 +4808,10 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 LEFT JOIN [Cities] AS [c] ON [t].[AssignedCityName] = [c].[Name]
-WHERE [t].[SquadId] < 2 AND ([c].[Name] = N'Ephyra' OR [c].[Name] IS NULL)
+WHERE [t].[SquadId] < 2 AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__cities_0) AS [c0]
+    WHERE CAST([c0].[value] AS nvarchar(450)) = [c].[Name] OR ([c0].[value] IS NULL AND [c].[Name] IS NULL))
 """);
     }
 
@@ -8042,6 +8072,8 @@ ORDER BY [c].[Name], [t].[Nickname] DESC
 
         AssertSql(
 """
+@__nicknames_0='[]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [w].[Name], [w].[Id]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[FullName]
@@ -8051,7 +8083,13 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
-ORDER BY [t].[Nickname], [t].[SquadId]
+ORDER BY CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM OpenJson(@__nicknames_0) AS [n]
+        WHERE CAST([n].[value] AS nvarchar(450)) = [t].[Nickname]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END DESC, [t].[Nickname], [t].[SquadId]
 """);
     }
 
@@ -8921,10 +8959,14 @@ WHERE (
 """
 @__start_0='1902-01-01T10:00:00.1234567+01:30'
 @__end_1='1902-01-03T10:00:00.1234567+01:30'
+@__dates_2='["1902-01-02T10:00:00.1234567+01:30"]' (Size = 4000)
 
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'
+WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__dates_2) AS [d]
+    WHERE CAST([d].[value] AS datetimeoffset) = [m].[Timeline])
 """);
     }
 
@@ -9791,6 +9833,8 @@ ORDER BY [t].[Nickname]
 
         AssertSql(
 """
+@__ids_0='[]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -9799,6 +9843,13 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [t]
+ORDER BY CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM OpenJson(@__ids_0) AS [i]
+        WHERE CAST([i].[value] AS int) = [t].[SquadId]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
 """);
     }
 
@@ -10806,10 +10857,15 @@ ORDER BY [t].[Nickname]
 
         AssertSql(
 """
+@__types_0='[null,1]' (Size = 4000)
+
 SELECT [w].[Id], [w].[AmmunitionType], [w].[IsAutomatic], [w].[Name], [w].[OwnerFullName], [w].[SynergyWithId]
 FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
-WHERE [w0].[Id] IS NOT NULL AND ([w0].[AmmunitionType] = 1 OR [w0].[AmmunitionType] IS NULL)
+WHERE [w0].[Id] IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__types_0) AS [t]
+    WHERE CAST([t].[value] AS int) = [w0].[AmmunitionType] OR ([t].[value] IS NULL AND [w0].[AmmunitionType] IS NULL))
 """);
     }
 
@@ -11909,6 +11965,8 @@ ORDER BY [t2].[Nickname], [t2].[SquadId], [t2].[HasSoulPatch0]
 
         AssertSql(
 """
+@__values_0='[false,true]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -11917,7 +11975,10 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [t]
-WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND [t].[HasSoulPatch] IN (CAST(0 AS bit), CAST(1 AS bit))
+WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__values_0) AS [v]
+    WHERE CAST([v].[value] AS bit) = [t].[HasSoulPatch])
 """);
     }
 
@@ -11927,6 +11988,8 @@ WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND [t].[HasSoulPatch] IN (CAST(0 AS b
 
         AssertSql(
 """
+@__values_0='[false,true]' (Size = 4000)
+
 SELECT [t].[Nickname], [t].[SquadId], [t].[AssignedCityName], [t].[CityOfBirthName], [t].[FullName], [t].[HasSoulPatch], [t].[LeaderNickname], [t].[LeaderSquadId], [t].[Rank], [t].[Discriminator]
 FROM (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], N'Gear' AS [Discriminator]
@@ -11935,7 +11998,10 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [t]
-WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND [t].[HasSoulPatch] IN (CAST(0 AS bit), CAST(1 AS bit))
+WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
+    SELECT 1
+    FROM OpenJson(@__values_0) AS [v]
+    WHERE CAST([v].[value] AS bit) = [t].[HasSoulPatch])
 """);
     }
 

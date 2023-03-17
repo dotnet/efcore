@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
+    private readonly ISqlGenerationHelper _sqlGenerationHelper;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -29,7 +30,21 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         : base(dependencies)
     {
         _typeMappingSource = typeMappingSource;
+        _sqlGenerationHelper = dependencies.SqlGenerationHelper;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
+        // SQL Server doesn't support VALUES as a top-level statement, so we need to wrap the VALUES in a SELECT:
+        // SELECT 1 AS x UNION VALUES (2), (3) -- simple
+        // SELECT 1 AS x UNION SELECT * FROM (VALUES (2), (3)) AS f(x) -- SQL Server
+        => selectExpression.Tables is not [ValuesExpression]
+            && base.TryGenerateWithoutWrappingSelect(selectExpression);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -136,6 +151,62 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         throw new InvalidOperationException(
             RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitValues(ValuesExpression valuesExpression)
+    {
+        base.VisitValues(valuesExpression);
+
+        // SQL Server VALUES supports setting the projects column names: FROM (VALUES (1), (2)) AS v(foo)
+        Sql.Append("(");
+
+        for (var i = 0; i < valuesExpression.ColumnNames.Count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Sql.Append(_sqlGenerationHelper.DelimitIdentifier(valuesExpression.ColumnNames[i]));
+        }
+
+        Sql.Append(")");
+
+        return valuesExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override void GenerateValues(ValuesExpression valuesExpression)
+    {
+        // SQL Server supports providing the names of columns projected out of VALUES: (VALUES (1, 3), (2, 4)) AS x(a, b)
+        // (this is implemented in VisitValues above).
+        // But since other databases sometimes don't, the default relational implementation is complex, involving a SELECT for the first row
+        // and a UNION All on the rest. Override to do the nice simple thing.
+
+        var rowValues = valuesExpression.RowValues;
+
+        Sql.Append("VALUES ");
+
+        for (var i = 0; i < rowValues.Count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Visit(valuesExpression.RowValues[i]);
+        }
     }
 
     /// <summary>
@@ -305,6 +376,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
             case SqlServerAggregateFunctionExpression aggregateFunctionExpression:
                 return VisitSqlServerAggregateFunction(aggregateFunctionExpression);
+
+            case SqlServerOpenJsonExpression openJsonExpression:
+                return VisitOpenJsonExpression(openJsonExpression);
         }
 
         return base.VisitExtension(extensionExpression);
@@ -379,6 +453,65 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         }
 
         return jsonScalarExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual Expression VisitOpenJsonExpression(SqlServerOpenJsonExpression openJsonExpression)
+    {
+        // OPENJSON docs: https://learn.microsoft.com/sql/t-sql/functions/openjson-transact-sql
+
+        // OPENJSON is a regular table-valued function with a special WITH clause at the end
+        // Copy-paste from VisitTableValuedFunction, because that appends the 'AS <alias>' but we need to insert WITH before that
+        Sql.Append("OpenJson(");
+
+        GenerateList(openJsonExpression.Arguments, e => Visit(e));
+
+        Sql.Append(")");
+
+        if (openJsonExpression.ColumnInfos is not null)
+        {
+            Sql.Append(" WITH (");
+
+            for (var i = 0; i < openJsonExpression.ColumnInfos.Count; i++)
+            {
+                var columnInfo = openJsonExpression.ColumnInfos[i];
+
+                if (i > 0)
+                {
+                    Sql.Append(", ");
+                }
+
+                Check.DebugAssert(columnInfo.StoreType is not null, "Unset OpenJson column store type");
+
+                Sql
+                    .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnInfo.Name))
+                    .Append(" ")
+                    .Append(columnInfo.StoreType);
+
+                if (columnInfo.Path is not null)
+                {
+                    Sql
+                        .Append(" ")
+                        .Append(_typeMappingSource.GetMapping("varchar(max)").GenerateSqlLiteral(columnInfo.Path));
+                }
+
+                if (columnInfo.AsJson)
+                {
+                    Sql.Append(" AS JSON");
+                }
+            }
+
+            Sql.Append(")");
+        }
+
+        Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(openJsonExpression.Alias));
+
+        return openJsonExpression;
     }
 
     /// <inheritdoc />

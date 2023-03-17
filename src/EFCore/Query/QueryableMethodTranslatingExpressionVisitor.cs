@@ -51,6 +51,14 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     public virtual string? TranslationErrorDetails { get; private set; }
 
     /// <summary>
+    ///     Translates an expression to an equivalent SQL representation.
+    /// </summary>
+    /// <param name="expression">An expression to translate.</param>
+    /// <returns>A SQL translation of the given expression.</returns>
+    public virtual Expression Translate(Expression expression)
+        => Visit(expression);
+
+    /// <summary>
     ///     Adds detailed information about errors encountered during translation.
     /// </summary>
     /// <param name="details">Error encountered during translation.</param>
@@ -85,7 +93,9 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
             }
 
             throw new InvalidOperationException(
-                CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName()));
+                TranslationErrorDetails is null
+                    ? CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName())
+                    : CoreStrings.TranslationFailedWithDetails(queryRootExpression, TranslationErrorDetails));
         }
 
         return base.VisitExtension(extensionExpression);
@@ -508,7 +518,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     public virtual ShapedQueryExpression? TranslateSubquery(Expression expression)
     {
         var subqueryVisitor = CreateSubqueryVisitor();
-        var translation = subqueryVisitor.Visit(expression) as ShapedQueryExpression;
+        var translation = subqueryVisitor.Translate(expression) as ShapedQueryExpression;
         if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
         {
             AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);

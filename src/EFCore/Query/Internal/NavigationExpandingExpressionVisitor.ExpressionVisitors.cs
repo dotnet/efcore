@@ -104,22 +104,34 @@ public partial class NavigationExpandingExpressionVisitor
                     }
                 }
 
-                var navigation = memberIdentity.MemberInfo != null
+                var navigation = memberIdentity.MemberInfo is not null
                     ? entityType.FindNavigation(memberIdentity.MemberInfo)
-                    : entityType.FindNavigation(memberIdentity.Name!);
-                if (navigation != null)
+                    : memberIdentity.Name is not null
+                        ? entityType.FindNavigation(memberIdentity.Name)
+                        : null;
+                if (navigation is not null)
                 {
-                    return ExpandNavigation(root, entityReference, navigation, convertedType != null);
+                    return ExpandNavigation(root, entityReference, navigation, convertedType is not null);
                 }
 
-                var skipNavigation = memberIdentity.MemberInfo != null
+                var skipNavigation = memberIdentity.MemberInfo is not null
                     ? entityType.FindSkipNavigation(memberIdentity.MemberInfo)
                     : memberIdentity.Name is not null
                         ? entityType.FindSkipNavigation(memberIdentity.Name)
                         : null;
-                if (skipNavigation != null)
+                if (skipNavigation is not null)
                 {
-                    return ExpandSkipNavigation(root, entityReference, skipNavigation, convertedType != null);
+                    return ExpandSkipNavigation(root, entityReference, skipNavigation, convertedType is not null);
+                }
+
+                var property = memberIdentity.MemberInfo != null
+                    ? entityType.FindProperty(memberIdentity.MemberInfo)
+                    : memberIdentity.Name is not null
+                        ? entityType.FindProperty(memberIdentity.Name)
+                        : null;
+                if (property?.GetTypeMapping().ElementTypeMapping != null)
+                {
+                    return new PrimitiveCollectionReference(root, property);
                 }
             }
 
@@ -1014,6 +1026,9 @@ public partial class NavigationExpandingExpressionVisitor
 
                 case OwnedNavigationReference ownedNavigationReference:
                     return Visit(ownedNavigationReference.Parent).CreateEFPropertyExpression(ownedNavigationReference.Navigation);
+
+                case PrimitiveCollectionReference queryablePropertyReference:
+                    return Visit(queryablePropertyReference.Parent).CreateEFPropertyExpression(queryablePropertyReference.Property);
 
                 case IncludeExpression includeExpression:
                     var entityExpression = Visit(includeExpression.EntityExpression);
