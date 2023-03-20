@@ -43,8 +43,5 @@ public class MaterializationInterceptionSqliteTest : MaterializationInterception
             IServiceCollection serviceCollection,
             IEnumerable<ISingletonInterceptor> injectedInterceptors)
             => base.InjectInterceptors(serviceCollection.AddEntityFrameworkSqlite(), injectedInterceptors);
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.ConfigureWarnings(e => e.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
     }
 }

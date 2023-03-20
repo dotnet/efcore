@@ -13,10 +13,6 @@ public class JsonQueryAdHocSqliteTest : JsonQueryAdHocTestBase
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 
-    // issue #26708
-    protected override void OnConfiguring29219(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
-
     protected override void Seed29219(MyContext29219 ctx)
     {
         var entity1 = new MyEntity29219
@@ -48,10 +44,6 @@ public class JsonQueryAdHocSqliteTest : JsonQueryAdHocTestBase
 VALUES(3, '{{ ""NonNullableScalar"" : 30 }}', '[{{ ""NonNullableScalar"" : 10001 }}]')");
     }
 
-    // issue #26708
-    protected override void OnConfiguring30028(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
-
     protected override void Seed30028(MyContext30028 ctx)
     {
         // complete
@@ -78,10 +70,6 @@ VALUES(
 4,
 '{{""RootName"":""e4"",""Collection"":[{{""BranchName"":""e4 c1"",""Nested"":{{""LeafName"":""e4 c1 l""}}}},{{""BranchName"":""e4 c2"",""Nested"":{{""LeafName"":""e4 c2 l""}}}}],""OptionalReference"":{{""BranchName"":""e4 or"",""Nested"":{{""LeafName"":""e4 or l""}}}}}}')");
     }
-
-    // issue #26708
-    protected override void OnConfiguringArrayOfPrimitives(DbContextOptionsBuilder builder)
-        => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
 
     protected override void SeedArrayOfPrimitives(MyContextArrayOfPrimitives ctx)
     {

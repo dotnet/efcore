@@ -139,7 +139,8 @@ public class SqliteModelValidator : RelationalModelValidator
         base.ValidateValueGeneration(entityType, key, logger);
 
         var keyProperties = key.Properties;
-        if (key.IsPrimaryKey()
+        if (!entityType.IsMappedToJson()
+            && key.IsPrimaryKey()
             && keyProperties.Count(p => p.ClrType.UnwrapNullableType().IsInteger()) > 1
             && keyProperties.Any(
                 p => p.ValueGenerated == ValueGenerated.OnAdd
