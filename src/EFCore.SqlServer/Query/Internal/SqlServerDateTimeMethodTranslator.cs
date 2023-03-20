@@ -45,8 +45,6 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTime), typeof(string) })!;
 
-    private static readonly SqlConstantExpression UnixEpoch = new (Expression.Constant(DateTimeOffset.UnixEpoch), null);
-
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
 
@@ -143,13 +141,17 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
 
         if (_methodInfoDateDiffMapping.TryGetValue(method, out var timePart))
         {
-            return _sqlExpressionFactory.ApplyDefaultTypeMapping(
-               _sqlExpressionFactory.Function(
-                   "DATEDIFF_BIG",
-                   new[] { _sqlExpressionFactory.Fragment(timePart), UnixEpoch, instance! },
-                   nullable: true,
-                   argumentsPropagateNullability: new[] { false, false, true },
-                   typeof(long)));
+            return _sqlExpressionFactory.Function(
+                "DATEDIFF_BIG",
+                new[]
+                {
+                    _sqlExpressionFactory.Fragment(timePart),
+                    _sqlExpressionFactory.Constant(DateTimeOffset.UnixEpoch, instance!.TypeMapping),
+                    instance
+                },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true, true },
+                typeof(long));
         }
 
         return null;

@@ -19,12 +19,6 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
     private static readonly MethodInfo AddTicks
         = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddTicks), new[] { typeof(long) })!;
 
-    private static readonly MethodInfo ToUnixTimeSeconds
-        = typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeSeconds), Type.EmptyTypes)!;
-
-    private static readonly MethodInfo ToUnixTimeMilliseconds
-        = typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeMilliseconds), Type.EmptyTypes)!;
-
     private readonly Dictionary<MethodInfo, string> _methodInfoToUnitSuffix = new()
     {
         { typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddYears), new[] { typeof(int) })!, " years" },
@@ -66,9 +60,7 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
             ? TranslateDateTime(instance, method, arguments)
             : method.DeclaringType == typeof(DateOnly)
                 ? TranslateDateOnly(instance, method, arguments)
-                : method.DeclaringType == typeof(DateTimeOffset)
-                    ? TranslateDateTimeOffset(instance, method, arguments)
-                    : null;
+                : null;
 
     private SqlExpression? TranslateDateTime(
         SqlExpression? instance,
@@ -149,42 +141,6 @@ public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
                         _sqlExpressionFactory.Convert(arguments[0], typeof(string)),
                         _sqlExpressionFactory.Constant(unitSuffix))
                 });
-        }
-
-        return null;
-    }
-
-    private SqlExpression? TranslateDateTimeOffset(
-        SqlExpression? instance,
-        MethodInfo method,
-        IReadOnlyList<SqlExpression> arguments)
-    {
-        if (ToUnixTimeSeconds.Equals(method))
-        {
-            return _sqlExpressionFactory.Function(
-                "unixepoch",
-                new[]
-                {
-                    instance!
-                },
-                argumentsPropagateNullability: new[] { true, true },
-                nullable: true,
-                returnType: method.ReturnType);
-        }
-        else if (ToUnixTimeMilliseconds.Equals(method))
-        {
-            return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Multiply(
-                        _sqlExpressionFactory.Subtract(
-                            _sqlExpressionFactory.Function(
-                                "julianday",
-                                new[] { instance! },
-                                nullable: true,
-                                argumentsPropagateNullability: new[] { true },
-                                typeof(double)),
-                            _sqlExpressionFactory.Constant(2440587.5)), // NB: Result of julianday('1970-01-01 00:00:00')
-                        _sqlExpressionFactory.Constant(TimeSpan.TicksPerDay)),
-                    typeof(long));
         }
 
         return null;
