@@ -407,7 +407,7 @@ namespace Microsoft.EntityFrameworkCore
 
                         if (autoResolve)
                         {
-                            b.ResolveRootApplicationServiceProvider();
+                            b.UseRootApplicationServiceProvider();
                         }
                         else
                         {

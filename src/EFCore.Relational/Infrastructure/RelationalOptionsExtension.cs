@@ -106,7 +106,7 @@ public abstract class RelationalOptionsExtension : IDbContextOptionsExtension
     /// <summary>
     ///     <see langword="true"/> if the <see cref="Connection"/> is owned by the context and should be disposed appropriately.
     /// </summary>
-    public virtual bool ConnectionOwned
+    public virtual bool IsConnectionOwned
         => _connectionOwned;
 
     /// <summary>

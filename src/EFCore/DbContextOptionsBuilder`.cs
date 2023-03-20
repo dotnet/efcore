@@ -397,8 +397,8 @@ public class DbContextOptionsBuilder<TContext> : DbContextOptionsBuilder
     ///     </para>
     /// </remarks>
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
-    public new virtual DbContextOptionsBuilder<TContext> ResolveRootApplicationServiceProvider()
-        => (DbContextOptionsBuilder<TContext>)base.ResolveRootApplicationServiceProvider();
+    public new virtual DbContextOptionsBuilder<TContext> UseRootApplicationServiceProvider()
+        => (DbContextOptionsBuilder<TContext>)base.UseRootApplicationServiceProvider();
 
     /// <summary>
     ///     Enables application data to be included in exception messages, logging, etc. This can include the

@@ -38,23 +38,23 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Load(InternalEntityEntry entry, bool forceIdentityResolution)
+    public virtual void Load(InternalEntityEntry entry, LoadOptions options)
     {
         var keyValues = PrepareForLoad(entry);
 
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            var queryable = Query(entry.Context, keyValues, entry, forceIdentityResolution);
+            var queryable = Query(entry.Context, keyValues, entry, options);
 
             if (entry.EntityState == EntityState.Detached)
             {
-                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(entry, options);
                 try
                 {
                     foreach (var loaded in queryable)
                     {
-                        Fixup(stateManager, entry.Entity, forceIdentityResolution, loaded);
+                        Fixup(stateManager, entry.Entity, options, loaded);
                     }
                 }
                 finally
@@ -82,7 +82,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     /// </summary>
     public virtual async Task LoadAsync(
         InternalEntityEntry entry,
-        bool forceIdentityResolution,
+        LoadOptions options,
         CancellationToken cancellationToken = default)
     {
         var keyValues = PrepareForLoad(entry);
@@ -90,16 +90,16 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            var queryable = Query(entry.Context, keyValues, entry, forceIdentityResolution);
+            var queryable = Query(entry.Context, keyValues, entry, options);
 
             if (entry.EntityState == EntityState.Detached)
             {
-                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(entry, options);
                 try
                 {
                     await foreach (var loaded in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false))
                     {
-                        Fixup(stateManager, entry.Entity, forceIdentityResolution, loaded);
+                        Fixup(stateManager, entry.Entity, options, loaded);
                     }
                 }
                 finally
@@ -119,12 +119,12 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         entry.SetIsLoaded(_skipNavigation);
     }
 
-    private void Fixup(IStateManager stateManager, object entity, bool forceIdentityResolution, object loaded)
+    private void Fixup(IStateManager stateManager, object entity, LoadOptions options, object loaded)
     {
         var entry = stateManager.GetOrCreateEntry(entity);
         var relatedEntry = stateManager.GetOrCreateEntry(loaded);
 
-        if (forceIdentityResolution
+        if ((options & LoadOptions.ForceIdentityResolution) != 0
             && TryGetTracked(out var existing))
         {
             entry.AddToCollection(_skipNavigation, existing!, forMaterialization: true);
@@ -149,9 +149,9 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
         }
     }
 
-    private IStateManager GetOrCreateStateManagerAndStartTrackingIfNeeded(InternalEntityEntry entry, bool forceIdentityResolution)
+    private IStateManager GetOrCreateStateManagerAndStartTrackingIfNeeded(InternalEntityEntry entry, LoadOptions options)
     {
-        if (!forceIdentityResolution)
+        if ((options & LoadOptions.ForceIdentityResolution) == 0)
         {
             return entry.StateManager;
         }
@@ -200,7 +200,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             return queryRoot.Where(e => false);
         }
 
-        return Query(context, keyValues, entry, forceIdentityResolution: false);
+        return Query(context, keyValues, entry, LoadOptions.Default);
     }
 
     private object[]? PrepareForLoad(InternalEntityEntry entry)
@@ -239,7 +239,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
     IQueryable ICollectionLoader.Query(InternalEntityEntry entry)
         => Query(entry);
 
-    private IQueryable<TEntity> Query(DbContext context, object[] keyValues, InternalEntityEntry entry, bool forceIdentityResolution)
+    private IQueryable<TEntity> Query(DbContext context, object[] keyValues, InternalEntityEntry entry, LoadOptions options)
     {
         var loadProperties = _skipNavigation.ForeignKey.PrincipalKey.Properties;
 
@@ -262,7 +262,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             .NotQuiteInclude(BuildIncludeLambda(_skipNavigation.Inverse, loadProperties, new ValueBuffer(keyValues)));
 
         return entry.EntityState == EntityState.Detached
-            ? forceIdentityResolution
+            ? (options & LoadOptions.ForceIdentityResolution) != 0
                 ? queryable.AsNoTrackingWithIdentityResolution()
                 : queryable.AsNoTracking()
             : queryable.AsTracking();

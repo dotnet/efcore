@@ -2793,8 +2793,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual ServiceProperty AddServiceProperty(
-        Type serviceType,
         MemberInfo memberInfo,
+        Type serviceType,
         // ReSharper disable once MethodOverloadWithOptionalParameter
         ConfigurationSource configurationSource)
     {
@@ -5155,8 +5155,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo)
-        => AddServiceProperty(memberInfo.GetMemberType(), memberInfo, ConfigurationSource.Explicit);
+    IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo, Type? serviceType)
+        => AddServiceProperty(memberInfo, serviceType ?? memberInfo.GetMemberType(), ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5165,31 +5165,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableServiceProperty IMutableEntityType.AddServiceProperty(Type serviceType, MemberInfo memberInfo)
-        => AddServiceProperty(serviceType, memberInfo, ConfigurationSource.Explicit);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
+    IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, Type? serviceType, bool fromDataAnnotation)
         => AddServiceProperty(
-            memberInfo.GetMemberType(), memberInfo,
+            memberInfo,
+            serviceType ?? memberInfo.GetMemberType(),
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DebuggerStepThrough]
-    IConventionServiceProperty IConventionEntityType.AddServiceProperty(Type serviceType, MemberInfo memberInfo, bool fromDataAnnotation)
-        => AddServiceProperty(
-            serviceType, memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

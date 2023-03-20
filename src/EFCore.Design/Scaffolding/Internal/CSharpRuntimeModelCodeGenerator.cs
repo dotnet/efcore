@@ -1020,11 +1020,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder
             .Append("var ").Append(variableName).Append(" = ").Append(parameters.TargetName).AppendLine(".AddServiceProperty(")
             .IncrementIndent()
-            .Append(_code.Literal(property.Name))
-            .AppendLine(",")
-            .Append("typeof(" + property.ClrType.DisplayName(fullName: true, compilable: true) + ")");
+            .Append(_code.Literal(property.Name));
 
         PropertyBaseParameters(property, parameters, skipType: true);
+
+        mainBuilder
+            .AppendLine(",")
+            .Append("serviceType: typeof(" + property.ClrType.DisplayName(fullName: true, compilable: true) + ")");
 
         mainBuilder
             .AppendLine(");")

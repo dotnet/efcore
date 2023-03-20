@@ -3530,7 +3530,7 @@ public abstract class LazyLoadProxyTestBase<TFixture> : IClassFixture<TFixture>
             => "LazyLoadProxyTest";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder.UseLazyLoadingProxies(ignoreNonVirtualNavigations: true));
+            => base.AddOptions(builder.UseLazyLoadingProxies(b => b.IgnoreNonVirtualNavigations()));
 
         protected override IServiceCollection AddServices(IServiceCollection serviceCollection)
             => base.AddServices(

@@ -203,8 +203,8 @@ namespace TestNamespace
                     b =>
                     {
                         var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
-                            typeof(ILazyLoader),
-                            typeof(LazyPropertyDelegateEntity).GetAnyProperty("LoaderState")!);
+                            typeof(LazyPropertyDelegateEntity).GetAnyProperty("LoaderState")!,
+                            typeof(ILazyLoader));
 
                         serviceProperty.SetParameterBinding(
                             new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
@@ -1347,8 +1347,8 @@ namespace TestNamespace
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
-                typeof(Microsoft.EntityFrameworkCore.DbContext),
-                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalBaseId, principalBaseAlternateId });
@@ -1478,8 +1478,8 @@ namespace TestNamespace
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
-                typeof(Microsoft.EntityFrameworkCore.DbContext),
-                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalDerivedId, principalDerivedAlternateId, id });
@@ -2632,8 +2632,8 @@ namespace TestNamespace
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
-                typeof(Microsoft.EntityFrameworkCore.DbContext),
-                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalBaseId, principalBaseAlternateId });
@@ -2744,8 +2744,8 @@ namespace TestNamespace
 
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
-                typeof(Microsoft.EntityFrameworkCore.DbContext),
-                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalDerivedId, principalDerivedAlternateId, id });

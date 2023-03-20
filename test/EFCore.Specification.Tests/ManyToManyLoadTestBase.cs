@@ -422,18 +422,11 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         {
             if (async)
             {
-                await (forceIdentityResolution ? collectionEntry.LoadWithIdentityResolutionAsync() : collectionEntry.LoadAsync());
+                await collectionEntry.LoadAsync(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
             }
             else
             {
-                if (forceIdentityResolution)
-                {
-                    collectionEntry.LoadWithIdentityResolution();
-                }
-                else
-                {
-                    collectionEntry.Load();
-                }
+                collectionEntry.Load(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
             }
 
             Assert.True(collectionEntry.IsLoaded);
@@ -526,18 +519,11 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         {
             if (async)
             {
-                await (forceIdentityResolution ? collectionEntry.LoadWithIdentityResolutionAsync() : collectionEntry.LoadAsync());
+                await collectionEntry.LoadAsync(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
             }
             else
             {
-                if (forceIdentityResolution)
-                {
-                    collectionEntry.LoadWithIdentityResolution();
-                }
-                else
-                {
-                    collectionEntry.Load();
-                }
+                collectionEntry.Load(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
             }
 
             Assert.True(collectionEntry.IsLoaded);
@@ -586,14 +572,10 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         else
         {
             Assert.Single(left.ThreeSkipPayloadFull);
-            if (queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
-            {
-                collectionEntry.LoadWithIdentityResolution();
-            }
-            else
-            {
-                collectionEntry.Load();
-            }
+            collectionEntry.Load(
+                queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                    ? LoadOptions.ForceIdentityResolution
+                    : LoadOptions.Default);
         }
 
         context.ChangeTracker.LazyLoadingEnabled = false;
