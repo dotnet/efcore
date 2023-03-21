@@ -117,6 +117,11 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         if (!HasSharedClrType)
         {
             var name = ClrType.ShortDisplayName();
+            if (name.StartsWith("<>", StringComparison.Ordinal))
+            {
+                name = name[2..];
+            }
+
             var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
             if (lessIndex == -1)
             {
