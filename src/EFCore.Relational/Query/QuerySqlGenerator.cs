@@ -1396,6 +1396,23 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                     };
                 }
 
+                // Even if the provider doesn't define precedence, assume that AND has less precedence than any other binary operator
+                // except for OR. This is universal, was our behavior before introducing provider precedence and removes the need for many
+                // parentheses. Do the same for OR (though here we add parentheses around inner AND just for readability).
+                if (outerExpression is SqlBinaryExpression outerBinary2)
+                {
+                    if (outerBinary2.OperatorType ==  ExpressionType.AndAlso)
+                    {
+                        return innerBinaryExpression.OperatorType == ExpressionType.OrElse;
+                    }
+
+                    if (outerBinary2.OperatorType == ExpressionType.OrElse)
+                    {
+                        // Precedence-wise AND is above OR but we still add parentheses for ease of understanding
+                        return innerBinaryExpression.OperatorType == ExpressionType.AndAlso;
+                    }
+                }
+
                 // Otherwise always parenthesize for safety
                 return true;
             }
