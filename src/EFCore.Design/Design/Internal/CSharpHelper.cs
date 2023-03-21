@@ -1077,12 +1077,18 @@ public class CSharpHelper : ICSharpHelper
 
                 return true;
             case ExpressionType.Convert:
-                builder
-                    .Append('(')
-                    .Append(Reference(expression.Type, fullName: true))
-                    .Append(')');
+            {
+                var unaryExpression = (UnaryExpression)expression;
+                if (unaryExpression.Method?.Name != "op_Implicit")
+                {
+                    builder
+                        .Append('(')
+                        .Append(Reference(expression.Type, fullName: true))
+                        .Append(')');
+                }
 
-                return HandleExpression(((UnaryExpression)expression).Operand, builder);
+                return HandleExpression(unaryExpression.Operand, builder);
+            }
             case ExpressionType.New:
                 builder
                     .Append("new ")

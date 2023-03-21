@@ -29,8 +29,8 @@ public class TypeMappingTests
     {
         var mapping = CreateMapper().FindMapping(
             new RelationalTypeMappingInfo(
-                storeTypeName: SqlServerHierarchyIdTypeMappingSourcePlugin.SqlServerTypeName,
-                storeTypeNameBase: SqlServerHierarchyIdTypeMappingSourcePlugin.SqlServerTypeName,
+                storeTypeName: "hierarchyid",
+                storeTypeNameBase: "hierarchyid",
                 unicode: null,
                 size: null,
                 precision: null,

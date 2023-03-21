@@ -46,8 +46,8 @@ internal sealed class AnonymousArraySeedContext : MigrationContext<Patriarch, Co
 
     public override string GetExpectedMigrationCode(string migrationName, string rootNamespace)
     {
-        return $@"using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
+        return $@"using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.SqlServer.Types;
 
 #nullable disable
 
@@ -66,7 +66,7 @@ namespace {rootNamespace}.Migrations
                 columns: table => new
                 {{
                     Id = table.Column<int>(type: ""int"", nullable: false),
-                    HierarchyId = table.Column<{nameof(HierarchyId)}>(type: ""hierarchyid"", nullable: true),
+                    HierarchyId = table.Column<SqlHierarchyId>(type: ""hierarchyid"", nullable: true),
                     Name = table.Column<string>(type: ""nvarchar(max)"", nullable: true)
                 }},
                 constraints: table =>
@@ -78,7 +78,7 @@ namespace {rootNamespace}.Migrations
                 name: ""{nameof(TestModels)}"",
                 columns: table => new
                 {{
-                    {nameof(Patriarch.Id)} = table.Column<{nameof(HierarchyId)}>(type: ""hierarchyid"", nullable: false),
+                    {nameof(Patriarch.Id)} = table.Column<SqlHierarchyId>(type: ""hierarchyid"", nullable: false),
                     {nameof(Patriarch.Name)} = table.Column<string>(type: ""nvarchar(max)"", nullable: true)
                 }},
                 constraints: table =>
@@ -91,9 +91,9 @@ namespace {rootNamespace}.Migrations
                 columns: new[] {{ ""Id"", ""HierarchyId"", ""Name"" }},
                 values: new object[,]
                 {{
-                    {{ 1, Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/""), ""Eddard Stark"" }},
-                    {{ 2, Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/1/""), ""Robb Stark"" }},
-                    {{ 3, Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/2/""), ""Jon Snow"" }}
+                    {{ 1, Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/""), ""Eddard Stark"" }},
+                    {{ 2, Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/1/""), ""Robb Stark"" }},
+                    {{ 3, Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/2/""), ""Jon Snow"" }}
                 }});
 
             migrationBuilder.InsertData(
@@ -101,9 +101,9 @@ namespace {rootNamespace}.Migrations
                 columns: new[] {{ ""Id"", ""Name"" }},
                 values: new object[,]
                 {{
-                    {{ Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/""), ""Eddard Stark"" }},
-                    {{ Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/1/""), ""Robb Stark"" }},
-                    {{ Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/2/""), ""Jon Snow"" }}
+                    {{ Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/""), ""Eddard Stark"" }},
+                    {{ Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/1/""), ""Robb Stark"" }},
+                    {{ Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/2/""), ""Jon Snow"" }}
                 }});
         }}
 
@@ -128,6 +128,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using {ThisType.Namespace};
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.SqlServer.Types;
 
 #nullable disable
 
@@ -160,27 +161,27 @@ namespace {rootNamespace}.Migrations
                         new
                         {{
                             Id = 1,
-                            HierarchyId = Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/""),
+                            HierarchyId = Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/""),
                             Name = ""Eddard Stark""
                         }},
                         new
                         {{
                             Id = 2,
-                            HierarchyId = Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/1/""),
+                            HierarchyId = Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/1/""),
                             Name = ""Robb Stark""
                         }},
                         new
                         {{
                             Id = 3,
-                            HierarchyId = Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/2/""),
+                            HierarchyId = Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/2/""),
                             Name = ""Jon Snow""
                         }});
                 }});
 
             modelBuilder.Entity(""{ModelType1.FullName}"", b =>
                 {{
-                    b.Property<{nameof(HierarchyId)}>(""{nameof(Patriarch.Id)}"")
-                        .HasColumnType(""{SqlServerHierarchyIdTypeMappingSourcePlugin.SqlServerTypeName}"");
+                    b.Property<SqlHierarchyId>(""{nameof(Patriarch.Id)}"")
+                        .HasColumnType(""hierarchyid"");
 
                     b.Property<string>(""{nameof(Patriarch.Name)}"")
                         .HasColumnType(""nvarchar(max)"");
@@ -192,17 +193,17 @@ namespace {rootNamespace}.Migrations
                     b.HasData(
                         new
                         {{
-                            {nameof(Patriarch.Id)} = Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/""),
+                            {nameof(Patriarch.Id)} = Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/""),
                             {nameof(Patriarch.Name)} = ""Eddard Stark""
                         }},
                         new
                         {{
-                            {nameof(Patriarch.Id)} = Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/1/""),
+                            {nameof(Patriarch.Id)} = Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/1/""),
                             {nameof(Patriarch.Name)} = ""Robb Stark""
                         }},
                         new
                         {{
-                            {nameof(Patriarch.Id)} = Microsoft.EntityFrameworkCore.HierarchyId.Parse(""/2/""),
+                            {nameof(Patriarch.Id)} = Microsoft.SqlServer.Types.SqlHierarchyId.Parse(""/2/""),
                             {nameof(Patriarch.Name)} = ""Jon Snow""
                         }});
                 }});

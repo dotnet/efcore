@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.SqlServer.Types;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -9,11 +11,33 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 /// Represents a position in a hierarchical structure, specifying depth and breadth.
 /// </summary>
-public class HierarchyId : IComparable
+[JsonConverter(typeof(HierarchyIdJsonConverter))]
+public class HierarchyId : IComparable<HierarchyId>
 {
-    private SqlHierarchyId _value;
+    private readonly SqlHierarchyId _value;
 
-    private HierarchyId(SqlHierarchyId value)
+    /// <summary>
+    /// Initializes a new instance of the<see cref="HierarchyId"/> class. Equivalent to <see cref="GetRoot"/>.
+    /// </summary>
+    public HierarchyId()
+        : this(SqlHierarchyId.GetRoot())
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the<see cref="HierarchyId"/> class. Equivalent to <see cref="Parse"/>.
+    /// </summary>
+    /// <param name="value">The string representation of the node.</param>
+    public HierarchyId(string value)
+        : this(SqlHierarchyId.Parse(value))
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the<see cref="HierarchyId"/> class.
+    /// </summary>
+    /// <param name="value">The <see cref="SqlHierarchyId"/> representation of the node.</param>
+    public HierarchyId(SqlHierarchyId value)
     {
         if (value.IsNull)
         {
@@ -28,7 +52,7 @@ public class HierarchyId : IComparable
     /// </summary>
     /// <returns>The root node of the hierarchy.</returns>
     public static HierarchyId GetRoot()
-        => new HierarchyId(SqlHierarchyId.GetRoot());
+        => ((HierarchyId?)SqlHierarchyId.GetRoot())!;
 
     /// <summary>
     /// Converts the canonical string representation of a node to a <see cref="HierarchyId"/> value.
@@ -37,42 +61,17 @@ public class HierarchyId : IComparable
     /// <returns>A <see cref="HierarchyId"/> value.</returns>
     [return: NotNullIfNotNull(nameof(input))]
     public static HierarchyId? Parse(string? input)
-        => Wrap(SqlHierarchyId.Parse(input));
-
-    /// <summary>
-    /// Reads a <see cref="HierarchyId"/> value from the specified reader.
-    /// </summary>
-    /// <param name="reader">The reader.</param>
-    /// <returns>A <see cref="HierarchyId"/> value.</returns>
-    public static HierarchyId? Read(BinaryReader reader)
-    {
-        var hid = new SqlHierarchyId();
-        hid.Read(reader);
-        return Wrap(hid);
-    }
-
-    /// <summary>
-    /// Writes this <see cref="HierarchyId"/> value to the specified writer.
-    /// </summary>
-    /// <param name="writer">The writer.</param>
-    public void Write(BinaryWriter writer)
-    {
-        _value.Write(writer);
-    }
+        => (HierarchyId?)SqlHierarchyId.Parse(input);
 
     /// <inheritdoc/>
-    public int CompareTo(object? obj)
-        => _value.CompareTo(
-            obj is HierarchyId or null
-                ? Unwrap((HierarchyId?)obj)
-                : obj);
+    public virtual int CompareTo(HierarchyId? other)
+        => _value.CompareTo((SqlHierarchyId)other);
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj)
-        => _value.Equals(
-                obj is HierarchyId other
-                    ? other._value
-                    : obj);
+    public override bool Equals(object? other)
+        => other is HierarchyId or null
+            ? Equals((SqlHierarchyId)(HierarchyId?)other)
+            : _value.Equals(other);
 
     /// <summary>
     /// Gets the node <paramref name="n"/> levels up the hierarchical tree.
@@ -80,17 +79,25 @@ public class HierarchyId : IComparable
     /// <param name="n">The number of levels to ascend in the hierarchy.</param>
     /// <returns>A <see cref="HierarchyId"/> value representing the <paramref name="n"/>th ancestor of this node or null if <paramref name="n"/> is greater than <see cref="GetLevel"/>.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="n"/> is negative.</exception>
-    public HierarchyId GetAncestor(int n)
-        => Wrap(_value.GetAncestor(n))!;
+    public virtual HierarchyId? GetAncestor(int n)
+        => (HierarchyId?)_value.GetAncestor(n);
 
     /// <summary>
-    /// Gets the value of a descendant node that is greater than <paramref name="child1"/> and less than <paramref name="child2"/>.
+    /// Gets a value for a new descendant node that is greater than <paramref name="child"/>.
+    /// </summary>
+    /// <param name="child">The lower bound. Use the last descendant to ensure the new value doesn't conflict with existing children. Can be null.</param>
+    /// <returns>A new <see cref="HierarchyId"/> value.</returns>
+    public virtual HierarchyId GetDescendant(HierarchyId? child)
+        => GetDescendant(child, null);
+
+    /// <summary>
+    /// Gets a value for a new descendant node that is greater than <paramref name="child1"/> and less than <paramref name="child2"/>. Use to insert a new node between two existing children.
     /// </summary>
     /// <param name="child1">The lower bound.</param>
     /// <param name="child2">The upper bound.</param>
-    /// <returns>A <see cref="HierarchyId"/> value.</returns>
-    public HierarchyId GetDescendant(HierarchyId? child1, HierarchyId? child2)
-        => Wrap(_value.GetDescendant(Unwrap(child1), Unwrap(child2)))!;
+    /// <returns>A new <see cref="HierarchyId"/> value.</returns>
+    public virtual HierarchyId GetDescendant(HierarchyId? child1, HierarchyId? child2)
+        => ((HierarchyId?)_value.GetDescendant(child1, child2))!;
 
     /// <inheritdoc/>
     public override int GetHashCode()
@@ -100,8 +107,8 @@ public class HierarchyId : IComparable
     /// Gets the level of this node in the hierarchical tree.
     /// </summary>
     /// <returns>The depth of this node. The root node is level 0.</returns>
-    public short GetLevel()
-        => _value.GetLevel().Value;
+    public virtual short GetLevel()
+        => (short)_value.GetLevel();
 
     /// <summary>
     /// Gets a value representing the location of a new node that has a path from <paramref name="newRoot"/> equal to the path from <paramref name="oldRoot"/> to this, effectively moving this to the new location.
@@ -109,18 +116,21 @@ public class HierarchyId : IComparable
     /// <param name="oldRoot">An ancestor of this node specifying the endpoint of the path segment to be moved.</param>
     /// <param name="newRoot">The node that represents the new ancestor.</param>
     /// <returns>A <see cref="HierarchyId"/> value or null if <paramref name="oldRoot"/> or <paramref name="newRoot"/> is null.</returns>
-    public HierarchyId? GetReparentedValue(HierarchyId? oldRoot, HierarchyId? newRoot)
-        => Wrap(_value.GetReparentedValue(Unwrap(oldRoot), Unwrap(newRoot)));
+    public virtual HierarchyId? GetReparentedValue(HierarchyId? oldRoot, HierarchyId? newRoot)
+        => (HierarchyId?)_value.GetReparentedValue(oldRoot, newRoot);
 
     /// <summary>
     /// Gets a value indicating whether this node is a descendant of <paramref name="parent"/>.
     /// </summary>
     /// <param name="parent">The parent to test against.</param>
     /// <returns>True if this node is in the sub-tree rooted at <paramref name="parent"/>; otherwise false.</returns>
-    public bool IsDescendantOf(HierarchyId? parent)
-        => _value.IsDescendantOf(Unwrap(parent)).IsTrue;
+    public virtual bool IsDescendantOf(HierarchyId? parent)
+        => _value.IsDescendantOf(parent).IsTrue;
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Returns the canonical string representation of a node.
+    /// </summary>
+    /// <returns>The string representation of a node.</returns>
     public override string ToString()
         => _value.ToString();
 
@@ -131,12 +141,7 @@ public class HierarchyId : IComparable
     /// <param name="hid2">The second node to compare.</param>
     /// <returns>True if <paramref name="hid1"/> and <paramref name="hid2"/> are equal; otherwise, false.</returns>
     public static bool operator ==(HierarchyId? hid1, HierarchyId? hid2)
-    {
-        var sh1 = Unwrap(hid1);
-        var sh2 = Unwrap(hid2);
-
-        return sh1.IsNull == sh2.IsNull && sh1.CompareTo(sh2) == 0;
-    }
+        => ((SqlHierarchyId)hid1).CompareTo(hid2) == 0;
 
     /// <summary>
     /// Evaluates whether two nodes are unequal.
@@ -145,12 +150,7 @@ public class HierarchyId : IComparable
     /// <param name="hid2">The second node to compare.</param>
     /// <returns>True if <paramref name="hid1"/> and <paramref name="hid2"/> are unequal; otherwise, false.</returns>
     public static bool operator !=(HierarchyId? hid1, HierarchyId? hid2)
-    {
-        var sh1 = Unwrap(hid1);
-        var sh2 = Unwrap(hid2);
-
-        return sh1.IsNull != sh2.IsNull || sh1.CompareTo(sh2) != 0;
-    }
+        => ((SqlHierarchyId)hid1).CompareTo(hid2) != 0;
 
     /// <summary>
     /// Evaluates whether one node is less than another.
@@ -159,12 +159,7 @@ public class HierarchyId : IComparable
     /// <param name="hid2">The second node to compare.</param>
     /// <returns>True if <paramref name="hid1"/> is less than <paramref name="hid2"/>; otherwise, false.</returns>
     public static bool operator <(HierarchyId? hid1, HierarchyId? hid2)
-    {
-        var sh1 = Unwrap(hid1);
-        var sh2 = Unwrap(hid2);
-
-        return !sh1.IsNull && !sh2.IsNull && sh1.CompareTo(sh2) < 0;
-    }
+        => ((SqlHierarchyId)hid1).CompareTo(hid2) < 0;
 
     /// <summary>
     /// Evaluates whether one node is greater than another.
@@ -173,12 +168,7 @@ public class HierarchyId : IComparable
     /// <param name="hid2">The second node to compare.</param>
     /// <returns>True if <paramref name="hid1"/> is greater than <paramref name="hid2"/>; otherwise, false.</returns>
     public static bool operator >(HierarchyId? hid1, HierarchyId? hid2)
-    {
-        var sh1 = Unwrap(hid1);
-        var sh2 = Unwrap(hid2);
-
-        return !sh1.IsNull && !sh2.IsNull && sh1.CompareTo(sh2) > 0;
-    }
+        => ((SqlHierarchyId)hid1).CompareTo(hid2) > 0;
 
     /// <summary>
     /// Evaluates whether one node is less than or equal to another.
@@ -187,12 +177,7 @@ public class HierarchyId : IComparable
     /// <param name="hid2">The second node to compare.</param>
     /// <returns>True if <paramref name="hid1"/> is less than or equal to <paramref name="hid2"/>; otherwise, false.</returns>
     public static bool operator <=(HierarchyId? hid1, HierarchyId? hid2)
-    {
-        var sh1 = Unwrap(hid1);
-        var sh2 = Unwrap(hid2);
-
-        return !sh1.IsNull && !sh2.IsNull && sh1.CompareTo(sh2) <= 0;
-    }
+        => ((SqlHierarchyId)hid1).CompareTo(hid2) <= 0;
 
     /// <summary>
     /// Evaluates whether one node is greater than or equal to another.
@@ -201,16 +186,21 @@ public class HierarchyId : IComparable
     /// <param name="hid2">The second node to compare.</param>
     /// <returns>True if <paramref name="hid1"/> is greater than or equal to <paramref name="hid2"/>; otherwise, false.</returns>
     public static bool operator >=(HierarchyId? hid1, HierarchyId? hid2)
-    {
-        var sh1 = Unwrap(hid1);
-        var sh2 = Unwrap(hid2);
+        => ((SqlHierarchyId)hid1).CompareTo(hid2) >= 0;
 
-        return !sh1.IsNull && !sh2.IsNull && sh1.CompareTo(sh2) >= 0;
-    }
-
-    private static SqlHierarchyId Unwrap(HierarchyId? value)
+    /// <summary>
+    /// Converts a <see cref="HierarchyId"/> value to a <see cref="SqlHierarchyId"/> value.
+    /// </summary>
+    /// <param name="value">The <see cref="HierarchyId"/> value.</param>
+    /// <returns>The underlying <see cref="SqlHierarchyId"/> value.</returns>
+    public static implicit operator SqlHierarchyId(HierarchyId? value)
         => value?._value ?? SqlHierarchyId.Null;
 
-    private static HierarchyId? Wrap(SqlHierarchyId value)
+    /// <summary>
+    /// Converts a <see cref="SqlHierarchyId"/> value to a <see cref="HierarchyId"/> value.
+    /// </summary>
+    /// <param name="value">The <see cref="SqlHierarchyId"/> value.</param>
+    /// <returns>A new <see cref="HierarchyId"/> value.</returns>
+    public static explicit operator HierarchyId?(SqlHierarchyId value)
         => value.IsNull ? null : new HierarchyId(value);
 }

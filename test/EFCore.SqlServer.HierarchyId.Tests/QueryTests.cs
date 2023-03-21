@@ -50,6 +50,21 @@ public class QueryTests : IDisposable
     }
 
     [ConditionalFact]
+    public void IsDescendantOf_can_translate_when_constant()
+    {
+        var results = (from p in _db.Patriarchy
+                       where p.Id.GetLevel() == 1
+                       select new HierarchyId("/1/1/11.1/").IsDescendantOf(p.Id)).ToList();
+
+        Assert.Equal(
+            Condense(
+                @"SELECT hierarchyid::Parse('/1/1/11.1/').IsDescendantOf([p].[Id]) FROM [Patriarchy] AS [p] WHERE [p].[Id].GetLevel() = CAST(1 AS smallint)"),
+            Condense(_db.Sql));
+
+        Assert.All(results, b => Assert.True(b));
+    }
+
+    [ConditionalFact]
     public void GetAncestor_0_can_translate()
     {
         var results = (from p in _db.Patriarchy
@@ -134,6 +149,20 @@ public class QueryTests : IDisposable
     }
 
     [ConditionalFact]
+    public void GetDescendent_can_translate_when_one_argument()
+    {
+        var results = (from p in _db.Patriarchy
+                       where p.Id.GetLevel() == 0
+                       select p.Id.GetDescendant(null)).ToList();
+
+        Assert.Equal(
+            Condense(@"SELECT [p].[Id].GetDescendant(NULL, NULL) FROM [Patriarchy] AS [p] WHERE [p].[Id].GetLevel() = CAST(0 AS smallint)"),
+            Condense(_db.Sql));
+
+        Assert.Equal(new[] { HierarchyId.Parse("/1/") }, results);
+    }
+
+    [ConditionalFact]
     public void HierarchyId_can_be_sent_as_parameter()
     {
         var results = (from p in _db.Patriarchy
@@ -141,7 +170,7 @@ public class QueryTests : IDisposable
                        select p.Name).ToList();
 
         Assert.Equal(
-            Condense(@"SELECT [p].[Name] FROM [Patriarchy] AS [p] WHERE [p].[Id] = '/1/'"),
+            Condense(@"SELECT [p].[Name] FROM [Patriarchy] AS [p] WHERE [p].[Id] = hierarchyid::Parse('/1/')"),
             Condense(_db.Sql));
 
         Assert.Equal(new[] { "Isaac" }, results);
@@ -155,7 +184,7 @@ public class QueryTests : IDisposable
                        select p.Name).ToList();
 
         Assert.Equal(
-            Condense(@"SELECT [c].[Name] FROM [ConvertedPatriarchy] AS [c] WHERE [c].[HierarchyId] = '/1/'"),
+            Condense(@"SELECT [c].[Name] FROM [ConvertedPatriarchy] AS [c] WHERE [c].[HierarchyId] = hierarchyid::Parse('/1/')"),
             Condense(_db.Sql));
 
         Assert.Equal(new[] { "Isaac" }, results);
@@ -252,7 +281,7 @@ public class QueryTests : IDisposable
                        select p.Name).ToList();
 
         Assert.Equal(
-            Condense(@"SELECT [p].[Name] FROM [Patriarchy] AS [p] WHERE [p].[Id].GetAncestor(CAST([p].[Id].GetLevel() AS int)) = '/'"),
+            Condense(@"SELECT [p].[Name] FROM [Patriarchy] AS [p] WHERE [p].[Id].GetAncestor(CAST([p].[Id].GetLevel() AS int)) = hierarchyid::Parse('/')"),
             Condense(_db.Sql));
 
         var all = (from p in _db.Patriarchy
@@ -272,7 +301,7 @@ public class QueryTests : IDisposable
 
         Assert.Equal(
             """
-            @__isaac_0='?' (Size = 1) (DbType = Object)
+            @__isaac_0='?' (DbType = Object)
 
             SELECT [p].[Name]
             FROM [Patriarchy] AS [p]
@@ -320,7 +349,7 @@ public class QueryTests : IDisposable
                        select HierarchyId.Parse(p.Id.ToString())).ToList();
 
         Assert.Equal(
-            Condense(@"SELECT hierarchyid::Parse([p].[Id].ToString()) FROM [Patriarchy] AS [p] WHERE [p].[Id] = '/'"),
+            Condense(@"SELECT hierarchyid::Parse([p].[Id].ToString()) FROM [Patriarchy] AS [p] WHERE [p].[Id] = hierarchyid::Parse('/')"),
             Condense(_db.Sql));
 
         Assert.Equal(new[] { HierarchyId.Parse("/") }, results);
