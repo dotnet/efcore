@@ -484,7 +484,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var visitedShaperResultParameter = Expression.Parameter(visitedShaperResult.Type);
                             _variables.Add(visitedShaperResultParameter);
                             _jsonEntityExpressions.Add(Expression.Assign(visitedShaperResultParameter, visitedShaperResult));
-                            accessor = visitedShaperResultParameter;
+
+                            accessor = CompensateForCollectionMaterialization(
+                                visitedShaperResultParameter,
+                                entityShaperExpression.Type);
                         }
                         else
                         {
@@ -509,19 +512,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                             _expressions.Add(Expression.Assign(entityParameter, entityMaterializationExpression));
 
-                            if (_containsCollectionMaterialization)
-                            {
-                                _valuesArrayInitializers!.Add(entityParameter);
-                                accessor = Expression.Convert(
-                                    Expression.ArrayIndex(
-                                        _valuesArrayExpression!,
-                                        Expression.Constant(_valuesArrayInitializers.Count - 1)),
-                                    entityShaperExpression.Type);
-                            }
-                            else
-                            {
-                                accessor = entityParameter;
-                            }
+                            accessor = CompensateForCollectionMaterialization(
+                                entityParameter,
+                                entityShaperExpression.Type);
                         }
 
                         _variableShaperMapping[entityShaperExpression.ValueBufferExpression] = accessor;
@@ -1056,6 +1049,23 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             return base.VisitExtension(extensionExpression);
+
+            Expression CompensateForCollectionMaterialization(ParameterExpression parameter, Type resultType)
+            {
+                if (_containsCollectionMaterialization)
+                {
+                    _valuesArrayInitializers!.Add(parameter);
+                    return Expression.Convert(
+                        Expression.ArrayIndex(
+                            _valuesArrayExpression!,
+                            Expression.Constant(_valuesArrayInitializers.Count - 1)),
+                        resultType);
+                }
+                else
+                {
+                    return parameter;
+                }
+            }
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

@@ -1415,6 +1415,53 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_projection_of_json_reference_leaf_and_entity_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf, x.EntityCollection }).AsNoTracking(),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.OwnedReferenceLeaf, a.OwnedReferenceLeaf);
+                AssertCollection(e.EntityCollection, a.EntityCollection);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_projection_of_json_reference_and_entity_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { x.OwnedReferenceRoot, x.EntityCollection }).AsNoTracking(),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.OwnedReferenceRoot, a.OwnedReferenceRoot);
+                AssertCollection(e.EntityCollection, a.EntityCollection);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_with_projection_of_multiple_json_references_and_entity_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => new
+            {
+                Reference1 = x.OwnedReferenceRoot,
+                Reference2 = x.OwnedCollectionRoot[0].OwnedReferenceBranch,
+                x.EntityCollection,
+                Reference3 = x.OwnedCollectionRoot[1].OwnedReferenceBranch.OwnedReferenceLeaf,
+                Reference4 = x.OwnedCollectionRoot[0].OwnedCollectionBranch[0].OwnedReferenceLeaf,
+
+            }).AsNoTracking(),
+            elementAsserter: (e, a) =>
+            {
+                AssertCollection(e.EntityCollection, a.EntityCollection);
+                AssertEqual(e.Reference1, a.Reference1);
+                AssertEqual(e.Reference2, a.Reference2);
+                AssertEqual(e.Reference3, a.Reference3);
+                AssertEqual(e.Reference4, a.Reference4);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_all_types_entity_projection(bool async)
         => AssertQuery(
             async,
