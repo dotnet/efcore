@@ -1351,6 +1351,60 @@ ORDER BY [j].[Id]
 """);
     }
 
+    public override async Task Json_with_projection_of_json_collection_leaf_and_entity_collection(bool async)
+    {
+        await base.Json_with_projection_of_json_collection_leaf_and_entity_collection(async);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id]
+""");
+    }
+
+    public override async Task Json_with_projection_of_json_collection_and_entity_collection(bool async)
+    {
+        await base.Json_with_projection_of_json_collection_and_entity_collection(async);
+
+        AssertSql(
+"""
+SELECT [j].[OwnedCollectionRoot], [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j0] ON [j].[Id] = [j0].[ParentId]
+ORDER BY [j].[Id]
+""");
+    }
+
+    public override async Task Json_with_projection_of_json_collection_element_and_entity_collection(bool async)
+    {
+        await base.Json_with_projection_of_json_collection_element_and_entity_collection(async);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([j].[OwnedCollectionRoot], '$[0]'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], [j1].[Id], [j1].[Name], [j1].[ParentId]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
+ORDER BY [j].[Id], [j0].[Id]
+""");
+    }
+
+    public override async Task Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(bool async)
+    {
+        await base.Json_with_projection_of_mix_of_json_collections_json_references_and_entity_collection(async);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j1].[Id], [j1].[Name], [j1].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[OwnedCollectionRoot]
+FROM [JsonEntitiesBasic] AS [j]
+LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
+LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
+ORDER BY [j].[Id], [j0].[Id]
+""");
+    }
+
     public override async Task Json_all_types_entity_projection(bool async)
     {
         await base.Json_all_types_entity_projection(async);
