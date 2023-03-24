@@ -61,6 +61,9 @@ SET "Title" = COALESCE("o"."Title", '') || '_Suffix'
 """);
     }
 
+    public override Task Delete_entity_with_auto_include(bool async)
+        => Assert.ThrowsAsync<ArgumentOutOfRangeException>(() => base.Delete_entity_with_auto_include(async));
+
     public override async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         await base.Delete_predicate_based_on_optional_navigation(async);

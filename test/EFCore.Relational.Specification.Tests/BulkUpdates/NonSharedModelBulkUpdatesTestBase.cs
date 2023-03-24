@@ -129,6 +129,40 @@ public abstract class NonSharedModelBulkUpdatesTestBase : NonSharedModelTestBase
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Delete_entity_with_auto_include(bool async)
+    {
+        var contextFactory = await InitializeAsync<Context30572>();
+        await AssertDelete(async, contextFactory.CreateContext, ss => ss.Set<Context30572_Principal>(), rowsAffectedCount: 0);
+    }
+
+    protected class Context30572 : DbContext
+    {
+        public Context30572(DbContextOptions options)
+            : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+            => modelBuilder.Entity<Context30572_Principal>().Navigation(o => o.Dependent).AutoInclude();
+    }
+
+    public class Context30572_Principal
+    {
+        public int Id { get; set; }
+        public string? Title { get; set; }
+
+        public Context30572_Dependent? Dependent { get; set; }
+    }
+
+    public class Context30572_Dependent
+    {
+        public int Id { get; set; }
+
+        public int Number { get; set; }
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         var contextFactory = await InitializeAsync<Context28745>();

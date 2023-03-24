@@ -1044,7 +1044,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     {
         if (source.ShaperExpression is IncludeExpression includeExpression)
         {
-            source = source.UpdateShaperExpression(PruneOwnedIncludes(includeExpression));
+            source = source.UpdateShaperExpression(PruneIncludes(includeExpression));
         }
 
         if (source.ShaperExpression is not EntityShaperExpression entityShaperExpression)
@@ -1168,7 +1168,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         // ExecuteUpdate's lambdas. Note that we don't currently support updates across tables.
         if (source.ShaperExpression is IncludeExpression includeExpression)
         {
-            source = source.UpdateShaperExpression(PruneOwnedIncludes(includeExpression));
+            source = source.UpdateShaperExpression(PruneIncludes(includeExpression));
         }
 
         var propertyValueLambdaExpressions = new List<(LambdaExpression, Expression)>();
@@ -1614,17 +1614,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
         => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
 
-    private static Expression PruneOwnedIncludes(IncludeExpression includeExpression)
+    private static Expression PruneIncludes(IncludeExpression includeExpression)
     {
-        if (includeExpression.Navigation is ISkipNavigation
-            || includeExpression.Navigation is not INavigation navigation
-            || !navigation.ForeignKey.IsOwnership)
+        if (includeExpression.Navigation is ISkipNavigation or not INavigation)
         {
             return includeExpression;
         }
 
         return includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
-            ? PruneOwnedIncludes(innerIncludeExpression)
+            ? PruneIncludes(innerIncludeExpression)
             : includeExpression.EntityExpression;
     }
 

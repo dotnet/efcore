@@ -65,6 +65,18 @@ FROM [Owner] AS [o]
 """);
     }
 
+    public override async Task Delete_entity_with_auto_include(bool async)
+    {
+        await base.Delete_entity_with_auto_include(async);
+
+        AssertSql(
+"""
+DELETE FROM [c]
+FROM [Context30572_Principal] AS [c]
+LEFT JOIN [Context30572_Dependent] AS [c0] ON [c].[DependentId] = [c0].[Id]
+""");
+    }
+
     public override async Task Delete_predicate_based_on_optional_navigation(bool async)
     {
         await base.Delete_predicate_based_on_optional_navigation(async);
