@@ -1044,7 +1044,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     {
         if (source.ShaperExpression is IncludeExpression includeExpression)
         {
-            source = source.UpdateShaperExpression(PruneOwnedIncludes(includeExpression));
+            source = source.UpdateShaperExpression(PruneIncludes(includeExpression));
         }
 
         if (source.ShaperExpression is not EntityShaperExpression entityShaperExpression)
@@ -1143,20 +1143,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             Expression.Quote(Expression.Lambda(predicateBody, entityParameter)));
 
         return TranslateExecuteDelete((ShapedQueryExpression)Visit(newSource));
-
-        static Expression PruneOwnedIncludes(IncludeExpression includeExpression)
-        {
-            if (includeExpression.Navigation is ISkipNavigation
-                || includeExpression.Navigation is not INavigation navigation
-                || !navigation.ForeignKey.IsOwnership)
-            {
-                return includeExpression;
-            }
-
-            return includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
-                ? PruneOwnedIncludes(innerIncludeExpression)
-                : includeExpression.EntityExpression;
-        }
     }
 
     /// <summary>
@@ -1178,6 +1164,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         ShapedQueryExpression source,
         LambdaExpression setPropertyCalls)
     {
+        // Our source may have IncludeExpressions because of owned entities or auto-include; unwrap these, as they're meaningless for
+        // ExecuteUpdate's lambdas. Note that we don't currently support updates across tables.
+        if (source.ShaperExpression is IncludeExpression includeExpression)
+        {
+            source = source.UpdateShaperExpression(PruneIncludes(includeExpression));
+        }
+
         var propertyValueLambdaExpressions = new List<(LambdaExpression, Expression)>();
         PopulateSetPropertyCalls(setPropertyCalls.Body, propertyValueLambdaExpressions, setPropertyCalls.Parameters[0]);
         if (TranslationErrorDetails != null)
@@ -1382,11 +1375,16 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     when parameter == p:
                     break;
 
-                case MethodCallExpression methodCallExpression
-                    when methodCallExpression.Method.IsGenericMethod
-                    && methodCallExpression.Method.Name == nameof(SetPropertyCalls<int>.SetProperty)
-                    && methodCallExpression.Method.DeclaringType!.IsGenericType
-                    && methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>):
+                case MethodCallExpression
+                    {
+                        Method:
+                        {
+                            IsGenericMethod: true,
+                            Name: nameof(SetPropertyCalls<int>.SetProperty),
+                            DeclaringType.IsGenericType: true
+                        }
+                    } methodCallExpression
+                    when methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>):
 
                     list.Add(((LambdaExpression)methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
 
@@ -1401,8 +1399,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         // For property setter selectors in ExecuteUpdate, we support only simple member access, EF.Function, etc.
-        // We also unwrap casts to interface/base class (#29618), as well as IncludeExpressions (which occur when the target entity has
-        // owned entities, #28727).
+        // We also unwrap casts to interface/base class (#29618). Note that owned IncludeExpressions have already been pruned from the
+        // source before remapping the lambda (#28727).
         static bool TryProcessPropertyAccess(
             IModel model,
             ref Expression expression,
@@ -1411,7 +1409,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             expression = expression.UnwrapTypeConversion(out _);
 
             if (expression is MemberExpression { Expression : not null } memberExpression
-                && Unwrap(memberExpression.Expression) is EntityShaperExpression ese)
+                && memberExpression.Expression.UnwrapTypeConversion(out _) is EntityShaperExpression ese)
             {
                 expression = memberExpression.Update(ese);
                 entityShaperExpression = ese;
@@ -1421,7 +1419,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             if (expression is MethodCallExpression mce)
             {
                 if (mce.TryGetEFPropertyArguments(out var source, out _)
-                    && Unwrap(source) is EntityShaperExpression ese1)
+                    && source.UnwrapTypeConversion(out _) is EntityShaperExpression ese1)
                 {
                     if (source != ese1)
                     {
@@ -1435,7 +1433,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
 
                 if (mce.TryGetIndexerArguments(model, out var source2, out _)
-                    && Unwrap(source2) is EntityShaperExpression ese2)
+                    && source2.UnwrapTypeConversion(out _) is EntityShaperExpression ese2)
                 {
                     expression = mce.Update(ese2, mce.Arguments);
                     entityShaperExpression = ese2;
@@ -1445,18 +1443,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             entityShaperExpression = null;
             return false;
-
-            static Expression Unwrap(Expression expression)
-            {
-                expression = expression.UnwrapTypeConversion(out _);
-
-                while (expression is IncludeExpression includeExpression)
-                {
-                    expression = includeExpression.EntityExpression;
-                }
-
-                return expression;
-            }
         }
 
         static Expression GetEntitySource(IModel model, Expression propertyAccessExpression)
@@ -1627,6 +1613,18 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     private Expression ExpandSharedTypeEntities(SelectExpression selectExpression, Expression lambdaBody)
         => _sharedTypeEntityExpandingExpressionVisitor.Expand(selectExpression, lambdaBody);
+
+    private static Expression PruneIncludes(IncludeExpression includeExpression)
+    {
+        if (includeExpression.Navigation is ISkipNavigation or not INavigation)
+        {
+            return includeExpression;
+        }
+
+        return includeExpression.EntityExpression is IncludeExpression innerIncludeExpression
+            ? PruneIncludes(innerIncludeExpression)
+            : includeExpression.EntityExpression;
+    }
 
     private sealed class SharedTypeEntityExpandingExpressionVisitor : ExpressionVisitor
     {
