@@ -65,7 +65,13 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     public virtual Expression ExtractParameters(Expression expression)
         => ExtractParameters(expression, clearEvaluatedValues: true);
 
-    private Expression ExtractParameters(Expression expression, bool clearEvaluatedValues)
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Expression ExtractParameters(Expression expression, bool clearEvaluatedValues)
     {
         var oldEvaluatableExpressions = _evaluatableExpressions;
         _evaluatableExpressions = _evaluatableExpressionFindingExpressionVisitor.Find(expression);
@@ -272,7 +278,13 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         string? parameterName;
         if (_evaluatedValues.TryGetValue(expression, out var cachedValue))
         {
-            var existingExpression = generateParameter ? cachedValue.Parameter : cachedValue.Constant;
+            // The _generateContextAccessors condition allows us to reuse parameter expressions evaluated in query filters.
+            // In principle, _generateContextAccessors is orthogonal to query filters, but in practice it is only used in the
+            // nav expansion query filters (and defining query). If this changes in future, they would need to be decoupled.
+            var existingExpression = generateParameter || _generateContextAccessors
+                ? cachedValue.Parameter
+                : cachedValue.Constant;
+
             if (existingExpression != null)
             {
                 return existingExpression;
