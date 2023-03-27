@@ -385,9 +385,9 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     private static RuntimeServiceProperty Create(IServiceProperty property, RuntimeEntityType runtimeEntityType)
         => runtimeEntityType.AddServiceProperty(
             property.Name,
-            property.ClrType,
             property.PropertyInfo,
             property.FieldInfo,
+            property.ClrType,
             property.GetPropertyAccessMode());
 
     /// <summary>

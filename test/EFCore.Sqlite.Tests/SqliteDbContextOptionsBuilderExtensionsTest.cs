@@ -67,7 +67,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
-        Assert.False(extension.ConnectionOwned);
+        Assert.False(extension.IsConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 
@@ -82,7 +82,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
-        Assert.True(extension.ConnectionOwned);
+        Assert.True(extension.IsConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 
@@ -110,7 +110,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
-        Assert.False(extension.ConnectionOwned);
+        Assert.False(extension.IsConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 
@@ -125,7 +125,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
-        Assert.True(extension.ConnectionOwned);
+        Assert.True(extension.IsConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 

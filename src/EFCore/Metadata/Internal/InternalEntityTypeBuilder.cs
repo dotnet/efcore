@@ -1011,7 +1011,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                 }
             }
 
-            builder = Metadata.AddServiceProperty(serviceType, memberInfo, configurationSource.Value).Builder;
+            builder = Metadata.AddServiceProperty(memberInfo, serviceType, configurationSource.Value).Builder;
 
             if (detachedProperties != null)
             {

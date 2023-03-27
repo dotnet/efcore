@@ -158,7 +158,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     /// <param name="autoResolve">The option to change.</param>
     /// <returns>A new instance with the option changed.</returns>
-    public virtual CoreOptionsExtension WithAutoResolveRootApplicationServiceProvider(bool autoResolve = true)
+    public virtual CoreOptionsExtension WithRootApplicationServiceProvider(bool autoResolve = true)
     {
         var clone = Clone();
 
@@ -461,13 +461,13 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
         => _applicationServiceProvider;
 
     /// <summary>
-    ///     The option set from the <see cref="DbContextOptionsBuilder.UseRootApplicationServiceProvider" /> method.
+    ///     The option set from the <see cref="DbContextOptionsBuilder.UseRootApplicationServiceProvider(IServiceProvider?)" /> method.
     /// </summary>
     public virtual IServiceProvider? RootApplicationServiceProvider
         => _rootApplicationServiceProvider;
 
     /// <summary>
-    ///     The option set from the <see cref="DbContextOptionsBuilder.UseRootApplicationServiceProvider" /> method.
+    ///     The option set from the <see cref="DbContextOptionsBuilder.UseRootApplicationServiceProvider(IServiceProvider?)" /> method.
     /// </summary>
     public virtual bool AutoResolveRootProvider
         => _autoResolveResolveRootProvider;
