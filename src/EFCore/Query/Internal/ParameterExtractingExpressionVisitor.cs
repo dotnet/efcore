@@ -280,6 +280,9 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
         string? parameterName;
         if (_evaluatedValues.TryGetValue(expression, out var cachedValue))
         {
+            // The _generateContextAccessors condition allows us to reuse parameter expressions evaluated in query filters.
+            // In principle, _generateContextAccessors is orthogonal to query filters, but in practice it is only used in the
+            // nav expansion query filters (and defining query). If this changes in future, they would need to be decoupled.
             var existingExpression = generateParameter || _generateContextAccessors
                 ? cachedValue.Parameter
                 : cachedValue.Constant;
