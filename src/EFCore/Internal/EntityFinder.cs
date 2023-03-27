@@ -639,7 +639,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return _queryRoot.Where(e => false);
         }
 
-        return Query(navigation, keyValues, entry, LoadOptions.Default);
+        return Query(navigation, keyValues, entry, LoadOptions.None);
     }
 
     /// <summary>

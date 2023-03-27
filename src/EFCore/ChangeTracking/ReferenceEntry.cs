@@ -86,7 +86,7 @@ public class ReferenceEntry : NavigationEntry
     ///     </para>
     /// </remarks>
     /// <param name="options">Options to control the way related entities are loaded.</param>
-    public override void Load(LoadOptions options = LoadOptions.Default)
+    public override void Load(LoadOptions options = LoadOptions.None)
     {
         if (!IsLoaded)
         {
@@ -112,7 +112,7 @@ public class ReferenceEntry : NavigationEntry
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task LoadAsync(LoadOptions options = LoadOptions.Default, CancellationToken cancellationToken = default)
+    public override Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default)
         => IsLoaded
             ? Task.CompletedTask
             : TargetFinder.LoadAsync((INavigation)Metadata, InternalEntry, options, cancellationToken);

@@ -95,7 +95,7 @@ public abstract class NavigationEntry : MemberEntry
     ///     </para>
     /// </remarks>
     /// <param name="options">Options to control the way related entities are loaded.</param>
-    public abstract void Load(LoadOptions options = LoadOptions.Default);
+    public abstract void Load(LoadOptions options = LoadOptions.None);
 
     /// <summary>
     ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
@@ -115,7 +115,7 @@ public abstract class NavigationEntry : MemberEntry
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public abstract Task LoadAsync(LoadOptions options = LoadOptions.Default, CancellationToken cancellationToken = default);
+    public abstract Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Returns the query that would be used by <see cref="Load" /> to load entities referenced by

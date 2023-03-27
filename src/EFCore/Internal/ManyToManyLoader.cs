@@ -200,7 +200,7 @@ public class ManyToManyLoader<TEntity, TSourceEntity> : ICollectionLoader<TEntit
             return queryRoot.Where(e => false);
         }
 
-        return Query(context, keyValues, entry, LoadOptions.Default);
+        return Query(context, keyValues, entry, LoadOptions.None);
     }
 
     private object[]? PrepareForLoad(InternalEntityEntry entry)

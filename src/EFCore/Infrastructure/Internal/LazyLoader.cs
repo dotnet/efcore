@@ -117,7 +117,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                         entry.Load(
                             _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
                                 ? LoadOptions.ForceIdentityResolution
-                                : LoadOptions.Default);
+                                : LoadOptions.None);
                     }
                     catch
                     {
@@ -161,7 +161,7 @@ public class LazyLoader : ILazyLoader, IInjectableService
                         await entry.LoadAsync(
                             _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
                                 ? LoadOptions.ForceIdentityResolution
-                                : LoadOptions.Default,
+                                : LoadOptions.None,
                             cancellationToken).ConfigureAwait(false);
                     }
                     catch

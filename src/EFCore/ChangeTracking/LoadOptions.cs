@@ -21,7 +21,7 @@ public enum LoadOptions
     ///         Use <see cref="ForceIdentityResolution" /> to avoid getting these duplicates.
     ///     </para>
     /// </summary>
-    Default = 0,
+    None = 0,
 
     /// <summary>
     ///     <para>

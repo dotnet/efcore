@@ -141,15 +141,17 @@ public static class ProxiesExtensions
     /// <returns>The same builder to allow method calls to be chained.</returns>
     public static DbContextOptionsBuilder UseLazyLoadingProxies(
         this DbContextOptionsBuilder optionsBuilder,
-        Action<LazyLoadingProxiesOptionsBuilder>? lazyLoadingProxiesOptionsAction)
+        Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
     {
+        Check.NotNull(lazyLoadingProxiesOptionsAction, nameof(lazyLoadingProxiesOptionsAction));
+
         var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
             ?? new ProxiesOptionsExtension();
 
         ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
             extension.WithLazyLoading(useLazyLoadingProxies: true));
 
-        lazyLoadingProxiesOptionsAction?.Invoke(new LazyLoadingProxiesOptionsBuilder(optionsBuilder));
+        lazyLoadingProxiesOptionsAction.Invoke(new LazyLoadingProxiesOptionsBuilder(optionsBuilder));
 
         return optionsBuilder;
     }
@@ -202,7 +204,7 @@ public static class ProxiesExtensions
     /// <returns>The same builder to allow method calls to be chained.</returns>
     public static DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(
         this DbContextOptionsBuilder<TContext> optionsBuilder,
-        Action<LazyLoadingProxiesOptionsBuilder>? lazyLoadingProxiesOptionsAction)
+        Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies((DbContextOptionsBuilder)optionsBuilder, lazyLoadingProxiesOptionsAction);
 

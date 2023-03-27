@@ -422,11 +422,11 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         {
             if (async)
             {
-                await collectionEntry.LoadAsync(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
+                await collectionEntry.LoadAsync(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.None);
             }
             else
             {
-                collectionEntry.Load(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
+                collectionEntry.Load(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.None);
             }
 
             Assert.True(collectionEntry.IsLoaded);
@@ -519,11 +519,11 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
         {
             if (async)
             {
-                await collectionEntry.LoadAsync(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
+                await collectionEntry.LoadAsync(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.None);
             }
             else
             {
-                collectionEntry.Load(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.Default);
+                collectionEntry.Load(forceIdentityResolution ? LoadOptions.ForceIdentityResolution : LoadOptions.None);
             }
 
             Assert.True(collectionEntry.IsLoaded);
@@ -575,7 +575,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             collectionEntry.Load(
                 queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
                     ? LoadOptions.ForceIdentityResolution
-                    : LoadOptions.Default);
+                    : LoadOptions.None);
         }
 
         context.ChangeTracker.LazyLoadingEnabled = false;
