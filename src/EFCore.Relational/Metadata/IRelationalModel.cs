@@ -130,7 +130,7 @@ public interface IRelationalModel : IAnnotatable
         {
             builder.Append(indentString).Append("RelationalModel: ");
 
-            if (Collation != null)
+            if ((Model is Internal.Model) && Collation != null)
             {
                 builder.AppendLine().Append(indentString).Append("Collation: ").Append(Collation);
             }

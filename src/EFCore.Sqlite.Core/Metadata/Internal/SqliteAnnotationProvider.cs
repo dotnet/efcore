@@ -33,6 +33,11 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IRelationalModel model, bool designTime)
     {
+        if (!designTime)
+        {
+            yield break;
+        }
+
         if (model.Tables.SelectMany(t => t.Columns).Any(
                 c => SqliteTypeMappingSource.IsSpatialiteType(c.StoreType)))
         {
@@ -48,6 +53,11 @@ public class SqliteAnnotationProvider : RelationalAnnotationProvider
     /// </summary>
     public override IEnumerable<IAnnotation> For(IColumn column, bool designTime)
     {
+        if (!designTime)
+        {
+            yield break;
+        }
+
         // JSON columns have no property mappings so all annotations that rely on property mappings should be skipped for them
         if (column is JsonColumn)
         {

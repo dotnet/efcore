@@ -917,7 +917,6 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         for (var columnIndex = 0; columnIndex < columnCount; columnIndex++)
         {
             var columnModification = ColumnModifications[columnIndex];
-
             if (columnModification.Property is null
                 || !columnModification.IsRead
                 || columnModification.Column is not IStoreStoredProcedureParameter storedProcedureParameter)
@@ -930,7 +929,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
                 "Readable column modification has a stored procedure parameter with direction Input");
             Check.DebugAssert(
                 columnModification.ParameterName is not null,
-                "Readable column modification has an stored procedure parameter without a name");
+                "Readable column modification has a stored procedure parameter without a name");
 
             columnModification.Value = parameterCollection[baseParameterIndex + storedProcedureParameter.Position].Value;
         }

@@ -45,6 +45,7 @@ public class SqliteRuntimeModelConvention : RelationalRuntimeModelConvention
 
         if (!runtime)
         {
+            annotations.Remove(SqliteAnnotationNames.Autoincrement);
             annotations.Remove(SqliteAnnotationNames.Srid);
         }
     }

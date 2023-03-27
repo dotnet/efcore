@@ -224,10 +224,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
             "VerificationException : Method System.Linq.Enumerable.MaxFloat: type argument 'System.Char' violates the constraint of type parameter 'T'.")]
     public async Task Can_call_ResourceStore_FindApiResourcesByNameAsync()
         => await ExecuteWithStrategyInTransactionAsync(
-            async context =>
-            {
-                await SaveApiResources(context);
-            },
+            SaveApiResources,
             async context =>
             {
                 var store = new ResourceStore(context, new FakeLogger<ResourceStore>());
@@ -292,7 +289,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ApiResourceId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ApiResourceClaim {'ApiResourceId'} -> ApiResource {'Id'} ToDependent: UserClaims ToPrincipal: ApiResource Cascade",
+                    "ForeignKey: ApiResourceClaim {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: UserClaims ToPrincipal: ApiResource",
                 },
                 Navigations = { "Navigation: ApiResourceClaim.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: UserClaims", },
             },
@@ -311,7 +308,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ApiResourceId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ApiResourceProperty {'ApiResourceId'} -> ApiResource {'Id'} ToDependent: Properties ToPrincipal: ApiResource Cascade",
+                    "ForeignKey: ApiResourceProperty {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Properties ToPrincipal: ApiResource",
                 },
                 Navigations = { "Navigation: ApiResourceProperty.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Properties", },
             },
@@ -329,7 +326,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ApiResourceId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ApiResourceScope {'ApiResourceId'} -> ApiResource {'Id'} ToDependent: Scopes ToPrincipal: ApiResource Cascade",
+                    "ForeignKey: ApiResourceScope {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Scopes ToPrincipal: ApiResource",
                 },
                 Navigations = { "Navigation: ApiResourceScope.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Scopes", },
             },
@@ -351,7 +348,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ApiResourceId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ApiResourceSecret {'ApiResourceId'} -> ApiResource {'Id'} ToDependent: Secrets ToPrincipal: ApiResource Cascade",
+                    "ForeignKey: ApiResourceSecret {'ApiResourceId'} -> ApiResource {'Id'} Required Cascade ToDependent: Secrets ToPrincipal: ApiResource",
                 },
                 Navigations = { "Navigation: ApiResourceSecret.ApiResource (ApiResource) ToPrincipal ApiResource Inverse: Secrets", },
             },
@@ -390,7 +387,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                     "Property: ApiScopeClaim.Type (string) Required MaxLength(200)",
                 },
                 Indexes = { "{'ScopeId'} ", },
-                FKs = { "ForeignKey: ApiScopeClaim {'ScopeId'} -> ApiScope {'Id'} ToDependent: UserClaims ToPrincipal: Scope Cascade", },
+                FKs = { "ForeignKey: ApiScopeClaim {'ScopeId'} -> ApiScope {'Id'} Required Cascade ToDependent: UserClaims ToPrincipal: Scope", },
                 Navigations = { "Navigation: ApiScopeClaim.Scope (ApiScope) ToPrincipal ApiScope Inverse: UserClaims", },
             },
             new EntityTypeMapping
@@ -406,7 +403,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                     "Property: ApiScopeProperty.Value (string) Required MaxLength(2000)",
                 },
                 Indexes = { "{'ScopeId'} ", },
-                FKs = { "ForeignKey: ApiScopeProperty {'ScopeId'} -> ApiScope {'Id'} ToDependent: Properties ToPrincipal: Scope Cascade", },
+                FKs = { "ForeignKey: ApiScopeProperty {'ScopeId'} -> ApiScope {'Id'} Required Cascade ToDependent: Properties ToPrincipal: Scope", },
                 Navigations = { "Navigation: ApiScopeProperty.Scope (ApiScope) ToPrincipal ApiScope Inverse: Properties", },
             },
             new EntityTypeMapping
@@ -488,7 +485,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                     "Property: ClientClaim.Value (string) Required MaxLength(250)",
                 },
                 Indexes = { "{'ClientId'} ", },
-                FKs = { "ForeignKey: ClientClaim {'ClientId'} -> Client {'Id'} ToDependent: Claims ToPrincipal: Client Cascade", },
+                FKs = { "ForeignKey: ClientClaim {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: Claims ToPrincipal: Client", },
                 Navigations = { "Navigation: ClientClaim.Client (Client) ToPrincipal Client Inverse: Claims", },
             },
             new EntityTypeMapping
@@ -505,7 +502,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ClientId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ClientCorsOrigin {'ClientId'} -> Client {'Id'} ToDependent: AllowedCorsOrigins ToPrincipal: Client Cascade",
+                    "ForeignKey: ClientCorsOrigin {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: AllowedCorsOrigins ToPrincipal: Client",
                 },
                 Navigations = { "Navigation: ClientCorsOrigin.Client (Client) ToPrincipal Client Inverse: AllowedCorsOrigins", },
             },
@@ -523,7 +520,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ClientId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ClientGrantType {'ClientId'} -> Client {'Id'} ToDependent: AllowedGrantTypes ToPrincipal: Client Cascade",
+                    "ForeignKey: ClientGrantType {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: AllowedGrantTypes ToPrincipal: Client",
                 },
                 Navigations = { "Navigation: ClientGrantType.Client (Client) ToPrincipal Client Inverse: AllowedGrantTypes", },
             },
@@ -541,7 +538,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ClientId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ClientIdPRestriction {'ClientId'} -> Client {'Id'} ToDependent: IdentityProviderRestrictions ToPrincipal: Client Cascade",
+                    "ForeignKey: ClientIdPRestriction {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: IdentityProviderRestrictions ToPrincipal: Client",
                 },
                 Navigations =
                 {
@@ -562,7 +559,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ClientId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ClientPostLogoutRedirectUri {'ClientId'} -> Client {'Id'} ToDependent: PostLogoutRedirectUris ToPrincipal: Client Cascade",
+                    "ForeignKey: ClientPostLogoutRedirectUri {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: PostLogoutRedirectUris ToPrincipal: Client",
                 },
                 Navigations =
                 {
@@ -582,7 +579,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                     "Property: ClientProperty.Value (string) Required MaxLength(2000)",
                 },
                 Indexes = { "{'ClientId'} ", },
-                FKs = { "ForeignKey: ClientProperty {'ClientId'} -> Client {'Id'} ToDependent: Properties ToPrincipal: Client Cascade", },
+                FKs = { "ForeignKey: ClientProperty {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: Properties ToPrincipal: Client", },
                 Navigations = { "Navigation: ClientProperty.Client (Client) ToPrincipal Client Inverse: Properties", },
             },
             new EntityTypeMapping
@@ -599,7 +596,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'ClientId'} ", },
                 FKs =
                 {
-                    "ForeignKey: ClientRedirectUri {'ClientId'} -> Client {'Id'} ToDependent: RedirectUris ToPrincipal: Client Cascade",
+                    "ForeignKey: ClientRedirectUri {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: RedirectUris ToPrincipal: Client",
                 },
                 Navigations = { "Navigation: ClientRedirectUri.Client (Client) ToPrincipal Client Inverse: RedirectUris", },
             },
@@ -615,7 +612,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                     "Property: ClientScope.Scope (string) Required MaxLength(200)",
                 },
                 Indexes = { "{'ClientId'} ", },
-                FKs = { "ForeignKey: ClientScope {'ClientId'} -> Client {'Id'} ToDependent: AllowedScopes ToPrincipal: Client Cascade", },
+                FKs = { "ForeignKey: ClientScope {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: AllowedScopes ToPrincipal: Client", },
                 Navigations = { "Navigation: ClientScope.Client (Client) ToPrincipal Client Inverse: AllowedScopes", },
             },
             new EntityTypeMapping
@@ -634,7 +631,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                     "Property: ClientSecret.Value (string) Required MaxLength(4000)",
                 },
                 Indexes = { "{'ClientId'} ", },
-                FKs = { "ForeignKey: ClientSecret {'ClientId'} -> Client {'Id'} ToDependent: ClientSecrets ToPrincipal: Client Cascade", },
+                FKs = { "ForeignKey: ClientSecret {'ClientId'} -> Client {'Id'} Required Cascade ToDependent: ClientSecrets ToPrincipal: Client", },
                 Navigations = { "Navigation: ClientSecret.Client (Client) ToPrincipal Client Inverse: ClientSecrets", },
             },
             new EntityTypeMapping
@@ -677,7 +674,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'IdentityResourceId'} ", },
                 FKs =
                 {
-                    "ForeignKey: IdentityResourceClaim {'IdentityResourceId'} -> IdentityResource {'Id'} ToDependent: UserClaims ToPrincipal: IdentityResource Cascade",
+                    "ForeignKey: IdentityResourceClaim {'IdentityResourceId'} -> IdentityResource {'Id'} Required Cascade ToDependent: UserClaims ToPrincipal: IdentityResource",
                 },
                 Navigations =
                 {
@@ -699,7 +696,7 @@ public abstract class ConfigurationDbContextTestBase<TFixture> : IClassFixture<T
                 Indexes = { "{'IdentityResourceId'} ", },
                 FKs =
                 {
-                    "ForeignKey: IdentityResourceProperty {'IdentityResourceId'} -> IdentityResource {'Id'} ToDependent: Properties ToPrincipal: IdentityResource Cascade",
+                    "ForeignKey: IdentityResourceProperty {'IdentityResourceId'} -> IdentityResource {'Id'} Required Cascade ToDependent: Properties ToPrincipal: IdentityResource",
                 },
                 Navigations =
                 {

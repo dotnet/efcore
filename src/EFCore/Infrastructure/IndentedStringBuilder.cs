@@ -54,6 +54,20 @@ public class IndentedStringBuilder
     }
 
     /// <summary>
+    ///     Appends the current indent and then the given string to the string being built.
+    /// </summary>
+    /// <param name="value">The string to append.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder Append(FormattableString value)
+    {
+        DoIndent();
+
+        _stringBuilder.Append(value);
+
+        return this;
+    }
+
+    /// <summary>
     ///     Appends the current indent and then the given char to the string being built.
     /// </summary>
     /// <param name="value">The char to append.</param>
@@ -135,6 +149,22 @@ public class IndentedStringBuilder
     }
 
     /// <summary>
+    ///     Appends the current indent, the given string, and a new line to the string being built.
+    /// </summary>
+    /// <param name="value">The string to append.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder AppendLine(FormattableString value)
+    {
+        DoIndent();
+
+        _stringBuilder.Append(value);
+
+        _indentPending = true;
+
+        return this;
+    }
+
+    /// <summary>
     ///     Separates the given string into lines, and then appends each line, prefixed
     ///     by the current indent and followed by a new line, to the string being built.
     /// </summary>
@@ -169,6 +199,42 @@ public class IndentedStringBuilder
         {
             AppendLine();
         }
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Concatenates the members of the given collection, using the specified separator between each member,
+    ///     and then appends the resulting string,
+    /// </summary>
+    /// <param name="values">The values to concatenate.</param>
+    /// <param name="separator">The separator.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder AppendJoin(
+        IEnumerable<string> values,
+        string separator = ", ")
+    {
+        DoIndent();
+
+        _stringBuilder.AppendJoin(values, separator);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Concatenates the members of the given collection, using the specified separator between each member,
+    ///     and then appends the resulting string,
+    /// </summary>
+    /// <param name="values">The values to concatenate.</param>
+    /// <param name="separator">The separator.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder AppendJoin(
+        string separator,
+        params string[] values)
+    {
+        DoIndent();
+
+        _stringBuilder.AppendJoin(separator, values);
 
         return this;
     }
