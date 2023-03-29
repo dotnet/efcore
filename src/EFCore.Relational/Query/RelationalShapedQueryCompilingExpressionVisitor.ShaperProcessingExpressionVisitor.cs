@@ -325,9 +325,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 var valueArrayInitializationExpression = Expression.Assign(
                     _valuesArrayExpression, Expression.NewArrayInit(typeof(object), _valuesArrayInitializers));
 
+                _expressions.AddRange(_jsonEntityExpressions);
                 _expressions.Add(valueArrayInitializationExpression);
                 _expressions.AddRange(_includeExpressions);
-                _expressions.AddRange(_jsonEntityExpressions);
 
                 if (_splitQuery)
                 {
@@ -567,7 +567,14 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     var visitedShaperResult = Visit(shaperResult);
 
-                    return visitedShaperResult;
+                    var jsonCollectionParameter = Expression.Parameter(collectionResultExpression.Type);
+
+                    _variables.Add(jsonCollectionParameter);
+                    _jsonEntityExpressions.Add(Expression.Assign(jsonCollectionParameter, visitedShaperResult));
+
+                    return CompensateForCollectionMaterialization(
+                        jsonCollectionParameter,
+                        collectionResultExpression.Type);
                 }
 
                 case ProjectionBindingExpression projectionBindingExpression
