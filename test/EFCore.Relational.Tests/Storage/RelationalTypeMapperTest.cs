@@ -222,6 +222,21 @@ public class RelationalTypeMapperTest : RelationalTypeMapperTestBase
         Assert.False(mapping.IsFixedLength);
     }
 
+    [ConditionalFact]
+    public void StoreTypeNameBase_is_trimmed()
+    {
+        var mapping = GetTypeMapping(
+            typeof(string),
+            storeTypeName: "ansi_string_fixed (666)",
+            useConfiguration: true);
+
+        Assert.Equal("ansi_string_fixed (666)", mapping.StoreType);
+        Assert.Equal("ansi_string_fixed", mapping.StoreTypeNameBase);
+        Assert.Equal(666, mapping.Size);
+        Assert.False(mapping.IsUnicode);
+        Assert.False(mapping.IsFixedLength);
+    }
+
     protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource()
         => new TestRelationalTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
