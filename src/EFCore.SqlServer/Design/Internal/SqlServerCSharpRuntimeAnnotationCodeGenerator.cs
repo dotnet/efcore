@@ -45,6 +45,19 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
     }
 
     /// <inheritdoc />
+    public override void Generate(IRelationalModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.MemoryOptimized);
+            annotations.Remove(SqlServerAnnotationNames.EditionOptions);
+        }
+
+        base.Generate(model, parameters);
+    }
+
+    /// <inheritdoc />
     public override void Generate(IProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!parameters.IsRuntime)
@@ -64,7 +77,40 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
     }
 
     /// <inheritdoc />
+    public override void Generate(IColumn column, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.Identity);
+            annotations.Remove(SqlServerAnnotationNames.Sparse);
+            annotations.Remove(SqlServerAnnotationNames.IsTemporal);
+            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+        }
+
+        base.Generate(column, parameters);
+    }
+
+    /// <inheritdoc />
     public override void Generate(IIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.Clustered);
+            annotations.Remove(SqlServerAnnotationNames.CreatedOnline);
+            annotations.Remove(SqlServerAnnotationNames.Include);
+            annotations.Remove(SqlServerAnnotationNames.FillFactor);
+        }
+
+        base.Generate(index, parameters);
+    }
+
+    /// <inheritdoc />
+    public override void Generate(ITableIndex index, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!parameters.IsRuntime)
         {
@@ -91,6 +137,18 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
     }
 
     /// <inheritdoc />
+    public override void Generate(IUniqueConstraint uniqueConstraint, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.Clustered);
+        }
+
+        base.Generate(uniqueConstraint, parameters);
+    }
+
+    /// <inheritdoc />
     public override void Generate(IEntityType entityType, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         if (!parameters.IsRuntime)
@@ -98,13 +156,27 @@ public class SqlServerCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRun
             var annotations = parameters.Annotations;
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
             annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndPropertyName);
-            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
             annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartPropertyName);
         }
 
         base.Generate(entityType, parameters);
+    }
+
+    /// <inheritdoc />
+    public override void Generate(ITable table, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        if (!parameters.IsRuntime)
+        {
+            var annotations = parameters.Annotations;
+            annotations.Remove(SqlServerAnnotationNames.MemoryOptimized);
+            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalHistoryTableSchema);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+            annotations.Remove(SqlServerAnnotationNames.TemporalPeriodStartColumnName);
+        }
+
+        base.Generate(table, parameters);
     }
 
     /// <inheritdoc />

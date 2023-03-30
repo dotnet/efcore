@@ -794,8 +794,16 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder
             .Append("ALTER SEQUENCE ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-            .Append(" RESTART WITH ")
-            .Append(longTypeMapping.GenerateSqlLiteral(operation.StartValue))
+            .Append(" RESTART");
+
+        if (operation.StartValue.HasValue)
+        {
+            builder
+                .Append(" WITH ")
+                .Append(longTypeMapping.GenerateSqlLiteral(operation.StartValue.Value));
+        }
+
+        builder
             .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
         EndStatement(builder);

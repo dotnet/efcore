@@ -1107,8 +1107,8 @@ public static class SqlServerDbFunctionsExtensions
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateDiffMillisecond)));
 
     /// <summary>
-    ///     Counts the number of millisecond boundaries crossed between the <paramref name="startTime" /> and
-    ///     <paramref name="endTime" />. Corresponds to SQL Server's <c>DATEDIFF(millisecond, @startTimeSpan, @endTimeSpan)</c>.
+    ///     Counts the number of millisecond boundaries crossed between the <paramref name="startTimeSpan" /> and
+    ///     <paramref name="endTimeSpan" />. Corresponds to SQL Server's <c>DATEDIFF(millisecond, @startTimeSpan, @endTimeSpan)</c>.
     /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see>, and
@@ -1116,13 +1116,13 @@ public static class SqlServerDbFunctionsExtensions
     ///     for more information and examples.
     /// </remarks>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
-    /// <param name="startTime">Starting timespan for the calculation.</param>
-    /// <param name="endTime">Ending timespan for the calculation.</param>
+    /// <param name="startTimeSpan">Starting timespan for the calculation.</param>
+    /// <param name="endTimeSpan">Ending timespan for the calculation.</param>
     /// <returns>Number of millisecond boundaries crossed between the timespans.</returns>
     public static int DateDiffMillisecond(
         this DbFunctions _,
-        TimeSpan startTime,
-        TimeSpan endTime)
+        TimeSpan startTimeSpan,
+        TimeSpan endTimeSpan)
         => throw new InvalidOperationException(CoreStrings.FunctionOnClient(nameof(DateDiffMillisecond)));
 
     /// <summary>

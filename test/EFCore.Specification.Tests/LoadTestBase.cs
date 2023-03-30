@@ -6013,8 +6013,8 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
                 b =>
                 {
                     var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
-                        typeof(ILazyLoader),
-                        typeof(ChildDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!);
+                        typeof(ChildDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!,
+                        typeof(ILazyLoader));
 
                     serviceProperty.SetParameterBinding(
                         new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
@@ -6025,8 +6025,8 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
                 b =>
                 {
                     var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
-                        typeof(ILazyLoader),
-                        typeof(SingleDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!);
+                        typeof(SingleDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!,
+                        typeof(ILazyLoader));
 
                     serviceProperty.SetParameterBinding(
                         new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),
@@ -6037,8 +6037,8 @@ public abstract partial class LoadTestBase<TFixture> : IClassFixture<TFixture>
                 b =>
                 {
                     var serviceProperty = (ServiceProperty)b.Metadata.AddServiceProperty(
-                        typeof(ILazyLoader),
-                        typeof(ParentDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!);
+                        typeof(ParentDelegateLoaderWithStateByProperty).GetAnyProperty("LazyLoaderState")!,
+                        typeof(ILazyLoader));
 
                     serviceProperty.SetParameterBinding(
                         new DependencyInjectionParameterBinding(typeof(object), typeof(ILazyLoader), serviceProperty),

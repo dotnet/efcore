@@ -211,57 +211,18 @@ public class CollectionEntry : NavigationEntry
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the the entity represented by this entry is tracked, then entities with the same primary key value are not replaced
-    ///         by new entities or overwritten with new data from the database. If the entity entity represented by this entry is not
-    ///         tracked and the collection already contains entities, then calling this method will result in duplicate
-    ///         instances in the collection or inverse collection for any entities with the same key value.
-    ///         Use <see cref="LoadWithIdentityResolution" /> to avoid getting these duplicates.
-    ///     </para>
-    ///     <para>
-    ///         For tracked entities, this method behaves in the same way and has the same performance as
-    ///         <see cref="LoadWithIdentityResolution" />. For entities that are not tracked, this method can be faster than
-    ///         <see cref="LoadWithIdentityResolution" />.
-    ///     </para>
-    ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    public override void Load()
+    /// <param name="options">Options to control the way related entities are loaded.</param>
+    public override void Load(LoadOptions options = LoadOptions.None)
     {
         EnsureInitialized();
 
         if (!IsLoaded)
         {
-            TargetLoader.Load(InternalEntry, forceIdentityResolution: false);
-        }
-    }
-
-    /// <summary>
-    ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Entities with the same primary key value are not replaced by new entities or overwritten with new data from the database.
-    ///         This navigation and its inverse will not contain duplicate entities.
-    ///     </para>
-    ///     <para>
-    ///         For tracked entities, this method behaves in the same way and has the same performance as
-    ///         <see cref="Load" />. For entities that are not tracked, this method can be slower than <see cref="Load" />.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
-    ///     </para>
-    /// </remarks>
-    public override void LoadWithIdentityResolution()
-    {
-        EnsureInitialized();
-
-        if (!IsLoaded)
-        {
-            TargetLoader.Load(InternalEntry, forceIdentityResolution: true);
+            TargetLoader.Load(InternalEntry, options);
         }
     }
 
@@ -271,18 +232,6 @@ public class CollectionEntry : NavigationEntry
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         If the the entity represented by this entry is tracked, then entities with the same primary key value are not replaced
-    ///         by new entities or overwritten with new data from the database. If the entity entity represented by this entry is not
-    ///         tracked and the collection already contains entities, then calling this method will result in duplicate
-    ///         instances in the collection or inverse collection for any entities with the same key value.
-    ///         Use <see cref="LoadWithIdentityResolutionAsync" /> to avoid getting these duplicates.
-    ///     </para>
-    ///     <para>
-    ///         For tracked entities, this method behaves in the same way and has the same performance as
-    ///         <see cref="LoadWithIdentityResolutionAsync" />. For entities that are not tracked, this method can be faster than
-    ///         <see cref="LoadWithIdentityResolutionAsync" />.
-    ///     </para>
-    ///     <para>
     ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
     ///         that any asynchronous operations have completed before calling another method on this context.
     ///     </para>
@@ -291,50 +240,17 @@ public class CollectionEntry : NavigationEntry
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <param name="options">Options to control the way related entities are loaded.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task LoadAsync(CancellationToken cancellationToken = default)
+    public override Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default)
     {
         EnsureInitialized();
 
         return IsLoaded
             ? Task.CompletedTask
-            : TargetLoader.LoadAsync(InternalEntry, forceIdentityResolution: false, cancellationToken);
-    }
-
-    /// <summary>
-    ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to <see langword="true"/>.
-    /// </summary>
-    /// <remarks>
-    ///     <para>
-    ///         Entities with the same primary key value are not replaced by new entities or overwritten with new data from the database.
-    ///         This navigation and its inverse will not contain duplicate entities.
-    ///     </para>
-    ///     <para>
-    ///         For tracked entities, this method behaves in the same way and has the same performance as
-    ///         <see cref="LoadAsync" />. For entities that are not tracked, this method can be slower than <see cref="LoadAsync" />.
-    ///     </para>
-    ///     <para>
-    ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
-    ///         that any asynchronous operations have completed before calling another method on this context.
-    ///     </para>
-    ///     <para>
-    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
-    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
-    ///     </para>
-    /// </remarks>
-    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous save operation.</returns>
-    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task LoadWithIdentityResolutionAsync(CancellationToken cancellationToken = default)
-    {
-        EnsureInitialized();
-
-        return IsLoaded
-            ? Task.CompletedTask
-            : TargetLoader.LoadAsync(InternalEntry, forceIdentityResolution: true, cancellationToken);
+            : TargetLoader.LoadAsync(InternalEntry, options, cancellationToken);
     }
 
     /// <summary>

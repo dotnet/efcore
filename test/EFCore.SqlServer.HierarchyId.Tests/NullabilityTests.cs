@@ -13,9 +13,9 @@ public class NullabilityTests
         Assert.True(null == (HierarchyId)null);
         Assert.False(null != (HierarchyId)null);
         Assert.False(null > (HierarchyId)null);
-        Assert.False(null >= (HierarchyId)null);
+        Assert.True(null >= (HierarchyId)null);
         Assert.False(null < (HierarchyId)null);
-        Assert.False(null <= (HierarchyId)null);
+        Assert.True(null <= (HierarchyId)null);
     }
 
     [ConditionalFact]
@@ -28,17 +28,17 @@ public class NullabilityTests
         Assert.True(hid != null);
         Assert.True(null != hid);
 
-        Assert.False(hid > null);
+        Assert.True(hid > null);
         Assert.False(null > hid);
 
-        Assert.False(hid >= null);
+        Assert.True(hid >= null);
         Assert.False(null >= hid);
 
         Assert.False(hid < null);
-        Assert.False(null < hid);
+        Assert.True(null < hid);
 
         Assert.False(hid <= null);
-        Assert.False(null <= hid);
+        Assert.True(null <= hid);
     }
 
     [ConditionalFact]

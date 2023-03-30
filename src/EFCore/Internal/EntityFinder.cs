@@ -418,29 +418,29 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Load(INavigation navigation, InternalEntityEntry entry, bool forceIdentityResolution)
+    public virtual void Load(INavigation navigation, InternalEntityEntry entry, LoadOptions options)
     {
         var keyValues = GetLoadValues(navigation, entry);
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            var queryable = Query(navigation, keyValues, entry, forceIdentityResolution);
+            var queryable = Query(navigation, keyValues, entry, options);
             if (entry.EntityState == EntityState.Detached)
             {
                 var inverse = navigation.Inverse;
-                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, options);
                 try
                 {
                     if (navigation.IsCollection)
                     {
                         foreach (var loaded in queryable)
                         {
-                            Fixup(stateManager, entry.Entity, navigation, inverse, forceIdentityResolution, loaded);
+                            Fixup(stateManager, entry.Entity, navigation, inverse, options, loaded);
                         }
                     }
                     else
                     {
-                        Fixup(stateManager, entry.Entity, navigation, inverse, forceIdentityResolution, queryable.FirstOrDefault());
+                        Fixup(stateManager, entry.Entity, navigation, inverse, options, queryable.FirstOrDefault());
                     }
                 }
                 finally
@@ -476,18 +476,18 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     public virtual async Task LoadAsync(
         INavigation navigation,
         InternalEntityEntry entry,
-        bool forceIdentityResolution,
+        LoadOptions options,
         CancellationToken cancellationToken = default)
     {
         var keyValues = GetLoadValues(navigation, entry);
         // Short-circuit for any null key values for perf and because of #6129
         if (keyValues != null)
         {
-            var queryable = Query(navigation, keyValues, entry, forceIdentityResolution);
+            var queryable = Query(navigation, keyValues, entry, options);
             if (entry.EntityState == EntityState.Detached)
             {
                 var inverse = navigation.Inverse;
-                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, forceIdentityResolution);
+                var stateManager = GetOrCreateStateManagerAndStartTrackingIfNeeded(navigation, entry, options);
                 try
                 {
                     if (navigation.IsCollection)
@@ -495,13 +495,13 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
                         await foreach (var loaded in queryable.AsAsyncEnumerable().WithCancellation(cancellationToken)
                                            .ConfigureAwait(false))
                         {
-                            Fixup(stateManager, entry.Entity, navigation, inverse, forceIdentityResolution, loaded);
+                            Fixup(stateManager, entry.Entity, navigation, inverse, options, loaded);
                         }
                     }
                     else
                     {
                         Fixup(
-                            stateManager, entry.Entity, navigation, inverse, forceIdentityResolution,
+                            stateManager, entry.Entity, navigation, inverse, options,
                             await queryable.FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false));
                     }
                 }
@@ -534,23 +534,23 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
         object entity,
         INavigation beingLoaded,
         INavigation? inverse,
-        bool forceIdentityResolution,
+        LoadOptions options,
         object? loaded)
     {
-        SetValue(stateManager.GetOrCreateEntry(entity), beingLoaded, loaded, forceIdentityResolution);
+        SetValue(stateManager.GetOrCreateEntry(entity), beingLoaded, loaded, options);
 
         if (inverse != null && loaded != null)
         {
-            SetValue(stateManager.GetOrCreateEntry(loaded), inverse, entity, forceIdentityResolution);
+            SetValue(stateManager.GetOrCreateEntry(loaded), inverse, entity, options);
         }
 
-        static void SetValue(InternalEntityEntry entry, INavigation navigation, object? value, bool forceIdentityResolution)
+        static void SetValue(InternalEntityEntry entry, INavigation navigation, object? value, LoadOptions options)
         {
             var stateManager = entry.StateManager;
             if (navigation.IsCollection)
             {
                 if (value != null
-                    && (!forceIdentityResolution || !TryGetTracked(stateManager, value, out _)))
+                    && ((options & LoadOptions.ForceIdentityResolution) == 0 || !TryGetTracked(stateManager, value, out _)))
                 {
                     entry.AddToCollection(navigation, value, forMaterialization: true);
                 }
@@ -558,7 +558,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             else
             {
                 if (value != null
-                    && forceIdentityResolution
+                    && (options & LoadOptions.ForceIdentityResolution) != 0
                     && TryGetTracked(stateManager, value, out var existing))
                 {
                     value = existing;
@@ -586,9 +586,9 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
     private IStateManager GetOrCreateStateManagerAndStartTrackingIfNeeded(
         INavigation loading,
         InternalEntityEntry entry,
-        bool forceIdentityResolution)
+        LoadOptions options)
     {
-        if (!forceIdentityResolution)
+        if ((options & LoadOptions.ForceIdentityResolution) == 0)
         {
             return _stateManager;
         }
@@ -639,7 +639,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             return _queryRoot.Where(e => false);
         }
 
-        return Query(navigation, keyValues, entry, forceIdentityResolution: false);
+        return Query(navigation, keyValues, entry, LoadOptions.None);
     }
 
     /// <summary>
@@ -684,11 +684,11 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             .Select(BuildProjection(entityType));
     }
 
-    private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues, InternalEntityEntry entry, bool forceIdentityResolution)
+    private IQueryable<TEntity> Query(INavigation navigation, object[] keyValues, InternalEntityEntry entry, LoadOptions options)
     {
         var queryable = _queryRoot.Where(BuildLambda(GetLoadProperties(navigation), new ValueBuffer(keyValues)));
         return entry.EntityState == EntityState.Detached
-            ? forceIdentityResolution
+            ? (options & LoadOptions.ForceIdentityResolution) != 0
                 ? queryable.AsNoTrackingWithIdentityResolution()
                 : queryable.AsNoTracking()
             : queryable.AsTracking();

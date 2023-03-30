@@ -8210,6 +8210,36 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
                 Assert.Equal(e.String, a.String);
             });
 
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateTimeOffset_to_unix_time_milliseconds(bool async)
+    {
+        long unixEpochMilliseconds = DateTimeOffset.UnixEpoch.ToUnixTimeMilliseconds();
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                .Include(g => g.Squad.Missions)
+                .Where(s => s.Squad.Missions
+                    .Where(m => unixEpochMilliseconds == m.Mission.Timeline.ToUnixTimeMilliseconds())
+                    .FirstOrDefault() == null));
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task DateTimeOffset_to_unix_time_seconds(bool async)
+    {
+        long unixEpochSeconds = DateTimeOffset.UnixEpoch.ToUnixTimeSeconds();
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<Gear>()
+                .Include(g => g.Squad.Missions)
+                .Where(s => s.Squad.Missions
+                    .Where(m => unixEpochSeconds == m.Mission.Timeline.ToUnixTimeSeconds())
+                    .FirstOrDefault() == null));
+    }
+
     protected GearsOfWarContext CreateContext()
         => Fixture.CreateContext();
 

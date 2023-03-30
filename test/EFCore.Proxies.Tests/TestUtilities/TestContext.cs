@@ -42,7 +42,14 @@ internal abstract class TestContext<TEntity> : DbContext
     {
         if (_useLazyLoadingProxies)
         {
-            optionsBuilder.UseLazyLoadingProxies(ignoreNonVirtualNavigations: _ignoreNonVirtualNavigations);
+            optionsBuilder.UseLazyLoadingProxies(
+                b =>
+                {
+                    if (_ignoreNonVirtualNavigations)
+                    {
+                        b.IgnoreNonVirtualNavigations();
+                    }
+                });
         }
 
         if (_useChangeDetectionProxies)

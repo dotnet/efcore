@@ -61,7 +61,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
                     "Property: CustomRoleClaimInt.RoleId (int) Required FK Index",
                 },
                 Indexes = { "{'RoleId'} ", },
-                FKs = { "ForeignKey: CustomRoleClaimInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade", },
+                FKs = { "ForeignKey: CustomRoleClaimInt {'RoleId'} -> CustomRoleInt {'Id'} Required Cascade", },
             },
             new EntityTypeMapping
             {
@@ -90,7 +90,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
                     "Property: CustomUserClaimInt.UserId (int) Required FK Index",
                 },
                 Indexes = { "{'UserId'} ", },
-                FKs = { "ForeignKey: CustomUserClaimInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Claims Cascade", },
+                FKs = { "ForeignKey: CustomUserClaimInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: Claims", },
             },
             new EntityTypeMapping
             {
@@ -141,7 +141,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
                     "Property: CustomUserLoginInt.UserId (int) Required FK Index",
                 },
                 Indexes = { "{'UserId'} ", },
-                FKs = { "ForeignKey: CustomUserLoginInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Logins Cascade", },
+                FKs = { "ForeignKey: CustomUserLoginInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: Logins", },
             },
             new EntityTypeMapping
             {
@@ -156,8 +156,8 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
                 Indexes = { "{'RoleId'} ", },
                 FKs =
                 {
-                    "ForeignKey: CustomUserRoleInt {'RoleId'} -> CustomRoleInt {'Id'} Cascade",
-                    "ForeignKey: CustomUserRoleInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: UserRoles Cascade",
+                    "ForeignKey: CustomUserRoleInt {'RoleId'} -> CustomRoleInt {'Id'} Required Cascade",
+                    "ForeignKey: CustomUserRoleInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: UserRoles",
                 },
             },
             new EntityTypeMapping
@@ -172,7 +172,7 @@ public abstract class AspNetIdentityCustomTypesIntKeyTestBase<TFixture>
                     "Property: CustomUserTokenInt.Name (string) Required PK AfterSave:Throw",
                     "Property: CustomUserTokenInt.Value (string)",
                 },
-                FKs = { "ForeignKey: CustomUserTokenInt {'UserId'} -> CustomUserInt {'Id'} ToDependent: Tokens Cascade", },
+                FKs = { "ForeignKey: CustomUserTokenInt {'UserId'} -> CustomUserInt {'Id'} Required Cascade ToDependent: Tokens", },
             },
         };
 }

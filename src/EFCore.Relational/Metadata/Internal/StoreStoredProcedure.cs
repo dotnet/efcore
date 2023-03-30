@@ -19,12 +19,10 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public StoreStoredProcedure(IRuntimeStoredProcedure sproc, RelationalModel model)
-        : base(sproc.Name, sproc.Schema, model)
+    public StoreStoredProcedure(string name, string? schema, RelationalModel model)
+        : base(name, schema, model)
     {
-        StoredProcedures = new SortedSet<IStoredProcedure>(StoredProcedureComparer.Instance) { sproc };
-
-        sproc.StoreStoredProcedure = this;
+        StoredProcedures = new SortedSet<IStoredProcedure>(StoredProcedureComparer.Instance);
 
         _parametersSet = new SortedDictionary<string, IStoreStoredProcedureParameter>(StringComparer.Ordinal);
     }
@@ -36,6 +34,36 @@ public class StoreStoredProcedure : TableBase, IStoreStoredProcedure
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SortedSet<IStoredProcedure> StoredProcedures { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddStoredProcedure(IRuntimeStoredProcedure storedProcedure)
+    {
+        StoredProcedures.Add(storedProcedure);
+        storedProcedure.StoreStoredProcedure = this;
+
+        foreach (var parameter in storedProcedure.Parameters)
+        {
+            var storeParameter = FindParameter(parameter.Name)!;
+            Check.DebugAssert(parameter.StoreParameter == null,
+                $"'{parameter.StoredProcedure.Name}.{parameter.Name}' StoreParameter should be null");
+
+            ((IRuntimeStoredProcedureParameter)parameter).StoreParameter = storeParameter;
+        }
+
+        foreach (var resultColumn in storedProcedure.ResultColumns)
+        {
+            var column = FindResultColumn(resultColumn.Name)!;
+            Check.DebugAssert(resultColumn.StoreResultColumn == null,
+                $"'{resultColumn.StoredProcedure.Name}.{resultColumn.Name}' StoreResultColumn should be null");
+
+            ((IRuntimeStoredProcedureResultColumn)resultColumn).StoreResultColumn = column;
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

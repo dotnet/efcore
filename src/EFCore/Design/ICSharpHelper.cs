@@ -160,8 +160,9 @@ public interface ICSharpHelper
     ///     Generates an enum literal.
     /// </summary>
     /// <param name="value">The value.</param>
+    /// <param name="fullName">Whether the type should be namespace-qualified.</param>
     /// <returns>The literal.</returns>
-    string Literal(Enum value);
+    string Literal(Enum value, bool fullName = false);
 
     /// <summary>
     ///     Generates a float literal.

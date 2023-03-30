@@ -55,7 +55,7 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsShared { get; set; }
+    public virtual bool IsShared { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -94,7 +94,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DisallowNull]
-    public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? RowInternalForeignKeys { get; set; }
+    public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? RowInternalForeignKeys { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -102,7 +102,7 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? ReferencingRowInternalForeignKeys { get; set; }
+    public virtual SortedDictionary<IEntityType, IEnumerable<IForeignKey>>? ReferencingRowInternalForeignKeys { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -112,6 +112,58 @@ public class TableBase : Annotatable, ITableBase
     /// </summary>
     [DisallowNull]
     public virtual Dictionary<IEntityType, bool>? OptionalEntityTypes { get; set; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddEntityTypeMapping(ITableMappingBase tableMapping, bool optional)
+    {
+        OptionalEntityTypes ??= new Dictionary<IEntityType, bool>();
+
+        OptionalEntityTypes.Add(tableMapping.EntityType, optional);
+        EntityTypeMappings.Add(tableMapping);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddRowInternalForeignKey(IEntityType entityType, IForeignKey foreignKey)
+    {
+        if (RowInternalForeignKeys == null)
+        {
+            RowInternalForeignKeys = new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
+            IsShared = true;
+        }
+
+        if (!RowInternalForeignKeys.TryGetValue(entityType, out var foreignKeys))
+        {
+            foreignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
+            RowInternalForeignKeys[entityType] = foreignKeys;
+        }
+
+        ((SortedSet<IForeignKey>)foreignKeys).Add(foreignKey);
+
+        var principalEntityType = foreignKey.PrincipalEntityType;
+        if (ReferencingRowInternalForeignKeys == null)
+        {
+            ReferencingRowInternalForeignKeys = new SortedDictionary<IEntityType, IEnumerable<IForeignKey>>(EntityTypeFullNameComparer.Instance);
+            IsShared = true;
+        }
+
+        if (!ReferencingRowInternalForeignKeys.TryGetValue(principalEntityType, out var referencingForeignKeys))
+        {
+            referencingForeignKeys = new SortedSet<IForeignKey>(ForeignKeyComparer.Instance);
+            ReferencingRowInternalForeignKeys[principalEntityType] = referencingForeignKeys;
+        }
+
+        ((SortedSet<IForeignKey>)referencingForeignKeys).Add(foreignKey);
+    }
 
     /// <inheritdoc />
     public virtual bool IsOptional(IEntityType entityType)
@@ -136,6 +188,15 @@ public class TableBase : Annotatable, ITableBase
                 RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), ((ITableBase)this).SchemaQualifiedName));
         }
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override string ToString()
+        => ((ITableBase)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
 
     /// <inheritdoc />
     IRelationalModel ITableBase.Model

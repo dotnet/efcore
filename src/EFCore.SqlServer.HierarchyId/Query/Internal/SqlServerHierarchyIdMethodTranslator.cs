@@ -3,7 +3,6 @@
 
 using Microsoft.EntityFrameworkCore.Query;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
@@ -16,22 +15,16 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerHierarchyIdMethodTranslator : IMethodCallTranslator
 {
-    private static readonly IDictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
+    private static readonly Dictionary<MethodInfo, string> _methodToFunctionName = new Dictionary<MethodInfo, string>
     {
         // instance methods
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetAncestor), new[] { typeof(int) })!, "GetAncestor" },
-        {
-            typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId), typeof(HierarchyId) })!,
-            "GetDescendant"
-        },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId) })!, "GetDescendant" },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetDescendant), new[] { typeof(HierarchyId), typeof(HierarchyId) })!, "GetDescendant" },
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetLevel), Type.EmptyTypes)!, "GetLevel" },
-        {
-            typeof(HierarchyId).GetRuntimeMethod(
-                nameof(HierarchyId.GetReparentedValue), new[] { typeof(HierarchyId), typeof(HierarchyId) })!,
-            "GetReparentedValue"
-        },
+        { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetReparentedValue), new[] { typeof(HierarchyId), typeof(HierarchyId) })!, "GetReparentedValue" },
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.IsDescendantOf), new[] { typeof(HierarchyId) })!, "IsDescendantOf" },
-        { typeof(object).GetRuntimeMethod(nameof(HierarchyId.ToString), Type.EmptyTypes)!, "ToString" },
+        { typeof(object).GetRuntimeMethod(nameof(ToString), Type.EmptyTypes)!, "ToString" },
 
         // static methods
         { typeof(HierarchyId).GetRuntimeMethod(nameof(HierarchyId.GetRoot), Type.EmptyTypes)!, "hierarchyid::GetRoot" },
@@ -61,73 +54,76 @@ public class SqlServerHierarchyIdMethodTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlExpression? Translate(
+    public virtual SqlExpression? Translate(
         SqlExpression? instance,
         MethodInfo method,
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        // instance is null for static methods like Parse
-        const string storeType = SqlServerHierarchyIdTypeMappingSourcePlugin.SqlServerTypeName;
-        var callingType = instance?.Type ?? method.DeclaringType;
-        if (typeof(HierarchyId).IsAssignableFrom(callingType)
+        if ((instance?.Type ?? method.DeclaringType) == typeof(HierarchyId)
             && _methodToFunctionName.TryGetValue(method, out var functionName))
         {
-            var typeMappedArguments = new List<SqlExpression>();
-            foreach (var argument in arguments)
+            var candidates = arguments.Where(a => a.Type == typeof(HierarchyId));
+            if (instance is not null)
             {
-                var argumentTypeMapping = typeof(HierarchyId).IsAssignableFrom(argument.Type)
-                    ? _typeMappingSource.FindMapping(argument.Type, storeType)
-                    : _typeMappingSource.FindMapping(argument.Type);
-                var mappedArgument = _sqlExpressionFactory.ApplyTypeMapping(argument, argumentTypeMapping);
-                typeMappedArguments.Add(mappedArgument);
+                candidates = candidates.Prepend(instance);
             }
 
-            var resultTypeMapping = typeof(HierarchyId).IsAssignableFrom(method.ReturnType)
-                ? _typeMappingSource.FindMapping(method.ReturnType, storeType)
-                : _typeMappingSource.FindMapping(method.ReturnType);
+            var typeMapping = ExpressionExtensions.InferTypeMapping(candidates.ToArray())
+                ?? _typeMappingSource.FindMapping(typeof(HierarchyId))!;
 
-            if (instance != null)
+            var newArguments = new List<SqlExpression>();
+            for (var i = 0; i < arguments.Count; i++)
             {
-                var instanceMapping = _typeMappingSource.FindMapping(instance.Type, storeType);
-                instance = _sqlExpressionFactory.ApplyTypeMapping(instance, instanceMapping);
+                var argument = arguments[i];
+
+                if (argument.Type == typeof(HierarchyId))
+                {
+                    if (argument is SqlConstantExpression constant
+                        && constant.Value is HierarchyId hierarchyId)
+                    {
+                        argument = _sqlExpressionFactory.Fragment($"'{hierarchyId}'");
+                    }
+
+                    argument = _sqlExpressionFactory.ApplyTypeMapping(argument, typeMapping);
+                }
+
+                newArguments.Add(argument);
+            }
+
+            if (functionName == "GetDescendant"
+                && newArguments.Count == 1)
+            {
+                newArguments.Add(_sqlExpressionFactory.Constant(null, typeof(HierarchyId)));
+            }
+
+            if (instance is not null)
+            {
+                if (instance.Type == typeof(HierarchyId))
+                {
+                    instance = _sqlExpressionFactory.ApplyTypeMapping(instance, typeMapping);
+                }
 
                 return _sqlExpressionFactory.Function(
                     instance,
                     functionName,
-                    Simplify(arguments),
+                    newArguments,
                     nullable: true,
                     instancePropagatesNullability: true,
-                    argumentsPropagateNullability: arguments.Select(a => true),
+                    argumentsPropagateNullability: newArguments.Select(a => true),
                     method.ReturnType,
-                    resultTypeMapping);
+                    method.ReturnType == typeof(HierarchyId) ? typeMapping : null);
             }
 
             return _sqlExpressionFactory.Function(
                 functionName,
-                Simplify(arguments),
+                newArguments,
                 nullable: true,
-                argumentsPropagateNullability: arguments.Select(a => true),
+                argumentsPropagateNullability: newArguments.Select(a => true),
                 method.ReturnType,
-                resultTypeMapping);
+                method.ReturnType == typeof(HierarchyId) ? typeMapping : null);
         }
 
         return null;
-    }
-
-    private IEnumerable<SqlExpression> Simplify(IEnumerable<SqlExpression> arguments)
-    {
-        foreach (var argument in arguments)
-        {
-            if (argument is SqlConstantExpression constant
-                && constant.Value is HierarchyId hierarchyId)
-            {
-                yield return _sqlExpressionFactory.Fragment($"'{hierarchyId}'");
-            }
-            else
-            {
-                yield return argument;
-            }
-        }
     }
 }

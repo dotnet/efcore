@@ -33,8 +33,8 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                 Indexes = { "{'TagsInPostDataTagId'} ", },
                 FKs =
                 {
-                    "ForeignKey: PostTag (Dictionary<string, object>) {'PostsInTagDataPostId'} -> Post {'PostId'} Cascade",
-                    "ForeignKey: PostTag (Dictionary<string, object>) {'TagsInPostDataTagId'} -> Tag {'TagId'} Cascade",
+                    "ForeignKey: PostTag (Dictionary<string, object>) {'PostsInTagDataPostId'} -> Post {'PostId'} Required Cascade",
+                    "ForeignKey: PostTag (Dictionary<string, object>) {'TagsInPostDataTagId'} -> Tag {'TagId'} Required Cascade",
                 },
             },
             new EntityTypeMapping
@@ -63,7 +63,7 @@ public abstract class GrpcTestBase<TFixture> : IClassFixture<TFixture>
                     "Property: Post.Title (title_, string)",
                 },
                 Indexes = { "{'AuthorId'} ", },
-                FKs = { "ForeignKey: Post {'AuthorId'} -> Author {'AuthorId'} ToPrincipal: PostAuthor Cascade", },
+                FKs = { "ForeignKey: Post {'AuthorId'} -> Author {'AuthorId'} Required Cascade ToPrincipal: PostAuthor", },
                 Navigations = { "Navigation: Post.PostAuthor (postAuthor_, Author) ToPrincipal Author", },
                 SkipNavigations =
                 {

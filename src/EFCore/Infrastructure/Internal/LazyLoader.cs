@@ -114,14 +114,10 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 {
                     try
                     {
-                        if (_queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
-                        {
-                            entry.LoadWithIdentityResolution();
-                        }
-                        else
-                        {
-                            entry.Load();
-                        }
+                        entry.Load(
+                            _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                                ? LoadOptions.ForceIdentityResolution
+                                : LoadOptions.None);
                     }
                     catch
                     {
@@ -162,14 +158,11 @@ public class LazyLoader : ILazyLoader, IInjectableService
                 {
                     try
                     {
-                        if (_queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution)
-                        {
-                            await entry.LoadWithIdentityResolutionAsync(cancellationToken).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            await entry.LoadAsync(cancellationToken).ConfigureAwait(false);
-                        }
+                        await entry.LoadAsync(
+                            _queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution
+                                ? LoadOptions.ForceIdentityResolution
+                                : LoadOptions.None,
+                            cancellationToken).ConfigureAwait(false);
                     }
                     catch
                     {

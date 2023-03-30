@@ -6,10 +6,10 @@ namespace Microsoft.EntityFrameworkCore.TestUtilities;
 public class ExpectedQueryRewritingVisitor : ExpressionVisitor
 {
     private static readonly MethodInfo _maybeDefaultIfEmpty
-        = typeof(QueryTestExtensions).GetMethod(nameof(QueryTestExtensions.MaybeDefaultIfEmpty));
+        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.MaybeDefaultIfEmpty));
 
     private static readonly MethodInfo _maybeMethod
-        = typeof(QueryTestExtensions).GetMethod(nameof(QueryTestExtensions.Maybe));
+        = typeof(TestExtensions).GetMethod(nameof(TestExtensions.Maybe));
 
     private static readonly MethodInfo _containsMethodInfo
         = typeof(string).GetRuntimeMethod(nameof(string.Contains), new[] { typeof(string) });
@@ -32,8 +32,8 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
 
     static ExpectedQueryRewritingVisitor()
     {
-        var maybeScalarMethods = typeof(QueryTestExtensions).GetMethods()
-            .Where(m => m.Name == nameof(QueryTestExtensions.MaybeScalar))
+        var maybeScalarMethods = typeof(TestExtensions).GetMethods()
+            .Where(m => m.Name == nameof(TestExtensions.MaybeScalar))
             .Select(m => new { method = m, argument = m.GetParameters()[1].ParameterType.GetGenericArguments()[1] });
 
         _maybeScalarNullableMethod = maybeScalarMethods.Single(x => x.argument.IsNullableValueType()).method;

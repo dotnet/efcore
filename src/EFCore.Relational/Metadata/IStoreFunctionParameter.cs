@@ -19,7 +19,7 @@ public interface IStoreFunctionParameter : IAnnotatable
     IStoreFunction Function { get; }
 
     /// <summary>
-    ///     Gets the associated <see cref="IDbFunctionParameter" />s.
+    ///     Gets the associated <see cref="IDbFunctionParameter" /> collection.
     /// </summary>
     IEnumerable<IDbFunctionParameter> DbFunctionParameters { get; }
 
@@ -31,7 +31,13 @@ public interface IStoreFunctionParameter : IAnnotatable
     /// <summary>
     ///     Gets the store type of this parameter.
     /// </summary>
-    string Type { get; }
+    string StoreType { get; }
+
+    /// <summary>
+    ///     Gets the store type of this parameter.
+    /// </summary>
+    [Obsolete("Use " + nameof(StoreType) + " instead.")]
+    string Type => StoreType;
 
     /// <summary>
     ///     <para>
@@ -56,7 +62,7 @@ public interface IStoreFunctionParameter : IAnnotatable
 
         builder.Append(Name)
             .Append(' ')
-            .Append(Type);
+            .Append(StoreType);
 
         if ((options & MetadataDebugStringOptions.SingleLine) == 0)
         {

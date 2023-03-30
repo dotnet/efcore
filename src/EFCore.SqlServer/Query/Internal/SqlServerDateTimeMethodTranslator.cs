@@ -31,6 +31,12 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
         { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) })!, "millisecond" }
     };
 
+    private static readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping = new()
+    {
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeSeconds), Type.EmptyTypes)!, "second" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeMilliseconds), Type.EmptyTypes)!, "millisecond" }
+    };
+
     private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
@@ -131,6 +137,21 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.ApplyTypeMapping(timeZone, _typeMappingSource.FindMapping("varchar")),
                 typeof(DateTimeOffset),
                 resultTypeMapping);
+        }
+
+        if (_methodInfoDateDiffMapping.TryGetValue(method, out var timePart))
+        {
+            return _sqlExpressionFactory.Function(
+                "DATEDIFF_BIG",
+                new[]
+                {
+                    _sqlExpressionFactory.Fragment(timePart),
+                    _sqlExpressionFactory.Constant(DateTimeOffset.UnixEpoch, instance!.TypeMapping),
+                    instance
+                },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true, true },
+                typeof(long));
         }
 
         return null;

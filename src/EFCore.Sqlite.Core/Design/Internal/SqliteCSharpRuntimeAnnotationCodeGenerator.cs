@@ -29,6 +29,18 @@ public class SqliteCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRuntim
     }
 
     /// <inheritdoc />
+    public override void Generate(IRelationalModel model, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var annotations = parameters.Annotations;
+        if (!parameters.IsRuntime)
+        {
+            annotations.Remove(SqliteAnnotationNames.InitSpatialMetaData);
+        }
+
+        base.Generate(model, parameters);
+    }
+
+    /// <inheritdoc />
     public override void Generate(IProperty property, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
         var annotations = parameters.Annotations;
@@ -38,5 +50,18 @@ public class SqliteCSharpRuntimeAnnotationCodeGenerator : RelationalCSharpRuntim
         }
 
         base.Generate(property, parameters);
+    }
+
+    /// <inheritdoc />
+    public override void Generate(IColumn column, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var annotations = parameters.Annotations;
+        if (!parameters.IsRuntime)
+        {
+            annotations.Remove(SqliteAnnotationNames.Autoincrement);
+            annotations.Remove(SqliteAnnotationNames.Srid);
+        }
+
+        base.Generate(column, parameters);
     }
 }

@@ -9396,6 +9396,12 @@ FROM "Squads" AS "s"
 """);
     }
 
+    public override Task DateTimeOffset_to_unix_time_milliseconds(bool async)
+        => AssertTranslationFailed(() => base.DateTimeOffset_to_unix_time_milliseconds(async));
+
+    public override Task DateTimeOffset_to_unix_time_seconds(bool async)
+        => AssertTranslationFailed(() => base.DateTimeOffset_to_unix_time_seconds(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

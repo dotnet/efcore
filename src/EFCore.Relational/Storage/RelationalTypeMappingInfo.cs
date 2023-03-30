@@ -252,15 +252,6 @@ public readonly record struct RelationalTypeMappingInfo
     }
 
     /// <summary>
-    ///     Indicates whether or not the mapping should be compared, etc. as if it is a key.
-    /// </summary>
-    public bool HasKeySemantics
-    {
-        get => _coreTypeMappingInfo.HasKeySemantics;
-        init => _coreTypeMappingInfo = _coreTypeMappingInfo with { HasKeySemantics = value };
-    }
-
-    /// <summary>
     ///     Indicates whether or not the mapping supports Unicode, or <see langword="null" /> if not defined.
     /// </summary>
     public bool? IsUnicode

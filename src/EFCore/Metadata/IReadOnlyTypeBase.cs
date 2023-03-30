@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -118,6 +117,11 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         if (!HasSharedClrType)
         {
             var name = ClrType.ShortDisplayName();
+            if (name.StartsWith("<>", StringComparison.Ordinal))
+            {
+                name = name[2..];
+            }
+
             var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
             if (lessIndex == -1)
             {

@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SqliteDateTimeAddTranslator : IMethodCallTranslator
+public class SqliteDateTimeMethodTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo AddMilliseconds
         = typeof(DateTime).GetRuntimeMethod(nameof(DateTime.AddMilliseconds), new[] { typeof(double) })!;
@@ -40,7 +40,7 @@ public class SqliteDateTimeAddTranslator : IMethodCallTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteDateTimeAddTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
+    public SqliteDateTimeMethodTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }

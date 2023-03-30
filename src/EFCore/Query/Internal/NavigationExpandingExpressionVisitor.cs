@@ -212,7 +212,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                     // Apply defining query only when it is not custom query root
                     && entityQueryRootExpression.GetType() == typeof(EntityQueryRootExpression))
                 {
-                    var processedDefiningQueryBody = _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body);
+                    var processedDefiningQueryBody =
+                        _parameterExtractingExpressionVisitor.ExtractParameters(definingQuery.Body, clearEvaluatedValues: false);
                     processedDefiningQueryBody = _queryTranslationPreprocessor.NormalizeQueryableMethod(processedDefiningQueryBody);
                     processedDefiningQueryBody = _nullCheckRemovingExpressionVisitor.Visit(processedDefiningQueryBody);
                     processedDefiningQueryBody =
@@ -1737,7 +1738,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 if (!_parameterizedQueryFilterPredicateCache.TryGetValue(rootEntityType, out var filterPredicate))
                 {
                     filterPredicate = queryFilter;
-                    filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(filterPredicate);
+                    filterPredicate = (LambdaExpression)_parameterExtractingExpressionVisitor.ExtractParameters(
+                        filterPredicate, clearEvaluatedValues: false);
                     filterPredicate = (LambdaExpression)_queryTranslationPreprocessor.NormalizeQueryableMethod(filterPredicate);
 
                     // We need to do entity equality, but that requires a full method call on a query root to properly flow the

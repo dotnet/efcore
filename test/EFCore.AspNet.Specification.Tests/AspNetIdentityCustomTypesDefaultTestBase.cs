@@ -175,7 +175,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 Indexes = { "{'RoleId'} ", },
                 FKs =
                 {
-                    "ForeignKey: CustomRoleClaimString {'RoleId'} -> CustomRoleString {'Id'} ToDependent: RoleClaims ToPrincipal: Role Cascade",
+                    "ForeignKey: CustomRoleClaimString {'RoleId'} -> CustomRoleString {'Id'} Required Cascade ToDependent: RoleClaims ToPrincipal: Role",
                 },
                 Navigations =
                 {
@@ -220,7 +220,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 Indexes = { "{'UserId'} ", },
                 FKs =
                 {
-                    "ForeignKey: CustomUserClaimString {'UserId'} -> CustomUserString {'Id'} ToDependent: Claims ToPrincipal: User Cascade",
+                    "ForeignKey: CustomUserClaimString {'UserId'} -> CustomUserString {'Id'} Required Cascade ToDependent: Claims ToPrincipal: User",
                 },
                 Navigations =
                 {
@@ -242,7 +242,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 Indexes = { "{'UserId'} ", },
                 FKs =
                 {
-                    "ForeignKey: CustomUserLoginString {'UserId'} -> CustomUserString {'Id'} ToDependent: Logins ToPrincipal: User Cascade",
+                    "ForeignKey: CustomUserLoginString {'UserId'} -> CustomUserString {'Id'} Required Cascade ToDependent: Logins ToPrincipal: User",
                 },
                 Navigations =
                 {
@@ -262,8 +262,8 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 Indexes = { "{'RoleId'} ", },
                 FKs =
                 {
-                    "ForeignKey: CustomUserRoleString {'RoleId'} -> CustomRoleString {'Id'} ToDependent: UserRoles ToPrincipal: Role Cascade",
-                    "ForeignKey: CustomUserRoleString {'UserId'} -> CustomUserString {'Id'} ToDependent: UserRoles ToPrincipal: User Cascade",
+                    "ForeignKey: CustomUserRoleString {'RoleId'} -> CustomRoleString {'Id'} Required Cascade ToDependent: UserRoles ToPrincipal: Role",
+                    "ForeignKey: CustomUserRoleString {'UserId'} -> CustomUserString {'Id'} Required Cascade ToDependent: UserRoles ToPrincipal: User",
                 },
                 Navigations =
                 {
@@ -325,7 +325,7 @@ public abstract class AspNetIdentityCustomTypesDefaultTestBase<TFixture>
                 },
                 FKs =
                 {
-                    "ForeignKey: CustomUserTokenString {'UserId'} -> CustomUserString {'Id'} ToDependent: Tokens ToPrincipal: User Cascade",
+                    "ForeignKey: CustomUserTokenString {'UserId'} -> CustomUserString {'Id'} Required Cascade ToDependent: Tokens ToPrincipal: User",
                 },
                 Navigations =
                 {

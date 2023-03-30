@@ -298,7 +298,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
             var openParen = storeType.IndexOf("(", StringComparison.Ordinal);
             if (openParen >= 0)
             {
-                storeType = storeType[..openParen];
+                storeType = storeType[..openParen].TrimEnd();
             }
 
             return storeType;

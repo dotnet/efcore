@@ -97,8 +97,7 @@ public readonly record struct TypeMappingInfo
         var mappingHints = customConverter?.MappingHints;
         var property = principals[0];
 
-        HasKeySemantics = property.IsKey() || property.IsForeignKey();
-        IsKeyOrIndex = HasKeySemantics || property.IsIndex();
+        IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
         Size = fallbackSize ?? mappingHints?.Size;
         IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
         IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
@@ -139,7 +138,6 @@ public readonly record struct TypeMappingInfo
     /// <param name="rowVersion">Specifies a row-version, or <see langword="null" /> for default.</param>
     /// <param name="precision">Specifies a precision for the mapping, or <see langword="null" /> for default.</param>
     /// <param name="scale">Specifies a scale for the mapping, or <see langword="null" /> for default.</param>
-    /// <param name="keySemantics">If <see langword="true" />, then a special mapping for a key or foreign key may be returned.</param>
     public TypeMappingInfo(
         Type? type = null,
         bool keyOrIndex = false,
@@ -147,13 +145,11 @@ public readonly record struct TypeMappingInfo
         int? size = null,
         bool? rowVersion = null,
         int? precision = null,
-        int? scale = null,
-        bool keySemantics = false)
+        int? scale = null)
     {
         ClrType = type?.UnwrapNullableType();
 
         IsKeyOrIndex = keyOrIndex;
-        HasKeySemantics = keySemantics;
         Size = size;
         IsUnicode = unicode;
         IsRowVersion = rowVersion;
@@ -180,7 +176,6 @@ public readonly record struct TypeMappingInfo
     {
         IsRowVersion = source.IsRowVersion;
         IsKeyOrIndex = source.IsKeyOrIndex;
-        HasKeySemantics = source.HasKeySemantics;
 
         var mappingHints = converter.MappingHints;
 
@@ -204,11 +199,6 @@ public readonly record struct TypeMappingInfo
     ///     Indicates whether or not the mapping is part of a key or index.
     /// </summary>
     public bool IsKeyOrIndex { get; init; }
-
-    /// <summary>
-    ///     Indicates whether or not the mapping should be compared, etc. as if it is a key.
-    /// </summary>
-    public bool HasKeySemantics { get; init; }
 
     /// <summary>
     ///     Indicates the store-size to use for the mapping, or null if none.
