@@ -19,6 +19,17 @@ public class EntityTypeConfigurationAttributeConventionTest
     }
 
     [ConditionalFact]
+    public void EntityTypeConfigurationAttribute_should_apply_configuration_to_EntityType_Generic()
+    {
+        var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+
+        builder.Entity<CustomerGeneric>();
+
+        var entityType = builder.Model.FindEntityType(typeof(CustomerGeneric));
+        Assert.Equal(1000, entityType.FindProperty(nameof(CustomerGeneric.Name)).GetMaxLength());
+    }
+
+    [ConditionalFact]
     public void EntityTypeConfigurationAttribute_should_throw_when_configuration_is_wrong_type()
     {
         var builder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
@@ -59,8 +70,23 @@ public class EntityTypeConfigurationAttributeConventionTest
             => builder.Property(c => c.Name).HasMaxLength(1000);
     }
 
+    private class CustomerGenericConfiguration : IEntityTypeConfiguration<CustomerGeneric>
+    {
+        public void Configure(EntityTypeBuilder<CustomerGeneric> builder)
+            => builder.Property(c => c.Name).HasMaxLength(1000);
+    }
+
     [EntityTypeConfiguration(typeof(CustomerConfiguration))]
     private class Customer
+    {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+    }
+
+
+    [EntityTypeConfiguration<CustomerGenericConfiguration>()]
+    private class CustomerGeneric
     {
         public int Id { get; set; }
 
