@@ -26,8 +26,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -48,8 +48,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -70,8 +70,8 @@ UPDATE [JsonEntitiesInheritance] SET [CollectionOnDerived] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived]
 FROM [JsonEntitiesInheritance] AS [j]
 WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'
@@ -93,8 +93,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -116,8 +116,8 @@ SET NOCOUNT ON;
 INSERT INTO [JsonEntitiesBasic] ([OwnedReferenceRoot], [Id], [EntityBasicId], [Name])
 VALUES (@p0, @p1, @p2, @p3);
 """,
-                //
-                """
+            //
+"""
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -138,8 +138,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -160,8 +160,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -203,8 +203,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -225,8 +225,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -247,8 +247,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -269,8 +269,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -291,8 +291,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -313,8 +313,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -335,8 +335,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -358,8 +358,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -380,8 +380,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -402,8 +402,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -424,8 +424,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = @p0
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -446,8 +446,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -469,8 +469,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -492,8 +492,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollect
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -515,8 +515,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -539,8 +539,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -562,8 +562,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -586,8 +586,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -610,8 +610,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -634,8 +634,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -658,8 +658,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -682,8 +682,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -706,8 +706,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -730,8 +730,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -754,8 +754,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -778,8 +778,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -802,8 +802,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -826,8 +826,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -850,8 +850,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -874,8 +874,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -898,8 +898,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -922,8 +922,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -946,8 +946,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -970,8 +970,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -984,18 +984,18 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='Three' (Nullable = false) (Size = 5)
-@p1='Three' (Nullable = false) (Size = 5)
+@p0='2' (DbType = String)
+@p1='2' (DbType = String)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', CAST(@p1 AS int))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1018,8 +1018,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1042,8 +1042,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1056,18 +1056,18 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='One' (Nullable = false) (Size = 3)
-@p1='Three' (Nullable = false) (Size = 5)
+@p0='0' (DbType = String)
+@p1='2' (DbType = String)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', CAST(@p1 AS int))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1086,12 +1086,12 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', @p1)
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', CAST(@p1 AS int))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1114,8 +1114,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1128,8 +1128,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0='Null' (Nullable = false) (Size = 4)
+@p1='Null' (Nullable = false) (Size = 4)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1138,8 +1138,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1152,8 +1152,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='{"TestBoolean":false,"TestByte":25,"TestCharacter":"h","TestDateTime":"2100-11-11T12:34:56","TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDecimal":-123450.01,"TestDefaultString":"MyDefaultStringInCollection1","TestDouble":-1.2345,"TestEnum":"One","TestEnumWithIntConverter":"Two","TestGuid":"00000000-0000-0000-0000-000000000000","TestInt16":-12,"TestInt32":32,"TestInt64":64,"TestMaxLengthString":"Baz","TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithIntConverter":"Three","TestNullableInt32":90,"TestSignedByte":-18,"TestSingle":-1.4,"TestTimeSpan":"06:05:04.0030000","TestUnsignedInt16":12,"TestUnsignedInt32":12345,"TestUnsignedInt64":1234567867}' (Nullable = false) (Size = 710)
-@p1='{"TestBoolean":true,"TestByte":255,"TestCharacter":"a","TestDateTime":"2000-01-01T12:34:56","TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDecimal":-1234567890.01,"TestDefaultString":"MyDefaultStringInReference1","TestDouble":-1.23456789,"TestEnum":"One","TestEnumWithIntConverter":"Two","TestGuid":"12345678-1234-4321-7777-987654321000","TestInt16":-1234,"TestInt32":32,"TestInt64":64,"TestMaxLengthString":"Foo","TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithIntConverter":"Two","TestNullableInt32":78,"TestSignedByte":-128,"TestSingle":-1.234,"TestTimeSpan":"10:09:08.0070000","TestUnsignedInt16":1234,"TestUnsignedInt32":1234565789,"TestUnsignedInt64":1234567890123456789}' (Nullable = false) (Size = 738)
+@p0='{"TestBoolean":false,"TestByte":25,"TestCharacter":"h","TestDateTime":"2100-11-11T12:34:56","TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDecimal":-123450.01,"TestDefaultString":"MyDefaultStringInCollection1","TestDouble":-1.2345,"TestEnum":"One","TestEnumWithIntConverter":1,"TestGuid":"00000000-0000-0000-0000-000000000000","TestInt16":-12,"TestInt32":32,"TestInt64":64,"TestMaxLengthString":"Baz","TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithIntConverter":2,"TestNullableInt32":90,"TestSignedByte":-18,"TestSingle":-1.4,"TestTimeSpan":"06:05:04.0030000","TestUnsignedInt16":12,"TestUnsignedInt32":12345,"TestUnsignedInt64":1234567867}' (Nullable = false) (Size = 700)
+@p1='{"TestBoolean":true,"TestByte":255,"TestCharacter":"a","TestDateTime":"2000-01-01T12:34:56","TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDecimal":-1234567890.01,"TestDefaultString":"MyDefaultStringInReference1","TestDouble":-1.23456789,"TestEnum":"One","TestEnumWithIntConverter":1,"TestGuid":"12345678-1234-4321-7777-987654321000","TestInt16":-1234,"TestInt32":32,"TestInt64":64,"TestMaxLengthString":"Foo","TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithIntConverter":1,"TestNullableInt32":78,"TestSignedByte":-128,"TestSingle":-1.234,"TestTimeSpan":"10:09:08.0070000","TestUnsignedInt16":1234,"TestUnsignedInt32":1234565789,"TestUnsignedInt64":1234567890123456789}' (Nullable = false) (Size = 730)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1162,8 +1162,8 @@ UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'stri
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Collection], [j].[Reference]
 FROM [JsonEntitiesAllTypes] AS [j]
 WHERE [j].[Id] = 1
@@ -1185,8 +1185,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -1207,8 +1207,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -1229,8 +1229,8 @@ UPDATE [JsonEntitiesBasic] SET [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenc
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
@@ -1251,8 +1251,8 @@ UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'stri
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE [j].[Id] = 1
@@ -1274,8 +1274,8 @@ UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'stri
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE [j].[Id] = 1
@@ -1297,8 +1297,8 @@ UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'stri
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE [j].[Id] = 1
@@ -1320,8 +1320,8 @@ UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'stri
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE [j].[Id] = 1
@@ -1344,8 +1344,8 @@ UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'stri
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE [j].[Id] = 1
@@ -1368,8 +1368,8 @@ UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'stri
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
-                //
-                """
+            //
+"""
 SELECT TOP(2) [j].[Id], [j].[Reference]
 FROM [JsonEntitiesConverters] AS [j]
 WHERE [j].[Id] = 1
