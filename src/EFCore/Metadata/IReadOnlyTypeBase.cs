@@ -14,6 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 /// </remarks>
 public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
 {
+    private static readonly bool UseOldBehavior30115
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30115", out var enabled30115) && enabled30115;
+
     /// <summary>
     ///     Gets the model that this type belongs to.
     /// </summary>
@@ -118,6 +121,12 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         if (!HasSharedClrType)
         {
             var name = ClrType.ShortDisplayName();
+
+            if (!UseOldBehavior30115 && name.StartsWith("<>", StringComparison.Ordinal))
+            {
+                name = name[2..];
+            }
+
             var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
             if (lessIndex == -1)
             {
