@@ -5,6 +5,7 @@ using System.Data;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -182,7 +183,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     public static RelationalTypeMapping GetMapping(Type type)
         => new SqlServerTypeMappingSource(
                 TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())
+                TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                new SqlServerSingletonOptions())
             .FindMapping(type);
 
     public override void ByteArray_literal_generated_correctly()
@@ -416,7 +418,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     public static SqlServerTypeMappingSource GetTypeMappingSource()
         => new(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
     protected virtual void Test_GenerateCodeLiteral_helper(
         RelationalTypeMapping typeMapping,
@@ -425,7 +428,8 @@ public class SqlServerTypeMappingTest : RelationalTypeMappingTest
     {
         var typeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
         var csharpHelper = new CSharpHelper(typeMappingSource);
 

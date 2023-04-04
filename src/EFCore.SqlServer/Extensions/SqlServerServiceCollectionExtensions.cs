@@ -127,8 +127,10 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<INavigationExpansionExtensibilityHelper, SqlServerNavigationExpansionExtensibilityHelper>()
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
             .TryAdd<IExceptionDetector, SqlServerExceptionDetector>()
+            .TryAdd<ISingletonOptions, ISqlServerSingletonOptions>(p => p.GetRequiredService<ISqlServerSingletonOptions>())
             .TryAddProviderSpecificServices(
                 b => b
+                    .TryAddSingleton<ISqlServerSingletonOptions, SqlServerSingletonOptions>()
                     .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .TryAddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                     .TryAddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()
