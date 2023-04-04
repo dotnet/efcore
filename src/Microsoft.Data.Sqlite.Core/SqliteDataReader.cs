@@ -707,7 +707,7 @@ namespace Microsoft.Data.Sqlite
                         var columnType = "typeof(\"" + columnName.Replace("\"", "\"\"") + "\")";
                         command.CommandText = new StringBuilder()
                             .AppendLine($"SELECT {columnType}")
-                            .AppendLine($"FROM \"{tableName}\"")
+                            .AppendLine($"FROM \"{tableName.Replace("\"", "\"\"")}\"")
                             .AppendLine($"WHERE {columnType} != 'null'")
                             .AppendLine($"GROUP BY {columnType}")
                             .AppendLine("ORDER BY count() DESC")
