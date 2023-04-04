@@ -1,31 +1,40 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
-namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
-///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-///     any release. You should only use it directly in your code with extreme caution and knowing that
-///     doing so can result in application failures when updating to a new Entity Framework Core release.
+///     <para>
+///         A visitor that processes the query expression converting from condition to value and the other way around where needed.
+///     </para>
+///     <para>
+///         This type is typically used by database providers (and other extensions). It is generally
+///         not used in application code.
+///     </para>
 /// </summary>
 public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
 {
     private bool _isSearchCondition;
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly Func<SqlExpression, bool> _shouldConvertToSearchCondition;
+    private readonly Func<SqlExpression, bool> _shouldConvertToValue;
 
     /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    ///     Creates a new instance of the <see cref="SearchConditionConvertingExpressionVisitor" /> class.
     /// </summary>
+    /// <param name="sqlExpressionFactory">The sql expression factory to use.</param>
+    /// <param name="shouldConvertToSearchCondition">Additional provider-specific condition that has to be met for the sql expression valuee to be converted to search condition.</param>
+    /// <param name="shouldConvertToValue">Additional provider-specific condition that has to be met for the sql expression search condition to be converted to value.</param>
     public SearchConditionConvertingExpressionVisitor(
-        ISqlExpressionFactory sqlExpressionFactory)
+        ISqlExpressionFactory sqlExpressionFactory,
+        Func<SqlExpression, bool> shouldConvertToSearchCondition,
+        Func<SqlExpression, bool> shouldConvertToValue)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
+        _shouldConvertToSearchCondition = shouldConvertToSearchCondition;
+        _shouldConvertToValue = shouldConvertToValue;
     }
 
     private SqlExpression ApplyConversion(SqlExpression sqlExpression, bool condition)
@@ -34,12 +43,12 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             : ConvertToValue(sqlExpression, condition);
 
     private SqlExpression ConvertToSearchCondition(SqlExpression sqlExpression, bool condition)
-        => condition
-            ? sqlExpression
-            : BuildCompareToExpression(sqlExpression);
+        => !condition && _shouldConvertToSearchCondition(sqlExpression)
+            ? BuildCompareToExpression(sqlExpression)
+            : sqlExpression;
 
     private SqlExpression ConvertToValue(SqlExpression sqlExpression, bool condition)
-        => condition
+        => condition && _shouldConvertToValue(sqlExpression)
             ? _sqlExpressionFactory.Case(
                 new[]
                 {
