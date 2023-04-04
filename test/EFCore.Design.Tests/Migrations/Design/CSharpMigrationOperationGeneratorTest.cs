@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
@@ -19,7 +20,8 @@ public class CSharpMigrationOperationGeneratorTest
                 new CSharpHelper(
                     new SqlServerTypeMappingSource(
                         TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()))));
+                        TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+                        new SqlServerSingletonOptions()))));
 
         var builder = new IndentedStringBuilder();
 
@@ -3158,7 +3160,8 @@ mb.AlterTable(
                             new IRelationalTypeMappingSourcePlugin[]
                             {
                                 new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                            })))));
+                            }),
+                        new SqlServerSingletonOptions()))));
 
         var builder = new IndentedStringBuilder();
         generator.Generate("mb", new[] { operation }, builder);
