@@ -3,6 +3,7 @@
 
 using System.Data;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable InconsistentNaming
@@ -1352,7 +1353,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
             TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>() with
             {
                 Plugins = new[] { new FakeTypeMappingSourcePlugin() }
-            });
+            },
+            new SqlServerSingletonOptions());
 
         Assert.Equal("String", typeMappingSource.GetMapping("datetime2").ClrType.Name);
     }
@@ -1366,7 +1368,8 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     protected override IRelationalTypeMappingSource CreateRelationalTypeMappingSource()
         => new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
     private enum LongEnum : long
     {
