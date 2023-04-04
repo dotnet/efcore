@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using NetTopologySuite;
@@ -7585,7 +7586,8 @@ namespace RootNamespace
                 new IRelationalTypeMappingSourcePlugin[]
                 {
                     new SqlServerNetTopologySuiteTypeMappingSourcePlugin(NtsGeometryServices.Instance)
-                }));
+                }),
+            new SqlServerSingletonOptions());
 
         var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 
