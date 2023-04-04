@@ -226,7 +226,8 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
                 }
                 else
                 {
-                    navigationExpansionExpression = CreateNavigationExpansionExpression(entityQueryRootExpression, entityType);
+                    navigationExpansionExpression = CreateNavigationExpansionExpression(
+                        base.VisitExtension(entityQueryRootExpression), entityType);
                 }
 
                 return ApplyQueryFilter(entityType, navigationExpansionExpression);
