@@ -180,7 +180,9 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         VisitTables(modelBuilder, databaseModel.Tables);
         VisitForeignKeys(modelBuilder, databaseModel.Tables.SelectMany(table => table.ForeignKeys).ToList());
 
-        modelBuilder.Model.AddAnnotations(databaseModel.GetAnnotations());
+        modelBuilder.Model.AddAnnotations(
+            databaseModel.GetAnnotations().Where(
+                a => a.Name != ScaffoldingAnnotationNames.ConnectionString));
 
         return modelBuilder;
     }
