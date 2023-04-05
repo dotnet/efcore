@@ -116,12 +116,54 @@ public abstract class JsonUpdateFixtureBase : SharedStoreFixtureBase<JsonQueryCo
             {
                 b.ToJson();
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+                b.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
+                b.Property(x => x.TestNullableEnumWithIntConverter).HasConversion<int>();
+                b.Property(x => x.TestNullableEnumWithConverterThatHandlesNulls).HasConversion(
+                    new ValueConverter<JsonEnum?, string>(
+                        x => x == null
+                            ? "Null"
+                            : x == JsonEnum.One
+                                ? "One"
+                                : x == JsonEnum.Two
+                                    ? "Two"
+                                    : x == JsonEnum.Three
+                                        ? "Three"
+                                        : "INVALID",
+                        x => x == "One"
+                            ? JsonEnum.One
+                            : x == "Two"
+                                ? JsonEnum.Two
+                                : x == "Three"
+                                    ? JsonEnum.Three
+                                    : null,
+                        convertsNulls: true));
             });
         modelBuilder.Entity<JsonEntityAllTypes>().OwnsMany(
             x => x.Collection, b =>
             {
                 b.ToJson();
                 b.Property(x => x.TestDecimal).HasPrecision(18, 3);
+                b.Property(x => x.TestEnumWithIntConverter).HasConversion<int>();
+                b.Property(x => x.TestNullableEnumWithIntConverter).HasConversion<int>();
+                b.Property(x => x.TestNullableEnumWithConverterThatHandlesNulls).HasConversion(
+                    new ValueConverter<JsonEnum?, string>(
+                        x => x == null
+                            ? "Null"
+                            : x == JsonEnum.One
+                                ? "One"
+                                : x == JsonEnum.Two
+                                    ? "Two"
+                                    : x == JsonEnum.Three
+                                        ? "Three"
+                                        : "INVALID",
+                        x => x == "One"
+                            ? JsonEnum.One
+                            : x == "Two"
+                                ? JsonEnum.Two
+                                : x == "Three"
+                                    ? JsonEnum.Three
+                                    : null,
+                        convertsNulls: true));
             });
 
         base.OnModelCreating(modelBuilder, context);

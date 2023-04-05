@@ -558,7 +558,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', CAST(JSON_VALUE(@p0, '$[0]') AS nvarchar(1)))
+UPDATE [JsonEntitiesAllTypes] SET [Reference] = JSON_MODIFY([Reference], 'strict $.TestCharacter', JSON_VALUE(@p0, '$[0]'))
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -984,13 +984,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='["Three"]' (Nullable = false) (Size = 9)
-@p1='["Three"]' (Nullable = false) (Size = 9)
+@p0='[2]' (Nullable = false) (Size = 3)
+@p1='[2]' (Nullable = false) (Size = 3)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', JSON_VALUE(@p1, '$[0]'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1056,13 +1056,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='["One"]' (Nullable = false) (Size = 7)
-@p1='["Three"]' (Nullable = false) (Size = 9)
+@p0='[0]' (Nullable = false) (Size = 3)
+@p1='[2]' (Nullable = false) (Size = 3)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', JSON_VALUE(@p1, '$[0]'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1086,7 +1086,7 @@ WHERE [j].[Id] = 1
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', JSON_VALUE(@p0, '$[0]')), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', JSON_VALUE(@p1, '$[0]'))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', CAST(JSON_VALUE(@p0, '$[0]') AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', CAST(JSON_VALUE(@p1, '$[0]') AS int))
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1128,8 +1128,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='[null]' (Nullable = false) (Size = 6)
-@p1='[null]' (Nullable = false) (Size = 6)
+@p0='["Null"]' (Nullable = false) (Size = 8)
+@p1='["Null"]' (Nullable = false) (Size = 8)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1152,8 +1152,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='{"TestBoolean":false,"TestByte":25,"TestCharacter":"h","TestDateTime":"2100-11-11T12:34:56","TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDecimal":-123450.01,"TestDouble":-1.2345,"TestEnum":"One","TestEnumWithIntConverter":"Two","TestGuid":"00000000-0000-0000-0000-000000000000","TestInt16":-12,"TestInt32":32,"TestInt64":64,"TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithIntConverter":"Three","TestNullableInt32":90,"TestSignedByte":-18,"TestSingle":-1.4,"TestTimeSpan":"06:05:04.0030000","TestUnsignedInt16":12,"TestUnsignedInt32":12345,"TestUnsignedInt64":1234567867}' (Nullable = false) (Size = 631)
-@p1='{"TestBoolean":true,"TestByte":255,"TestCharacter":"a","TestDateTime":"2000-01-01T12:34:56","TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDecimal":-1234567890.01,"TestDouble":-1.23456789,"TestEnum":"One","TestEnumWithIntConverter":"Two","TestGuid":"12345678-1234-4321-7777-987654321000","TestInt16":-1234,"TestInt32":32,"TestInt64":64,"TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithIntConverter":"Two","TestNullableInt32":78,"TestSignedByte":-128,"TestSingle":-1.234,"TestTimeSpan":"10:09:08.0070000","TestUnsignedInt16":1234,"TestUnsignedInt32":1234565789,"TestUnsignedInt64":1234567890123456789}' (Nullable = false) (Size = 660)
+@p0='{"TestBoolean":false,"TestByte":25,"TestCharacter":"h","TestDateTime":"2100-11-11T12:34:56","TestDateTimeOffset":"2200-11-11T12:34:56-05:00","TestDecimal":-123450.01,"TestDouble":-1.2345,"TestEnum":"One","TestEnumWithIntConverter":1,"TestGuid":"00000000-0000-0000-0000-000000000000","TestInt16":-12,"TestInt32":32,"TestInt64":64,"TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Two","TestNullableEnumWithIntConverter":2,"TestNullableInt32":90,"TestSignedByte":-18,"TestSingle":-1.4,"TestTimeSpan":"06:05:04.0030000","TestUnsignedInt16":12,"TestUnsignedInt32":12345,"TestUnsignedInt64":1234567867}' (Nullable = false) (Size = 621)
+@p1='{"TestBoolean":true,"TestByte":255,"TestCharacter":"a","TestDateTime":"2000-01-01T12:34:56","TestDateTimeOffset":"2000-01-01T12:34:56-08:00","TestDecimal":-1234567890.01,"TestDouble":-1.23456789,"TestEnum":"One","TestEnumWithIntConverter":1,"TestGuid":"12345678-1234-4321-7777-987654321000","TestInt16":-1234,"TestInt32":32,"TestInt64":64,"TestNullableEnum":"One","TestNullableEnumWithConverterThatHandlesNulls":"Three","TestNullableEnumWithIntConverter":1,"TestNullableInt32":78,"TestSignedByte":-128,"TestSingle":-1.234,"TestTimeSpan":"10:09:08.0070000","TestUnsignedInt16":1234,"TestUnsignedInt32":1234565789,"TestUnsignedInt64":1234567890123456789}' (Nullable = false) (Size = 652)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
