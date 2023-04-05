@@ -17,6 +17,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly bool UseOldBehavior30028
             = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30028", out var enabled30028) && enabled30028;
 
+        private static readonly bool UseOldBehavior30266
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30266", out var enabled30266) && enabled30266;
+
+        private static readonly bool UseOldBehavior30565
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30565", out var enabled30565) && enabled30565;
+
         // Reading database values
         private static readonly MethodInfo IsDbNullMethod =
             typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
@@ -444,7 +450,17 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var visitedShaperResultParameter = Expression.Parameter(visitedShaperResult.Type);
                             _variables.Add(visitedShaperResultParameter);
                             _expressions.Add(Expression.Assign(visitedShaperResultParameter, visitedShaperResult));
-                            accessor = visitedShaperResultParameter;
+
+                            if (!UseOldBehavior30266)
+                            {
+                                accessor = CompensateForCollectionMaterialization(
+                                    visitedShaperResultParameter,
+                                    entityShaperExpression.Type);
+                            }
+                            else
+                            {
+                                accessor = visitedShaperResultParameter;
+                            }
                         }
                         else
                         {
@@ -469,18 +485,27 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                             _expressions.Add(Expression.Assign(entityParameter, entityMaterializationExpression));
 
-                            if (_containsCollectionMaterialization)
+                            if (!UseOldBehavior30266)
                             {
-                                _valuesArrayInitializers!.Add(entityParameter);
-                                accessor = Expression.Convert(
-                                    Expression.ArrayIndex(
-                                        _valuesArrayExpression!,
-                                        Expression.Constant(_valuesArrayInitializers.Count - 1)),
+                                accessor = CompensateForCollectionMaterialization(
+                                    entityParameter,
                                     entityShaperExpression.Type);
                             }
                             else
                             {
-                                accessor = entityParameter;
+                                if (_containsCollectionMaterialization)
+                                {
+                                    _valuesArrayInitializers!.Add(entityParameter);
+                                    accessor = Expression.Convert(
+                                        Expression.ArrayIndex(
+                                            _valuesArrayExpression!,
+                                            Expression.Constant(_valuesArrayInitializers.Count - 1)),
+                                        entityShaperExpression.Type);
+                                }
+                                else
+                                {
+                                    accessor = entityParameter;
+                                }
                             }
                         }
 
@@ -535,7 +560,21 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                     var visitedShaperResult = Visit(shaperResult);
 
-                    return visitedShaperResult;
+                    if (!UseOldBehavior30565)
+                    {
+                        var jsonCollectionParameter = Expression.Parameter(collectionResultExpression.Type);
+
+                        _variables.Add(jsonCollectionParameter);
+                        _expressions.Add(Expression.Assign(jsonCollectionParameter, visitedShaperResult));
+
+                        return CompensateForCollectionMaterialization(
+                            jsonCollectionParameter,
+                            collectionResultExpression.Type);
+                    }
+                    else
+                    {
+                        return visitedShaperResult;
+                    }
                 }
 
                 case ProjectionBindingExpression projectionBindingExpression
@@ -1019,6 +1058,23 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
 
             return base.VisitExtension(extensionExpression);
+
+            Expression CompensateForCollectionMaterialization(ParameterExpression parameter, Type resultType)
+            {
+                if (_containsCollectionMaterialization)
+                {
+                    _valuesArrayInitializers!.Add(parameter);
+                    return Expression.Convert(
+                        Expression.ArrayIndex(
+                            _valuesArrayExpression!,
+                            Expression.Constant(_valuesArrayInitializers.Count - 1)),
+                        resultType);
+                }
+                else
+                {
+                    return parameter;
+                }
+            }
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)

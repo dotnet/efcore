@@ -15,6 +15,9 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 /// </summary>
 public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServerUpdateSqlGenerator
 {
+    private static readonly bool UseOldBehavior30330
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30330 ", out var enabled30330) && enabled30330;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -155,8 +158,19 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
             if (columnModification.Property != null)
             {
-                var needsTypeConversion = columnModification.Property.ClrType.IsNumeric()
-                    || columnModification.Property.ClrType == typeof(bool);
+                bool needsTypeConversion;
+                if (!UseOldBehavior30330)
+                {
+                    var propertyClrType = columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
+                        ?? columnModification.Property.ClrType;
+
+                    needsTypeConversion = propertyClrType.IsNumeric() || propertyClrType == typeof(bool);
+                }
+                else
+                {
+                    needsTypeConversion = columnModification.Property.ClrType.IsNumeric()
+                        || columnModification.Property.ClrType == typeof(bool);
+                }
 
                 if (needsTypeConversion)
                 {
