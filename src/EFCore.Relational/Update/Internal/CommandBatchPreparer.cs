@@ -17,6 +17,9 @@ public class CommandBatchPreparer : ICommandBatchPreparer
     private static readonly bool QuirkEnabled29647
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue29647", out var enabled) && enabled;
 
+    private static readonly bool QuirkEnabled30601
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30601", out var enabled) && enabled;
+
     private readonly int _minBatchSize;
     private readonly bool _sensitiveLoggingEnabled;
     private readonly bool _detailedErrorsEnabled;
@@ -983,6 +986,10 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             }
 
                             originalValue ??= entry.GetOriginalProviderValue(property);
+                            if (!QuirkEnabled30601)
+                            {
+                                currentValue ??= entry.GetCurrentProviderValue(property);
+                            }
                             break;
                     }
 
