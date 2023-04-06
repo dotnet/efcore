@@ -1385,7 +1385,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         }
                     } methodCallExpression
                     when methodCallExpression.Method.DeclaringType.GetGenericTypeDefinition() == typeof(SetPropertyCalls<>):
-
                     list.Add(((LambdaExpression)methodCallExpression.Arguments[0], methodCallExpression.Arguments[1]));
 
                     PopulateSetPropertyCalls(methodCallExpression.Object!, list, parameter);
@@ -1771,7 +1770,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             static bool IsValidSelectorForJsonArrayElementAccess(Expression expression, JsonQueryExpression baselineJsonQuery)
             {
                 // JSON_QUERY($[0]).Property
-                if (expression is MemberExpression 
+                if (expression is MemberExpression
                     {
                         Expression: RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
                     } memberExpression

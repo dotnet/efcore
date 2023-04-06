@@ -17,7 +17,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
     private sealed partial class ShaperProcessingExpressionVisitor : ExpressionVisitor
     {
         /// <summary>
-        ///     Reading database values 
+        ///     Reading database values
         /// </summary>
         private static readonly MethodInfo IsDbNullMethod =
             typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.IsDBNull), new[] { typeof(int) })!;
@@ -26,7 +26,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetFieldValue), new[] { typeof(int) })!;
 
         /// <summary>
-        ///     Coordinating results 
+        ///     Coordinating results
         /// </summary>
         private static readonly MemberInfo ResultContextValuesMemberInfo
             = typeof(ResultContext).GetMember(nameof(ResultContext.Values))[0];
@@ -66,7 +66,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly ParameterExpression? _executionStrategyParameter;
 
         /// <summary>
-        ///     States scoped to SelectExpression 
+        ///     States scoped to SelectExpression
         /// </summary>
         private readonly SelectExpression _selectExpression;
         private readonly ParameterExpression _dataReaderParameter;
@@ -75,29 +75,29 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private readonly ReaderColumn?[]? _readerColumns;
 
         /// <summary>
-        ///     States to materialize only once 
+        ///     States to materialize only once
         /// </summary>
         private readonly Dictionary<Expression, Expression> _variableShaperMapping = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>
-        ///     There are always entity variables to avoid materializing same entity twice 
+        ///     There are always entity variables to avoid materializing same entity twice
         /// </summary>
         private readonly List<ParameterExpression> _variables = new();
 
         private readonly List<Expression> _expressions = new();
 
         /// <summary>
-        ///     IncludeExpressions are added later in case they are using ValuesArray 
+        ///     IncludeExpressions are added later in case they are using ValuesArray
         /// </summary>
         private readonly List<Expression> _includeExpressions = new();
 
         /// <summary>
-        ///     Json entities are added after includes so that we can utilize tracking (includes will track all json entities) 
+        ///     Json entities are added after includes so that we can utilize tracking (includes will track all json entities)
         /// </summary>
         private readonly List<Expression> _jsonEntityExpressions = new();
 
         /// <summary>
-        ///     If there is collection shaper then we need to construct ValuesArray to store values temporarily in ResultContext 
+        ///     If there is collection shaper then we need to construct ValuesArray to store values temporarily in ResultContext
         /// </summary>
         private List<Expression>? _collectionPopulatingExpressions;
         private Expression? _valuesArrayExpression;
@@ -106,13 +106,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private bool _containsCollectionMaterialization;
 
         /// <summary>
-        ///     Since identifiers for collection are not part of larger lambda they don't cannot use caching to materialize only once. 
+        ///     Since identifiers for collection are not part of larger lambda they don't cannot use caching to materialize only once.
         /// </summary>
         private bool _inline;
         private int _collectionId;
 
         /// <summary>
-        ///     States to convert code to data reader read 
+        ///     States to convert code to data reader read
         /// </summary>
         private readonly Dictionary<ParameterExpression, IDictionary<IProperty, int>> _materializationContextBindings = new();
         private readonly Dictionary<ParameterExpression, object> _entityTypeIdentifyingExpressionInfo = new();
@@ -125,13 +125,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             _jsonMaterializationContextParameterMapping = new();
 
         /// <summary>
-        ///     Cache for the JsonElement values we have generated - storing variables that the JsonElements are assigned to  
+        ///     Cache for the JsonElement values we have generated - storing variables that the JsonElements are assigned to
         /// </summary>
         private readonly Dictionary<(int JsonColumnIndex, (string? JsonPropertyName, int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath), ParameterExpression> _existingJsonElementMap
             = new(new ExisitingJsonElementMapKeyComparer());
 
         /// <summary>
-        ///     Cache for the key values we have generated - storing variables that the keys are assigned to 
+        ///     Cache for the key values we have generated - storing variables that the keys are assigned to
         /// </summary>
         private readonly Dictionary<(int JsonColumnIndex, (int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath), ParameterExpression> _existingKeyValuesMap
             = new(new ExisitingJsonKeyValuesMapKeyComparer());
@@ -484,6 +484,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             var visitedShaperResultParameter = Expression.Parameter(visitedShaperResult.Type);
                             _variables.Add(visitedShaperResultParameter);
                             _jsonEntityExpressions.Add(Expression.Assign(visitedShaperResultParameter, visitedShaperResult));
+
 
                             accessor = CompensateForCollectionMaterialization(
                                 visitedShaperResultParameter,
