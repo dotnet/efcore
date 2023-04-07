@@ -980,6 +980,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
                             }
 
                             originalValue ??= entry.GetOriginalProviderValue(property);
+                            currentValue ??= entry.GetCurrentProviderValue(property);
                             break;
                     }
 
