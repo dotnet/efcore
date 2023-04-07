@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.InteropServices;
+
 namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 /// <summary>
@@ -33,12 +35,15 @@ public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     /// <returns>The value to be assigned to a property.</returns>
     public override Guid Next(EntityEntry entry)
     {
-        var guidBytes = Guid.NewGuid().ToByteArray();
-        var counterBytes = BitConverter.GetBytes(Interlocked.Increment(ref _counter));
+        Span<byte> guidBytes = stackalloc byte[16];
+        Guid.NewGuid().TryWriteBytes(guidBytes);
+        var incrementedCounter = Interlocked.Increment(ref _counter);
+        Span<byte> counterBytes = stackalloc byte[sizeof(long)];
+        MemoryMarshal.Write(counterBytes, ref incrementedCounter);
 
         if (!BitConverter.IsLittleEndian)
         {
-            Array.Reverse(counterBytes);
+            counterBytes.Reverse();
         }
 
         guidBytes[08] = counterBytes[1];
