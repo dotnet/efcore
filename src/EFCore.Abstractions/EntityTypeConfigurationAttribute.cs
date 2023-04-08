@@ -33,23 +33,5 @@ public class EntityTypeConfigurationAttribute : Attribute
     public Type EntityTypeConfigurationType { get; }
 }
 
-/// <summary>
-///     Specifies the configuration type for the entity type.
-/// </summary>
-/// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
-/// </remarks>
-/// <typeparam name="TEntity">The IEntityTypeConfiguration&lt;&gt; type to use.</typeparam>
-[AttributeUsage(AttributeTargets.Class)]
-public sealed class EntityTypeConfigurationAttribute<TEntity> : EntityTypeConfigurationAttribute
-//where TEntity : IEntityTypeConfiguration
-{
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="EntityTypeConfigurationAttribute" /> class.
-    /// </summary>
-    public EntityTypeConfigurationAttribute(): base(typeof(TEntity)) { }
-
-}
-
 
 

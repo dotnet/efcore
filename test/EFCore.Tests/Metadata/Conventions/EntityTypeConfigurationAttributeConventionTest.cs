@@ -85,7 +85,7 @@ public class EntityTypeConfigurationAttributeConventionTest
     }
 
 
-    [EntityTypeConfiguration<CustomerGenericConfiguration>()]
+    [EntityTypeConfigurationAttribute<CustomerGenericConfiguration, CustomerGeneric>]
     private class CustomerGeneric
     {
         public int Id { get; set; }
