@@ -7997,7 +7997,10 @@ namespace TestNamespace
 
             var assembly = build.BuildInMemory();
 
-            var modelType = assembly.GetType(options.ModelNamespace + "." + options.ContextType.Name + "Model");
+            var modelTypeName = options.ContextType.Name + "Model";
+            var modelType = assembly.GetType(string.IsNullOrEmpty(options.ModelNamespace)
+                ? modelTypeName
+                : options.ModelNamespace + "." + modelTypeName);
             var instancePropertyInfo = modelType.GetProperty("Instance", BindingFlags.Public | BindingFlags.Static);
             var compiledModel = (IModel)instancePropertyInfo.GetValue(null);
 
