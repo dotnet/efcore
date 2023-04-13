@@ -2280,23 +2280,30 @@ public sealed partial class SelectExpression : TableExpressionBase
         var entityProjectionValueComparers = new List<ValueComparer>();
         var otherExpressions = new List<SqlExpression>();
 
-        if (select1.Orderings.Count != 0
-            || select1.Limit != null
-            || select1.Offset != null)
+        // Push down into a subquery if limit/offset are defined. If not, any orderings can be discarded as set operations don't preserve
+        // them.
+        // Note that in some databases it may be possible to preserve the internal ordering of the set operands for Concat, but we don't
+        // currently support that.
+        if (select1.Limit != null || select1.Offset != null)
         {
             // If we are pushing down here, we need to make sure to assign unique alias to subquery also.
             var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
-            select1.PushdownIntoSubquery();
+            select1.PushdownIntoSubqueryInternal(liftOrderings: false);
             select1._tables[0].Alias = subqueryAlias;
             select1._tableReferences[0].Alias = subqueryAlias;
+        }
+        else
+        {
             select1.ClearOrdering();
         }
 
-        if (select2.Orderings.Count != 0
-            || select2.Limit != null
-            || select2.Offset != null)
+        // Do the same for the other side of the set operation
+        if (select2.Limit != null || select2.Offset != null)
         {
-            select2.PushdownIntoSubquery();
+            select2.PushdownIntoSubqueryInternal(liftOrderings: false);
+        }
+        else
+        {
             select2.ClearOrdering();
         }
 
@@ -3572,7 +3579,11 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void PushdownIntoSubquery()
         => PushdownIntoSubqueryInternal();
 
-    private SqlRemappingVisitor PushdownIntoSubqueryInternal()
+    /// <summary>
+    ///     Pushes down the <see cref="SelectExpression" /> into a subquery.
+    /// </summary>
+    /// <param name="liftOrderings">Whether orderings on the query should be lifted out of the subquery.</param>
+    private SqlRemappingVisitor PushdownIntoSubqueryInternal(bool liftOrderings = true)
     {
         var subqueryAlias = GenerateUniqueAlias(_usedAliases, "t");
         var subquery = new SelectExpression(
@@ -3736,13 +3747,14 @@ public sealed partial class SelectExpression : TableExpressionBase
         foreach (var ordering in subquery._orderings)
         {
             var orderingExpression = ordering.Expression;
-            if (projectionMap.TryGetValue(orderingExpression, out var outerColumn))
+            if (liftOrderings && projectionMap.TryGetValue(orderingExpression, out var outerColumn))
             {
                 _orderings.Add(ordering.Update(outerColumn));
             }
-            else if (!IsDistinct
-                     && GroupBy.Count == 0
-                     || GroupBy.Contains(orderingExpression))
+            else if (liftOrderings
+                     && (!IsDistinct
+                         && GroupBy.Count == 0
+                         || GroupBy.Contains(orderingExpression)))
             {
                 _orderings.Add(
                     ordering.Update(
