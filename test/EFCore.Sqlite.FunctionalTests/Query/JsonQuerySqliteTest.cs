@@ -67,28 +67,40 @@ FROM (
 """);
     }
 
-    [ConditionalTheory(Skip = "issue #30326")]
     public override async Task Json_predicate_on_bool_converted_to_int_zero_one(bool async)
     {
         await base.Json_predicate_on_bool_converted_to_int_zero_one(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT "j"."Id", "j"."Reference"
+FROM "JsonEntitiesConverters" AS "j"
+WHERE json_extract("j"."Reference", '$.BoolConvertedToIntZeroOne') = 1
+""");
     }
 
-    [ConditionalTheory(Skip = "issue #30326")]
     public override async Task Json_predicate_on_bool_converted_to_string_True_False(bool async)
     {
         await base.Json_predicate_on_bool_converted_to_string_True_False(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT "j"."Id", "j"."Reference"
+FROM "JsonEntitiesConverters" AS "j"
+WHERE json_extract("j"."Reference", '$.BoolConvertedToStringTrueFalse') = 'True'
+""");
     }
 
-    [ConditionalTheory(Skip = "issue #30326")]
     public override async Task Json_predicate_on_bool_converted_to_string_Y_N(bool async)
     {
         await base.Json_predicate_on_bool_converted_to_string_Y_N(async);
 
-        AssertSql();
+        AssertSql(
+"""
+SELECT "j"."Id", "j"."Reference"
+FROM "JsonEntitiesConverters" AS "j"
+WHERE json_extract("j"."Reference", '$.BoolConvertedToStringYN') = 'Y'
+""");
     }
 
     private void AssertSql(params string[] expected)
