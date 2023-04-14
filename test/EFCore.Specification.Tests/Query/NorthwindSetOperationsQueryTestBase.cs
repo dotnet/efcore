@@ -763,6 +763,38 @@ public abstract class NorthwindSetOperationsQueryTestBase<TFixture> : QueryTestB
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_over_OrderBy_Take1(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Order>().OrderBy(o => o.OrderDate).Take(5).Select(o => o.OrderID)
+                .Union(ss.Set<Order>().Select(o => o.OrderID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_over_OrderBy_without_Skip_Take1(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Order>().OrderBy(o => o.OrderDate).Select(o => o.OrderID)
+                .Union(ss.Set<Order>().Select(o => o.OrderID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_over_OrderBy_Take2(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Order>().Select(o => o.OrderID)
+                .Union(ss.Set<Order>().OrderBy(o => o.OrderDate).Take(5).Select(o => o.OrderID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Union_over_OrderBy_without_Skip_Take2(bool async)
+        => AssertQueryScalar(
+            async,
+            ss => ss.Set<Order>().Select(o => o.OrderID)
+                .Union(ss.Set<Order>().OrderBy(o => o.OrderDate).Select(o => o.OrderID)));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task OrderBy_Take_Union(bool async)
         => AssertQuery(
             async,

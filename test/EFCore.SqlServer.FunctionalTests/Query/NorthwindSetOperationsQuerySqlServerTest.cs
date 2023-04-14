@@ -1020,6 +1020,74 @@ FROM [Orders] AS [o1]
 """);
     }
 
+    public override async Task Union_over_OrderBy_Take1(bool async)
+    {
+        await base.Union_over_OrderBy_Take1(async);
+
+        AssertSql(
+"""
+@__p_0='5'
+
+SELECT [t].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [o].[OrderID]
+    FROM [Orders] AS [o]
+    ORDER BY [o].[OrderDate]
+) AS [t]
+UNION
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]
+""");
+    }
+
+    public override async Task Union_over_OrderBy_without_Skip_Take1(bool async)
+    {
+        await base.Union_over_OrderBy_without_Skip_Take1(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]
+""");
+    }
+
+    public override async Task Union_over_OrderBy_Take2(bool async)
+    {
+        await base.Union_over_OrderBy_Take2(async);
+
+        AssertSql(
+"""
+@__p_0='5'
+
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT [t0].[OrderID]
+FROM (
+    SELECT TOP(@__p_0) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    ORDER BY [o0].[OrderDate]
+) AS [t0]
+""");
+    }
+
+    public override async Task Union_over_OrderBy_without_Skip_Take2(bool async)
+    {
+        await base.Union_over_OrderBy_without_Skip_Take2(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID]
+FROM [Orders] AS [o]
+UNION
+SELECT [o0].[OrderID]
+FROM [Orders] AS [o0]
+""");
+    }
+
     public override async Task OrderBy_Take_Union(bool async)
     {
         await base.OrderBy_Take_Union(async);
