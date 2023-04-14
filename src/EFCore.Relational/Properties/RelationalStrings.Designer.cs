@@ -1780,6 +1780,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 fkColumnName, fkColumnType, pkColumnType, pkColumnName);
 
         /// <summary>
+        ///     Expression type '{expressionType}' does not implement proper cloning logic. Every expression derived from '{tableExpressionBase}' must implement '{clonableTableExpressionBase}' interface or have it's cloning logic added to the '{cloningExpressionVisitor}' inside '{selectExpression}'.
+        /// </summary>
+        public static string TableExpressionBaseWithoutCloningLogic(object? expressionType, object? tableExpressionBase, object? clonableTableExpressionBase, object? cloningExpressionVisitor, object? selectExpression)
+            => string.Format(
+                GetString("TableExpressionBaseWithoutCloningLogic", nameof(expressionType), nameof(tableExpressionBase), nameof(clonableTableExpressionBase), nameof(cloningExpressionVisitor), nameof(selectExpression)),
+                expressionType, tableExpressionBase, clonableTableExpressionBase, cloningExpressionVisitor, selectExpression);
+
+        /// <summary>
         ///     The entity type '{entityType}' is not mapped to the store object '{table}'.
         /// </summary>
         public static string TableNotMappedEntityType(object? entityType, object? table)

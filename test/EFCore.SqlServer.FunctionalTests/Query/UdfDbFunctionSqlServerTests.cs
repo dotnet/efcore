@@ -899,6 +899,62 @@ ORDER BY [g].[ProductId]
 """);
     }
 
+    public override void TVF_with_navigation_in_projection_groupby_aggregate()
+    {
+        base.TVF_with_navigation_in_projection_groupby_aggregate();
+
+        AssertSql(
+"""
+SELECT [c].[LastName], (
+    SELECT COALESCE(SUM(CAST(LEN([c1].[FirstName]) AS int)), 0)
+    FROM [Orders] AS [o0]
+    INNER JOIN [Customers] AS [c0] ON [o0].[CustomerId] = [c0].[Id]
+    INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
+    WHERE NOT (EXISTS (
+        SELECT 1
+        FROM [dbo].[GetTopTwoSellingProducts]() AS [g0]
+        WHERE [g0].[ProductId] = 25)) AND ([c].[LastName] = [c0].[LastName] OR ([c].[LastName] IS NULL AND [c0].[LastName] IS NULL))) AS [SumOfLengths]
+FROM [Orders] AS [o]
+INNER JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
+    WHERE [g].[ProductId] = 25))
+GROUP BY [c].[LastName]
+""");
+    }
+
+    public override void TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate()
+    {
+        base.TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate();
+
+        AssertSql(
+"""
+SELECT [c0].[LastName], (
+    SELECT COALESCE(SUM(CAST(LEN([c2].[FirstName]) AS int)), 0)
+    FROM [Orders] AS [o0]
+    INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
+    INNER JOIN [Customers] AS [c2] ON [o0].[CustomerId] = [c2].[Id]
+    WHERE NOT (EXISTS (
+        SELECT 1
+        FROM [dbo].[GetOrdersWithMultipleProducts]((
+            SELECT TOP(1) [c3].[Id]
+            FROM [Customers] AS [c3]
+            ORDER BY [c3].[Id])) AS [g0]
+        WHERE [g0].[CustomerId] = 25)) AND ([c0].[LastName] = [c1].[LastName] OR ([c0].[LastName] IS NULL AND [c1].[LastName] IS NULL))) AS [SumOfLengths]
+FROM [Orders] AS [o]
+INNER JOIN [Customers] AS [c0] ON [o].[CustomerId] = [c0].[Id]
+WHERE NOT (EXISTS (
+    SELECT 1
+    FROM [dbo].[GetOrdersWithMultipleProducts]((
+        SELECT TOP(1) [c].[Id]
+        FROM [Customers] AS [c]
+        ORDER BY [c].[Id])) AS [g]
+    WHERE [g].[CustomerId] = 25))
+GROUP BY [c0].[LastName]
+""");
+    }
+
     public override void TVF_backing_entity_type_mapped_to_view()
     {
         base.TVF_backing_entity_type_mapped_to_view();

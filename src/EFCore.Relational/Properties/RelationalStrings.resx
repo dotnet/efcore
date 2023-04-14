@@ -1094,6 +1094,9 @@
   <data name="StoredProcedureUnmapped" xml:space="preserve">
     <value>The entity type '{entityType}' was configured to use some stored procedures and is not mapped to any table. An entity type that isn't mapped to a table must be mapped to insert, update and delete stored procedures.</value>
   </data>
+  <data name="TableExpressionBaseWithoutCloningLogic" xml:space="preserve">
+    <value>Expression type '{expressionType}' does not implement proper cloning logic. Every expression derived from '{tableExpressionBase}' must implement '{clonableTableExpressionBase}' interface or have it's cloning logic added to the '{cloningExpressionVisitor}' inside '{selectExpression}'.</value>
+  </data>
   <data name="TableNotMappedEntityType" xml:space="preserve">
     <value>The entity type '{entityType}' is not mapped to the store object '{table}'.</value>
   </data>

@@ -11358,6 +11358,56 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
 """);
     }
 
+    public override async Task Set_operator_with_navigation_in_projection_groupby_aggregate(bool async)
+    {
+        await base.Set_operator_with_navigation_in_projection_groupby_aggregate(async);
+
+        AssertSql(
+"""
+SELECT [s].[Name], (
+    SELECT COALESCE(SUM(CAST(LEN([c].[Location]) AS int)), 0)
+    FROM [Gears] AS [g2]
+    LEFT JOIN [Officers] AS [o2] ON [g2].[Nickname] = [o2].[Nickname] AND [g2].[SquadId] = [o2].[SquadId]
+    INNER JOIN [Squads] AS [s0] ON [g2].[SquadId] = [s0].[Id]
+    INNER JOIN [Cities] AS [c] ON [g2].[CityOfBirthName] = [c].[Name]
+    WHERE EXISTS (
+        SELECT 1
+        FROM (
+            SELECT [g3].[Nickname], [g3].[SquadId], [g3].[AssignedCityName], [g3].[CityOfBirthName], [g3].[FullName], [g3].[HasSoulPatch], [g3].[LeaderNickname], [g3].[LeaderSquadId], [g3].[Rank], CASE
+                WHEN [o3].[Nickname] IS NOT NULL THEN N'Officer'
+            END AS [Discriminator]
+            FROM [Gears] AS [g3]
+            LEFT JOIN [Officers] AS [o3] ON [g3].[Nickname] = [o3].[Nickname] AND [g3].[SquadId] = [o3].[SquadId]
+            UNION ALL
+            SELECT [g4].[Nickname], [g4].[SquadId], [g4].[AssignedCityName], [g4].[CityOfBirthName], [g4].[FullName], [g4].[HasSoulPatch], [g4].[LeaderNickname], [g4].[LeaderSquadId], [g4].[Rank], CASE
+                WHEN [o4].[Nickname] IS NOT NULL THEN N'Officer'
+            END AS [Discriminator]
+            FROM [Gears] AS [g4]
+            LEFT JOIN [Officers] AS [o4] ON [g4].[Nickname] = [o4].[Nickname] AND [g4].[SquadId] = [o4].[SquadId]
+        ) AS [t0]
+        WHERE [t0].[Nickname] = N'Marcus') AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
+FROM [Gears] AS [g]
+INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
+WHERE EXISTS (
+    SELECT 1
+    FROM (
+        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
+            WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
+        END AS [Discriminator]
+        FROM [Gears] AS [g0]
+        LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
+        UNION ALL
+        SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOfBirthName], [g1].[FullName], [g1].[HasSoulPatch], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank], CASE
+            WHEN [o1].[Nickname] IS NOT NULL THEN N'Officer'
+        END AS [Discriminator]
+        FROM [Gears] AS [g1]
+        LEFT JOIN [Officers] AS [o1] ON [g1].[Nickname] = [o1].[Nickname] AND [g1].[SquadId] = [o1].[SquadId]
+    ) AS [t]
+    WHERE [t].[Nickname] = N'Marcus')
+GROUP BY [s].[Name]
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
