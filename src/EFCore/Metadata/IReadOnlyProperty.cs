@@ -390,6 +390,11 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
                 builder.Append(" PropertyAccessMode.").Append(GetPropertyAccessMode());
             }
 
+            if (Sentinel != null && !Equals(Sentinel, ClrType.GetDefaultValue()))
+            {
+                builder.Append(" Sentinel:").Append(Sentinel);
+            }
+
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
                 && ((AnnotatableBase)this).IsReadOnly)
             {

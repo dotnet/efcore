@@ -16,6 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class Property : PropertyBase, IMutableProperty, IConventionProperty, IProperty
 {
     private bool? _isConcurrencyToken;
+    private object? _sentinel;
     private bool? _isNullable;
     private ValueGenerated? _valueGenerated;
     private CoreTypeMapping? _typeMapping;
@@ -24,6 +25,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     private ConfigurationSource? _typeConfigurationSource;
     private ConfigurationSource? _isNullableConfigurationSource;
     private ConfigurationSource? _isConcurrencyTokenConfigurationSource;
+    private ConfigurationSource? _sentinelConfigurationSource;
     private ConfigurationSource? _valueGeneratedConfigurationSource;
     private ConfigurationSource? _typeMappingConfigurationSource;
 
@@ -295,6 +297,50 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual ConfigurationSource? GetIsConcurrencyTokenConfigurationSource()
         => _isConcurrencyTokenConfigurationSource;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object? Sentinel
+    {
+        get => _sentinel ?? DefaultSentinel;
+        set => SetSentinel(value, ConfigurationSource.Explicit);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual object? SetSentinel(object? sentinel, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+
+        _sentinel = sentinel;
+
+        _sentinelConfigurationSource = configurationSource.Max(_sentinelConfigurationSource);
+
+        return sentinel;
+    }
+
+    private object? DefaultSentinel
+        => (this is IProperty property
+            && property.TryGetMemberInfo(forMaterialization: false, forSet: false, out var member, out _)
+                ? member!.GetMemberType()
+                : ClrType).GetDefaultValue();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetSentinelConfigurationSource()
+        => _sentinelConfigurationSource;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1497,6 +1543,17 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    object? IConventionProperty.SetSentinel(object? sentinel, bool fromDataAnnotation)
+        => SetSentinel(
+            sentinel, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     void IMutableProperty.SetMaxLength(int? maxLength)
         => SetMaxLength(maxLength, ConfigurationSource.Explicit);
 
@@ -1858,4 +1915,10 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     [DebuggerStepThrough]
     ValueComparer IProperty.GetProviderValueComparer()
         => GetProviderValueComparer()!;
+
+    /// <summary>
+    ///     Gets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    object? IReadOnlyPropertyBase.Sentinel
+        => Sentinel;
 }

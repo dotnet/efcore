@@ -3576,6 +3576,49 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
         }
     }
 
+    protected class CruiserWithSentinel : NotifyingEntity
+    {
+        private int _cruiserWithSentinelId;
+        private int _idUserState;
+        private AccessStateWithSentinel _userState;
+
+        public int CruiserWithSentinelId
+        {
+            get => _cruiserWithSentinelId;
+            set => SetWithNotify(value, ref _cruiserWithSentinelId);
+        }
+
+        public int IdUserState
+        {
+            get => _idUserState;
+            set => SetWithNotify(value, ref _idUserState);
+        }
+
+        public virtual AccessStateWithSentinel UserState
+        {
+            get => _userState;
+            set => SetWithNotify(value, ref _userState);
+        }
+    }
+
+    protected class AccessStateWithSentinel : NotifyingEntity
+    {
+        private int _accessStateWithSentinelId;
+        private ICollection<CruiserWithSentinel> _users = new ObservableHashSet<CruiserWithSentinel>();
+
+        public int AccessStateWithSentinelId
+        {
+            get => _accessStateWithSentinelId;
+            set => SetWithNotify(value, ref _accessStateWithSentinelId);
+        }
+
+        public virtual ICollection<CruiserWithSentinel> Users
+        {
+            get => _users;
+            set => SetWithNotify(value, ref _users);
+        }
+    }
+
     protected class SomethingCategory : NotifyingEntity
     {
         private int _id;

@@ -323,6 +323,12 @@ public class SkipNavigation : PropertyBase, IMutableSkipNavigation, IConventionS
             ?? ((IReadOnlyTypeBase)DeclaringType).GetNavigationAccessMode());
 
     /// <summary>
+    ///     Gets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    public virtual object? Sentinel
+        => null;
+
+    /// <summary>
     ///     Runs the conventions when an annotation was set or removed.
     /// </summary>
     /// <param name="name">The key of the set annotation.</param>

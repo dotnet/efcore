@@ -1590,19 +1590,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                     context.ChangeTracker.CascadeChanges();
                 }
 
-                foreach (var orphanEntry in orphaned.Select(context.Entry))
-                {
-                    Assert.Equal(EntityState.Added, orphanEntry.State);
-                    Assert.Null(orphanEntry.Entity.ParentId);
-                    Assert.Equal(Fixture.ForceClientNoAction ? removedId : null, orphanEntry.Property(e => e.ParentId).CurrentValue);
-                }
-
                 if (Fixture.ForceClientNoAction)
                 {
                     Assert.Throws<DbUpdateException>(() => context.SaveChanges());
                 }
                 else
                 {
+                    foreach (var orphanEntry in orphaned.Select(context.Entry))
+                    {
+                        Assert.Equal(EntityState.Added, orphanEntry.State);
+                        Assert.Null(orphanEntry.Entity.ParentId);
+                        Assert.Null(orphanEntry.Property(e => e.ParentId).CurrentValue);
+                    }
+
                     context.SaveChanges();
 
                     Assert.False(context.ChangeTracker.HasChanges());

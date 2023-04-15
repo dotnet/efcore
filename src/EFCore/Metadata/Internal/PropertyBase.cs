@@ -554,4 +554,10 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     [DebuggerStepThrough]
     IComparer<IUpdateEntry> IPropertyBase.GetCurrentValueComparer()
         => CurrentValueComparer;
+
+    /// <summary>
+    ///     Gets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    object? IReadOnlyPropertyBase.Sentinel
+        => null;
 }

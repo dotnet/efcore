@@ -94,6 +94,10 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     [DisallowNull]
     public virtual RuntimeSkipNavigation? Inverse { get; set; }
 
+    /// <inheritdoc />
+    public override object? Sentinel
+        => null;
+
     /// <summary>
     ///     Returns a string that represents the current object.
     /// </summary>

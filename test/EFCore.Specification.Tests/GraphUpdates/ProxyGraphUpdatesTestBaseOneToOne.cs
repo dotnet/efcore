@@ -288,6 +288,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 {
                     context.Add(new1);
                     new1.Id = root.Id;
+                    context.Entry(new1).Property(e => e.Id).IsTemporary = false;
+                    context.Entry(new2).Property(e => e.Id).IsTemporary = false;
                 }
 
                 Assert.True(context.ChangeTracker.HasChanges());

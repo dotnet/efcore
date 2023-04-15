@@ -19,6 +19,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly bool _isNullable;
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
+    private readonly object? _sentinel;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, IEntityType, ValueGenerator>? _valueGeneratorFactory;
@@ -38,6 +39,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     public RuntimeProperty(
         string name,
         Type clrType,
+        object? sentinel,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
         RuntimeEntityType declaringEntityType,
@@ -62,6 +64,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     {
         DeclaringEntityType = declaringEntityType;
         ClrType = clrType;
+        _sentinel = sentinel;
         _isNullable = nullable;
         _isConcurrencyToken = concurrencyToken;
         _valueGenerated = valueGenerated;
@@ -229,6 +232,10 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         checkedProperties.Add(this);
         return principal.GetKeyValueComparer(checkedProperties);
     }
+
+    /// <inheritdoc />
+    public override object? Sentinel
+        => _sentinel;
 
     /// <summary>
     ///     Returns a string that represents the current object.

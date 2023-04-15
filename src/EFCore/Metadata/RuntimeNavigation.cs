@@ -69,6 +69,10 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
         get => ((IReadOnlyNavigation)this).IsOnDependent ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
     }
 
+    /// <inheritdoc />
+    public override object? Sentinel
+        => null;
+
     /// <summary>
     ///     Returns a string that represents the current object.
     /// </summary>

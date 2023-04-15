@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore
 {
     public partial class DbContextTest
     {
+        protected static readonly Guid GuidSentinel = new Guid("56D3784D-6F7F-4935-B7F6-E77DC6E1D91E");
+        protected static readonly int IntSentinel = 667;
+
         [ConditionalFact]
         public void Can_log_debug_events_with_OnConfiguring()
             => DebugLogTest(useLoggerFactory: false, configureForDebug: false, shouldLog: true);
@@ -799,6 +802,30 @@ namespace Microsoft.EntityFrameworkCore
             public string ShirtColor { get; set; }
         }
 
+        private class CategoryWithSentinel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<ProductWithSentinel> Products { get; set; }
+        }
+
+        private class ProductWithSentinel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public decimal Price { get; set; }
+
+            public int CategoryId { get; set; }
+            public CategoryWithSentinel Category { get; set; }
+        }
+
+        private class TheGuWithSentinel
+        {
+            public Guid Id { get; set; }
+            public string ShirtColor { get; set; }
+        }
+
         private class EarlyLearningCenter : DbContext
         {
             private readonly IServiceProvider _serviceProvider;
@@ -821,6 +848,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
+            public DbSet<ProductWithSentinel> ProductWithSentinels { get; set; }
+            public DbSet<CategoryWithSentinel> CategoryWithSentinels { get; set; }
+            public DbSet<TheGuWithSentinel> GuWithSentinels { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -830,8 +860,11 @@ namespace Microsoft.EntityFrameworkCore
                     .EnableServiceProviderCaching(false);
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder
-                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+            {
+                modelBuilder.Entity<CategoryWithSentinel>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
+                modelBuilder.Entity<ProductWithSentinel>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
+                modelBuilder.Entity<TheGuWithSentinel>().Property(e => e.Id).Metadata.Sentinel = GuidSentinel;
+            }
         }
 
         private class FakeEntityMaterializerSource : EntityMaterializerSource

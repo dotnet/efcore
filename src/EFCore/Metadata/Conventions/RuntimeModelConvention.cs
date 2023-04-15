@@ -337,6 +337,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         => runtimeEntityType.AddProperty(
             property.Name,
             property.ClrType,
+            property.Sentinel,
             property.PropertyInfo,
             property.FieldInfo,
             property.GetPropertyAccessMode(),

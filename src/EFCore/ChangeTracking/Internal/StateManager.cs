@@ -281,13 +281,13 @@ public class StateManager : IStateManager
         {
             valuesArray[i++] = values.TryGetValue(property.Name, out var value)
                 ? value
-                : property.ClrType.GetDefaultValue();
+                : property.Sentinel;
 
             if (property.IsShadowProperty())
             {
                 shadowPropertyValuesArray[property.GetShadowIndex()] = values.TryGetValue(property.Name, out var shadowValue)
                     ? shadowValue
-                    : property.ClrType.GetDefaultValue();
+                    : property.Sentinel;
             }
         }
 

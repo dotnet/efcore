@@ -154,20 +154,6 @@ public class StoreGeneratedFixupInMemoryTest : StoreGeneratedFixupTestBase<
                     b.Property(e => e.Id2).ValueGeneratedNever();
                 });
 
-            modelBuilder.Entity<Category>(
-                b =>
-                {
-                    b.Property(e => e.Id1).ValueGeneratedNever();
-                    b.Property(e => e.Id2).ValueGeneratedNever();
-                });
-
-            modelBuilder.Entity<Product>(
-                b =>
-                {
-                    b.Property(e => e.Id1).ValueGeneratedNever();
-                    b.Property(e => e.Id2).ValueGeneratedNever();
-                });
-
             modelBuilder.Entity<Item>(b => b.Property(e => e.Id).ValueGeneratedNever());
 
             modelBuilder.Entity<Game>(b => b.Property(e => e.Id).ValueGeneratedNever());

@@ -167,6 +167,12 @@ public class ServiceProperty : PropertyBase, IMutableServiceProperty, IConventio
         => _parameterBindingConfigurationSource = configurationSource.Max(_parameterBindingConfigurationSource);
 
     /// <summary>
+    ///     Gets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    public virtual object? Sentinel
+        => null;
+
+    /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that

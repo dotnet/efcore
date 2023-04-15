@@ -41,6 +41,14 @@ public class TemporaryValuesTest
             Assert.Equal(77, context.Entry(entity).Property(e => e.NullableValueProperty).CurrentValue);
             Assert.Equal("Seventy Seven", context.Entry(entity).Property(e => e.ReferenceValueProperty).CurrentValue);
 
+            Assert.True(context.Entry(entity).Property(e => e.ValueProperty).IsTemporary);
+            Assert.True(context.Entry(entity).Property(e => e.NullableValueProperty).IsTemporary);
+            Assert.True(context.Entry(entity).Property(e => e.ReferenceValueProperty).IsTemporary);
+
+            context.Entry(entity).Property(e => e.ValueProperty).IsTemporary = false;
+            context.Entry(entity).Property(e => e.NullableValueProperty).IsTemporary = false;
+            context.Entry(entity).Property(e => e.ReferenceValueProperty).IsTemporary = false;
+
             Assert.False(context.Entry(entity).Property(e => e.ValueProperty).IsTemporary);
             Assert.False(context.Entry(entity).Property(e => e.NullableValueProperty).IsTemporary);
             Assert.False(context.Entry(entity).Property(e => e.ReferenceValueProperty).IsTemporary);
@@ -98,9 +106,13 @@ public class TemporaryValuesTest
             Assert.Equal(77, context.Entry(entity2).Property<int?>("NullableValueProperty").CurrentValue);
             Assert.Equal("Seventy Seven", context.Entry(entity3).Property<string>("ReferenceValueProperty").CurrentValue);
 
-            Assert.False(context.Entry(entity1).Property<int>("ValueProperty").IsTemporary);
-            Assert.False(context.Entry(entity2).Property<int?>("NullableValueProperty").IsTemporary);
-            Assert.False(context.Entry(entity3).Property<string>("ReferenceValueProperty").IsTemporary);
+            Assert.True(context.Entry(entity1).Property<int>("ValueProperty").IsTemporary);
+            Assert.True(context.Entry(entity2).Property<int?>("NullableValueProperty").IsTemporary);
+            Assert.True(context.Entry(entity3).Property<string>("ReferenceValueProperty").IsTemporary);
+
+            context.Entry(entity1).Property<int>("ValueProperty").IsTemporary = false;
+            context.Entry(entity2).Property<int?>("NullableValueProperty").IsTemporary = false;
+            context.Entry(entity3).Property<string>("ReferenceValueProperty").IsTemporary = false;
 
             entity1["ValueProperty"] = 78;
             entity2["NullableValueProperty"] = 78;
@@ -168,6 +180,14 @@ public class TemporaryValuesTest
             Assert.Equal(77, context.Entry(entity).Property<int>("ValueProperty").CurrentValue);
             Assert.Equal(77, context.Entry(entity).Property<int?>("NullableValueProperty").CurrentValue);
             Assert.Equal("Seventy Seven", context.Entry(entity).Property<string>("ReferenceValueProperty").CurrentValue);
+
+            Assert.True(context.Entry(entity).Property<int>("ValueProperty").IsTemporary);
+            Assert.True(context.Entry(entity).Property<int?>("NullableValueProperty").IsTemporary);
+            Assert.True(context.Entry(entity).Property<string>("ReferenceValueProperty").IsTemporary);
+
+            context.Entry(entity).Property<int>("ValueProperty").IsTemporary = false;
+            context.Entry(entity).Property<int?>("NullableValueProperty").IsTemporary = false;
+            context.Entry(entity).Property<string>("ReferenceValueProperty").IsTemporary = false;
 
             Assert.False(context.Entry(entity).Property<int>("ValueProperty").IsTemporary);
             Assert.False(context.Entry(entity).Property<int?>("NullableValueProperty").IsTemporary);

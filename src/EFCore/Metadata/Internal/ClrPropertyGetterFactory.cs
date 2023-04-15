@@ -58,18 +58,18 @@ public class ClrPropertyGetterFactory : ClrAccessorFactory<IClrPropertyGetter>
                 });
         }
 
-        var hasDefaultValueExpression = readExpression.MakeHasDefaultValue(propertyBase);
+        var hasSentinelValueExpression = readExpression.MakeHasSentinelValue(propertyBase);
 
         if (readExpression.Type != typeof(TValue))
         {
             readExpression = Expression.Condition(
-                hasDefaultValueExpression,
+                hasSentinelValueExpression,
                 Expression.Constant(default(TValue), typeof(TValue)),
                 Expression.Convert(readExpression, typeof(TValue)));
         }
 
         return new ClrPropertyGetter<TEntity, TValue>(
             Expression.Lambda<Func<TEntity, TValue>>(readExpression, entityParameter).Compile(),
-            Expression.Lambda<Func<TEntity, bool>>(hasDefaultValueExpression, entityParameter).Compile());
+            Expression.Lambda<Func<TEntity, bool>>(hasSentinelValueExpression, entityParameter).Compile());
     }
 }

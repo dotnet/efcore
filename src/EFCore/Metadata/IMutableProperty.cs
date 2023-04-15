@@ -49,6 +49,11 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     new bool IsConcurrencyToken { get; set; }
 
     /// <summary>
+    ///     Gets or sets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    new object? Sentinel { get; set; }
+
+    /// <summary>
     ///     Finds the first principal property that the given property is constrained by
     ///     if the given property is part of a foreign key.
     /// </summary>

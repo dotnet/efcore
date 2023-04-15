@@ -82,17 +82,17 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
         entry.SetTemporaryValue(keyProperty, -1);
 
         Assert.NotNull(entry[keyProperty]);
-        Assert.Equal(0, entity.Id);
+        Assert.Equal(-1, entity.Id);
         Assert.Equal(-1, entry[keyProperty]);
 
         entry.SetEntityState(EntityState.Detached);
 
-        Assert.Equal(0, entity.Id);
+        Assert.Equal(-1, entity.Id);
         Assert.Equal(-1, entry[keyProperty]);
 
         entry.SetEntityState(EntityState.Added);
 
-        Assert.Equal(0, entity.Id);
+        Assert.Equal(-1, entity.Id);
         Assert.Equal(-1, entry[keyProperty]);
     }
 
@@ -144,7 +144,7 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
     }
 
     [ConditionalFact]
-    public void Setting_an_explicit_value_on_the_entity_marks_property_as_not_temporary()
+    public void Setting_an_explicit_value_on_the_entity_does_not_mark_property_as_temporary()
     {
         using var context = new KClrContext();
         var entry = context.Entry(new SomeEntity()).GetInfrastructure();
@@ -161,16 +161,18 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
 
         context.GetService<IChangeDetector>().DetectChanges(entry);
 
-        Assert.False(entry.HasTemporaryValue(keyProperty));
+        Assert.True(entry.HasTemporaryValue(keyProperty));
+
+        context.Entry(entity).Property("Id").IsTemporary = false;
 
         entry.SetEntityState(EntityState.Unchanged); // Does not throw
 
         var nameProperty = entry.EntityType.FindProperty(nameof(SomeEntity.Name));
-        Assert.True(entry.HasDefaultValue(nameProperty));
+        Assert.False(entry.HasExplicitValue(nameProperty));
 
         entity.Name = "Name";
 
-        Assert.False(entry.HasDefaultValue(nameProperty));
+        Assert.True(entry.HasExplicitValue(nameProperty));
     }
 
     [ConditionalFact]
