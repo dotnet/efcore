@@ -36,7 +36,8 @@ public class SequentialGuidValueGenerator : ValueGenerator<Guid>
     public override Guid Next(EntityEntry entry)
     {
         Span<byte> guidBytes = stackalloc byte[16];
-        Guid.NewGuid().TryWriteBytes(guidBytes);
+        var succeeded = Guid.NewGuid().TryWriteBytes(guidBytes);
+        Check.DebugAssert(succeeded, "Could not write Guid to Span");
         var incrementedCounter = Interlocked.Increment(ref _counter);
         Span<byte> counterBytes = stackalloc byte[sizeof(long)];
         MemoryMarshal.Write(counterBytes, ref incrementedCounter);
