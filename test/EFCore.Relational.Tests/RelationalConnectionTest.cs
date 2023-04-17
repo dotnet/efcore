@@ -1021,7 +1021,9 @@ public class RelationalConnectionTest
 
         connection.Open();
 
-        Assert.Throws<InvalidOperationException>(() => connection.DbConnection = new FakeDbConnection("Fake"));
+        Assert.Equal(
+            RelationalStrings.CannotChangeWhenOpen,
+            Assert.Throws<InvalidOperationException>(() => connection.DbConnection = new FakeDbConnection("Fake")).Message);
     }
 
     [ConditionalFact]
