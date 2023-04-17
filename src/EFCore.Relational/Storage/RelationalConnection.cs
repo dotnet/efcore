@@ -181,7 +181,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
     {
         if (!ReferenceEquals(_connection, value))
         {
-            if (_openedCount > 0)
+            if (_connectionOwned && _openedCount > 0)
             {
                 throw new InvalidOperationException(RelationalStrings.CannotChangeWhenOpen);
             }
