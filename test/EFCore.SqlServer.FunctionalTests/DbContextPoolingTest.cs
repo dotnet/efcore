@@ -454,7 +454,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     }
 
     [ConditionalFact]
-    public void Throws_when_pooled_context_constructor_has_more_than_one_parameter()
+    public void Throws_when_pooled_context_constructor_has_second_parameter_that_cannot_be_resolved_from_service_provider()
     {
         var serviceProvider
             = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { })
@@ -462,21 +462,22 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         using var scope = serviceProvider.CreateScope();
 
-        Assert.Equal(
-            CoreStrings.PoolingContextCtorError(nameof(TwoParameterConstructorContext)),
-            Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>()).Message);
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>());
     }
 
     private class TwoParameterConstructorContext : DbContext
     {
+        public string StringParameter { get; }
+
         public TwoParameterConstructorContext(DbContextOptions options, string x)
             : base(options)
         {
+            StringParameter = x;
         }
     }
 
     [ConditionalFact]
-    public void Throws_when_pooled_context_constructor_wrong_parameter()
+    public void Throws_when_pooled_context_constructor_has_single_parameter_that_cannot_be_resolved_from_service_provider()
     {
         var serviceProvider
             = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { })
@@ -484,10 +485,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         using var scope = serviceProvider.CreateScope();
 
-        Assert.Equal(
-            CoreStrings.PoolingContextCtorError(nameof(WrongParameterConstructorContext)),
-            Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>())
-                .Message);
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>());
     }
 
     private class WrongParameterConstructorContext : DbContext
@@ -496,6 +494,35 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             : base(new DbContextOptions<WrongParameterConstructorContext>())
         {
         }
+    }
+
+    [ConditionalFact]
+    public void Throws_when_pooled_context_constructor_has_scoped_service()
+    {
+        var serviceProvider
+            = new ServiceCollection()
+                .AddDbContextPool<TwoParameterConstructorContext>(_ => { })
+                .AddScoped(sp => "string")
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>());
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_when_pooled_context_constructor_has_singleton_service()
+    {
+        var serviceProvider
+            = new ServiceCollection()
+                .AddDbContextPool<TwoParameterConstructorContext>(_ => { })
+                .AddSingleton("string")
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetService<TwoParameterConstructorContext>();
+
+        Assert.Equal("string", context.StringParameter);
     }
 
     [ConditionalFact]
