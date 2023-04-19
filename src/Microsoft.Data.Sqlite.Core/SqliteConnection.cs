@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Data.Sqlite.Properties;
 using SQLitePCL;
 using static SQLitePCL.raw;
@@ -52,35 +53,39 @@ namespace Microsoft.Data.Sqlite
                 ?.GetRuntimeMethod("Init", Type.EmptyTypes)
                 ?.Invoke(null, null);
 
+            var appDataType = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
+                ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET");
+
+            var storageFolderType = Type.GetType("Windows.Storage.StorageFolder, Windows, ContentType=WindowsRuntime")
+                ?? Type.GetType("Windows.Storage.StorageFolder, Microsoft.Windows.SDK.NET");
+
+            object? currentAppData = null;
             try
             {
-                var currentAppData = Type.GetType("Windows.Storage.ApplicationData, Windows, ContentType=WindowsRuntime")
-                    ?? Type.GetType("Windows.Storage.ApplicationData, Microsoft.Windows.SDK.NET")
-                    ?.GetRuntimeProperty("Current")?.GetValue(null);
+                currentAppData = appDataType?.GetRuntimeProperty("Current")?.GetValue(null);
+            }
+            catch (TargetInvocationException)
+            {
+                // Ignore "The process has no package identity."
+            }
 
-                var localFolder = currentAppData?.GetType()
-                    .GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
-                var localFolderPath = (string?)localFolder?.GetType()
-                    .GetRuntimeProperty("Path")?.GetValue(localFolder);
+            if (currentAppData != null)
+            {
+                var localFolder = appDataType?.GetRuntimeProperty("LocalFolder")?.GetValue(currentAppData);
+                var localFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(localFolder);
                 if (localFolderPath != null)
                 {
                     var rc = sqlite3_win32_set_directory(SQLITE_WIN32_DATA_DIRECTORY_TYPE, localFolderPath);
                     Debug.Assert(rc == SQLITE_OK);
                 }
 
-                var tempFolder = currentAppData?.GetType()
-                    .GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
-                var tempFolderPath = (string?)tempFolder?.GetType()
-                    .GetRuntimeProperty("Path")?.GetValue(tempFolder);
+                var tempFolder = appDataType?.GetRuntimeProperty("TemporaryFolder")?.GetValue(currentAppData);
+                var tempFolderPath = (string?)storageFolderType?.GetRuntimeProperty("Path")?.GetValue(tempFolder);
                 if (tempFolderPath != null)
                 {
                     var rc = sqlite3_win32_set_directory(SQLITE_WIN32_TEMP_DIRECTORY_TYPE, tempFolderPath);
                     Debug.Assert(rc == SQLITE_OK);
                 }
-            }
-            catch
-            {
-                // Ignore "The process has no package identity."
             }
         }
 
