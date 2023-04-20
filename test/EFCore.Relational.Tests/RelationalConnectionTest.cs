@@ -1012,6 +1012,50 @@ public class RelationalConnectionTest
                 () => connection.RollbackTransaction()).Message);
     }
 
+    [ConditionalFact]
+    public void Throws_when_changing_DbConnection_if_current_is_open_and_owned()
+    {
+        using var connection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+        Assert.Equal(0, connection.DbConnections.Count);
+
+        connection.Open();
+
+        Assert.Equal(
+            RelationalStrings.CannotChangeWhenOpen,
+            Assert.Throws<InvalidOperationException>(() => connection.DbConnection = new FakeDbConnection("Fake")).Message);
+    }
+
+    [ConditionalFact]
+    public void Disposes_when_changing_DbConnection_if_current_is_owned_and_not_open()
+    {
+        using var connection = new FakeRelationalConnection(
+            CreateOptions(new FakeRelationalOptionsExtension().WithConnectionString("Database=FrodoLives")));
+        Assert.Equal(0, connection.DbConnections.Count);
+
+        var dbConnection = connection.DbConnection;
+
+        Assert.Raises<EventArgs>(
+            h => dbConnection.Disposed += h.Invoke,
+            h => dbConnection.Disposed -= h.Invoke,
+            () => connection.DbConnection = new FakeDbConnection("Fake"));
+    }
+
+    [ConditionalFact]
+    public void Does_not_dispose_when_changing_DbConnection_if_current_is_open_and_not_owned()
+    {
+        using var connection = new FakeRelationalConnection();
+        Assert.Equal(0, connection.DbConnections.Count);
+
+        var dbConnection = new FakeDbConnection("Database=FrodoLives");
+        connection.DbConnection = dbConnection;
+        connection.Open();
+
+        connection.DbConnection = new FakeDbConnection("Database=FrodoLives");
+
+        Assert.Equal(ConnectionState.Open, dbConnection.State);
+    }
+
     private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)
     {
         var optionsBuilder = new DbContextOptionsBuilder();

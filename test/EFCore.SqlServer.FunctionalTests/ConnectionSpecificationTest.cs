@@ -254,7 +254,34 @@ public class ConnectionSpecificationTest
     }
 
     [ConditionalFact]
-    public void Cannot_change_connection_when_open()
+    public void Cannot_change_connection_when_open_and_owned()
+    {
+        var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+
+        var serviceProvider
+            = new ServiceCollection()
+                .AddScoped(p => connection)
+                .AddDbContext<OwnedConnectionInOnConfiguringContext>().BuildServiceProvider(validateScopes: true);
+
+        using (SqlServerTestStore.GetNorthwindStore())
+        {
+            using var scope = serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<OwnedConnectionInOnConfiguringContext>();
+
+            context.Database.OpenConnection();
+            Assert.Same(connection, context.Database.GetDbConnection());
+            Assert.True(context.Customers.Any());
+
+            using var newConnection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+
+            Assert.Equal(
+                RelationalStrings.CannotChangeWhenOpen,
+                Assert.Throws<InvalidOperationException>(() => context.Database.SetDbConnection(newConnection)).Message);
+        }
+    }
+
+    [ConditionalFact]
+    public void Can_change_connection_when_open_and_not_owned()
     {
         var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
 
@@ -273,10 +300,10 @@ public class ConnectionSpecificationTest
             Assert.True(context.Customers.Any());
 
             using var newConnection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+            context.Database.SetDbConnection(newConnection);
 
-            Assert.Equal(
-                RelationalStrings.CannotChangeWhenOpen,
-                Assert.Throws<InvalidOperationException>(() => context.Database.SetDbConnection(newConnection)).Message);
+            Assert.Same(newConnection, context.Database.GetDbConnection());
+            Assert.True(context.Customers.Any());
         }
     }
 
