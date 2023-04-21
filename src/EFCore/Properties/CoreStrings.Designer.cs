@@ -2018,7 +2018,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 navigation, principalEntityType, dependentEntityType);
 
         /// <summary>
-        ///     The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a single parameter of type DbContextOptions or has more than one constructor.
+        ///     The DbContext of type '{contextType}' cannot be pooled because it does not have a public constructor accepting a parameter of type DbContextOptions or has more than one constructor.
         /// </summary>
         public static string PoolingContextCtorError(object? contextType)
             => string.Format(
