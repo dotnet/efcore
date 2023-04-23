@@ -16,6 +16,29 @@ public class JsonQuerySqliteTest : JsonQueryTestBase<JsonQuerySqliteFixture>
         //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
+    public override async Task Json_scalar_length(bool async)
+    {
+        await base.Json_scalar_length(async);
+
+        AssertSql(
+"""
+SELECT "j"."Name"
+FROM "JsonEntitiesBasic" AS "j"
+WHERE length("j"."OwnedReferenceRoot" ->> 'Name') > 2
+""");
+    }
+
+    public override async Task Basic_json_projection_enum_inside_json_entity(bool async)
+    {
+        await base.Basic_json_projection_enum_inside_json_entity(async);
+
+        AssertSql(
+"""
+SELECT "j"."Id", "j"."OwnedReferenceRoot" ->> '$.OwnedReferenceBranch.Enum' AS "Enum"
+FROM "JsonEntitiesBasic" AS "j"
+""");
+    }
+
     public override async Task Project_json_entity_FirstOrDefault_subquery(bool async)
         => Assert.Equal(
             SqliteStrings.ApplyNotSupported,
@@ -67,6 +90,20 @@ FROM (
 """);
     }
 
+    public override async Task Json_collection_element_access_in_predicate_nested_mix(bool async)
+    {
+        await base.Json_collection_element_access_in_predicate_nested_mix(async);
+
+        AssertSql(
+"""
+@__prm_0='0'
+
+SELECT "j"."Id", "j"."EntityBasicId", "j"."Name", "j"."OwnedCollectionRoot", "j"."OwnedReferenceRoot"
+FROM "JsonEntitiesBasic" AS "j"
+WHERE "j"."OwnedCollectionRoot" ->> '$[1].OwnedCollectionBranch' ->> @__prm_0 ->> 'OwnedCollectionLeaf' ->> ("j"."Id" - 1) ->> 'SomethingSomething' = 'e1_c2_c1_c1'
+""");
+    }
+
     public override async Task Json_predicate_on_bool_converted_to_int_zero_one(bool async)
     {
         await base.Json_predicate_on_bool_converted_to_int_zero_one(async);
@@ -75,7 +112,7 @@ FROM (
 """
 SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
-WHERE json_extract("j"."Reference", '$.BoolConvertedToIntZeroOne') = 1
+WHERE "j"."Reference" ->> 'BoolConvertedToIntZeroOne' = 1
 """);
     }
 
@@ -87,7 +124,7 @@ WHERE json_extract("j"."Reference", '$.BoolConvertedToIntZeroOne') = 1
 """
 SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
-WHERE json_extract("j"."Reference", '$.BoolConvertedToStringTrueFalse') = 'True'
+WHERE "j"."Reference" ->> 'BoolConvertedToStringTrueFalse' = 'True'
 """);
     }
 
@@ -99,7 +136,7 @@ WHERE json_extract("j"."Reference", '$.BoolConvertedToStringTrueFalse') = 'True'
 """
 SELECT "j"."Id", "j"."Reference"
 FROM "JsonEntitiesConverters" AS "j"
-WHERE json_extract("j"."Reference", '$.BoolConvertedToStringYN') = 'Y'
+WHERE "j"."Reference" ->> 'BoolConvertedToStringYN' = 'Y'
 """);
     }
 
