@@ -319,8 +319,11 @@ WHERE (
 """);
     }
 
-    public override Task Parameter_collection_index_Column(bool async)
-        => AssertTranslationFailed(() => base.Parameter_collection_index_Column(async));
+    public override Task Parameter_collection_index_Column_equal_Column(bool async)
+        => AssertTranslationFailed(() => base.Parameter_collection_index_Column_equal_Column(async));
+
+    public override Task Parameter_collection_index_Column_equal_constant(bool async)
+        => AssertTranslationFailed(() => base.Parameter_collection_index_Column_equal_constant(async));
 
     public override Task Column_collection_ElementAt(bool async)
         => AssertTranslationFailed(() => base.Column_collection_ElementAt(async));

@@ -423,11 +423,7 @@ WHERE (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT CAST([i].[value] AS int)
-    FROM OpenJson([p].[Ints]) AS [i]
-    ORDER BY CAST([i].[key] AS int)
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) = 10
+WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
 """);
     }
 
@@ -436,14 +432,10 @@ WHERE (
         await base.Column_collection_index_string(async);
 
         AssertSql(
-"""
+            """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT [s].[value]
-    FROM OpenJson([p].[Strings]) AS [s]
-    ORDER BY CAST([s].[key] AS int)
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) = N'10'
+WHERE JSON_VALUE([p].[Strings], '$[1]') = N'10'
 """);
     }
 
@@ -455,11 +447,7 @@ WHERE (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT CAST([d].[value] AS datetime2)
-    FROM OpenJson([p].[DateTimes]) AS [d]
-    ORDER BY CAST([d].[key] AS int)
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) = '2020-01-10T12:30:00.0000000Z'
+WHERE CAST(JSON_VALUE([p].[DateTimes], '$[1]') AS datetime2) = '2020-01-10T12:30:00.0000000Z'
 """);
     }
 
@@ -471,11 +459,7 @@ WHERE (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT CAST([i].[value] AS int)
-    FROM OpenJson([p].[Ints]) AS [i]
-    ORDER BY CAST([i].[key] AS int)
-    OFFSET 999 ROWS FETCH NEXT 1 ROWS ONLY) = 10
+WHERE CAST(JSON_VALUE([p].[Ints], '$[999]') AS int) = 10
 """);
     }
 
@@ -495,9 +479,25 @@ WHERE (
 """);
     }
 
-    public override async Task Parameter_collection_index_Column(bool async)
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    public override async Task Parameter_collection_index_Column_equal_Column(bool async)
     {
-        await base.Parameter_collection_index_Column(async);
+        await base.Parameter_collection_index_Column_equal_Column(async);
+
+        AssertSql(
+"""
+@__ints_0='[0,2,3]' (Size = 4000)
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE CAST(JSON_VALUE(@__ints_0, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = [p].[Int]
+""");
+    }
+
+    [SqlServerCondition(SqlServerCondition.SupportsJsonPathExpressions)]
+    public override async Task Parameter_collection_index_Column_equal_constant(bool async)
+    {
+        await base.Parameter_collection_index_Column_equal_constant(async);
 
         AssertSql(
 """
@@ -505,11 +505,7 @@ WHERE (
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT CAST([i].[value] AS int) AS [value]
-    FROM OpenJson(@__ints_0) AS [i]
-    ORDER BY CAST([i].[key] AS int)
-    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+WHERE CAST(JSON_VALUE(@__ints_0, '$[' + CAST([p].[Int] AS nvarchar(max)) + ']') AS int) = 1
 """);
     }
 
@@ -521,11 +517,7 @@ WHERE (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT CAST([i].[value] AS int)
-    FROM OpenJson([p].[Ints]) AS [i]
-    ORDER BY CAST([i].[key] AS int)
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) = 10
+WHERE CAST(JSON_VALUE([p].[Ints], '$[1]') AS int) = 10
 """);
     }
 

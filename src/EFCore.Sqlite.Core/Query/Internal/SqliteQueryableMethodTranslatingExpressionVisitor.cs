@@ -205,6 +205,72 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         return new ShapedQueryExpression(selectExpression, shaperExpression);
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression? TranslateElementAtOrDefault(
+        ShapedQueryExpression source,
+        Expression index,
+        bool returnDefault)
+    {
+        if (!returnDefault
+            && source.QueryExpression is SelectExpression
+            {
+                Tables:
+                [
+                    TableValuedFunctionExpression
+                    {
+                        Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var jsonArrayColumn]
+                    } jsonEachExpression
+                ],
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Orderings: [{ Expression: ColumnExpression { Name: "key" } orderingColumn, IsAscending: true }],
+                Limit: null,
+                Offset: null
+            } selectExpression
+            && orderingColumn.Table == jsonEachExpression
+            && TranslateExpression(index) is { } translatedIndex)
+        {
+            // Index on JSON array
+
+            // Extract the column projected out of the source, and simplify the subquery to a simple JsonScalarExpression
+            var shaperExpression = source.ShaperExpression;
+            if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
+                && unaryExpression.Operand.Type.IsNullableType()
+                && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
+            {
+                shaperExpression = unaryExpression.Operand;
+            }
+
+            if (shaperExpression is ProjectionBindingExpression projectionBindingExpression
+                && selectExpression.GetProjection(projectionBindingExpression) is ColumnExpression projectionColumn)
+            {
+                SqlExpression translation = new JsonScalarExpression(
+                    jsonArrayColumn,
+                    new[] { new PathSegment(translatedIndex) },
+                    projectionColumn.Type,
+                    projectionColumn.TypeMapping,
+                    projectionColumn.IsNullable);
+
+                // If we have a type mapping (i.e. translating over a column rather than a parameter), apply any necessary server-side
+                // conversions.
+                if (projectionColumn.TypeMapping is not null)
+                {
+                    translation = ApplyTypeMappingOnColumn(translation, projectionColumn.TypeMapping, projectionColumn.IsNullable);
+                }
+
+                return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation));
+            }
+        }
+
+        return base.TranslateElementAtOrDefault(source, index, returnDefault);
+    }
+
     private static Type GetProviderType(SqlExpression expression)
         => expression.TypeMapping?.Converter?.ProviderClrType
             ?? expression.TypeMapping?.ClrType
@@ -293,7 +359,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                 case ColumnExpression { Name: "value" } columnExpression
                     when _currentSelectInferredTypeMappings is not null
                     && _currentSelectInferredTypeMappings.TryGetValue(columnExpression.Table, out var inferredTypeMapping):
-                    return ApplyTypeMappingOnColumn(columnExpression, inferredTypeMapping);
+                    return ApplyTypeMappingOnColumn(columnExpression, inferredTypeMapping, columnExpression.IsNullable);
 
                 default:
                     return base.VisitExtension(expression);
@@ -318,7 +384,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             }
 
             // TODO: We shouldn't need to manually construct the JSON string type mapping this way; we need to be able to provide the
-            // TODO: element's store type mapping as input to _typeMappingSource.FindMapping.
+            // TODO: element's store type mapping as input to _typeMappingSource.FindMapping. #30730
             if (_typeMappingSource.FindMapping(typeof(string)) is not SqliteStringTypeMapping parameterTypeMapping)
             {
                 throw new InvalidOperationException("Type mapping for 'string' could not be found or was not a SqliteStringTypeMapping");
@@ -331,27 +397,21 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
             return jsonEachExpression.Update(new[] { parameterExpression.ApplyTypeMapping(parameterTypeMapping) });
         }
-
-        /// <summary>
-        ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-        ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-        ///     any release. You should only use it directly in your code with extreme caution and knowing that
-        ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-        /// </summary>
-        public virtual SqlExpression ApplyTypeMappingOnColumn(ColumnExpression columnExpression, RelationalTypeMapping typeMapping)
-            => typeMapping switch
-            {
-                // TODO: These server-side conversions need to be managed on the type mapping
-
-                // The "standard" JSON timestamp representation is ISO8601, with a T between date and time; but SQLite's representation has
-                // no T. Apply a conversion on the value coming out of json_each.
-                SqliteDateTimeTypeMapping => _sqlExpressionFactory.Function(
-                    "datetime", new[] { columnExpression }, nullable: true, new[] { true }, typeof(DateTime), typeMapping),
-
-                SqliteGuidTypeMapping => _sqlExpressionFactory.Function(
-                    "upper", new[] { columnExpression }, nullable: true, new[] { true }, typeof(Guid), typeMapping),
-
-                _ => columnExpression
-            };
     }
+
+    private static SqlExpression ApplyTypeMappingOnColumn(SqlExpression expression, RelationalTypeMapping typeMapping, bool isNullable)
+        => typeMapping switch
+        {
+            // TODO: These server-side conversions need to be managed on the type mapping, #30677
+
+            // The "standard" JSON timestamp representation is ISO8601, with a T between date and time; but SQLite's representation has
+            // no T. Apply a conversion on the value coming out of json_each.
+            SqliteDateTimeTypeMapping => new SqlFunctionExpression(
+                "datetime", new[] { expression }, isNullable, new[] { true }, typeof(DateTime), typeMapping),
+
+            SqliteGuidTypeMapping => new SqlFunctionExpression(
+                "upper", new[] { expression }, isNullable, new[] { true }, typeof(Guid), typeMapping),
+
+            _ => expression
+        };
 }

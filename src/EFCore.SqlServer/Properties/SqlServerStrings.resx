@@ -183,6 +183,9 @@
   <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
     <value>The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.</value>
   </data>
+  <data name="JsonValuePathExpressionsNotSupported" xml:space="preserve">
+    <value>A non-constant array index or property name was used when navigating inside a JSON document; this is only supported starting with SQL Server 2017.</value>
+  </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
     <comment>Warning SqlServerEventId.ByteIdentityColumnWarning string string</comment>

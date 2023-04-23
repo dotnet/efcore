@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.Data.Sqlite;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class PrimitiveCollectionsQuerySqliteTest : PrimitiveCollectionsQueryTestBase<
@@ -10,7 +12,7 @@ public class PrimitiveCollectionsQuerySqliteTest : PrimitiveCollectionsQueryTest
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Inline_collection_of_ints_Contains(bool async)
@@ -409,11 +411,7 @@ WHERE json_array_length("p"."Ints") = 2
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE (
-    SELECT "i"."value"
-    FROM json_each("p"."Ints") AS "i"
-    ORDER BY "i"."key"
-    LIMIT 1 OFFSET 1) = 10
+WHERE "p"."Ints" ->> 1 = 10
 """);
     }
 
@@ -425,11 +423,7 @@ WHERE (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE (
-    SELECT "s"."value"
-    FROM json_each("p"."Strings") AS "s"
-    ORDER BY "s"."key"
-    LIMIT 1 OFFSET 1) = '10'
+WHERE "p"."Strings" ->> 1 = '10'
 """);
     }
 
@@ -441,11 +435,7 @@ WHERE (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE (
-    SELECT datetime("d"."value") AS "value"
-    FROM json_each("p"."DateTimes") AS "d"
-    ORDER BY "d"."key"
-    LIMIT 1 OFFSET 1) = '2020-01-10 12:30:00'
+WHERE datetime("p"."DateTimes" ->> 1) = '2020-01-10 12:30:00'
 """);
     }
 
@@ -457,45 +447,52 @@ WHERE (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE (
-    SELECT "i"."value"
-    FROM json_each("p"."Ints") AS "i"
-    ORDER BY "i"."key"
-    LIMIT 1 OFFSET 999) = 10
+WHERE "p"."Ints" ->> 999 = 10
 """);
     }
 
-    [ConditionalTheory(Skip = "Sqlite issue, should be taken care of by #30724")]
     public override async Task Inline_collection_index_Column(bool async)
     {
-        await base.Inline_collection_index_Column(async);
+        // SQLite doesn't support correlated subqueries where the outer column is used as the LIMIT/OFFSET (see OFFSET "p"."Int" below)
+        await Assert.ThrowsAsync<SqliteException>(() => base.Inline_collection_index_Column(async));
 
         AssertSql(
 """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
-    SELECT [v].[Value]
-    FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [v]([_ord], [Value])
-    ORDER BY [v].[_ord]
-    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+    SELECT "v"."Value"
+    FROM (SELECT 0 AS "_ord", CAST(1 AS INTEGER) AS "Value" UNION ALL VALUES (1, 2), (2, 3)) AS "v"
+    ORDER BY "v"."_ord"
+    LIMIT 1 OFFSET "p"."Int") = 1
 """);
     }
 
-    [ConditionalTheory(Skip = "Sqlite issue, should be taken care of by #30724")]
-    public override async Task Parameter_collection_index_Column(bool async)
+    public override async Task Parameter_collection_index_Column_equal_Column(bool async)
     {
-        await base.Parameter_collection_index_Column(async);
+        await base.Parameter_collection_index_Column_equal_Column(async);
 
         AssertSql(
-            """
-SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
-FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE (
-    SELECT [v].[Value]
-    FROM (VALUES (0, CAST(1 AS int)), (1, 2), (2, 3)) AS [v]([_ord], [Value])
-    ORDER BY [v].[_ord]
-    OFFSET [p].[Int] ROWS FETCH NEXT 1 ROWS ONLY) = 1
+"""
+@__ints_0='[0,2,3]' (Size = 7)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE @__ints_0 ->> "p"."Int" = "p"."Int"
+""");
+    }
+
+    public override async Task Parameter_collection_index_Column_equal_constant(bool async)
+    {
+        await base.Parameter_collection_index_Column_equal_constant(async);
+
+        AssertSql(
+"""
+@__ints_0='[1,2,3]' (Size = 7)
+
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE @__ints_0 ->> "p"."Int" = 1
 """);
     }
 
@@ -507,11 +504,7 @@ WHERE (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE (
-    SELECT "i"."value"
-    FROM json_each("p"."Ints") AS "i"
-    ORDER BY "i"."key"
-    LIMIT 1 OFFSET 1) = 10
+WHERE "p"."Ints" ->> 1 = 10
 """);
     }
 

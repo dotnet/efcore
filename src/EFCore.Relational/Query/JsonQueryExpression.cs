@@ -117,8 +117,9 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
         return new JsonScalarExpression(
             JsonColumn,
-            property,
             newPath,
+            property.ClrType.UnwrapNullableType(),
+            property.FindRelationalTypeMapping()!,
             IsNullable || property.IsNullable);
     }
 

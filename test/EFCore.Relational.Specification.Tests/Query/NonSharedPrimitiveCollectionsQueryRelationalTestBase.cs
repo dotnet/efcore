@@ -10,7 +10,7 @@ public abstract class NonSharedPrimitiveCollectionsQueryRelationalTestBase : Non
     public override Task Array_of_byte()
         => AssertTranslationFailed(() => TestArray((byte)1, (byte)2));
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "#28688")]
     public virtual async Task Column_collection_inside_json_owned_entity()
     {
         var contextFactory = await InitializeAsync<TestContext>(

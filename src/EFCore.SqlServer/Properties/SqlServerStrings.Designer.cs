@@ -192,6 +192,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
+        ///     A non-constant array index or property name was used when navigating inside a JSON document; this is only supported starting with SQL Server 2017.
+        /// </summary>
+        public static string JsonValuePathExpressionsNotSupported
+            => GetString("JsonValuePathExpressionsNotSupported");
+
+        /// <summary>
         ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.
         /// </summary>
         public static string MultipleIdentityColumns(object? properties, object? table)

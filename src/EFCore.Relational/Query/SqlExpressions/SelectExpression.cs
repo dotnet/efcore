@@ -1739,7 +1739,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         static bool JsonEntityContainedIn(JsonScalarExpression sourceExpression, JsonQueryExpression targetExpression)
         {
-            if (sourceExpression.JsonColumn != targetExpression.JsonColumn)
+            if (sourceExpression.Json != targetExpression.JsonColumn)
             {
                 return false;
             }

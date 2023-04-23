@@ -2786,7 +2786,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 case ValuesExpression valuesExpression:
                     // By default, the ValuesExpression also contains an ordering by a synthetic increasing _ord. If the containing
                     // SelectExpression doesn't project it out or require it (limit/offset), strip that out.
-                    // TODO: Strictly-speaking, this doesn't belong in this visitor which is about applying type mappings
+                    // TODO: Strictly-speaking, stripping the ordering doesn't belong in this visitor which is about applying type mappings
                     return ApplyTypeMappingsOnValuesExpression(
                         valuesExpression,
                         stripOrdering: _currentSelectExpression is { Limit: null, Offset: null }
