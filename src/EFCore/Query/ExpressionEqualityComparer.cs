@@ -30,6 +30,8 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
     /// </summary>
     public static ExpressionEqualityComparer Instance { get; } = new();
 
+    private List<ParameterExpression>? _lambdaParameters;
+
     /// <inheritdoc />
     public int GetHashCode(Expression obj)
     {
@@ -110,9 +112,21 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                     break;
 
                 case LambdaExpression lambdaExpression:
+                    _lambdaParameters ??= new();
+                    foreach (var p in lambdaExpression.Parameters)
+                    {
+                        _lambdaParameters.Add(p);
+                    }
+
                     hash.Add(lambdaExpression.Body, this);
                     AddListToHash(lambdaExpression.Parameters);
                     hash.Add(lambdaExpression.ReturnType);
+
+                    foreach (var p in lambdaExpression.Parameters)
+                    {
+                        _lambdaParameters.Remove(p);
+                    }
+
                     break;
 
                 case ListInitExpression listInitExpression:
@@ -161,7 +175,15 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                     break;
 
                 case ParameterExpression parameterExpression:
-                    AddToHashIfNotNull(parameterExpression.Name);
+                    int? index = _lambdaParameters?.IndexOf(parameterExpression);
+                    if (index > -1)
+                    {
+                        hash.Add(index);
+                    }
+                    else
+                    {
+                        AddToHashIfNotNull(parameterExpression.Name);
+                    }
                     break;
 
                 case RuntimeVariablesExpression runtimeVariablesExpression:
