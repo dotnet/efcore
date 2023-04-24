@@ -1592,7 +1592,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             // force reference comparison for this one, even if we implement custom equality for JsonQueryExpression in the future
             var deduplicationMap = new Dictionary<JsonQueryExpression, JsonScalarExpression>(ReferenceEqualityComparer.Instance);
-            if (projections.Count() > 0)
+            if (projections.Any())
             {
                 var ordered = projections
                     .OrderBy(x => $"{x.JsonColumn.TableAlias}.{x.JsonColumn.Name}")

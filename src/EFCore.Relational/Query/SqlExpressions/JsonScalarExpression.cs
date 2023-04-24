@@ -44,7 +44,7 @@ public class JsonScalarExpression : SqlExpression
     }
 
     /// <summary>
-    ///     The column containg JSON value.
+    ///     The column containing the JSON value.
     /// </summary>
     public virtual ColumnExpression JsonColumn { get; }
 

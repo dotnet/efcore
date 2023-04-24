@@ -560,32 +560,32 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {
-        var requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
+        var requiresParentheses = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append("(");
         }
 
         Visit(sqlBinaryExpression.Left);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append(")");
         }
 
         _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
 
-        requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
+        requiresParentheses = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append("(");
         }
 
         Visit(sqlBinaryExpression.Right);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append(")");
         }
@@ -765,14 +765,14 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             case ExpressionType.Convert:
             {
                 _relationalCommandBuilder.Append("CAST(");
-                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                if (requiresBrackets)
+                var requiresParentheses = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresParentheses)
                 {
                     _relationalCommandBuilder.Append("(");
                 }
 
                 Visit(sqlUnaryExpression.Operand);
-                if (requiresBrackets)
+                if (requiresParentheses)
                 {
                     _relationalCommandBuilder.Append(")");
                 }

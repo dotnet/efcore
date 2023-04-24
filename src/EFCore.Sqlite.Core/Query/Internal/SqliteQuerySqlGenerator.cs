@@ -126,56 +126,106 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
-        if (jsonScalarExpression.Path.Count == 1
-            && jsonScalarExpression.Path[0].ToString() == "$")
+        // TODO: This trims the leading $ PathSegment, which isn't actually part of the path (but rather path of the JSONPATH language
+        // used to generate the path in SQL for *some* databases).
+        // Instead, we should not be producing JsonScalarExpression at all with the leading $.
+        var path = jsonScalarExpression.Path is [{ PropertyName: "$" }, ..]
+            ? jsonScalarExpression.Path.Skip(1).ToArray()
+            : jsonScalarExpression.Path;
+
+        if (path.Count == 0)
         {
             Visit(jsonScalarExpression.JsonColumn);
-
             return jsonScalarExpression;
         }
 
-        Sql.Append("json_extract(");
-
         Visit(jsonScalarExpression.JsonColumn);
 
-        Sql.Append(", '");
-        foreach (var pathSegment in jsonScalarExpression.Path)
+        var inJsonpathString = false;
+
+        for (var i = 0; i < path.Count; i++)
         {
-            if (pathSegment.PropertyName != null)
-            {
-                Sql.Append((pathSegment.PropertyName == "$" ? "" : ".") + pathSegment.PropertyName);
-            }
+            var pathSegment = path[i];
+            var isLast = i == path.Count - 1;
 
-            if (pathSegment.ArrayIndex != null)
+            switch (pathSegment)
             {
-                Sql.Append("[");
-
-                if (pathSegment.ArrayIndex is SqlConstantExpression)
-                {
-                    Visit(pathSegment.ArrayIndex);
-                }
-                else
-                {
-                    Sql.Append("' || ");
-                    if (pathSegment.ArrayIndex is SqlParameterExpression)
+                case { PropertyName: string propertyName }:
+                    if (inJsonpathString)
                     {
-                        Visit(pathSegment.ArrayIndex);
+                        Sql.Append(".").Append(propertyName);
+                        continue;
                     }
-                    else
+
+                    Sql.Append(" ->> ");
+
+                    // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
+                    if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
+                    {
+                        Sql.Append("'").Append(propertyName).Append("'");
+                        continue;
+                    }
+
+                    Sql.Append("'$.").Append(propertyName);
+                    inJsonpathString = true;
+                    continue;
+
+                case { ArrayIndex: SqlConstantExpression arrayIndex }:
+                    if (inJsonpathString)
+                    {
+                        Sql.Append("[");
+                        Visit(pathSegment.ArrayIndex);
+                        Sql.Append("]");
+                        continue;
+                    }
+
+                    Sql.Append(" ->> ");
+
+                    // No need to start a $. JSONPATH string if we're the last segment or the next segment isn't a constant
+                    if (isLast || path[i + 1] is { ArrayIndex: not null and not SqlConstantExpression })
+                    {
+                        Visit(arrayIndex);
+                        continue;
+                    }
+
+                    Sql.Append("'$[");
+                    Visit(arrayIndex);
+                    Sql.Append("]");
+                    inJsonpathString = true;
+                    continue;
+
+                default:
+                    if (inJsonpathString)
+                    {
+                        Sql.Append("'");
+                        inJsonpathString = false;
+                    }
+
+                    Sql.Append(" ->> ");
+
+                    Check.DebugAssert(pathSegment.ArrayIndex is not null, "pathSegment.ArrayIndex is not null");
+
+                    var requiresParentheses = RequiresParentheses(jsonScalarExpression, pathSegment.ArrayIndex);
+                    if (requiresParentheses)
                     {
                         Sql.Append("(");
-                        Visit(pathSegment.ArrayIndex);
+                    }
+
+                    Visit(pathSegment.ArrayIndex);
+
+                    if (requiresParentheses)
+                    {
                         Sql.Append(")");
                     }
 
-                    Sql.Append(" || '");
-                }
-
-                Sql.Append("]");
+                    continue;
             }
         }
 
-        Sql.Append("')");
+        if (inJsonpathString)
+        {
+            Sql.Append("'");
+        }
 
         return jsonScalarExpression;
     }
@@ -196,7 +246,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                 ExpressionType.Multiply => (900, true),
                 ExpressionType.Divide => (900, false),
                 ExpressionType.Modulo => (900, false),
-                ExpressionType.Add when sqlBinaryExpression.Type == typeof(string) => (1100, true),
+                ExpressionType.Add when sqlBinaryExpression.Type == typeof(string) => (1000, true),
                 ExpressionType.Add when sqlBinaryExpression.Type != typeof(string) => (800, true),
                 ExpressionType.Subtract => (800, false),
                 ExpressionType.And => (600, true),
@@ -227,6 +277,7 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
 
             CollateExpression => (1100, false),
             LikeExpression => (500, false),
+            JsonScalarExpression => (1000, true),
 
             _ => default,
         };
