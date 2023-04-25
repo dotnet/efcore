@@ -1597,7 +1597,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 var ordered = projections
                     .OrderBy(x => $"{x.JsonColumn.TableAlias}.{x.JsonColumn.Name}")
                     .ThenBy(x => x.Path.Count)
-                    .ThenBy(x => x.Path[^1].ArrayIndex != null);
+                    .ThenBy(x => x.Path.Count > 0 && x.Path[^1].ArrayIndex != null);
 
                 var needed = new List<JsonScalarExpression>();
                 foreach (var orderedElement in ordered)

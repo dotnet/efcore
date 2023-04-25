@@ -126,13 +126,8 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
-        // TODO: This trims the leading $ PathSegment, which isn't actually part of the path (but rather path of the JSONPATH language
-        // used to generate the path in SQL for *some* databases).
-        // Instead, we should not be producing JsonScalarExpression at all with the leading $.
-        var path = jsonScalarExpression.Path is [{ PropertyName: "$" }, ..]
-            ? jsonScalarExpression.Path.Skip(1).ToArray()
-            : jsonScalarExpression.Path;
-
+        // TODO: Stop producing empty JsonScalarExpressions, #30768
+        var path = jsonScalarExpression.Path;
         if (path.Count == 0)
         {
             Visit(jsonScalarExpression.JsonColumn);

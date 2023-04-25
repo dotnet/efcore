@@ -761,7 +761,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[MyMethod(x.Id)]).AsNoTracking()))).Message;
 
         Assert.Equal(
-            CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $)"),
+            CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""),
             message);
     }
 
@@ -775,7 +775,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf[MyMethod(x.Id)]).AsNoTracking()))).Message;
 
         Assert.Equal(
-            CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $.[0].OwnedReferenceBranch.OwnedCollectionLeaf)"),
+            CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "[0].OwnedReferenceBranch.OwnedCollectionLeaf")"""),
             message);
     }
 
@@ -967,7 +967,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot[prm].OwnedCollectionBranch.Select(xx => "Foo").ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $.[__prm_0].OwnedCollectionBranch)"), message);
+        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "[__prm_0].OwnedCollectionBranch")"""), message);
     }
 
     [ConditionalTheory]
@@ -984,7 +984,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot[prm + x.Id].OwnedCollectionBranch.Select(xx => x.Id).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $.[(...)].OwnedCollectionBranch)"), message);
+        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "[(...)].OwnedCollectionBranch")"""), message);
     }
 
     [ConditionalTheory]
@@ -1000,7 +1000,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => x.OwnedReferenceRoot).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $)"), message);
+        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
     }
 
     [ConditionalTheory]
@@ -1016,7 +1016,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => x.OwnedCollectionRoot).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $)"), message);
+        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
     }
 
     [ConditionalTheory]
@@ -1032,7 +1032,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $)"), message);
+        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
     }
 
     [ConditionalTheory]
@@ -1048,7 +1048,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => new JsonEntityBasic { Id = x.Id }).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("JsonQueryExpression(j.OwnedCollectionRoot, $)"), message);
+        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
     }
 
     [ConditionalTheory]
