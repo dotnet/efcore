@@ -765,7 +765,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (_allowedParameters.Contains(parameterExpression))
+            if (_allowedParameters.Contains(parameterExpression)
+                || parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
             {
                 return parameterExpression;
             }
