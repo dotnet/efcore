@@ -301,11 +301,11 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
         };
 
     private static bool IsInternal(SymbolAnalysisContext context, ITypeSymbol symbol)
-        => !(symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) == true)
+        => symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) != true
             && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
     private static bool IsInternal(OperationAnalysisContext context, ITypeSymbol symbol)
-        => !(symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) == true)
+        => symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) != true
             && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
     private static bool HasInternalAttribute(ISymbol symbol)
