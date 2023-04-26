@@ -16,7 +16,8 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
     private static readonly int EFLen = "EntityFrameworkCore".Length;
 
     private static readonly DiagnosticDescriptor Descriptor
-        = new(
+        // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
+        = new DiagnosticDescriptor(
             Id,
             title: AnalyzerStrings.InternalUsageTitle,
             messageFormat: AnalyzerStrings.InternalUsageMessageFormat,
