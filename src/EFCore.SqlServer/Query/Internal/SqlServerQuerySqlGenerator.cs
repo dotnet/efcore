@@ -318,11 +318,11 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
-        if (jsonScalarExpression.Path.Count == 1
-            && jsonScalarExpression.Path[0].ToString() == "$")
+        // TODO: Stop producing empty JsonScalarExpressions, #30768
+        var path = jsonScalarExpression.Path;
+        if (path.Count == 0)
         {
             Visit(jsonScalarExpression.JsonColumn);
-
             return jsonScalarExpression;
         }
 
@@ -340,33 +340,38 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         Visit(jsonScalarExpression.JsonColumn);
 
-        Sql.Append(", '");
+        Sql.Append(", '$");
         foreach (var pathSegment in jsonScalarExpression.Path)
         {
-            if (pathSegment.PropertyName != null)
+            switch (pathSegment)
             {
-                Sql.Append((pathSegment.PropertyName == "$" ? "" : ".") + pathSegment.PropertyName);
+                case { PropertyName: string propertyName }:
+                    Sql.Append(".").Append(propertyName);
+                    break;
+
+                case { ArrayIndex: SqlExpression arrayIndex }:
+                    Sql.Append("[");
+
+                    if (arrayIndex is SqlConstantExpression)
+                    {
+                        Visit(pathSegment.ArrayIndex);
+                    }
+                    else
+                    {
+                        Sql.Append("' + CAST(");
+                        Visit(arrayIndex);
+                        Sql.Append(" AS ");
+                        Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
+                        Sql.Append(") + '");
+                    }
+
+                    Sql.Append("]");
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            if (pathSegment.ArrayIndex != null)
-            {
-                Sql.Append("[");
-
-                if (pathSegment.ArrayIndex is SqlConstantExpression)
-                {
-                    Visit(pathSegment.ArrayIndex);
-                }
-                else
-                {
-                    Sql.Append("' + CAST(");
-                    Visit(pathSegment.ArrayIndex);
-                    Sql.Append(" AS ");
-                    Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
-                    Sql.Append(") + '");
-                }
-
-                Sql.Append("]");
-            }
         }
 
         Sql.Append("')");

@@ -36,7 +36,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
             entityType,
             jsonColumn,
             keyPropertyMap,
-            path: new List<PathSegment> { new("$") },
+            path: Array.Empty<PathSegment>(),
             type,
             collection,
             jsonColumn.IsNullable)
@@ -169,9 +169,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     {
         // this needs to be changed IF JsonQueryExpression will also be used for collection of primitives
         // see issue #28688
-        Check.DebugAssert(
-            Path.Last().ArrayIndex == null,
-            "Already accessing JSON array element.");
+        Check.DebugAssert(Path.Count == 0 || Path[^1].ArrayIndex == null, "Already accessing JSON array element.");
 
         var newPath = Path.ToList();
         newPath.Add(new PathSegment(collectionIndexExpression));
@@ -215,7 +213,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     {
         expressionPrinter.Append("JsonQueryExpression(");
         expressionPrinter.Visit(JsonColumn);
-        expressionPrinter.Append($", {string.Join("", Path.Select(e => e.ToString()))})");
+        expressionPrinter.Append($""", "{string.Join(".", Path.Select(e => e.ToString()))}")""");
     }
 
     /// <inheritdoc />
@@ -282,6 +280,6 @@ public class JsonQueryExpression : Expression, IPrintableExpression
 
     /// <inheritdoc />
     public override int GetHashCode()
-        // not incorporating _keyPropertyMap into the hash, too much work 
+        // not incorporating _keyPropertyMap into the hash, too much work
         => HashCode.Combine(EntityType, JsonColumn, IsCollection, Path, IsNullable);
 }

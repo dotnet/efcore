@@ -91,7 +91,7 @@ public class JsonScalarExpression : SqlExpression
     {
         expressionPrinter.Append("JsonScalarExpression(column: ");
         expressionPrinter.Visit(JsonColumn);
-        expressionPrinter.Append($", {string.Join("", Path.Select(e => e.ToString()))})");
+        expressionPrinter.Append($""", "{string.Join(".", Path.Select(e => e.ToString()))}")""");
     }
 
     /// <inheritdoc />

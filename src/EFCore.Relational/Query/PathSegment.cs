@@ -48,17 +48,13 @@ public readonly struct PathSegment
 
     /// <inheritdoc />
     public override string ToString()
-    {
-        var arrayIndex = ArrayIndex switch
+        => PropertyName ?? ArrayIndex switch
         {
             null => "",
             SqlConstantExpression { Value: not null } sqlConstant => $"[{sqlConstant.Value}]",
             SqlParameterExpression sqlParameter => $"[{sqlParameter.Name}]",
             _ => "[(...)]"
         };
-
-        return (PropertyName == "$" ? "" : ".") + (PropertyName ?? arrayIndex);
-    }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
