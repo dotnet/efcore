@@ -96,7 +96,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeMember(OperationAnalysisContext context, ISymbol symbol)
     {
-        if (symbol.ContainingAssembly.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default))
+        if (symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) == true)
         {
             // Skip all methods inside the same assembly - internal access is fine
             return;
@@ -301,11 +301,11 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
         };
 
     private static bool IsInternal(SymbolAnalysisContext context, ITypeSymbol symbol)
-        => !symbol.ContainingAssembly.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default)
+        => !(symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) == true)
             && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
     private static bool IsInternal(OperationAnalysisContext context, ITypeSymbol symbol)
-        => !symbol.ContainingAssembly.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default)
+        => !(symbol.ContainingAssembly?.Equals(context.Compilation.Assembly, SymbolEqualityComparer.Default) == true)
             && (IsInInternalNamespace(symbol) || HasInternalAttribute(symbol));
 
     private static bool HasInternalAttribute(ISymbol symbol)
