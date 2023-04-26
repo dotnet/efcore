@@ -219,8 +219,7 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeMethodTypeSymbol(SymbolAnalysisContext context, IMethodSymbol symbol)
     {
-        if (symbol.MethodKind == MethodKind.PropertyGet
-            || symbol.MethodKind == MethodKind.PropertySet)
+        if (symbol.MethodKind is MethodKind.PropertyGet or MethodKind.PropertySet)
         {
             // Property getters/setters are handled via IPropertySymbol
             return;
