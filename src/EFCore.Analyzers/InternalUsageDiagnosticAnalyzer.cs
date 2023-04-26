@@ -59,27 +59,35 @@ public sealed class InternalUsageDiagnosticAnalyzer : DiagnosticAnalyzer
             case IFieldReferenceOperation fieldReference:
                 AnalyzeMember(context, fieldReference.Field);
                 break;
+
             case IPropertyReferenceOperation propertyReference:
                 AnalyzeMember(context, propertyReference.Property);
                 break;
+
             case IEventReferenceOperation eventReference:
                 AnalyzeMember(context, eventReference.Event);
                 break;
+
             case IMethodReferenceOperation methodReference:
                 AnalyzeMember(context, methodReference.Method);
                 break;
+
             case IObjectCreationOperation { Constructor: { } constructor }:
                 AnalyzeMember(context, constructor);
                 break;
+
             case IInvocationOperation invocation:
                 AnalyzeInvocation(context, invocation);
                 break;
+
             case IVariableDeclarationOperation variableDeclaration:
                 AnalyzeVariableDeclaration(context, variableDeclaration);
                 break;
+
             case ITypeOfOperation typeOf:
                 AnalyzeTypeof(context, typeOf);
                 break;
+
             default:
                 throw new ArgumentException($"Unexpected operation: {context.Operation.Kind}");
         }
