@@ -109,38 +109,6 @@ public class SqlServerSqlTranslatingExpressionVisitor : RelationalSqlTranslating
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitUnary(UnaryExpression unaryExpression)
-    {
-        if (unaryExpression.NodeType == ExpressionType.ArrayLength
-            && unaryExpression.Operand.Type == typeof(byte[]))
-        {
-            if (!(base.Visit(unaryExpression.Operand) is SqlExpression sqlExpression))
-            {
-                return QueryCompilationContext.NotTranslatedExpression;
-            }
-
-            var isBinaryMaxDataType = GetProviderType(sqlExpression) == "varbinary(max)" || sqlExpression is SqlParameterExpression;
-            var dataLengthSqlFunction = Dependencies.SqlExpressionFactory.Function(
-                "DATALENGTH",
-                new[] { sqlExpression },
-                nullable: true,
-                argumentsPropagateNullability: new[] { true },
-                isBinaryMaxDataType ? typeof(long) : typeof(int));
-
-            return isBinaryMaxDataType
-                ? Dependencies.SqlExpressionFactory.Convert(dataLengthSqlFunction, typeof(int))
-                : dataLengthSqlFunction;
-        }
-
-        return base.VisitUnary(unaryExpression);
-    }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         if (methodCallExpression is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } genericMethodCall

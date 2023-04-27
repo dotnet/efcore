@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -68,6 +69,8 @@ public class SqlServerDataLengthFunctionTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
+        // https://learn.microsoft.com/sql/t-sql/functions/datalength-transact-sql
+
         if (MethodInfoDataLengthMapping.Contains(method))
         {
             var argument = arguments[1];

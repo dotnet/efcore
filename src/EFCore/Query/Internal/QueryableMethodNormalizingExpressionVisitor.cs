@@ -180,6 +180,61 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         return visitedExpression;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitMember(MemberExpression memberExpression)
+    {
+        // Normalize array.LengthLength to array.LongCount()
+        // Note also normalization of array.Length to array.Count() in VisitUnary()
+        if (memberExpression is
+            {
+                Member: PropertyInfo
+                {
+                    Name: nameof(Array.LongLength),
+                    DeclaringType: var declaringType
+                },
+                Expression: { Type.IsArray: true } operand
+            }
+            && declaringType == typeof(Array))
+        {
+            return VisitMethodCall(
+                Expression.Call(
+                    EnumerableMethods.LongCountWithoutPredicate.MakeGenericMethod(operand.Type.GetElementType()!),
+                    Visit(operand)));
+        }
+
+        return base.VisitMember(memberExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitUnary(UnaryExpression unaryExpression)
+    {
+        // Normalize array.Length to array.Count()
+        // Note also normalization of array.LongLength to array.LongCount() in VisitMember()
+        if (unaryExpression is
+            {
+                NodeType: ExpressionType.ArrayLength,
+                Operand: { Type.IsArray: true } operand
+            })
+        {
+            return VisitMethodCall(
+                Expression.Call(
+                    EnumerableMethods.CountWithoutPredicate.MakeGenericMethod(operand.Type.GetElementType()!),
+                    Visit(operand)));
+        }
+
+        return base.VisitUnary(unaryExpression);
+    }
+
     private static void VerifyReturnType(Expression expression, ParameterExpression lambdaParameter)
     {
         switch (expression)
