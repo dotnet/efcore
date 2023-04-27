@@ -30,7 +30,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
     ///     Indicates that a <see cref="ConstantExpression" /> can be converted to a <see cref="InlineQueryRootExpression" />;
     ///     this will later be translated to a SQL <see cref="ValuesExpression" />.
     /// </summary>
-    protected override bool ShouldConvertToInlineQueryRoot(ConstantExpression constantExpression)
+    protected override bool ShouldConvertToInlineQueryRoot(NewArrayExpression newArrayExpression)
         => true;
 
     /// <inheritdoc />

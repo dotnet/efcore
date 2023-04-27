@@ -123,6 +123,9 @@
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
+  <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
+    <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
+  </data>
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
     <value>Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>

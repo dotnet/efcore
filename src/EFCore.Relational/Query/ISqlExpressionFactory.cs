@@ -406,17 +406,25 @@ public interface ISqlExpressionFactory
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
     /// </summary>
     /// <param name="item">An item to look into values.</param>
-    /// <param name="values">A list of values in which item is searched.</param>
+    /// <param name="subquery">A subquery in which item is searched.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, SqlExpression values);
+    InExpression In(SqlExpression item, SelectExpression subquery);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
     /// </summary>
     /// <param name="item">An item to look into values.</param>
-    /// <param name="subquery">A subquery in which item is searched.</param>
+    /// <param name="values">A list of values in which item is searched.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, SelectExpression subquery);
+    InExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values);
+
+    /// <summary>
+    ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
+    /// </summary>
+    /// <param name="item">An item to look into values.</param>
+    /// <param name="valuesParameter">A parameterized list of values in which the item is searched.</param>
+    /// <returns>An expression representing an IN operation in a SQL tree.</returns>
+    InExpression In(SqlExpression item, SqlParameterExpression valuesParameter);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents a LIKE in a SQL tree.

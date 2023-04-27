@@ -42,23 +42,9 @@ public class ValuesExpression : TableExpressionBase, IClonableTableExpressionBas
     {
         Check.NotEmpty(rowValues, nameof(rowValues));
 
-#if DEBUG
-        if (rowValues.Any(rv => rv.Values.Count != columnNames.Count))
-        {
-            throw new ArgumentException("All number of all row values doesn't match the number of column names");
-        }
-
-        if (rowValues.SelectMany(rv => rv.Values).Any(
-                v => v is not SqlConstantExpression and not SqlUnaryExpression
-                {
-                    Operand: SqlConstantExpression,
-                    OperatorType: ExpressionType.Convert
-                }))
-        {
-            // See #30734 for non-constants
-            throw new ArgumentException("Only constant expressions are supported in ValuesExpression");
-        }
-#endif
+        Check.DebugAssert(
+            rowValues.All(rv => rv.Values.Count == columnNames.Count),
+            "All row values must have a value count matching the number of column names");
 
         RowValues = rowValues;
         ColumnNames = columnNames;

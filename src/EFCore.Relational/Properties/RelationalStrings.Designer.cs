@@ -54,6 +54,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("CannotChangeWhenOpen");
 
         /// <summary>
+        ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
+        /// </summary>
+        public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
+            => string.Format(
+                GetString("CannotTranslateNonConstantNewArrayExpression", nameof(newArrayExpression)),
+                newArrayExpression);
+
+        /// <summary>
         ///     Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.
         /// </summary>
         public static string CannotConfigureTriggerNonRootTphEntity(object? entityType, object? rootEntityType)
@@ -622,12 +630,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyValue, table);
 
         /// <summary>
-        ///     Either {param1} or {param2} must be null.
+        ///     Exactly one of '{param1}', '{param2}' or '{param3}' must be set.
         /// </summary>
-        public static string EitherOfTwoValuesMustBeNull(object? param1, object? param2)
+        public static string OneOfThreeValuesMustBeSet(object? param1, object? param2, object? param3)
             => string.Format(
-                GetString("EitherOfTwoValuesMustBeNull", nameof(param1), nameof(param2)),
-                param1, param2);
+                GetString("OneOfThreeValuesMustBeSet", nameof(param1), nameof(param2), nameof(param3)),
+                param1, param2, param3);
 
         /// <summary>
         ///     Empty collections are not supported as constant query roots.
@@ -1310,11 +1318,11 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("NoDbCommand");
 
         /// <summary>
-        ///     Expression of type '{type}' isn't supported as the Values of an InExpression; only constants and parameters are supported.
+        ///     Expression of type '{type}' isn't supported in the values of an InExpression; only constants and parameters are supported.
         /// </summary>
-        public static string NonConstantOrParameterAsInExpressionValues(object? type)
+        public static string NonConstantOrParameterAsInExpressionValue(object? type)
             => string.Format(
-                GetString("NonConstantOrParameterAsInExpressionValues", nameof(type)),
+                GetString("NonConstantOrParameterAsInExpressionValue", nameof(type)),
                 type);
 
         /// <summary>

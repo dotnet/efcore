@@ -4,6 +4,7 @@
 #nullable disable
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -429,7 +430,9 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
-        => GetConstantOrNull(memberInitExpression);
+        => TryEvaluateToConstant(memberInitExpression, out var sqlConstantExpression)
+            ? sqlConstantExpression
+            : QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -603,7 +606,9 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitNew(NewExpression newExpression)
-        => GetConstantOrNull(newExpression);
+        => TryEvaluateToConstant(newExpression, out var sqlConstantExpression)
+            ? sqlConstantExpression
+            : QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -612,7 +617,15 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => null;
+    {
+        if (TryEvaluateToConstant(newArrayExpression, out var sqlConstantExpression))
+        {
+            return sqlConstantExpression;
+        }
+
+        AddTranslationErrorDetails(CosmosStrings.CannotTranslateNonConstantNewArrayExpression(newArrayExpression.Print()));
+        return QueryCompilationContext.NotTranslatedExpression;
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -990,38 +1003,34 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static bool IsNullSqlConstantExpression(Expression expression)
         => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
 
-    private static SqlConstantExpression GetConstantOrNull(Expression expression)
-        => CanEvaluate(expression)
-            ? new SqlConstantExpression(
+    private static bool TryEvaluateToConstant(Expression expression, out SqlConstantExpression sqlConstantExpression)
+    {
+        if (CanEvaluate(expression))
+        {
+            sqlConstantExpression = new SqlConstantExpression(
                 Expression.Constant(
                     Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
                         .Compile(preferInterpretation: true)
                         .Invoke(),
                     expression.Type),
-                null)
-            : null;
+                null);
+            return true;
+        }
+
+        sqlConstantExpression = null;
+        return false;
+    }
 
     private static bool CanEvaluate(Expression expression)
-    {
-#pragma warning disable IDE0066 // Convert switch statement to expression
-        switch (expression)
-#pragma warning restore IDE0066 // Convert switch statement to expression
+        => expression switch
         {
-            case ConstantExpression:
-                return true;
-
-            case NewExpression newExpression:
-                return newExpression.Arguments.All(e => CanEvaluate(e));
-
-            case MemberInitExpression memberInitExpression:
-                return CanEvaluate(memberInitExpression.NewExpression)
-                    && memberInitExpression.Bindings.All(
-                        mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
-
-            default:
-                return false;
-        }
-    }
+            ConstantExpression => true,
+            NewExpression e => e.Arguments.All(CanEvaluate),
+            NewArrayExpression e => e.Expressions.All(CanEvaluate),
+            MemberInitExpression e => CanEvaluate(e.NewExpression)
+                && e.Bindings.All(mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression)),
+            _ => false
+        };
 
     [DebuggerStepThrough]
     private static bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)

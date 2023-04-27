@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -649,6 +650,8 @@ public class SqlNullabilityProcessor
     /// <returns>An optimized sql expression.</returns>
     protected virtual SqlExpression VisitIn(InExpression inExpression, bool allowOptimizedExpansion, out bool nullable)
     {
+        // SQL IN returns null when the item is null, and when the values (or subquery projection) contains NULL and no match was made.
+
         var item = Visit(inExpression.Item, out var itemNullable);
 
         if (inExpression.Subquery != null)
@@ -669,7 +672,7 @@ public class SqlNullabilityProcessor
             // we want to avoid double visitation
             var subqueryProjection = subquery.Projection.Single().Expression;
 
-            inExpression = inExpression.Update(item, values: null, subquery);
+            inExpression = inExpression.Update(item, subquery);
 
             var unwrappedSubqueryProjection = subqueryProjection;
             while (unwrappedSubqueryProjection is SqlUnaryExpression
@@ -691,8 +694,6 @@ public class SqlNullabilityProcessor
             }
 
             nullable = false;
-
-            // SQL IN returns null when the item is null, and when the values (subquery projection) contains NULL and no match was made.
 
             switch ((itemNullable, projectionNullable))
             {
@@ -770,112 +771,188 @@ public class SqlNullabilityProcessor
 
         // Non-subquery case
 
-        // for relational null semantics we don't need to extract null values from the array
-        if (UseRelationalNulls
-            || !(inExpression.Values is SqlConstantExpression || inExpression.Values is SqlParameterExpression))
-        {
-            var (valuesExpression, valuesList, _) = ProcessInExpressionValues(inExpression.Values!, extractNullValues: false);
-            nullable = false;
+        nullable = false;
 
-            return valuesList.Count == 0
-                ? _sqlExpressionFactory.Constant(false, inExpression.TypeMapping)
-                : SimplifyInExpression(
-                    inExpression.Update(item, valuesExpression, subquery: null),
-                    valuesExpression,
-                    valuesList);
+        // For relational null semantics we don't need to extract null values from the array
+        if (UseRelationalNulls)
+        {
+            inExpression = ProcessInExpressionValues(inExpression, removeNulls: false, removeNullables: false, out _, out _);
+
+            return inExpression.Values! switch
+            {
+                [] => _sqlExpressionFactory.Constant(false, inExpression.TypeMapping),
+                [var v] => _sqlExpressionFactory.Equal(inExpression.Item, v),
+                [..] => inExpression
+            };
         }
 
-        // for c# null semantics we need to remove nulls from Values and add IsNull/IsNotNull when necessary
-        var (inValuesExpression, inValuesList, hasNullValue) = ProcessInExpressionValues(inExpression.Values, extractNullValues: true);
+        // For all other scenarios, we need to compensate for the presence of nulls (constants/parameters) and nullables
+        // (columns/arbitrary expressions) in the value list. The following visits all the values, removing nulls (but not nullables)
+        // and returns the visited values with some information on what was found.
+        inExpression = ProcessInExpressionValues(
+            inExpression, removeNulls: true, removeNullables: false, out var valuesHasNull, out var nullableValues);
 
-        // either values array is empty or only contains null
-        if (inValuesList.Count == 0)
+        // Do some simplifications for when the value list contains only zero or one values
+        switch (inExpression.Values!)
         {
-            nullable = false;
+            // nullable IN (NULL) -> nullable IS NULL
+            case [] when valuesHasNull && itemNullable:
+                return _sqlExpressionFactory.IsNull(item);
 
             // a IN () -> false
             // non_nullable IN (NULL) -> false
-            // nullable IN (NULL) -> nullable IS NULL
-            return !hasNullValue || !itemNullable
-                ? _sqlExpressionFactory.Constant(false, inExpression.TypeMapping)
-                : _sqlExpressionFactory.IsNull(item);
+            case []:
+                return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
+
+            // a IN (1) -> a = 1
+            // nullable IN (1, NULL) -> nullable IS NULL OR nullable = 1
+            case [var singleValue]:
+                return Visit(
+                    itemNullable && valuesHasNull
+                        ? _sqlExpressionFactory.OrElse(_sqlExpressionFactory.IsNull(item), _sqlExpressionFactory.Equal(item, singleValue))
+                        : _sqlExpressionFactory.Equal(item, singleValue),
+                    allowOptimizedExpansion,
+                    out _);
         }
 
-        var simplifiedInExpression = SimplifyInExpression(
-            inExpression.Update(item, inValuesExpression, subquery: null),
-            inValuesExpression,
-            inValuesList);
-
-        if (!itemNullable
-            || (allowOptimizedExpansion && !hasNullValue))
+        // If the item is non-nullable and there are no nullables, return the expression without compensation; null has already been removed
+        // as it will never match, and the expression doesn't return NULL in any case:
+        // non_nullable IN (1, 2) -> non_nullable IN (1, 2)
+        // non_nullable IN (1, 2, NULL) -> non_nullable IN (1, 2)
+        if (!itemNullable && nullableValues.Count == 0)
         {
-            nullable = false;
-
-            // non_nullable IN (1, 2) -> non_nullable IN (1, 2)
-            // non_nullable IN (1, 2, NULL) -> non_nullable IN (1, 2)
-            // nullable IN (1, 2) -> nullable IN (1, 2) (optimized)
-            return simplifiedInExpression;
+            return inExpression;
         }
 
-        nullable = false;
+        // If we're in optimized mode and the item isn't nullable (no matter what the values have), or there are no nulls/nullable values,
+        // also return without compensation; null will only be returned if the item isn't found, and that will evaluate to false in
+        // optimized mode:
+        // non_nullable IN (1, 2, NULL, nullable) -> non_nullable IN (1, 2, nullable) (optimized)
+        // nullable IN (1, 2) -> nullable IN (1, 2) (optimized)
+        if (allowOptimizedExpansion && (!itemNullable || !valuesHasNull && nullableValues.Count == 0))
+        {
+            return inExpression;
+        }
 
+        // At this point, if there are any nullable values, we need to extract them out to create a pure, non-nullable/non-null list of
+        // values. We'll add them back via separate equality checks.
+        if (nullableValues.Count > 0)
+        {
+            inExpression = ProcessInExpressionValues(inExpression, removeNulls: true, removeNullables: true, out _, out nullableValues);
+        }
+
+        SqlExpression result = inExpression;
+
+        // If the item is nullable, we need to add compensation based on whether null was found in the values or not:
         // nullable IN (1, 2) -> nullable IN (1, 2) AND nullable IS NOT NULL (full)
         // nullable IN (1, 2, NULL) -> nullable IN (1, 2) OR nullable IS NULL (full)
-        return hasNullValue
-            ? _sqlExpressionFactory.OrElse(simplifiedInExpression, _sqlExpressionFactory.IsNull(item))
-            : _sqlExpressionFactory.AndAlso(simplifiedInExpression, _sqlExpressionFactory.IsNotNull(item));
-
-        (SqlConstantExpression ProcessedValuesExpression, List<object?> ProcessedValuesList, bool HasNullValue)
-            ProcessInExpressionValues(SqlExpression valuesExpression, bool extractNullValues)
+        if (itemNullable)
         {
-            var inValues = new List<object?>();
-            var hasNullValue = false;
-            RelationalTypeMapping? typeMapping;
-
-            IEnumerable values;
-            switch (valuesExpression)
-            {
-                case SqlConstantExpression sqlConstant:
-                    typeMapping = sqlConstant.TypeMapping;
-                    values = (IEnumerable)sqlConstant.Value!;
-                    break;
-
-                case SqlParameterExpression sqlParameter:
-                    DoNotCache();
-                    typeMapping = sqlParameter.TypeMapping;
-                    values = (IEnumerable?)ParameterValues[sqlParameter.Name] ?? Array.Empty<object>();
-                    break;
-
-                default:
-                    throw new InvalidOperationException(
-                        RelationalStrings.NonConstantOrParameterAsInExpressionValues(valuesExpression.GetType().Name));
-            }
-
-            foreach (var value in values)
-            {
-                if (value == null && extractNullValues)
-                {
-                    hasNullValue = true;
-                    continue;
-                }
-
-                inValues.Add(value);
-            }
-
-            var processedValuesExpression = _sqlExpressionFactory.Constant(inValues, typeMapping);
-
-            return (processedValuesExpression, inValues, hasNullValue);
+            result = valuesHasNull
+                ? _sqlExpressionFactory.OrElse(inExpression, _sqlExpressionFactory.IsNull(item))
+                : _sqlExpressionFactory.AndAlso(inExpression, _sqlExpressionFactory.IsNotNull(item));
         }
 
-        SqlExpression SimplifyInExpression(
-            InExpression inExpression,
-            SqlConstantExpression inValuesExpression,
-            List<object?> inValuesList)
-            => inValuesList.Count == 1
-                ? _sqlExpressionFactory.Equal(
-                    inExpression.Item,
-                    _sqlExpressionFactory.Constant(inValuesList[0], inExpression.Values!.TypeMapping))
-                : inExpression;
+        // If there are no nullables, we're done.
+        if (nullableValues.Count == 0)
+        {
+            return result;
+        }
+
+        // At this point we know that there are nullable values; we need to extract these out and add regular individual equality checks
+        // for each one.
+        // non_nullable IN (1, 2, nullable) -> non_nullable IN (1, 2) OR (non_nullable = nullable AND nullable IS NOT NULL) (full)
+        // non_nullable IN (1, 2, NULL, nullable) -> non_nullable IN (1, 2) OR (non_nullable = nullable AND nullable IS NOT NULL) (full)
+        return nullableValues.Aggregate(
+            result,
+            (expr, nullableValue) => _sqlExpressionFactory.OrElse(
+                expr,
+                VisitSqlBinary(_sqlExpressionFactory.Equal(item, nullableValue), allowOptimizedExpansion, out _)));
+
+        InExpression ProcessInExpressionValues(
+            InExpression inExpression, bool removeNulls, bool removeNullables, out bool hasNull, out List<SqlExpression> nullables)
+        {
+            List<SqlExpression>? processedValues = null;
+            (hasNull, nullables) = (false, new List<SqlExpression>());
+
+            if (inExpression.ValuesParameter is SqlParameterExpression valuesParameter)
+            {
+                // The InExpression has a values parameter. Expand it out, embedding its values as constants into the SQL; disable SQL
+                // caching.
+                DoNotCache();
+                var typeMapping = inExpression.ValuesParameter.TypeMapping;
+                var values = (IEnumerable?)ParameterValues[valuesParameter.Name] ?? Array.Empty<object>();
+
+                processedValues = new List<SqlExpression>();
+
+                foreach (var value in values)
+                {
+                    if (value == null && removeNulls)
+                    {
+                        hasNull = true;
+                        continue;
+                    }
+
+                    processedValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));
+                }
+            }
+            else
+            {
+                Check.DebugAssert(inExpression.Values is not null, "inExpression.Values is not null");
+
+                for (var i = 0; i < inExpression.Values.Count; i++)
+                {
+                    var value = inExpression.Values[i];
+
+                    if (IsNull(value))
+                    {
+                        hasNull = true;
+
+                        if (removeNulls && processedValues is null)
+                        {
+                            CreateProcessedValues();
+                        }
+
+                        continue;
+                    }
+
+                    var visitedValue = Visit(value, out var valueNullable);
+
+                    if (valueNullable)
+                    {
+                        nullables.Add(visitedValue);
+
+                        if (removeNullables)
+                        {
+                            if (processedValues is null)
+                            {
+                                CreateProcessedValues();
+                            }
+
+                            continue;
+                        }
+                    }
+
+                    if (value != visitedValue && processedValues is null)
+                    {
+                        CreateProcessedValues();
+                    }
+
+                    processedValues?.Add(visitedValue);
+
+                    void CreateProcessedValues()
+                    {
+                        processedValues = new List<SqlExpression>(inExpression.Values!.Count - 1);
+                        for (var j = 0; j < i; j++)
+                        {
+                            processedValues.Add(inExpression.Values[j]);
+                        }
+                    }
+                }
+            }
+
+            return inExpression.Update(inExpression.Item, processedValues ?? inExpression.Values!);
+        }
     }
 
     /// <summary>

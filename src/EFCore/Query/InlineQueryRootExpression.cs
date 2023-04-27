@@ -45,12 +45,23 @@ public class InlineQueryRootExpression : QueryRootExpression
     public override Expression DetachQueryProvider()
         => new InlineQueryRootExpression(Values, ElementType);
 
+    /// <summary>
+    ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
+    ///     return this expression.
+    /// </summary>
+    /// <param name="values">The <see cref="Values" /> property of the result.</param>
+    /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
+    public virtual InlineQueryRootExpression Update(IReadOnlyList<Expression> values)
+        => ReferenceEquals(values, Values) || values.SequenceEqual(Values)
+            ? this
+            : new InlineQueryRootExpression(values, ElementType);
+
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
         => visitor.Visit(Values) is var visitedValues
             && ReferenceEquals(visitedValues, Values)
                 ? this
-                : new InlineQueryRootExpression(visitedValues, Type);
+                : Update(visitedValues);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

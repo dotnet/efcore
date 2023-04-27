@@ -130,6 +130,9 @@
   <data name="CannotChangeWhenOpen" xml:space="preserve">
     <value>The instance of DbConnection is currently in use. The connection can only be changed when the existing connection is not being used.</value>
   </data>
+  <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
+    <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
+  </data>
   <data name="CannotConfigureTriggerNonRootTphEntity" xml:space="preserve">
     <value>Can't configure a trigger on entity type '{entityType}', which is in a TPH hierarchy and isn't the root. Configure the trigger on the TPH root entity type '{rootEntityType}' instead.</value>
   </data>
@@ -346,8 +349,8 @@
   <data name="DuplicateSeedDataSensitive" xml:space="preserve">
     <value>A seed entity for entity type '{entityType}' has the same key value {keyValue} as another seed entity mapped to the same table '{table}'. Key values should be unique across seed entities.</value>
   </data>
-  <data name="EitherOfTwoValuesMustBeNull" xml:space="preserve">
-    <value>Either {param1} or {param2} must be null.</value>
+  <data name="OneOfThreeValuesMustBeSet" xml:space="preserve">
+    <value>Exactly one of '{param1}', '{param2}' or '{param3}' must be set.</value>
   </data>
   <data name="EmptyCollectionNotSupportedAsInlineQueryRoot" xml:space="preserve">
     <value>Empty collections are not supported as inline query roots.</value>
@@ -911,8 +914,8 @@
   <data name="NoDbCommand" xml:space="preserve">
     <value>Cannot create a DbCommand for a non-relational query.</value>
   </data>
-  <data name="NonConstantOrParameterAsInExpressionValues" xml:space="preserve">
-    <value>Expression of type '{type}' isn't supported as the Values of an InExpression; only constants and parameters are supported.</value>
+  <data name="NonConstantOrParameterAsInExpressionValue" xml:space="preserve">
+    <value>Expression of type '{type}' isn't supported in the values of an InExpression; only constants and parameters are supported.</value>
   </data>
   <data name="NoneRelationalTypeMappingOnARelationalTypeMappingSource" xml:space="preserve">
     <value>'FindMapping' was called on a 'RelationalTypeMappingSource' with a non-relational 'TypeMappingInfo'.</value>

@@ -743,7 +743,9 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitMemberInit(MemberInitExpression memberInitExpression)
-        => GetConstantOrNotTranslated(memberInitExpression);
+        => TryEvaluateToConstant(memberInitExpression, out var sqlConstantExpression)
+            ? sqlConstantExpression
+            : QueryCompilationContext.NotTranslatedExpression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1002,11 +1004,21 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     /// <inheritdoc />
     protected override Expression VisitNew(NewExpression newExpression)
-        => GetConstantOrNotTranslated(newExpression);
+        => TryEvaluateToConstant(newExpression, out var sqlConstantExpression)
+            ? sqlConstantExpression
+            : QueryCompilationContext.NotTranslatedExpression;
 
     /// <inheritdoc />
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
-        => QueryCompilationContext.NotTranslatedExpression;
+    {
+        if (TryEvaluateToConstant(newArrayExpression, out var sqlConstantExpression))
+        {
+            return sqlConstantExpression;
+        }
+
+        AddTranslationErrorDetails(RelationalStrings.CannotTranslateNonConstantNewArrayExpression(newArrayExpression.Print()));
+        return QueryCompilationContext.NotTranslatedExpression;
+    }
 
     /// <inheritdoc />
     protected override Expression VisitParameter(ParameterExpression parameterExpression)
@@ -1095,7 +1107,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         _sqlExpressionFactory.Constant(discriminatorValues[0]))
                     : _sqlExpressionFactory.In(
                         entityProjectionExpression.DiscriminatorExpression!,
-                        _sqlExpressionFactory.Constant(discriminatorValues));
+                        discriminatorValues.Select(d => _sqlExpressionFactory.Constant(d)).ToArray());
             }
         }
         else
@@ -1114,8 +1126,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                             _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
                         : _sqlExpressionFactory.In(
                             discriminatorColumn,
-                            _sqlExpressionFactory.Constant(
-                                concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()));
+                            concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
                 }
             }
             else
@@ -1569,16 +1580,23 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             .Aggregate((a, b) => Expression.AndAlso(a, b));
     }
 
-    private static Expression GetConstantOrNotTranslated(Expression expression)
-        => CanEvaluate(expression)
-            ? new SqlConstantExpression(
+    private static bool TryEvaluateToConstant(Expression expression, [NotNullWhen(true)] out SqlConstantExpression? sqlConstantExpression)
+    {
+        if (CanEvaluate(expression))
+        {
+            sqlConstantExpression = new SqlConstantExpression(
                 Expression.Constant(
                     Expression.Lambda<Func<object>>(Expression.Convert(expression, typeof(object)))
                         .Compile(preferInterpretation: true)
                         .Invoke(),
                     expression.Type),
-                null)
-            : QueryCompilationContext.NotTranslatedExpression;
+                null);
+            return true;
+        }
+
+        sqlConstantExpression = null;
+        return false;
+    }
 
     private bool TryRewriteContainsEntity(Expression source, Expression item, [NotNullWhen(true)] out Expression? result)
     {
@@ -1862,26 +1880,15 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     private static bool CanEvaluate(Expression expression)
-    {
-#pragma warning disable IDE0066 // Convert switch statement to expression
-        switch (expression)
-#pragma warning restore IDE0066 // Convert switch statement to expression
+        => expression switch
         {
-            case ConstantExpression:
-                return true;
-
-            case NewExpression newExpression:
-                return newExpression.Arguments.All(e => CanEvaluate(e));
-
-            case MemberInitExpression memberInitExpression:
-                return CanEvaluate(memberInitExpression.NewExpression)
-                    && memberInitExpression.Bindings.All(
-                        mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression));
-
-            default:
-                return false;
-        }
-    }
+            ConstantExpression => true,
+            NewExpression e => e.Arguments.All(CanEvaluate),
+            NewArrayExpression e => e.Expressions.All(CanEvaluate),
+            MemberInitExpression e => CanEvaluate(e.NewExpression)
+                && e.Bindings.All(mb => mb is MemberAssignment memberAssignment && CanEvaluate(memberAssignment.Expression)),
+            _ => false
+        };
 
     private static bool IsNullSqlConstantExpression(Expression expression)
         => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;

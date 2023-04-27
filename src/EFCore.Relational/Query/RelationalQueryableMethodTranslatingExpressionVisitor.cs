@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -207,8 +208,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 return new ShapedQueryExpression(selectExpression, shaperExpression);
             }
 
-            case InlineQueryRootExpression constantQueryRootExpression:
-                return VisitInlineQueryRoot(constantQueryRootExpression) ?? base.VisitExtension(extensionExpression);
+            case InlineQueryRootExpression inlineQueryRootExpression:
+                return VisitInlineQueryRoot(inlineQueryRootExpression) ?? base.VisitExtension(extensionExpression);
 
             case ParameterQueryRootExpression parameterQueryRootExpression:
                 var sqlParameterExpression =
@@ -319,26 +320,27 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         for (var i = 0; i < inlineQueryRootExpression.Values.Count; i++)
         {
-            var value = inlineQueryRootExpression.Values[i];
-
-            // We currently support constants only; supporting non-constant values in VALUES is tracked by #30734.
-            if (value is not ConstantExpression constantExpression)
+            // Note that we specifically don't apply the default type mapping to the translation, to allow it to get inferred later based
+            // on usage.
+            if (TranslateExpression(inlineQueryRootExpression.Values[i], applyDefaultTypeMapping: false)
+                is not SqlExpression translatedValue)
             {
-                AddTranslationErrorDetails(RelationalStrings.OnlyConstantsSupportedInInlineCollectionQueryRoots);
                 return null;
             }
 
-            if (constantExpression.Value is null)
-            {
-                encounteredNull = true;
-            }
+            // TODO: Poor man's null semantics: in SqlNullabilityProcessor we don't fully handle the nullability of SelectExpression
+            // projections. Whether the SelectExpression's projection is nullable or not is determined here in translation, but at this
+            // point we don't know how to properly calculate nullability (and can't look at parameters).
+            // So for now, we assume the projected column is nullable if we see anything but non-null constants and non-nullable columns.
+            encounteredNull |=
+                translatedValue is not SqlConstantExpression { Value: not null } and not ColumnExpression { IsNullable: false };
 
             rowExpressions.Add(new RowValueExpression(new[]
             {
                 // Since VALUES may not guarantee row ordering, we add an _ord value by which we'll order.
                 _sqlExpressionFactory.Constant(i, intTypeMapping),
                 // Note that for the actual value, we must leave the type mapping null to allow it to get inferred later based on usage
-                _sqlExpressionFactory.Constant(constantExpression.Value, elementType, typeMapping: null)
+                translatedValue
             }));
         }
 
@@ -529,27 +531,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             && projection is ColumnExpression projectedColumn
             && projectedColumn.Table == valuesExpression)
         {
-            var values = new object?[valuesExpression.RowValues.Count];
+            var values = new SqlExpression[valuesExpression.RowValues.Count];
             for (var i = 0; i < values.Length; i++)
             {
                 // Skip the first value (_ord), which is irrelevant for Contains
-                if (valuesExpression.RowValues[i].Values[1] is SqlConstantExpression { Value: var constantValue })
-                {
-                    values[i] = constantValue;
-                }
-                else
-                {
-                    // We only support constants for now
-                    values = null;
-                    break;
-                }
+                values[i] = valuesExpression.RowValues[i].Values[1];
             }
 
-            if (values is not null)
-            {
-                var inExpression = _sqlExpressionFactory.In(translatedItem, _sqlExpressionFactory.Constant(values));
-                return source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
-            }
+            var inExpression = _sqlExpressionFactory.In(translatedItem, values);
+            return source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
         }
 
         // Translate to IN with a subquery.
@@ -1834,7 +1824,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     protected virtual Expression ApplyInferredTypeMappings(
         Expression expression,
         IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-        => new RelationalInferredTypeMappingApplier(inferredTypeMappings).Visit(expression);
+        => new RelationalInferredTypeMappingApplier(_sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
     /// <summary>
     ///     Determines whether the given <see cref="SelectExpression" /> is ordered, typically because orderings have been added to it.
@@ -2746,6 +2736,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </summary>
     protected class RelationalInferredTypeMappingApplier : ExpressionVisitor
     {
+        private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private SelectExpression? _currentSelectExpression;
 
         /// <summary>
@@ -2756,10 +2747,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalInferredTypeMappingApplier" /> class.
         /// </summary>
+        /// <param name="sqlExpressionFactory">The SQL expression factory.</param>
         /// <param name="inferredTypeMappings">The inferred type mappings to be applied back on their query roots.</param>
         public RelationalInferredTypeMappingApplier(
+            ISqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-            => _inferredTypeMappings = inferredTypeMappings;
+        {
+            _sqlExpressionFactory = sqlExpressionFactory;
+            _inferredTypeMappings = inferredTypeMappings;
+        }
 
         /// <summary>
         ///     Attempts to find an inferred type mapping for the given table column.
@@ -2855,30 +2851,27 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 var newValues = new SqlExpression[newColumnNames.Count];
                 for (var j = 0; j < valuesExpression.ColumnNames.Count; j++)
                 {
-                    Check.DebugAssert(rowValue.Values[j] is SqlConstantExpression, "Non-constant SqlExpression in ValuesExpression");
-
                     if (j == 0 && stripOrdering)
                     {
                         continue;
                     }
 
-                    var value = (SqlConstantExpression)rowValue.Values[j];
-                    SqlExpression newValue = value;
+                    var value = rowValue.Values[j];
 
                     var inferredTypeMapping = inferredTypeMappings[j];
                     if (inferredTypeMapping is not null && value.TypeMapping is null)
                     {
-                        newValue = new SqlConstantExpression(Expression.Constant(value.Value, value.Type), inferredTypeMapping);
+                        value = _sqlExpressionFactory.ApplyTypeMapping(value, inferredTypeMapping);
 
                         // We currently add explicit conversions on the first row, to ensure that the inferred types are properly typed.
                         // See #30605 for removing that when not needed.
                         if (i == 0)
                         {
-                            newValue = new SqlUnaryExpression(ExpressionType.Convert, newValue, newValue.Type, newValue.TypeMapping);
+                            value = new SqlUnaryExpression(ExpressionType.Convert, value, value.Type, value.TypeMapping);
                         }
                     }
 
-                    newValues[j - (stripOrdering ? 1 : 0)] = newValue;
+                    newValues[j - (stripOrdering ? 1 : 0)] = value;
                 }
 
                 newRowValues[i] = new RowValueExpression(newValues);

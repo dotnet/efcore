@@ -652,7 +652,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'
+WHERE 0 = 1
 """);
     }
 
@@ -664,7 +664,7 @@ WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'
+WHERE 0 = 1
 """);
     }
 
