@@ -130,11 +130,11 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         var path = jsonScalarExpression.Path;
         if (path.Count == 0)
         {
-            Visit(jsonScalarExpression.JsonColumn);
+            Visit(jsonScalarExpression.Json);
             return jsonScalarExpression;
         }
 
-        Visit(jsonScalarExpression.JsonColumn);
+        Visit(jsonScalarExpression.Json);
 
         var inJsonpathString = false;
 

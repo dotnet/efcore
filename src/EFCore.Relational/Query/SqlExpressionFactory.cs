@@ -10,6 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// <inheritdoc />
 public class SqlExpressionFactory : ISqlExpressionFactory
 {
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly RelationalTypeMapping _boolTypeMapping;
 
     /// <summary>
@@ -19,7 +20,8 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public SqlExpressionFactory(SqlExpressionFactoryDependencies dependencies)
     {
         Dependencies = dependencies;
-        _boolTypeMapping = dependencies.TypeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
+        _typeMappingSource = dependencies.TypeMappingSource;
+        _boolTypeMapping = _typeMappingSource.FindMapping(typeof(bool), dependencies.Model)!;
     }
 
     /// <summary>
@@ -38,7 +40,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 && sqlUnaryExpression.Type == typeof(object)
                     ? sqlUnaryExpression.Operand
                     : ApplyTypeMapping(
-                        sqlExpression, Dependencies.TypeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
+                        sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
 
     /// <inheritdoc />
     [return: NotNullIfNotNull("sqlExpression")]
@@ -60,6 +62,13 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ColumnExpression e => e.ApplyTypeMapping(typeMapping),
             DistinctExpression e => ApplyTypeMappingOnDistinct(e, typeMapping),
             InExpression e => ApplyTypeMappingOnIn(e),
+
+            // We only do type inference for JSON scalar expression which represent a single array indexing operation; we can infer the
+            // array's mapping from the element or vice versa, allowing e.g. parameter primitive collections to get inferred when an
+            // an indexer is used over them and then compared to a column.
+            // But we can't infer anything for other Path forms of JsonScalarExpression (e.g. a property lookup).
+            JsonScalarExpression { Path: [{ ArrayIndex: not null }] } e => ApplyTypeMappingOnJsonScalar(e, typeMapping),
+
             LikeExpression e => ApplyTypeMappingOnLike(e),
             ScalarSubqueryExpression e => e.ApplyTypeMapping(typeMapping),
             SqlBinaryExpression e => ApplyTypeMappingOnSqlBinary(e, typeMapping),
@@ -68,6 +77,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             SqlFunctionExpression e => e.ApplyTypeMapping(typeMapping),
             SqlParameterExpression e => e.ApplyTypeMapping(typeMapping),
             SqlUnaryExpression e => ApplyTypeMappingOnSqlUnary(e, typeMapping),
+
             _ => sqlExpression
         };
     }
@@ -82,7 +92,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                     likeExpression.Match, likeExpression.Pattern)
                 : ExpressionExtensions.InferTypeMapping(
                     likeExpression.Match, likeExpression.Pattern, likeExpression.EscapeChar))
-            ?? Dependencies.TypeMappingSource.FindMapping(likeExpression.Match.Type, Dependencies.Model);
+            ?? _typeMappingSource.FindMapping(likeExpression.Match.Type, Dependencies.Model);
 
         return new LikeExpression(
             ApplyTypeMapping(likeExpression.Match, inferredTypeMapping),
@@ -184,9 +194,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             {
                 inferredTypeMapping = ExpressionExtensions.InferTypeMapping(left, right)
                     // We avoid object here since the result does not get typeMapping from outside.
-                    ?? (left.Type != typeof(object)
-                        ? Dependencies.TypeMappingSource.FindMapping(left.Type, Dependencies.Model)
-                        : Dependencies.TypeMappingSource.FindMapping(right.Type, Dependencies.Model));
+                    ?? _typeMappingSource.FindMapping(
+                        left.Type != typeof(object) ? left.Type : right.Type,
+                        Dependencies.Model);
                 resultType = typeof(bool);
                 resultTypeMapping = _boolTypeMapping;
                 break;
@@ -236,7 +246,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 : inExpression.Subquery != null
                     ? ExpressionExtensions.InferTypeMapping(inExpression.Item, inExpression.Subquery.Projection[0].Expression)
                     : inExpression.Item.TypeMapping)
-            ?? Dependencies.TypeMappingSource.FindMapping(inExpression.Item.Type, Dependencies.Model);
+            ?? _typeMappingSource.FindMapping(inExpression.Item.Type, Dependencies.Model);
 
         var item = ApplyTypeMapping(inExpression.Item, itemTypeMapping);
         if (inExpression.Values != null)
@@ -251,6 +261,41 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         return item != inExpression.Item || inExpression.TypeMapping != _boolTypeMapping
             ? new InExpression(item, inExpression.Subquery!, inExpression.IsNegated, _boolTypeMapping)
             : inExpression;
+    }
+
+    private SqlExpression ApplyTypeMappingOnJsonScalar(
+        JsonScalarExpression jsonScalarExpression,
+        RelationalTypeMapping? typeMapping)
+    {
+        if (jsonScalarExpression is not { Json: var array, Path: [{ ArrayIndex: { } index }] })
+        {
+            return jsonScalarExpression;
+        }
+
+        // The index expression isn't inferred and is always just an int. Apply the default type mapping to it.
+        var indexWithTypeMapping = ApplyDefaultTypeMapping(index);
+        var newPath = indexWithTypeMapping == index ? jsonScalarExpression.Path : new[] { new PathSegment(indexWithTypeMapping) };
+
+        // If a type mapping is being applied from the outside, it applies to the element resulting from the array indexing operation;
+        // we can infer the array's type mapping from it. Otherwise there's nothing to do but apply the default type mapping to the array.
+        if (typeMapping is null)
+        {
+            return new JsonScalarExpression(
+                ApplyDefaultTypeMapping(array),
+                newPath,
+                jsonScalarExpression.Type,
+                _typeMappingSource.FindMapping(jsonScalarExpression.Type),
+                jsonScalarExpression.IsNullable);
+        }
+
+        // TODO: blocked on #30730: we need to be able to construct a JSON collection type mapping based on the element's.
+        // For now, hacking to apply the default type mapping instead.
+        return new JsonScalarExpression(
+            ApplyDefaultTypeMapping(array), // Hack, until #30730
+            newPath,
+            jsonScalarExpression.Type,
+            typeMapping,
+            jsonScalarExpression.IsNullable);
     }
 
     /// <inheritdoc />
@@ -350,7 +395,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
         var resultType = right.Type;
         var inferredTypeMapping = typeMapping
             ?? ExpressionExtensions.InferTypeMapping(left, right)
-            ?? Dependencies.TypeMappingSource.FindMapping(resultType, Dependencies.Model);
+            ?? _typeMappingSource.FindMapping(resultType, Dependencies.Model);
 
         var typeMappedArguments = new List<SqlExpression>
         {
@@ -405,7 +450,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             // Since we never look at type of Operand/Test after this place,
             // we need to find actual typeMapping based on non-object type.
             ?? new[] { operand.Type }.Concat(whenClauses.Select(wc => wc.Test.Type))
-                .Where(t => t != typeof(object)).Select(t => Dependencies.TypeMappingSource.FindMapping(t, Dependencies.Model))
+                .Where(t => t != typeof(object)).Select(t => _typeMappingSource.FindMapping(t, Dependencies.Model))
                 .FirstOrDefault();
 
         var resultTypeMapping = elseResult?.TypeMapping
@@ -543,7 +588,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     public virtual InExpression In(SqlExpression item, SqlExpression values, bool negated)
     {
-        var typeMapping = item.TypeMapping ?? Dependencies.TypeMappingSource.FindMapping(item.Type, Dependencies.Model);
+        var typeMapping = item.TypeMapping ?? _typeMappingSource.FindMapping(item.Type, Dependencies.Model);
 
         item = ApplyTypeMapping(item, typeMapping);
         values = ApplyTypeMapping(values, typeMapping);

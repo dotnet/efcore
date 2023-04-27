@@ -17,36 +17,28 @@ public class JsonScalarExpression : SqlExpression
     /// <summary>
     ///     Creates a new instance of the <see cref="JsonScalarExpression" /> class.
     /// </summary>
-    /// <param name="jsonColumn">A column containg JSON value.</param>
-    /// <param name="property">A property representing the result of this expression.</param>
+    /// <param name="json">An expression representing a JSON value.</param>
+    /// <param name="type">The <see cref="System.Type" /> of the expression.</param>
+    /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     /// <param name="path">A list of path segments leading to the scalar from the root of the JSON stored in the column.</param>
     /// <param name="nullable">A value indicating whether the expression is nullable.</param>
     public JsonScalarExpression(
-        ColumnExpression jsonColumn,
-        IProperty property,
-        IReadOnlyList<PathSegment> path,
-        bool nullable)
-        : this(jsonColumn, path, property.ClrType.UnwrapNullableType(), property.FindRelationalTypeMapping()!, nullable)
-    {
-    }
-
-    internal JsonScalarExpression(
-        ColumnExpression jsonColumn,
+        SqlExpression json,
         IReadOnlyList<PathSegment> path,
         Type type,
-        RelationalTypeMapping typeMapping,
+        RelationalTypeMapping? typeMapping,
         bool nullable)
         : base(type, typeMapping)
     {
-        JsonColumn = jsonColumn;
+        Json = json;
         Path = path;
         IsNullable = nullable;
     }
 
     /// <summary>
-    ///     The column containing the JSON value.
+    ///     The expression containing the JSON value.
     /// </summary>
-    public virtual ColumnExpression JsonColumn { get; }
+    public virtual SqlExpression Json { get; }
 
     /// <summary>
     ///     The list of path segments leading to the scalar from the root of the JSON stored in the column.
@@ -61,46 +53,91 @@ public class JsonScalarExpression : SqlExpression
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
-        var jsonColumn = (ColumnExpression)visitor.Visit(JsonColumn);
-        var jsonColumnMadeNullable = jsonColumn.IsNullable && !JsonColumn.IsNullable;
+        var newJson = (SqlExpression)visitor.Visit(Json);
+
+        var nullable = IsNullable;
+        if (newJson is ColumnExpression jsonColumnExpression)
+        {
+            nullable |= jsonColumnExpression.IsNullable;
+        }
+
+        PathSegment[]? newPath = null;
+
+        for (var i = 0; i < Path.Count; i++)
+        {
+            var segment = Path[i];
+            PathSegment newSegment;
+
+            if (segment.PropertyName is not null)
+            {
+                // PropertyName segments are (currently) constants, nothing to visit.
+                newSegment = segment;
+            }
+            else
+            {
+                var newArrayIndex = (SqlExpression)visitor.Visit(segment.ArrayIndex)!;
+                if (newArrayIndex == segment.ArrayIndex)
+                {
+                    newSegment = segment;
+                }
+                else
+                {
+                    newSegment = new PathSegment(newArrayIndex);
+
+                    if (newPath is null)
+                    {
+                        newPath = new PathSegment[Path.Count];
+                        for (var j = 0; j < i; i++)
+                        {
+                            newPath[j] = Path[j];
+                        }
+                    }
+                }
+            }
+
+            if (newPath is not null)
+            {
+                newPath[i] = newSegment;
+            }
+        }
 
         // TODO Call update: Issue#28887
-        return jsonColumn != JsonColumn
-            ? new JsonScalarExpression(
-                jsonColumn,
-                Path,
+        return newJson == Json && newPath is null
+            ? this
+            : new JsonScalarExpression(
+                newJson,
+                newPath ?? Path,
                 Type,
                 TypeMapping!,
-                IsNullable || jsonColumnMadeNullable)
-            : this;
+                nullable);
     }
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>
-    /// <param name="jsonColumn">The <see cref="JsonColumn" /> property of the result.</param>
+    /// <param name="json">The <see cref="Json" /> property of the result.</param>
     /// <returns>This expression if no children changed, or an expression with the updated children.</returns>
-    public virtual JsonScalarExpression Update(ColumnExpression jsonColumn)
-        => jsonColumn != JsonColumn
-            ? new JsonScalarExpression(jsonColumn, Path, Type, TypeMapping!, IsNullable)
+    public virtual JsonScalarExpression Update(SqlExpression json)
+        => json != Json
+            ? new JsonScalarExpression(json, Path, Type, TypeMapping!, IsNullable)
             : this;
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("JsonScalarExpression(column: ");
-        expressionPrinter.Visit(JsonColumn);
+        expressionPrinter.Visit(Json);
         expressionPrinter.Append($""", "{string.Join(".", Path.Select(e => e.ToString()))}")""");
     }
 
     /// <inheritdoc />
     public override bool Equals(object? obj)
         => obj is JsonScalarExpression jsonScalarExpression
-            && JsonColumn.Equals(jsonScalarExpression.JsonColumn)
+            && Json.Equals(jsonScalarExpression.Json)
             && Path.SequenceEqual(jsonScalarExpression.Path);
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), JsonColumn, Path);
+        => HashCode.Combine(base.GetHashCode(), Json, Path);
 }

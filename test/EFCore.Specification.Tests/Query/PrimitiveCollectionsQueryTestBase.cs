@@ -334,9 +334,26 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? new[] { 1, 2, 3 }[c.Int] : -1) == 1),
             entryCount: 1);
 
+    // The JsonScalarExpression (ints[c.Int]) should get inferred from the column on the other side (c.Int), and that should propagate to
+    // ints
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_index_Column(bool async)
+    public virtual Task Parameter_collection_index_Column_equal_Column(bool async)
+    {
+        var ints = new[] { 0, 2, 3 };
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => ints[c.Int] == c.Int),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => (c.Int <= 2 ? ints[c.Int] : -1) == c.Int),
+            entryCount: 1);
+    }
+
+    // Since the JsonScalarExpression (ints[c.Int]) is being compared to a constant, there's nothing to infer the type mapping from.
+    // ints should get the default type mapping for based on its CLR type.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Parameter_collection_index_Column_equal_constant(bool async)
     {
         var ints = new[] { 1, 2, 3 };
 
@@ -494,7 +511,6 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
         // subquery as its table, and not directly to the parameter's table.
         // This creates an initially untyped ColumnExpression referencing the pushed-down subquery; it must also be inferred.
         // Note that this must be a compiled query, since with normal queries the Skip(1) gets client-evaluated.
-        // TODO:
         var compiledQuery = EF.CompileQuery(
             (PrimitiveCollectionsContext context, int[] ints)
                 => context.Set<PrimitiveCollectionsEntity>().Where(p => ints.Skip(1).Count(i => i > p.Id) == 1).Count());

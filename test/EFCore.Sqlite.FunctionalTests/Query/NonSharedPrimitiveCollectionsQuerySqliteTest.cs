@@ -229,11 +229,7 @@ LIMIT 2
 """
 SELECT "t"."Id", "t"."Owned"
 FROM "TestOwner" AS "t"
-WHERE (
-    SELECT "s"."value"
-    FROM json_each("t"."Owned" ->> 'Strings') AS "s"
-    ORDER BY "s"."key"
-    LIMIT 1 OFFSET 1) = 'bar'
+WHERE "t"."Owned" ->> 'Strings' ->> 1 = 'bar'
 LIMIT 2
 """);
     }

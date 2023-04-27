@@ -405,11 +405,7 @@ WHERE [c].[CustomerID] = @__s1 OR [c].[CustomerID] = @__s2 OR [c].[CustomerID] =
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT CAST([a].[value] AS nchar(5)) AS [value]
-    FROM OpenJson(@__args) AS [a]
-    ORDER BY CAST([a].[key] AS int)
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@__args, '$[0]')
 """,
             //
 """
@@ -417,11 +413,7 @@ WHERE [c].[CustomerID] = (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT CAST([a].[value] AS nchar(5)) AS [value]
-    FROM OpenJson(@__args) AS [a]
-    ORDER BY CAST([a].[key] AS int)
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@__args, '$[0]')
 """);
     }
 
@@ -435,11 +427,7 @@ WHERE [c].[CustomerID] = (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT CAST([a].[value] AS nchar(5)) AS [value]
-    FROM OpenJson(@__args) AS [a]
-    ORDER BY CAST([a].[key] AS int)
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@__args, '$[0]')
 """,
             //
 """
@@ -447,11 +435,7 @@ WHERE [c].[CustomerID] = (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = (
-    SELECT CAST([a].[value] AS nchar(5)) AS [value]
-    FROM OpenJson(@__args) AS [a]
-    ORDER BY CAST([a].[key] AS int)
-    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY)
+WHERE [c].[CustomerID] = JSON_VALUE(@__args, '$[0]')
 """);
     }
 

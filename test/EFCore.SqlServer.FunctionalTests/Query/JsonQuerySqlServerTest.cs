@@ -870,8 +870,8 @@ END AS nvarchar(max)) + '].Name') = N'e1_c1'
 SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 WHERE JSON_VALUE([j].[OwnedCollectionRoot], '$[' + CAST((
-    SELECT MAX([j].[Id])
-    FROM [JsonEntitiesBasic] AS [j]) AS nvarchar(max)) + '].Name') = N'e1_c2'
+    SELECT MAX([j0].[Id])
+    FROM [JsonEntitiesBasic] AS [j0]) AS nvarchar(max)) + '].Name') = N'e1_c2'
 """);
     }
 

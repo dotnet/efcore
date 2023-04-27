@@ -2,6 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -17,6 +19,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
+    private readonly bool _supportsJsonValueExpressions;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -26,11 +29,16 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     public SqlServerQuerySqlGenerator(
         QuerySqlGeneratorDependencies dependencies,
-        IRelationalTypeMappingSource typeMappingSource)
+        IRelationalTypeMappingSource typeMappingSource,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies)
     {
         _typeMappingSource = typeMappingSource;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
+
+        // JSON functions such as JSON_VALUE only support arbitrary expressions for the path parameter in SQL Server 2017 and above; before
+        // that, arguments must be constant strings.
+        _supportsJsonValueExpressions = sqlServerSingletonOptions.CompatibilityLevel >= 140;
     }
 
     /// <summary>
@@ -396,7 +404,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         var path = jsonScalarExpression.Path;
         if (path.Count == 0)
         {
-            Visit(jsonScalarExpression.JsonColumn);
+            Visit(jsonScalarExpression.Json);
             return jsonScalarExpression;
         }
 
@@ -412,7 +420,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             Sql.Append(jsonScalarExpression.TypeMapping is StringTypeMapping ? "JSON_VALUE(" : "CAST(JSON_VALUE(");
         }
 
-        Visit(jsonScalarExpression.JsonColumn);
+        Visit(jsonScalarExpression.Json);
 
         Sql.Append(", '$");
         foreach (var pathSegment in jsonScalarExpression.Path)
@@ -430,13 +438,17 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     {
                         Visit(pathSegment.ArrayIndex);
                     }
-                    else
+                    else if (_supportsJsonValueExpressions)
                     {
                         Sql.Append("' + CAST(");
                         Visit(arrayIndex);
                         Sql.Append(" AS ");
                         Sql.Append(_typeMappingSource.GetMapping(typeof(string)).StoreType);
                         Sql.Append(") + '");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(SqlServerStrings.JsonValuePathExpressionsNotSupported);
                     }
 
                     Sql.Append("]");
@@ -445,7 +457,6 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
         }
 
         Sql.Append("')");

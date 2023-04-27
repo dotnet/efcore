@@ -270,11 +270,7 @@ WHERE (
 """
 SELECT TOP(2) [t].[Id], [t].[Owned]
 FROM [TestOwner] AS [t]
-WHERE (
-    SELECT [s].[value]
-    FROM OpenJson(JSON_VALUE([t].[Owned], '$.Strings')) AS [s]
-    ORDER BY CAST([s].[key] AS int)
-    OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY) = N'bar'
+WHERE JSON_VALUE(JSON_VALUE([t].[Owned], '$.Strings'), '$[1]') = N'bar'
 """);
     }
 
