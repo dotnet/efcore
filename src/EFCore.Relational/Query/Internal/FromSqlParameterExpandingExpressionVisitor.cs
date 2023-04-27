@@ -130,38 +130,58 @@ public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
                 return _visitedFromSqlExpressions[fromSql] = fromSql.Update(
                     Expression.Constant(new CompositeRelationalParameter(parameterExpression.Name!, subParameters)));
 
-            case ConstantExpression constantExpression:
-                var existingValues = constantExpression.GetConstantValue<object?[]>();
+            case ConstantExpression { Value: object?[] existingValues }:
+            {
                 var constantValues = new object?[existingValues.Length];
                 for (var i = 0; i < existingValues.Length; i++)
                 {
-                    var value = existingValues[i];
-                    if (value is DbParameter dbParameter)
-                    {
-                        var parameterName = _parameterNameGenerator.GenerateNext();
-                        if (string.IsNullOrEmpty(dbParameter.ParameterName))
-                        {
-                            dbParameter.ParameterName = parameterName;
-                        }
-                        else
-                        {
-                            parameterName = dbParameter.ParameterName;
-                        }
-
-                        constantValues[i] = new RawRelationalParameter(parameterName, dbParameter);
-                    }
-                    else
-                    {
-                        constantValues[i] = _sqlExpressionFactory.Constant(
-                            value, _typeMappingSource.GetMappingForValue(value));
-                    }
+                    constantValues[i] = ProcessConstantValue(existingValues[i]);
                 }
 
                 return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
+            }
+
+            case NewArrayExpression { Expressions: var expressions }:
+            {
+                var constantValues = new object?[expressions.Count];
+                for (var i = 0; i < constantValues.Length; i++)
+                {
+                    if (expressions[i] is not SqlConstantExpression { Value: var existingValue })
+                    {
+                        Check.DebugFail("FromSql.Arguments must be Constant/ParameterExpression");
+                        throw new InvalidOperationException();
+                    }
+
+                    constantValues[i] = ProcessConstantValue(existingValue);
+                }
+
+                return _visitedFromSqlExpressions[fromSql] = fromSql.Update(Expression.Constant(constantValues, typeof(object[])));
+            }
 
             default:
                 Check.DebugFail("FromSql.Arguments must be Constant/ParameterExpression");
                 return null;
+        }
+
+        object ProcessConstantValue(object? existingConstantValue)
+        {
+            if (existingConstantValue is DbParameter dbParameter)
+            {
+                var parameterName = _parameterNameGenerator.GenerateNext();
+                if (string.IsNullOrEmpty(dbParameter.ParameterName))
+                {
+                    dbParameter.ParameterName = parameterName;
+                }
+                else
+                {
+                    parameterName = dbParameter.ParameterName;
+                }
+
+                return new RawRelationalParameter(parameterName, dbParameter);
+            }
+
+            return _sqlExpressionFactory.Constant(
+                existingConstantValue, _typeMappingSource.GetMappingForValue(existingConstantValue));
         }
     }
 }

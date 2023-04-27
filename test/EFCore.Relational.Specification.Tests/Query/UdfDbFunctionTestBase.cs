@@ -296,7 +296,12 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                 .HasTranslation(
                     args => new InExpression(
                         args.First(),
-                        new SqlConstantExpression(Expression.Constant(abc), typeMapping: null), // args.First().TypeMapping),
+                        new[]
+                        {
+                            new SqlConstantExpression(Expression.Constant(abc[0]), typeMapping: null),
+                            new SqlConstantExpression(Expression.Constant(abc[1]), typeMapping: null),
+                            new SqlConstantExpression(Expression.Constant(abc[2]), typeMapping: null)
+                        }, // args.First().TypeMapping)
                         typeMapping: null));
 
             var trueFalse = new[] { true, false };
@@ -305,9 +310,18 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                     args => new InExpression(
                         new InExpression(
                             args.First(),
-                            new SqlConstantExpression(Expression.Constant(abc), args.First().TypeMapping),
+                            new[]
+                            {
+                                new SqlConstantExpression(Expression.Constant(abc[0]), args.First().TypeMapping),
+                                new SqlConstantExpression(Expression.Constant(abc[1]), args.First().TypeMapping),
+                                new SqlConstantExpression(Expression.Constant(abc[2]), args.First().TypeMapping)
+                            },
                             typeMapping: null),
-                        new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
+                        new[]
+                        {
+                            new SqlConstantExpression(Expression.Constant(trueFalse[0]), typeMapping: null),
+                            new SqlConstantExpression(Expression.Constant(trueFalse[1]), typeMapping: null)
+                        },
                         typeMapping: null));
 
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), Array.Empty<Type>()))

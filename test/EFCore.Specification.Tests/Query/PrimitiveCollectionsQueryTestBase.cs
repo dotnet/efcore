@@ -115,6 +115,18 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_Contains_with_constant_and_parameter(bool async)
+    {
+        var j = 999;
+
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, j }.Contains(c.Id)),
+            entryCount: 1);
+    }
+
+    [ConditionalTheory] // #30734
+    [MemberData(nameof(IsAsyncData))]
     public virtual async Task Inline_collection_Contains_with_parameter_and_column_based_expression(bool async)
     {
         var i = 2;
@@ -526,6 +538,19 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { 1, 10 }),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SequenceEqual(new[] { 1, 10 })),
             entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_equality_inline_collection_with_parameters(bool async)
+    {
+        var (i, j) = (1, 10);
+
+        return AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { i, j }),
+                entryCount: 1));
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

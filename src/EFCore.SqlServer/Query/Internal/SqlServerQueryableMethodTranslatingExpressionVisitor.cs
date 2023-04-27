@@ -426,7 +426,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-            : base(inferredTypeMappings)
+            : base(sqlExpressionFactory, inferredTypeMappings)
             => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
 
         /// <summary>

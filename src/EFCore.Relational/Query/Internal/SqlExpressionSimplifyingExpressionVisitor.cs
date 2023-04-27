@@ -245,98 +245,41 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                 && leftCandidateInfo.ColumnExpression == rightCandidateInfo.ColumnExpression
                 && leftCandidateInfo.OperationType == rightCandidateInfo.OperationType)
             {
-                var leftConstantIsEnumerable = leftCandidateInfo.ConstantValue is IEnumerable
-                    && !(leftCandidateInfo.ConstantValue is string)
-                    && !(leftCandidateInfo.ConstantValue is byte[]);
-
-                var rightConstantIsEnumerable = rightCandidateInfo.ConstantValue is IEnumerable
-                    && !(rightCandidateInfo.ConstantValue is string)
-                    && !(rightCandidateInfo.ConstantValue is byte[]);
-
-                if ((leftCandidateInfo.OperationType == ExpressionType.Equal
-                        && sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
-                    || (leftCandidateInfo.OperationType == ExpressionType.NotEqual
-                        && sqlBinaryExpression.OperatorType == ExpressionType.AndAlso))
+                // for relational nulls we can't combine comparisons that contain null
+                // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
+                // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
+                // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
+                var leftValues = leftCandidateInfo.ValueOrValues switch
                 {
-                    object leftValue;
-                    object rightValue;
-                    List<object> resultArray;
+                    IReadOnlyList<SqlExpression> v => v,
+                    SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => new[] { c },
+                    _ => null
+                };
 
-                    switch ((leftConstantIsEnumerable, rightConstantIsEnumerable))
-                    {
-                        case (false, false):
-                            // comparison + comparison
-                            leftValue = leftCandidateInfo.ConstantValue;
-                            rightValue = rightCandidateInfo.ConstantValue;
-
-                            // for relational nulls we can't combine comparisons that contain null
-                            // a != 1 && a != null would be converted to a NOT IN (1, null), which never returns any results
-                            // we need to keep it in the original form so that a != null gets converted to a IS NOT NULL instead
-                            // for c# null semantics it's fine because null semantics visitor extracts null back into proper null checks
-                            if (_useRelationalNulls && (leftValue == null || rightValue == null))
-                            {
-                                return sqlBinaryExpression.Update(left, right);
-                            }
-
-                            resultArray = ConstructCollection(leftValue, rightValue);
-                            break;
-
-                        case (true, true):
-                            // in + in
-                            leftValue = leftCandidateInfo.ConstantValue;
-                            rightValue = rightCandidateInfo.ConstantValue;
-                            resultArray = UnionCollections((IEnumerable)leftValue, (IEnumerable)rightValue);
-                            break;
-
-                        default:
-                            // in + comparison
-                            leftValue = leftConstantIsEnumerable
-                                ? leftCandidateInfo.ConstantValue
-                                : rightCandidateInfo.ConstantValue;
-
-                            rightValue = leftConstantIsEnumerable
-                                ? rightCandidateInfo.ConstantValue
-                                : leftCandidateInfo.ConstantValue;
-
-                            if (_useRelationalNulls && rightValue == null)
-                            {
-                                return sqlBinaryExpression.Update(left, right);
-                            }
-
-                            resultArray = AddToCollection((IEnumerable)leftValue, rightValue);
-                            break;
-                    }
-
-                    var inExpression = _sqlExpressionFactory.In(
-                        leftCandidateInfo.ColumnExpression,
-                        _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping));
-
-                    return leftCandidateInfo.OperationType switch
-                    {
-                        ExpressionType.Equal => inExpression,
-                        ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
-                        _ => throw new InvalidOperationException("IMPOSSIBLE")
-                    };
-                }
-
-                if (leftConstantIsEnumerable && rightConstantIsEnumerable)
+                var rightValues = rightCandidateInfo.ValueOrValues switch
                 {
+                    IReadOnlyList<SqlExpression> v => v,
+                    SqlConstantExpression c when !_useRelationalNulls || c.Value is not null => new[] { c },
+                    _ => null
+                };
+
+                if (leftValues is not null && rightValues is not null)
+                {
+                    // Union:
+                    // a IN (1, 2) || a IN (2, 3) -> a IN (1, 2, 3)
+                    // a IN (1, 2) || a = 3 -> a IN (1, 2, 3)
+                    // a NOT IN (1, 2) && a NOT IN (2, 3) -> a NOT IN (1, 2, 3)
+                    // a NOT IN (1, 2) && a <> 3 -> a NOT IN (1, 2, 3)
+
+                    // Intersection:
                     // a IN (1, 2, 3) && a IN (2, 3, 4) -> a IN (2, 3)
                     // a NOT IN (1, 2, 3) || a NOT IN (2, 3, 4) -> a NOT IN (2, 3)
-                    var resultArray = IntersectCollections(
-                        (IEnumerable)leftCandidateInfo.ConstantValue,
-                        (IEnumerable)rightCandidateInfo.ConstantValue);
-
-                    var inExpression = _sqlExpressionFactory.In(
+                    return _sqlExpressionFactory.In(
                         leftCandidateInfo.ColumnExpression,
-                        _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping));
-
-                    return leftCandidateInfo.OperationType switch
-                    {
-                        ExpressionType.Equal => inExpression,
-                        ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
-                        _ => throw new InvalidOperationException("IMPOSSIBLE")
-                    };
+                        (leftCandidateInfo.OperationType, sqlBinaryExpression.OperatorType) is
+                        (ExpressionType.Equal, ExpressionType.OrElse) or (ExpressionType.NotEqual, ExpressionType.AndAlso)
+                            ? leftValues.Union(rightValues).ToArray()
+                            : leftValues.Intersect(rightValues).ToArray());
                 }
             }
         }
@@ -344,106 +287,45 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         return sqlBinaryExpression.Update(left, right);
     }
 
-    private static List<object> ConstructCollection(object left, object right)
-        => new() { left, right };
-
-    private static List<object> AddToCollection(IEnumerable collection, object newElement)
-    {
-        var result = BuildListFromEnumerable(collection);
-        if (!result.Contains(newElement))
-        {
-            result.Add(newElement);
-        }
-
-        return result;
-    }
-
-    private static List<object> UnionCollections(IEnumerable first, IEnumerable second)
-    {
-        var result = BuildListFromEnumerable(first);
-        foreach (var collectionElement in second)
-        {
-            if (!result.Contains(collectionElement))
-            {
-                result.Add(collectionElement);
-            }
-        }
-
-        return result;
-    }
-
-    private static List<object> IntersectCollections(IEnumerable first, IEnumerable second)
-    {
-        var firstList = BuildListFromEnumerable(first);
-        var result = new List<object>();
-
-        foreach (var collectionElement in second)
-        {
-            if (firstList.Contains(collectionElement))
-            {
-                result.Add(collectionElement);
-            }
-        }
-
-        return result;
-    }
-
-    private static List<object> BuildListFromEnumerable(IEnumerable collection)
-    {
-        List<object> result;
-        if (collection is List<object> list)
-        {
-            result = list;
-        }
-        else
-        {
-            result = new List<object>();
-            foreach (var collectionElement in collection)
-            {
-                result.Add(collectionElement);
-            }
-        }
-
-        return result;
-    }
-
     private static bool TryGetInExpressionCandidateInfo(
         SqlExpression sqlExpression,
-        out (ColumnExpression ColumnExpression, object ConstantValue, RelationalTypeMapping TypeMapping, ExpressionType OperationType)
-            candidateInfo)
+        out (ColumnExpression ColumnExpression, object ValueOrValues, ExpressionType OperationType) candidateInfo)
     {
-        if (sqlExpression is SqlUnaryExpression { OperatorType: ExpressionType.Not } sqlUnaryExpression)
+        switch (sqlExpression)
         {
-            if (TryGetInExpressionCandidateInfo(sqlUnaryExpression.Operand, out var inner))
+            case SqlUnaryExpression { OperatorType: ExpressionType.Not } sqlUnaryExpression
+                when TryGetInExpressionCandidateInfo(sqlUnaryExpression.Operand, out var inner):
             {
-                candidateInfo = (inner.ColumnExpression, inner.ConstantValue, inner.TypeMapping,
+                candidateInfo = (inner.ColumnExpression, inner.ValueOrValues,
                     inner.OperationType == ExpressionType.Equal ? ExpressionType.NotEqual : ExpressionType.Equal);
 
                 return true;
             }
-        }
-        else if (sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } sqlBinaryExpression)
-        {
-            var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression);
-            var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression);
 
-            if (column != null && constant != null)
+            case SqlBinaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } sqlBinaryExpression:
             {
-                candidateInfo = (column, constant.Value!, constant.TypeMapping!, sqlBinaryExpression.OperatorType);
+                var column = (sqlBinaryExpression.Left as ColumnExpression ?? sqlBinaryExpression.Right as ColumnExpression);
+                var constant = (sqlBinaryExpression.Left as SqlConstantExpression ?? sqlBinaryExpression.Right as SqlConstantExpression);
+
+                if (column != null && constant != null)
+                {
+                    candidateInfo = (column, constant, sqlBinaryExpression.OperatorType);
+                    return true;
+                }
+
+                goto default;
+            }
+
+            case InExpression { Item: ColumnExpression column, Subquery: null, Values: { } values }:
+            {
+                candidateInfo = (column, values, ExpressionType.Equal);
+
                 return true;
             }
-        }
-        else if (sqlExpression is InExpression
-                 {
-                     Item: ColumnExpression column, Subquery: null, Values: SqlConstantExpression valuesConstant
-                 })
-        {
-            candidateInfo = (column, valuesConstant.Value!, valuesConstant.TypeMapping!, ExpressionType.Equal);
 
-            return true;
+            default:
+                candidateInfo = default;
+                return false;
         }
-
-        candidateInfo = default;
-        return false;
     }
 }

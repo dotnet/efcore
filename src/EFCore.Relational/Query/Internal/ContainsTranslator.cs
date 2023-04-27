@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -38,11 +39,14 @@ public class ContainsTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
+        SqlExpression? itemExpression = null, valuesExpression = null;
+
+        // Identify static Enumerable.Contains and instance List.Contains
         if (method.IsGenericMethod
-            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+            && method.GetGenericMethodDefinition() == EnumerableMethods.Contains
             && ValidateValues(arguments[0]))
         {
-            return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[1]), arguments[0]);
+            (itemExpression, valuesExpression) = (RemoveObjectConvert(arguments[1]), arguments[0]);
         }
 
         if (arguments.Count == 1
@@ -50,14 +54,33 @@ public class ContainsTranslator : IMethodCallTranslator
             && instance != null
             && ValidateValues(instance))
         {
-            return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[0]), instance);
+            (itemExpression, valuesExpression) = (RemoveObjectConvert(arguments[0]), instance);
+        }
+
+        if (itemExpression is not null && valuesExpression is not null)
+        {
+            switch (valuesExpression)
+            {
+                case SqlParameterExpression parameter:
+                    return _sqlExpressionFactory.In(itemExpression, parameter);
+
+                case SqlConstantExpression { Value: IEnumerable values }:
+                    var valuesExpressions = new List<SqlExpression>();
+
+                    foreach (var value in values)
+                    {
+                        valuesExpressions.Add(_sqlExpressionFactory.Constant(value));
+                    }
+
+                    return _sqlExpressionFactory.In(itemExpression, valuesExpressions);
+            }
         }
 
         return null;
     }
 
     private static bool ValidateValues(SqlExpression values)
-        => values is SqlConstantExpression || values is SqlParameterExpression;
+        => values is SqlConstantExpression or SqlParameterExpression;
 
     private static SqlExpression RemoveObjectConvert(SqlExpression expression)
         => expression is SqlUnaryExpression sqlUnaryExpression

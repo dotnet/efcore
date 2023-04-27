@@ -297,7 +297,6 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     protected class SqliteInferredTypeMappingApplier : RelationalInferredTypeMappingApplier
     {
         private readonly IRelationalTypeMappingSource _typeMappingSource;
-        private readonly ISqlExpressionFactory _sqlExpressionFactory;
         private Dictionary<TableExpressionBase, RelationalTypeMapping>? _currentSelectInferredTypeMappings;
 
         /// <summary>
@@ -310,8 +309,8 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory,
             IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
-            : base(inferredTypeMappings)
-            => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
+            : base(sqlExpressionFactory, inferredTypeMappings)
+            => _typeMappingSource = typeMappingSource;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

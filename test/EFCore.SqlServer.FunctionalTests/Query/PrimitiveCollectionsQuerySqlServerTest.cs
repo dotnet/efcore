@@ -144,18 +144,28 @@ WHERE [p].[Id] IN (2, 999, 1000)
     {
         await base.Inline_collection_Contains_with_all_parameters(async);
 
-        // See #30732 for making this better
-
         AssertSql(
 """
-@__p_0='[2,999]' (Size = 4000)
+@__i_0='2'
+@__j_1='999'
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Id] IN (
-    SELECT CAST([p0].[value] AS int) AS [value]
-    FROM OPENJSON(@__p_0) AS [p0]
-)
+WHERE [p].[Id] IN (@__i_0, @__j_1)
+""");
+    }
+
+    public override async Task Inline_collection_Contains_with_constant_and_parameter(bool async)
+    {
+        await base.Inline_collection_Contains_with_constant_and_parameter(async);
+
+        AssertSql(
+"""
+@__j_0='999'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] IN (2, @__j_0)
 """);
     }
 
@@ -771,6 +781,13 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Ints] = N'[1,10]'
 """);
+    }
+
+    public override async Task Column_collection_equality_inline_collection_with_parameters(bool async)
+    {
+        await base.Column_collection_equality_inline_collection_with_parameters(async);
+
+        AssertSql();
     }
 
     public override async Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)

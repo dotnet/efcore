@@ -1903,15 +1903,30 @@ public sealed partial class SelectExpression : TableExpressionBase
                     }
                 }
             }
-            else if (sqlExpression is InExpression inExpression
-                     && inExpression.Item is ColumnExpression itemColumn
-                     && itemColumn.Table is TpcTablesExpression itemTpc
+            // Identify application of a predicate which narrows the discriminator (e.g. OfType) for TPC, apply it to
+            // _tpcDiscriminatorValues (which will be handled later) instead of as a WHERE predicate.
+            else if (sqlExpression is InExpression
+                     {
+                         Item: ColumnExpression { Table: TpcTablesExpression itemTpc } itemColumn,
+                         Values: IReadOnlyList<SqlExpression> valueExpressions
+                     }
                      && _tpcDiscriminatorValues.TryGetValue(itemTpc, out var itemTuple)
-                     && itemTuple.Item1.Equals(itemColumn)
-                     && inExpression.Values is SqlConstantExpression itemConstant
-                     && itemConstant.Value is List<string> values)
+                     && itemTuple.Item1.Equals(itemColumn))
             {
-                var newList = itemTuple.Item2.Intersect(values).ToList();
+                var constantValues = new string[valueExpressions.Count];
+                for (var i = 0; i < constantValues.Length; i++)
+                {
+                    if (valueExpressions[i] is SqlConstantExpression { Value: string value })
+                    {
+                        constantValues[i] = value;
+                    }
+                    else
+                    {
+                        goto ApplyPredicate;
+                    }
+                }
+
+                var newList = itemTuple.Item2.Intersect(constantValues).ToList();
                 if (newList.Count > 0)
                 {
                     _tpcDiscriminatorValues[itemTpc] = (itemColumn, newList);
@@ -1920,6 +1935,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
         }
 
+        ApplyPredicate:
         sqlExpression = AssignUniqueAliases(sqlExpression);
 
         if (_groupBy.Count > 0)
