@@ -834,6 +834,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
+        var sentinel = property.Sentinel;
+        if (sentinel != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("sentinel: ")
+                .Append(_code.UnknownLiteral(sentinel));
+        }
+
         mainBuilder
             .AppendLine(");")
             .DecrementIndent();

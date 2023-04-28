@@ -161,9 +161,7 @@ public class InternalClrEntityEntryTest : InternalEntityEntryTestBase<
 
         context.GetService<IChangeDetector>().DetectChanges(entry);
 
-        Assert.True(entry.HasTemporaryValue(keyProperty));
-
-        context.Entry(entity).Property("Id").IsTemporary = false;
+        Assert.False(entry.HasTemporaryValue(keyProperty));
 
         entry.SetEntityState(EntityState.Unchanged); // Does not throw
 

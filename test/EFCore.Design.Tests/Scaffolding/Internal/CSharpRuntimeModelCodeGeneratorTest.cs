@@ -639,7 +639,8 @@ namespace Internal
                 propertyInfo: typeof(Microsoft.EntityFrameworkCore.Scaffolding.Internal.Index).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(Microsoft.EntityFrameworkCore.Scaffolding.Internal.Index).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -689,7 +690,8 @@ namespace Internal
                 propertyInfo: typeof(Microsoft.EntityFrameworkCore.Scaffolding.Internal.Internal).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(Microsoft.EntityFrameworkCore.Scaffolding.Internal.Internal).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
 
             var key = runtimeEntityType.AddKey(
                 new[] { id });
@@ -746,7 +748,8 @@ namespace Internal
                 "AccessFailedCount",
                 typeof(int),
                 propertyInfo: typeof(IdentityUser<string>).GetProperty("AccessFailedCount", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<AccessFailedCount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(IdentityUser<string>).GetField("<AccessFailedCount>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
 
             var concurrencyStamp = runtimeEntityType.AddProperty(
                 "ConcurrencyStamp",
@@ -772,13 +775,15 @@ namespace Internal
                 "EmailConfirmed",
                 typeof(bool),
                 propertyInfo: typeof(IdentityUser<string>).GetProperty("EmailConfirmed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<EmailConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(IdentityUser<string>).GetField("<EmailConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: false);
 
             var lockoutEnabled = runtimeEntityType.AddProperty(
                 "LockoutEnabled",
                 typeof(bool),
                 propertyInfo: typeof(IdentityUser<string>).GetProperty("LockoutEnabled", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(IdentityUser<string>).GetField("<LockoutEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: false);
 
             var lockoutEnd = runtimeEntityType.AddProperty(
                 "LockoutEnd",
@@ -819,7 +824,8 @@ namespace Internal
                 "PhoneNumberConfirmed",
                 typeof(bool),
                 propertyInfo: typeof(IdentityUser<string>).GetProperty("PhoneNumberConfirmed", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumberConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(IdentityUser<string>).GetField("<PhoneNumberConfirmed>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: false);
 
             var securityStamp = runtimeEntityType.AddProperty(
                 "SecurityStamp",
@@ -832,7 +838,8 @@ namespace Internal
                 "TwoFactorEnabled",
                 typeof(bool),
                 propertyInfo: typeof(IdentityUser<string>).GetProperty("TwoFactorEnabled", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityUser<string>).GetField("<TwoFactorEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(IdentityUser<string>).GetField("<TwoFactorEnabled>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: false);
 
             var userName = runtimeEntityType.AddProperty(
                 "UserName",
@@ -1617,20 +1624,23 @@ namespace TestNamespace
             var principalId = runtimeEntityType.AddProperty(
                 "PrincipalId",
                 typeof(long),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
             principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var principalAlternateId = runtimeEntityType.AddProperty(
                 "PrincipalAlternateId",
                 typeof(Guid),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             principalAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var enumDiscriminator = runtimeEntityType.AddProperty(
                 "EnumDiscriminator",
                 typeof(CSharpMigrationsGeneratorTest.Enum1),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create,
+                sentinel: CSharpMigrationsGeneratorTest.Enum1.Default);
             enumDiscriminator.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var id = runtimeEntityType.AddProperty(
@@ -1762,7 +1772,8 @@ namespace TestNamespace
                 typeof(Guid),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             alternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var point = runtimeEntityType.AddProperty(
@@ -1864,7 +1875,8 @@ namespace TestNamespace
                 typeof(long),
                 propertyAccessMode: PropertyAccessMode.Field,
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
 
             var overrides = new StoreObjectDictionary<RuntimeRelationalPropertyOverrides>();
             var principalBaseIdPrincipalBase = new RuntimeRelationalPropertyOverrides(
@@ -1882,7 +1894,8 @@ namespace TestNamespace
                 "PrincipalBaseAlternateId",
                 typeof(Guid),
                 propertyAccessMode: PropertyAccessMode.Field,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             principalBaseAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var details = runtimeEntityType.AddProperty(
@@ -1909,7 +1922,8 @@ namespace TestNamespace
                 typeof(int),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Number", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                propertyAccessMode: PropertyAccessMode.Field);
+                propertyAccessMode: PropertyAccessMode.Field,
+                sentinel: 0);
             number.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var context = runtimeEntityType.AddServiceProperty(
@@ -2012,20 +2026,23 @@ namespace TestNamespace
             var principalDerivedId = runtimeEntityType.AddProperty(
                 "PrincipalDerivedId",
                 typeof(long),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
             principalDerivedId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var principalDerivedAlternateId = runtimeEntityType.AddProperty(
                 "PrincipalDerivedAlternateId",
                 typeof(Guid),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             principalDerivedAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var details = runtimeEntityType.AddProperty(
@@ -2040,7 +2057,8 @@ namespace TestNamespace
                 "Number",
                 typeof(int),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Number", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
             number.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var context = runtimeEntityType.AddServiceProperty(
@@ -2246,7 +2264,8 @@ namespace TestNamespace
                 "Money",
                 typeof(decimal),
                 precision: 9,
-                scale: 3);
+                scale: 3,
+                sentinel: 0m);
             money.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             return runtimeEntityType;
@@ -3335,20 +3354,23 @@ namespace TestNamespace
             var principalId = runtimeEntityType.AddProperty(
                 "PrincipalId",
                 typeof(long),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
             principalId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var principalAlternateId = runtimeEntityType.AddProperty(
                 "PrincipalAlternateId",
                 typeof(Guid),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             principalAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var enumDiscriminator = runtimeEntityType.AddProperty(
                 "EnumDiscriminator",
                 typeof(CSharpMigrationsGeneratorTest.Enum1),
                 afterSaveBehavior: PropertySaveBehavior.Throw,
-                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create,
+                sentinel: CSharpMigrationsGeneratorTest.Enum1.Default);
             enumDiscriminator.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var id = runtimeEntityType.AddProperty(
@@ -3471,7 +3493,8 @@ namespace TestNamespace
                 typeof(Guid),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("AlternateId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             alternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var discriminator = runtimeEntityType.AddProperty(
@@ -3580,14 +3603,16 @@ namespace TestNamespace
                 "PrincipalBaseId",
                 typeof(long),
                 propertyAccessMode: PropertyAccessMode.Field,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
             principalBaseId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var principalBaseAlternateId = runtimeEntityType.AddProperty(
                 "PrincipalBaseAlternateId",
                 typeof(Guid),
                 propertyAccessMode: PropertyAccessMode.Field,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             principalBaseAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var details = runtimeEntityType.AddProperty(
@@ -3604,7 +3629,8 @@ namespace TestNamespace
                 typeof(int),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Number", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                propertyAccessMode: PropertyAccessMode.Field);
+                propertyAccessMode: PropertyAccessMode.Field,
+                sentinel: 0);
             number.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var context = runtimeEntityType.AddServiceProperty(
@@ -3688,20 +3714,23 @@ namespace TestNamespace
             var principalDerivedId = runtimeEntityType.AddProperty(
                 "PrincipalDerivedId",
                 typeof(long),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0L);
             principalDerivedId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var principalDerivedAlternateId = runtimeEntityType.AddProperty(
                 "PrincipalDerivedAlternateId",
                 typeof(Guid),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
             principalDerivedAlternateId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var id = runtimeEntityType.AddProperty(
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var details = runtimeEntityType.AddProperty(
@@ -3716,7 +3745,8 @@ namespace TestNamespace
                 "Number",
                 typeof(int),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Number", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: 0);
             number.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var context = runtimeEntityType.AddServiceProperty(
@@ -3922,7 +3952,8 @@ namespace TestNamespace
                 "Money",
                 typeof(decimal),
                 precision: 9,
-                scale: 3);
+                scale: 3,
+                sentinel: 0m);
             money.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             return runtimeEntityType;
@@ -6605,7 +6636,8 @@ namespace TestNamespace
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
             id.AddAnnotation("SqlServer:HiLoSequenceName", "HL");
             id.AddAnnotation("SqlServer:HiLoSequenceSchema", "S");
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.SequenceHiLo);
@@ -6854,7 +6886,8 @@ namespace TestNamespace
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
             id.AddAnnotation("Relational:DefaultValueSql", "NEXT VALUE FOR [KeySeqSchema].[KeySeq]");
             id.AddAnnotation("SqlServer:SequenceName", "KeySeq");
             id.AddAnnotation("SqlServer:SequenceSchema", "KeySeqSchema");
@@ -7077,7 +7110,8 @@ namespace TestNamespace
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var blob = runtimeEntityType.AddProperty(
@@ -7291,7 +7325,8 @@ namespace TestNamespace
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             var blob = runtimeEntityType.AddProperty(
@@ -7520,7 +7555,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 "Id",
                 typeof(int),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
 
             var blob = runtimeEntityType.AddProperty(
                 "Blob",
@@ -7705,7 +7741,8 @@ namespace TestNamespace
             var id = runtimeEntityType.AddProperty(
                 "Id",
                 typeof(int),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: 0);
 
             var partitionId = runtimeEntityType.AddProperty(
                 "PartitionId",

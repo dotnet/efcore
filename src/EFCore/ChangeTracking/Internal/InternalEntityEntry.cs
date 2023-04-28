@@ -599,6 +599,13 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
             if (currentState == EntityState.Added)
             {
+                if (FlaggedAsTemporary(propertyIndex)
+                    && !FlaggedAsStoreGenerated(propertyIndex)
+                    && !HasSentinelValue(property))
+                {
+                    _stateData.FlagProperty(propertyIndex, PropertyFlag.IsTemporary, false);
+                }
+
                 return;
             }
         }
@@ -747,6 +754,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         SetProperty(property, value, isMaterialization: false, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
+        _stateData.FlagProperty(property.GetIndex(), PropertyFlag.IsTemporary, true);
     }
 
     /// <summary>
