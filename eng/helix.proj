@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <XUnitProject Include="$(RepoRoot)/test/**/*.csproj"/>
+    <XUnitProject Remove="$(RepoRoot)/test/ef.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.AspNet.Specification.Tests/*.csproj"/>
     <XUnitProject Remove="$(RepoRoot)/test/EFCore.Relational.Specification.Tests/*.csproj"/>
