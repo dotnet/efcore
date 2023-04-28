@@ -16,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServerUpdateSqlGenerator
 {
     private static readonly bool UseOldBehavior30330
-        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30330 ", out var enabled30330) && enabled30330;
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30330", out var enabled30330) && enabled30330;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
