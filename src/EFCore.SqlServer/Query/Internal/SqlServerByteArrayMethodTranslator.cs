@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
-using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 
@@ -39,74 +38,39 @@ public class SqlServerByteArrayMethodTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
-        if (!method.IsGenericMethod
-            || method.DeclaringType != typeof(Enumerable)
-            || instance is not null
-            || arguments is not [{ TypeMapping: (SqlServerByteArrayTypeMapping or null) and var sourceTypeMapping } source, ..])
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
+            && arguments[0].Type == typeof(byte[]))
         {
-            return null;
+            var source = arguments[0];
+            var sourceTypeMapping = source.TypeMapping;
+
+            var value = arguments[1] is SqlConstantExpression constantValue
+                ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
+                : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
+
+            return _sqlExpressionFactory.GreaterThan(
+                _sqlExpressionFactory.Function(
+                    "CHARINDEX",
+                    new[] { value, source },
+                    nullable: true,
+                    argumentsPropagateNullability: new[] { true, true },
+                    typeof(int)),
+                _sqlExpressionFactory.Constant(0));
         }
 
-        switch (method.Name)
+        if (method.IsGenericMethod
+            && method.GetGenericMethodDefinition().Equals(EnumerableMethods.FirstWithoutPredicate)
+            && arguments[0].Type == typeof(byte[]))
         {
-            case nameof(Enumerable.Contains) when method.GetGenericMethodDefinition() == EnumerableMethods.Contains:
-            {
-                var value = arguments[1] is SqlConstantExpression constantValue
-                    ? (SqlExpression)_sqlExpressionFactory.Constant(new[] { (byte)constantValue.Value! }, sourceTypeMapping)
-                    : _sqlExpressionFactory.Convert(arguments[1], typeof(byte[]), sourceTypeMapping);
-
-                return _sqlExpressionFactory.GreaterThan(
-                    _sqlExpressionFactory.Function(
-                        "CHARINDEX",
-                        new[] { value, source },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true },
-                        typeof(int)),
-                    _sqlExpressionFactory.Constant(0));
-            }
-
-            case nameof(Enumerable.First) when method.GetGenericMethodDefinition() == EnumerableMethods.FirstWithoutPredicate:
-            {
-                return _sqlExpressionFactory.Convert(
-                    _sqlExpressionFactory.Function(
-                        "SUBSTRING",
-                        new[] { arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
-                        nullable: true,
-                        argumentsPropagateNullability: new[] { true, true, true },
-                        typeof(byte[])),
-                    method.ReturnType);
-            }
-
-            // Translate byteArray.Count() -> DATALENGTH(byteArray)
-            // https://learn.microsoft.com/sql/t-sql/functions/datalength-transact-sql
-            case nameof(Enumerable.Count) when method.GetGenericMethodDefinition() == EnumerableMethods.CountWithoutPredicate:
-            {
-                // Note that DATALENGTH returns bigint for varbinary(max), otherwise int
-                var isVarBinaryMax = sourceTypeMapping?.Size is null;
-
-                var dataLengthFunction = _sqlExpressionFactory.Function(
-                    "DATALENGTH",
-                    new[] { arguments[0] },
+            return _sqlExpressionFactory.Convert(
+                _sqlExpressionFactory.Function(
+                    "SUBSTRING",
+                    new[] { arguments[0], _sqlExpressionFactory.Constant(1), _sqlExpressionFactory.Constant(1) },
                     nullable: true,
-                    argumentsPropagateNullability: new[] { true },
-                    isVarBinaryMax ? typeof(long) : typeof(int));
-
-                return isVarBinaryMax
-                    ? _sqlExpressionFactory.Convert(dataLengthFunction, typeof(int))
-                    : dataLengthFunction;
-            }
-
-            // Translate byteArray.LongCount() -> DATALENGTH(byteArray)
-            // https://learn.microsoft.com/sql/t-sql/functions/datalength-transact-sql
-            case nameof(Enumerable.LongCount) when method.GetGenericMethodDefinition() == EnumerableMethods.LongCountWithoutPredicate:
-            {
-                return _sqlExpressionFactory.Function(
-                    "DATALENGTH",
-                    new[] { arguments[0] },
-                    nullable: true,
-                    argumentsPropagateNullability: new[] { true },
-                    typeof(long));
-            }
+                    argumentsPropagateNullability: new[] { true, true, true },
+                    typeof(byte[])),
+                method.ReturnType);
         }
 
         return null;

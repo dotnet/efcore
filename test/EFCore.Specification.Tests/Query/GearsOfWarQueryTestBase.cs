@@ -6228,7 +6228,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
             ss => ss.Set<Weapon>().Select(w => w.SynergyWith).OrderBy(w => w.MaybeScalar(x => x.IsAutomatic)),
             assertOrder: true);
 
-    [ConditionalFact(Skip = "#30711")]
+    [ConditionalFact]
     public virtual void Byte_array_filter_by_length_parameter_compiled()
     {
         var query = EF.CompileQuery(
