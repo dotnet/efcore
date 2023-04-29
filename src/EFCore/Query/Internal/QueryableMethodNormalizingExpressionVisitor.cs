@@ -48,6 +48,30 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    {
+        // Convert array[x] to array.ElementAt(x)
+        if (binaryExpression is
+            {
+                NodeType: ExpressionType.ArrayIndex,
+                Left: var source,
+                Right: var index
+            })
+        {
+            return VisitMethodCall(
+                Expression.Call(
+                    EnumerableMethods.ElementAt.MakeGenericMethod(source.Type.GetSequenceType()), source, index));
+        }
+
+        return base.VisitBinary(binaryExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
@@ -58,6 +82,27 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && ExtractQueryMetadata(methodCallExpression) is Expression expression)
         {
             return expression;
+        }
+
+        // Normalize list[x] to list.ElementAt(x)
+        if (methodCallExpression is
+            {
+                Method:
+                {
+                    Name: "get_Item",
+                    IsStatic: false,
+                    DeclaringType: Type declaringType
+                },
+                Object: Expression indexerSource,
+                Arguments: [var index]
+            }
+            && declaringType.GetInterface("IReadOnlyList`1") is not null)
+        {
+            return VisitMethodCall(
+                Expression.Call(
+                    EnumerableMethods.ElementAt.MakeGenericMethod(indexerSource.Type.GetSequenceType()),
+                    indexerSource,
+                    index));
         }
 
         Expression? visitedExpression = null;

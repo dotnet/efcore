@@ -35,7 +35,6 @@ public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocess
     public override Expression NormalizeQueryableMethod(Expression expression)
     {
         expression = new RelationalQueryMetadataExtractingExpressionVisitor(_relationalQueryCompilationContext).Visit(expression);
-        expression = new CollectionIndexerToElementAtNormalizingExpressionVisitor().Visit(expression);
         expression = base.NormalizeQueryableMethod(expression);
 
         return expression;
