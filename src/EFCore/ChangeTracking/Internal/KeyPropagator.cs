@@ -149,9 +149,8 @@ public class KeyPropagator : IKeyPropagator
 
                         if (principalProperty != property)
                         {
-                            var principalValue = principalEntry[principalProperty];
                             if (generationProperty == null
-                                || !principalProperty.ClrType.IsDefaultValue(principalValue))
+                                || principalEntry.HasExplicitValue(principalProperty))
                             {
                                 entry.PropagateValue(principalEntry, principalProperty, property);
 

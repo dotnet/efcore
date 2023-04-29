@@ -554,6 +554,20 @@ public class GraphUpdatesSqlServerOwnedTest : GraphUpdatesSqlServerTestBase<Grap
                     b.Property(e => e.IdUserState).HasDefaultValue(1);
                     b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
                 });
+
+            modelBuilder.Entity<AccessStateWithSentinel>(
+                b =>
+                {
+                    b.Property(e => e.AccessStateWithSentinelId).ValueGeneratedNever();
+                    b.HasData(new AccessStateWithSentinel { AccessStateWithSentinelId = 1 });
+                });
+
+            modelBuilder.Entity<CruiserWithSentinel>(
+                b =>
+                {
+                    b.Property(e => e.IdUserState).HasDefaultValue(1).Metadata.Sentinel = 667;
+                    b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
+                });
         }
     }
 }

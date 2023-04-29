@@ -30,6 +30,11 @@ public interface IReadOnlyPropertyBase : IReadOnlyAnnotatable
     Type ClrType { get; }
 
     /// <summary>
+    ///     Gets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    object? Sentinel { get; }
+
+    /// <summary>
     ///     Gets the <see cref="PropertyInfo" /> for the underlying CLR property for this property-like object.
     ///     This may be <see langword="null" /> for shadow properties or if mapped directly to a field.
     /// </summary>

@@ -96,6 +96,20 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     ConfigurationSource? GetIsConcurrencyTokenConfigurationSource();
 
     /// <summary>
+    ///     Sets the sentinel value that indicates that this property is not set.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    object? SetSentinel(object? sentinel, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.IsConcurrencyToken" />.</returns>
+    ConfigurationSource? GetSentinelConfigurationSource();
+
+    /// <summary>
     ///     Returns a value indicating whether the property was created implicitly and isn't based on the CLR model.
     /// </summary>
     /// <returns>A value indicating whether the property was created implicitly and isn't based on the CLR model.</returns>

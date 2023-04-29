@@ -11,7 +11,8 @@ public sealed partial class InternalEntityEntry
         Null = 1,
         Unknown = 2,
         IsLoaded = 3,
-        IsTemporary = 4
+        IsTemporary = 4,
+        IsStoreGenerated = 5
     }
 
     internal readonly struct StateData

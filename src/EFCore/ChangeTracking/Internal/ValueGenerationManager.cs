@@ -45,7 +45,8 @@ public class ValueGenerationManager : IValueGenerationManager
         InternalEntityEntry? chosenPrincipal = null;
         foreach (var property in entry.EntityType.GetForeignKeyProperties())
         {
-            if (!entry.HasDefaultValue(property))
+            if (!entry.IsUnknown(property)
+                && entry.HasExplicitValue(property))
             {
                 continue;
             }
@@ -68,7 +69,7 @@ public class ValueGenerationManager : IValueGenerationManager
         InternalEntityEntry? chosenPrincipal = null;
         foreach (var property in entry.EntityType.GetForeignKeyProperties())
         {
-            if (!entry.HasDefaultValue(property))
+            if (entry.HasExplicitValue(property))
             {
                 continue;
             }
@@ -94,7 +95,7 @@ public class ValueGenerationManager : IValueGenerationManager
 
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
-            if (!entry.HasDefaultValue(property)
+            if (entry.HasExplicitValue(property)
                 || (!includePrimaryKey
                     && property.IsPrimaryKey()))
             {
@@ -153,7 +154,7 @@ public class ValueGenerationManager : IValueGenerationManager
         var hasNonStableValues = false;
         foreach (var property in entry.EntityType.GetValueGeneratingProperties())
         {
-            if (!entry.HasDefaultValue(property)
+            if (entry.HasExplicitValue(property)
                 || (!includePrimaryKey
                     && property.IsPrimaryKey()))
             {

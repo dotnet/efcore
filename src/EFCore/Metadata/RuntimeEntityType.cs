@@ -580,6 +580,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// </summary>
     /// <param name="name">The name of the property to add.</param>
     /// <param name="clrType">The type of value the property will hold.</param>
+    /// <param name="sentinel">The property value to use to consider the property not set.</param>
     /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow property.</param>
     /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow property.</param>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this property.</param>
@@ -609,6 +610,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     public virtual RuntimeProperty AddProperty(
         string name,
         Type clrType,
+        object? sentinel = null,
         PropertyInfo? propertyInfo = null,
         FieldInfo? fieldInfo = null,
         PropertyAccessMode propertyAccessMode = Internal.Model.DefaultPropertyAccessMode,
@@ -632,6 +634,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         var property = new RuntimeProperty(
             name,
             clrType,
+            sentinel,
             propertyInfo,
             fieldInfo,
             this,

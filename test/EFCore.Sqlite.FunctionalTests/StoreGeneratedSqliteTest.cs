@@ -33,6 +33,9 @@ public class StoreGeneratedSqliteTest : StoreGeneratedTestBase<StoreGeneratedSql
 
     public class StoreGeneratedSqliteFixture : StoreGeneratedFixtureBase
     {
+        protected override string StoreName
+            => "StoreGeneratedTest";
+
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 

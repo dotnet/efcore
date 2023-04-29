@@ -49,16 +49,13 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
+                var principal = new Category();
                 var dependent = new Product
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Category = principal
                 };
-                principal.Products.Add(dependent);
 
-                MarkIdsTemporary(context, dependent, principal);
+                principal.Products.Add(dependent);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -139,11 +136,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
+                var principal = new Category();
+                var dependent = new Product();
                 principal.Products.Add(dependent);
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -156,15 +151,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
+                var principal = new Category();
                 var dependent = new Product
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Category = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -201,16 +192,12 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
+                var principal = new Category();
                 var dependent = new Product
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Category = principal
                 };
                 principal.Products.Add(dependent);
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -291,11 +278,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
+                var principal = new Category();
+                var dependent = new Product();
                 principal.Products.Add(dependent);
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -308,15 +293,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
+                var principal = new Category();
                 var dependent = new Product
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Category = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -330,8 +311,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(principal.Id1, dependent.CategoryId1);
-                Assert.Equal(principal.Id2, dependent.CategoryId2);
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                    context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                    context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
                 Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -425,11 +412,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ProductPN { Id1 = -78, Id2 = Guid78 };
+                var principal = new CategoryPN();
+                var dependent = new ProductPN();
                 principal.Products.Add(dependent);
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -465,11 +450,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ProductPN { Id1 = -78, Id2 = Guid78 };
+                var principal = new CategoryPN();
+                var dependent = new ProductPN();
                 principal.Products.Add(dependent);
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -483,8 +466,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(principal.Id1, dependent.CategoryId1);
-                Assert.Equal(principal.Id2, dependent.CategoryId2);
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                    context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                    context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                 Assert.Equal(new[] { dependent }.ToList(), principal.Products);
                 Assert.Equal(EntityState.Added, context.Entry(principal).State);
                 Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -554,15 +543,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
+                var principal = new CategoryDN();
                 var dependent = new ProductDN
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Category = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -620,15 +605,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
+                var principal = new CategoryDN();
                 var dependent = new ProductDN
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Category = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -642,8 +623,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(principal.Id1, dependent.CategoryId1);
-                Assert.Equal(principal.Id2, dependent.CategoryId2);
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                    context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                    context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                 Assert.Same(principal, dependent.Category);
                 Assert.Equal(EntityState.Added, context.Entry(principal).State);
                 Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -761,16 +748,12 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
+                var principal = new Parent();
                 var dependent = new Child
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Parent = principal
                 };
                 principal.Child = dependent;
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -851,11 +834,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
+                var principal = new Parent();
+                var dependent = new Child();
                 principal.Child = dependent;
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -868,15 +849,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
+                var principal = new Parent();
                 var dependent = new Child
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Parent = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -913,16 +890,12 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
+                var principal = new Parent();
                 var dependent = new Child
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Parent = principal
                 };
                 principal.Child = dependent;
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -1003,11 +976,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
+                var principal = new Parent();
+                var dependent = new Child();
                 principal.Child = dependent;
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -1020,15 +991,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
+                var principal = new Parent();
                 var dependent = new Child
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Parent = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -1042,8 +1009,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(principal.Id1, dependent.ParentId1);
-                Assert.Equal(principal.Id2, dependent.ParentId2);
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                    context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                    context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                 Assert.Same(principal, dependent.Parent);
                 Assert.Same(dependent, principal.Child);
                 Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -1137,11 +1110,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ChildPN { Id1 = -78, Id2 = Guid78 };
+                var principal = new ParentPN();
+                var dependent = new ChildPN();
                 principal.Child = dependent;
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -1177,11 +1148,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ChildPN { Id1 = -78, Id2 = Guid78 };
+                var principal = new ParentPN();
+                var dependent = new ChildPN();
                 principal.Child = dependent;
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(principal);
                 context.Add(dependent);
@@ -1195,8 +1164,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(principal.Id1, dependent.ParentId1);
-                Assert.Equal(principal.Id2, dependent.ParentId2);
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                    context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                    context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                 Assert.Same(dependent, principal.Child);
                 Assert.Equal(EntityState.Added, context.Entry(principal).State);
                 Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -1266,15 +1241,11 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
+                var principal = new ParentDN();
                 var dependent = new ChildDN
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Parent = principal
                 };
-
-                MarkIdsTemporary(context, dependent, principal);
 
                 context.Add(dependent);
                 context.Add(principal);
@@ -1332,18 +1303,16 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
+                var principal = new ParentDN();
                 var dependent = new ChildDN
                 {
-                    Id1 = -78,
-                    Id2 = Guid78,
                     Parent = principal
                 };
 
-                MarkIdsTemporary(context, dependent, principal);
-
                 context.Add(principal);
                 context.Add(dependent);
+
+                MarkIdsTemporary(context, dependent, principal);
 
                 AssertFixupAndSave(context, principal, dependent);
             });
@@ -1354,8 +1323,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(principal.Id1, dependent.ParentId1);
-                Assert.Equal(principal.Id2, dependent.ParentId2);
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                    context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                Assert.Equal(
+                    context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                    context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                 Assert.Same(principal, dependent.Parent);
                 Assert.Equal(EntityState.Added, context.Entry(principal).State);
                 Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -1495,10 +1470,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Category();
+                var dependent = new Product();
 
                 context.Add(dependent);
 
@@ -1511,8 +1484,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.CategoryId1);
-                        Assert.Equal(principal.Id2, dependent.CategoryId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Category);
                         Assert.Equal(new[] { dependent }.ToList(), principal.Products);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -1687,10 +1666,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Category();
+                var dependent = new Product();
 
                 context.Add(dependent);
 
@@ -1735,10 +1712,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Category();
+                var dependent = new Product();
 
                 context.Add(dependent);
 
@@ -1750,8 +1725,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.CategoryId1);
-                        Assert.Equal(principal.Id2, dependent.CategoryId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Category);
                         Assert.Equal(new[] { dependent }.ToList(), principal.Products);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -1824,10 +1805,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Category();
+                var dependent = new Product();
 
                 context.Add(principal);
 
@@ -1840,8 +1819,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.CategoryId1);
-                        Assert.Equal(principal.Id2, dependent.CategoryId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Category);
                         Assert.Equal(new[] { dependent }.ToList(), principal.Products);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -1998,10 +1983,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Category();
+                var dependent = new Product();
 
                 context.Add(principal);
 
@@ -2043,10 +2026,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Category { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Product { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Category();
+                var dependent = new Product();
 
                 context.Add(principal);
 
@@ -2223,10 +2204,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ProductPN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new CategoryPN();
+                var dependent = new ProductPN();
 
                 context.Add(dependent);
 
@@ -2312,10 +2291,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ProductPN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new CategoryPN();
+                var dependent = new ProductPN();
 
                 context.Add(principal);
 
@@ -2327,8 +2304,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.CategoryId1);
-                        Assert.Equal(principal.Id2, dependent.CategoryId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                         Assert.Equal(new[] { dependent }.ToList(), principal.Products);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
                         Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -2445,10 +2428,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ProductDN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new CategoryDN();
+                var dependent = new ProductDN();
 
                 context.Add(dependent);
 
@@ -2460,8 +2441,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.CategoryId1);
-                        Assert.Equal(principal.Id2, dependent.CategoryId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.CategoryId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Category);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
                         Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -2567,10 +2554,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new CategoryDN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ProductDN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new CategoryDN();
+                var dependent = new ProductDN();
 
                 context.Add(principal);
 
@@ -2737,10 +2722,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Parent();
+                var dependent = new Child();
 
                 context.Add(dependent);
 
@@ -2753,8 +2736,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.ParentId1);
-                        Assert.Equal(principal.Id2, dependent.ParentId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Parent);
                         Assert.Same(dependent, principal.Child);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -2929,10 +2918,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Parent();
+                var dependent = new Child();
 
                 context.Add(dependent);
 
@@ -2977,10 +2964,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Parent();
+                var dependent = new Child();
 
                 context.Add(dependent);
 
@@ -2992,8 +2977,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.ParentId1);
-                        Assert.Equal(principal.Id2, dependent.ParentId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Parent);
                         Assert.Same(dependent, principal.Child);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -3066,10 +3057,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Parent();
+                var dependent = new Child();
 
                 context.Add(principal);
 
@@ -3082,8 +3071,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.ParentId1);
-                        Assert.Equal(principal.Id2, dependent.ParentId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Parent);
                         Assert.Same(dependent, principal.Child);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -3240,10 +3235,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Parent();
+                var dependent = new Child();
 
                 context.Add(principal);
 
@@ -3255,8 +3248,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.ParentId1);
-                        Assert.Equal(principal.Id2, dependent.ParentId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Parent);
                         Assert.Same(dependent, principal.Child);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
@@ -3283,10 +3282,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new Parent { Id1 = -77, Id2 = Guid77 };
-                var dependent = new Child { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new Parent();
+                var dependent = new Child();
 
                 context.Add(principal);
 
@@ -3463,10 +3460,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ChildPN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new ParentPN();
+                var dependent = new ChildPN();
 
                 context.Add(dependent);
 
@@ -3552,10 +3547,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentPN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ChildPN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new ParentPN();
+                var dependent = new ChildPN();
 
                 context.Add(principal);
 
@@ -3567,8 +3560,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.ParentId1);
-                        Assert.Equal(principal.Id2, dependent.ParentId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                         Assert.Same(dependent, principal.Child);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
                         Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -3685,10 +3684,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ChildDN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new ParentDN();
+                var dependent = new ChildDN();
 
                 context.Add(dependent);
 
@@ -3700,8 +3697,14 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
                     context,
                     () =>
                     {
-                        Assert.Equal(principal.Id1, dependent.ParentId1);
-                        Assert.Equal(principal.Id2, dependent.ParentId2);
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id1).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId1).CurrentValue);
+
+                        Assert.Equal(
+                            context.Entry(principal).Property(e => e.Id2).CurrentValue,
+                            context.Entry(dependent).Property(e => e.ParentId2).CurrentValue);
+
                         Assert.Same(principal, dependent.Parent);
                         Assert.Equal(EntityState.Added, context.Entry(principal).State);
                         Assert.Equal(EntityState.Added, context.Entry(dependent).State);
@@ -3807,10 +3810,8 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
         => ExecuteWithStrategyInTransaction(
             context =>
             {
-                var principal = new ParentDN { Id1 = -77, Id2 = Guid77 };
-                var dependent = new ChildDN { Id1 = -78, Id2 = Guid78 };
-
-                MarkIdsTemporary(context, dependent, principal);
+                var principal = new ParentDN();
+                var dependent = new ChildDN();
 
                 context.Add(principal);
 
@@ -3997,9 +3998,9 @@ public abstract class StoreGeneratedFixupTestBase<TFixture> : IClassFixture<TFix
             context,
             () =>
             {
-                Assert.Equal(game.Id, level.GameId);
-                Assert.Equal(game.Id, item.GameId);
-                Assert.Equal(level.Id, item.LevelId);
+                Assert.Equal(game.Id, context.Entry(level).Property(e => e.GameId).CurrentValue);
+                Assert.Equal(game.Id, context.Entry(item).Property(e => e.GameId).CurrentValue);
+                Assert.Equal(level.Id, context.Entry(item).Property(e => e.LevelId).CurrentValue);
 
                 Assert.Same(game, level.Game);
                 Assert.Same(game, item.Game);

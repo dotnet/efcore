@@ -227,6 +227,80 @@ public partial class DbContextTest
     }
 
     [ConditionalFact]
+    public Task Can_add_existing_entities_with_sentinel_value_to_context_to_be_deleted()
+        => TrackEntitiesSentinelValueTest((c, e) => c.Remove(e), (c, e) => c.Remove(e), (c, e) => c.Remove(e), EntityState.Deleted);
+
+    [ConditionalFact]
+    public Task Can_add_new_entities_with_sentinel_value_to_context_with_graph_method()
+        => TrackEntitiesSentinelValueTest((c, e) => c.Add(e), (c, e) => c.Add(e), (c, e) => c.Add(e), EntityState.Added);
+
+    [ConditionalFact]
+    public Task Can_add_new_entities_with_sentinel_value_to_context_with_graph_method_async()
+        => TrackEntitiesSentinelValueTest((c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), (c, e) => c.AddAsync(e), EntityState.Added);
+
+    [ConditionalFact]
+    public Task Can_add_existing_entities_with_sentinel_value_to_context_to_be_attached_with_graph_method()
+        => TrackEntitiesSentinelValueTest((c, e) => c.Attach(e), (c, e) => c.Attach(e), (c, e) => c.Attach(e), EntityState.Added);
+
+    [ConditionalFact]
+    public Task Can_add_existing_entities_with_sentinel_value_to_context_to_be_updated_with_graph_method()
+        => TrackEntitiesSentinelValueTest((c, e) => c.Update(e), (c, e) => c.Update(e), (c, e) => c.Update(e), EntityState.Added);
+
+    private static Task TrackEntitiesSentinelValueTest(
+        Func<DbContext, CategoryWithSentinel, EntityEntry<CategoryWithSentinel>> categoryAdder,
+        Func<DbContext, ProductWithSentinel, EntityEntry<ProductWithSentinel>> productAdder,
+        Func<DbContext, TheGuWithSentinel, EntityEntry<TheGuWithSentinel>> guAdder,
+        EntityState expectedState)
+        => TrackEntitiesSentinelValueTest(
+            (c, e) => new ValueTask<EntityEntry<CategoryWithSentinel>>(categoryAdder(c, e)),
+            (c, e) => new ValueTask<EntityEntry<ProductWithSentinel>>(productAdder(c, e)),
+            (c, e) => new ValueTask<EntityEntry<TheGuWithSentinel>>(guAdder(c, e)),
+            expectedState);
+
+    // Issue #3890
+    private static async Task TrackEntitiesSentinelValueTest(
+        Func<DbContext, CategoryWithSentinel, ValueTask<EntityEntry<CategoryWithSentinel>>> categoryAdder,
+        Func<DbContext, ProductWithSentinel, ValueTask<EntityEntry<ProductWithSentinel>>> productAdder,
+        Func<DbContext, TheGuWithSentinel, ValueTask<EntityEntry<TheGuWithSentinel>>> guAdder,
+        EntityState expectedState)
+    {
+        using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
+        var category1 = new CategoryWithSentinel { Id = IntSentinel, Name = "Beverages" };
+        var product1 = new ProductWithSentinel
+        {
+            Id = IntSentinel,
+            Name = "Marmite",
+            Price = 7.99m
+        };
+        var gu1 = new TheGuWithSentinel()
+        {
+            Id = GuidSentinel,
+            ShirtColor = "Red"
+        };
+
+        var categoryEntry1 = await categoryAdder(context, category1);
+        var productEntry1 = await productAdder(context, product1);
+        var guEntry1 = await guAdder(context, gu1);
+
+        Assert.Same(category1, categoryEntry1.Entity);
+        Assert.Same(product1, productEntry1.Entity);
+        Assert.Same(gu1, guEntry1.Entity);
+
+        Assert.Same(category1, categoryEntry1.Entity);
+        Assert.Equal(expectedState, categoryEntry1.State);
+
+        Assert.Same(product1, productEntry1.Entity);
+        Assert.Equal(expectedState, productEntry1.State);
+
+        Assert.Same(gu1, guEntry1.Entity);
+        Assert.Equal(expectedState, guEntry1.State);
+
+        Assert.Same(categoryEntry1.GetInfrastructure(), context.Entry(category1).GetInfrastructure());
+        Assert.Same(productEntry1.GetInfrastructure(), context.Entry(product1).GetInfrastructure());
+        Assert.Same(guEntry1.GetInfrastructure(), context.Entry(gu1).GetInfrastructure());
+    }
+
+    [ConditionalFact]
     public Task Can_add_multiple_new_entities_with_default_values_to_context()
         => TrackMultipleEntitiesDefaultValuesTest((c, e) => c.AddRange(e[0]), (c, e) => c.AddRange(e[0]), EntityState.Added);
 

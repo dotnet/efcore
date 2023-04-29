@@ -327,23 +327,31 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         Assert.Equal(
-            new[] { typeof(Category).FullName, typeof(Product).FullName, typeof(TheGu).FullName },
+            new[]
+            {
+                typeof(Category).FullName,
+                typeof(CategoryWithSentinel).FullName,
+                typeof(Product).FullName,
+                typeof(ProductWithSentinel).FullName,
+                typeof(TheGu).FullName,
+                typeof(TheGuWithSentinel).FullName
+            },
             context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
 
-        var categoryType = context.Model.FindEntityType(typeof(Category));
-        Assert.Equal("Id", categoryType.FindPrimaryKey().Properties.Single().Name);
+        var categoryType = context.Model.FindEntityType(typeof(Category))!;
+        Assert.Equal("Id", categoryType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal(
             new[] { "Id", "Name" },
             categoryType.GetProperties().Select(p => p.Name).ToArray());
 
-        var productType = context.Model.FindEntityType(typeof(Product));
-        Assert.Equal("Id", productType.FindPrimaryKey().Properties.Single().Name);
+        var productType = context.Model.FindEntityType(typeof(Product))!;
+        Assert.Equal("Id", productType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal(
             new[] { "Id", "CategoryId", "Name", "Price" },
             productType.GetProperties().Select(p => p.Name).ToArray());
 
-        var guType = context.Model.FindEntityType(typeof(TheGu));
-        Assert.Equal("Id", guType.FindPrimaryKey().Properties.Single().Name);
+        var guType = context.Model.FindEntityType(typeof(TheGu))!;
+        Assert.Equal("Id", guType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal(
             new[] { "Id", "ShirtColor" },
             guType.GetProperties().Select(p => p.Name).ToArray());

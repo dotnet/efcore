@@ -475,8 +475,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             List<IServiceProperty>? dependentServices = null;
             foreach (var serviceProperty in EntityType.GetServiceProperties())
             {
-                var service = this[serviceProperty] ?? serviceProperty.ParameterBinding.ServiceDelegate(
-                    new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
+                var service = this[serviceProperty]
+                    ?? serviceProperty.ParameterBinding.ServiceDelegate(
+                        new MaterializationContext(ValueBuffer.Empty, Context), EntityType, Entity);
 
                 if (service == null)
                 {
@@ -591,16 +592,22 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             || !changeState)
         {
             var index = property.GetOriginalValueIndex();
-            if (index != -1
-                && !IsConceptualNull(property))
+            if (index != -1 && !IsConceptualNull(property))
             {
                 SetOriginalValue(property, this[property], index);
             }
-        }
 
-        if (currentState == EntityState.Added)
-        {
-            return;
+            if (currentState == EntityState.Added)
+            {
+                if (FlaggedAsTemporary(propertyIndex)
+                    && !FlaggedAsStoreGenerated(propertyIndex)
+                    && !HasSentinelValue(property))
+                {
+                    _stateData.FlagProperty(propertyIndex, PropertyFlag.IsTemporary, false);
+                }
+
+                return;
+            }
         }
 
         if (changeState
@@ -713,15 +720,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var principalValue = principalEntry[principalProperty];
         if (principalEntry.HasTemporaryValue(principalProperty))
         {
-            if (principalEntry._stateData.IsPropertyFlagged(principalProperty.GetIndex(), PropertyFlag.IsTemporary))
-            {
-                SetProperty(dependentProperty, principalValue, isMaterialization, setModified);
-                _stateData.FlagProperty(dependentProperty.GetIndex(), PropertyFlag.IsTemporary, true);
-            }
-            else
-            {
-                SetTemporaryValue(dependentProperty, principalValue);
-            }
+            SetTemporaryValue(dependentProperty, principalValue);
         }
         else if (principalEntry.GetValueType(principalProperty) == CurrentValueType.StoreGenerated)
         {
@@ -730,51 +729,15 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         else
         {
             SetProperty(dependentProperty, principalValue, isMaterialization, setModified);
-            _stateData.FlagProperty(dependentProperty.GetIndex(), PropertyFlag.IsTemporary, false);
         }
     }
 
-    private CurrentValueType GetValueType(
-        IProperty property,
-        Func<object?, object?, bool>? equals = null)
-    {
-        if (_stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsTemporary))
-        {
-            return CurrentValueType.Temporary;
-        }
-
-        var tempIndex = property.GetStoreGeneratedIndex();
-        if (tempIndex == -1)
-        {
-            return CurrentValueType.Normal;
-        }
-
-        if (!PropertyHasDefaultValue(property))
-        {
-            return CurrentValueType.Normal;
-        }
-
-        var defaultValue = property.ClrType.GetDefaultValue();
-        var value = ReadPropertyValue(property);
-        if (!AreEqual(value, defaultValue, property, equals))
-        {
-            return CurrentValueType.Normal;
-        }
-
-        if (_storeGeneratedValues.TryGetValue(tempIndex, out value)
-            && !AreEqual(value, defaultValue, property, equals))
-        {
-            return CurrentValueType.StoreGenerated;
-        }
-
-        if (_temporaryValues.TryGetValue(tempIndex, out value)
-            && !AreEqual(value, defaultValue, property, equals))
-        {
-            return CurrentValueType.Temporary;
-        }
-
-        return CurrentValueType.Normal;
-    }
+    private CurrentValueType GetValueType(IProperty property)
+        => _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
+            ? CurrentValueType.StoreGenerated
+            : _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsTemporary)
+                ? CurrentValueType.Temporary
+                : CurrentValueType.Normal;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -791,6 +754,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         }
 
         SetProperty(property, value, isMaterialization: false, setModified, isCascadeDelete: false, CurrentValueType.Temporary);
+        _stateData.FlagProperty(property.GetIndex(), PropertyFlag.IsTemporary, true);
     }
 
     /// <summary>
@@ -951,7 +915,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TProperty GetRelationshipSnapshotValue<TProperty>(IPropertyBase propertyBase)
-        => ((Func<IUpdateEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
+        => ((Func<InternalEntityEntry, TProperty>)propertyBase.GetPropertyAccessors().RelationshipSnapshotGetter)(
             this);
 
     /// <summary>
@@ -964,17 +928,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         => propertyBase.IsShadowProperty()
             ? _shadowValues[propertyBase.GetShadowIndex()]
             : propertyBase.GetGetter().GetClrValue(Entity);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    private bool PropertyHasDefaultValue(IPropertyBase propertyBase)
-        => propertyBase.IsShadowProperty()
-            ? propertyBase.ClrType.IsDefaultValue(_shadowValues[propertyBase.GetShadowIndex()])
-            : propertyBase.GetGetter().HasDefaultValue(Entity);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1282,27 +1235,19 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
             if (storeGeneratedIndex != -1)
             {
-                var propertyClrType = propertyBase.ClrType;
-                var defaultValue = propertyClrType.GetDefaultValue();
                 var property = (IProperty)propertyBase;
+                var propertyIndex = property.GetIndex();
 
-                if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                    && !AreEqual(generatedValue, defaultValue, property))
+                if (FlaggedAsStoreGenerated(propertyIndex))
                 {
-                    return generatedValue;
+                    return _storeGeneratedValues.GetValue(storeGeneratedIndex);
                 }
 
-                var value = ReadPropertyValue(propertyBase);
-                if (AreEqual(value, defaultValue, property))
+                if (FlaggedAsTemporary(propertyIndex)
+                    && HasSentinelValue(property))
                 {
-                    if (_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
-                        && !AreEqual(generatedValue, defaultValue, property))
-                    {
-                        return generatedValue;
-                    }
+                    return _temporaryValues.GetValue(storeGeneratedIndex);
                 }
-
-                return value;
             }
 
             return ReadPropertyValue(propertyBase);
@@ -1310,6 +1255,26 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         set => SetProperty(propertyBase, value, isMaterialization: false);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool FlaggedAsStoreGenerated(int propertyIndex)
+        => !_storeGeneratedValues.IsEmpty
+            && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.IsStoreGenerated);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public bool FlaggedAsTemporary(int propertyIndex)
+        => !_temporaryValues.IsEmpty
+            && _stateData.IsPropertyFlagged(propertyIndex, PropertyFlag.IsTemporary);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1338,19 +1303,22 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         var asProperty = propertyBase as IProperty;
         int propertyIndex;
         CurrentValueType currentValueType;
+        int storeGeneratedIndex;
+        bool valuesEqual;
 
-        var valuesEqual = false;
         if (asProperty != null)
         {
             propertyIndex = asProperty.GetIndex();
             valuesEqual = AreEqual(currentValue, value, asProperty);
             currentValueType = GetValueType(asProperty);
+            storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
         }
         else
         {
             propertyIndex = -1;
             valuesEqual = ReferenceEquals(currentValue, value);
             currentValueType = CurrentValueType.Normal;
+            storeGeneratedIndex = -1;
         }
 
         if (!valuesEqual
@@ -1385,64 +1353,38 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             {
                 StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
 
-                if (valueType == CurrentValueType.Normal)
+                if (storeGeneratedIndex == -1)
                 {
                     WritePropertyValue(propertyBase, value, isMaterialization);
-
-                    switch (currentValueType)
-                    {
-                        case CurrentValueType.StoreGenerated:
-                            if (!_storeGeneratedValues.IsEmpty)
-                            {
-                                var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                                var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                                _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
-                            }
-
-                            break;
-                        case CurrentValueType.Temporary:
-                            if (!_temporaryValues.IsEmpty)
-                            {
-                                var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                                var storeGeneratedIndex = asProperty.GetStoreGeneratedIndex();
-                                _temporaryValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
-                            }
-
-                            break;
-                    }
                 }
                 else
                 {
-                    var storeGeneratedIndex = asProperty!.GetStoreGeneratedIndex();
-                    Check.DebugAssert(storeGeneratedIndex >= 0, $"storeGeneratedIndex is {storeGeneratedIndex}");
-
-                    if (valueType == CurrentValueType.StoreGenerated)
+                    switch (valueType)
                     {
-                        var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                        if (!AreEqual(currentValue, defaultValue, asProperty))
-                        {
-                            WritePropertyValue(asProperty, defaultValue, isMaterialization);
-                        }
+                        case CurrentValueType.Normal:
+                            WritePropertyValue(propertyBase, value, isMaterialization);
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.IsTemporary, isFlagged: false);
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.IsStoreGenerated, isFlagged: false);
+                            break;
+                        case CurrentValueType.StoreGenerated:
+                            EnsureStoreGeneratedValues();
+                            _storeGeneratedValues.SetValue(asProperty!, value, storeGeneratedIndex);
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.IsStoreGenerated, isFlagged: true);
+                            break;
+                        case CurrentValueType.Temporary:
+                            EnsureTemporaryValues();
+                            _temporaryValues.SetValue(asProperty!, value, storeGeneratedIndex);
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.IsTemporary, isFlagged: true);
+                            _stateData.FlagProperty(propertyIndex, PropertyFlag.IsStoreGenerated, isFlagged: false);
+                            if (!HasSentinelValue(asProperty!))
+                            {
+                                WritePropertyValue(propertyBase, value, isMaterialization);
+                            }
 
-                        EnsureStoreGeneratedValues();
-                        _storeGeneratedValues.SetValue(asProperty, value, storeGeneratedIndex);
-                    }
-                    else
-                    {
-                        var defaultValue = asProperty!.ClrType.GetDefaultValue();
-                        if (!AreEqual(currentValue, defaultValue, asProperty))
-                        {
-                            WritePropertyValue(asProperty, defaultValue, isMaterialization);
-                        }
-
-                        if (_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                            && !AreEqual(generatedValue, defaultValue, asProperty))
-                        {
-                            _storeGeneratedValues.SetValue(asProperty, defaultValue, storeGeneratedIndex);
-                        }
-
-                        EnsureTemporaryValues();
-                        _temporaryValues.SetValue(asProperty, value, storeGeneratedIndex);
+                            break;
+                        default:
+                            Check.DebugFail($"Bad value type {valueType}");
+                            break;
                     }
                 }
 
@@ -1509,11 +1451,6 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     private static bool AreEqual(object? value, object? otherValue, IProperty property)
         => property.GetValueComparer().Equals(value, otherValue);
 
-    private static bool AreEqual(object? value, object? otherValue, IProperty property, Func<object?, object?, bool>? equals)
-        => equals != null
-            ? equals(value, otherValue)
-            : AreEqual(value, otherValue, property);
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -1528,13 +1465,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             {
                 var storeGeneratedIndex = property.GetStoreGeneratedIndex();
                 if (storeGeneratedIndex != -1
+                    && _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
                     && _storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var value))
                 {
-                    var defaultValue = property.ClrType.GetDefaultValue();
-                    if (!AreEqual(value, defaultValue, property))
-                    {
-                        this[property] = value;
-                    }
+                    this[property] = value;
                 }
             }
 
@@ -1542,6 +1476,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             _temporaryValues = new SidecarValues();
         }
 
+        _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsStoreGenerated, false);
         _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsTemporary, false);
         _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Unknown, false);
 
@@ -1580,7 +1515,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             {
                 if (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Throw
                     && !HasTemporaryValue(property)
-                    && !HasDefaultValue(property))
+                    && HasExplicitValue(property))
                 {
                     throw new InvalidOperationException(
                         CoreStrings.PropertyReadOnlyBeforeSave(
@@ -1763,6 +1698,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (!_storeGeneratedValues.IsEmpty)
         {
             _storeGeneratedValues = new SidecarValues();
+            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsStoreGenerated, false);
         }
     }
 
@@ -1777,7 +1713,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 && EntityState == EntityState.Added
                 && (property.GetBeforeSaveBehavior() == PropertySaveBehavior.Ignore
                     || HasTemporaryValue(property)
-                    || HasDefaultValue(property)))
+                    || !HasExplicitValue(property)))
             || (property.ValueGenerated.ForUpdate()
                 && (EntityState is EntityState.Modified or EntityState.Deleted)
                 && (property.GetAfterSaveBehavior() == PropertySaveBehavior.Ignore
@@ -1790,26 +1726,15 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool HasDefaultValue(IProperty property)
-    {
-        if (!PropertyHasDefaultValue(property))
-        {
-            return false;
-        }
+    public bool HasExplicitValue(IProperty property)
+        => !HasSentinelValue(property)
+            || _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsStoreGenerated)
+            || _stateData.IsPropertyFlagged(property.GetIndex(), PropertyFlag.IsTemporary);
 
-        var storeGeneratedIndex = property.GetStoreGeneratedIndex();
-        if (storeGeneratedIndex == -1)
-        {
-            return true;
-        }
-
-        var defaultValue = property.ClrType.GetDefaultValue();
-
-        return (!_storeGeneratedValues.TryGetValue(storeGeneratedIndex, out var generatedValue)
-                || AreEqual(defaultValue, generatedValue, property))
-            && (!_temporaryValues.TryGetValue(storeGeneratedIndex, out generatedValue)
-                || AreEqual(defaultValue, generatedValue, property));
-    }
+    private bool HasSentinelValue(IProperty property)
+        => property.IsShadowProperty()
+            ? AreEqual(_shadowValues[property.GetShadowIndex()], property.Sentinel, property)
+            : property.GetGetter().HasSentinelValue(Entity);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1832,7 +1757,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 var keyGenerated = keyProperty.ValueGenerated == ValueGenerated.OnAdd;
 
                 if ((HasTemporaryValue(keyProperty)
-                        || HasDefaultValue(keyProperty))
+                        || !HasExplicitValue(keyProperty))
                     && (keyGenerated || keyProperty.FindGenerationProperty() != null))
                 {
                     return (true, false);

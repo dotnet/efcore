@@ -12,9 +12,7 @@ public class EntityEntryTest
     {
         using var context = new KeySetContext();
         Assert.True(context.Entry(new NotStoreGenerated()).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new NotStoreGenerated { Id = 1 }).IsKeySet);
+        Assert.True(context.Entry(new NotStoreGenerated { Id = 1 }).IsKeySet);
     }
 
     [ConditionalFact]
@@ -22,15 +20,9 @@ public class EntityEntryTest
     {
         using var context = new KeySetContext();
         Assert.True(context.Entry(new CompositeNotStoreGenerated()).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new CompositeNotStoreGenerated { Id1 = 1 }).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new CompositeNotStoreGenerated { Id2 = true }).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new CompositeNotStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
+        Assert.True(context.Entry(new CompositeNotStoreGenerated { Id1 = 1 }).IsKeySet);
+        Assert.True(context.Entry(new CompositeNotStoreGenerated { Id2 = true }).IsKeySet);
+        Assert.True(context.Entry(new CompositeNotStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
     }
 
     [ConditionalFact]
@@ -38,9 +30,16 @@ public class EntityEntryTest
     {
         using var context = new KeySetContext();
         Assert.False(context.Entry(new StoreGenerated()).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new StoreGenerated { Id = 1 }).IsKeySet);
+        Assert.True(context.Entry(new StoreGenerated { Id = 1 }).IsKeySet);
+    }
+
+    [ConditionalFact]
+    public void Store_generated_key_is_set_only_if_non_sentinel_value()
+    {
+        using var context = new KeySetContext();
+        Assert.False(context.Entry(new StoreGeneratedWithSentinel { Id = 667 }).IsKeySet);
+        Assert.True(context.Entry(new StoreGeneratedWithSentinel { Id = 1 }).IsKeySet);
+        Assert.True(context.Entry(new StoreGeneratedWithSentinel()).IsKeySet);
     }
 
     [ConditionalFact]
@@ -48,15 +47,21 @@ public class EntityEntryTest
     {
         using var context = new KeySetContext();
         Assert.False(context.Entry(new CompositeStoreGenerated()).IsKeySet);
-        Assert.False(
-            context.Entry(
-                new CompositeStoreGenerated { Id1 = 1 }).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new CompositeStoreGenerated { Id2 = true }).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new CompositeStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
+        Assert.False(context.Entry(new CompositeStoreGenerated { Id1 = 1 }).IsKeySet);
+        Assert.True(context.Entry(new CompositeStoreGenerated { Id2 = true }).IsKeySet);
+        Assert.True(context.Entry(new CompositeStoreGenerated { Id1 = 1, Id2 = true }).IsKeySet);
+    }
+
+    [ConditionalFact]
+    public void Composite_store_generated_key_is_set_only_if_non_sentinel_value_in_store_generated_part()
+    {
+        using var context = new KeySetContext();
+        Assert.False(context.Entry(new CompositeStoreGeneratedWithSentinel { Id2 = true }).IsKeySet);
+        Assert.False(context.Entry(new CompositeStoreGeneratedWithSentinel { Id1 = 1, Id2 = true }).IsKeySet);
+        Assert.True(context.Entry(new CompositeStoreGeneratedWithSentinel { Id2 = false }).IsKeySet);
+        Assert.True(context.Entry(new CompositeStoreGeneratedWithSentinel { Id1 = 1, Id2 = false }).IsKeySet);
+        Assert.True(context.Entry(new CompositeStoreGeneratedWithSentinel()).IsKeySet);
+        Assert.True(context.Entry(new CompositeStoreGeneratedWithSentinel { Id1 = 1 }).IsKeySet);
     }
 
     [ConditionalFact]
@@ -64,9 +69,16 @@ public class EntityEntryTest
     {
         using var context = new KeySetContext();
         Assert.False(context.Entry(new Dependent()).IsKeySet);
-        Assert.True(
-            context.Entry(
-                new Dependent { Id = 1 }).IsKeySet);
+        Assert.True(context.Entry(new Dependent { Id = 1 }).IsKeySet);
+    }
+
+    [ConditionalFact]
+    public void Primary_key_that_is_also_foreign_key_is_set_only_if_non_sentinel_value()
+    {
+        using var context = new KeySetContext();
+        Assert.False(context.Entry(new DependentWithSentinel { Id = 667 }).IsKeySet);
+        Assert.True(context.Entry(new DependentWithSentinel { Id = 1 }).IsKeySet);
+        Assert.True(context.Entry(new DependentWithSentinel()).IsKeySet);
     }
 
     private class StoreGenerated
@@ -76,12 +88,25 @@ public class EntityEntryTest
         public Dependent Dependent { get; set; }
     }
 
+    private class StoreGeneratedWithSentinel
+    {
+        public int Id { get; set; }
+
+        public DependentWithSentinel Dependent { get; set; }
+    }
+
     private class NotStoreGenerated
     {
         public int Id { get; set; }
     }
 
     private class CompositeStoreGenerated
+    {
+        public int Id1 { get; set; }
+        public bool Id2 { get; set; }
+    }
+
+    private class CompositeStoreGeneratedWithSentinel
     {
         public int Id1 { get; set; }
         public bool Id2 { get; set; }
@@ -100,6 +125,13 @@ public class EntityEntryTest
         public StoreGenerated Principal { get; set; }
     }
 
+    private class DependentWithSentinel
+    {
+        public int Id { get; set; }
+
+        public StoreGeneratedWithSentinel Principal { get; set; }
+    }
+
     private class KeySetContext : DbContext
     {
         protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -108,8 +140,10 @@ public class EntityEntryTest
                 .UseInMemoryDatabase(nameof(KeySetContext));
 
         public DbSet<StoreGenerated> StoreGenerated { get; set; }
+        public DbSet<StoreGeneratedWithSentinel> StoreGeneratedWithSentinel { get; set; }
         public DbSet<NotStoreGenerated> NotStoreGenerated { get; set; }
         public DbSet<CompositeStoreGenerated> CompositeStoreGenerated { get; set; }
+        public DbSet<CompositeStoreGeneratedWithSentinel> CompositeStoreGeneratedWithSentinel { get; set; }
         public DbSet<CompositeNotStoreGenerated> CompositeNotStoreGenerated { get; set; }
         public DbSet<Dependent> Dependent { get; set; }
 
@@ -120,6 +154,17 @@ public class EntityEntryTest
                 .WithOne(e => e.Principal)
                 .HasForeignKey<Dependent>(e => e.Id);
 
+            modelBuilder.Entity<StoreGeneratedWithSentinel>(
+                b =>
+                {
+                    b.Property(e => e.Id).Metadata.Sentinel = 667;
+                    b.HasOne(e => e.Dependent)
+                        .WithOne(e => e.Principal)
+                        .HasForeignKey<DependentWithSentinel>(e => e.Id);
+                });
+
+            modelBuilder.Entity<DependentWithSentinel>().Property(e => e.Id).Metadata.Sentinel = 667;
+
             modelBuilder.Entity<NotStoreGenerated>().Property(e => e.Id).ValueGeneratedNever();
 
             modelBuilder.Entity<CompositeNotStoreGenerated>().HasKey(
@@ -128,9 +173,15 @@ public class EntityEntryTest
             modelBuilder.Entity<CompositeStoreGenerated>(
                 b =>
                 {
-                    b.HasKey(
-                        e => new { e.Id1, e.Id2 });
+                    b.HasKey(e => new { e.Id1, e.Id2 });
                     b.Property(e => e.Id2).ValueGeneratedOnAdd();
+                });
+
+            modelBuilder.Entity<CompositeStoreGeneratedWithSentinel>(
+                b =>
+                {
+                    b.HasKey(e => new { e.Id1, e.Id2 });
+                    b.Property(e => e.Id2).ValueGeneratedOnAdd().Metadata.Sentinel = true;
                 });
         }
     }

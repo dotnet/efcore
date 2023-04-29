@@ -76,7 +76,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),
             typeof(InternalEntityEntry).GetMethod("get_Item"),
             typeof(InternalEntityEntry).GetMethod("set_Item"),
-            typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.HasDefaultValue)),
+            typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.HasExplicitValue)),
             typeof(DiagnosticsLogger<>).GetMethod("DispatchEventData", AnyInstance),
             typeof(DiagnosticsLogger<>).GetMethod("ShouldLog", AnyInstance),
             typeof(DiagnosticsLogger<>).GetMethod("NeedsEventData", AnyInstance),

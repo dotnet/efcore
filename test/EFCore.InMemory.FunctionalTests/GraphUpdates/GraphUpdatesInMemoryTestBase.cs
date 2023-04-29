@@ -19,6 +19,10 @@ public abstract class GraphUpdatesInMemoryTestBase<TFixture> : GraphUpdatesTestB
     public override Task Can_insert_when_FK_has_default_value(bool async)
         => Task.CompletedTask;
 
+    // In-memory database does not have database default values
+    public override Task Can_insert_when_FK_has_sentinel_value(bool async)
+        => Task.CompletedTask;
+
     public override void Required_many_to_one_dependents_are_cascade_deleted_in_store(
         CascadeTiming? cascadeDeleteTiming,
         CascadeTiming? deleteOrphansTiming)

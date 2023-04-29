@@ -83,6 +83,9 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
         => _propertyAccessMode;
 
     /// <inheritdoc />
+    public abstract object? Sentinel { get; }
+
+    /// <inheritdoc />
     IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
     {
         [DebuggerStepThrough]

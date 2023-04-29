@@ -78,6 +78,31 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                 Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateId);
             });
 
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual async Task Can_insert_when_FK_has_sentinel_value(bool async)
+        => await ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                if (async)
+                {
+                    await context.AddAsync(new CruiserWithSentinel { IdUserState = 667 });
+                    await context.SaveChangesAsync();
+                }
+                else
+                {
+                    context.Add(new CruiserWithSentinel { IdUserState = 667 });
+                    context.SaveChanges();
+                }
+            },
+            async context =>
+            {
+                var queryable = context.Set<CruiserWithSentinel>().Include(e => e.UserState);
+                var cruiser = async ? (await queryable.SingleAsync()) : queryable.Single();
+                Assert.Equal(cruiser.IdUserState, cruiser.UserState.AccessStateWithSentinelId);
+            });
+
     [ConditionalTheory] // Issue #23043
     [InlineData(false)]
     [InlineData(true)]
