@@ -11,9 +11,8 @@ using VerifyCS = CSharpAnalyzerVerifier<UninitializedDbSetDiagnosticSuppressor>;
 public class UninitializedDbSetDiagnosticSuppressorTests
 {
     [ConditionalFact]
-    public async Task DbSet_property_on_DbContext_is_suppressed()
-    {
-        var source = """
+    public Task DbSet_property_on_DbContext_is_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
             {
                 public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -23,26 +22,11 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             {
                 public int Id { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(true)
-            }
-        }.RunAsync();
-    }
+            """);
 
     [ConditionalFact]
-    public async Task Non_public_DbSet_property_on_DbContext_is_suppressed()
-    {
-        var source = """
+    public Task Non_public_DbSet_property_on_DbContext_is_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
             {
                 private Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -52,26 +36,11 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             {
                 public int Id { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(true)
-            }
-        }.RunAsync();
-    }
+            """);
 
     [ConditionalFact]
-    public async Task DbSet_property_with_non_public_setter_on_DbContext_is_suppressed()
-    {
-        var source = """
+    public Task DbSet_property_with_non_public_setter_on_DbContext_is_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
             {
                 public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; private set; }
@@ -81,26 +50,11 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             {
                 public int Id { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(true)
-            }
-        }.RunAsync();
-    }
+            """);
 
     [ConditionalFact]
-    public async Task DbSet_property_without_setter_on_DbContext_is_not_suppressed()
-    {
-        var source = """
+    public Task DbSet_property_without_setter_on_DbContext_is_not_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
             {
                 public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; }
@@ -110,26 +64,11 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             {
                 public int Id { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(false)
-            }
-        }.RunAsync();
-    }
+            """, isSuppressed: false);
 
     [ConditionalFact]
-    public async Task Static_DbSet_property_on_DbContext_is_not_suppressed()
-    {
-        var source = """
+    public Task Static_DbSet_property_on_DbContext_is_not_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
             {
                 public static Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -139,50 +78,20 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             {
                 public int Id { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(false)
-            }
-        }.RunAsync();
-    }
+            """, isSuppressed: false);
 
     [ConditionalFact]
-    public async Task Non_DbSet_property_on_DbContext_is_not_suppressed()
-    {
-        var source = """
+    public Task Non_DbSet_property_on_DbContext_is_not_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class MyDbContext : Microsoft.EntityFrameworkCore.DbContext
             {
                 public string {|#0:Name|} { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(false)
-            }
-        }.RunAsync();
-    }
+            """, isSuppressed: false);
 
     [ConditionalFact]
-    public async Task DbSet_property_on_non_DbContext_is_not_suppressed()
-    {
-        var source = """
+    public Task DbSet_property_on_non_DbContext_is_not_suppressed()
+        => VerifySingleSuppressionAsync("""
             public class Foo
             {
                 public Microsoft.EntityFrameworkCore.DbSet<Blog> {|#0:Blogs|} { get; set; }
@@ -192,21 +101,7 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             {
                 public int Id { get; set; }
             }
-            """;
-
-        await new VerifyCS.Test
-        {
-            TestCode = source,
-            CompilerDiagnostics = CompilerDiagnostics.Warnings,
-            ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(0)
-                    .WithIsSuppressed(false)
-            }
-        }.RunAsync();
-    }
+            """, isSuppressed: false);
 
     [ConditionalFact]
     public async Task DbSet_property_on_DbContext_with_ctor_is_suppressed()
@@ -230,12 +125,12 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             TestCode = source,
             CompilerDiagnostics = CompilerDiagnostics.Warnings,
             ExpectedDiagnostics =
-            {
-                DiagnosticResult.CompilerWarning("CS8618")
-                    .WithLocation(0)
-                    .WithLocation(1)
-                    .WithIsSuppressed(true)
-            }
+                {
+                    DiagnosticResult.CompilerWarning("CS8618")
+                        .WithLocation(0)
+                        .WithLocation(1)
+                        .WithIsSuppressed(true)
+                }
         }.RunAsync();
     }
 
@@ -275,4 +170,18 @@ public class UninitializedDbSetDiagnosticSuppressorTests
             }
         }.RunAsync();
     }
+
+    private Task VerifySingleSuppressionAsync(string source, bool isSuppressed = true)
+        => new VerifyCS.Test
+        {
+            TestCode = source,
+            CompilerDiagnostics = CompilerDiagnostics.Warnings,
+            ExpectedDiagnostics =
+                {
+                    DiagnosticResult.CompilerWarning("CS8618")
+                        .WithLocation(0)
+                        .WithLocation(0)
+                        .WithIsSuppressed(isSuppressed)
+                }
+        }.RunAsync();
 }

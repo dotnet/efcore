@@ -11,9 +11,8 @@ using VerifyCS = CSharpAnalyzerVerifier<InternalUsageDiagnosticAnalyzer>;
 public class InternalUsageDiagnosticAnalyzerTests
 {
     [ConditionalFact]
-    public async Task Invocation_on_type_in_internal_namespace()
-    {
-        var source = """
+    public Task Invocation_on_type_in_internal_namespace()
+        => VerifySingleInternalUsageAsync("""
             using System;
             using Microsoft.EntityFrameworkCore.Internal;
 
@@ -24,20 +23,11 @@ public class InternalUsageDiagnosticAnalyzerTests
                     var x = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes).{|#0:DisplayName|}();
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions"));
-    }
+            """, "Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions");
 
     [ConditionalFact]
-    public async Task Instantiation_on_type_in_internal_namespace()
-    {
-        var source = """
+    public Task Instantiation_on_type_in_internal_namespace()
+        => VerifySingleInternalUsageAsync("""
             class C
             {
                 void M()
@@ -45,15 +35,7 @@ public class InternalUsageDiagnosticAnalyzerTests
                     new {|#0:Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions|}();
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions"));
-    }
+            """, "Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions");
 
     [ConditionalFact]
     public async Task Base_type()
@@ -79,9 +61,8 @@ public class InternalUsageDiagnosticAnalyzerTests
     }
 
     [ConditionalFact]
-    public async Task Implemented_interface()
-    {
-        var source = """
+    public Task Implemented_interface()
+        => VerifySingleInternalUsageAsync("""
             using System;
             using Microsoft.EntityFrameworkCore;
             using Microsoft.EntityFrameworkCore.Internal;
@@ -91,20 +72,11 @@ public class InternalUsageDiagnosticAnalyzerTests
                 public object Create(DbContext context, Type type) => null;
                 public object Create(DbContext context, string name, Type type) => null;
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.Internal.IDbSetSource"));
-    }
+            """, "Microsoft.EntityFrameworkCore.Internal.IDbSetSource");
 
     [ConditionalFact]
-    public async Task Access_property_with_internal_attribute()
-    {
-        var source = """
+    public Task Access_property_with_internal_attribute()
+        => VerifySingleInternalUsageAsync("""
             class C
             {
                 void M()
@@ -112,20 +84,11 @@ public class InternalUsageDiagnosticAnalyzerTests
                     var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.{|#0:RelationalServices|}.Count;
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices"));
-    }
+            """, "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices");
 
     [ConditionalFact]
-    public async Task Instantiation_with_ctor_with_internal_attribute()
-    {
-        var source = """
+    public Task Instantiation_with_ctor_with_internal_attribute()
+        => VerifySingleInternalUsageAsync("""
             class C
             {
                 void M()
@@ -133,20 +96,11 @@ public class InternalUsageDiagnosticAnalyzerTests
                     new {|#0:Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies|}(null, null);
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies"));
-    }
+            """, "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies");
 
     [ConditionalFact]
-    public async Task Local_variable_declaration()
-    {
-        var source = """
+    public Task Local_variable_declaration()
+        => VerifySingleInternalUsageAsync("""
             class C
             {
                 void M()
@@ -154,20 +108,11 @@ public class InternalUsageDiagnosticAnalyzerTests
                     {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} state = null;
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task Generic_type_parameter_in_method_call()
-    {
-        var source = """
+    public Task Generic_type_parameter_in_method_call()
+        => VerifySingleInternalUsageAsync("""
             class C
             {
                 void M()
@@ -177,20 +122,11 @@ public class InternalUsageDiagnosticAnalyzerTests
                     {|#0:SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>()|};
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task Typeof()
-    {
-        var source = """
+    public Task Typeof()
+        => VerifySingleInternalUsageAsync("""
             class C
             {
                 void M()
@@ -198,91 +134,47 @@ public class InternalUsageDiagnosticAnalyzerTests
                     var t = typeof({|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|});
                 }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task Field_declaration()
-    {
-        var source = """
+    public Task Field_declaration()
+        => VerifySingleInternalUsageAsync("""
             class MyClass
             {
                 private readonly {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} _stateManager;
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task Property_declaration()
-    {
-        var source = """
+    public Task Property_declaration()
+        => VerifySingleInternalUsageAsync("""
             class MyClass
             {
                 private {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} StateManager { get; set; }
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task Method_declaration_return_type()
-    {
-        var source = """
+    public Task Method_declaration_return_type()
+        => VerifySingleInternalUsageAsync("""
             class MyClass
             {
                 private {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} Foo() => null;
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task Method_declaration_parameter()
-    {
-        var source = """
+    public Task Method_declaration_parameter()
+        => VerifySingleInternalUsageAsync("""
             class MyClass
             {
                 private void Foo({|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} stateManager) {}
             }
-            """;
-
-        await VerifyCS.VerifyAnalyzerAsync(source,
-            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
-                .WithLocation(0)
-                .WithSeverity(DiagnosticSeverity.Warning)
-                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
-                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
-    }
+            """, "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
 
     [ConditionalFact]
-    public async Task No_warning_on_non_internal()
-        => await VerifyCS.VerifyAnalyzerAsync("""
+    public Task No_warning_on_non_internal()
+        => VerifyCS.VerifyAnalyzerAsync("""
             class C
             {
                 void M()
@@ -294,8 +186,8 @@ public class InternalUsageDiagnosticAnalyzerTests
             """);
 
     [ConditionalFact]
-    public async Task No_warning_in_same_assembly()
-        => await VerifyCS.VerifyAnalyzerAsync("""
+    public Task No_warning_in_same_assembly()
+        => VerifyCS.VerifyAnalyzerAsync("""
             namespace My.EntityFrameworkCore.Internal
             {
                 class MyClass
@@ -314,4 +206,12 @@ public class InternalUsageDiagnosticAnalyzerTests
                 }
             }
             """);
+
+    private Task VerifySingleInternalUsageAsync(string source, string internalApi)
+        => VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments(internalApi));
 }
