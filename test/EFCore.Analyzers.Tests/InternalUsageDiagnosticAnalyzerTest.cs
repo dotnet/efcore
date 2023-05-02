@@ -2,230 +2,315 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public class InternalUsageDiagnosticAnalyzerTest : DiagnosticAnalyzerTestBase
+using VerifyCS = CSharpAnalyzerVerifier<InternalUsageDiagnosticAnalyzer>;
+
+public class InternalUsageDiagnosticAnalyzerTest
 {
     [ConditionalFact]
-    public Task Invocation_on_type_in_internal_namespace()
-        => Test(
-            "var x = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes).DisplayName();",
-            "Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions",
-            "DisplayName");
+    public async Task Invocation_on_type_in_internal_namespace()
+    {
+        var source = """
+            using System;
+            using Microsoft.EntityFrameworkCore.Internal;
+
+            class C
+            {
+                void M()
+                {
+                    var x = typeof(object).GetMethod(nameof(object.ToString), Type.EmptyTypes).{|#0:DisplayName|}();
+                }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Internal.MethodInfoExtensions"));
+    }
 
     [ConditionalFact]
-    public Task Instantiation_on_type_in_internal_namespace()
-        => Test(
-            "new Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions();",
-            "Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions",
-            "Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions");
+    public async Task Instantiation_on_type_in_internal_namespace()
+    {
+        var source = """
+            class C
+            {
+                void M()
+                {
+                    new {|#0:Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions|}();
+                }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Infrastructure.Internal.CoreSingletonOptions"));
+    }
 
     [ConditionalFact]
     public async Task Base_type()
     {
-        var source = @"
-class MyClass : Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter {
-    MyClass() : base(null, null) {}
-}";
-
-        var diagnostics = await GetDiagnosticsFullSourceAsync(source);
-
-        Assert.Collection(
-            diagnostics,
-            diagnostic =>
+        var source = """
+            class MyClass : {|#0:Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter|}
             {
-                Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
-                Assert.Equal(
-                    string.Format(
-                        AnalyzerStrings.InternalUsageMessageFormat,
-                        "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
-                    diagnostic.GetMessage());
+                MyClass() {|#1:: base(null, null)|} {}
+            }
+            """;
 
-                var span = diagnostic.Location.SourceSpan;
-                Assert.Equal(
-                    "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter",
-                    source[span.Start..span.End]);
-            },
-            diagnostic =>
-            {
-                Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
-                Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
-                Assert.Equal(
-                    string.Format(
-                        AnalyzerStrings.InternalUsageMessageFormat,
-                        "Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
-                    diagnostic.GetMessage());
-
-                var span = diagnostic.Location.SourceSpan;
-                Assert.Equal(": base(null, null)", source[span.Start..span.End]);
-            });
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"),
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(1)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Storage.Internal.RawRelationalParameter"));
     }
 
     [ConditionalFact]
-    public Task Implemented_interface()
-        => TestFullSource(
-            @"
-using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
+    public async Task Implemented_interface()
+    {
+        var source = """
+            using System;
+            using Microsoft.EntityFrameworkCore;
+            using Microsoft.EntityFrameworkCore.Internal;
+            
+            class {|#0:MyClass|} : IDbSetSource
+            {
+                public object Create(DbContext context, Type type) => null;
+                public object Create(DbContext context, string name, Type type) => null;
+            }
+            """;
 
-class MyClass : IDbSetSource {
-    public object Create(DbContext context, Type type) => null;
-    public object Create(DbContext context, string name, Type type) => null;
-}",
-            "Microsoft.EntityFrameworkCore.Internal.IDbSetSource",
-            "MyClass");
-
-    [ConditionalFact]
-    public Task Access_property_with_internal_attribute()
-        => Test(
-            "var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices.Count;",
-            "Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices",
-            "RelationalServices");
-
-    [ConditionalFact]
-    public Task Instantiation_with_ctor_with_internal_attribute()
-        => Test(
-            "new Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies(null, null);",
-            "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies",
-            "Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies");
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Internal.IDbSetSource"));
+    }
 
     [ConditionalFact]
-    public Task Local_variable_declaration()
-        => Test(
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager state = null;",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+    public async Task Access_property_with_internal_attribute()
+    {
+        var source = """
+            class C
+            {
+                void M()
+                {
+                    var x = Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.{|#0:RelationalServices|}.Count;
+                }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkRelationalServicesBuilder.RelationalServices"));
+    }
 
     [ConditionalFact]
-    public Task Generic_type_parameter_in_method_call()
-        => Test(
-            @"
-void SomeGenericMethod<T>() {}
+    public async Task Instantiation_with_ctor_with_internal_attribute()
+    {
+        var source = """
+            class C
+            {
+                void M()
+                {
+                    new {|#0:Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies|}(null, null);
+                }
+            }
+            """;
 
-SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>();",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>()");
-
-    [ConditionalFact]
-    public Task Typeof()
-        => Test(
-            "var t = typeof(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager);",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
-
-    [ConditionalFact]
-    public Task Field_declaration()
-        => TestFullSource(
-            @"
-class MyClass {
-    private readonly Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager StateManager;
-}",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.Update.UpdateSqlGeneratorDependencies"));
+    }
 
     [ConditionalFact]
-    public Task Property_declaration()
-        => TestFullSource(
-            @"
-class MyClass {
-    private Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager StateManager { get; set; }
-}",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+    public async Task Local_variable_declaration()
+    {
+        var source = """
+            class C
+            {
+                void M()
+                {
+                    {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} state = null;
+                }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
 
     [ConditionalFact]
-    public Task Method_declaration_return_type()
-        => TestFullSource(
-            @"
-class MyClass {
-    private Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager Foo() => null;
-}",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+    public async Task Generic_type_parameter_in_method_call()
+    {
+        var source = """
+            class C
+            {
+                void M()
+                {
+                    void SomeGenericMethod<T>() {}
+            
+                    {|#0:SomeGenericMethod<Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager>()|};
+                }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
 
     [ConditionalFact]
-    public Task Method_declaration_parameter()
-        => TestFullSource(
-            @"
-class MyClass {
-    private void Foo(Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager stateManager) {}
-}",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager",
-            "Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager");
+    public async Task Typeof()
+    {
+        var source = """
+            class C
+            {
+                void M()
+                {
+                    var t = typeof({|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|});
+                }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
+
+    [ConditionalFact]
+    public async Task Field_declaration()
+    {
+        var source = """
+            class MyClass
+            {
+                private readonly {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} _stateManager;
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
+
+    [ConditionalFact]
+    public async Task Property_declaration()
+    {
+        var source = """
+            class MyClass
+            {
+                private {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} StateManager { get; set; }
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
+
+    [ConditionalFact]
+    public async Task Method_declaration_return_type()
+    {
+        var source = """
+            class MyClass
+            {
+                private {|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} Foo() => null;
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
+
+    [ConditionalFact]
+    public async Task Method_declaration_parameter()
+    {
+        var source = """
+            class MyClass
+            {
+                private void Foo({|#0:Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager|} stateManager) {}
+            }
+            """;
+
+        await VerifyCS.VerifyAnalyzerAsync(source,
+            VerifyCS.Diagnostic(InternalUsageDiagnosticAnalyzer.Id)
+                .WithLocation(0)
+                .WithSeverity(DiagnosticSeverity.Warning)
+                .WithMessageFormat(AnalyzerStrings.InternalUsageMessageFormat)
+                .WithArguments("Microsoft.EntityFrameworkCore.ChangeTracking.Internal.IStateManager"));
+    }
 
     [ConditionalFact]
     public async Task No_warning_on_non_internal()
-        => await AssertNoDiagnostics(
-            @"
-var a = new Microsoft.EntityFrameworkCore.Infrastructure.Annotatable();
-var x = a.GetAnnotations();
-");
+        => await VerifyCS.VerifyAnalyzerAsync("""
+            class C
+            {
+                void M()
+                {
+                    var a = new Microsoft.EntityFrameworkCore.Infrastructure.Annotatable();
+                    var x = a.GetAnnotations();
+                }
+            }
+            """);
 
     [ConditionalFact]
     public async Task No_warning_in_same_assembly()
-    {
-        var diagnostics = await GetDiagnosticsFullSourceAsync(
-            @"
-namespace My.EntityFrameworkCore.Internal
-{
-    class MyClass
-    {
-        static internal void Foo() {}
-    }
-}
+        => await VerifyCS.VerifyAnalyzerAsync("""
+            namespace My.EntityFrameworkCore.Internal
+            {
+                class MyClass
+                {
+                    static internal void Foo() {}
+                }
+            }
 
-namespace Bar
-{
-    class Program
-    {
-        public void Main(string[] args) {
-            My.EntityFrameworkCore.Internal.MyClass.Foo();
-        }
-    }
-}");
-
-        Assert.Empty(diagnostics);
-    }
-
-    private async Task Test(
-        string source,
-        string expectedInternalApi,
-        string expectedDiagnosticSpan)
-    {
-        var (diagnostics, fullSource) = await GetDiagnosticsAsync(source);
-        var diagnostic = Assert.Single(diagnostics);
-
-        Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
-        Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
-        Assert.Equal(string.Format(AnalyzerStrings.InternalUsageMessageFormat, expectedInternalApi), diagnostic.GetMessage());
-
-        var span = diagnostic.Location.SourceSpan;
-        Assert.Equal(expectedDiagnosticSpan, fullSource[span.Start..span.End]);
-    }
-
-    private async Task TestFullSource(
-        string fullSource,
-        string expectedInternalApi,
-        string expectedDiagnosticSpan)
-    {
-        var diagnostics = await GetDiagnosticsFullSourceAsync(fullSource);
-        var diagnostic = Assert.Single(diagnostics);
-
-        Assert.Equal(InternalUsageDiagnosticAnalyzer.Id, diagnostic.Id);
-        Assert.Equal(DiagnosticSeverity.Warning, diagnostic.Severity);
-        Assert.Equal(string.Format(AnalyzerStrings.InternalUsageMessageFormat, expectedInternalApi), diagnostic.GetMessage());
-
-        var span = diagnostic.Location.SourceSpan;
-        Assert.Equal(expectedDiagnosticSpan, fullSource[span.Start..span.End]);
-    }
-
-    protected override Task<(Diagnostic[], string)> GetDiagnosticsAsync(string source, params string[] extraUsings)
-        => base.GetDiagnosticsAsync(source, extraUsings.Concat(new[] { "Microsoft.EntityFrameworkCore.Internal" }).ToArray());
-
-    protected override DiagnosticAnalyzer CreateDiagnosticAnalyzer()
-        => new InternalUsageDiagnosticAnalyzer();
+            namespace Bar
+            {
+                class Program
+                {
+                    public void Main(string[] args) {
+                        My.EntityFrameworkCore.Internal.MyClass.Foo();
+                    }
+                }
+            }
+            """);
 }
