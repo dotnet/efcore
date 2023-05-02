@@ -675,6 +675,9 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
     private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
     {
+        private static readonly bool UseOldBehavior30575
+            = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30575", out var enabled30575) && enabled30575;
+
         private readonly List<ParameterExpression> _allowedParameters = new();
         private readonly ISet<string> _allowedMethods = new HashSet<string> { nameof(Queryable.Where), nameof(Queryable.AsQueryable) };
 
@@ -774,9 +777,20 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (_allowedParameters.Contains(parameterExpression))
+            if (!UseOldBehavior30575)
             {
-                return parameterExpression;
+                if (_allowedParameters.Contains(parameterExpression)
+                    || parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
+                {
+                    return parameterExpression;
+                }
+            }
+            else
+            {
+                if (_allowedParameters.Contains(parameterExpression))
+                {
+                    return parameterExpression;
+                }
             }
 
             if (parameterExpression == _rootParameter)

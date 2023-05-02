@@ -3785,4 +3785,139 @@ public abstract class ComplexNavigationsQueryTestBase<TFixture> : QueryTestBase<
                                select l2.Level1_Required_Id).DefaultIfEmpty()
                   from l1 in ss.Set<Level1>().Where(x => x.Id != ids)
                   select l1);
+
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_SelectMany_DefaultIfEmpty_with_predicate_using_closure(bool async)
+    {
+        var prm = 10;
+
+        return AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping
+                  from l2 in grouping.Where(x => x.Id != prm).DefaultIfEmpty()
+                  select new { Id1 = l1.Id, Id2 = (int?)l2.Id },
+            elementSorter: e => (e.Id1, e.Id2),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_SelectMany_with_predicate_using_closure(bool async)
+    {
+        var prm = 10;
+
+        return AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping
+                  from l2 in grouping.Where(x => x.Id != prm)
+                  select new { Id1 = l1.Id, Id2 = l2.Id },
+            elementSorter: e => (e.Id1, e.Id2),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_SelectMany_DefaultIfEmpty_with_predicate_using_closure_nested(bool async)
+    {
+        var prm1 = 10;
+        var prm2 = 20;
+
+        return AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping1
+                  from l2 in grouping1.Where(x => x.Id != prm1).DefaultIfEmpty()
+                  join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
+                  from l3 in grouping2.Where(x => x.Id != prm2).DefaultIfEmpty()
+                  select new { Id1 = l1.Id, Id2 = (int?)l2.Id, Id3 = (int?)l3.Id },
+            elementSorter: e => (e.Id1, e.Id2, e.Id3),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+                Assert.Equal(e.Id3, a.Id3);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_SelectMany_with_predicate_using_closure_nested(bool async)
+    {
+        var prm1 = 10;
+        var prm2 = 20;
+
+        return AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping1
+                  from l2 in grouping1.Where(x => x.Id != prm1)
+                  join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
+                  from l3 in grouping2.Where(x => x.Id != prm2)
+                  select new { Id1 = l1.Id, Id2 = l2.Id, Id3 = l3.Id },
+            elementSorter: e => (e.Id1, e.Id2, e.Id3),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+                Assert.Equal(e.Id3, a.Id3);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_SelectMany_DefaultIfEmpty_with_predicate_using_closure_nested_same_param(bool async)
+    {
+        var prm = 10;
+
+        return AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping1
+                  from l2 in grouping1.Where(x => x.Id != prm).DefaultIfEmpty()
+                  join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
+                  from l3 in grouping2.Where(x => x.Id != prm).DefaultIfEmpty()
+                  select new { Id1 = l1.Id, Id2 = (int?)l2.Id, Id3 = (int?)l3.Id },
+            elementSorter: e => (e.Id1, e.Id2, e.Id3),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+                Assert.Equal(e.Id3, a.Id3);
+            });
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupJoin_SelectMany_with_predicate_using_closure_nested_same_param(bool async)
+    {
+        var prm = 10;
+
+        return AssertQuery(
+            async,
+            ss => from l1 in ss.Set<Level1>()
+                  join l2 in ss.Set<Level2>() on l1.Id equals l2.Level1_Optional_Id into grouping1
+                  from l2 in grouping1.Where(x => x.Id != prm)
+                  join l3 in ss.Set<Level3>() on l2.Id equals l3.Level2_Optional_Id into grouping2
+                  from l3 in grouping2.Where(x => x.Id != prm)
+                  select new { Id1 = l1.Id, Id2 = l2.Id, Id3 = l3.Id },
+            elementSorter: e => (e.Id1, e.Id2, e.Id3),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Id1, a.Id1);
+                Assert.Equal(e.Id2, a.Id2);
+                Assert.Equal(e.Id3, a.Id3);
+            });
+    }
 }
