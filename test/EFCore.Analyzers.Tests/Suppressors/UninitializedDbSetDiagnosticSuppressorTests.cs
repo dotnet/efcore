@@ -2,12 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis.Testing;
+using Microsoft.EntityFrameworkCore.Tests.Utilities;
 
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Tests.Suppressors;
 
 using VerifyCS = CSharpAnalyzerVerifier<UninitializedDbSetDiagnosticSuppressor>;
 
-public class UninitializedDbSetDiagnosticSuppressorTest
+public class UninitializedDbSetDiagnosticSuppressorTests
 {
     [ConditionalFact]
     public async Task DbSet_property_on_DbContext_is_suppressed()

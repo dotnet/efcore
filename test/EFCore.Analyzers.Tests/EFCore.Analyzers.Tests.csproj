@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.Analyzers.Tests</AssemblyName>
-    <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <RootNamespace>Microsoft.EntityFrameworkCore.Tests</RootNamespace>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>

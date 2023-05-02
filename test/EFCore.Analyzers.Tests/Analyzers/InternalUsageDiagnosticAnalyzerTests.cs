@@ -2,12 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Tests.Utilities;
 
-namespace Microsoft.EntityFrameworkCore;
+namespace Microsoft.EntityFrameworkCore.Tests.Analyzers;
 
 using VerifyCS = CSharpAnalyzerVerifier<InternalUsageDiagnosticAnalyzer>;
 
-public class InternalUsageDiagnosticAnalyzerTest
+public class InternalUsageDiagnosticAnalyzerTests
 {
     [ConditionalFact]
     public async Task Invocation_on_type_in_internal_namespace()
