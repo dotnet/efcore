@@ -1438,6 +1438,65 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Can_set_sentinel_for_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property(e => e.Up).HasSentinel(1);
+                    b.Property(e => e.Down).HasSentinel("100");
+                    b.Property<int>("Charm").HasSentinel(-1);
+                    b.Property<string>("Strange").HasSentinel("-1");
+                    b.Property<int>("Top").HasSentinel(77);
+                    b.Property<string>("Bottom").HasSentinel("100");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks))!;
+
+            Assert.Equal(0, entityType.FindProperty(Customer.IdProperty.Name)!.Sentinel);
+            Assert.Equal(1, entityType.FindProperty("Up")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Down")!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal("-1", entityType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(77, entityType.FindProperty("Top")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Bottom")!.Sentinel);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_sentinel_for_property_type()
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Properties<int>().HaveSentinel(-1);
+                    c.Properties<string>().HaveSentinel("100");
+                });
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property<int>("Charm");
+                    b.Property<string>("Strange");
+                    b.Property<int>("Top");
+                    b.Property<string>("Bottom");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks))!;
+
+            Assert.Equal(-1, entityType.FindProperty(Customer.IdProperty.Name)!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Up")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Down")!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Top")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Bottom")!.Sentinel);
+        }
+
+        [ConditionalFact]
         public virtual void Can_set_unbounded_max_length_for_property_type()
         {
             var modelBuilder = CreateModelBuilder(
@@ -1825,6 +1884,7 @@ public abstract partial class ModelBuilderTest
                 .ValueGeneratedOnUpdate()
                 .IsUnicode()
                 .HasMaxLength(100)
+                .HasSentinel(null)
                 .HasPrecision(10, 1)
                 .HasValueGenerator<CustomValueGenerator>()
                 .HasValueGenerator(typeof(CustomValueGenerator))

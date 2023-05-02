@@ -861,9 +861,9 @@ namespace Microsoft.EntityFrameworkCore
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
             {
-                modelBuilder.Entity<CategoryWithSentinel>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-                modelBuilder.Entity<ProductWithSentinel>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-                modelBuilder.Entity<TheGuWithSentinel>().Property(e => e.Id).Metadata.Sentinel = GuidSentinel;
+                modelBuilder.Entity<CategoryWithSentinel>().Property(e => e.Id).HasSentinel(IntSentinel);
+                modelBuilder.Entity<ProductWithSentinel>().Property(e => e.Id).HasSentinel(IntSentinel);
+                modelBuilder.Entity<TheGuWithSentinel>().Property(e => e.Id).HasSentinel(GuidSentinel);
             }
         }
 

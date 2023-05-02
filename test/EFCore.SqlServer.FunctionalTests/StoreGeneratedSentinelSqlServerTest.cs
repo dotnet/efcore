@@ -102,223 +102,223 @@ public class StoreGeneratedSentinelSqlServerTest : StoreGeneratedSqlServerTestBa
             modelBuilder.Entity<Gumball>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-                    b.Property(e => e.NotStoreGenerated).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.Identity).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.IdentityReadOnlyBeforeSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.IdentityReadOnlyAfterSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.AlwaysIdentity).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.Computed).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.ComputedReadOnlyBeforeSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.ComputedReadOnlyAfterSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.AlwaysComputed).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.AlwaysComputedReadOnlyAfterSave).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.Id).HasSentinel(IntSentinel);
+                    b.Property(e => e.NotStoreGenerated).HasSentinel(StringSentinel);
+                    b.Property(e => e.Identity).HasSentinel(StringSentinel);
+                    b.Property(e => e.IdentityReadOnlyBeforeSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.IdentityReadOnlyAfterSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.AlwaysIdentity).HasSentinel(StringSentinel);
+                    b.Property(e => e.AlwaysIdentityReadOnlyBeforeSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.AlwaysIdentityReadOnlyAfterSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.Computed).HasSentinel(StringSentinel);
+                    b.Property(e => e.ComputedReadOnlyBeforeSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.ComputedReadOnlyAfterSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.AlwaysComputed).HasSentinel(StringSentinel);
+                    b.Property(e => e.AlwaysComputedReadOnlyBeforeSave).HasSentinel(StringSentinel);
+                    b.Property(e => e.AlwaysComputedReadOnlyAfterSave).HasSentinel(StringSentinel);
                 });
 
             modelBuilder.Entity<Anais>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-                    b.Property(e => e.Never).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverUseBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverIgnoreBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverThrowBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverUseBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverIgnoreBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverThrowBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverUseBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverIgnoreBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.NeverThrowBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.Id).HasSentinel(IntSentinel);
+                    b.Property(e => e.Never).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverUseBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverIgnoreBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverThrowBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverUseBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverIgnoreBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverThrowBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverUseBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverIgnoreBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.NeverThrowBeforeThrowAfter).HasSentinel(StringSentinel);
 
-                    b.Property(e => e.OnAdd).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddUseBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddIgnoreBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddThrowBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddUseBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddIgnoreBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddThrowBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddUseBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddIgnoreBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddThrowBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.OnAdd).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddUseBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddIgnoreBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddThrowBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddUseBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddIgnoreBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddThrowBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddUseBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddIgnoreBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddThrowBeforeThrowAfter).HasSentinel(StringSentinel);
 
-                    b.Property(e => e.OnAddOrUpdate).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateUseBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateIgnoreBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateThrowBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateUseBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateIgnoreBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateThrowBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateUseBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateIgnoreBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.OnAddOrUpdate).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateUseBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateIgnoreBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateThrowBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateUseBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateIgnoreBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateThrowBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateUseBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateIgnoreBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnAddOrUpdateThrowBeforeThrowAfter).HasSentinel(StringSentinel);
 
-                    b.Property(e => e.OnUpdate).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateUseBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateIgnoreBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateThrowBeforeUseAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateUseBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateIgnoreBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateThrowBeforeIgnoreAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateUseBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
-                    b.Property(e => e.OnUpdateThrowBeforeThrowAfter).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.OnUpdate).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateUseBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateIgnoreBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateThrowBeforeUseAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateUseBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateIgnoreBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateThrowBeforeIgnoreAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateUseBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateIgnoreBeforeThrowAfter).HasSentinel(StringSentinel);
+                    b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasSentinel(StringSentinel);
                 });
 
             modelBuilder.Entity<WithBackingFields>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.NullableAsNonNullable).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.NonNullableAsNullable).Metadata.Sentinel = IntSentinel;
+                    b.Property(e => e.Id).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.NullableAsNonNullable).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.NonNullableAsNullable).HasSentinel(IntSentinel);
                 });
 
             modelBuilder.Entity<WithNullableBackingFields>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.NullableBackedBoolTrueDefault).Metadata.Sentinel = NullableBoolSentinel;
-                    b.Property(e => e.NullableBackedIntNonZeroDefault).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.NullableBackedBoolFalseDefault).Metadata.Sentinel = NullableBoolSentinel;
-                    b.Property(e => e.NullableBackedIntZeroDefault).Metadata.Sentinel = NullableIntSentinel;
+                    b.Property(e => e.Id).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.NullableBackedBoolTrueDefault).HasSentinel(NullableBoolSentinel);
+                    b.Property(e => e.NullableBackedIntNonZeroDefault).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.NullableBackedBoolFalseDefault).HasSentinel(NullableBoolSentinel);
+                    b.Property(e => e.NullableBackedIntZeroDefault).HasSentinel(NullableIntSentinel);
                 });
 
             modelBuilder.Entity<WithObjectBackingFields>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.NullableBackedBoolTrueDefault).Metadata.Sentinel = NullableBoolSentinel;
-                    b.Property(e => e.NullableBackedIntNonZeroDefault).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.NullableBackedBoolFalseDefault).Metadata.Sentinel = NullableBoolSentinel;
-                    b.Property(e => e.NullableBackedIntZeroDefault).Metadata.Sentinel = NullableIntSentinel;
+                    b.Property(e => e.Id).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.NullableBackedBoolTrueDefault).HasSentinel(NullableBoolSentinel);
+                    b.Property(e => e.NullableBackedIntNonZeroDefault).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.NullableBackedBoolFalseDefault).HasSentinel(NullableBoolSentinel);
+                    b.Property(e => e.NullableBackedIntZeroDefault).HasSentinel(NullableIntSentinel);
                 });
 
-            modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
+            modelBuilder.Entity<NonStoreGenDependent>().Property(e => e.Id).HasSentinel(IntSentinel);
 
-            modelBuilder.Entity<CompositePrincipal>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-            modelBuilder.Entity<CompositeDependent>().Property(e => e.PrincipalId).Metadata.Sentinel = IntSentinel;
+            modelBuilder.Entity<CompositePrincipal>().Property(e => e.Id).HasSentinel(IntSentinel);
+            modelBuilder.Entity<CompositeDependent>().Property(e => e.PrincipalId).HasSentinel(IntSentinel);
 
-            modelBuilder.Entity<WrappedIntHiLoClassPrincipal>().Property(e => e.Id).Metadata.Sentinel = WrappedIntHiLoKeyClassSentinel;
-            modelBuilder.Entity<WrappedIntHiLoStructPrincipal>().Property(e => e.Id).Metadata.Sentinel = WrappedIntHiLoKeyStructSentinel;
-            modelBuilder.Entity<WrappedIntHiLoRecordPrincipal>().Property(e => e.Id).Metadata.Sentinel = WrappedIntHiLoKeyRecordSentinel;
+            modelBuilder.Entity<WrappedIntHiLoClassPrincipal>().Property(e => e.Id).HasSentinel(WrappedIntHiLoKeyClassSentinel);
+            modelBuilder.Entity<WrappedIntHiLoStructPrincipal>().Property(e => e.Id).HasSentinel(WrappedIntHiLoKeyStructSentinel);
+            modelBuilder.Entity<WrappedIntHiLoRecordPrincipal>().Property(e => e.Id).HasSentinel(WrappedIntHiLoKeyRecordSentinel);
 
-            modelBuilder.Entity<IntToString>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-            modelBuilder.Entity<GuidToString>().Property(e => e.Id).Metadata.Sentinel = GuidSentinel;
-            modelBuilder.Entity<GuidToBytes>().Property(e => e.Id).Metadata.Sentinel = GuidSentinel;
-            modelBuilder.Entity<ShortToBytes>().Property(e => e.Id).Metadata.Sentinel = ShortSentinel;
+            modelBuilder.Entity<IntToString>().Property(e => e.Id).HasSentinel(IntSentinel);
+            modelBuilder.Entity<GuidToString>().Property(e => e.Id).HasSentinel(GuidSentinel);
+            modelBuilder.Entity<GuidToBytes>().Property(e => e.Id).HasSentinel(GuidSentinel);
+            modelBuilder.Entity<ShortToBytes>().Property(e => e.Id).HasSentinel(ShortSentinel);
 
             modelBuilder.Entity<Darwin>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = NullableIntSentinel;
-                    b.Property(e => e.Name).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.Id).HasSentinel(NullableIntSentinel);
+                    b.Property(e => e.Name).HasSentinel(StringSentinel);
                 });
 
             modelBuilder.Entity<Species>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-                    b.Property(e => e.Name).Metadata.Sentinel = StringSentinel;
+                    b.Property(e => e.Id).HasSentinel(IntSentinel);
+                    b.Property(e => e.Name).HasSentinel(StringSentinel);
                 });
 
-            modelBuilder.Entity<OptionalProduct>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-            modelBuilder.Entity<StoreGenPrincipal>().Property(e => e.Id).Metadata.Sentinel = IntSentinel;
+            modelBuilder.Entity<OptionalProduct>().Property(e => e.Id).HasSentinel(IntSentinel);
+            modelBuilder.Entity<StoreGenPrincipal>().Property(e => e.Id).HasSentinel(IntSentinel);
 
             modelBuilder.Entity<WrappedIntClassPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedIntKeyClassSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedIntClassSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedIntKeyClassSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedIntClassSentinel);
                 });
 
             modelBuilder.Entity<WrappedIntStructPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedIntKeyStructSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedIntStructSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedIntKeyStructSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedIntStructSentinel);
                 });
 
             modelBuilder.Entity<WrappedIntRecordPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedIntKeyRecordSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedIntRecordSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedIntKeyRecordSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedIntRecordSentinel);
                 });
 
-            modelBuilder.Entity<LongToIntPrincipal>().Property(e => e.Id).Metadata.Sentinel = LongSentinel;
-            modelBuilder.Entity<LongToDecimalPrincipal>().Property(e => e.Id).Metadata.Sentinel = LongToDecimalPrincipalSentinel;
+            modelBuilder.Entity<LongToIntPrincipal>().Property(e => e.Id).HasSentinel(LongSentinel);
+            modelBuilder.Entity<LongToDecimalPrincipal>().Property(e => e.Id).HasSentinel(LongToDecimalPrincipalSentinel);
 
             modelBuilder.Entity<WrappedGuidClassPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedGuidKeyClassSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedGuidClassSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedGuidKeyClassSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedGuidClassSentinel);
                 });
 
             modelBuilder.Entity<WrappedGuidStructPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedGuidKeyStructSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedGuidStructSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedGuidKeyStructSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedGuidStructSentinel);
                 });
 
             modelBuilder.Entity<WrappedGuidRecordPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedGuidKeyRecordSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedGuidRecordSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedGuidKeyRecordSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedGuidRecordSentinel);
                 });
 
             modelBuilder.Entity<WrappedStringClassPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedStringKeyClassSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedStringClassSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedStringKeyClassSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedStringClassSentinel);
                 });
 
             modelBuilder.Entity<WrappedStringStructPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedStringKeyStructSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedStringStructSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedStringKeyStructSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedStringStructSentinel);
                 });
 
             modelBuilder.Entity<WrappedStringRecordPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedStringKeyRecordSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedStringRecordSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedStringKeyRecordSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedStringRecordSentinel);
                 });
 
             modelBuilder.Entity<WrappedUriClassPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedUriKeyClassSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedUriClassSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedUriKeyClassSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedUriClassSentinel);
                 });
 
             modelBuilder.Entity<WrappedUriStructPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedUriKeyStructSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedUriStructSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedUriKeyStructSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedUriStructSentinel);
                 });
 
             modelBuilder.Entity<WrappedUriRecordPrincipal>(
                 entity =>
                 {
-                    entity.Property(e => e.Id).Metadata.Sentinel = WrappedUriKeyRecordSentinel;
-                    entity.Property(e => e.NonKey).Metadata.Sentinel = WrappedUriRecordSentinel;
+                    entity.Property(e => e.Id).HasSentinel(WrappedUriKeyRecordSentinel);
+                    entity.Property(e => e.NonKey).HasSentinel(WrappedUriRecordSentinel);
                 });
 
-            modelBuilder.Entity<UriPrincipal>().Property(e => e.Id).Metadata.Sentinel = UriSentinel;
+            modelBuilder.Entity<UriPrincipal>().Property(e => e.Id).HasSentinel(UriSentinel);
             ;
-            modelBuilder.Entity<EnumPrincipal>().Property(e => e.Id).Metadata.Sentinel = KeyEnumSentinel;
+            modelBuilder.Entity<EnumPrincipal>().Property(e => e.Id).HasSentinel(KeyEnumSentinel);
             ;
-            modelBuilder.Entity<GuidAsStringPrincipal>().Property(e => e.Id).Metadata.Sentinel = GuidAsStringSentinel;
-            modelBuilder.Entity<StringAsGuidPrincipal>().Property(e => e.Id).Metadata.Sentinel = StringAsGuidSentinel;
+            modelBuilder.Entity<GuidAsStringPrincipal>().Property(e => e.Id).HasSentinel(GuidAsStringSentinel);
+            modelBuilder.Entity<StringAsGuidPrincipal>().Property(e => e.Id).HasSentinel(StringAsGuidSentinel);
         }
     }
 }

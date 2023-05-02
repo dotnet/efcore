@@ -551,6 +551,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
+        public override TestPropertyBuilder<TProperty> HasSentinel(object? sentinel)
+            => Wrap(PropertyBuilder.HasSentinel(sentinel));
+
         public override TestPropertyBuilder<TProperty> HasPrecision(int precision)
             => Wrap(PropertyBuilder.HasPrecision(precision));
 

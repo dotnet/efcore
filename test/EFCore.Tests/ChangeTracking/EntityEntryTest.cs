@@ -157,13 +157,13 @@ public class EntityEntryTest
             modelBuilder.Entity<StoreGeneratedWithSentinel>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = 667;
+                    b.Property(e => e.Id).HasSentinel(667);
                     b.HasOne(e => e.Dependent)
                         .WithOne(e => e.Principal)
                         .HasForeignKey<DependentWithSentinel>(e => e.Id);
                 });
 
-            modelBuilder.Entity<DependentWithSentinel>().Property(e => e.Id).Metadata.Sentinel = 667;
+            modelBuilder.Entity<DependentWithSentinel>().Property(e => e.Id).HasSentinel(667);
 
             modelBuilder.Entity<NotStoreGenerated>().Property(e => e.Id).ValueGeneratedNever();
 
@@ -181,7 +181,7 @@ public class EntityEntryTest
                 b =>
                 {
                     b.HasKey(e => new { e.Id1, e.Id2 });
-                    b.Property(e => e.Id2).ValueGeneratedOnAdd().Metadata.Sentinel = true;
+                    b.Property(e => e.Id2).ValueGeneratedOnAdd().HasSentinel(true);
                 });
         }
     }

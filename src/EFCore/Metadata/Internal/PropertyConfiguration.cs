@@ -46,23 +46,21 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
             {
                 case CoreAnnotationNames.MaxLength:
                     property.SetMaxLength((int?)annotation.Value);
-
+                    break;
+                case CoreAnnotationNames.Sentinel:
+                    property.Sentinel = annotation.Value;
                     break;
                 case CoreAnnotationNames.Unicode:
                     property.SetIsUnicode((bool?)annotation.Value);
-
                     break;
                 case CoreAnnotationNames.Precision:
                     property.SetPrecision((int?)annotation.Value);
-
                     break;
                 case CoreAnnotationNames.Scale:
                     property.SetScale((int?)annotation.Value);
-
                     break;
                 case CoreAnnotationNames.ProviderClrType:
                     property.SetProviderClrType((Type?)annotation.Value);
-
                     break;
                 case CoreAnnotationNames.ValueConverterType:
                     if (ClrType.UnwrapNullableType() == property.ClrType.UnwrapNullableType())
@@ -120,6 +118,24 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
 
         this[CoreAnnotationNames.MaxLength] = maxLength;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual int? GetSentinel()
+        => (int?)this[CoreAnnotationNames.Sentinel];
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SetSentinel(object? sentinel)
+        => this[CoreAnnotationNames.Sentinel] = sentinel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
