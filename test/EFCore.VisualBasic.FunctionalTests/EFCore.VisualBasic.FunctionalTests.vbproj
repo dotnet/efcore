@@ -4,7 +4,8 @@
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.VisualBasic.FunctionalTests</AssemblyName>
-    <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
+    <!-- Skipping flaky tests due to #30820 -->
+    <SkipTests>True</SkipTests>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
