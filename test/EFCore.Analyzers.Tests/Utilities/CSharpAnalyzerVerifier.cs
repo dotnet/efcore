@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.Testing;
 using Microsoft.CodeAnalysis.Testing.Model;
 using Microsoft.CodeAnalysis.Testing.Verifiers;
 
-namespace Microsoft.EntityFrameworkCore.Tests.Utilities;
+namespace Microsoft.EntityFrameworkCore.Utilities;
 
 public static class CSharpAnalyzerVerifier<TAnalyzer>
     where TAnalyzer : DiagnosticAnalyzer, new()
