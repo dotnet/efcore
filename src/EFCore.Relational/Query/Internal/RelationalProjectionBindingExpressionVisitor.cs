@@ -25,7 +25,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
     private bool _indexBasedBinding;
     private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
-    private Dictionary<JsonQueryExpression, ProjectionBindingExpression>? _jsonQueryCache;
+    //private Dictionary<JsonQueryExpression, ProjectionBindingExpression>? _jsonQueryCache;
     private List<Expression>? _clientProjections;
 
     private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
@@ -66,7 +66,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             _indexBasedBinding = true;
             _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
-            _jsonQueryCache = new Dictionary<JsonQueryExpression, ProjectionBindingExpression>();
+            //_jsonQueryCache = new Dictionary<JsonQueryExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
             _clientProjections = new List<Expression>();
 
@@ -307,13 +307,19 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     if (_indexBasedBinding)
                     {
-                        if (!_jsonQueryCache!.TryGetValue(jsonQueryExpression, out var jsonProjectionBinding))
-                        {
-                            jsonProjectionBinding = AddClientProjection(jsonQueryExpression, typeof(ValueBuffer));
-                            _jsonQueryCache[jsonQueryExpression] = jsonProjectionBinding;
-                        }
+                        var jsonProjectionBinding = AddJsonClientProjection(jsonQueryExpression, typeof(ValueBuffer));
 
                         return entityShaperExpression.Update(jsonProjectionBinding);
+
+                        //if (!_jsonQueryCache!.TryGetValue(jsonQueryExpression, out var jsonProjectionBinding))
+                        //{
+                        //    jsonProjectionBinding = AddJsonClientProjection(jsonQueryExpression, typeof(ValueBuffer));
+
+                        //    // TODO: just remove the JSON cache altogether
+                        //    //_jsonQueryCache[jsonQueryExpression] = jsonProjectionBinding;
+                        //}
+
+                        //return entityShaperExpression.Update(jsonProjectionBinding);
                     }
 
                     _projectionMapping[_projectionMembers.Peek()] = jsonQueryExpression;
@@ -358,6 +364,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
                 if (_indexBasedBinding)
                 {
+                    // TODO: should we remove this cache also?
                     if (!_entityProjectionCache!.TryGetValue(entityProjectionExpression, out var entityProjectionBinding))
                     {
                         entityProjectionBinding = AddClientProjection(entityProjectionExpression, typeof(ValueBuffer));
@@ -652,6 +659,13 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         }
 
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
+    }
+
+    private ProjectionBindingExpression AddJsonClientProjection(JsonQueryExpression jsonQueryExpression, Type type)
+    {
+        _clientProjections!.Add(jsonQueryExpression);
+
+        return new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, type);
     }
 
 #pragma warning disable IDE0052 // Remove unread private members

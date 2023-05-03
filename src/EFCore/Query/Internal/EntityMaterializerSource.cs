@@ -332,6 +332,7 @@ public class EntityMaterializerSource : IEntityMaterializerSource
                         materializationDataVariable,
                         instanceVariable),
                     instanceVariable.Type)));
+        blockExpressions.Add(instanceVariable);
 
         return Expression.Block(
             bindingInfo.ServiceInstances.Concat(new[] { accessorDictionaryVariable, materializationDataVariable, creatingResultVariable }),

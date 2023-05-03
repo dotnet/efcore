@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.TestModels.JsonQuery;
 
@@ -26,6 +27,28 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
+    public override async Task Basic_json_projection_owner_entity_duplicated(bool async)
+    {
+        await base.Basic_json_projection_owner_entity_duplicated(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
+    {
+        await base.Basic_json_projection_owner_entity_duplicated_NoTracking(async);
+
+        AssertSql(
+"""
+SELECT [j].[Id], [j].[Name], [j].[OwnedCollection], [j].[OwnedCollection]
+FROM [JsonEntitiesSingleOwned] AS [j]
+""");
+    }
+
     public override async Task Basic_json_projection_owned_reference_root(bool async)
     {
         await base.Basic_json_projection_owned_reference_root(async);
@@ -37,13 +60,25 @@ FROM [JsonEntitiesBasic] AS [j]
 """);
     }
 
+    public override async Task Basic_json_projection_owned_reference_duplicated2(bool async)
+    {
+        await base.Basic_json_projection_owned_reference_duplicated2(async);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf')
+FROM [JsonEntitiesBasic] AS [j]
+ORDER BY [j].[Id]
+""");
+    }
+
     public override async Task Basic_json_projection_owned_reference_duplicated(bool async)
     {
         await base.Basic_json_projection_owned_reference_duplicated(async);
 
         AssertSql(
 """
-SELECT [j].[OwnedReferenceRoot], [j].[Id]
+SELECT [j].[OwnedReferenceRoot], [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch')
 FROM [JsonEntitiesBasic] AS [j]
 ORDER BY [j].[Id]
 """);
@@ -155,7 +190,7 @@ FROM [JsonEntitiesCustomNaming] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething')
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), JSON_VALUE([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf.SomethingSomething')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -166,7 +201,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT [j].[OwnedReferenceRoot], [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot]
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j].[Id], [j].[OwnedReferenceRoot], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -395,7 +430,7 @@ FROM [JsonEntitiesCustomNaming] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[Title], [j].[json_collection_custom_naming], [j].[json_reference_custom_naming], JSON_VALUE([j].[json_reference_custom_naming], '$.CustomName'), CAST(JSON_VALUE([j].[json_reference_custom_naming], '$.CustomOwnedReferenceBranch.CustomFraction') AS float)
+SELECT [j].[Id], [j].[Title], [j].[json_collection_custom_naming], [j].[json_reference_custom_naming], [j].[json_reference_custom_naming], JSON_QUERY([j].[json_reference_custom_naming], '$.CustomOwnedReferenceBranch'), [j].[json_collection_custom_naming], JSON_QUERY([j].[json_reference_custom_naming], '$.CustomOwnedCollectionBranch'), JSON_VALUE([j].[json_reference_custom_naming], '$.CustomName'), CAST(JSON_VALUE([j].[json_reference_custom_naming], '$.CustomOwnedReferenceBranch.CustomFraction') AS float)
 FROM [JsonEntitiesCustomNaming] AS [j]
 """);
     }
@@ -429,7 +464,7 @@ LEFT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
 
         AssertSql(
 """
-SELECT [j].[Id], [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot], [j0].[OwnedReferenceRoot]
+SELECT [j].[Id], [j0].[Id], [j0].[EntityBasicId], [j0].[Name], [j0].[OwnedCollectionRoot], [j0].[OwnedReferenceRoot], [j0].[OwnedReferenceRoot], JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), JSON_QUERY([j0].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf')
 FROM [JsonEntitiesSingleOwned] AS [j]
 LEFT JOIN [JsonEntitiesBasic] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
@@ -453,7 +488,7 @@ LEFT JOIN [JsonEntitiesSingleOwned] AS [j0] ON [j].[Id] = [j0].[Id]
 
         AssertSql(
 """
-SELECT [j].[Id], [j0].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j0].[Name], [j0].[OwnedCollection]
+SELECT [j].[Id], [j0].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j0].[Name], [j0].[OwnedCollection]
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesSingleOwned] AS [j0] ON [j].[Id] = [j0].[Id]
 """);
@@ -590,7 +625,7 @@ FROM [JsonEntitiesInheritance] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived]
+SELECT [j].[Id], [j].[Discriminator], [j].[Name], [j].[Fraction], [j].[CollectionOnBase], [j].[ReferenceOnBase], [j].[CollectionOnDerived], [j].[ReferenceOnDerived], [j].[ReferenceOnBase], [j].[ReferenceOnDerived], [j].[CollectionOnBase], [j].[CollectionOnDerived]
 FROM [JsonEntitiesInheritance] AS [j]
 WHERE [j].[Discriminator] = N'JsonEntityInheritanceDerived'
 """);
@@ -717,6 +752,17 @@ FROM [JsonEntitiesBasic] AS [j]
         AssertSql(
 """
 SELECT JSON_QUERY([j].[OwnedCollectionRoot], '$[25]'), [j].[Id]
+FROM [JsonEntitiesBasic] AS [j]
+""");
+    }
+
+    public override async Task Json_collection_element_access_outside_bounds2(bool async)
+    {
+        await base.Json_collection_element_access_outside_bounds2(async);
+
+        AssertSql(
+"""
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf[25]'), [j].[Id]
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -961,7 +1007,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], JSON_QUERY([j].[OwnedCollectionRoot], '$[0]')
+SELECT [j].[Id], JSON_QUERY([j].[OwnedCollectionRoot], '$[0].OwnedReferenceBranch'), JSON_QUERY([j].[OwnedCollectionRoot], '$[0]'), JSON_QUERY([j].[OwnedCollectionRoot], '$[0].OwnedReferenceBranch.OwnedCollectionLeaf')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -975,7 +1021,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 @__prm_0='1'
 
-SELECT [j].[Id], [j].[OwnedReferenceRoot], @__prm_0
+SELECT [j].[Id], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[1]'), [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf[' + CAST(@__prm_0 AS nvarchar(max)) + ']'), @__prm_0
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -988,7 +1034,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 @__prm_0='1'
 
-SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[Id], @__prm_0
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0].OwnedCollectionLeaf[' + CAST(@__prm_0 AS nvarchar(max)) + ']'), [j].[Id], @__prm_0, JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[' + CAST(@__prm_0 AS nvarchar(max)) + ']'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch[0]')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -999,9 +1045,15 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[1]')
 FROM [JsonEntitiesBasic] AS [j]
 """);
+
+//        AssertSql(
+//"""
+//SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+//FROM [JsonEntitiesBasic] AS [j]
+//""");
     }
 
     public override async Task Json_collection_element_access_in_projection_using_parameter_when_owner_is_present(bool async)
@@ -1012,7 +1064,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 @__prm_0='1'
 
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], @__prm_0
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST(@__prm_0 AS nvarchar(max)) + ']'), @__prm_0
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -1023,7 +1075,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[1].OwnedCollectionBranch')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -1036,7 +1088,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 @__prm_0='1'
 
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], @__prm_0
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST(@__prm_0 AS nvarchar(max)) + '].OwnedCollectionBranch'), @__prm_0
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -1049,7 +1101,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 @__prm_0='1'
 
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], @__prm_0
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[1].OwnedCollectionBranch[' + CAST(@__prm_0 AS nvarchar(max)) + ']'), @__prm_0
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -1060,7 +1112,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot]
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf[1]')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -1073,7 +1125,7 @@ FROM [JsonEntitiesBasic] AS [j]
 """
 @__prm_0='1'
 
-SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], @__prm_0
+SELECT [j].[Id], [j].[EntityBasicId], [j].[Name], [j].[OwnedCollectionRoot], [j].[OwnedReferenceRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST(@__prm_0 AS nvarchar(max)) + '].OwnedCollectionBranch[1]'), @__prm_0, JSON_QUERY([j].[OwnedCollectionRoot], '$[1].OwnedCollectionBranch[1].OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedCollectionRoot], '$[1].OwnedReferenceBranch'), JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST(@__prm_0 AS nvarchar(max)) + '].OwnedReferenceBranch'), JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST(@__prm_0 AS nvarchar(max)) + '].OwnedCollectionBranch[' + CAST([j].[Id] AS nvarchar(max)) + ']'), JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST([j].[Id] AS nvarchar(max)) + '].OwnedCollectionBranch[1].OwnedReferenceLeaf'), JSON_QUERY([j].[OwnedCollectionRoot], '$[1].OwnedReferenceBranch'), JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST([j].[Id] AS nvarchar(max)) + '].OwnedReferenceBranch'), JSON_QUERY([j].[OwnedCollectionRoot], '$[' + CAST([j].[Id] AS nvarchar(max)) + '].OwnedCollectionBranch[' + CAST([j].[Id] AS nvarchar(max)) + ']')
 FROM [JsonEntitiesBasic] AS [j]
 """);
     }
@@ -1397,12 +1449,21 @@ ORDER BY [j].[Id], [j0].[Id]
 
         AssertSql(
 """
-SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j1].[Id], [j1].[Name], [j1].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[OwnedCollectionRoot]
+SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j1].[Id], [j1].[Name], [j1].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf[0]'), JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[OwnedCollectionRoot], JSON_QUERY([j].[OwnedCollectionRoot], '$[0].OwnedReferenceBranch'), JSON_QUERY([j].[OwnedCollectionRoot], '$[0].OwnedCollectionBranch')
 FROM [JsonEntitiesBasic] AS [j]
 LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
 LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
 ORDER BY [j].[Id], [j0].[Id]
 """);
+
+//        AssertSql(
+//"""
+//SELECT JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedCollectionLeaf'), [j].[Id], [j0].[Id], [j0].[Name], [j0].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedReferenceBranch.OwnedReferenceLeaf'), [j1].[Id], [j1].[Name], [j1].[ParentId], JSON_QUERY([j].[OwnedReferenceRoot], '$.OwnedCollectionBranch'), [j].[OwnedCollectionRoot]
+//FROM [JsonEntitiesBasic] AS [j]
+//LEFT JOIN [JsonEntitiesBasicForReference] AS [j0] ON [j].[Id] = [j0].[ParentId]
+//LEFT JOIN [JsonEntitiesBasicForCollection] AS [j1] ON [j].[Id] = [j1].[ParentId]
+//ORDER BY [j].[Id], [j0].[Id]
+//""");
     }
 
     public override async Task Json_all_types_entity_projection(bool async)
@@ -1412,6 +1473,17 @@ ORDER BY [j].[Id], [j0].[Id]
         AssertSql(
 """
 SELECT [j].[Id], [j].[Collection], [j].[Reference]
+FROM [JsonEntitiesAllTypes] AS [j]
+""");
+    }
+
+    public override async Task Json_all_types_projection_from_owned_entity_reference(bool async)
+    {
+        await base.Json_all_types_projection_from_owned_entity_reference(async);
+
+        AssertSql(
+"""
+SELECT [j].[Reference], [j].[Id]
 FROM [JsonEntitiesAllTypes] AS [j]
 """);
     }

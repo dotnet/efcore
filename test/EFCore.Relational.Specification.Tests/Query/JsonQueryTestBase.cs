@@ -18,8 +18,35 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
     public virtual Task Basic_json_projection_owner_entity(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<JsonEntityBasic>(),
+            ss => ss.Set<JsonEntityBasic>(),//.AsNoTracking(),
             entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_duplicated(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { First = x, Second = x }),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            },
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntitySingleOwned>().Select(x => new { First = x, Second = x }).AsNoTracking(),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -27,6 +54,30 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot).AsNoTracking());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_reference_duplicated2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(x => x.Id)
+                .Select(
+                    x => new
+                    {
+                        //Root1 = x.OwnedReferenceRoot,
+                        Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        //Root2 = x.OwnedReferenceRoot,
+                        Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    }).AsNoTracking(),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                //AssertEqual(e.Root1, a.Root1);
+                //AssertEqual(e.Root2, a.Root2);
+                AssertEqual(e.Leaf1, a.Leaf1);
+                AssertEqual(e.Leaf2, a.Leaf2);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -789,6 +840,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_element_access_outside_bounds2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[25]).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedLeaf)null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Json_collection_element_access_outside_bounds_with_property_access(bool async)
         => AssertQueryScalar(
             async,
@@ -1535,6 +1594,15 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityAllTypes>(),
             entryCount: 6);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_all_types_projection_from_owned_entity_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference).AsNoTracking(),
+            elementSorter: e => e.TestInt32,
+            elementAsserter: (e, a) => AssertEqual(e, a));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

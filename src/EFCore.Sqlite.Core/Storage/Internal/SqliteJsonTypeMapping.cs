@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text;
 using System.Text.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
@@ -16,11 +17,20 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     private static readonly MethodInfo GetStringMethod
         = typeof(DbDataReader).GetRuntimeMethod(nameof(DbDataReader.GetString), new[] { typeof(int) })!;
 
-    private static readonly MethodInfo JsonDocumentParseMethod
-        = typeof(JsonDocument).GetRuntimeMethod(nameof(JsonDocument.Parse), new[] { typeof(string), typeof(JsonDocumentOptions) })!;
+    private static readonly PropertyInfo UTF8Property
+        = typeof(Encoding).GetProperty(nameof(Encoding.UTF8))!;
 
-    private static readonly MemberInfo JsonDocumentRootElementMember
-        = typeof(JsonDocument).GetRuntimeProperty(nameof(JsonDocument.RootElement))!;
+    private static readonly MethodInfo EncodingGetBytesMethod
+        = typeof(Encoding).GetMethod(nameof(Encoding.GetBytes), new[] { typeof(string) })!;
+
+    private static readonly ConstructorInfo MemoryStreamConstructor
+        = typeof(MemoryStream).GetConstructor(new[] { typeof(byte[]) })!;
+
+    //private static readonly MethodInfo JsonDocumentParseMethod
+    //    = typeof(JsonDocument).GetRuntimeMethod(nameof(JsonDocument.Parse), new[] { typeof(string), typeof(JsonDocumentOptions) })!;
+
+    //private static readonly MemberInfo JsonDocumentRootElementMember
+    //    = typeof(JsonDocument).GetRuntimeProperty(nameof(JsonDocument.RootElement))!;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="SqliteJsonTypeMapping" /> class.
@@ -58,12 +68,19 @@ public class SqliteJsonTypeMapping : JsonTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override Expression CustomizeDataReaderExpression(Expression expression)
-        => Expression.MakeMemberAccess(
+        => Expression.New(
+            MemoryStreamConstructor,
             Expression.Call(
-                JsonDocumentParseMethod,
-                expression,
-                Expression.Default(typeof(JsonDocumentOptions))),
-            JsonDocumentRootElementMember);
+                Expression.Property(null, UTF8Property),
+                EncodingGetBytesMethod,
+                expression));
+
+        //=> Expression.MakeMemberAccess(
+        //    Expression.Call(
+        //        JsonDocumentParseMethod,
+        //        expression,
+        //        Expression.Default(typeof(JsonDocumentOptions))),
+        //    JsonDocumentRootElementMember);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
