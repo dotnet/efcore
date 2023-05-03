@@ -60,9 +60,11 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
 
                 var newEntity = query.Where(e => e.Id == 2).Single();
                 Assert.Equal("NewEntity", newEntity.Name);
+                // TODO: #29348 - collection should be empty here
                 Assert.Null(newEntity.OwnedCollectionRoot);
                 Assert.Equal("RootName", newEntity.OwnedReferenceRoot.Name);
                 Assert.Equal(42, newEntity.OwnedReferenceRoot.Number);
+                // TODO: #29348 - collection should be empty here
                 Assert.Null(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
@@ -76,6 +78,66 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal("ss1", collectionLeaf[0].SomethingSomething);
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
             });
+
+    [ConditionalFact]
+    public virtual Task Add_entity_with_json_null_navigations()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var newEntity = new JsonEntityBasic
+                {
+                    Id = 2,
+                    Name = "NewEntity",
+                    OwnedCollectionRoot = null,
+                    OwnedReferenceRoot = new JsonOwnedRoot
+                    {
+                        Name = "RootName",
+                        Number = 42,
+                        //OwnedCollectionBranch missing on purpose
+                        OwnedReferenceBranch = new JsonOwnedBranch
+                        {
+                            Date = new DateTime(2010, 10, 10),
+                            Enum = JsonEnum.Three,
+                            Fraction = 42.42m,
+                            OwnedCollectionLeaf = new List<JsonOwnedLeaf>
+                            {
+                                new() { SomethingSomething = "ss1" }, new() { SomethingSomething = "ss2" },
+                            },
+                            OwnedReferenceLeaf = null,
+                        }
+                    },
+                };
+
+                context.Set<JsonEntityBasic>().Add(newEntity);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                Assert.Equal(2, query.Count);
+
+                var newEntity = query.Where(e => e.Id == 2).Single();
+                Assert.Equal("NewEntity", newEntity.Name);
+                Assert.Null(newEntity.OwnedCollectionRoot);
+                Assert.Equal("RootName", newEntity.OwnedReferenceRoot.Name);
+                Assert.Equal(42, newEntity.OwnedReferenceRoot.Number);
+                Assert.Null(newEntity.OwnedReferenceRoot.OwnedCollectionBranch);
+                Assert.Equal(new DateTime(2010, 10, 10), newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Date);
+                Assert.Equal(JsonEnum.Three, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Enum);
+                Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
+
+                Assert.Equal(42.42m, newEntity.OwnedReferenceRoot.OwnedReferenceBranch.Fraction);
+                Assert.Null(newEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf);
+
+                var collectionLeaf = newEntity.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf;
+                Assert.Equal(2, collectionLeaf.Count);
+                Assert.Equal("ss1", collectionLeaf[0].SomethingSomething);
+                Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
+            });
+
 
     [ConditionalFact]
     public virtual Task Add_json_reference_root()
@@ -121,6 +183,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 var updatedReference = updatedEntity.OwnedReferenceRoot;
                 Assert.Equal("RootName", updatedReference.Name);
                 Assert.Equal(42, updatedReference.Number);
+                // TODO: #29348 - collection should be empty here
                 Assert.Null(updatedReference.OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedReference.OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedReference.OwnedReferenceBranch.Enum);
@@ -202,6 +265,7 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(3, updatedCollection.Count);
                 Assert.Equal("new Name", updatedCollection[2].Name);
                 Assert.Equal(142, updatedCollection[2].Number);
+                // TODO: #29348 - collection should be empty here
                 Assert.Null(updatedCollection[2].OwnedCollectionBranch);
                 Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
                 Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
@@ -211,6 +275,49 @@ public abstract class JsonUpdateTestBase<TFixture> : IClassFixture<TFixture>
                 Assert.Equal(2, collectionLeaf.Count);
                 Assert.Equal("ss1", collectionLeaf[0].SomethingSomething);
                 Assert.Equal("ss2", collectionLeaf[1].SomethingSomething);
+            });
+
+    [ConditionalFact]
+    public virtual Task Add_element_to_json_collection_root_null_navigations()
+        => TestHelpers.ExecuteWithStrategyInTransactionAsync(
+            CreateContext,
+            UseTransaction,
+            async context =>
+            {
+                var query = await context.JsonEntitiesBasic.ToListAsync();
+                var entity = query.Single();
+
+                var newRoot = new JsonOwnedRoot
+                {
+                    Name = "new Name",
+                    Number = 142,
+                    OwnedCollectionBranch = null,
+                    OwnedReferenceBranch = new JsonOwnedBranch
+                    {
+                        Date = new DateTime(2010, 10, 10),
+                        Enum = JsonEnum.Three,
+                        Fraction = 42.42m,
+                        OwnedReferenceLeaf = null
+                    }
+                };
+
+                entity.OwnedCollectionRoot.Add(newRoot);
+                ClearLog();
+                await context.SaveChangesAsync();
+            },
+            async context =>
+            {
+                var updatedEntity = await context.JsonEntitiesBasic.SingleAsync();
+                var updatedCollection = updatedEntity.OwnedCollectionRoot;
+                Assert.Equal(3, updatedCollection.Count);
+                Assert.Equal("new Name", updatedCollection[2].Name);
+                Assert.Equal(142, updatedCollection[2].Number);
+                Assert.Null(updatedCollection[2].OwnedCollectionBranch);
+                Assert.Equal(new DateTime(2010, 10, 10), updatedCollection[2].OwnedReferenceBranch.Date);
+                Assert.Equal(JsonEnum.Three, updatedCollection[2].OwnedReferenceBranch.Enum);
+                Assert.Equal(42.42m, updatedCollection[2].OwnedReferenceBranch.Fraction);
+                Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedReferenceLeaf);
+                Assert.Null(updatedCollection[2].OwnedReferenceBranch.OwnedCollectionLeaf);
             });
 
     [ConditionalFact]

@@ -19,12 +19,10 @@ public readonly struct JsonProjectionInfo
     /// </summary>
     public JsonProjectionInfo(
         int jsonColumnIndex,
-        List<(IProperty?, int?, int?)> keyAccessInfo,
-        (string?, int?, int?)[] additionalPath)
+        List<(IProperty?, int?, int?)> keyAccessInfo)
     {
         JsonColumnIndex = jsonColumnIndex;
         KeyAccessInfo = keyAccessInfo;
-        AdditionalPath = additionalPath;
     }
 
     /// <summary>
@@ -55,16 +53,4 @@ public readonly struct JsonProjectionInfo
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </remarks>
     public List<(IProperty? KeyProperty, int? ConstantKeyValue, int? KeyProjectionIndex)> KeyAccessInfo { get; }
-
-    /// <summary>
-    ///     List of additional path elements, only one of the values in the tuple is non-null
-    ///     this information is used to access the correct sub-element of a JsonElement that we materialized
-    /// </summary>
-    /// <remarks>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </remarks>
-    public (string? JsonPropertyName, int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath { get; }
 }
