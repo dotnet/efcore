@@ -51,6 +51,34 @@ public ref struct Utf8JsonReaderManager
     }
 
     /// <summary>
+    ///     Temporary, remove later and use method on CurrentReader directly.
+    /// </summary>
+    public bool ValueTextEquals(ReadOnlySpan<byte> text)
+    {
+        var result = CurrentReader.ValueTextEquals(text);
+
+        return result;
+    }
+
+    /// <summary>
+    ///     Temporary, remove later and use method on CurrentReader directly.
+    /// </summary>
+    public void Skip()
+    {
+        CurrentReader.Skip();
+    }
+
+    /// <summary>
+    ///     Temporary, remove later and use method on CurrentReader directly.
+    /// </summary>
+    public JsonTokenType TokenType()
+    {
+        var result = CurrentReader.TokenType;
+
+        return result;
+    }
+
+    /// <summary>
     ///     Called to capture the state of this <see cref="Utf8JsonReaderManager" /> into the associated <see cref="JsonReaderData" /> so
     ///     that a new <see cref="Utf8JsonReaderManager" /> can later be created to pick up at the same position in the JSON document.
     /// </summary>

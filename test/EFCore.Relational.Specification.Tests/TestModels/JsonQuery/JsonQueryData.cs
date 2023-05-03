@@ -692,11 +692,11 @@ public class JsonQueryData : ISetSource
             TestUnsignedInt64 = 123567890123456789UL,
             TestCharacter = 'b',
             TestSignedByte = -18,
-            TestNullableInt32 = null,
+            TestNullableInt32 = 20,//null,
             TestEnum = JsonEnum.Two,
             TestEnumWithIntConverter = JsonEnum.Three,
             TestNullableEnum = null,
-            TestNullableEnumWithIntConverter = null,
+            TestNullableEnumWithIntConverter = JsonEnum.One, //null,
             TestNullableEnumWithConverterThatHandlesNulls = null,
         };
 
@@ -750,11 +750,11 @@ public class JsonQueryData : ISetSource
             TestUnsignedInt64 = 124567867UL,
             TestCharacter = 'g',
             TestSignedByte = -8,
-            TestNullableInt32 = null,
+            TestNullableInt32 = 25, //null,
             TestEnum = JsonEnum.Two,
             TestEnumWithIntConverter = JsonEnum.Three,
             TestNullableEnum = null,
-            TestNullableEnumWithIntConverter = null,
+            TestNullableEnumWithIntConverter = JsonEnum.One, //null,
             TestNullableEnumWithConverterThatHandlesNulls = null,
         };
 

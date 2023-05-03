@@ -1662,11 +1662,15 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         ConstantExpression AddJsonProjection(JsonQueryExpression jsonQueryExpression, JsonScalarExpression jsonScalarToAdd)
         {
-            var additionalPath = jsonQueryExpression.Path
-                .Skip(jsonScalarToAdd.Path.Count)
-                .ToArray();
+            var sqlExpression = AssignUniqueAliases(jsonScalarToAdd);
+            _projection.Add(new ProjectionExpression(sqlExpression, ""));
+            var jsonColumnIndex = _projection.Count - 1;
 
-            var jsonColumnIndex = AddToProjection(jsonScalarToAdd);
+            //var additionalPath = jsonQueryExpression.Path
+            //    .Skip(jsonScalarToAdd.Path.Count)
+            //    .ToArray();
+
+            //var jsonColumnIndex = AddToProjection(jsonScalarToAdd);
 
             var keyAccessInfo = new List<(IProperty?, int?, int?)>();
             var keyProperties = GetMappedKeyProperties(jsonQueryExpression.EntityType.FindPrimaryKey()!);
@@ -1689,21 +1693,21 @@ public sealed partial class SelectExpression : TableExpressionBase
             }
 
             var additionalPathList = new List<(string?, int?, int?)>();
-            foreach (var additionalPathSegment in additionalPath)
-            {
-                if (additionalPathSegment.PropertyName is not null)
-                {
-                    additionalPathList.Add((additionalPathSegment.PropertyName, null, null));
-                }
-                else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue } sqlConstant)
-                {
-                    additionalPathList.Add((null, intValue, null));
-                }
-                else
-                {
-                    additionalPathList.Add((null, null, AddToProjection(additionalPathSegment.ArrayIndex!)));
-                }
-            }
+            //foreach (var additionalPathSegment in additionalPath)
+            //{
+            //    if (additionalPathSegment.PropertyName is not null)
+            //    {
+            //        additionalPathList.Add((additionalPathSegment.PropertyName, null, null));
+            //    }
+            //    else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue } sqlConstant)
+            //    {
+            //        additionalPathList.Add((null, intValue, null));
+            //    }
+            //    else
+            //    {
+            //        additionalPathList.Add((null, null, AddToProjection(additionalPathSegment.ArrayIndex!)));
+            //    }
+            //}
 
             return Constant(
                 new JsonProjectionInfo(
@@ -1737,6 +1741,9 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         static bool JsonEntityContainedIn(JsonScalarExpression sourceExpression, JsonQueryExpression targetExpression)
         {
+            var i = 1;
+            if (i == 1) return false;
+
             if (sourceExpression.Json != targetExpression.JsonColumn)
             {
                 return false;
