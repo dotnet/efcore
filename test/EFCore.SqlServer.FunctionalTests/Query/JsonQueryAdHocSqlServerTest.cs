@@ -117,4 +117,137 @@ N'{{""RootName"":""e4"",""Collection"":[{{""BranchName"":""e4 c1"",""Nested"":{{
         ctx.Entities.AddRange(entity1, entity2);
         ctx.SaveChanges();
     }
+
+    protected override void SeedJunkInJson(MyContextJunkInJson ctx)
+    {
+        ctx.Database.ExecuteSqlRaw(@"INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id])
+VALUES(
+N'[{{""JunkReference"":{{""Something"":""SomeValue"" }},""Name"":""c11"",""JunkProperty1"":50,""Number"":11.5,""JunkCollection1"":[],""JunkCollection2"":[{{""Foo"":""junk value""}}],""NestedCollection"":[{{""DoB"":""2002-04-01T00:00:00"",""DummyProp"":""Dummy value""}},{{""DoB"":""2002-04-02T00:00:00"",""DummyReference"":{{""Foo"":5}}}}],""NestedReference"":{{""DoB"":""2002-03-01T00:00:00""}}}},{{""Name"":""c12"",""Number"":12.5,""NestedCollection"":[{{""DoB"":""2002-06-01T00:00:00""}},{{""DoB"":""2002-06-02T00:00:00""}}],""NestedDummy"":59,""NestedReference"":{{""DoB"":""2002-05-01T00:00:00""}}}}]',
+N'[{{""MyBool"":true,""Name"":""c11 ctor"",""JunkReference"":{{""Something"":""SomeValue"",""JunkCollection"":[{{""Foo"":""junk value""}}]}},""NestedCollection"":[{{""DoB"":""2002-08-01T00:00:00""}},{{""DoB"":""2002-08-02T00:00:00""}}],""NestedReference"":{{""DoB"":""2002-07-01T00:00:00""}}}},{{""MyBool"":false,""Name"":""c12 ctor"",""NestedCollection"":[{{""DoB"":""2002-10-01T00:00:00""}},{{""DoB"":""2002-10-02T00:00:00""}}],""JunkCollection"":[{{""Foo"":""junk value""}}],""NestedReference"":{{""DoB"":""2002-09-01T00:00:00""}}}}]',
+N'{{""Name"":""r1"",""JunkCollection"":[{{""Foo"":""junk value""}}],""JunkReference"":{{""Something"":""SomeValue"" }},""Number"":1.5,""NestedCollection"":[{{""DoB"":""2000-02-01T00:00:00"",""JunkReference"":{{""Something"":""SomeValue""}}}},{{""DoB"":""2000-02-02T00:00:00""}}],""NestedReference"":{{""DoB"":""2000-01-01T00:00:00""}}}}',
+N'{{""MyBool"":true,""JunkCollection"":[{{""Foo"":""junk value""}}],""Name"":""r1 ctor"",""JunkReference"":{{""Something"":""SomeValue"" }},""NestedCollection"":[{{""DoB"":""2001-02-01T00:00:00""}},{{""DoB"":""2001-02-02T00:00:00""}}],""NestedReference"":{{""JunkCollection"":[{{""Foo"":""junk value""}}],""DoB"":""2001-01-01T00:00:00""}}}}',
+1)");
+
+        //var entity1 = new MyEntityJunkInJson
+        //{
+        //    Id = 1,
+
+        //    Reference = new MyJsonEntityJunkInJson
+        //    {
+        //        Name = "r1",
+        //        Number = 1.5,
+        //        NestedReference = new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2000, 1, 1) },
+        //        NestedCollection = new List<MyJsonEntityJunkInJsonNested>
+        //        {
+        //            new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2000, 2, 1) },
+        //            new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2000, 2, 2) },
+        //        }
+        //    },
+
+        //    ReferenceWithCtor = new MyJsonEntityJunkInJsonWithCtor(true, "r1 ctor")
+        //    {
+        //        NestedReference = new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2001, 1, 1)),
+        //        NestedCollection = new List<MyJsonEntityJunkInJsonWithCtorNested>
+        //        {
+        //            new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2001, 2, 1)),
+        //            new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2001, 2, 2)),
+        //        }
+        //    },
+
+        //    Collection = new List<MyJsonEntityJunkInJson>
+        //    {
+        //        new MyJsonEntityJunkInJson
+        //        {
+        //            Name = "c11",
+        //            Number = 11.5,
+        //            NestedReference = new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2002, 3, 1) },
+        //            NestedCollection = new List<MyJsonEntityJunkInJsonNested>
+        //            {
+        //                new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2002, 4, 1) },
+        //                new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2002, 4, 2) },
+        //            }
+        //        },
+        //        new MyJsonEntityJunkInJson
+        //        {
+        //            Name = "c12",
+        //            Number = 12.5,
+        //            NestedReference = new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2002, 5, 1) },
+        //            NestedCollection = new List<MyJsonEntityJunkInJsonNested>
+        //            {
+        //                new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2002, 6, 1) },
+        //                new MyJsonEntityJunkInJsonNested { DoB = new DateTime(2002, 6, 2) },
+        //            }
+        //        },
+        //    },
+
+        //    CollectionWithCtor = new List<MyJsonEntityJunkInJsonWithCtor>
+        //    {
+        //        new MyJsonEntityJunkInJsonWithCtor(true, "c11 ctor")
+        //        {
+        //            NestedReference = new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2002, 7, 1)),
+        //            NestedCollection = new List<MyJsonEntityJunkInJsonWithCtorNested>
+        //            {
+        //                new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2002, 8, 1)),
+        //                new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2002, 8, 2)),
+        //            }
+        //        },
+        //        new MyJsonEntityJunkInJsonWithCtor(false, "c12 ctor")
+        //        {
+        //            NestedReference = new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2002, 9, 1)),
+        //            NestedCollection = new List<MyJsonEntityJunkInJsonWithCtorNested>
+        //            {
+        //                new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2002, 10, 1)),
+        //                new MyJsonEntityJunkInJsonWithCtorNested(new DateTime(2002, 10, 2)),
+        //            }
+        //        },
+        //    },
+        //};
+
+        //ctx.Entities.AddRange(entity1);
+        //ctx.SaveChanges();
+    }
+
+    protected override void SeedShadowProperties(MyContextShadowProperties ctx)
+    {
+        ctx.Database.ExecuteSqlRaw(@"INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id], [Name])
+VALUES(
+N'[{{""Name"":""e1_c1"",""ShadowDouble"":5.5}},{{""ShadowDouble"":20.5,""Name"":""e1_c2""}}]',
+N'[{{""Name"":""e1_c1 ctor"",""ShadowNullableByte"":6}},{{""ShadowNullableByte"":null,""Name"":""e1_c2 ctor""}}]',
+N'{{""Name"":""e1_r"", ""ShadowString"":""Foo""}}',
+N'{{""ShadowInt"":143,""Name"":""e1_r ctor""}}',
+1,
+N'e1')");
+
+
+//        ctx.Database.ExecuteSqlRaw(@"INSERT INTO [Entities] ([Reference], [Id], [Name])
+//VALUES(
+//N'{{""Name"":""e1_r"", ""ShadowString"":""Foo""}}',
+//1,
+//N'e1')");
+
+
+
+
+
+        //var entity1 = new MyEntityShadowProperties
+        //{
+        //    Id = 1,
+        //    Name = "e1",
+        //    Reference = new MyJsonEntityShadowProperties { Name = "e1_r" },
+        //    ReferenceWithCtor = new MyJsonEntityShadowPropertiesWithCtor("e1_r ctor"),
+        //    Collection = new List<MyJsonEntityShadowProperties>
+        //    {
+        //        new MyJsonEntityShadowProperties { Name = "e1_c1" },
+        //        new MyJsonEntityShadowProperties { Name = "e1_c2" },
+        //    },
+        //    CollectionWithCtor = new List<MyJsonEntityShadowPropertiesWithCtor>
+        //    {
+        //        new MyJsonEntityShadowPropertiesWithCtor("e1_c1 ctor"),
+        //        new MyJsonEntityShadowPropertiesWithCtor("e1_c2 ctor"),
+        //    }
+        //};
+
+        //ctx.Entities.Add(entity1);
+        //ctx.SaveChanges();
+    }
 }

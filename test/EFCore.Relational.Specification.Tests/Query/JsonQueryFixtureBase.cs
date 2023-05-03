@@ -278,6 +278,19 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
             }
         },
         {
+            typeof(JsonOwnedAllTypes), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonOwnedAllTypes)e;
+                    var aa = (JsonOwnedAllTypes)a;
+
+                    AssertAllTypes(ee, aa);
+                }
+            }
+        },
+        {
             typeof(JsonEntityConverters), (e, a) =>
             {
                 Assert.Equal(e == null, a == null);
@@ -289,6 +302,19 @@ public abstract class JsonQueryFixtureBase : SharedStoreFixtureBase<JsonQueryCon
                     Assert.Equal(ee.Id, aa.Id);
 
                     AssertConverters(ee.Reference, aa.Reference);
+                }
+            }
+        },
+        {
+            typeof(JsonOwnedConverters), (e, a) =>
+            {
+                Assert.Equal(e == null, a == null);
+                if (a != null)
+                {
+                    var ee = (JsonOwnedConverters)e;
+                    var aa = (JsonOwnedConverters)a;
+
+                    AssertConverters(ee, aa);
                 }
             }
         },
