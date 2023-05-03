@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <Description>Azure Cosmos provider for Entity Framework Core.</Description>
@@ -8,7 +8,32 @@
     <RootNamespace>Microsoft.EntityFrameworkCore.Cosmos</RootNamespace>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageTags>$(PackageTags);CosmosDb;SQL API</PackageTags>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq.Expressions" />
+    <Using Include="System.Reflection" />
+    <Using Include="Microsoft.Azure.Cosmos" />
+    <Using Include="Microsoft.EntityFrameworkCore" />
+    <Using Include="Microsoft.EntityFrameworkCore.ChangeTracking" />
+    <Using Include="Microsoft.EntityFrameworkCore.Diagnostics" />
+    <Using Include="Microsoft.EntityFrameworkCore.Design" />
+    <Using Include="Microsoft.EntityFrameworkCore.Infrastructure" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Conventions" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure" />
+    <Using Include="Microsoft.EntityFrameworkCore.Query" />
+    <Using Include="Microsoft.EntityFrameworkCore.Storage" />
+    <Using Include="Microsoft.EntityFrameworkCore.Storage.ValueConversion" />
+    <Using Include="Microsoft.EntityFrameworkCore.Update" />
+    <Using Include="Microsoft.EntityFrameworkCore.ValueGeneration" />
+    <Using Include="Microsoft.EntityFrameworkCore.Utilities" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="..\Shared\*.cs" />
@@ -20,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.21.0" />
+    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.33.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -33,7 +58,7 @@
 
   <ItemGroup>
     <None Update="Properties\CosmosStrings.Designer.tt">
-      <CustomToolNamespace></CustomToolNamespace>
+      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Cosmos.Internal</CustomToolNamespace>
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>CosmosStrings.Designer.cs</LastGenOutput>
     </None>
@@ -41,12 +66,6 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\CosmosStrings.resx">
-      <CustomToolNamespace>Microsoft.EntityFrameworkCore.Cosmos.Internal</CustomToolNamespace>
-    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.Tests</AssemblyName>
+    <RootNamespace>Microsoft.EntityFrameworkCore.SqlServer</RootNamespace>
+    <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
+    <ImplicitUsings>true</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\EFCore.SqlServer.HierarchyId\EFCore.SqlServer.HierarchyId.csproj" />
+    <ProjectReference Include="..\EFCore.SqlServer.FunctionalTests\EFCore.SqlServer.FunctionalTests.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\..\src\EFCore.SqlServer.HierarchyId\build\net6.0\Microsoft.EntityFrameworkCore.SqlServer.HierarchyId.targets" />
+
+</Project>

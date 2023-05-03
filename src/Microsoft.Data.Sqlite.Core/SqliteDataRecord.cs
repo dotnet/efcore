@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -191,6 +192,9 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         public virtual Type GetFieldType(int ordinal)
         {
             var sqliteType = GetSqliteType(ordinal);
@@ -207,6 +211,9 @@ namespace Microsoft.Data.Sqlite
             return GetFieldTypeFromSqliteType(sqliteType);
         }
 
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         internal static Type GetFieldTypeFromSqliteType(int sqliteType)
         {
             switch (sqliteType)
@@ -228,6 +235,9 @@ namespace Microsoft.Data.Sqlite
             }
         }
 
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         public static Type GetFieldType(string type)
         {
             switch (type)
@@ -373,7 +383,7 @@ namespace Microsoft.Data.Sqlite
             }
 
             var blobColumnName = sqlite3_column_origin_name(Handle, ordinal).utf8_to_string();
-            var rowid = GetInt32(_rowidOrdinal.Value);
+            var rowid = GetInt64(_rowidOrdinal.Value);
 
             return new SqliteBlob(_connection, blobDatabaseName, blobTableName, blobColumnName, rowid, readOnly: true);
         }

@@ -1,4 +1,7 @@
 <#
     Session["ResourceFile"] = "Resources.resx";
+    Session["ResourceNamespace"] = "Microsoft.Data.Sqlite.Properties";
+    Session["NoDiagnostics"] = true;
+    Session["AccessModifier"] = "internal";
 #>
-<#@ include file="..\..\..\tools\SqliteResources.tt" #>
+<#@ include file="..\..\..\tools\Resources.tt" #>

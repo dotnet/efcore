@@ -1,39 +1,56 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 
-namespace Microsoft.EntityFrameworkCore.ValueGeneration
+namespace Microsoft.EntityFrameworkCore.ValueGeneration;
+
+/// <summary>
+///     Factory for creation of temporary integer value generators appropriate
+///     for the numeric type of the property.
+/// </summary>
+/// <remarks>
+///     Types supported are: <see cref="int" />, <see cref="long" />, <see cref="short" />, <see cref="byte" />,
+///     <see cref="char" />, <see cref="ulong" />, <see cref="uint" />, <see cref="ushort" />, <see cref="sbyte" />,
+///     <see cref="decimal" />, <see cref="float" />, <see cref="double" />
+/// </remarks>
+/// <remarks>
+///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information and examples.
+/// </remarks>
+public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
 {
     /// <summary>
-    ///     <para>
-    ///         Factory for creation of temporary integer value generators appropriate
-    ///         for the numeric type of the property.
-    ///     </para>
-    ///     <para>
-    ///         Types supported are: <see cref="int" />, <see cref="long" />, <see cref="short" />, <see cref="byte" />,
-    ///         <see cref="char" />, <see cref="ulong" />, <see cref="uint" />, <see cref="ushort" />, <see cref="sbyte" />,
-    ///         <see cref="decimal" />, <see cref="float" />, <see cref="double" />
-    ///     </para>
+    ///     Creates a new value generator.
     /// </summary>
-    /// <remarks>
-    ///     See <see href="https://aka.ms/efcore-docs-value-generation">EF Core value generation</see> for more information.
-    /// </remarks>
-    public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
+    /// <param name="property">The property to create the value generator for.</param>
+    /// <param name="entityType">The entity type for which the value generator will be used.</param>
+    /// <returns>The newly created value generator.</returns>
+    public override ValueGenerator Create(IProperty property, IEntityType entityType)
     {
-        /// <summary>
-        ///     Creates a new value generator.
-        /// </summary>
-        /// <param name="property">The property to create the value generator for.</param>
-        /// <param name="entityType">The entity type for which the value generator will be used.</param>
-        /// <returns>The newly created value generator.</returns>
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
-        {
-            var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
+        var type = property.GetTypeMapping().ClrType.UnwrapEnumType();
 
+        var generator = TryCreate();
+        if (generator != null)
+        {
+            return generator;
+        }
+
+        type = property.GetValueConverter()?.ProviderClrType.UnwrapEnumType();
+        if (type != null)
+        {
+            generator = TryCreate();
+            if (generator != null)
+            {
+                return generator;
+            }
+        }
+
+        throw new ArgumentException(
+            CoreStrings.InvalidValueGeneratorFactoryProperty(
+                nameof(TemporaryNumberValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+
+        ValueGenerator? TryCreate()
+        {
             if (type == typeof(int))
             {
                 return new TemporaryIntValueGenerator();
@@ -94,9 +111,7 @@ namespace Microsoft.EntityFrameworkCore.ValueGeneration
                 return new TemporaryDoubleValueGenerator();
             }
 
-            throw new ArgumentException(
-                CoreStrings.InvalidValueGeneratorFactoryProperty(
-                    nameof(TemporaryNumberValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+            return null;
         }
     }
 }

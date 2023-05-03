@@ -1,47 +1,55 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
-using Xunit.Abstractions;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class NorthwindJoinQueryInMemoryTest : NorthwindJoinQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
 {
-    public class NorthwindJoinQueryInMemoryTest : NorthwindJoinQueryTestBase<NorthwindQueryInMemoryFixture<NoopModelCustomizer>>
-    {
-        public NorthwindJoinQueryInMemoryTest(
-            NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
+    public NorthwindJoinQueryInMemoryTest(
+        NorthwindQueryInMemoryFixture<NoopModelCustomizer> fixture,
 #pragma warning disable IDE0060 // Remove unused parameter
-            ITestOutputHelper testOutputHelper)
+        ITestOutputHelper testOutputHelper)
 #pragma warning restore IDE0060 // Remove unused parameter
-            : base(fixture)
-        {
-            //TestLoggerFactory.TestOutputHelper = testOutputHelper;
-        }
+        : base(fixture)
+    {
+        //TestLoggerFactory.TestOutputHelper = testOutputHelper;
+    }
 
-        [ConditionalTheory(Skip = "Issue#21200")]
-        public override Task SelectMany_with_client_eval(bool async)
-        {
-            return base.SelectMany_with_client_eval(async);
-        }
+    public override Task SelectMany_with_client_eval(bool async)
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval(async));
 
-        [ConditionalTheory(Skip = "Issue#21200")]
-        public override Task SelectMany_with_client_eval_with_collection_shaper(bool async)
-        {
-            return base.SelectMany_with_client_eval_with_collection_shaper(async);
-        }
+    public override Task SelectMany_with_client_eval_with_collection_shaper(bool async)
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_collection_shaper(async));
 
-        [ConditionalTheory(Skip = "Issue#21200")]
-        public override Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
-        {
-            return base.SelectMany_with_client_eval_with_collection_shaper_ignored(async);
-        }
+    public override Task SelectMany_with_client_eval_with_collection_shaper_ignored(bool async)
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_collection_shaper_ignored(async));
 
-        [ConditionalTheory(Skip = "Issue#21200")]
-        public override Task SelectMany_with_client_eval_with_constructor(bool async)
-        {
-            return base.SelectMany_with_client_eval_with_constructor(async);
-        }
+    public override Task SelectMany_with_client_eval_with_constructor(bool async)
+        // Joins between sources with client eval. Issue #21200.
+        => Assert.ThrowsAsync<NotImplementedException>(() => base.SelectMany_with_client_eval_with_constructor(async));
+
+    public override async Task Join_local_collection_int_closure_is_cached_correctly(bool async)
+    {
+        var ids = new uint[] { 1, 2 };
+
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
+
+        ids = new uint[] { 3 };
+        await AssertTranslationFailed(
+            () => AssertQueryScalar(
+                async,
+                ss => from e in ss.Set<Employee>()
+                      join id in ids on e.EmployeeID equals id
+                      select e.EmployeeID));
     }
 }

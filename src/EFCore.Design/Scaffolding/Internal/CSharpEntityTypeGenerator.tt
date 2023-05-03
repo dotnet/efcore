@@ -1,0 +1,173 @@
+﻿<#@ template hostSpecific="true" linePragmas="false" #>
+<#@ assembly name="Microsoft.EntityFrameworkCore" #>
+<#@ assembly name="Microsoft.EntityFrameworkCore.Design" #>
+<#@ assembly name="Microsoft.EntityFrameworkCore.Relational" #>
+<#@ assembly name="Microsoft.Extensions.DependencyInjection.Abstractions" #>
+<#@ parameter name="EntityType" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
+<#@ parameter name="Options" type="Microsoft.EntityFrameworkCore.Scaffolding.ModelCodeGenerationOptions" #>
+<#@ parameter name="NamespaceHint" type="System.String" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.ComponentModel.DataAnnotations" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
+<#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
+<#
+    if (EntityType.IsSimpleManyToManyJoinEntityType())
+    {
+        // Don't scaffold these
+        return "";
+    }
+
+    var services = (IServiceProvider)Host;
+    var annotationCodeGenerator = services.GetRequiredService<IAnnotationCodeGenerator>();
+    var code = services.GetRequiredService<ICSharpHelper>();
+
+    var usings = new List<string>
+    {
+        "System",
+        "System.Collections.Generic"
+    };
+
+    if (Options.UseDataAnnotations)
+    {
+        usings.Add("System.ComponentModel.DataAnnotations");
+        usings.Add("System.ComponentModel.DataAnnotations.Schema");
+        usings.Add("Microsoft.EntityFrameworkCore");
+    }
+
+    if (!string.IsNullOrEmpty(NamespaceHint))
+    {
+#>
+namespace <#= NamespaceHint #>;
+
+<#
+    }
+
+    if (!string.IsNullOrEmpty(EntityType.GetComment()))
+    {
+#>
+/// <summary>
+/// <#= code.XmlComment(EntityType.GetComment()) #>
+/// </summary>
+<#
+    }
+
+    if (Options.UseDataAnnotations)
+    {
+        foreach (var dataAnnotation in EntityType.GetDataAnnotations(annotationCodeGenerator))
+        {
+#>
+<#= code.Fragment(dataAnnotation) #>
+<#
+        }
+    }
+#>
+public partial class <#= EntityType.Name #>
+{
+<#
+    var firstProperty = true;
+    foreach (var property in EntityType.GetProperties().OrderBy(p => p.GetColumnOrder() ?? -1))
+    {
+        if (!firstProperty)
+        {
+            WriteLine("");
+        }
+
+        if (!string.IsNullOrEmpty(property.GetComment()))
+        {
+#>
+    /// <summary>
+    /// <#= code.XmlComment(property.GetComment(), indent: 1) #>
+    /// </summary>
+<#
+        }
+
+        if (Options.UseDataAnnotations)
+        {
+            var dataAnnotations = property.GetDataAnnotations(annotationCodeGenerator)
+                .Where(a => !(a.Type == typeof(RequiredAttribute) && Options.UseNullableReferenceTypes && !property.ClrType.IsValueType));
+            foreach (var dataAnnotation in dataAnnotations)
+            {
+#>
+    <#= code.Fragment(dataAnnotation) #>
+<#
+            }
+        }
+
+        usings.AddRange(code.GetRequiredUsings(property.ClrType));
+
+        var needsNullable = Options.UseNullableReferenceTypes && property.IsNullable && !property.ClrType.IsValueType;
+        var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable && !property.ClrType.IsValueType;
+#>
+    public <#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
+<#
+        firstProperty = false;
+    }
+
+    foreach (var navigation in EntityType.GetNavigations())
+    {
+        WriteLine("");
+
+        if (Options.UseDataAnnotations)
+        {
+            foreach (var dataAnnotation in navigation.GetDataAnnotations(annotationCodeGenerator))
+            {
+#>
+    <#= code.Fragment(dataAnnotation) #>
+<#
+            }
+        }
+
+        var targetType = navigation.TargetEntityType.Name;
+        if (navigation.IsCollection)
+        {
+#>
+    public virtual ICollection<<#= targetType #>> <#= navigation.Name #> { get; set; } = new List<<#= targetType #>>();
+<#
+        }
+        else
+        {
+            var needsNullable = Options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
+            var needsInitializer = Options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
+#>
+    public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navigation.Name #> { get; set; }<#= needsInitializer ? " = null!;" : "" #>
+<#
+        }
+    }
+
+    foreach (var skipNavigation in EntityType.GetSkipNavigations())
+    {
+        WriteLine("");
+
+        if (Options.UseDataAnnotations)
+        {
+            foreach (var dataAnnotation in skipNavigation.GetDataAnnotations(annotationCodeGenerator))
+            {
+#>
+    <#= code.Fragment(dataAnnotation) #>
+<#
+            }
+        }
+#>
+    public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #> { get; set; } = new List<<#= skipNavigation.TargetEntityType.Name #>>();
+<#
+    }
+#>
+}
+<#
+    var previousOutput = GenerationEnvironment;
+    GenerationEnvironment = new StringBuilder();
+
+    foreach (var ns in usings.Distinct().OrderBy(x => x, new NamespaceComparer()))
+    {
+#>
+using <#= ns #>;
+<#
+    }
+
+    WriteLine("");
+
+    GenerationEnvironment.Append(previousOutput);
+#>

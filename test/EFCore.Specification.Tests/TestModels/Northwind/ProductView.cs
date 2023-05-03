@@ -1,12 +1,11 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-namespace Microsoft.EntityFrameworkCore.TestModels.Northwind
+namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
+public class ProductView
 {
-    public class ProductView
-    {
-        public int ProductID { get; set; }
-        public string ProductName { get; set; }
-        public string CategoryName { get; set; }
-    }
+    public int ProductID { get; set; }
+    public string ProductName { get; set; }
+    public string CategoryName { get; set; }
 }

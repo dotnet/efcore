@@ -1,99 +1,171 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Sqlite.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
 
 // ReSharper disable InconsistentNaming
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+namespace Microsoft.EntityFrameworkCore.Infrastructure;
+
+public class SqliteModelValidatorTest : RelationalModelValidatorTest
 {
-    public class SqliteModelValidatorTest : RelationalModelValidatorTest
+    [ConditionalFact]
+    public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_srid()
     {
-        public override void Detects_duplicate_column_names()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>();
 
-            modelBuilder.Entity<Animal>().Property(b => b.Id).HasColumnName("Name");
-            modelBuilder.Entity<Animal>().Property(d => d.Name).IsRequired().HasColumnName("Name");
+        modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasSrid(30);
+        modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasSrid(15);
 
-            VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(Animal), nameof(Animal.Id),
-                    nameof(Animal), nameof(Animal.Name), "Name", nameof(Animal), "INTEGER", "TEXT"),
-                modelBuilder);
-        }
-
-        public override void Detects_duplicate_columns_in_derived_types_with_different_types()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>();
-
-            modelBuilder.Entity<Cat>().Property(c => c.Type).IsRequired().HasColumnName("Type");
-            modelBuilder.Entity<Dog>().Property(d => d.Type).HasColumnName("Type");
-
-            VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    typeof(Cat).Name, "Type", typeof(Dog).Name, "Type", "Type", nameof(Animal), "TEXT", "INTEGER"), modelBuilder);
-        }
-
-        [ConditionalFact]
-        public virtual void Detects_duplicate_column_names_within_hierarchy_with_different_srid()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>();
-
-            modelBuilder.Entity<Cat>().Property(c => c.Breed).HasColumnName("Breed").HasSrid(30);
-            modelBuilder.Entity<Dog>().Property(d => d.Breed).HasColumnName("Breed").HasSrid(15);
-
-            VerifyError(
-                SqliteStrings.DuplicateColumnNameSridMismatch(
-                    nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
-        }
-
-        public override void Detects_incompatible_shared_columns_with_shared_table()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-
-            modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
-            modelBuilder.Entity<A>().Property(a => a.P0).HasColumnName(nameof(A.P0)).HasColumnType("someInt");
-            modelBuilder.Entity<A>().ToTable("Table");
-            modelBuilder.Entity<B>().Property(a => a.P0).HasColumnName(nameof(A.P0));
-            modelBuilder.Entity<B>().ToTable("Table");
-
-            modelBuilder.Entity<A>().Property(b => b.P0);
-            modelBuilder.Entity<B>().Property(d => d.P0);
-
-            VerifyError(
-                RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    nameof(A), nameof(A.P0), nameof(B), nameof(B.P0), nameof(B.P0), "Table", "someInt", "INTEGER"), modelBuilder);
-        }
-
-        [ConditionalFact]
-        public void Detects_schemas()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
-
-            VerifyWarning(
-                SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
-                modelBuilder);
-        }
-
-        [ConditionalFact]
-        public void Detects_sequences()
-        {
-            var modelBuilder = CreateConventionalModelBuilder();
-            modelBuilder.HasSequence("Fibonacci");
-
-            VerifyWarning(
-                SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"),
-                modelBuilder);
-        }
-
-        protected override TestHelpers TestHelpers
-            => SqliteTestHelpers.Instance;
+        VerifyError(
+            SqliteStrings.DuplicateColumnNameSridMismatch(
+                nameof(Cat), nameof(Cat.Breed), nameof(Dog), nameof(Dog.Breed), nameof(Cat.Breed), nameof(Animal)), modelBuilder);
     }
+
+    [ConditionalFact]
+    public void Detects_schemas()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Animal>().ToTable("Animals", "pet").Ignore(a => a.FavoritePerson);
+
+        VerifyWarning(
+            SqliteResources.LogSchemaConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Animal", "pet"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_sequences()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.HasSequence("Fibonacci");
+
+        VerifyWarning(
+            SqliteResources.LogSequenceConfigured(new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage("Fibonacci"),
+            modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_insert_stored_procedures()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .InsertUsingStoredProcedure(
+                "Person_Insert",
+                spb => spb
+                    .HasParameter(w => w.Id, pb => pb.IsOutput())
+                    .HasParameter(w => w.Name)
+                    .HasParameter(w => w.FavoriteBreed));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_update_stored_procedures()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .UpdateUsingStoredProcedure(
+                "Person_Update",
+                spb => spb
+                    .HasOriginalValueParameter(w => w.Id)
+                    .HasParameter(w => w.Name)
+                    .HasParameter(w => w.FavoriteBreed));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public void Detects_delete_stored_procedures()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<Person>()
+            .DeleteUsingStoredProcedure("Person_Delete", spb => spb.HasOriginalValueParameter(w => w.Id));
+
+        VerifyError(SqliteStrings.StoredProceduresNotSupported(nameof(Person)), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_incompatible_sql_returning_clause_shared_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<A>().HasOne<B>().WithOne().HasForeignKey<A>(a => a.Id).HasPrincipalKey<B>(b => b.Id).IsRequired();
+
+        modelBuilder.Entity<A>().ToTable("Table", tb => tb.UseSqlReturningClause(false));
+        modelBuilder.Entity<B>().ToTable("Table", tb => tb.UseSqlReturningClause());
+
+        VerifyError(
+            SqliteStrings.IncompatibleSqlReturningClauseMismatch("Table", nameof(A), nameof(B), nameof(B), nameof(A)),
+            modelBuilder);
+    }
+
+    public override void Passes_for_stored_procedure_without_parameter_for_insert_non_save_property()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(
+                () => base.Passes_for_stored_procedure_without_parameter_for_insert_non_save_property());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Passes_for_stored_procedure_without_parameter_for_update_non_save_property()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(
+                () => base.Passes_for_stored_procedure_without_parameter_for_update_non_save_property());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Passes_on_valid_UsingDeleteStoredProcedure_in_TPT()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Passes_on_valid_UsingDeleteStoredProcedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_mapped_to_a_stored_procedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Cat)), exception.Message);
+    }
+
+    public override void Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Passes_on_derived_entity_type_not_mapped_to_a_stored_procedure_in_TPT());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Detects_unmapped_concurrency_token()
+    {
+        var exception =
+            Assert.Throws<InvalidOperationException>(() => base.Detects_unmapped_concurrency_token());
+
+        Assert.Equal(SqliteStrings.StoredProceduresNotSupported(nameof(Animal)), exception.Message);
+    }
+
+    public override void Store_generated_in_composite_key()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        modelBuilder.Entity<CarbonComposite>(
+            b =>
+            {
+                b.HasKey(e => new { e.Id1, e.Id2 });
+                b.Property(e => e.Id2).ValueGeneratedOnAdd();
+            });
+
+        VerifyWarning(
+            SqliteResources.LogCompositeKeyWithValueGeneration(
+                new TestLogger<SqliteLoggingDefinitions>()).GenerateMessage(nameof(CarbonComposite), "{'Id1', 'Id2'}"),
+            modelBuilder);
+    }
+
+    protected override TestHelpers TestHelpers
+        => SqliteTestHelpers.Instance;
 }

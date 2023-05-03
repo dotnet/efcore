@@ -1,50 +1,51 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit;
-using Xunit.Abstractions;
+namespace Microsoft.EntityFrameworkCore.Query;
 
-namespace Microsoft.EntityFrameworkCore.Query
+public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTestBase<
+    QueryFilterFuncletizationSqliteTest.QueryFilterFuncletizationSqliteFixture>
 {
-    public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTestBase<
-        QueryFilterFuncletizationSqliteTest.QueryFilterFuncletizationSqliteFixture>
+    public QueryFilterFuncletizationSqliteTest(
+        QueryFilterFuncletizationSqliteFixture fixture,
+        ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        public QueryFilterFuncletizationSqliteTest(
-            QueryFilterFuncletizationSqliteFixture fixture,
-            ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        }
+        Fixture.TestSqlLoggerFactory.Clear();
+        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
 
-        public override void DbContext_list_is_parameterized()
-        {
-            using var context = CreateContext();
-            // Default value of TenantIds is null InExpression over null values throws
-            Assert.Throws<NullReferenceException>(() => context.Set<ListFilter>().ToList());
+    public override void Using_multiple_entities_with_filters_reuses_parameters()
+    {
+        base.Using_multiple_entities_with_filters_reuses_parameters();
 
-            context.TenantIds = new List<int>();
-            var query = context.Set<ListFilter>().ToList();
-            Assert.Empty(query);
+        AssertSql(
+"""
+@__ef_filter__Tenant_0='1'
 
-            context.TenantIds = new List<int> { 1 };
-            query = context.Set<ListFilter>().ToList();
-            Assert.Single(query);
+SELECT "d"."Id", "d"."Tenant", "t"."Id", "t"."DeDupeFilter1Id", "t"."TenantX", "t0"."Id", "t0"."DeDupeFilter1Id", "t0"."Tenant"
+FROM "DeDupeFilter1" AS "d"
+LEFT JOIN (
+    SELECT "d0"."Id", "d0"."DeDupeFilter1Id", "d0"."TenantX"
+    FROM "DeDupeFilter2" AS "d0"
+    WHERE "d0"."TenantX" = @__ef_filter__Tenant_0
+) AS "t" ON "d"."Id" = "t"."DeDupeFilter1Id"
+LEFT JOIN (
+    SELECT "d1"."Id", "d1"."DeDupeFilter1Id", "d1"."Tenant"
+    FROM "DeDupeFilter3" AS "d1"
+    WHERE "d1"."Tenant" = @__ef_filter__Tenant_0
+) AS "t0" ON "d"."Id" = "t0"."DeDupeFilter1Id"
+WHERE "d"."Tenant" = @__ef_filter__Tenant_0
+ORDER BY "d"."Id", "t"."Id"
+""");
+    }
 
-            context.TenantIds = new List<int> { 2, 3 };
-            query = context.Set<ListFilter>().ToList();
-            Assert.Equal(2, query.Count);
-        }
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
-        public class QueryFilterFuncletizationSqliteFixture : QueryFilterFuncletizationRelationalFixture
-        {
-            protected override ITestStoreFactory TestStoreFactory
-                => SqliteTestStoreFactory.Instance;
-        }
+    public class QueryFilterFuncletizationSqliteFixture : QueryFilterFuncletizationRelationalFixture
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => SqliteTestStoreFactory.Instance;
     }
 }

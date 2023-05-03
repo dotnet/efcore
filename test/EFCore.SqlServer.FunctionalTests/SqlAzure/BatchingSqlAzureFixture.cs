@@ -1,20 +1,18 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.SqlAzure.Model;
 
-namespace Microsoft.EntityFrameworkCore.SqlAzure
+namespace Microsoft.EntityFrameworkCore.SqlAzure;
+
+public class BatchingSqlAzureFixture : SqlAzureFixture
 {
-    public class BatchingSqlAzureFixture : SqlAzureFixture
+    public AdventureWorksContext CreateContext(int maxBatchSize)
     {
-        public AdventureWorksContext CreateContext(int maxBatchSize)
-        {
-            var optionsBuilder = new DbContextOptionsBuilder(CreateOptions());
+        var optionsBuilder = new DbContextOptionsBuilder(CreateOptions());
 
-            new SqlServerDbContextOptionsBuilder(optionsBuilder).MaxBatchSize(maxBatchSize);
+        new SqlServerDbContextOptionsBuilder(optionsBuilder).MaxBatchSize(maxBatchSize);
 
-            return new AdventureWorksContext(optionsBuilder.Options);
-        }
+        return new AdventureWorksContext(optionsBuilder.Options);
     }
 }

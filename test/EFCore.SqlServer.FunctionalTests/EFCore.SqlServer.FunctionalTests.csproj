@@ -1,17 +1,55 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <AssemblyName>Microsoft.EntityFrameworkCore.SqlServer.FunctionalTests</AssemblyName>
     <RootNamespace>Microsoft.EntityFrameworkCore</RootNamespace>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
     <SkipTests Condition="'$(OS)' != 'Windows_NT' AND '$(Test__SqlServer__DefaultConnection)' == ''">True</SkipTests>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Data.Common" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Linq.Expressions" />
+    <Using Include="System.Reflection" />
+    <Using Include="System.Text" />
+    <Using Include="Microsoft.EntityFrameworkCore" />
+    <Using Include="Microsoft.EntityFrameworkCore.ChangeTracking" />
+    <Using Include="Microsoft.EntityFrameworkCore.Diagnostics" />
+    <Using Include="Microsoft.EntityFrameworkCore.Design" />
+    <Using Include="Microsoft.EntityFrameworkCore.Infrastructure" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Conventions" />
+    <Using Include="Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure" />
+    <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
+    <Using Include="Microsoft.EntityFrameworkCore.Migrations.Design" />
+    <Using Include="Microsoft.EntityFrameworkCore.Migrations.Operations" />
+    <Using Include="Microsoft.EntityFrameworkCore.Query" />
+    <Using Include="Microsoft.EntityFrameworkCore.Scaffolding" />
+    <Using Include="Microsoft.EntityFrameworkCore.Storage" />
+    <Using Include="Microsoft.EntityFrameworkCore.Storage.ValueConversion" />
+    <Using Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <Using Include="Microsoft.EntityFrameworkCore.TestUtilities" />
+    <Using Include="Microsoft.EntityFrameworkCore.Update" />
+    <Using Include="Microsoft.EntityFrameworkCore.Utilities" />
+    <Using Include="Microsoft.EntityFrameworkCore.ValueGeneration" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="Northwind.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SqlAzure\adventureworks.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Update\Issue29502.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="config.json">

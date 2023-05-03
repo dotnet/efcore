@@ -36,7 +36,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("AlterMemoryOptimizedTable");
 
         /// <summary>
-        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .
+        ///     Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.
         /// </summary>
         public static string CannotProduceUnterminatedSQLWithComments(object? operation)
             => string.Format(
@@ -156,6 +156,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 property, index, entityType);
 
         /// <summary>
+        ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.
+        /// </summary>
+        public static string IncompatibleSqlOutputClauseMismatch(object? table, object? entityType, object? otherEntityType, object? entityTypeWithSqlOutputClause, object? entityTypeWithoutSqlOutputClause)
+            => string.Format(
+                GetString("IncompatibleSqlOutputClauseMismatch", nameof(table), nameof(entityType), nameof(otherEntityType), nameof(entityTypeWithSqlOutputClause), nameof(entityTypeWithoutSqlOutputClause)),
+                table, entityType, otherEntityType, entityTypeWithSqlOutputClause, entityTypeWithoutSqlOutputClause);
+
+        /// <summary>
         ///     Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.
         /// </summary>
         public static string IncompatibleTableMemoryOptimizedMismatch(object? table, object? entityType, object? otherEntityType, object? memoryOptimizedEntityType, object? nonMemoryOptimizedEntityType)
@@ -184,6 +192,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
+        ///     A non-constant array index or property name was used when navigating inside a JSON document; this is only supported starting with SQL Server 2017.
+        /// </summary>
+        public static string JsonValuePathExpressionsNotSupported
+            => GetString("JsonValuePathExpressionsNotSupported");
+
+        /// <summary>
         ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.
         /// </summary>
         public static string MultipleIdentityColumns(object? properties, object? table)
@@ -198,18 +212,22 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => GetString("NoInitialCatalog");
 
         /// <summary>
-        ///     The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.
-        /// </summary>
-        public static string NonKeyValueGeneration(object? property, object? entityType)
-            => string.Format(
-                GetString("NonKeyValueGeneration", nameof(property), nameof(entityType)),
-                property, entityType);
-
-        /// <summary>
         ///     SQL Server does not support releasing a savepoint.
         /// </summary>
         public static string NoSavepointRelease
             => GetString("NoSavepointRelease");
+
+        /// <summary>
+        ///     Could not save changes because the target table has computed column with a function that performs data access. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.
+        /// </summary>
+        public static string SaveChangesFailedBecauseOfComputedColumnWithFunction
+            => GetString("SaveChangesFailedBecauseOfComputedColumnWithFunction");
+
+        /// <summary>
+        ///     Could not save changes because the target table has database triggers. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.
+        /// </summary>
+        public static string SaveChangesFailedBecauseOfTriggers
+            => GetString("SaveChangesFailedBecauseOfTriggers");
 
         /// <summary>
         ///     SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.
@@ -218,6 +236,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("SequenceBadType", nameof(property), nameof(entityType), nameof(propertyType)),
                 property, entityType, propertyType);
+
+        /// <summary>
+        ///     The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.
+        /// </summary>
+        public static string SplitQueryOffsetWithoutOrderBy
+            => GetString("SplitQueryOffsetWithoutOrderBy");
+
+        /// <summary>
+        ///     Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.
+        /// </summary>
+        public static string TemporalAllEntitiesMappedToSameTableMustBeTemporal(object? entityType)
+            => string.Format(
+                GetString("TemporalAllEntitiesMappedToSameTableMustBeTemporal", nameof(entityType)),
+                entityType);
 
         /// <summary>
         ///     Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.
@@ -252,12 +284,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 operationName);
 
         /// <summary>
-        ///     Temporal tables are not supported for table splitting scenario. Table: '{table}'.
+        ///     When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.
         /// </summary>
-        public static string TemporalNotSupportedForTableSplitting(object? table)
+        public static string TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping(object? periodType, object? entityType, object? periodProperty, object? periodColumn, object? expectedColumnName)
             => string.Format(
-                GetString("TemporalNotSupportedForTableSplitting", nameof(table)),
-                table);
+                GetString("TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping", nameof(periodType), nameof(entityType), nameof(periodProperty), nameof(periodColumn), nameof(expectedColumnName)),
+                periodType, entityType, periodProperty, periodColumn, expectedColumnName);
 
         /// <summary>
         ///     Only root entity type should be marked as temporal. Entity type: '{entityType}'.
@@ -306,14 +338,6 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
             => string.Format(
                 GetString("TemporalPeriodPropertyMustBeNonNullableDateTime", nameof(entityType), nameof(propertyName), nameof(dateTimeType)),
                 entityType, propertyName, dateTimeType);
-
-        /// <summary>
-        ///     Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.
-        /// </summary>
-        public static string TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(object? entityType, object? propertyName)
-            => string.Format(
-                GetString("TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue", nameof(entityType), nameof(propertyName)),
-                entityType, propertyName);
 
         /// <summary>
         ///     Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.
@@ -783,6 +807,31 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
+        ///     The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.
+        /// </summary>
+        public static EventDefinition LogMissingViewDefinitionRights(IDiagnosticsLogger logger)
+        {
+            var definition = ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights;
+            if (definition == null)
+            {
+                definition = NonCapturingLazyInitializer.EnsureInitialized(
+                    ref ((Diagnostics.Internal.SqlServerLoggingDefinitions)logger.Definitions).LogMissingViewDefinitionRights,
+                    logger,
+                    static logger => new EventDefinition(
+                        logger.Options,
+                        SqlServerEventId.MissingViewDefinitionRightsWarning,
+                        LogLevel.Warning,
+                        "SqlServerEventId.MissingViewDefinitionRightsWarning",
+                        level => LoggerMessage.Define(
+                            level,
+                            SqlServerEventId.MissingViewDefinitionRightsWarning,
+                            _resourceManager.GetString("LogMissingViewDefinitionRights")!)));
+            }
+
+            return (EventDefinition)definition;
+        }
+
+        /// <summary>
         ///     Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.
         /// </summary>
         public static EventDefinition<string, string, string, string> LogPrincipalColumnNotFound(IDiagnosticsLogger logger)
@@ -883,7 +932,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         }
 
         /// <summary>
-        ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
+        ///     Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.
         /// </summary>
         public static EventDefinition LogSavepointsDisabledBecauseOfMARS(IDiagnosticsLogger logger)
         {

@@ -124,7 +124,7 @@
     <value>To change the memory-optimized setting on a table, the table needs to be dropped and recreated.</value>
   </data>
   <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
-    <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}, .</value>
+    <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.</value>
   </data>
   <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.</value>
@@ -168,6 +168,9 @@
   <data name="IncludePropertyNotFound" xml:space="preserve">
     <value>The include property '{property}' specified on the index {index} was not found on entity type '{entityType}'.</value>
   </data>
+  <data name="IncompatibleSqlOutputClauseMismatch" xml:space="preserve">
+    <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{entityTypeWithSqlOutputClause}' is configured to use the SQL OUTPUT clause, but entity type '{entityTypeWithoutSqlOutputClause}' is not.</value>
+  </data>
   <data name="IncompatibleTableMemoryOptimizedMismatch" xml:space="preserve">
     <value>Cannot use table '{table}' for entity type '{entityType}' since it is being used for entity type '{otherEntityType}' and entity type '{memoryOptimizedEntityType}' is marked as memory-optimized, but entity type '{nonMemoryOptimizedEntityType}' is not.</value>
   </data>
@@ -179,6 +182,9 @@
   </data>
   <data name="InvalidTableToIncludeInScaffolding" xml:space="preserve">
     <value>The specified table '{table}' is not in a valid format. Specify tables using the format '[schema].[table]'.</value>
+  </data>
+  <data name="JsonValuePathExpressionsNotSupported" xml:space="preserve">
+    <value>A non-constant array index or property name was used when navigating inside a JSON document; this is only supported starting with SQL Server 2017.</value>
   </data>
   <data name="LogByteIdentityColumn" xml:space="preserve">
     <value>The property '{property}' on entity type '{entityType}' is of type 'byte', but is set up to use a SQL Server identity column; this requires that values starting at 255 and counting down will be used for temporary key values. A temporary key value is needed for every entity inserted in a single call to 'SaveChanges'. Care must be taken that these values do not collide with real key values.</value>
@@ -248,6 +254,10 @@
     <value>Unable to find a table in the database matching the selected table '{table}'.</value>
     <comment>Warning SqlServerEventId.MissingTableWarning string?</comment>
   </data>
+  <data name="LogMissingViewDefinitionRights" xml:space="preserve">
+    <value>The database user has not been granted 'VIEW DEFINITION' rights. Scaffolding requires these rights to construct the Entity Framework model correctly. Without these rights, parts of the scaffolded model may be missing, resulting in incorrect interactions between Entity Framework and the database at runtime.</value>
+    <comment>Warning SqlServerEventId.MissingViewDefinitionRightsWarning</comment>
+  </data>
   <data name="LogPrincipalColumnNotFound" xml:space="preserve">
     <value>Skipping foreign key with identity '{id}' on table '{tableName}', since the principal column '{principalColumnName}' on the foreign key's principal table, '{principalTableName}', was not found in the model.</value>
     <comment>Warning SqlServerEventId.ForeignKeyPrincipalColumnMissingWarning string string string string</comment>
@@ -265,7 +275,7 @@
     <comment>Debug SqlServerEventId.ReflexiveConstraintIgnored string string</comment>
   </data>
   <data name="LogSavepointsDisabledBecauseOfMARS" xml:space="preserve">
-    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
+    <value>Savepoints are disabled because Multiple Active Result Sets (MARS) is enabled. If 'SaveChanges' fails, then the transaction cannot be automatically rolled back to a known clean state. Instead, the transaction should be rolled back by the application before retrying 'SaveChanges'. See https://go.microsoft.com/fwlink/?linkid=2149338 for more information and examples. To identify the code which triggers this warning, call 'ConfigureWarnings(w =&gt; w.Throw(SqlServerEventId.SavepointsDisabledBecauseOfMARS))'.</value>
     <comment>Warning SqlServerEventId.SavepointsDisabledBecauseOfMARS</comment>
   </data>
   <data name="MultipleIdentityColumns" xml:space="preserve">
@@ -274,14 +284,23 @@
   <data name="NoInitialCatalog" xml:space="preserve">
     <value>The database name could not be determined. To use 'EnsureDeleted', the connection string must specify 'Initial Catalog'.</value>
   </data>
-  <data name="NonKeyValueGeneration" xml:space="preserve">
-    <value>The property '{property}' on entity type '{entityType}' is configured to use 'SequenceHiLo' value generator, which is only intended for keys. If this was intentional, configure an alternate key on the property, otherwise call 'ValueGeneratedNever' or configure store generation for this property.</value>
-  </data>
   <data name="NoSavepointRelease" xml:space="preserve">
     <value>SQL Server does not support releasing a savepoint.</value>
   </data>
+  <data name="SaveChangesFailedBecauseOfComputedColumnWithFunction" xml:space="preserve">
+    <value>Could not save changes because the target table has computed column with a function that performs data access. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.</value>
+  </data>
+  <data name="SaveChangesFailedBecauseOfTriggers" xml:space="preserve">
+    <value>Could not save changes because the target table has database triggers. Please configure your table accordingly, see https://aka.ms/efcore-docs-sqlserver-save-changes-and-output-clause for more information.</value>
+  </data>
   <data name="SequenceBadType" xml:space="preserve">
     <value>SQL Server sequences cannot be used to generate values for the property '{property}' on entity type '{entityType}' because the property type is '{propertyType}'. Sequences can only be used with integer properties.</value>
+  </data>
+  <data name="SplitQueryOffsetWithoutOrderBy" xml:space="preserve">
+    <value>The query uses 'Skip' without specifying ordering and uses split query mode. This generates incorrect results. Either provide ordering or run query in single query mode using `AsSingleQuery()`. See https://go.microsoft.com/fwlink/?linkid=2196526 for more information.</value>
+  </data>
+  <data name="TemporalAllEntitiesMappedToSameTableMustBeTemporal" xml:space="preserve">
+    <value>Entity type '{entityType}' should be marked as temporal because it shares table mapping with another entity that has been marked as temporal. Alternatively, other entity types that share the same table must be non-temporal.</value>
   </data>
   <data name="TemporalExpectedPeriodPropertyNotFound" xml:space="preserve">
     <value>Entity type '{entityType}' mapped to temporal table does not contain the expected period property: '{propertyName}'.</value>
@@ -295,8 +314,8 @@
   <data name="TemporalNavigationExpansionOnlySupportedForAsOf" xml:space="preserve">
     <value>Navigation expansion is only supported for '{operationName}' temporal operation. For other operations use join manually.</value>
   </data>
-  <data name="TemporalNotSupportedForTableSplitting" xml:space="preserve">
-    <value>Temporal tables are not supported for table splitting scenario. Table: '{table}'.</value>
+  <data name="TemporalNotSupportedForTableSplittingWithInconsistentPeriodMapping" xml:space="preserve">
+    <value>When multiple temporal entities are mapped to the same table, their period {periodType} properties must map to the same column. Issue happens for entity type '{entityType}' with period property '{periodProperty}' which is mapped to column '{periodColumn}'. Expected period column name is '{expectedColumnName}'.</value>
   </data>
   <data name="TemporalOnlyOnRoot" xml:space="preserve">
     <value>Only root entity type should be marked as temporal. Entity type: '{entityType}'.</value>
@@ -315,9 +334,6 @@
   </data>
   <data name="TemporalPeriodPropertyMustBeNonNullableDateTime" xml:space="preserve">
     <value>Period property '{entityType}.{propertyName}' must be non-nullable and of type '{dateTimeType}'.</value>
-  </data>
-  <data name="TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue" xml:space="preserve">
-    <value>Property '{entityType}.{propertyName}' is mapped to the period column and can't have default value specified.</value>
   </data>
   <data name="TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate" xml:space="preserve">
     <value>Property '{entityType}.{propertyName}' is mapped to the period column and must have ValueGenerated set to '{valueGeneratedValue}'.</value>

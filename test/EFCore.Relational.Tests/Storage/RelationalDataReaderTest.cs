@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.Internal;
 using Microsoft.EntityFrameworkCore.TestUtilities;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using Xunit;
@@ -22,12 +23,13 @@ public class RelationalDataReaderTest
         var fakeConnection = CreateConnection();
         var relationalCommand = CreateRelationalCommand(commandText: "CommandText");
 
-        var reader = relationalCommand.ExecuteReader(new(
-            fakeConnection,
-            new Dictionary<string, object>(),
-            readerColumns: null,
-            context: null,
-            logger: null));
+        var reader = relationalCommand.ExecuteReader(
+            new RelationalCommandParameterObject(
+                fakeConnection,
+                new Dictionary<string, object>(),
+                readerColumns: null,
+                context: null,
+                logger: null));
 
         Assert.NotNull(reader.DbDataReader);
 
@@ -68,7 +70,8 @@ public class RelationalDataReaderTest
             new RelationalCommandBuilderDependencies(
                 new TestRelationalTypeMappingSource(
                     TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>())),
+                    TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>()),
+                new ExceptionDetector()),
             commandText,
             parameters ?? Array.Empty<IRelationalParameter>());
 

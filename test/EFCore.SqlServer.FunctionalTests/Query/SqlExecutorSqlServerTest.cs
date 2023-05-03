@@ -1,165 +1,158 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Data.Common;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.TestUtilities;
-using Xunit.Abstractions;
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
-    public class SqlExecutorSqlServerTest : SqlExecutorTestBase<NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
+    // ReSharper disable once UnusedParameter.Local
+    public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
+        : base(fixture)
     {
-        // ReSharper disable once UnusedParameter.Local
-        public SqlExecutorSqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
-            : base(fixture)
-        {
-            Fixture.TestSqlLoggerFactory.Clear();
-            //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-        }
+        Fixture.TestSqlLoggerFactory.Clear();
+        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
 
-        public override void Executes_stored_procedure()
-        {
-            base.Executes_stored_procedure();
+    public override async Task Executes_stored_procedure(bool async)
+    {
+        await base.Executes_stored_procedure(async);
 
-            AssertSql("[dbo].[Ten Most Expensive Products]");
-        }
+        AssertSql("[dbo].[Ten Most Expensive Products]");
+    }
 
-        public override void Executes_stored_procedure_with_parameter()
-        {
-            base.Executes_stored_procedure_with_parameter();
+    public override async Task Executes_stored_procedure_with_parameter(bool async)
+    {
+        await base.Executes_stored_procedure_with_parameter(async);
 
-            AssertSql(
-                @"@CustomerID='ALFKI' (Nullable = false) (Size = 5)
+        AssertSql(
+"""
+@CustomerID='ALFKI' (Nullable = false) (Size = 5)
 
-[dbo].[CustOrderHist] @CustomerID");
-        }
+[dbo].[CustOrderHist] @CustomerID
+""");
+    }
 
-        public override void Executes_stored_procedure_with_generated_parameter()
-        {
-            base.Executes_stored_procedure_with_generated_parameter();
+    public override async Task Executes_stored_procedure_with_generated_parameter(bool async)
+    {
+        await base.Executes_stored_procedure_with_generated_parameter(async);
 
-            AssertSql(
-                @"@p0='ALFKI' (Size = 4000)
+        AssertSql(
+"""
+@p0='ALFKI' (Size = 4000)
 
-[dbo].[CustOrderHist] @CustomerID = @p0");
-        }
+[dbo].[CustOrderHist] @CustomerID = @p0
+""");
+    }
 
-        public override void Query_with_parameters()
-        {
-            base.Query_with_parameters();
+    public override async Task Query_with_parameters(bool async)
+    {
+        await base.Query_with_parameters(async);
 
-            AssertSql(
-                @"@p0='London' (Size = 4000)
+        AssertSql(
+"""
+@p0='London' (Size = 4000)
 @p1='Sales Representative' (Size = 4000)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
-        }
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @p1
+""");
+    }
 
-        public override void Query_with_dbParameter_with_name()
-        {
-            base.Query_with_dbParameter_with_name();
+    public override async Task Query_with_dbParameter_with_name(bool async)
+    {
+        await base.Query_with_dbParameter_with_name(async);
 
-            AssertSql(
-                @"@city='London' (Nullable = false) (Size = 6)
+        AssertSql(
+"""
+@city='London' (Nullable = false) (Size = 6)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city");
-        }
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @city
+""");
+    }
 
-        public override void Query_with_positional_dbParameter_with_name()
-        {
-            base.Query_with_positional_dbParameter_with_name();
+    public override async Task Query_with_positional_dbParameter_with_name(bool async)
+    {
+        await base.Query_with_positional_dbParameter_with_name(async);
 
-            AssertSql(
-                @"@city='London' (Nullable = false) (Size = 6)
+        AssertSql(
+"""
+@city='London' (Nullable = false) (Size = 6)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city");
-        }
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @city
+""");
+    }
 
-        public override void Query_with_positional_dbParameter_without_name()
-        {
-            base.Query_with_positional_dbParameter_without_name();
+    public override async Task Query_with_positional_dbParameter_without_name(bool async)
+    {
+        await base.Query_with_positional_dbParameter_without_name(async);
 
-            AssertSql(
-                @"@p0='London' (Nullable = false) (Size = 6)
+        AssertSql(
+"""
+@p0='London' (Nullable = false) (Size = 6)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0");
-        }
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0
+""");
+    }
 
-        public override void Query_with_dbParameters_mixed()
-        {
-            base.Query_with_dbParameters_mixed();
+    public override async Task Query_with_dbParameters_mixed(bool async)
+    {
+        await base.Query_with_dbParameters_mixed(async);
 
-            AssertSql(
-                @"@p0='London' (Size = 4000)
+        AssertSql(
+"""
+@p0='London' (Size = 4000)
 @contactTitle='Sales Representative' (Nullable = false) (Size = 20)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @contactTitle",
-                //
-                @"@city='London' (Nullable = false) (Size = 6)
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @contactTitle
+""",
+            //
+"""
+@city='London' (Nullable = false) (Size = 6)
 @p0='Sales Representative' (Size = 4000)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @p0");
-        }
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p0
+""");
+    }
 
-        public override void Query_with_parameters_interpolated()
-        {
-            base.Query_with_parameters_interpolated();
+    public override async Task Query_with_parameters_interpolated(bool async)
+    {
+        await base.Query_with_parameters_interpolated(async);
 
-            AssertSql(
-                @"@p0='London' (Size = 4000)
+        AssertSql(
+"""
+@p0='London' (Size = 4000)
 @p1='Sales Representative' (Size = 4000)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
-        }
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @p1
+""");
+    }
 
-        public override void Query_with_DbParameters_interpolated()
-        {
-            base.Query_with_DbParameters_interpolated();
+    public override async Task Query_with_DbParameters_interpolated(bool async)
+    {
+        await base.Query_with_DbParameters_interpolated(async);
 
-            AssertSql(
-                @"city='London' (Nullable = false) (Size = 6)
+        AssertSql(
+"""
+city='London' (Nullable = false) (Size = 6)
 contactTitle='Sales Representative' (Nullable = false) (Size = 20)
 
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @city AND ""ContactTitle"" = @contactTitle");
-        }
-
-        public override async Task Query_with_parameters_async()
-        {
-            await base.Query_with_parameters_async();
-
-            AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
-
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
-        }
-
-        public override async Task Query_with_parameters_interpolated_async()
-        {
-            await base.Query_with_parameters_interpolated_async();
-
-            AssertSql(
-                @"@p0='London' (Size = 4000)
-@p1='Sales Representative' (Size = 4000)
-
-SELECT COUNT(*) FROM ""Customers"" WHERE ""City"" = @p0 AND ""ContactTitle"" = @p1");
-        }
-
-        protected override DbParameter CreateDbParameter(string name, object value)
-            => new SqlParameter { ParameterName = name, Value = value };
-
-        protected override string TenMostExpensiveProductsSproc
-            => "[dbo].[Ten Most Expensive Products]";
-
-        protected override string CustomerOrderHistorySproc
-            => "[dbo].[CustOrderHist] @CustomerID";
-
-        protected override string CustomerOrderHistoryWithGeneratedParameterSproc
-            => "[dbo].[CustOrderHist] @CustomerID = {0}";
-
-        private void AssertSql(params string[] expected)
-            => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
+SELECT COUNT(*) FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @contactTitle
+""");
     }
+
+    protected override DbParameter CreateDbParameter(string name, object value)
+        => new SqlParameter { ParameterName = name, Value = value };
+
+    protected override string TenMostExpensiveProductsSproc
+        => "[dbo].[Ten Most Expensive Products]";
+
+    protected override string CustomerOrderHistorySproc
+        => "[dbo].[CustOrderHist] @CustomerID";
+
+    protected override string CustomerOrderHistoryWithGeneratedParameterSproc
+        => "[dbo].[CustOrderHist] @CustomerID = {0}";
+
+    private void AssertSql(params string[] expected)
+        => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }

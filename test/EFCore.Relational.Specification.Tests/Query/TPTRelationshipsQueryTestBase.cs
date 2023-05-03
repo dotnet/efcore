@@ -3,14 +3,13 @@
 
 // ReSharper disable InconsistentNaming
 
-namespace Microsoft.EntityFrameworkCore.Query
+namespace Microsoft.EntityFrameworkCore.Query;
+
+public abstract class TPTRelationshipsQueryTestBase<TFixture> : InheritanceRelationshipsQueryRelationalTestBase<TFixture>
+    where TFixture : TPTRelationshipsQueryRelationalFixture, new()
 {
-    public abstract class TPTRelationshipsQueryTestBase<TFixture> : InheritanceRelationshipsQueryRelationalTestBase<TFixture>
-        where TFixture : TPTRelationshipsQueryRelationalFixture, new()
+    protected TPTRelationshipsQueryTestBase(TFixture fixture)
+        : base(fixture)
     {
-        protected TPTRelationshipsQueryTestBase(TFixture fixture)
-            : base(fixture)
-        {
-        }
     }
 }

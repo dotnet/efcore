@@ -126,6 +126,12 @@
   <data name="BundleFullName" xml:space="preserve">
     <value>Entity Framework Core Migrations Bundle</value>
   </data>
+  <data name="CannotCreateContextInstance" xml:space="preserve">
+    Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+  </data>
+  <data name="CannotFindDbContextTypes" xml:space="preserve">
+    The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+  </data>
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
     <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
   </data>
@@ -138,8 +144,11 @@
   <data name="CannotGenerateTypeQualifiedMethodCall" xml:space="preserve">
     <value>A type-qualified method call requires an instance identifier, a MethodInfo and no chained calls.</value>
   </data>
+  <data name="CircularBaseClassDependency" xml:space="preserve">
+    <value>You cannot add a migration with the name 'Migration'.</value>
+  </data>
   <data name="CompiledModelConstructorBinding" xml:space="preserve">
-    <value>The entity type '{entityType}' has a custom constructor binding. This is usually caused by using proxies. Compiled model can't be generated, because dynamic proxy types are not supported. If you are not using proxies configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
+    <value>The entity type '{entityType}' has a custom constructor binding. Compiled model can't be generated, because custom constructor bindings are not supported. Configure the custom constructor binding in '{customize}' in a partial '{className}' class instead.</value>
   </data>
   <data name="CompiledModelCustomCacheKeyFactory" xml:space="preserve">
     <value>The context is configured to use a custom model cache key factory '{factoryType}', this usually indicates that the produced model can change between context instances. To preserve this behavior manually modify the generated compiled model source code.</value>
@@ -189,8 +198,14 @@
   <data name="DuplicateMigrationName" xml:space="preserve">
     <value>The name '{migrationName}' is used by an existing migration.</value>
   </data>
+  <data name="EncodingIgnored" xml:space="preserve">
+    <value>The encoding '{encoding}' specified in the output directive will be ignored. EF Core always scaffolds files using the encoding 'utf-8'.</value>
+  </data>
   <data name="ErrorConnecting" xml:space="preserve">
     <value>An error occurred while accessing the database. Continuing without the information provided by the database. Error: {message}</value>
+  </data>
+  <data name="ErrorGeneratingOutput" xml:space="preserve">
+    <value>Processing '{inputFile}' failed.</value>
   </data>
   <data name="ExistingFiles" xml:space="preserve">
     <value>The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.</value>
@@ -287,6 +302,12 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NoContext" xml:space="preserve">
     <value>No DbContext was found in assembly '{assembly}'. Ensure that you're using the correct assembly and that the type is neither abstract nor generic.</value>
   </data>
+  <data name="NoContextTemplate" xml:space="preserve">
+    <value>You must provide a DbContext.t4 file in order to scaffold using custom templates.</value>
+  </data>
+  <data name="NoContextTemplateButConfiguration" xml:space="preserve">
+    <value>You've provided an EntityTypeConfiguration.t4 file without a corresponding DbContext.t4 file. The generated DbContext code must be modified to work with your configuration classes. Provide a DbContext.t4 file and try again.</value>
+  </data>
   <data name="NoContextWithName" xml:space="preserve">
     <value>No DbContext named '{name}' was found.</value>
   </data>
@@ -310,9 +331,6 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NonRelationalProvider" xml:space="preserve">
     <value>The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.</value>
-  </data>
-  <data name="NoParameterlessConstructor" xml:space="preserve">
-    <value>Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
   <data name="NoReferencedServices" xml:space="preserve">
     <value>No referenced design-time services were found.</value>
@@ -377,6 +395,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="UnhandledEnumValue" xml:space="preserve">
     <value>Unhandled enum value '{enumValue}'.</value>
+  </data>
+  <data name="UnknownDirectiveProcessor" xml:space="preserve">
+    <value>Failed to resolve type for directive processor {name}.</value>
   </data>
   <data name="UnknownLiteral" xml:space="preserve">
     <value>Cannot scaffold C# literals of type '{literalType}'. The provider should implement CoreTypeMapping.GenerateCodeLiteral to support using it at design time.</value>

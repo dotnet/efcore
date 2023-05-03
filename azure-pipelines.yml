@@ -28,20 +28,23 @@ variables:
     value: true
   - name: _PublishUsingPipelines
     value: true
-  - name: _DotNetArtifactsCategory
-    value: ENTITYFRAMEWORKCORE
   - name: _CosmosConnectionUrl
     value: https://localhost:8081
   - name: _CosmosToken
     value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
-  - name: PostBuildSign
-    value: true
+  - ${{ if or(startswith(variables['Build.SourceBranch'], 'refs/heads/release/'), startswith(variables['Build.SourceBranch'], 'refs/heads/internal/release/'), eq(variables['Build.Reason'], 'Manual')) }}:
+    - name: PostBuildSign
+      value: false
+  - ${{ else }}:
+    - name: PostBuildSign
+      value: true
   - ${{ if ne(variables['System.TeamProject'], 'public') }}:
     - group: DotNet-HelixApi-Access
-    - group: DotNet-MSRC-Storage
+    - group: DotNetBuilds storage account read tokens
+    - group: AzureDevOps-Artifact-Feeds-Pats
     - name: _InternalRuntimeDownloadArgs
-      value: /p:DotNetRuntimeSourceFeed=https://dotnetclimsrc.blob.core.windows.net/dotnet
-             /p:DotNetRuntimeSourceFeedKey=$(dotnetclimsrc-read-sas-token-base64)
+      value: /p:DotNetRuntimeSourceFeed=https://dotnetbuilds.blob.core.windows.net/internal
+             /p:DotNetRuntimeSourceFeedKey=$(dotnetbuilds-internal-container-read-token-base64)
   - ${{ if eq(variables['System.TeamProject'], 'public') }}:
     - name: _InternalRuntimeDownloadArgs
       value: ''
@@ -53,6 +56,7 @@ variables:
     value: 'en_US.UTF-8'
   - name: runCodeQL3000
     value: ${{ and(ne(variables['System.TeamProject'], 'public'), or(eq(variables['Build.Reason'], 'Schedule'), and(eq(variables['Build.Reason'], 'Manual'), eq(parameters.runCodeQL3000, 'true')))) }}
+  - template: /eng/common/templates/variables/pool-providers.yml
 
 trigger:
   batch: true
@@ -75,6 +79,8 @@ stages:
         enablePublishBuildArtifacts: true
         enablePublishBuildAssets: ${{ ne(variables.runCodeQL3000, 'true') }}
         enablePublishUsingPipelines: ${{ variables._PublishUsingPipelines }}
+        publishAssetsImmediately: true
+        enableSourceIndex: ${{ and(ne(variables['System.TeamProject'], 'public'), eq(variables['Build.SourceBranch'], 'refs/heads/main')) }}
         enableTelemetry: true
         helixRepo: dotnet/efcore
         jobs:
@@ -82,11 +88,11 @@ stages:
             enablePublishTestResults: ${{ ne(variables.runCodeQL3000, 'true') }}
             pool:
               ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                name: NetCore-Svc-Public
-                demands: ImageOverride -equals windows.vs2019.amd64.open
+                name: $(DncEngPublicBuildPool)
+                demands: ImageOverride -equals 1es-windows-2019-open
               ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                name: NetCore1ESPool-Svc-Internal
-                demands: ImageOverride -equals windows.vs2019.amd64
+                name: $(DncEngInternalBuildPool)
+                demands: ImageOverride -equals 1es-windows-2019
             ${{ if eq(variables.runCodeQL3000, 'true') }}:
               # Component governance and SBOM creation are not needed here. Disable what Arcade would inject.
               disableComponentGovernance: true
@@ -100,11 +106,8 @@ stages:
               # Rely on task Arcade injects, not auto-injected build step.
               - skipComponentGovernanceDetection: true
               - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest')) }}:
-                - group: DotNet-Blob-Feed
                 - _SignType: real
-                - _PublishBlobFeedUrl: https://dotnetfeed.blob.core.windows.net/aspnet-entityframeworkcore/index.json
-                - _DotNetPublishToBlobFeed: true
-                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishBlobFeedKey=$(dotnetfeed-storage-access-key-1) /p:DotNetPublishBlobFeedUrl=$(_PublishBlobFeedUrl) /p:DotNetPublishToBlobFeed=$(_DotNetPublishToBlobFeed) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:DotNetArtifactsCategory=$(_DotNetArtifactsCategory) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
+                - _InternalBuildArgs: /p:DotNetSignType=$(_SignType) /p:TeamName=$(_TeamName) /p:DotNetPublishUsingPipelines=$(_PublishUsingPipelines) /p:OfficialBuildId=$(BUILD.BUILDNUMBER)
               - ${{ if eq(variables.runCodeQL3000, 'true') }}:
                 - _AdditionalBuildArgs: /p:Test=false /p:Sign=false /p:Pack=false /p:Publish=false /p:UseSharedCompilation=false
                 # Security analysis is included in normal runs. Disable its auto-injection.
@@ -119,6 +122,8 @@ stages:
                 - Codeql.TSAEnabled: ${{ eq(variables['Build.Reason'], 'Schedule') }}
                 # Default expects tsaoptions.json under SourceRoot.
                 - Codeql.TSAOptionsPath: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
+              - ${{ else }}:
+                - _AdditionalBuildArgs: ''
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'
@@ -157,6 +162,10 @@ stages:
                 - task: CodeQL3000Finalize@0
                   displayName: CodeQL Finalize
               - ${{ else }}:
+                - script: |
+                      .dotnet\dotnet publish --configuration $(_BuildConfig) --runtime win-x64 --self-contained test\EFCore.Trimming.Tests
+                      artifacts\bin\EFCore.Trimming.Tests\$(_BuildConfig)\net7.0\win-x64\publish\EFCore.Trimming.Tests.exe
+                  displayName: Test trimming
                 - task: PublishBuildArtifacts@1
                   displayName: Upload TestResults
                   condition: always()
@@ -187,6 +196,7 @@ stages:
                 - script: eng/common/cibuild.sh --configuration $(_BuildConfig) --prepareMachine $(_InternalRuntimeDownloadArgs)
                   env:
                     Test__Cosmos__DefaultConnection: $(_CosmosConnectionUrl)
+                    COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
                   name: Build
                 - task: PublishBuildArtifacts@1
                   displayName: Upload TestResults
@@ -205,8 +215,8 @@ stages:
                 ${{ if or(ne(variables['System.TeamProject'], 'internal'), in(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
                   vmImage: ubuntu-22.04
                 ${{ if and(eq(variables['System.TeamProject'], 'internal'), notin(variables['Build.Reason'], 'Manual', 'PullRequest', 'Schedule')) }}:
-                  name: NetCore1ESPool-Svc-Internal
-                  demands: ImageOverride -equals Build.Ubuntu.2004.Amd64
+                  name: $(DncEngInternalBuildPool)
+                  demands: ImageOverride -equals Build.Ubuntu.2204.Amd64
               variables:
                 - _runCounter: $[counter(variables['Build.Reason'], 0)]
                 # Rely on task Arcade injects, not auto-injected build step.
@@ -251,11 +261,11 @@ stages:
               timeoutInMinutes: 180
               pool:
                 ${{ if eq(variables['System.TeamProject'], 'public') }}:
-                  name: NetCore-Svc-Public
-                  demands: ImageOverride -equals windows.vs2019.amd64.open
+                  name: $(DncEngPublicBuildPool)
+                  demands: ImageOverride -equals 1es-windows-2019-open
                 ${{ if ne(variables['System.TeamProject'], 'public') }}:
-                  name: NetCore1ESPool-Svc-Internal
-                  demands: ImageOverride -equals windows.vs2019.amd64
+                  name: $(DncEngInternalBuildPool)
+                  demands: ImageOverride -equals 1es-windows-2019
               variables:
                 # Rely on task Arcade injects, not auto-injected build step.
                 - skipComponentGovernanceDetection: true
@@ -263,12 +273,12 @@ stages:
                   value: $(_BuildConfig)
                 - ${{ if eq(variables['System.TeamProject'], 'public') }}:
                   - name: HelixTargetQueues
-                    value: Windows.10.Amd64.Open;Ubuntu.2004.Amd64.Open;OSX.1100.Amd64.Open;Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64
+                    value: OSX.1100.Amd64.Open;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64.Open@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64
                   - name: _HelixAccessToken
                     value: '' # Needed for public queues
                 - ${{ if ne(variables['System.TeamProject'], 'public') }}:
                   - name: HelixTargetQueues
-                    value: Windows.10.Amd64;Ubuntu.2004.Amd64;OSX.1100.Amd64;Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64
+                    value: OSX.1100.Amd64;(Ubuntu.2004.Amd64.SqlServer)Ubuntu.2004.Amd64@mcr.microsoft.com/dotnet-buildtools/prereqs:ubuntu-18.04-helix-sqlserver-amd64
                   - name: _HelixAccessToken
                     value: $(HelixApiAccessToken) # Needed for internal queues
               steps:
@@ -294,6 +304,7 @@ stages:
                     HelixAccessToken: $(_HelixAccessToken)
                     SYSTEM_ACCESSTOKEN: $(System.AccessToken) # We need to set this env var to publish helix results to Azure Dev Ops
                     MSSQL_SA_PASSWORD: "Password12!"
+                    COMPlus_EnableWriteXorExecute: 0 # Work-around for https://github.com/dotnet/runtime/issues/70758
 
 - ${{ if and(ne(variables['System.TeamProject'], 'public'), notin(variables['Build.Reason'], 'PullRequest'), ne(variables.runCodeQL3000, 'true')) }}:
   - template: eng\common\templates\post-build\post-build.yml
@@ -305,3 +316,4 @@ stages:
       enableSigningValidation: false
       enableNugetValidation: false
       enableSourceLinkValidation: false
+      publishAssetsImmediately: true
