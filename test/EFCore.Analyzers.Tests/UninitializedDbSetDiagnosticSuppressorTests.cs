@@ -3,7 +3,7 @@
 
 using Microsoft.CodeAnalysis.Testing;
 
-namespace Microsoft.EntityFrameworkCore.Suppressors;
+namespace Microsoft.EntityFrameworkCore;
 
 using VerifyCS = CSharpAnalyzerVerifier<UninitializedDbSetDiagnosticSuppressor>;
 
