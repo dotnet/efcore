@@ -13,20 +13,20 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 /// </summary>
 public class SqlServerParseTranslator : IMethodCallTranslator
 {
-    private static readonly Dictionary<Type, string> ClrTypeToStoreTypeMap = new()
+    private static readonly Type[] SupportedClrTypes = new Type[]
     {
-        [typeof(bool)] = "bit",
-        [typeof(byte)] = "tinyint",
-        [typeof(decimal)] = "decimal(18, 2)",
-        [typeof(double)] = "float",
-        [typeof(float)] = "float",
-        [typeof(short)] = "smallint",
-        [typeof(int)] = "int",
-        [typeof(long)] = "bigint"
+        typeof(bool), // bit
+        typeof(byte), // tinyint
+        typeof(decimal), // decimal(18, 2)
+        typeof(double), // float
+        typeof(float), // float
+        typeof(short), // smallint
+        typeof(int), // int
+        typeof(long) // bigint
     };
 
     private static readonly IEnumerable<MethodInfo> SupportedMethods
-        = ClrTypeToStoreTypeMap.Keys
+        = SupportedClrTypes
             .SelectMany(
                 t => t.GetTypeInfo().GetDeclaredMethods(nameof(int.Parse))
                     .Where(
@@ -58,11 +58,8 @@ public class SqlServerParseTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         => SupportedMethods.Contains(method)
-            ? _sqlExpressionFactory.Function(
-                "CONVERT",
-                new[] { _sqlExpressionFactory.Fragment(ClrTypeToStoreTypeMap[method.DeclaringType!]), arguments[0] },
-                nullable: true,
-                argumentsPropagateNullability: new[] { false, true },
+            ? _sqlExpressionFactory.Convert(
+                arguments[0],
                 method.ReturnType)
             : null;
 }

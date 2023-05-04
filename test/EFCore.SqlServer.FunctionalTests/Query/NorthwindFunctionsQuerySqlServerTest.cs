@@ -1626,7 +1626,7 @@ WHERE [o].[CustomerID] = N'ALFKI' AND ((CONVERT(nvarchar(max), [o].[OrderDate]) 
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, SUBSTRING([c].[Phone], 0 + 1, 3)) = CAST(30 AS tinyint)");
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST(SUBSTRING([c].[Phone], 0 + 1, 3) AS tinyint) = CAST(30 AS tinyint)");
     }
 
     public override async Task Byte_Parse_Non_Numeric_Bad_Format(bool async)
@@ -1668,15 +1668,15 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(tinyint, SUBSTRING([c].[Phone], 0 
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), [c].[PostalCode]) = 12209.0",
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST([c].[PostalCode] AS decimal(18,2)) = 12209.0",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'BLONP' AND CONVERT(decimal(18, 2), SUBSTRING([c].[Phone], 0 + 1, 4)) = 88.6",
+WHERE [c].[CustomerID] = N'BLONP' AND CAST(SUBSTRING([c].[Phone], 0 + 1, 4) AS decimal(18,2)) = 88.6",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), SUBSTRING([c].[Phone], 3 + 1, 4)) = -7.0");
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST(SUBSTRING([c].[Phone], 3 + 1, 4) AS decimal(18,2)) = -7.0");
     }
 
     public override async Task Decimal_Parse_Non_Numeric_Bad_Format(bool async)
@@ -1694,15 +1694,15 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(decimal(18, 2), SUBSTRING([c].[Pho
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(float, [c].[PostalCode]) = 12209.0E0",
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST([c].[PostalCode] AS float) = 12209.0E0",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'BLONP' AND CONVERT(float, SUBSTRING([c].[Phone], 0 + 1, 4)) = 88.599999999999994E0",
+WHERE [c].[CustomerID] = N'BLONP' AND CAST(SUBSTRING([c].[Phone], 0 + 1, 4) AS float) = 88.599999999999994E0",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(float, SUBSTRING([c].[Phone], 3 + 1, 4)) = -7.0E0");
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST(SUBSTRING([c].[Phone], 3 + 1, 4) AS float) = -7.0E0");
     }
 
     public override async Task Double_Parse_Non_Numeric_Bad_Format(bool async)
@@ -1720,11 +1720,11 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(float, SUBSTRING([c].[Phone], 3 + 
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(smallint, [c].[PostalCode]) = CAST(12209 AS smallint)",
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST([c].[PostalCode] AS smallint) = CAST(12209 AS smallint)",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(smallint, SUBSTRING([c].[Phone], 3 + 1, 4)) = CAST(-7 AS smallint)");
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST(SUBSTRING([c].[Phone], 3 + 1, 4) AS smallint) = CAST(-7 AS smallint)");
     }
 
     public override async Task Short_Parse_Non_Numeric_Bad_Format(bool async)
@@ -1758,11 +1758,11 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(smallint, SUBSTRING([c].[Phone], 3
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(int, [c].[PostalCode]) = 12209",
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST([c].[PostalCode] AS int) = 12209",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(int, SUBSTRING([c].[Phone], 3 + 1, 4)) = -7");
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST(SUBSTRING([c].[Phone], 3 + 1, 4) AS int) = -7");
     }
 
     public override async Task Int_Parse_Non_Numeric_Bad_Format(bool async)
@@ -1788,11 +1788,11 @@ WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(int, SUBSTRING([c].[Phone], 3 + 1,
         AssertSql(
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(bigint, [c].[PostalCode]) = CAST(12209 AS bigint)",
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST([c].[PostalCode] AS bigint) = CAST(12209 AS bigint)",
             //
             @"SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND CONVERT(bigint, SUBSTRING([c].[Phone], 3 + 1, 4)) = CAST(-7 AS bigint)");
+WHERE [c].[CustomerID] = N'ALFKI' AND CAST(SUBSTRING([c].[Phone], 3 + 1, 4) AS bigint) = CAST(-7 AS bigint)");
     }
 
     public override async Task Long_Parse_Non_Numeric_Bad_Format(bool async)
