@@ -9,7 +9,9 @@ public class TestModificationCommandBatch : SingularModificationCommandBatch
         ModificationCommandBatchFactoryDependencies dependencies,
         int? maxBatchSize)
         : base(dependencies)
-        => MaxBatchSize = maxBatchSize ?? 42;
+    {
+        MaxBatchSize = maxBatchSize ?? 42;
+    }
 
     protected override int MaxBatchSize { get; }
 }

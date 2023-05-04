@@ -37,24 +37,24 @@ public interface IMaterializationInterceptor : ISingletonInterceptor
     ///     any properties values not set by the constructor have been set.
     /// </summary>
     /// <param name="materializationData">Contextual information about the materialization happening.</param>
-    /// <param name="instance">
+    /// <param name="entity">
     ///     The entity instance that has been created.
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
     ///     The entity instance that EF will use.
     ///     An implementation of this method for any interceptor that is not attempting to change the instance used
-    ///     must return the <paramref name="instance" /> value passed in.
+    ///     must return the <paramref name="entity" /> value passed in.
     /// </returns>
-    object CreatedInstance(MaterializationInterceptionData materializationData, object instance)
-        => instance;
+    object CreatedInstance(MaterializationInterceptionData materializationData, object entity)
+        => entity;
 
     /// <summary>
     ///     Called immediately before EF is going to set property values of an entity that has just been created. Note that property values
     ///     set by the constructor will already have been set.
     /// </summary>
     /// <param name="materializationData">Contextual information about the materialization happening.</param>
-    /// <param name="instance">The entity instance for which property values will be set.</param>
+    /// <param name="entity">The entity instance for which property values will be set.</param>
     /// <param name="result">
     ///     Represents the current result if one exists.
     ///     This value will have <see cref="InterceptionResult.IsSuppressed" /> set to <see langword="true" /> if some previous
@@ -67,22 +67,22 @@ public interface IMaterializationInterceptor : ISingletonInterceptor
     ///     An implementation of this method for any interceptor that is not attempting to suppress
     ///     setting property values must return the <paramref name="result" /> value passed in.
     /// </returns>
-    InterceptionResult InitializingInstance(MaterializationInterceptionData materializationData, object instance, InterceptionResult result)
+    InterceptionResult InitializingInstance(MaterializationInterceptionData materializationData, object entity, InterceptionResult result)
         => result;
 
     /// <summary>
     ///     Called immediately after EF has set property values of an entity that has just been created.
     /// </summary>
     /// <param name="materializationData">Contextual information about the materialization happening.</param>
-    /// <param name="instance">
+    /// <param name="entity">
     ///     The entity instance that has been created.
     ///     This value is typically used as the return value for the implementation of this method.
     /// </param>
     /// <returns>
     ///     The entity instance that EF will use.
     ///     An implementation of this method for any interceptor that is not attempting to change the instance used
-    ///     must return the <paramref name="instance" /> value passed in.
+    ///     must return the <paramref name="entity" /> value passed in.
     /// </returns>
-    object InitializedInstance(MaterializationInterceptionData materializationData, object instance)
-        => instance;
+    object InitializedInstance(MaterializationInterceptionData materializationData, object entity)
+        => entity;
 }

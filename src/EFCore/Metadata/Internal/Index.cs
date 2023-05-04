@@ -103,7 +103,8 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual bool IsInModel
-        => _builder is not null;
+        => _builder is not null
+            && DeclaringEntityType.IsInModel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -218,17 +219,30 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     {
         EnsureMutable();
 
-        if (descending is not null && descending.Count != Properties.Count)
+        if (descending is not null)
         {
-            throw new ArgumentException(
-                CoreStrings.InvalidNumberOfIndexSortOrderValues(DisplayName(), descending.Count, Properties.Count), nameof(descending));
+            if (descending.Count == Properties.Count)
+            {
+                // Normalize all-ascending/descending to null/empty respectively.
+                if (descending.All(desc => desc))
+                {
+                    descending = Array.Empty<bool>();
+                }
+                else if (descending.All(desc => !desc))
+                {
+                    descending = null;
+                }
+            }
+            else if (descending.Count > 0)
+            {
+                throw new ArgumentException(
+                    CoreStrings.InvalidNumberOfIndexSortOrderValues(DisplayName(), descending.Count, Properties.Count), nameof(descending));
+            }
         }
 
         var oldIsDescending = IsDescending;
-        var isChanging =
-            (_isDescending is null && descending is not null && descending.Any(desc => desc))
-            || (descending is null && _isDescending is not null && _isDescending.Any(desc => desc))
-            || (descending is not null && oldIsDescending is not null && !oldIsDescending.SequenceEqual(descending));
+        var isChanging = descending is null != _isDescending is null
+            || (descending is not null && _isDescending is not null && !descending.SequenceEqual(_isDescending));
         _isDescending = descending;
 
         if (descending == null)
@@ -456,5 +470,4 @@ public class Index : ConventionAnnotatable, IMutableIndex, IConventionIndex, IIn
     [DebuggerStepThrough]
     IReadOnlyList<bool>? IConventionIndex.SetIsDescending(IReadOnlyList<bool>? descending, bool fromDataAnnotation)
         => SetIsDescending(descending, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-
 }

@@ -55,11 +55,46 @@ public class StoreFunction : TableBase, IStoreFunction
     /// </summary>
     public virtual StoreFunctionParameter[] Parameters { get; }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddDbFunction(IRuntimeDbFunction dbFunction)
+    {
+        dbFunction.StoreFunction = this;
+        for (var i = 0; i < dbFunction.Parameters.Count; i++)
+        {
+            Parameters[i].DbFunctionParameters.Add(dbFunction.Parameters[i]);
+        }
+
+        DbFunctions.Add(dbFunction.ModelName, dbFunction);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual StoreFunctionParameter? FindParameter(string propertyName)
+        => Parameters.FirstOrDefault(p => p.Name == propertyName);
+
     /// <inheritdoc />
     public override IColumnBase? FindColumn(IProperty property)
         => property.GetFunctionColumnMappings()
             .FirstOrDefault(cm => cm.TableMapping.Table == this)
             ?.Column;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public new virtual FunctionColumn? FindColumn(string name)
+        => (FunctionColumn?)base.FindColumn(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

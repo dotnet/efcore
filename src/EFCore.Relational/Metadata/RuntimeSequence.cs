@@ -20,6 +20,7 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     private readonly long? _minValue;
     private readonly long? _maxValue;
     private readonly bool _isCyclic;
+    private readonly bool _modelSchemaIsNull;
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="RuntimeSequence" /> class.
@@ -33,6 +34,7 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     /// <param name="cyclic">Whether the sequence is cyclic.</param>
     /// <param name="minValue">The minimum value.</param>
     /// <param name="maxValue">The maximum value.</param>
+    /// <param name="modelSchemaIsNull">A value indicating whether <see cref="ModelSchema" /> is null.</param>
     public RuntimeSequence(
         string name,
         RuntimeModel model,
@@ -42,7 +44,8 @@ public class RuntimeSequence : AnnotatableBase, ISequence
         int incrementBy = Sequence.DefaultIncrementBy,
         bool cyclic = false,
         long? minValue = null,
-        long? maxValue = null)
+        long? maxValue = null,
+        bool modelSchemaIsNull = false)
     {
         Model = model;
         Name = name;
@@ -53,6 +56,7 @@ public class RuntimeSequence : AnnotatableBase, ISequence
         _isCyclic = cyclic;
         _minValue = minValue;
         _maxValue = maxValue;
+        _modelSchemaIsNull = modelSchemaIsNull;
     }
 
     /// <summary>
@@ -64,6 +68,12 @@ public class RuntimeSequence : AnnotatableBase, ISequence
     ///     Gets the name of the sequence in the database.
     /// </summary>
     public virtual string Name { get; }
+
+    /// <summary>
+    ///     Gets the metadata schema of the sequence.
+    /// </summary>
+    public virtual string? ModelSchema
+        => _modelSchemaIsNull ? null : _schema;
 
     /// <summary>
     ///     Gets the database schema that contains the sequence.

@@ -167,4 +167,25 @@ public abstract class NorthwindKeylessEntitiesQueryTestBase<TFixture> : QueryTes
                 .Select(pv => new { pv.City, pv.ContactName })
                 .OrderBy(x => x.ContactName)
                 .Take(2));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Count_over_keyless_entity(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<CustomerQuery>());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Count_over_keyless_entity_with_pushdown(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<CustomerQuery>().OrderBy(x => x.ContactTitle).Take(10));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Count_over_keyless_entity_with_pushdown_empty_projection(bool async)
+        => AssertCount(
+            async,
+            ss => ss.Set<CustomerQuery>().Take(10));
 }

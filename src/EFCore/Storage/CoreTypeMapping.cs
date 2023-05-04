@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
@@ -34,13 +35,17 @@ public abstract class CoreTypeMapping
         /// <param name="keyComparer">Supports custom comparisons between keys--e.g. PK to FK comparison.</param>
         /// <param name="providerValueComparer">Supports custom comparisons between converted provider values.</param>
         /// <param name="valueGeneratorFactory">An optional factory for creating a specific <see cref="ValueGenerator" />.</param>
+        /// <param name="elementTypeMapping">
+        ///     If this type mapping represents a primitive collection, this holds the element's type mapping.
+        /// </param>
         public CoreTypeMappingParameters(
-            Type clrType,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type clrType,
             ValueConverter? converter = null,
             ValueComparer? comparer = null,
             ValueComparer? keyComparer = null,
             ValueComparer? providerValueComparer = null,
-            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
+            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
+            CoreTypeMapping? elementTypeMapping = null)
         {
             ClrType = clrType;
             Converter = converter;
@@ -48,11 +53,13 @@ public abstract class CoreTypeMapping
             KeyComparer = keyComparer;
             ProviderValueComparer = providerValueComparer;
             ValueGeneratorFactory = valueGeneratorFactory;
+            ElementTypeMapping = elementTypeMapping;
         }
 
         /// <summary>
         ///     The mapping CLR type.
         /// </summary>
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)]
         public Type ClrType { get; init; }
 
         /// <summary>
@@ -82,6 +89,11 @@ public abstract class CoreTypeMapping
         public Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
 
         /// <summary>
+        ///     If this type mapping represents a primitive collection, this holds the element's type mapping.
+        /// </summary>
+        public CoreTypeMapping? ElementTypeMapping { get; }
+
+        /// <summary>
         ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
         ///     converter composed with any existing converter and set on the new parameter object.
         /// </summary>
@@ -94,7 +106,24 @@ public abstract class CoreTypeMapping
                 Comparer,
                 KeyComparer,
                 ProviderValueComparer,
-                ValueGeneratorFactory);
+                ValueGeneratorFactory,
+                ElementTypeMapping);
+
+        /// <summary>
+        ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
+        ///     element type mapping.
+        /// </summary>
+        /// <param name="elementTypeMapping">The element type mapping.</param>
+        /// <returns>The new parameter object.</returns>
+        public CoreTypeMappingParameters WithElementTypeMapping(CoreTypeMapping elementTypeMapping)
+            => new(
+                ClrType,
+                Converter,
+                Comparer,
+                KeyComparer,
+                ProviderValueComparer,
+                ValueGeneratorFactory,
+                elementTypeMapping);
     }
 
     private ValueComparer? _comparer;
@@ -155,6 +184,9 @@ public abstract class CoreTypeMapping
     /// <summary>
     ///     Gets the .NET type used in the EF model.
     /// </summary>
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods
+        | DynamicallyAccessedMemberTypes.NonPublicMethods
+        | DynamicallyAccessedMemberTypes.PublicProperties)]
     public virtual Type ClrType { get; }
 
     /// <summary>
@@ -199,8 +231,8 @@ public abstract class CoreTypeMapping
             ref _providerValueComparer,
             this,
             static c => (c.Converter?.ProviderClrType ?? c.ClrType) == c.ClrType
-                    ? c.KeyComparer
-                    : ValueComparer.CreateDefault(c.Converter?.ProviderClrType ?? c.ClrType, favorStructuralComparisons: true));
+                ? c.KeyComparer
+                : ValueComparer.CreateDefault(c.Converter!.ProviderClrType, favorStructuralComparisons: true));
 
     /// <summary>
     ///     Returns a new copy of this type mapping with the given <see cref="ValueConverter" />
@@ -219,4 +251,10 @@ public abstract class CoreTypeMapping
     /// <returns>An expression tree that can be used to generate code for the literal value.</returns>
     public virtual Expression GenerateCodeLiteral(object value)
         => throw new NotSupportedException(CoreStrings.LiteralGenerationNotSupported(ClrType.ShortDisplayName()));
+
+    /// <summary>
+    ///     If this type mapping represents a primitive collection, this holds the element's type mapping.
+    /// </summary>
+    public virtual CoreTypeMapping? ElementTypeMapping
+        => Parameters.ElementTypeMapping;
 }

@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EFCore.Relational\EFCore.Relational.csproj" />
-    <ProjectReference Include="..\EFCore.Relational.Tests\EFCore.Relational.Tests.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\EFCore.Specification.Tests\EFCore.Specification.Tests.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
     <PackageReference Include="IdentityServer4.EntityFramework" Version="4.1.2" />

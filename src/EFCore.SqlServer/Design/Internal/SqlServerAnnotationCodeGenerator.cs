@@ -23,6 +23,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.UseHiLo), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
 
+    private static readonly MethodInfo ModelUseKeySequencesMethodInfo
+        = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerModelBuilderExtensions.UseKeySequences), new[] { typeof(ModelBuilder), typeof(string), typeof(string) })!;
+
     private static readonly MethodInfo ModelHasDatabaseMaxSizeMethodInfo
         = typeof(SqlServerModelBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerModelBuilderExtensions.HasDatabaseMaxSize), new[] { typeof(ModelBuilder), typeof(string) })!;
@@ -58,6 +62,10 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     private static readonly MethodInfo PropertyUseHiLoMethodInfo
         = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
             nameof(SqlServerPropertyBuilderExtensions.UseHiLo), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
+
+    private static readonly MethodInfo PropertyUseSequenceMethodInfo
+        = typeof(SqlServerPropertyBuilderExtensions).GetRuntimeMethod(
+            nameof(SqlServerPropertyBuilderExtensions.UseSequence), new[] { typeof(PropertyBuilder), typeof(string), typeof(string) })!;
 
     private static readonly MethodInfo IndexIsClusteredMethodInfo
         = typeof(SqlServerIndexBuilderExtensions).GetRuntimeMethod(
@@ -175,6 +183,12 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
 
         return fragments;
     }
+
+    /// <inheritdoc />
+    public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
+        IRelationalPropertyOverrides overrides,
+        IDictionary<string, IAnnotation> annotations)
+        => base.GenerateFluentApiCalls(overrides, annotations);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -295,6 +309,22 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override bool IsHandledByConvention(IProperty property, IAnnotation annotation)
+    {
+        if (annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy)
+        {
+            return (SqlServerValueGenerationStrategy)annotation.Value! == property.DeclaringEntityType.Model.GetValueGenerationStrategy();
+        }
+
+        return base.IsHandledByConvention(property, annotation);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override MethodCallCodeFragment? GenerateFluentApi(IKey key, IAnnotation annotation)
         => annotation.Name == SqlServerAnnotationNames.Clustered
             ? (bool)annotation.Value! == false
@@ -353,20 +383,25 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                 }
 
                 var seed = seedAnnotation is null
-                    ? 1
+                    ? 1L
                     : seedAnnotation.Value is int intValue
                         ? intValue
-                        : (long?)seedAnnotation.Value ?? 1;
+                        : (long?)seedAnnotation.Value ?? 1L;
 
                 var increment = GetAndRemove<int?>(annotations, SqlServerAnnotationNames.IdentityIncrement)
                     ?? model.FindAnnotation(SqlServerAnnotationNames.IdentityIncrement)?.Value as int?
                     ?? 1;
                 return new MethodCallCodeFragment(
                     onModel ? ModelUseIdentityColumnsMethodInfo : PropertyUseIdentityColumnsMethodInfo,
-                    seed,
-                    increment);
+                    (seed, increment) switch
+                    {
+                        (1L, 1) => Array.Empty<object>(),
+                        (_, 1) => new object[] { seed },
+                        _ => new object[] { seed, increment }
+                    });
 
             case SqlServerValueGenerationStrategy.SequenceHiLo:
+            {
                 var name = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceName);
                 var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.HiLoSequenceSchema);
                 return new MethodCallCodeFragment(
@@ -377,6 +412,24 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
                         (_, null) => new object[] { name },
                         _ => new object[] { name!, schema }
                     });
+            }
+
+            case SqlServerValueGenerationStrategy.Sequence:
+            {
+                var nameOrSuffix = GetAndRemove<string>(
+                    annotations,
+                    onModel ? SqlServerAnnotationNames.SequenceNameSuffix : SqlServerAnnotationNames.SequenceName);
+
+                var schema = GetAndRemove<string>(annotations, SqlServerAnnotationNames.SequenceSchema);
+                return new MethodCallCodeFragment(
+                    onModel ? ModelUseKeySequencesMethodInfo : PropertyUseSequenceMethodInfo,
+                    (name: nameOrSuffix, schema) switch
+                    {
+                        (null, null) => Array.Empty<object>(),
+                        (_, null) => new object[] { nameOrSuffix },
+                        _ => new object[] { nameOrSuffix!, schema }
+                    });
+            }
 
             case SqlServerValueGenerationStrategy.None:
                 return new MethodCallCodeFragment(

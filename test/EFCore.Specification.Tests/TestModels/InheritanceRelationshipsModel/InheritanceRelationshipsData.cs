@@ -5,6 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceRelationshipsModel
 
 public class InheritanceRelationshipsData : ISetSource
 {
+    public static readonly InheritanceRelationshipsData Instance = new();
+
     public IReadOnlyList<BaseInheritanceRelationshipEntity> BaseEntities { get; set; }
     public IReadOnlyList<BaseReferenceOnBase> BaseReferencesOnBase { get; set; }
     public IReadOnlyList<BaseReferenceOnDerived> BaseReferencesOnDerived { get; set; }
@@ -19,7 +21,7 @@ public class InheritanceRelationshipsData : ISetSource
     public IReadOnlyList<PrincipalEntity> PrincipalEntities { get; set; }
     public IReadOnlyList<ReferencedEntity> ReferencedEntities { get; set; }
 
-    public InheritanceRelationshipsData()
+    private InheritanceRelationshipsData()
     {
         BaseEntities = CreateBaseEntities();
         BaseReferencesOnBase = CreateBaseReferencesOnBase();
@@ -642,7 +644,7 @@ public class InheritanceRelationshipsData : ISetSource
         collectionsOnBase[4].Parent = baseEntities[3];
         collectionsOnBase[4].ParentId = baseEntities[3].Id;
 
-        // DerivedInheritanceRelationshipEntity navigations 
+        // DerivedInheritanceRelationshipEntity navigations
         baseEntities[0].DerivedSefReferenceOnBase = (DerivedInheritanceRelationshipEntity)baseEntities[3];
         ((DerivedInheritanceRelationshipEntity)baseEntities[3]).BaseSelfReferenceOnDerived = baseEntities[0];
         ((DerivedInheritanceRelationshipEntity)baseEntities[3]).BaseId = baseEntities[0].Id;

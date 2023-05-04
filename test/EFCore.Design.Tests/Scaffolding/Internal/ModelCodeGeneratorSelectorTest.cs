@@ -12,17 +12,10 @@ public class ModelCodeGeneratorSelectorTest
     {
         var expected = new TestModelCodeGenerator("C#");
         var selector = new ModelCodeGeneratorSelector(
-            new[]
-            {
-                new TestModelCodeGenerator("C#"),
-                expected
-            });
+            new[] { new TestModelCodeGenerator("C#"), expected });
 
         var result = selector.Select(
-            new ModelCodeGenerationOptions
-            {
-                Language = "C#"
-            });
+            new ModelCodeGenerationOptions { Language = "C#" });
 
         Assert.Same(expected, result);
     }
@@ -31,14 +24,8 @@ public class ModelCodeGeneratorSelectorTest
     public void Select_throws_when_no_service_for_language()
     {
         var selector = new ModelCodeGeneratorSelector(
-            new[]
-            {
-                new TestModelCodeGenerator("C#")
-            });
-        var options = new ModelCodeGenerationOptions
-        {
-            Language = "VB"
-        };
+            new[] { new TestModelCodeGenerator("C#") });
+        var options = new ModelCodeGenerationOptions { Language = "VB" };
 
         var ex = Assert.Throws<OperationException>(
             () => selector.Select(options));
@@ -60,11 +47,7 @@ public class ModelCodeGeneratorSelectorTest
             });
 
         var result = selector.Select(
-            new ModelCodeGenerationOptions
-            {
-                Language = "C#",
-                ProjectDir = Directory.GetCurrentDirectory()
-            });
+            new ModelCodeGenerationOptions { Language = "C#", ProjectDir = Directory.GetCurrentDirectory() });
 
         Assert.Same(expected, result);
     }
@@ -74,18 +57,10 @@ public class ModelCodeGeneratorSelectorTest
     {
         var expected = new TestModelCodeGenerator("C#");
         var selector = new ModelCodeGeneratorSelector(
-            new IModelCodeGenerator[]
-            {
-                new TestTemplatedModelGenerator(hasTemplates: false),
-                new TestModelCodeGenerator("C#"),
-                expected
-            });
+            new IModelCodeGenerator[] { new TestTemplatedModelGenerator(hasTemplates: false), new TestModelCodeGenerator("C#"), expected });
 
         var result = selector.Select(
-            new ModelCodeGenerationOptions
-            {
-                Language = "C#"
-            });
+            new ModelCodeGenerationOptions { Language = "C#" });
 
         Assert.Same(expected, result);
     }
@@ -93,8 +68,10 @@ public class ModelCodeGeneratorSelectorTest
     private class TestModelCodeGenerator : ModelCodeGenerator
     {
         public TestModelCodeGenerator(string language)
-            : base(new())
-            => Language = language;
+            : base(new ModelCodeGeneratorDependencies())
+        {
+            Language = language;
+        }
 
         public override string Language { get; }
 
@@ -107,8 +84,10 @@ public class ModelCodeGeneratorSelectorTest
         private readonly bool _hasTemplates;
 
         public TestTemplatedModelGenerator(bool hasTemplates)
-            : base(new())
-            => _hasTemplates = hasTemplates;
+            : base(new ModelCodeGeneratorDependencies())
+        {
+            _hasTemplates = hasTemplates;
+        }
 
         public override ScaffoldedModel GenerateModel(IModel model, ModelCodeGenerationOptions options)
             => throw new NotImplementedException();

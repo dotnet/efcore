@@ -85,28 +85,23 @@ public abstract class NavigationEntry : MemberEntry
     }
 
     /// <summary>
-    ///     Loads the entity or entities referenced by this navigation property, unless <see cref="IsLoaded" />
-    ///     is already set to true.
+    ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+    ///     is already set to <see langword="true"/>.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-    ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    public abstract void Load();
+    /// <param name="options">Options to control the way related entities are loaded.</param>
+    public abstract void Load(LoadOptions options = LoadOptions.None);
 
     /// <summary>
-    ///     Loads the entity or entities referenced by this navigation property, unless <see cref="IsLoaded" />
-    ///     is already set to true.
+    ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+    ///     is already set to <see langword="true"/>.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-    ///     </para>
     ///     <para>
     ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
     ///         that any asynchronous operations have completed before calling another method on this context.
@@ -116,10 +111,11 @@ public abstract class NavigationEntry : MemberEntry
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <param name="options">Options to control the way related entities are loaded.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public abstract Task LoadAsync(CancellationToken cancellationToken = default);
+    public abstract Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Returns the query that would be used by <see cref="Load" /> to load entities referenced by
@@ -155,7 +151,7 @@ public abstract class NavigationEntry : MemberEntry
     ///         It is possible for IsLoaded to be false even if all related entities are loaded. This is because, depending on
     ///         how entities are loaded, it is not always possible to know for sure that all entities in a related collection
     ///         have been loaded. In such cases, calling <see cref="Load" /> or <see cref="LoadAsync" /> will ensure all
-    ///         related entities are loaded and will set this flag to true.
+    ///         related entities are loaded and will set this flag to <see langword="true"/>.
     ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
@@ -163,7 +159,7 @@ public abstract class NavigationEntry : MemberEntry
     ///     </para>
     /// </remarks>
     /// <value>
-    ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to true.
+    ///     <see langword="true" /> if all the related entities are loaded or the IsLoaded has been explicitly set to <see langword="true"/>.
     /// </value>
     public virtual bool IsLoaded
     {

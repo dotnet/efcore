@@ -42,15 +42,17 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         Assert.Null(extension.Connection);
     }
 
-    [ConditionalFact]
-    public void Can_add_extension_with_connection_string_using_generic_options()
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Can_add_extension_with_connection_string_using_generic_options(bool nullConnectionString)
     {
         var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
-        optionsBuilder.UseSqlite("Database=Whisper");
+        optionsBuilder.UseSqlite(nullConnectionString ? null : "Database=Whisper");
 
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
-        Assert.Equal("Database=Whisper", extension.ConnectionString);
+        Assert.Equal(nullConnectionString ? null : "Database=Whisper", extension.ConnectionString);
         Assert.Null(extension.Connection);
     }
 
@@ -65,6 +67,22 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
+        Assert.False(extension.IsConnectionOwned);
+        Assert.Null(extension.ConnectionString);
+    }
+
+    [ConditionalFact]
+    public void Can_add_extension_with_owned_connection()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder();
+        var connection = new SqliteConnection();
+
+        optionsBuilder.UseSqlite(connection, contextOwnsConnection: true);
+
+        var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+        Assert.Same(connection, extension.Connection);
+        Assert.True(extension.IsConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 
@@ -92,15 +110,33 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
         var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
 
         Assert.Same(connection, extension.Connection);
+        Assert.False(extension.IsConnectionOwned);
         Assert.Null(extension.ConnectionString);
     }
 
     [ConditionalFact]
-    public void Service_collection_extension_method_can_configure_sqlite_options()
+    public void Can_add_owned_extension_with_connection_using_generic_options()
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+        var connection = new SqliteConnection();
+
+        optionsBuilder.UseSqlite(connection, contextOwnsConnection: true);
+
+        var extension = optionsBuilder.Options.Extensions.OfType<SqliteOptionsExtension>().Single();
+
+        Assert.Same(connection, extension.Connection);
+        Assert.True(extension.IsConnectionOwned);
+        Assert.Null(extension.ConnectionString);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Service_collection_extension_method_can_configure_sqlite_options(bool nullConnectionString)
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSqlite<ApplicationDbContext>(
-            "Database=Crunchie",
+            nullConnectionString ? null : "Database=Crunchie",
             sqliteOptions =>
             {
                 sqliteOptions.MaxBatchSize(123);
@@ -127,7 +163,7 @@ public class SqliteDbContextOptionsBuilderExtensionsTest
 
             Assert.Equal(123, sqliteOptions.MaxBatchSize);
             Assert.Equal(30, sqliteOptions.CommandTimeout);
-            Assert.Equal("Database=Crunchie", sqliteOptions.ConnectionString);
+            Assert.Equal(nullConnectionString ? null : "Database=Crunchie", sqliteOptions.ConnectionString);
         }
     }
 

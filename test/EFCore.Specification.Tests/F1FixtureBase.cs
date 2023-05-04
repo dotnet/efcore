@@ -170,7 +170,6 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
                 ConfigureConstructorBinding<TitleSponsor>(b.Metadata);
             });
 
-
         modelBuilder.Entity<Chassis>().Property<TRowVersion>("Version").IsRowVersion();
         modelBuilder.Entity<Driver>().Property<TRowVersion>("Version").IsRowVersion();
 
@@ -194,26 +193,40 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
                     eb.Property<int?>(Sponsor.ClientTokenPropertyName).IsConcurrencyToken();
                 });
 
-        if (typeof(TRowVersion) != typeof(byte[]))
-        {
-            modelBuilder.Entity<Chassis>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<Driver>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<Team>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<Sponsor>().Property<TRowVersion>("Version").HasConversion<byte[]>();
-            modelBuilder.Entity<TitleSponsor>()
-                .OwnsOne(
-                    s => s.Details, eb =>
-                    {
-                        eb.Property<TRowVersion>("Version").IsRowVersion().HasConversion<byte[]>();
-                    });
-        }
+        modelBuilder.Entity<Fan>();
+        modelBuilder.Entity<SuperFan>();
+        modelBuilder.Entity<MegaFan>();
+
+        modelBuilder.Entity<FanTpt>();
+        modelBuilder.Entity<SuperFanTpt>();
+        modelBuilder.Entity<MegaFanTpt>();
+
+        modelBuilder.Entity<FanTpc>();
+        modelBuilder.Entity<SuperFanTpc>();
+        modelBuilder.Entity<MegaFanTpc>();
+
+        modelBuilder.Entity<Circuit>();
+        modelBuilder.Entity<StreetCircuit>().HasOne(e => e.City).WithOne().HasForeignKey<City>(e => e.Id);
+        modelBuilder.Entity<OvalCircuit>();
+        modelBuilder.Entity<City>();
+
+        modelBuilder.Entity<CircuitTpt>();
+        modelBuilder.Entity<StreetCircuitTpt>().HasOne(e => e.City).WithOne().HasForeignKey<CityTpt>(e => e.Id);
+        modelBuilder.Entity<OvalCircuitTpt>();
+        modelBuilder.Entity<CityTpt>();
+
+        modelBuilder.Entity<CircuitTpc>();
+        modelBuilder.Entity<StreetCircuitTpc>().HasOne(e => e.City).WithOne().HasForeignKey<CityTpc>(e => e.Id);
+        modelBuilder.Entity<OvalCircuitTpc>();
+        modelBuilder.Entity<CityTpc>();
     }
 
     private static void ConfigureConstructorBinding<TEntity>(IMutableEntityType mutableEntityType, params string[] propertyNames)
         => ConfigureConstructorBinding<TEntity, TEntity>(mutableEntityType, propertyNames);
 
     private static void ConfigureConstructorBinding<TEntity, TLoaderEntity>(
-        IMutableEntityType mutableEntityType, params string[] propertyNames)
+        IMutableEntityType mutableEntityType,
+        params string[] propertyNames)
     {
         var entityType = (EntityType)mutableEntityType;
         var loaderField = typeof(TLoaderEntity).GetField("_loader", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -221,10 +234,7 @@ public abstract class F1FixtureBase<TRowVersion> : SharedStoreFixtureBase<F1Cont
 
         if (loaderField != null)
         {
-            var loaderProperty = typeof(TLoaderEntity) == typeof(TEntity)
-                ? entityType.AddServiceProperty(loaderField!, ConfigurationSource.Explicit)
-                : entityType.FindServiceProperty(loaderField.Name)!;
-
+            var loaderProperty = entityType.FindServiceProperty(loaderField.Name)!;
             parameterBindings.Add(new DependencyInjectionParameterBinding(typeof(ILazyLoader), typeof(ILazyLoader), loaderProperty));
         }
 

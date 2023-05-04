@@ -51,6 +51,13 @@ public abstract class ColumnExpression : SqlExpression
     /// <returns>A new expression which has <see cref="IsNullable" /> property set to true.</returns>
     public abstract ColumnExpression MakeNullable();
 
+    /// <summary>
+    ///     Applies supplied type mapping to this expression.
+    /// </summary>
+    /// <param name="typeMapping">A relational type mapping to apply.</param>
+    /// <returns>A new expression which has supplied type mapping.</returns>
+    public abstract SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping);
+
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {

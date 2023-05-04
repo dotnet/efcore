@@ -19,7 +19,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     ///     as new dependencies are added. Instead, use this type in your constructor so that an instance
     ///     will be created and injected automatically by the dependency injection container. To create
     ///     an instance with some dependent services replaced, first resolve the object from the dependency
-    ///     injection container, then replace selected services using the 'With...' methods. Do not call
+    ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
@@ -29,7 +29,8 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         ISet<string> namespaces,
-        ISet<string> scopeVariables)
+        ISet<string> scopeVariables,
+        bool nullable)
     {
         TargetName = targetName;
         ClassName = className;
@@ -37,6 +38,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
         MethodBuilder = methodBuilder;
         Namespaces = namespaces;
         ScopeVariables = scopeVariables;
+        UseNullableReferenceTypes = nullable;
     }
 
     /// <summary>
@@ -78,4 +80,10 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     ///     Indicates whether the given annotations are runtime annotations.
     /// </summary>
     public bool IsRuntime { get; init; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whther nullable reference types are enabled.
+    /// </summary>
+    /// <value>A value indicating whther nullable reference types are enabled.</value>
+    public bool UseNullableReferenceTypes { get; init; }
 }

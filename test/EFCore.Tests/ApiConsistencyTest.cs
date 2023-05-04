@@ -45,6 +45,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(EntityTypeBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
+            typeof(TriggerBuilder),
             typeof(InvertibleRelationshipBuilderBase),
             typeof(KeyBuilder),
             typeof(KeyBuilder<>),
@@ -75,7 +76,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(CompiledQueryCacheKeyGenerator).GetMethod("GenerateCacheKeyCore", AnyInstance),
             typeof(InternalEntityEntry).GetMethod("get_Item"),
             typeof(InternalEntityEntry).GetMethod("set_Item"),
-            typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.HasDefaultValue)),
+            typeof(InternalEntityEntry).GetMethod(nameof(InternalEntityEntry.HasExplicitValue)),
             typeof(DiagnosticsLogger<>).GetMethod("DispatchEventData", AnyInstance),
             typeof(DiagnosticsLogger<>).GetMethod("ShouldLog", AnyInstance),
             typeof(DiagnosticsLogger<>).GetMethod("NeedsEventData", AnyInstance),
@@ -89,6 +90,20 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(DbContext).GetMethod(nameof(DbContext.OnConfiguring), AnyInstance),
             typeof(DbContext).GetMethod(nameof(DbContext.OnModelCreating), AnyInstance),
             typeof(IEntityTypeConfiguration<>).GetMethod(nameof(IEntityTypeConfiguration<Type>.Configure))
+        };
+
+        public override Dictionary<MethodInfo, string> MetadataMethodNameTransformers { get; } = new()
+        {
+            {
+                typeof(IConventionNavigationBuilder).GetMethod(
+                    nameof(IConventionNavigationBuilder.EnableLazyLoading), new[] { typeof(bool?), typeof(bool) })!,
+                "LazyLoadingEnabled"
+            },
+            {
+                typeof(IConventionSkipNavigationBuilder).GetMethod(
+                    nameof(IConventionSkipNavigationBuilder.EnableLazyLoading), new[] { typeof(bool?), typeof(bool) })!,
+                "LazyLoadingEnabled"
+            }
         };
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
@@ -106,15 +121,19 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsOne), 0,
+                new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsOne), 0,
+                new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsMany), 0,
+                new[] { typeof(string), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
-                nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
+                nameof(OwnedNavigationBuilder.OwnsMany), 0,
+                new[] { typeof(string), typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsMany), 0, new[] { typeof(Type), typeof(string), typeof(Action<OwnedNavigationBuilder>) }),
             typeof(IConventionPropertyBase).GetMethod(nameof(IConventionPropertyBase.SetField), new[] { typeof(string), typeof(bool) }),
@@ -133,6 +152,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
+            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder)),
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(Type), typeof(bool) }),
             typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(string), typeof(bool) }),
             typeof(IConventionPropertyBuilder).GetMethod(
@@ -174,8 +194,7 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddOwned)),
             typeof(IMutableModel).GetMethod(nameof(IMutableModel.AddShared)),
             typeof(IMutableEntityType).GetMethod(nameof(IMutableEntityType.AddData)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType)),
-            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.RemoveDiscriminatorValue))
+            typeof(IConventionEntityType).GetMethod(nameof(IConventionEntityType.LeastDerivedType))
         };
     }
 }

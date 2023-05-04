@@ -44,6 +44,10 @@ public class OuterApplyExpression : JoinExpressionBase
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new OuterApplyExpression(Table, annotations);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("OUTER APPLY ");

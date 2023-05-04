@@ -1,14 +1,22 @@
 {
-  "tools": {
-    "dotnet": "7.0.100-preview.5.22307.18"
-  },
   "sdk": {
-    "version": "7.0.100-preview.5.22307.18",
+    "version": "8.0.100-preview.5.23228.7",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
+  "tools": {
+    "dotnet": "8.0.100-preview.5.23228.7",
+    "runtimes": {
+      "aspnetcore": [
+        "7.0.3"
+      ],
+      "dotnet": [
+        "7.0.3"
+      ]
+    }
+  },
   "msbuild-sdks": {
-    "Microsoft.DotNet.Arcade.Sdk": "7.0.0-beta.22316.2",
-    "Microsoft.DotNet.Helix.Sdk": "7.0.0-beta.22316.2"
+    "Microsoft.DotNet.Arcade.Sdk": "8.0.0-beta.23226.4",
+    "Microsoft.DotNet.Helix.Sdk": "8.0.0-beta.23226.4"
   }
 }

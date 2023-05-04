@@ -9,7 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class ModelCleanupConvention : IModelFinalizingConvention
+public class ModelCleanupConvention :
+    IForeignKeyRemovedConvention,
+    IModelFinalizingConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="ModelCleanupConvention" />.
@@ -24,6 +26,21 @@ public class ModelCleanupConvention : IModelFinalizingConvention
     ///     Dependencies for this service.
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
+
+    /// <inheritdoc />
+    public virtual void ProcessForeignKeyRemoved(
+        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionForeignKey foreignKey,
+        IConventionContext<IConventionForeignKey> context)
+    {
+        var principalKey = foreignKey.PrincipalKey;
+        if (principalKey.IsInModel
+            && !principalKey.IsPrimaryKey()
+            && !principalKey.GetReferencingForeignKeys().Any())
+        {
+            principalKey.DeclaringEntityType.Builder.HasNoKey(principalKey);
+        }
+    }
 
     /// <inheritdoc />
     public virtual void ProcessModelFinalizing(

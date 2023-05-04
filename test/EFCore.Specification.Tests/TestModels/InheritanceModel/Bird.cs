@@ -6,11 +6,11 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 public abstract class Bird : Animal
 {
     public bool IsFlightless { get; set; }
-    public string EagleId { get; set; }
+    public int? EagleId { get; set; }
 }
 
 public abstract class BirdQuery : AnimalQuery
 {
     public bool IsFlightless { get; set; }
-    public string EagleId { get; set; }
+    public int? EagleId { get; set; }
 }

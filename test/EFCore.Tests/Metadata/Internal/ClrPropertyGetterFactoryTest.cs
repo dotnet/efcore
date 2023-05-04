@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertyGetterFactoryTest
@@ -21,7 +20,7 @@ public class ClrPropertyGetterFactoryTest
         public object GetClrValue(object entity)
             => throw new NotImplementedException();
 
-        public bool HasDefaultValue(object entity)
+        public bool HasSentinelValue(object entity)
             => throw new NotImplementedException();
 
         public IEnumerable<IForeignKey> GetContainingForeignKeys()
@@ -109,6 +108,7 @@ public class ClrPropertyGetterFactoryTest
         public bool IsNullable { get; }
         public ValueGenerated ValueGenerated { get; }
         public bool IsConcurrencyToken { get; }
+        public object Sentinel { get; }
         public PropertyInfo PropertyInfo { get; }
         public FieldInfo FieldInfo { get; }
 

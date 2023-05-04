@@ -83,7 +83,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
         foreach (var entityType in nonOwnedTypes.Where(
                      e => e.GetDeclaredForeignKeys().Any()
-                             || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership)))
+                         || e.GetDeclaredReferencingForeignKeys().Any(fk => fk.IsOwnership)))
         {
             stringBuilder.AppendLine();
 
@@ -162,8 +162,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 GenerateIndexes(entityTypeBuilderName, entityType.GetDeclaredIndexes(), stringBuilder);
 
                 GenerateEntityTypeAnnotations(entityTypeBuilderName, entityType, stringBuilder);
-
-                GenerateCheckConstraints(entityTypeBuilderName, entityType, stringBuilder);
 
                 if (ownerNavigation != null)
                 {
@@ -316,80 +314,102 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         ISequence sequence,
         IndentedStringBuilder stringBuilder)
     {
-        stringBuilder
-            .AppendLine()
+        var sequenceBuilderNameBuilder = new StringBuilder();
+        sequenceBuilderNameBuilder
             .Append(modelBuilderName)
             .Append(".HasSequence");
 
         if (sequence.Type != Sequence.DefaultClrType)
         {
-            stringBuilder
+            sequenceBuilderNameBuilder
                 .Append("<")
                 .Append(Code.Reference(sequence.Type))
                 .Append(">");
         }
 
-        stringBuilder
+        sequenceBuilderNameBuilder
             .Append("(")
             .Append(Code.Literal(sequence.Name));
 
-        if (!string.IsNullOrEmpty(sequence.Schema)
-            && sequence.Model.GetDefaultSchema() != sequence.Schema)
+        if (!string.IsNullOrEmpty(sequence.ModelSchema))
+        {
+            sequenceBuilderNameBuilder
+                .Append(", ")
+                .Append(Code.Literal(sequence.ModelSchema));
+        }
+
+        sequenceBuilderNameBuilder.Append(")");
+        var sequenceBuilderName = sequenceBuilderNameBuilder.ToString();
+
+        stringBuilder
+            .AppendLine()
+            .Append(sequenceBuilderName);
+
+        // Note that GenerateAnnotations below does the corresponding decrement
+        stringBuilder.IncrementIndent();
+
+        if (sequence.StartValue != Sequence.DefaultStartValue)
         {
             stringBuilder
-                .Append(", ")
-                .Append(Code.Literal(sequence.Schema));
+                .AppendLine()
+                .Append(".StartsAt(")
+                .Append(Code.Literal(sequence.StartValue))
+                .Append(")");
         }
 
-        stringBuilder.Append(")");
-
-        using (stringBuilder.Indent())
+        if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
         {
-            if (sequence.StartValue != Sequence.DefaultStartValue)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".StartsAt(")
-                    .Append(Code.Literal(sequence.StartValue))
-                    .Append(")");
-            }
-
-            if (sequence.IncrementBy != Sequence.DefaultIncrementBy)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".IncrementsBy(")
-                    .Append(Code.Literal(sequence.IncrementBy))
-                    .Append(")");
-            }
-
-            if (sequence.MinValue != Sequence.DefaultMinValue)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".HasMin(")
-                    .Append(Code.Literal(sequence.MinValue))
-                    .Append(")");
-            }
-
-            if (sequence.MaxValue != Sequence.DefaultMaxValue)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".HasMax(")
-                    .Append(Code.Literal(sequence.MaxValue))
-                    .Append(")");
-            }
-
-            if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
-            {
-                stringBuilder
-                    .AppendLine()
-                    .Append(".IsCyclic()");
-            }
+            stringBuilder
+                .AppendLine()
+                .Append(".IncrementsBy(")
+                .Append(Code.Literal(sequence.IncrementBy))
+                .Append(")");
         }
 
-        stringBuilder.AppendLine(";");
+        if (sequence.MinValue != Sequence.DefaultMinValue)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasMin(")
+                .Append(Code.Literal(sequence.MinValue))
+                .Append(")");
+        }
+
+        if (sequence.MaxValue != Sequence.DefaultMaxValue)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasMax(")
+                .Append(Code.Literal(sequence.MaxValue))
+                .Append(")");
+        }
+
+        if (sequence.IsCyclic != Sequence.DefaultIsCyclic)
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".IsCyclic()");
+        }
+
+        GenerateSequenceAnnotations(sequenceBuilderName, sequence, stringBuilder);
+    }
+
+    /// <summary>
+    ///     Generates code for sequence annotations.
+    /// </summary>
+    /// <param name="sequenceBuilderName">The name of the sequence builder variable.</param>
+    /// <param name="sequence">The sequence.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateSequenceAnnotations(
+        string sequenceBuilderName,
+        ISequence sequence,
+        IndentedStringBuilder stringBuilder)
+    {
+        var annotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(sequence.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+
+        GenerateAnnotations(sequenceBuilderName, sequence, stringBuilder, annotations, inChainedCall: true);
     }
 
     /// <summary>
@@ -482,17 +502,22 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         GenerateFluentApiForPrecisionAndScale(property, stringBuilder);
         GenerateFluentApiForIsUnicode(property, stringBuilder);
 
-        stringBuilder
-            .AppendLine()
-            .Append(".")
-            .Append(nameof(RelationalPropertyBuilderExtensions.HasColumnType))
-            .Append("(")
-            .Append(Code.Literal(property.GetColumnType()))
-            .Append(")");
-        annotations.Remove(RelationalAnnotationNames.ColumnType);
+        if (!annotations.ContainsKey(RelationalAnnotationNames.ColumnType))
+        {
+            annotations[RelationalAnnotationNames.ColumnType] = new Annotation(
+                RelationalAnnotationNames.ColumnType,
+                property.GetColumnType());
+        }
 
-        GenerateFluentApiForDefaultValue(property, stringBuilder);
-        annotations.Remove(RelationalAnnotationNames.DefaultValue);
+        if (annotations.ContainsKey(RelationalAnnotationNames.DefaultValue)
+            && property.TryGetDefaultValue(out var defaultValue)
+            && defaultValue != DBNull.Value
+            && FindValueConverter(property) is ValueConverter valueConverter)
+        {
+            annotations[RelationalAnnotationNames.DefaultValue] = new Annotation(
+                RelationalAnnotationNames.DefaultValue,
+                valueConverter.ConvertToProvider(defaultValue));
+        }
 
         GenerateAnnotations(propertyBuilderName, property, stringBuilder, annotations, inChainedCall: true);
     }
@@ -712,7 +737,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(entityTypeBuilderName)
                     .Append(".ToFunction(")
-                    .Append(Code.UnknownLiteral(functionName))
+                    .Append(Code.Literal(functionName))
                     .AppendLine(");");
                 if (functionNameAnnotation != null)
                 {
@@ -733,7 +758,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     .AppendLine()
                     .Append(entityTypeBuilderName)
                     .Append(".ToSqlQuery(")
-                    .Append(Code.UnknownLiteral(sqlQuery))
+                    .Append(Code.Literal(sqlQuery))
                     .AppendLine(");");
                 if (sqlQueryAnnotation != null)
                 {
@@ -774,13 +799,13 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
             if (discriminatorMappingCompleteAnnotation?.Value != null)
             {
-                var value = discriminatorMappingCompleteAnnotation.Value;
+                var value = (bool)discriminatorMappingCompleteAnnotation.Value;
 
                 stringBuilder
                     .Append(".")
                     .Append("IsComplete")
                     .Append("(")
-                    .Append(Code.UnknownLiteral(value))
+                    .Append(Code.Literal(value))
                     .Append(")");
             }
 
@@ -818,12 +843,36 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         Dictionary<string, IAnnotation> annotations)
     {
         annotations.TryGetAndRemove(RelationalAnnotationNames.TableName, out IAnnotation tableNameAnnotation);
-        annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
         var table = StoreObjectIdentifier.Create(entityType, StoreObjectType.Table);
         var tableName = (string?)tableNameAnnotation?.Value ?? table?.Name;
-        if (tableNameAnnotation == null
-            && (tableName == null
-                || entityType.BaseType?.GetTableName() == tableName))
+
+        annotations.TryGetAndRemove(RelationalAnnotationNames.Schema, out IAnnotation schemaAnnotation);
+        var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
+
+        annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
+        var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
+
+        annotations.TryGetAndRemove(RelationalAnnotationNames.Comment, out IAnnotation commentAnnotation);
+        var comment = (string?)commentAnnotation?.Value;
+
+        var hasTriggers = entityType.GetDeclaredTriggers().Any(t => t.GetTableName() == tableName! && t.GetTableSchema() == schema);
+        var hasOverrides = table != null
+            && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
+
+        var explicitName = tableNameAnnotation != null
+            || entityType.BaseType == null
+            || (entityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy && entityType.IsAbstract())
+            || entityType.BaseType.GetTableName() != tableName
+            || hasOverrides;
+
+        var requiresTableBuilder = isExcludedFromMigrations
+            || comment != null
+            || hasTriggers
+            || hasOverrides
+            || entityType.GetCheckConstraints().Any();
+
+        if (!explicitName
+            && !requiresTableBuilder)
         {
             return;
         }
@@ -833,50 +882,48 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .Append(entityTypeBuilderName)
             .Append(".ToTable(");
 
-        var schema = (string?)schemaAnnotation?.Value ?? table?.Schema;
-        if (tableName == null
-            && (schemaAnnotation == null || schema == null))
+        if (explicitName)
         {
-            stringBuilder.Append("(string)");
-        }
-
-        stringBuilder.Append(Code.UnknownLiteral(tableName));
-
-        annotations.TryGetAndRemove(RelationalAnnotationNames.IsTableExcludedFromMigrations, out IAnnotation isExcludedAnnotation);
-        var isExcludedFromMigrations = (isExcludedAnnotation?.Value as bool?) == true;
-        if (isExcludedAnnotation is not null)
-        {
-            annotations.Remove(isExcludedAnnotation.Name);
-        }
-
-        var hasTriggers = entityType.GetTriggers().Any();
-        var hasOverrides = table != null
-            && entityType.GetProperties().Select(p => p.FindOverrides(table.Value)).Any(o => o != null);
-        var requiresTableBuilder = isExcludedFromMigrations
-            || hasTriggers
-            || hasOverrides;
-
-        if (schema != null
-            || (schemaAnnotation != null && tableName != null))
-        {
-            stringBuilder
-                .Append(", ");
-
-            if (schema == null && !requiresTableBuilder)
+            if (tableName == null
+                && (schemaAnnotation == null || schema == null))
             {
                 stringBuilder.Append("(string)");
             }
 
-            stringBuilder.Append(Code.UnknownLiteral(schema));
+            stringBuilder.Append(Code.Literal(tableName));
+
+            if (isExcludedAnnotation is not null)
+            {
+                annotations.Remove(isExcludedAnnotation.Name);
+            }
+
+            if (schema != null
+                || (schemaAnnotation != null && tableName != null))
+            {
+                stringBuilder
+                    .Append(", ");
+
+                if (schema == null && !requiresTableBuilder)
+                {
+                    stringBuilder.Append("(string)");
+                }
+
+                stringBuilder.Append(Code.Literal(schema));
+            }
         }
 
         if (requiresTableBuilder)
         {
             using (stringBuilder.Indent())
             {
+                if (explicitName)
+                {
+                    stringBuilder.Append(", ");
+                }
+
                 stringBuilder
-                .AppendLine(", t =>")
-                .Append("{");
+                    .AppendLine("t =>")
+                    .Append("{");
 
                 using (stringBuilder.Indent())
                 {
@@ -887,15 +934,23 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                             .AppendLine("t.ExcludeFromMigrations();");
                     }
 
+                    if (comment != null)
+                    {
+                        stringBuilder
+                            .AppendLine()
+                            .AppendLine($"t.{nameof(TableBuilder.HasComment)}({Code.Literal(comment!)});");
+                    }
+
                     if (hasTriggers)
                     {
-                        stringBuilder.AppendLine();
-                        GenerateTriggers("t", entityType, stringBuilder);
+                        GenerateTriggers("t", entityType, tableName!, schema, stringBuilder);
                     }
+
+                    GenerateCheckConstraints("t", entityType, stringBuilder);
 
                     if (hasOverrides)
                     {
-                        GenerateOverrides("t", entityType, table!.Value, stringBuilder);
+                        GeneratePropertyOverrides("t", entityType, table!.Value, stringBuilder);
                     }
                 }
 
@@ -914,13 +969,14 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     {
         foreach (var fragment in entityType.GetMappingFragments(StoreObjectType.Table))
         {
+            var table = fragment.StoreObject;
             stringBuilder
                 .AppendLine()
                 .Append(entityTypeBuilderName)
                 .Append(".SplitToTable(")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Name))
+                .Append(Code.Literal(table.Name))
                 .Append(", ")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Schema))
+                .Append(Code.Literal(table.Schema))
                 .AppendLine(", t =>");
 
             using (stringBuilder.Indent())
@@ -929,7 +985,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateOverrides("t", entityType, fragment.StoreObject, stringBuilder);
+                    GenerateTriggers("t", entityType, table.Name, table.Schema, stringBuilder);
+                    GeneratePropertyOverrides("t", entityType, table, stringBuilder);
+                    GenerateEntityTypeMappingFragmentAnnotations("t", fragment, stringBuilder);
                 }
 
                 stringBuilder
@@ -939,7 +997,11 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
     }
 
-    private void GenerateViewMapping(string entityTypeBuilderName, IEntityType entityType, IndentedStringBuilder stringBuilder, Dictionary<string, IAnnotation> annotations)
+    private void GenerateViewMapping(
+        string entityTypeBuilderName,
+        IEntityType entityType,
+        IndentedStringBuilder stringBuilder,
+        Dictionary<string, IAnnotation> annotations)
     {
         annotations.TryGetAndRemove(RelationalAnnotationNames.ViewName, out IAnnotation viewNameAnnotation);
         annotations.TryGetAndRemove(RelationalAnnotationNames.ViewSchema, out IAnnotation viewSchemaAnnotation);
@@ -948,8 +1010,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var view = StoreObjectIdentifier.Create(entityType, StoreObjectType.View);
         var viewName = (string?)viewNameAnnotation?.Value ?? view?.Name;
         if (viewNameAnnotation == null
-            && (viewName == null ||
-                entityType.BaseType?.GetViewName() == viewName))
+            && (viewName == null || entityType.BaseType?.GetViewName() == viewName))
         {
             return;
         }
@@ -958,7 +1019,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .AppendLine()
             .Append(entityTypeBuilderName)
             .Append(".ToView(")
-            .Append(Code.UnknownLiteral(viewName));
+            .Append(Code.Literal(viewName));
         if (viewNameAnnotation != null)
         {
             annotations.Remove(viewNameAnnotation.Name);
@@ -979,7 +1040,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 stringBuilder.Append("(string)");
             }
 
-            stringBuilder.Append(Code.UnknownLiteral(schema));
+            stringBuilder.Append(Code.Literal(schema));
         }
 
         if (hasOverrides)
@@ -992,7 +1053,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateOverrides("v", entityType, view!.Value, stringBuilder);
+                    GeneratePropertyOverrides("v", entityType, view!.Value, stringBuilder);
                 }
 
                 stringBuilder.Append("}");
@@ -1013,9 +1074,9 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .AppendLine()
                 .Append(entityTypeBuilderName)
                 .Append(".SplitToView(")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Name))
+                .Append(Code.Literal(fragment.StoreObject.Name))
                 .Append(", ")
-                .Append(Code.UnknownLiteral(fragment.StoreObject.Schema))
+                .Append(Code.Literal(fragment.StoreObject.Schema))
                 .AppendLine(", v =>");
 
             using (stringBuilder.Indent())
@@ -1024,13 +1085,35 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
 
                 using (stringBuilder.Indent())
                 {
-                    GenerateOverrides("v", entityType, fragment.StoreObject, stringBuilder);
+                    GeneratePropertyOverrides("v", entityType, fragment.StoreObject, stringBuilder);
+                    GenerateEntityTypeMappingFragmentAnnotations("v", fragment, stringBuilder);
                 }
 
                 stringBuilder
                     .Append("}")
                     .AppendLine(");");
             }
+        }
+    }
+
+    /// <summary>
+    ///     Generates code for mapping fragment annotations.
+    /// </summary>
+    /// <param name="tableBuilderName">The name of the table builder variable.</param>
+    /// <param name="fragment">The mapping fragment.</param>
+    /// <param name="stringBuilder">The builder code is added to.</param>
+    protected virtual void GenerateEntityTypeMappingFragmentAnnotations(
+        string tableBuilderName,
+        IEntityTypeMappingFragment fragment,
+        IndentedStringBuilder stringBuilder)
+    {
+        var annotations = Dependencies.AnnotationCodeGenerator
+            .FilterIgnoredAnnotations(fragment.GetAnnotations())
+            .ToDictionary(a => a.Name, a => a);
+
+        if (annotations.Count > 0)
+        {
+            GenerateAnnotations(tableBuilderName, fragment, stringBuilder, annotations, inChainedCall: false);
         }
     }
 
@@ -1071,10 +1154,10 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .Append(".HasCheckConstraint(")
             .Append(Code.Literal(checkConstraint.ModelName))
             .Append(", ")
-            .Append(Code.Literal(checkConstraint.Sql));
+            .Append(Code.Literal(checkConstraint.Sql))
+            .Append(")");
 
         GenerateCheckConstraintAnnotations(checkConstraint, stringBuilder);
-        stringBuilder.AppendLine(");");
     }
 
     /// <summary>
@@ -1087,47 +1170,30 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder)
     {
         var hasNonDefaultName = checkConstraint.Name != null
-                && checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName);
+            && checkConstraint.Name != (checkConstraint.GetDefaultName() ?? checkConstraint.ModelName);
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(checkConstraint.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
-        if (annotations.Count > 0
-            || hasNonDefaultName)
-        {
-            if (annotations.Count > 0)
-            {
-                stringBuilder
-                    .Append(", c =>")
-                    .AppendLine()
-                    .IncrementIndent()
-                    .AppendLine("{")
-                    .IncrementIndent();
-            }
-            else
-            {
-                stringBuilder.Append(", c => ");
-            }
 
+        using (stringBuilder.Indent())
+        {
             if (hasNonDefaultName)
             {
                 stringBuilder
-                    .Append("c.HasName(")
+                    .AppendLine()
+                    .Append(".HasName(")
                     .Append(Code.Literal(checkConstraint.Name!))
                     .Append(")");
             }
 
             if (annotations.Count > 0)
             {
-                if (hasNonDefaultName)
-                {
-                    stringBuilder.AppendLine(";");
-                }
-
-                GenerateAnnotations("c", checkConstraint, stringBuilder, annotations, inChainedCall: false);
-                stringBuilder
-                    .DecrementIndent()
-                    .Append("}")
-                    .DecrementIndent();
+                GenerateAnnotations("t", checkConstraint, stringBuilder, annotations, inChainedCall: true);
+                stringBuilder.IncrementIndent();
+            }
+            else
+            {
+                stringBuilder.AppendLine(";");
             }
         }
     }
@@ -1137,14 +1203,23 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// </summary>
     /// <param name="tableBuilderName">The name of the table builder variable.</param>
     /// <param name="entityType">The entity type.</param>
+    /// <param name="table">The table name.</param>
+    /// <param name="schema">The table schema.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
     protected virtual void GenerateTriggers(
         string tableBuilderName,
         IEntityType entityType,
+        string table,
+        string? schema,
         IndentedStringBuilder stringBuilder)
     {
-        foreach (var trigger in entityType.GetTriggers())
+        foreach (var trigger in entityType.GetDeclaredTriggers())
         {
+            if (trigger.GetTableName() != table || trigger.GetTableSchema() != schema)
+            {
+                continue;
+            }
+
             GenerateTrigger(tableBuilderName, trigger, stringBuilder);
         }
     }
@@ -1161,20 +1236,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         IndentedStringBuilder stringBuilder)
     {
         var triggerBuilderName = $"{tableBuilderName}.HasTrigger({Code.Literal(trigger.ModelName)})";
-        stringBuilder.Append(triggerBuilderName);
+        stringBuilder
+            .AppendLine()
+            .Append(triggerBuilderName);
 
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
-
-        if (trigger.Name != null
-            && trigger.Name != (trigger.GetDefaultName() ?? trigger.ModelName))
-        {
-            stringBuilder
-                .AppendLine()
-                .Append(".HasName(")
-                .Append(Code.Literal(trigger.Name))
-                .Append(")");
-        }
 
         GenerateTriggerAnnotations(triggerBuilderName, trigger, stringBuilder);
     }
@@ -1194,6 +1261,18 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             .FilterIgnoredAnnotations(trigger.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
 
+        if (annotations.TryGetAndRemove(RelationalAnnotationNames.Name, out IAnnotation nameAnnotation))
+        {
+            stringBuilder
+                .AppendLine()
+                .Append(".HasDatabaseName(")
+                .Append(Code.Literal((string?)nameAnnotation.Value))
+                .Append(")");
+        }
+
+        annotations.Remove(RelationalAnnotationNames.TableName);
+        annotations.Remove(RelationalAnnotationNames.Schema);
+
         GenerateAnnotations(triggerBuilderName, trigger, stringBuilder, annotations, inChainedCall: true);
     }
 
@@ -1204,7 +1283,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <param name="entityType">The entity type.</param>
     /// <param name="storeObject">The store object identifier.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
-    protected virtual void GenerateOverrides(
+    protected virtual void GeneratePropertyOverrides(
         string tableBuilderName,
         IEntityType entityType,
         StoreObjectIdentifier storeObject,
@@ -1215,7 +1294,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
             var overrides = property.FindOverrides(storeObject);
             if (overrides != null)
             {
-                GenerateOverride(tableBuilderName, overrides, stringBuilder);
+                GeneratePropertyOverride(tableBuilderName, overrides, stringBuilder);
             }
         }
     }
@@ -1226,7 +1305,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
     /// <param name="tableBuilderName">The name of the table builder variable.</param>
     /// <param name="overrides">The overrides.</param>
     /// <param name="stringBuilder">The builder code is added to.</param>
-    protected virtual void GenerateOverride(
+    protected virtual void GeneratePropertyOverride(
         string tableBuilderName,
         IRelationalPropertyOverrides overrides,
         IndentedStringBuilder stringBuilder)
@@ -1239,14 +1318,14 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         // Note that GenerateAnnotations below does the corresponding decrement
         stringBuilder.IncrementIndent();
 
-        if (overrides.ColumnNameOverridden)
+        if (overrides.IsColumnNameOverridden)
         {
             stringBuilder
                 .AppendLine()
                 .Append(".")
                 .Append(nameof(ColumnBuilder.HasColumnName))
                 .Append("(")
-                .Append(Code.UnknownLiteral(overrides.ColumnName))
+                .Append(Code.Literal(overrides.ColumnName))
                 .Append(")");
         }
 
@@ -1267,6 +1346,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         var annotations = Dependencies.AnnotationCodeGenerator
             .FilterIgnoredAnnotations(overrides.GetAnnotations())
             .ToDictionary(a => a.Name, a => a);
+
         GenerateAnnotations(propertyBuilderName, overrides, stringBuilder, annotations, inChainedCall: true);
     }
 
@@ -1309,10 +1389,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".HasOne(")
                 .Append(Code.Literal(GetFullName(foreignKey.PrincipalEntityType)))
                 .Append(", ")
-                .Append(
-                    foreignKey.DependentToPrincipal == null
-                        ? Code.UnknownLiteral(null)
-                        : Code.Literal(foreignKey.DependentToPrincipal.Name));
+                .Append(Code.Literal(foreignKey.DependentToPrincipal?.Name));
         }
         else
         {
@@ -1648,7 +1725,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(".")
                 .Append(nameof(PropertyBuilder.HasPrecision))
                 .Append("(")
-                .Append(Code.UnknownLiteral(precision));
+                .Append(Code.Literal(precision));
 
             if (property.GetScale() is int scale)
             {
@@ -1656,7 +1733,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 {
                     stringBuilder
                         .Append(", ")
-                        .Append(Code.UnknownLiteral(scale));
+                        .Append(Code.Literal(scale));
                 }
             }
 
@@ -1678,35 +1755,6 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                 .Append(Code.Literal(unicode))
                 .Append(")");
         }
-    }
-
-    private void GenerateFluentApiForDefaultValue(
-        IProperty property,
-        IndentedStringBuilder stringBuilder)
-    {
-        if (!property.TryGetDefaultValue(out var defaultValue))
-        {
-            return;
-        }
-
-        stringBuilder
-            .AppendLine()
-            .Append(".")
-            .Append(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))
-            .Append("(");
-
-        if (defaultValue != DBNull.Value)
-        {
-            stringBuilder
-                .Append(
-                    Code.UnknownLiteral(
-                        FindValueConverter(property) is ValueConverter valueConverter
-                            ? valueConverter.ConvertToProvider(defaultValue)
-                            : defaultValue));
-        }
-
-        stringBuilder
-            .Append(")");
     }
 
     private void GenerateAnnotations(
@@ -1750,9 +1798,12 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         {
             if (inChainedCall)
             {
-                stringBuilder
-                    .AppendLine()
-                    .AppendLines(Code.Fragment(chainedCall), skipFinalNewline: true);
+                if (chainedCall.ChainedCall is null)
+                {
+                    stringBuilder.AppendLine();
+                }
+
+                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.IndentCount));
             }
             else
             {
@@ -1761,7 +1812,8 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
                     stringBuilder.AppendLine();
                 }
 
-                stringBuilder.AppendLines(Code.Fragment(chainedCall, builderName), skipFinalNewline: true);
+                stringBuilder.Append(builderName);
+                stringBuilder.Append(Code.Fragment(chainedCall, stringBuilder.IndentCount + 1));
                 stringBuilder.AppendLine(";");
             }
 
@@ -1800,13 +1852,17 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         if (entityType.HasSharedClrType
-            && entityTypeName == ownership!.PrincipalEntityType.GetOwnedName(
+            && entityTypeName
+            == ownership!.PrincipalEntityType.GetOwnedName(
                 entityType.ClrType.ShortDisplayName(), ownership.PrincipalToDependent!.Name))
         {
             entityTypeName = entityType.ClrType.DisplayName();
         }
 
-        return GetFullName(ownership.PrincipalEntityType) + "."
-                + ownership.PrincipalToDependent!.Name + "#" + entityTypeName;
+        return GetFullName(ownership.PrincipalEntityType)
+            + "."
+            + ownership.PrincipalToDependent!.Name
+            + "#"
+            + entityTypeName;
     }
 }

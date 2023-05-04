@@ -186,36 +186,6 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
-    ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
-    /// </summary>
-    /// <param name="diagnostics">The diagnostics logger to use.</param>
-    /// <param name="context">The context in use.</param>
-    /// <param name="exception">The exception that caused this event.</param>
-    public static void OptimisticConcurrencyException(
-        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
-        DbContext context,
-        Exception exception)
-    {
-        var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
-
-        if (diagnostics.ShouldLog(definition))
-        {
-            definition.Log(diagnostics, exception);
-        }
-
-        if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
-                definition,
-                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
-        {
-            var eventData = CreateDbContextErrorEventData(context, exception, definition);
-
-            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
-
-            interceptor?.SaveChangesFailed(eventData);
-        }
-    }
-
-    /// <summary>
     ///     Logs for the <see cref="CoreEventId.OldModelVersionWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -265,14 +235,60 @@ public static class CoreLoggerExtensions
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
     /// <param name="context">The context in use.</param>
+    /// <param name="entries">The entries that were involved in the concurrency violation.</param>
     /// <param name="exception">The exception that caused this event.</param>
+    /// <param name="createEventData">Optional delegate to override event data creation.</param>
+    public static InterceptionResult OptimisticConcurrencyException(
+        this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
+        DbContext context,
+        IReadOnlyList<IUpdateEntry> entries,
+        DbUpdateConcurrencyException exception,
+        Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
+            ConcurrencyExceptionEventData>? createEventData)
+    {
+        var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, exception);
+        }
+
+        if (diagnostics.NeedsEventData<ISaveChangesInterceptor>(
+                definition,
+                out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = createEventData?.Invoke(context, exception, entries, definition)
+                ?? CreateConcurrencyExceptionEventData(context, exception, entries, definition);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return interceptor.ThrowingConcurrencyException(eventData, default);
+            }
+        }
+
+        return default;
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.OptimisticConcurrencyException" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="context">The context in use.</param>
+    /// <param name="entries">The entries that were involved in the concurrency violation.</param>
+    /// <param name="exception">The exception that caused this event.</param>
+    /// <param name="createEventData">Optional delegate to override event data creation.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A <see cref="Task" /> for the async result.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public static Task OptimisticConcurrencyExceptionAsync(
+    public static ValueTask<InterceptionResult> OptimisticConcurrencyExceptionAsync(
         this IDiagnosticsLogger<DbLoggerCategory.Update> diagnostics,
         DbContext context,
-        Exception exception,
+        IReadOnlyList<IUpdateEntry> entries,
+        DbUpdateConcurrencyException exception,
+        Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
+            ConcurrencyExceptionEventData>? createEventData,
         CancellationToken cancellationToken = default)
     {
         var definition = CoreResources.LogOptimisticConcurrencyException(diagnostics);
@@ -286,33 +302,36 @@ public static class CoreLoggerExtensions
                 definition,
                 out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
-            var eventData = CreateDbContextErrorEventData(context, exception, definition);
+            var eventData = createEventData?.Invoke(context, exception, entries, definition)
+                ?? CreateConcurrencyExceptionEventData(context, exception, entries, definition);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
 
             if (interceptor != null)
             {
-                return interceptor.SaveChangesFailedAsync(eventData, cancellationToken);
+                return interceptor.ThrowingConcurrencyExceptionAsync(eventData, default, cancellationToken);
             }
         }
 
-        return Task.CompletedTask;
+        return default;
     }
 
-    private static DbContextErrorEventData CreateDbContextErrorEventData(
+    private static ConcurrencyExceptionEventData CreateConcurrencyExceptionEventData(
         DbContext context,
-        Exception exception,
+        DbUpdateConcurrencyException exception,
+        IReadOnlyList<IUpdateEntry> entries,
         EventDefinition<Exception> definition)
         => new(
             definition,
             OptimisticConcurrencyException,
             context,
+            entries,
             exception);
 
     private static string OptimisticConcurrencyException(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<Exception>)definition;
-        var p = (DbContextErrorEventData)payload;
+        var p = (ConcurrencyExceptionEventData)payload;
         return d.GenerateMessage(p.Exception);
     }
 
@@ -429,10 +448,13 @@ public static class CoreLoggerExtensions
     ///     Logs for the <see cref="CoreEventId.QueryCompilationStarting" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="context">The current <see cref="DbContext" />, or <see langword="null" /> if not known.</param>
     /// <param name="expressionPrinter">Used to create a human-readable representation of the expression tree.</param>
     /// <param name="queryExpression">The query expression tree.</param>
-    public static void QueryCompilationStarting(
+    /// <returns>The query expression and event data.</returns>
+    public static (Expression Query, QueryExpressionEventData? EventData) QueryCompilationStarting(
         this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        DbContext? context,
         ExpressionPrinter expressionPrinter,
         Expression queryExpression)
     {
@@ -440,26 +462,35 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.Print(queryExpression));
+            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.PrintExpression(queryExpression));
         }
 
-        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        if (diagnostics.NeedsEventData<IQueryExpressionInterceptor>(
+                definition, out var interceptor, out var diagnosticSourceEnabled, out var simpleLogEnabled))
         {
             var eventData = new QueryExpressionEventData(
                 definition,
                 QueryCompilationStarting,
+                context,
                 queryExpression,
                 expressionPrinter);
 
             diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+
+            if (interceptor != null)
+            {
+                return (interceptor.QueryCompilationStarting(queryExpression, eventData), eventData);
+            }
         }
+
+        return (queryExpression, null);
     }
 
     private static string QueryCompilationStarting(EventDefinitionBase definition, EventData payload)
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (QueryExpressionEventData)payload;
-        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.Print(p.Expression));
+        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.PrintExpression(p.Expression));
     }
 
     /// <summary>
@@ -624,10 +655,12 @@ public static class CoreLoggerExtensions
     ///     Logs for the <see cref="CoreEventId.QueryExecutionPlanned" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="context">The current <see cref="DbContext" />, or <see langword="null" /> if not known.</param>
     /// <param name="expressionPrinter">Used to create a human-readable representation of the expression tree.</param>
     /// <param name="queryExecutorExpression">The query expression tree.</param>
     public static void QueryExecutionPlanned(
         this IDiagnosticsLogger<DbLoggerCategory.Query> diagnostics,
+        DbContext? context,
         ExpressionPrinter expressionPrinter,
         Expression queryExecutorExpression)
     {
@@ -635,7 +668,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.Print(queryExecutorExpression));
+            definition.Log(diagnostics, Environment.NewLine, expressionPrinter.PrintExpression(queryExecutorExpression));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -643,6 +676,7 @@ public static class CoreLoggerExtensions
             var eventData = new QueryExpressionEventData(
                 definition,
                 QueryExecutionPlanned,
+                context,
                 queryExecutorExpression,
                 expressionPrinter);
 
@@ -654,7 +688,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (QueryExpressionEventData)payload;
-        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.Print(p.Expression));
+        return d.GenerateMessage(Environment.NewLine, p.ExpressionPrinter.PrintExpression(p.Expression));
     }
 
     /// <summary>
@@ -1074,7 +1108,7 @@ public static class CoreLoggerExtensions
     /// <param name="navigationName">The name of the navigation property.</param>
     public static void LazyLoadOnDisposedContextWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-        DbContext context,
+        DbContext? context,
         object entityType,
         string navigationName)
     {
@@ -1154,7 +1188,7 @@ public static class CoreLoggerExtensions
     /// <param name="navigationName">The name of the navigation property.</param>
     public static void DetachedLazyLoadingWarning(
         this IDiagnosticsLogger<DbLoggerCategory.Infrastructure> diagnostics,
-        DbContext context,
+        DbContext? context,
         object entityType,
         string navigationName)
     {
@@ -2562,7 +2596,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 internalEntityEntry.EntityType.ShortName());
         }
 
@@ -2601,7 +2635,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 internalEntityEntry.EntityType.ShortName(),
                 internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey()!.Properties));
         }
@@ -2647,7 +2681,7 @@ public static class CoreLoggerExtensions
             definition.Log(
                 diagnostics,
                 internalEntityEntry.EntityType.ShortName(),
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 oldState,
                 newState);
         }
@@ -2697,7 +2731,7 @@ public static class CoreLoggerExtensions
                 diagnostics,
                 internalEntityEntry.EntityType.ShortName(),
                 internalEntityEntry.BuildCurrentValuesString(internalEntityEntry.EntityType.FindPrimaryKey()!.Properties),
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 oldState,
                 newState);
         }
@@ -2750,9 +2784,9 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
-                property.Name,
-                internalEntityEntry.EntityType.ShortName());
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.EntityType.ShortName(),
+                property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2774,8 +2808,8 @@ public static class CoreLoggerExtensions
         var p = (PropertyValueEventData)payload;
         return d.GenerateMessage(
             p.EntityEntry.Context.GetType().ShortDisplayName(),
-            p.Property.Name,
-            p.EntityEntry.Metadata.ShortName());
+            p.EntityEntry.Metadata.ShortName(),
+            p.Property.Name);
     }
 
     /// <summary>
@@ -2801,10 +2835,10 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                internalEntityEntry.StateManager.Context.GetType().ShortDisplayName(),
+                internalEntityEntry.Context.GetType().ShortDisplayName(),
                 value,
-                property.Name,
-                internalEntityEntry.EntityType.ShortName());
+                internalEntityEntry.EntityType.ShortName(),
+                property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2827,8 +2861,8 @@ public static class CoreLoggerExtensions
         return d.GenerateMessage(
             p.EntityEntry.Context.GetType().ShortDisplayName(),
             p.Value,
-            p.Property.Name,
-            p.EntityEntry.Metadata.ShortName());
+            p.EntityEntry.Metadata.ShortName(),
+            p.Property.Name);
     }
 
     /// <summary>
@@ -2975,6 +3009,99 @@ public static class CoreLoggerExtensions
             p.EntityEntry.Metadata.ShortName(),
             p.State,
             p.ParentEntityType.ShortName());
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedNavigationIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="navigation">The navigation.</param>
+    public static void MappedNavigationIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        INavigationBase navigation)
+    {
+        var definition = CoreResources.LogMappedNavigationIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, navigation.DeclaringType.ShortName(), navigation.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new NavigationBaseEventData(definition, MappedNavigationIgnoredWarning, navigation);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedNavigationIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (NavigationBaseEventData)payload;
+        return d.GenerateMessage(p.NavigationBase.DeclaringType.ShortName(), p.NavigationBase.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedPropertyIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="property">The property.</param>
+    public static void MappedPropertyIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        IProperty property)
+    {
+        var definition = CoreResources.LogMappedPropertyIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.ShortName(), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new PropertyEventData(definition, MappedPropertyIgnoredWarning, property);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedPropertyIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (PropertyEventData)payload;
+        return d.GenerateMessage(p.Property.DeclaringType.ShortName(), p.Property.Name);
+    }
+
+    /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedEntityTypeIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="entityType">The entity type.</param>
+    public static void MappedEntityTypeIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        IEntityType entityType)
+    {
+        var definition = CoreResources.LogMappedEntityTypeIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, entityType.ShortName());
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new EntityTypeEventData(definition, MappedEntityTypeIgnoredWarning, entityType);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedEntityTypeIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string>)definition;
+        var p = (EntityTypeEventData)payload;
+        return d.GenerateMessage(p.EntityType.ShortName());
     }
 
     /// <summary>

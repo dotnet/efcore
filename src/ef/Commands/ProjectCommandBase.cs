@@ -5,7 +5,6 @@ using System.IO;
 using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-
 #if NET461
 using System;
 using System.Configuration;
@@ -121,7 +120,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
             }
             catch (FileNotFoundException ex)
                 when (ex.FileName != null
-                    && new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)
+                      && new AssemblyName(ex.FileName).Name == OperationExecutorBase.DesignAssemblyName)
             {
                 throw new CommandException(
                     Resources.DesignNotFound(

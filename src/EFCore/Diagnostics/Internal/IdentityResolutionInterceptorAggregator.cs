@@ -24,11 +24,11 @@ public class IdentityResolutionInterceptorAggregator : InterceptorAggregator<IId
             _interceptors = interceptors.ToArray();
         }
 
-        public void UpdateTrackedInstance(DbContext context, EntityEntry existingEntry, object newInstance)
+        public void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity)
         {
             for (var i = 0; i < _interceptors.Length; i++)
             {
-                _interceptors[i].UpdateTrackedInstance(context, existingEntry, newInstance);
+                _interceptors[i].UpdateTrackedInstance(interceptionData, existingEntry, newEntity);
             }
         }
     }

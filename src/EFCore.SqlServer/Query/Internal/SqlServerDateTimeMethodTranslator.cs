@@ -31,6 +31,12 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
         { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.AddMilliseconds), new[] { typeof(double) })!, "millisecond" }
     };
 
+    private static readonly Dictionary<MethodInfo, string> _methodInfoDateDiffMapping = new()
+    {
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeSeconds), Type.EmptyTypes)!, "second" },
+        { typeof(DateTimeOffset).GetRuntimeMethod(nameof(DateTimeOffset.ToUnixTimeMilliseconds), Type.EmptyTypes)!, "millisecond" }
+    };
+
     private static readonly MethodInfo AtTimeZoneDateTimeOffsetMethodInfo = typeof(SqlServerDbFunctionsExtensions)
         .GetRuntimeMethod(
             nameof(SqlServerDbFunctionsExtensions.AtTimeZone), new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
@@ -71,18 +77,14 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
         if (_methodInfoDatePartMapping.TryGetValue(method, out var datePart)
             && instance != null)
         {
-            // DateAdd does not accept number argument outside of int range
-            // AddYears/AddMonths take int argument so no need to check for range
-            if (datePart != "year"
-                && datePart != "month"
-                && arguments[0] is SqlConstantExpression sqlConstant
-                && sqlConstant.Value is double doubleValue
-                && (doubleValue >= int.MaxValue
-                    || doubleValue <= int.MinValue))
+            // Some Add methods accept a double, and SQL Server DateAdd does not accept number argument outside of int range
+            if (arguments[0] is SqlConstantExpression { Value: double and (<= int.MinValue or >= int.MaxValue) })
             {
                 return null;
             }
 
+            // DATEADD defaults to interpreting its last argument as datetime, not datetime2.
+            // Our default mapping for DateTime is datetime2, so we force constants to be datetime instead here.
             if (instance is SqlConstantExpression instanceConstant)
             {
                 instance = instanceConstant.ApplyTypeMapping(_typeMappingSource.FindMapping(typeof(DateTime), "datetime"));
@@ -108,21 +110,19 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
             // to be inferred.
             if (operand.TypeMapping is { } operandTypeMapping)
             {
-                switch (operandTypeMapping.StoreTypeNameBase)
+                resultTypeMapping = operandTypeMapping.StoreTypeNameBase switch
                 {
-                    case "datetimeoffset":
-                        resultTypeMapping = operandTypeMapping;
-                        break;
-                    case "datetime" or "datetime2" or "smalldatetime":
-                        resultTypeMapping = _typeMappingSource.FindMapping(
-                            typeof(DateTimeOffset), "datetimeoffset", precision: operandTypeMapping.Precision);
-                        break;
-                    default:
-                        Check.DebugAssert(
-                            false,
-                            $"Unknown operand type mapping '{operandTypeMapping.StoreTypeNameBase}' when translating EF.Functions.AtTimeZone");
-                        break;
-                }
+                    "datetimeoffset"
+                        => operandTypeMapping,
+                    "datetime" or "datetime2" or "smalldatetime"
+                        => _typeMappingSource.FindMapping(
+                            typeof(DateTimeOffset), "datetimeoffset", precision: operandTypeMapping.Precision),
+                    _ => null
+                };
+
+                Check.DebugAssert(
+                    resultTypeMapping is not null,
+                    $"Unknown operand type mapping '{operandTypeMapping.StoreTypeNameBase}' when translating EF.Functions.AtTimeZone");
             }
 
             if (operand is SqlConstantExpression)
@@ -137,6 +137,21 @@ public class SqlServerDateTimeMethodTranslator : IMethodCallTranslator
                 _sqlExpressionFactory.ApplyTypeMapping(timeZone, _typeMappingSource.FindMapping("varchar")),
                 typeof(DateTimeOffset),
                 resultTypeMapping);
+        }
+
+        if (_methodInfoDateDiffMapping.TryGetValue(method, out var timePart))
+        {
+            return _sqlExpressionFactory.Function(
+                "DATEDIFF_BIG",
+                new[]
+                {
+                    _sqlExpressionFactory.Fragment(timePart),
+                    _sqlExpressionFactory.Constant(DateTimeOffset.UnixEpoch, instance!.TypeMapping),
+                    instance
+                },
+                nullable: true,
+                argumentsPropagateNullability: new[] { false, true, true },
+                typeof(long));
         }
 
         return null;

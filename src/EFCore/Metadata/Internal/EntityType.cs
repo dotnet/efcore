@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -26,18 +27,21 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     private readonly SortedDictionary<string, SkipNavigation> _skipNavigations
         = new(StringComparer.Ordinal);
 
+    private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
+        = new(StringComparer.Ordinal);
+
+    private readonly SortedDictionary<string, Property> _properties;
+
     private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, Index> _unnamedIndexes
         = new(PropertyListComparer.Instance);
 
     private readonly SortedDictionary<string, Index> _namedIndexes
         = new(StringComparer.Ordinal);
 
-    private readonly SortedDictionary<string, Property> _properties;
-
     private readonly SortedDictionary<IReadOnlyList<IReadOnlyProperty>, Key> _keys
         = new(PropertyListComparer.Instance);
 
-    private readonly SortedDictionary<string, ServiceProperty> _serviceProperties
+    private readonly SortedDictionary<string, Trigger> _triggers
         = new(StringComparer.Ordinal);
 
     private List<object>? _data;
@@ -91,7 +95,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityType(Type type, Model model, bool owned, ConfigurationSource configurationSource)
+    public EntityType(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        Model model,
+        bool owned,
+        ConfigurationSource configurationSource)
         : base(type, model, configurationSource)
     {
         if (!type.IsValidEntityType())
@@ -117,7 +125,12 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public EntityType(string name, Type type, Model model, bool owned, ConfigurationSource configurationSource)
+    public EntityType(
+        string name,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        Model model,
+        bool owned,
+        ConfigurationSource configurationSource)
         : base(name, type, model, configurationSource)
     {
         if (!type.IsValidEntityType())
@@ -2301,7 +2314,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Property? AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource configurationSource)
     {
@@ -2322,6 +2335,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual Property? AddProperty(
         MemberInfo memberInfo,
         ConfigurationSource configurationSource)
@@ -2338,6 +2352,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    [RequiresUnreferencedCode("Use an overload that accepts a type")]
     public virtual Property? AddProperty(
         string name,
         ConfigurationSource configurationSource)
@@ -2367,7 +2382,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual Property? AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         ConfigurationSource? typeConfigurationSource,
         ConfigurationSource configurationSource)
@@ -2779,6 +2794,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     /// </summary>
     public virtual ServiceProperty AddServiceProperty(
         MemberInfo memberInfo,
+        Type serviceType,
         // ReSharper disable once MethodOverloadWithOptionalParameter
         ConfigurationSource configurationSource)
     {
@@ -2801,6 +2817,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             name,
             memberInfo as PropertyInfo,
             memberInfo as FieldInfo,
+            serviceType,
             this,
             configurationSource);
 
@@ -2928,6 +2945,15 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool HasServiceProperties()
+        => _serviceProperties.Count != 0 || _baseType != null && _baseType.HasServiceProperties();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IEnumerable<ServiceProperty> GetServiceProperties()
         => _baseType != null
             ? _serviceProperties.Count == 0
@@ -2954,6 +2980,86 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
         => _directlyDerivedTypes.Count == 0
             ? Enumerable.Empty<ServiceProperty>()
             : GetDerivedTypes().SelectMany(et => et.GetDeclaredServiceProperties());
+
+    #endregion
+
+    #region Triggers
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Trigger? AddTrigger(
+        string modelName,
+        ConfigurationSource configurationSource)
+    {
+        Check.NotEmpty(modelName, nameof(modelName));
+        Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
+        EnsureMutable();
+
+        if (_triggers.ContainsKey(modelName))
+        {
+            throw new InvalidOperationException(
+                CoreStrings.DuplicateTrigger(
+                    modelName, DisplayName(), DisplayName()));
+        }
+
+        var trigger = new Trigger(modelName, this, configurationSource);
+
+        _triggers.Add(modelName, trigger);
+
+        return (Trigger?)Model.ConventionDispatcher.OnTriggerAdded(trigger.Builder)?.Metadata;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Trigger? FindDeclaredTrigger(string modelName)
+    {
+        Check.NotEmpty(modelName, nameof(modelName));
+
+        return _triggers.TryGetValue(modelName, out var trigger)
+            ? trigger
+            : null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IEnumerable<Trigger> GetDeclaredTriggers()
+        => _triggers.Values;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Trigger? RemoveTrigger(string modelName)
+    {
+        Check.NotEmpty(modelName, nameof(modelName));
+        Check.DebugAssert(IsInModel, "The entity type has been removed from the model");
+        EnsureMutable();
+
+        if (!_triggers.TryGetValue(modelName, out var trigger))
+        {
+            return null;
+        }
+
+        _triggers.Remove(modelName);
+
+        trigger.SetRemovedFromModel();
+
+        return (Trigger?)Model.ConventionDispatcher.OnTriggerRemoved(Builder, trigger);
+    }
 
     #endregion
 
@@ -3310,35 +3416,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     {
         CheckDiscriminatorProperty(property);
 
-        if (((property == null && BaseType == null)
-                || (property != null && !property.ClrType.IsInstanceOfType(((IReadOnlyEntityType)this).GetDiscriminatorValue()))))
-        {
-            RemoveDiscriminatorValue(this, configurationSource);
-            if (BaseType == null)
-            {
-                foreach (var derivedType in GetDerivedTypes())
-                {
-                    RemoveDiscriminatorValue(derivedType, configurationSource);
-                }
-            }
-        }
-
         return ((string?)SetAnnotation(CoreAnnotationNames.DiscriminatorProperty, property?.Name, configurationSource)?.Value)
             == property?.Name
                 ? property
                 : (Property?)((IReadOnlyEntityType)this).FindDiscriminatorProperty();
-
-        static void RemoveDiscriminatorValue(IReadOnlyEntityType entityType, ConfigurationSource configurationSource)
-        {
-            if (configurationSource is ConfigurationSource.Convention or ConfigurationSource.DataAnnotation)
-            {
-                ((IConventionEntityType)entityType).RemoveDiscriminatorValue(configurationSource == ConfigurationSource.DataAnnotation);
-            }
-            else
-            {
-                ((IMutableEntityType)entityType).RemoveDiscriminatorValue();
-            }
-        }
     }
 
     private void CheckDiscriminatorProperty(Property? property)
@@ -4801,7 +4882,9 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType)
+    IMutableProperty IMutableEntityType.AddProperty(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType)
         => AddProperty(
             name,
             propertyType,
@@ -4817,7 +4900,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IConventionProperty? IConventionEntityType.AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         bool setTypeConfigurationSource,
         bool fromDataAnnotation)
         => AddProperty(
@@ -4835,7 +4918,10 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableProperty IMutableEntityType.AddProperty(string name, Type propertyType, MemberInfo? memberInfo)
+    IMutableProperty IMutableEntityType.AddProperty(
+        string name,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
+        MemberInfo? memberInfo)
         => AddProperty(
             name, propertyType, memberInfo,
             ConfigurationSource.Explicit, ConfigurationSource.Explicit)!;
@@ -4849,7 +4935,7 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IConventionProperty? IConventionEntityType.AddProperty(
         string name,
-        Type propertyType,
+        [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
         bool setTypeConfigurationSource,
         bool fromDataAnnotation)
@@ -5069,8 +5155,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo)
-        => AddServiceProperty(memberInfo, ConfigurationSource.Explicit);
+    IMutableServiceProperty IMutableEntityType.AddServiceProperty(MemberInfo memberInfo, Type? serviceType)
+        => AddServiceProperty(memberInfo, serviceType ?? memberInfo.GetMemberType(), ConfigurationSource.Explicit);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5079,8 +5165,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, bool fromDataAnnotation)
-        => AddServiceProperty(memberInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+    IConventionServiceProperty IConventionEntityType.AddServiceProperty(MemberInfo memberInfo, Type? serviceType, bool fromDataAnnotation)
+        => AddServiceProperty(
+            memberInfo,
+            serviceType ?? memberInfo.GetMemberType(),
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5151,6 +5240,16 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyServiceProperty> IReadOnlyEntityType.GetDerivedServiceProperties()
         => GetDerivedServiceProperties();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    bool IReadOnlyEntityType.HasServiceProperties()
+        => HasServiceProperties();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -5231,6 +5330,126 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
     [DebuggerStepThrough]
     IConventionServiceProperty? IConventionEntityType.RemoveServiceProperty(string name)
         => RemoveServiceProperty(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IReadOnlyTrigger? IReadOnlyEntityType.FindDeclaredTrigger(string name)
+        => FindDeclaredTrigger(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionTrigger? IConventionEntityType.FindDeclaredTrigger(string name)
+        => FindDeclaredTrigger(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IMutableTrigger? IMutableEntityType.FindDeclaredTrigger(string name)
+        => FindDeclaredTrigger(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    ITrigger? IEntityType.FindDeclaredTrigger(string name)
+        => FindDeclaredTrigger(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IReadOnlyTrigger> IReadOnlyEntityType.GetDeclaredTriggers()
+        => GetDeclaredTriggers();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IConventionTrigger> IConventionEntityType.GetDeclaredTriggers()
+        => GetDeclaredTriggers();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<IMutableTrigger> IMutableEntityType.GetDeclaredTriggers()
+        => GetDeclaredTriggers();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IEnumerable<ITrigger> IEntityType.GetDeclaredTriggers()
+        => GetDeclaredTriggers();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IMutableTrigger IMutableEntityType.AddTrigger(string name)
+        => AddTrigger(name, ConfigurationSource.Explicit)!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionTrigger? IConventionEntityType.AddTrigger(string name, bool fromDataAnnotation)
+        => AddTrigger(name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IMutableTrigger? IMutableEntityType.RemoveTrigger(string name)
+        => RemoveTrigger(name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionTrigger? IConventionEntityType.RemoveTrigger(string name)
+        => RemoveTrigger(name);
 
     #endregion
 
@@ -5324,6 +5543,11 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
             {
                 entityTypeBuilder.Metadata.SetChangeTrackingStrategy(
                     EntityType.GetChangeTrackingStrategy(), EntityType._changeTrackingStrategyConfigurationSource.Value);
+            }
+
+            foreach (var trigger in EntityType.GetDeclaredTriggers())
+            {
+                trigger.Builder.Attach(entityTypeBuilder);
             }
 
             if (ServiceProperties != null)

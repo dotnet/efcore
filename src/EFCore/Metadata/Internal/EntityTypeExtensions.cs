@@ -382,7 +382,8 @@ public static class EntityTypeExtensions
     public static IEnumerable<IReadOnlyNavigation> FindDerivedNavigations(
         this IReadOnlyEntityType entityType,
         string navigationName)
-        => entityType.GetDerivedNavigations().Where(navigation => navigationName == navigation.Name);
+        => entityType.GetDerivedTypes().Select(t => t.FindDeclaredNavigation(navigationName)!)
+            .Where(n => n != null);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

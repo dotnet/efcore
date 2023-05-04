@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.ValueGeneration;
 
 /// <summary>
@@ -21,4 +23,8 @@ public abstract class ValueGeneratorFactory
     /// <param name="entityType">The entity type for which the value generator will be used.</param>
     /// <returns>The newly created value generator.</returns>
     public abstract ValueGenerator Create(IProperty property, IEntityType entityType);
+
+    internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
+        System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
+        | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors;
 }

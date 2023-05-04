@@ -49,6 +49,7 @@ namespace Microsoft.Data.Sqlite
                 CommandText = null
             };
 
+            Assert.NotNull(command.CommandText);
             Assert.Empty(command.CommandText);
         }
 

@@ -416,7 +416,6 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
         RequiredSingleAk2 new2 = null;
         RequiredSingleComposite2 new2c = null;
         RequiredSingleAk1 new1 = null;
-        ;
         Root newRoot;
         RequiredSingleAk1 old1 = null;
         RequiredSingleAk2 old2 = null;
@@ -646,9 +645,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 }
                 else
                 {
-                    new1d.Root = old1d.Root;
-                    new1dd.Root = old1dd.Root;
-                    new1dd.DerivedRoot = old1dd.DerivedRoot;
+                    new1d.RootId = old1d.RootId;
+                    new1dd.RootId = old1dd.RootId;
+                    new1dd.DerivedRootId = old1dd.DerivedRootId;
                     context.AddRange(new1, new1d, new1dd, new2, new2d, new2dd);
                 }
 

@@ -6,4 +6,6 @@ namespace Microsoft.EntityFrameworkCore.TestModels.InheritanceModel;
 public class Drink
 {
     public int Id { get; set; }
+    public int SortIndex { get; set; }
+    public DrinkType Discriminator { get; set; }
 }

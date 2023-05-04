@@ -1,0 +1,12 @@
+{
+  "areaPath": "DevDiv\\Entity Framework",
+  "codebaseName": "efcore",
+  "instanceUrl": "https://devdiv.visualstudio.com/",
+  "iterationPath": "DevDiv",
+  "notificationAliases": [
+    "aspnetcore-build@microsoft.com"
+  ],
+  "projectName": "DEVDIV",
+  "repositoryName": "efcore",
+  "template": "TFSDEVDIV"
+}

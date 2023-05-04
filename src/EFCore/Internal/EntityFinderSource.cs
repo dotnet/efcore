@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
@@ -15,9 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Internal;
 /// </summary>
 public class EntityFinderSource : IEntityFinderSource
 {
-    private static readonly MethodInfo GenericCreate
-        = typeof(EntityFinderSource).GetTypeInfo().GetDeclaredMethod(nameof(CreateConstructor))!;
-
     private readonly ConcurrentDictionary<Type, Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder>> _cache
         = new();
 
@@ -35,7 +33,8 @@ public class EntityFinderSource : IEntityFinderSource
         => _cache.GetOrAdd(
             type.ClrType,
             t => (Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder>)
-                GenericCreate.MakeGenericMethod(t).Invoke(null, null)!)(stateManager, setSource, setCache, type);
+                typeof(EntityFinderSource).GetMethod(nameof(CreateConstructor), BindingFlags.NonPublic | BindingFlags.Static)!
+                    .MakeGenericMethod(t).Invoke(null, null)!)(stateManager, setSource, setCache, type);
 
     [UsedImplicitly]
     private static Func<IStateManager, IDbSetSource, IDbSetCache, IEntityType, IEntityFinder> CreateConstructor<TEntity>()

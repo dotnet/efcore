@@ -23,20 +23,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
                 Assert.Throws<InvalidOperationException>(
                     () => base.Properties_can_be_made_concurrency_tokens()).Message);
 
-        protected override void Mapping_throws_for_non_ignored_array()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<OneDee>();
-
-            var model = modelBuilder.FinalizeModel();
-            var entityType = model.FindEntityType(typeof(OneDee));
-
-            var property = entityType.FindProperty(nameof(OneDee.One));
-            Assert.Null(property.GetProviderClrType());
-            Assert.NotNull(property.FindTypeMapping());
-        }
-
         public override void Properties_can_have_provider_type_set_for_type()
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveConversion<byte[]>());
@@ -336,20 +322,6 @@ public class CosmosModelBuilderGenericTest : ModelBuilderGenericTest
             Assert.Equal(
                 "ReferenceNavigationToSharedType.Navigation#Dictionary<string, object>",
                 owned.DisplayName());
-        }
-
-        [ConditionalFact]
-        public virtual void Inverse_discovered_after_entity_becomes_non_owned()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<QueryResult>();
-            modelBuilder.Entity<Value>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            var queryResult = model.FindEntityType(typeof(QueryResult));
-            Assert.NotNull(queryResult.FindNavigation(nameof(QueryResult.Value)));
         }
 
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)

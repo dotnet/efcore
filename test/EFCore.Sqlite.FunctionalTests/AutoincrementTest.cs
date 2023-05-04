@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class AutoincrementTest : IClassFixture<AutoincrementTest.AutoincrementFixture>
@@ -42,7 +41,8 @@ public class AutoincrementTest : IClassFixture<AutoincrementTest.AutoincrementFi
 
     public class AutoincrementFixture : SharedStoreFixtureBase<DbContext>
     {
-        protected override string StoreName { get; } = "AutoincrementTest";
+        protected override string StoreName
+            => "AutoincrementTest";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

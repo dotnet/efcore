@@ -15,7 +15,7 @@ public class IdentifierShadowValuePresenceTest
 
         Assert.Null(item.Id);
 
-        var entry = context.Add(item);
+        var entry = await context.AddAsync(item);
 
         var id = entry.Property("__id").CurrentValue;
 

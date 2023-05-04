@@ -185,22 +185,22 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
                     instance.TypeMapping);
             }
 
-            if (TrimStartMethodInfoWithoutArgs.Equals(method) == true
-                || TrimStartMethodInfoWithCharArg.Equals(method) == true
+            if (TrimStartMethodInfoWithoutArgs.Equals(method)
+                || TrimStartMethodInfoWithCharArg.Equals(method)
                 || TrimStartMethodInfoWithCharArrayArg.Equals(method))
             {
                 return ProcessTrimMethod(instance, arguments, "ltrim");
             }
 
-            if (TrimEndMethodInfoWithoutArgs.Equals(method) == true
-                || TrimEndMethodInfoWithCharArg.Equals(method) == true
+            if (TrimEndMethodInfoWithoutArgs.Equals(method)
+                || TrimEndMethodInfoWithCharArg.Equals(method)
                 || TrimEndMethodInfoWithCharArrayArg.Equals(method))
             {
                 return ProcessTrimMethod(instance, arguments, "rtrim");
             }
 
-            if (TrimMethodInfoWithoutArgs.Equals(method) == true
-                || TrimMethodInfoWithCharArg.Equals(method) == true
+            if (TrimMethodInfoWithoutArgs.Equals(method)
+                || TrimMethodInfoWithCharArg.Equals(method)
                 || TrimMethodInfoWithCharArrayArg.Equals(method))
             {
                 return ProcessTrimMethod(instance, arguments, "trim");

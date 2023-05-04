@@ -3,6 +3,7 @@
 
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
@@ -23,6 +24,8 @@ public static class ObservableCollectionExtensions
     /// <typeparam name="T">The element type.</typeparam>
     /// <param name="source">The collection that the binding list will stay in sync with.</param>
     /// <returns>The binding list.</returns>
+    [RequiresUnreferencedCode(
+        "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public static BindingList<T> ToBindingList<T>(this ObservableCollection<T> source)
         where T : class
         => new ObservableBackedBindingList<T>(source);

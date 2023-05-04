@@ -405,6 +405,81 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
+        public virtual void Conventions_can_be_added()
+        {
+            var modelBuilder = CreateModelBuilder(c => c.Conventions.Add(s => new TestConvention()));
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal("bar", model["foo"]);
+        }
+
+        [ConditionalFact]
+        public virtual void Conventions_can_be_removed()
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Conventions.Add(s => new TestConvention());
+                    c.Conventions.Remove(typeof(TestConvention));
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Null(model["foo"]);
+        }
+
+		[ConditionalFact]
+        public virtual void Conventions_can_be_removed_by_generic_method()
+		{
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Conventions.Add(s => new TestConvention());
+                    c.Conventions.Remove<TestConvention>();
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Null(model["foo"]);
+        }
+
+        [ConditionalFact]
+        public virtual void Conventions_can_be_replaced()
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                    c.Conventions.Replace<DbSetFindingConvention>(
+                        s =>
+                            new TestDbSetFindingConvention(s.GetService<ProviderConventionSetBuilderDependencies>())));
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal("bar", model["foo"]);
+        }
+
+        protected class TestConvention : IModelInitializedConvention
+        {
+            public void ProcessModelInitialized(
+                IConventionModelBuilder modelBuilder,
+                IConventionContext<IConventionModelBuilder> context)
+                => modelBuilder.HasAnnotation("foo", "bar");
+        }
+
+        protected class TestDbSetFindingConvention : DbSetFindingConvention
+        {
+            public TestDbSetFindingConvention(ProviderConventionSetBuilderDependencies dependencies)
+                : base(dependencies)
+            {
+            }
+
+            public override void ProcessModelInitialized(
+                IConventionModelBuilder modelBuilder,
+                IConventionContext<IConventionModelBuilder> context)
+                => modelBuilder.HasAnnotation("foo", "bar");
+        }
+
+        [ConditionalFact]
         public virtual void Int32_cannot_be_ignored()
             => Assert.Equal(
                 CoreStrings.UnconfigurableType("int?", "Ignored", "Property", "int"),
@@ -751,7 +826,8 @@ public abstract partial class ModelBuilderTest
                     b.Property(e => e.Up);
                     b.Property(e => e.Down).HasConversion<byte[]>();
                     b.Property<int>("Charm").HasConversion<long, CustomValueComparer<int>>();
-                    b.Property<string>("Strange").HasConversion<byte[]>(new CustomValueComparer<string>(), new CustomValueComparer<byte[]>());
+                    b.Property<string>("Strange").HasConversion<byte[]>(
+                        new CustomValueComparer<string>(), new CustomValueComparer<byte[]>());
                     b.Property<string>("Strange").HasConversion(null);
                     b.Property<string>("Top").HasConversion<string>(new CustomValueComparer<string>());
                 });
@@ -829,12 +905,12 @@ public abstract partial class ModelBuilderTest
             var entityType = (IReadOnlyEntityType)model.FindEntityType(typeof(Quarks));
 
             Assert.Null(entityType.FindProperty("Up").GetValueConverter());
-            
+
             var down = entityType.FindProperty("Down");
             Assert.Same(stringConverter, down.GetValueConverter());
             Assert.IsType<ValueComparer.DefaultValueComparer<string>>(down.GetValueComparer());
             Assert.IsType<ValueComparer<byte[]>>(down.GetProviderValueComparer());
-            
+
             var charm = entityType.FindProperty("Charm");
             Assert.Same(intConverter, charm.GetValueConverter());
             Assert.IsType<ValueComparer.DefaultValueComparer<int>>(charm.GetValueComparer());
@@ -852,7 +928,8 @@ public abstract partial class ModelBuilderTest
                 b =>
                 {
                     b.Property(e => e.Up).HasConversion<int, CustomValueComparer<int>>();
-                    b.Property(e => e.Down).HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>, CustomValueComparer<byte[]>>();
+                    b.Property(e => e.Down)
+                        .HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>, CustomValueComparer<byte[]>>();
                     b.Property<int>("Charm").HasConversion<CastingConverter<int, long>, CustomValueComparer<int>>();
                     b.Property<string>("Strange").HasConversion<UTF8StringToBytesConverter, CustomValueComparer<string>>();
                     b.Property<string>("Strange").HasConversion(null, null);
@@ -910,12 +987,13 @@ public abstract partial class ModelBuilderTest
                     b.Property(e => e.Up);
                     b.Property(e => e.Down).HasConversion(v => int.Parse(v), v => v.ToString());
                     b.Property<int>("Charm").HasConversion(v => (long)v, v => (int)v, new CustomValueComparer<int>());
-                    b.Property<float>("Strange").HasConversion(v => (double)v, v => (float)v, new CustomValueComparer<float>(), new CustomValueComparer<double>());
+                    b.Property<float>("Strange").HasConversion(
+                        v => (double)v, v => (float)v, new CustomValueComparer<float>(), new CustomValueComparer<double>());
                 });
 
             var model = modelBuilder.FinalizeModel();
             var entityType = model.FindEntityType(typeof(Quarks));
-            
+
             var up = entityType.FindProperty("Up");
             Assert.Null(up.GetProviderClrType());
             Assert.Null(up.GetValueConverter());
@@ -937,7 +1015,7 @@ public abstract partial class ModelBuilderTest
             Assert.IsType<CustomValueComparer<float>>(strange.GetValueComparer());
             Assert.IsType<CustomValueComparer<double>>(strange.GetProviderValueComparer());
         }
-        
+
         [ConditionalFact]
         public virtual void Properties_can_have_value_converter_set()
         {
@@ -952,7 +1030,8 @@ public abstract partial class ModelBuilderTest
                     b.Property<int>("Charm").HasConversion(
                         new ValueConverter<int, long>(v => v, v => (int)v), new CustomValueComparer<int>());
                     b.Property<float>("Strange").HasConversion(
-                        new ValueConverter<float, double>(v => (double)v, v => (float)v), new CustomValueComparer<float>(), new CustomValueComparer<double>());
+                        new ValueConverter<float, double>(v => v, v => (float)v), new CustomValueComparer<float>(),
+                        new CustomValueComparer<double>());
                 });
 
             var model = modelBuilder.FinalizeModel();
@@ -1086,7 +1165,8 @@ public abstract partial class ModelBuilderTest
                 c =>
                 {
                     c.Properties<int?>().HaveConversion<NumberToStringConverter<int?>, CustomValueComparer<int?>>();
-                    c.Properties<int>().HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>, CustomValueComparer<string>>();
+                    c.Properties<int>()
+                        .HaveConversion<NumberToStringConverter<int>, CustomValueComparer<int>, CustomValueComparer<string>>();
                 });
 
             modelBuilder.Entity<Quarks>(
@@ -1309,7 +1389,7 @@ public abstract partial class ModelBuilderTest
                     b.Property(e => e.Up).HasMaxLength(0);
                     b.Property(e => e.Down).HasMaxLength(100);
                     b.Property<int>("Charm").HasMaxLength(0);
-                    b.Property<string>("Strange").HasMaxLength(100);
+                    b.Property<string>("Strange").HasMaxLength(-1);
                     b.Property<int>("Top").HasMaxLength(0);
                     b.Property<string>("Bottom").HasMaxLength(100);
                 });
@@ -1321,7 +1401,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(0, entityType.FindProperty("Up").GetMaxLength());
             Assert.Equal(100, entityType.FindProperty("Down").GetMaxLength());
             Assert.Equal(0, entityType.FindProperty("Charm").GetMaxLength());
-            Assert.Equal(100, entityType.FindProperty("Strange").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Strange").GetMaxLength());
             Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
             Assert.Equal(100, entityType.FindProperty("Bottom").GetMaxLength());
         }
@@ -1355,6 +1435,96 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(100, entityType.FindProperty("Strange").GetMaxLength());
             Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
             Assert.Equal(100, entityType.FindProperty("Bottom").GetMaxLength());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_sentinel_for_properties()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property(e => e.Up).HasSentinel(1);
+                    b.Property(e => e.Down).HasSentinel("100");
+                    b.Property<int>("Charm").HasSentinel(-1);
+                    b.Property<string>("Strange").HasSentinel("-1");
+                    b.Property<int>("Top").HasSentinel(77);
+                    b.Property<string>("Bottom").HasSentinel("100");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks))!;
+
+            Assert.Equal(0, entityType.FindProperty(Customer.IdProperty.Name)!.Sentinel);
+            Assert.Equal(1, entityType.FindProperty("Up")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Down")!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal("-1", entityType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(77, entityType.FindProperty("Top")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Bottom")!.Sentinel);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_sentinel_for_property_type()
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Properties<int>().HaveSentinel(-1);
+                    c.Properties<string>().HaveSentinel("100");
+                });
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property<int>("Charm");
+                    b.Property<string>("Strange");
+                    b.Property<int>("Top");
+                    b.Property<string>("Bottom");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks))!;
+
+            Assert.Equal(-1, entityType.FindProperty(Customer.IdProperty.Name)!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Up")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Down")!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Charm")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Strange")!.Sentinel);
+            Assert.Equal(-1, entityType.FindProperty("Top")!.Sentinel);
+            Assert.Equal("100", entityType.FindProperty("Bottom")!.Sentinel);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_set_unbounded_max_length_for_property_type()
+        {
+            var modelBuilder = CreateModelBuilder(
+                c =>
+                {
+                    c.Properties<int>().HaveMaxLength(0);
+                    c.Properties<string>().HaveMaxLength(-1);
+                });
+
+            modelBuilder.Entity<Quarks>(
+                b =>
+                {
+                    b.Property<int>("Charm");
+                    b.Property<string>("Strange");
+                    b.Property<int>("Top");
+                    b.Property<string>("Bottom");
+                });
+
+            var model = modelBuilder.FinalizeModel();
+            var entityType = model.FindEntityType(typeof(Quarks));
+
+            Assert.Equal(0, entityType.FindProperty(Customer.IdProperty.Name).GetMaxLength());
+            Assert.Equal(0, entityType.FindProperty("Up").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Down").GetMaxLength());
+            Assert.Equal(0, entityType.FindProperty("Charm").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Strange").GetMaxLength());
+            Assert.Equal(0, entityType.FindProperty("Top").GetMaxLength());
+            Assert.Equal(-1, entityType.FindProperty("Bottom").GetMaxLength());
         }
 
         [ConditionalFact]
@@ -1525,19 +1695,6 @@ public abstract partial class ModelBuilderTest
         {
         }
 
-        [ConditionalFact]
-        public virtual void Throws_for_collection_of_string()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<StringCollectionEntity>();
-
-            Assert.Equal(
-                CoreStrings.PropertyNotAdded(
-                    nameof(StringCollectionEntity), nameof(StringCollectionEntity.Property), "ICollection<string>"),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
-        }
-
         protected class StringCollectionEntity
         {
             public ICollection<string> Property { get; set; }
@@ -1566,19 +1723,6 @@ public abstract partial class ModelBuilderTest
         }
 
         [ConditionalFact]
-        protected virtual void Mapping_throws_for_non_ignored_array()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<OneDee>();
-
-            Assert.Equal(
-                CoreStrings.PropertyNotAdded(
-                    typeof(OneDee).ShortDisplayName(), "One", typeof(int[]).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
-        }
-
-        [ConditionalFact]
         protected virtual void Mapping_ignores_ignored_array()
         {
             var modelBuilder = CreateModelBuilder();
@@ -1588,19 +1732,6 @@ public abstract partial class ModelBuilderTest
             var model = modelBuilder.FinalizeModel();
 
             Assert.Null(model.FindEntityType(typeof(OneDee)).FindProperty("One"));
-        }
-
-        [ConditionalFact]
-        protected virtual void Mapping_throws_for_non_ignored_two_dimensional_array()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Entity<TwoDee>();
-
-            Assert.Equal(
-                CoreStrings.PropertyNotAdded(
-                    typeof(TwoDee).ShortDisplayName(), "Two", typeof(int[,]).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
         [ConditionalFact]
@@ -1753,6 +1884,7 @@ public abstract partial class ModelBuilderTest
                 .ValueGeneratedOnUpdate()
                 .IsUnicode()
                 .HasMaxLength(100)
+                .HasSentinel(null)
                 .HasPrecision(10, 1)
                 .HasValueGenerator<CustomValueGenerator>()
                 .HasValueGenerator(typeof(CustomValueGenerator))
@@ -1809,7 +1941,7 @@ public abstract partial class ModelBuilderTest
             entityBuilder.HasIndex(ix => ix.Id).IsUnique();
             entityBuilder.HasIndex(ix => ix.Name).HasAnnotation("A1", "V1");
             entityBuilder.HasIndex(ix => ix.Id, "Named");
-            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending(true);
+            entityBuilder.HasIndex(ix => ix.Id, "Descending").IsDescending();
 
             var model = modelBuilder.FinalizeModel();
 
@@ -1826,7 +1958,7 @@ public abstract partial class ModelBuilderTest
             var namedIndex = entityType.FindIndex("Named");
             Assert.False(namedIndex.IsUnique);
             var descendingIndex = entityType.FindIndex("Descending");
-            Assert.Equal(new[] { true }, descendingIndex.IsDescending);
+            Assert.Equal(Array.Empty<bool>(), descendingIndex.IsDescending);
         }
 
         [ConditionalFact]

@@ -31,7 +31,7 @@ public class OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
 
     private OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnedNavigationBuilder
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)((IInfrastructure<OwnedNavigationBuilder>)this)
-        .GetInfrastructure();
+            .GetInfrastructure();
 
     /// <summary>
     ///     Configures the table to be ignored by migrations.
@@ -43,6 +43,17 @@ public class OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
         => (OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>)base.ExcludeFromMigrations(excluded);
+
+    /// <summary>
+    ///     Configures a comment to be applied to the table
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <param name="comment">The comment for the table.</param>
+    /// <returns>A builder to further configure the table.</returns>
+    public new virtual OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> HasComment(string? comment)
+        => (OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>)base.HasComment(comment);
 
     /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used

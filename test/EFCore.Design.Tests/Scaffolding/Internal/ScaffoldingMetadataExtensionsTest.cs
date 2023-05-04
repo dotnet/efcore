@@ -9,24 +9,6 @@ namespace Microsoft.EntityFrameworkCore;
 public class ScaffoldingMetadataExtensionsTest
 {
     [ConditionalFact]
-    public void It_sets_gets_entity_type_errors()
-    {
-        IMutableModel model = new Model();
-
-        Assert.Empty(model.GetEntityTypeErrors().Values);
-
-        model.GetOrCreateEntityTypeErrors().Add("ET", "FAIL!");
-        Assert.Equal("FAIL!", model.GetEntityTypeErrors()["ET"]);
-
-        model.SetEntityTypeErrors(new Dictionary<string, string>());
-        Assert.Empty(model.GetEntityTypeErrors().Values);
-
-        model.GetOrCreateEntityTypeErrors()["ET"] = "FAIL 2!";
-        model.GetOrCreateEntityTypeErrors().Clear();
-        Assert.Empty(model.GetEntityTypeErrors().Values);
-    }
-
-    [ConditionalFact]
     public void It_sets_DbSet_name()
     {
         IMutableModel model = new Model();

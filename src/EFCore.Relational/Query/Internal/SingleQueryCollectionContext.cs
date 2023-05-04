@@ -3,13 +3,14 @@
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
+
 /// <summary>
 ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class SingleQueryCollectionContext
+public sealed class SingleQueryCollectionContext
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -37,7 +38,7 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ResultContext ResultContext { get; }
+    public ResultContext ResultContext { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -45,7 +46,7 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object? Parent { get; }
+    public object? Parent { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -53,7 +54,7 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object? Collection { get; }
+    public object? Collection { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -61,7 +62,7 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object[] ParentIdentifier { get; }
+    public object[] ParentIdentifier { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -69,7 +70,7 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object[] OuterIdentifier { get; }
+    public object[] OuterIdentifier { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -77,7 +78,7 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object[]? SelfIdentifier { get; private set; }
+    public object[]? SelfIdentifier { get; private set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -85,6 +86,6 @@ public class SingleQueryCollectionContext
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void UpdateSelfIdentifier(object[]? selfIdentifier)
+    public void UpdateSelfIdentifier(object[]? selfIdentifier)
         => SelfIdentifier = selfIdentifier;
 }

@@ -13,11 +13,6 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
         Fixture.TestSqlLoggerFactory.Clear();
     }
 
-    public override void Can_perform_query_with_max_length()
-    {
-        // Over the 2Mb document limit
-    }
-
     [ConditionalTheory(Skip = "Issue #17246 No Explicit Convert")]
     public override Task Can_filter_projection_with_inline_enum_variable(bool async)
         => base.Can_filter_projection_with_inline_enum_variable(async);
@@ -76,9 +71,11 @@ public class CustomConvertersCosmosTest : CustomConvertersTestBase<CustomConvert
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
+WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
+""");
     }
 
     [ConditionalFact]
@@ -87,9 +84,11 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = "
         base.Where_negated_bool_gets_converted_to_equality_when_value_conversion_is_used();
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IsVisible""] = ""Y"")))");
+WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IsVisible"] = "Y")))
+""");
     }
 
     [ConditionalFact]
@@ -98,9 +97,11 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IsVisible""]
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_EFProperty();
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = ""Y""))");
+WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND (c["IsVisible"] = "Y"))
+""");
     }
 
     [ConditionalFact]
@@ -109,9 +110,11 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND (c[""IsVisible""] = "
         base.Where_bool_gets_converted_to_equality_when_value_conversion_is_used_using_indexer();
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisible""] = ""Aye"")))");
+WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = "Aye")))
+""");
     }
 
     [ConditionalFact(Skip = "Issue#27678")]
@@ -122,6 +125,13 @@ WHERE (c[""Discriminator""] IN (""Blog"", ""RssBlog"") AND NOT((c[""IndexerVisib
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[47..],
             Assert.Throws<InvalidOperationException>(() => base.Value_conversion_on_enum_collection_contains()).Message);
+
+    public override void GroupBy_converted_enum()
+    {
+        Assert.Contains(
+            CoreStrings.TranslationFailed("")[21..],
+            Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
+    }
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

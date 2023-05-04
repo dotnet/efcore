@@ -23,7 +23,7 @@ public interface IValueGenerationManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    void Generate(InternalEntityEntry entry, bool includePrimaryKey = true);
+    bool Generate(InternalEntityEntry entry, bool includePrimaryKey = true);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -39,10 +39,7 @@ public interface IValueGenerationManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    Task GenerateAsync(
-        InternalEntityEntry entry,
-        bool includePrimaryKey = true,
-        CancellationToken cancellationToken = default);
+    Task<InternalEntityEntry?> PropagateAsync(InternalEntityEntry entry, CancellationToken cancellationToken);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -50,5 +47,8 @@ public interface IValueGenerationManager
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    bool MayGetTemporaryValue(IProperty property, IEntityType entityType);
+    Task<bool> GenerateAsync(
+        InternalEntityEntry entry,
+        bool includePrimaryKey = true,
+        CancellationToken cancellationToken = default);
 }

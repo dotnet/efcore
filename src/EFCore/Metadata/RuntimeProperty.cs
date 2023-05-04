@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -17,12 +19,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private readonly bool _isNullable;
     private readonly ValueGenerated _valueGenerated;
     private readonly bool _isConcurrencyToken;
+    private readonly object? _sentinel;
     private readonly PropertySaveBehavior _beforeSaveBehavior;
     private readonly PropertySaveBehavior _afterSaveBehavior;
     private readonly Func<IProperty, IEntityType, ValueGenerator>? _valueGeneratorFactory;
     private readonly ValueConverter? _valueConverter;
-    private readonly ValueComparer? _valueComparer;
-    private readonly ValueComparer? _keyValueComparer;
+    private ValueComparer? _valueComparer;
+    private ValueComparer? _keyValueComparer;
     private readonly ValueComparer? _providerValueComparer;
     private CoreTypeMapping? _typeMapping;
 
@@ -36,6 +39,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     public RuntimeProperty(
         string name,
         Type clrType,
+        object? sentinel,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
         RuntimeEntityType declaringEntityType,
@@ -60,6 +64,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     {
         DeclaringEntityType = declaringEntityType;
         ClrType = clrType;
+        _sentinel = sentinel;
         _isNullable = nullable;
         _isConcurrencyToken = concurrencyToken;
         _valueGenerated = valueGenerated;
@@ -102,6 +107,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <summary>
     ///     Gets the type of value that this property-like object holds.
     /// </summary>
+    [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)]
     protected override Type ClrType { get; }
 
     /// <summary>
@@ -166,6 +172,70 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
                 property.DeclaringEntityType.Model.GetModelDependencies().TypeMappingSource.FindMapping(property)!);
         set => _typeMapping = value;
     }
+
+    private ValueComparer GetValueComparer()
+        => (GetValueComparer(null) ?? TypeMapping.Comparer)
+            .ToNullableComparer(this)!;
+
+    private ValueComparer GetKeyValueComparer()
+        => (GetKeyValueComparer(null) ?? TypeMapping.KeyComparer)
+            .ToNullableComparer(this)!;
+
+    private ValueComparer? GetValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
+    {
+        if (_valueComparer != null)
+        {
+            return _valueComparer;
+        }
+
+        var principal = (RuntimeProperty?)this.FindFirstDifferentPrincipal();
+        if (principal == null)
+        {
+            return null;
+        }
+
+        if (checkedProperties == null)
+        {
+            checkedProperties = new HashSet<IReadOnlyProperty>();
+        }
+        else if (checkedProperties.Contains(this))
+        {
+            return null;
+        }
+
+        checkedProperties.Add(this);
+        return principal.GetValueComparer(checkedProperties);
+    }
+
+    private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
+    {
+        if ( _keyValueComparer != null)
+        {
+            return _keyValueComparer;
+        }
+
+        var principal = (RuntimeProperty?)this.FindFirstDifferentPrincipal();
+        if (principal == null)
+        {
+            return null;
+        }
+
+        if (checkedProperties == null)
+        {
+            checkedProperties = new HashSet<IReadOnlyProperty>();
+        }
+        else if (checkedProperties.Contains(this))
+        {
+            return null;
+        }
+
+        checkedProperties.Add(this);
+        return principal.GetKeyValueComparer(checkedProperties);
+    }
+
+    /// <inheritdoc />
+    public override object? Sentinel
+        => _sentinel;
 
     /// <summary>
     ///     Returns a string that represents the current object.
@@ -274,22 +344,30 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetValueComparer()
-        => _valueComparer ?? TypeMapping.Comparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _valueComparer, this,
+            static property => property.GetValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer IProperty.GetValueComparer()
-        => _valueComparer ?? TypeMapping.Comparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _valueComparer, this,
+            static property => property.GetValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer? IReadOnlyProperty.GetKeyValueComparer()
-        => _keyValueComparer ?? TypeMapping.KeyComparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _keyValueComparer, this,
+            static property => property.GetKeyValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]
     ValueComparer IProperty.GetKeyValueComparer()
-        => _keyValueComparer ?? TypeMapping.KeyComparer;
+        => NonCapturingLazyInitializer.EnsureInitialized(
+            ref _keyValueComparer, this,
+            static property => property.GetKeyValueComparer());
 
     /// <inheritdoc />
     [DebuggerStepThrough]

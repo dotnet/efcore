@@ -21,10 +21,17 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 public class IndentedStringBuilder
 {
     private const byte IndentSize = 4;
-    private byte _indent;
+    private int _indent;
     private bool _indentPending = true;
 
     private readonly StringBuilder _stringBuilder = new();
+
+    /// <summary>
+    ///     Gets the current indent level.
+    /// </summary>
+    /// <value>The current indent level.</value>
+    public virtual int IndentCount
+        => _indent;
 
     /// <summary>
     ///     The current length of the built string.
@@ -38,6 +45,20 @@ public class IndentedStringBuilder
     /// <param name="value">The string to append.</param>
     /// <returns>This builder so that additional calls can be chained.</returns>
     public virtual IndentedStringBuilder Append(string value)
+    {
+        DoIndent();
+
+        _stringBuilder.Append(value);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Appends the current indent and then the given string to the string being built.
+    /// </summary>
+    /// <param name="value">The string to append.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder Append(FormattableString value)
     {
         DoIndent();
 
@@ -128,6 +149,22 @@ public class IndentedStringBuilder
     }
 
     /// <summary>
+    ///     Appends the current indent, the given string, and a new line to the string being built.
+    /// </summary>
+    /// <param name="value">The string to append.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder AppendLine(FormattableString value)
+    {
+        DoIndent();
+
+        _stringBuilder.Append(value);
+
+        _indentPending = true;
+
+        return this;
+    }
+
+    /// <summary>
     ///     Separates the given string into lines, and then appends each line, prefixed
     ///     by the current indent and followed by a new line, to the string being built.
     /// </summary>
@@ -162,6 +199,42 @@ public class IndentedStringBuilder
         {
             AppendLine();
         }
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Concatenates the members of the given collection, using the specified separator between each member,
+    ///     and then appends the resulting string,
+    /// </summary>
+    /// <param name="values">The values to concatenate.</param>
+    /// <param name="separator">The separator.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder AppendJoin(
+        IEnumerable<string> values,
+        string separator = ", ")
+    {
+        DoIndent();
+
+        _stringBuilder.AppendJoin(values, separator);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Concatenates the members of the given collection, using the specified separator between each member,
+    ///     and then appends the resulting string,
+    /// </summary>
+    /// <param name="values">The values to concatenate.</param>
+    /// <param name="separator">The separator.</param>
+    /// <returns>This builder so that additional calls can be chained.</returns>
+    public virtual IndentedStringBuilder AppendJoin(
+        string separator,
+        params string[] values)
+    {
+        DoIndent();
+
+        _stringBuilder.AppendJoin(separator, values);
 
         return this;
     }
@@ -252,7 +325,7 @@ public class IndentedStringBuilder
     private sealed class IndentSuspender : IDisposable
     {
         private readonly IndentedStringBuilder _stringBuilder;
-        private readonly byte _indent;
+        private readonly int _indent;
 
         public IndentSuspender(IndentedStringBuilder stringBuilder)
         {

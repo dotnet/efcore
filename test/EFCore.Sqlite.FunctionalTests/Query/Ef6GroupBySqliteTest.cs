@@ -65,6 +65,12 @@ public class Ef6GroupBySqliteTest : Ef6GroupByTestBase<Ef6GroupBySqliteTest.Ef6G
         => await base.Whats_new_2021_sample_6(async);
 #endif
 
+    public override async Task Group_Join_from_LINQ_101(bool async)
+        => Assert.Equal(
+            SqliteStrings.ApplyNotSupported,
+            (await Assert.ThrowsAsync<InvalidOperationException>(
+                () => base.Group_Join_from_LINQ_101(async))).Message);
+
     public class Ef6GroupBySqliteFixture : Ef6GroupByFixtureBase
     {
         public TestSqlLoggerFactory TestSqlLoggerFactory

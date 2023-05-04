@@ -5,7 +5,9 @@ namespace Microsoft.EntityFrameworkCore.TestModels.NullSemanticsModel;
 
 public class NullSemanticsData : ISetSource
 {
-    public NullSemanticsData()
+    public static readonly NullSemanticsData Instance = new();
+
+    private NullSemanticsData()
     {
         Entities1 = CreateEntities1();
         Entities2 = CreateEntities2();

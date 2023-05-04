@@ -94,7 +94,9 @@ public class ModelSource : IModelSource
     {
         Check.DebugAssert(context != null, "context == null");
 
-        var modelConfigurationBuilder = new ModelConfigurationBuilder(conventionSetBuilder.CreateConventionSet());
+        var modelConfigurationBuilder = new ModelConfigurationBuilder(
+            conventionSetBuilder.CreateConventionSet(),
+            context.GetInfrastructure());
 
         context.ConfigureConventions(modelConfigurationBuilder);
 

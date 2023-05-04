@@ -91,8 +91,8 @@ public class CosmosRegexTranslator : IMethodCallTranslator
             return regexOptions == 0
                 ? _sqlExpressionFactory.Function(
                     "RegexMatch",
-                     new[] { input, pattern, _sqlExpressionFactory.Constant(modifier) },
-                     typeof(bool))
+                    new[] { input, pattern, _sqlExpressionFactory.Constant(modifier) },
+                    typeof(bool))
                 : null; // TODO: Report unsupported RegexOption, #26410
         }
 

@@ -794,8 +794,16 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         builder
             .Append("ALTER SEQUENCE ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-            .Append(" RESTART WITH ")
-            .Append(longTypeMapping.GenerateSqlLiteral(operation.StartValue))
+            .Append(" RESTART");
+
+        if (operation.StartValue.HasValue)
+        {
+            builder
+                .Append(" WITH ")
+                .Append(longTypeMapping.GenerateSqlLiteral(operation.StartValue.Value));
+        }
+
+        builder
             .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
         EndStatement(builder);
@@ -863,7 +871,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         {
             throw new InvalidOperationException(
                 RelationalStrings.InsertDataOperationValuesCountMismatch(
-                    operation.Values.GetLength(1), operation.Columns.Length, FormatTable(operation.Table, operation.Schema ?? model?.GetDefaultSchema())));
+                    operation.Values.GetLength(1), operation.Columns.Length,
+                    FormatTable(operation.Table, operation.Schema ?? model?.GetDefaultSchema())));
         }
 
         if (operation.ColumnTypes != null
@@ -871,7 +880,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         {
             throw new InvalidOperationException(
                 RelationalStrings.InsertDataOperationTypesCountMismatch(
-                    operation.ColumnTypes.Length, operation.Columns.Length, FormatTable(operation.Table, operation.Schema ?? model?.GetDefaultSchema())));
+                    operation.ColumnTypes.Length, operation.Columns.Length,
+                    FormatTable(operation.Table, operation.Schema ?? model?.GetDefaultSchema())));
         }
 
         if (operation.ColumnTypes == null
@@ -889,9 +899,10 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         for (var i = 0; i < operation.Values.GetLength(0); i++)
         {
             var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
-                new NonTrackedModificationCommandParameters(operation.Table, operation.Schema ?? model?.GetDefaultSchema(), SensitiveLoggingEnabled));
+                new NonTrackedModificationCommandParameters(
+                    operation.Table, operation.Schema ?? model?.GetDefaultSchema(), SensitiveLoggingEnabled));
             modificationCommand.EntityState = EntityState.Added;
-            
+
             for (var j = 0; j < operation.Columns.Length; j++)
             {
                 var name = operation.Columns[j];
@@ -982,7 +993,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
                 new NonTrackedModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
             modificationCommand.EntityState = EntityState.Deleted;
-            
+
             for (var j = 0; j < operation.KeyColumns.Length; j++)
             {
                 var name = operation.KeyColumns[j];
@@ -1098,7 +1109,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
             var modificationCommand = Dependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
                 new NonTrackedModificationCommandParameters(operation.Table, operation.Schema, SensitiveLoggingEnabled));
             modificationCommand.EntityState = EntityState.Modified;
-            
+
             for (var j = 0; j < operation.KeyColumns.Length; j++)
             {
                 var name = operation.KeyColumns[j];
@@ -1430,8 +1441,8 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
         else if (defaultValue != null)
         {
             var typeMapping = (columnType != null
-                ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), columnType)
-                : null)
+                    ? Dependencies.TypeMappingSource.FindMapping(defaultValue.GetType(), columnType)
+                    : null)
                 ?? Dependencies.TypeMappingSource.GetMappingForValue(defaultValue);
 
             builder
@@ -1688,7 +1699,7 @@ public class MigrationsSqlGenerator : IMigrationsSqlGenerator
 
             builder.Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Columns[i]));
 
-            if (operation.IsDescending is not null && i < operation.IsDescending.Length && operation.IsDescending[i])
+            if (operation.IsDescending is not null && (operation.IsDescending.Length == 0 || operation.IsDescending[i]))
             {
                 builder.Append(" DESC");
             }

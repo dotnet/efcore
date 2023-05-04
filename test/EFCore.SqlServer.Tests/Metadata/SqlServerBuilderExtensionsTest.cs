@@ -1,9 +1,10 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class SqlServerBuilderExtensionsTest
@@ -65,7 +66,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .IsMemoryOptimized();
+            .ToTable(tb => tb.IsMemoryOptimized());
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -73,7 +74,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .IsMemoryOptimized(false);
+            .ToTable(tb => tb.IsMemoryOptimized(false));
 
         Assert.False(entityType.IsMemoryOptimized());
     }
@@ -85,7 +86,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity(typeof(Customer))
-            .IsMemoryOptimized();
+            .ToTable(tb => tb.IsMemoryOptimized());
 
         var entityType = modelBuilder.Model.FindEntityType(typeof(Customer));
 
@@ -93,7 +94,7 @@ public class SqlServerBuilderExtensionsTest
 
         modelBuilder
             .Entity(typeof(Customer))
-            .IsMemoryOptimized(false);
+            .ToTable(tb => tb.IsMemoryOptimized(false));
 
         Assert.False(entityType.IsMemoryOptimized());
     }
@@ -359,6 +360,118 @@ public class SqlServerBuilderExtensionsTest
         ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
     }
 
+    [ConditionalFact]
+    public void Can_set_key_sequences_for_model()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.UseKeySequences();
+
+        var relationalExtensions = modelBuilder.Model;
+        var sqlServerExtensions = modelBuilder.Model;
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
+        Assert.Equal(SqlServerModelExtensions.DefaultSequenceNameSuffix, sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Null(sqlServerExtensions.GetSequenceSchema());
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_sequences_with_name_for_model()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.UseKeySequences("Snook");
+
+        var relationalExtensions = modelBuilder.Model;
+        var sqlServerExtensions = modelBuilder.Model;
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Null(sqlServerExtensions.GetSequenceSchema());
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_sequences_with_schema_and_name_for_model()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.UseKeySequences("Snook", "Tasty");
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id);
+
+        modelBuilder.FinalizeModel();
+
+        var relationalExtensions = modelBuilder.Model;
+        var sqlServerExtensions = modelBuilder.Model;
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Equal("Tasty", sqlServerExtensions.GetSequenceSchema());
+
+        Assert.NotNull(relationalExtensions.FindSequence("CustomerSnook", "Tasty"));
+
+        var sequence = sqlServerExtensions.FindSequence("CustomerSnook", "Tasty");
+        Assert.Equal("CustomerSnook", sequence.Name);
+        Assert.Equal("Tasty", sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
+    }
+
+    [ConditionalFact]
+    public void Can_set_use_of_existing_relational_key_sequence_for_model()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .HasSequence<int>("Snook", "Tasty")
+            .IncrementsBy(11)
+            .StartsAt(1729)
+            .HasMin(111)
+            .HasMax(2222);
+
+        modelBuilder.UseKeySequences("Snook", "Tasty");
+
+        var relationalExtensions = modelBuilder.Model;
+        var sqlServerExtensions = modelBuilder.Model;
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Equal("Tasty", sqlServerExtensions.GetSequenceSchema());
+
+        ValidateSchemaNamedSpecificSequence(relationalExtensions.FindSequence("Snook", "Tasty"));
+        ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
+    }
+
+    [ConditionalFact]
+    public void Can_set_use_of_existing_SQL_key_sequence_for_model()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .HasSequence<int>("Snook", "Tasty")
+            .IncrementsBy(11)
+            .StartsAt(1729)
+            .HasMin(111)
+            .HasMax(2222);
+
+        modelBuilder.UseKeySequences("Snook", "Tasty");
+
+        var relationalExtensions = modelBuilder.Model;
+        var sqlServerExtensions = modelBuilder.Model;
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, sqlServerExtensions.GetValueGenerationStrategy());
+        Assert.Equal("Snook", sqlServerExtensions.GetSequenceNameSuffix());
+        Assert.Equal("Tasty", sqlServerExtensions.GetSequenceSchema());
+
+        ValidateSchemaNamedSpecificSequence(relationalExtensions.FindSequence("Snook", "Tasty"));
+        ValidateSchemaNamedSpecificSequence(sqlServerExtensions.FindSequence("Snook", "Tasty"));
+    }
+
     private static void ValidateSchemaNamedSpecificSequence(IReadOnlySequence sequence)
     {
         Assert.Equal("Snook", sequence.Name);
@@ -616,6 +729,203 @@ public class SqlServerBuilderExtensionsTest
     }
 
     [ConditionalFact]
+    public void Can_set_key_sequence_for_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence();
+
+        modelBuilder.FinalizeModel();
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+
+        Assert.NotNull(model.FindSequence(nameof(Customer) + SqlServerModelExtensions.DefaultSequenceNameSuffix));
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_sequences_with_name_for_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence("Snook");
+
+        modelBuilder.FinalizeModel();
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Null(property.GetSequenceSchema());
+
+        Assert.NotNull(model.FindSequence("Snook"));
+
+        var sequence = model.FindSequence("Snook");
+
+        Assert.Equal("Snook", sequence.Name);
+        Assert.Null(sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
+    }
+
+    [ConditionalFact]
+    public void Can_set_key_sequences_with_schema_and_name_for_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence("Snook", "Tasty");
+
+        modelBuilder.FinalizeModel();
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
+
+        Assert.NotNull(model.FindSequence("Snook", "Tasty"));
+
+        var sequence = model.FindSequence("Snook", "Tasty");
+        Assert.Equal("Snook", sequence.Name);
+        Assert.Equal("Tasty", sequence.Schema);
+        Assert.Equal(1, sequence.IncrementBy);
+        Assert.Equal(1, sequence.StartValue);
+        Assert.Null(sequence.MinValue);
+        Assert.Null(sequence.MaxValue);
+        Assert.Same(typeof(long), sequence.Type);
+    }
+
+    [ConditionalFact]
+    public void Can_set_use_of_existing_relational_key_sequence_for_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .HasSequence<int>("Snook", "Tasty")
+            .IncrementsBy(11)
+            .StartsAt(1729)
+            .HasMin(111)
+            .HasMax(2222);
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence("Snook", "Tasty");
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
+
+        ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
+        ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
+    }
+
+    [ConditionalFact]
+    public void Can_set_use_of_existing_relational_key_sequence_for_property_using_nested_closure()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .HasSequence<int>("Snook", "Tasty", b => b.IncrementsBy(11).StartsAt(1729).HasMin(111).HasMax(2222))
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence("Snook", "Tasty");
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
+
+        ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
+        ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
+    }
+
+    [ConditionalFact]
+    public void Can_set_use_of_existing_SQL_key_sequence_for_property()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .HasSequence<int>("Snook", "Tasty")
+            .IncrementsBy(11)
+            .StartsAt(1729)
+            .HasMin(111)
+            .HasMax(2222);
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence("Snook", "Tasty");
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
+
+        ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
+    }
+
+    [ConditionalFact]
+    public void Can_set_use_of_existing_SQL_key_sequence_for_property_using_nested_closure()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .HasSequence<int>(
+                "Snook", "Tasty", b =>
+                {
+                    b.IncrementsBy(11)
+                        .StartsAt(1729)
+                        .HasMin(111)
+                        .HasMax(2222);
+                });
+
+        modelBuilder
+            .Entity<Customer>()
+            .Property(e => e.Id)
+            .UseSequence("Snook", "Tasty");
+
+        var model = modelBuilder.Model;
+        var property = model.FindEntityType(typeof(Customer)).FindProperty("Id");
+
+        Assert.Equal(SqlServerValueGenerationStrategy.Sequence, property.GetValueGenerationStrategy());
+        Assert.Equal(ValueGenerated.OnAdd, property.ValueGenerated);
+        Assert.Equal("Snook", property.GetSequenceName());
+        Assert.Equal("Tasty", property.GetSequenceSchema());
+
+        ValidateSchemaNamedSpecificSequence(model.FindSequence("Snook", "Tasty"));
+    }
+
+    [ConditionalFact]
     public void Can_set_identities_for_property()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -662,27 +972,6 @@ public class SqlServerBuilderExtensionsTest
     }
 
     [ConditionalFact]
-    public void SqlServer_entity_methods_dont_break_out_of_the_generics()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        AssertIsGeneric(
-            modelBuilder
-                .Entity<Customer>()
-                .IsMemoryOptimized());
-    }
-
-    [ConditionalFact]
-    public void SqlServer_entity_methods_have_non_generic_overloads()
-    {
-        var modelBuilder = CreateConventionModelBuilder();
-
-        modelBuilder
-            .Entity(typeof(Customer))
-            .IsMemoryOptimized();
-    }
-
-    [ConditionalFact]
     public void SqlServer_property_methods_dont_break_out_of_the_generics()
     {
         var modelBuilder = CreateConventionModelBuilder();
@@ -698,6 +987,12 @@ public class SqlServerBuilderExtensionsTest
                 .Entity<Customer>()
                 .Property(e => e.Id)
                 .UseIdentityColumn());
+
+        AssertIsGeneric(
+            modelBuilder
+                .Entity<Customer>()
+                .Property(e => e.Id)
+                .UseSequence());
     }
 
     [ConditionalFact]
@@ -714,6 +1009,11 @@ public class SqlServerBuilderExtensionsTest
             .Entity(typeof(Customer))
             .Property(typeof(int), "Id")
             .UseIdentityColumn();
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .Property(typeof(int), "Id")
+            .UseSequence();
     }
 
     [ConditionalFact]
@@ -780,6 +1080,120 @@ public class SqlServerBuilderExtensionsTest
             });
     }
 
+    #region UseSqlOutputClause
+
+    [ConditionalFact]
+    public void Can_set_UseSqlOutputClause()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity<Customer>();
+        var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
+
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable(tb => tb.UseSqlOutputClause(false));
+
+        Assert.False(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable(tb => tb.UseSqlOutputClause());
+
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+    }
+
+    [ConditionalFact]
+    public void Can_set_UseSqlOutputClause_with_table_name_and_one_table()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable("foo");
+        var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
+        var tableIdentifier = StoreObjectIdentifier.Table("foo");
+
+        Assert.True(entityType.IsSqlOutputClauseUsed(tableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable("foo", tb => tb.UseSqlOutputClause(false));
+
+        Assert.False(entityType.IsSqlOutputClauseUsed(tableIdentifier));
+        Assert.False(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable("foo", tb => tb.UseSqlOutputClause());
+
+        Assert.True(entityType.IsSqlOutputClauseUsed(tableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+    }
+
+    [ConditionalFact]
+    public void Can_set_UseSqlOutputClause_with_table_name_and_two_tables()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder
+            .Entity<Customer>()
+            .ToTable("foo")
+            .SplitToTable("bar", tb => tb.Property(c => c.Offset));
+
+        var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
+        var fooTableIdentifier = StoreObjectIdentifier.Table("foo");
+        var barTableIdentifier = StoreObjectIdentifier.Table("bar");
+
+        Assert.True(entityType.IsSqlOutputClauseUsed(fooTableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed(barTableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity<Customer>()
+            .SplitToTable("bar", tb => tb.UseSqlOutputClause(false));
+
+        Assert.False(entityType.IsSqlOutputClauseUsed(barTableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed(fooTableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity<Customer>()
+            .SplitToTable("bar", tb => tb.UseSqlOutputClause());
+
+        Assert.True(entityType.IsSqlOutputClauseUsed(barTableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed(fooTableIdentifier));
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+    }
+
+    [ConditionalFact]
+    public void Can_set_UseSqlOutputClause_non_generic()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+
+        modelBuilder.Entity(typeof(Customer));
+        var entityType = modelBuilder.Model.FindEntityType(typeof(Customer))!;
+
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .ToTable(tb => tb.UseSqlOutputClause(false));
+
+        Assert.False(entityType.IsSqlOutputClauseUsed());
+
+        modelBuilder
+            .Entity(typeof(Customer))
+            .ToTable(tb => tb.UseSqlOutputClause());
+
+        Assert.True(entityType.IsSqlOutputClauseUsed());
+    }
+
+    #endregion UseSqlOutputClause
+
     private void AssertIsGeneric(EntityTypeBuilder<Customer> _)
     {
     }
@@ -820,5 +1234,10 @@ public class SqlServerBuilderExtensionsTest
 
         public int OrderId { get; set; }
         public Order Order { get; set; }
+    }
+
+    private class SpecialCustomer : Customer
+    {
+        public int SpecialProperty { get; set; }
     }
 }

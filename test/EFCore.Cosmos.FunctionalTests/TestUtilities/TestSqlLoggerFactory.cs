@@ -75,8 +75,12 @@ public class TestSqlLoggerFactory : ListLoggerFactory
             var testInfo = testName + " : " + lineNumber + FileNewLine;
             const string indent = FileNewLine + "                ";
 
-            var newBaseLine = $@"            AssertSql(
-                {string.Join("," + indent + "//" + indent, SqlStatements.Take(9).Select(sql => "@\"" + sql.Replace("\"", "\"\"") + "\""))});
+            var sql = string.Join(
+                "," + indent + "//" + indent,
+                SqlStatements.Take(9).Select(sql => "\"\"\"" + FileNewLine + sql + FileNewLine + "\"\"\""));
+
+            var newBaseLine = $@"        AssertSql(
+{sql});
 
 ";
 

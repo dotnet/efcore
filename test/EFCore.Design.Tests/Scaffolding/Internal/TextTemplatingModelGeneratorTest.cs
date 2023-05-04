@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.TestUtilities.Xunit;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
-[PlatformSkipCondition(TestPlatform.Linux, SkipReason = "CI time out")]
+[PlatformSkipCondition(TestUtilities.Xunit.TestPlatform.Linux | TestUtilities.Xunit.TestPlatform.Mac, SkipReason = "CI time out")]
 public class TextTemplatingModelGeneratorTest
 {
     [ConditionalFact]
@@ -25,6 +25,22 @@ public class TextTemplatingModelGeneratorTest
         var result = generator.HasTemplates(projectDir);
 
         Assert.True(result);
+    }
+
+    [ConditionalFact]
+    public void HasTemplates_throws_when_configuration_but_no_context()
+    {
+        using var projectDir = new TempDirectory();
+
+        var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        File.Create(template).Close();
+
+        var generator = CreateGenerator();
+
+        var ex = Assert.Throws<OperationException>(() => generator.HasTemplates(projectDir));
+
+        Assert.Equal(DesignStrings.NoContextTemplateButConfiguration, ex.Message);
     }
 
     [ConditionalFact]
@@ -54,6 +70,10 @@ public class TextTemplatingModelGeneratorTest
             Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
             "My entity type template");
 
+        File.WriteAllText(
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4"),
+            "My entity type configuration template");
+
         var generator = CreateGenerator();
         var model = new ModelBuilder()
             .Entity("Entity1", b => { })
@@ -61,7 +81,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -71,9 +91,13 @@ public class TextTemplatingModelGeneratorTest
         Assert.Equal("Context.cs", result.ContextFile.Path);
         Assert.Equal("My DbContext template", result.ContextFile.Code);
 
-        var entityType = Assert.Single(result.AdditionalFiles);
-        Assert.Equal("Entity1.cs", entityType.Path);
+        Assert.Equal(2, result.AdditionalFiles.Count);
+
+        var entityType = Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1.cs");
         Assert.Equal("My entity type template", entityType.Code);
+
+        var entityTypeConfiguration = Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1Configuration.cs");
+        Assert.Equal("My entity type configuration template", entityTypeConfiguration.Code);
     }
 
     [ConditionalFact]
@@ -94,7 +118,7 @@ public class TextTemplatingModelGeneratorTest
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -108,25 +132,15 @@ public class TextTemplatingModelGeneratorTest
     }
 
     [ConditionalFact]
-    public void GenerateModel_sets_session_variables()
+    public void GenerateModel_works_when_no_context_template_and_csharp()
     {
         using var projectDir = new TempDirectory();
 
-        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
-        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(template));
         File.WriteAllText(
-            contextTemplate,
-            @"Model not null: <#= Session[""Model""] != null #>
-Options not null: <#= Session[""Options""] != null #>
-NamespaceHint: <#= Session[""NamespaceHint""] #>
-ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
-
-        File.WriteAllText(
-            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
-            @"EntityType not null: <#= Session[""EntityType""] != null #>
-Options not null: <#= Session[""Options""] != null #>
-NamespaceHint: <#= Session[""NamespaceHint""] #>
-ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
+            template,
+            "My entity type template");
 
         var generator = CreateGenerator();
         var model = new ModelBuilder()
@@ -135,7 +149,90 @@ ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
+            {
+                ContextName = "Context",
+                ConnectionString = @"Name=DefaultConnection",
+                ProjectDir = projectDir,
+                Language = "C#"
+            });
+
+        Assert.NotEmpty(result.ContextFile.Code);
+
+        var entityType = Assert.Single(result.AdditionalFiles);
+        Assert.Equal("My entity type template", entityType.Code);
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_throws_when_no_context_template_and_not_csharp()
+    {
+        using var projectDir = new TempDirectory();
+
+        var template = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(template));
+        File.Create(template).Close();
+
+        var generator = CreateGenerator();
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .FinalizeModel();
+
+        var ex = Assert.Throws<OperationException>(
+            () => generator.GenerateModel(
+                model,
+                new ModelCodeGenerationOptions
+                {
+                    ContextName = "Context",
+                    ConnectionString = @"Name=DefaultConnection",
+                    ProjectDir = projectDir,
+                    Language = "VB"
+                }));
+
+        Assert.Equal(DesignStrings.NoContextTemplate, ex.Message);
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_sets_session_variables()
+    {
+        using var projectDir = new TempDirectory();
+
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        File.WriteAllText(
+            contextTemplate,
+"""
+Model not null: <#= Session["Model"] != null #>
+Options not null: <#= Session["Options"] != null #>
+NamespaceHint: <#= Session["NamespaceHint"] #>
+ProjectDefaultNamespace: <#= Session["ProjectDefaultNamespace"] #>
+""");
+
+        File.WriteAllText(
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
+"""
+EntityType not null: <#= Session["EntityType"] != null #>
+Options not null: <#= Session["Options"] != null #>
+NamespaceHint: <#= Session["NamespaceHint"] #>
+ProjectDefaultNamespace: <#= Session["ProjectDefaultNamespace"] #>
+""");
+
+        File.WriteAllText(
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4"),
+"""
+EntityType not null: <#= Session["EntityType"] != null #>
+Options not null: <#= Session["Options"] != null #>
+NamespaceHint: <#= Session["NamespaceHint"] #>
+ProjectDefaultNamespace: <#= Session["ProjectDefaultNamespace"] #>
+""");
+
+        var generator = CreateGenerator();
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .FinalizeModel();
+
+        var result = generator.GenerateModel(
+            model,
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -146,19 +243,35 @@ ProjectDefaultNamespace: <#= Session[""ProjectDefaultNamespace""] #>");
             });
 
         Assert.Equal(
-            @"Model not null: True
+"""
+Model not null: True
 Options not null: True
 NamespaceHint: ContextNamespace
-ProjectDefaultNamespace: RootNamespace",
+ProjectDefaultNamespace: RootNamespace
+""",
             result.ContextFile.Code);
 
-        var entityType = Assert.Single(result.AdditionalFiles);
+        Assert.Equal(2, result.AdditionalFiles.Count);
+
+        var entityType = Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1.cs");
         Assert.Equal(
-            @"EntityType not null: True
+"""
+EntityType not null: True
 Options not null: True
 NamespaceHint: ModelNamespace
-ProjectDefaultNamespace: RootNamespace",
+ProjectDefaultNamespace: RootNamespace
+""",
             entityType.Code);
+
+        var entityTypeConfiguration = Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1Configuration.cs");
+        Assert.Equal(
+"""
+EntityType not null: True
+Options not null: True
+NamespaceHint: ContextNamespace
+ProjectDefaultNamespace: RootNamespace
+""",
+            entityTypeConfiguration.Code);
     }
 
     [ConditionalFact]
@@ -172,13 +285,18 @@ ProjectDefaultNamespace: RootNamespace",
             contextTemplate,
             @"<#= Session[""NamespaceHint""] #>");
 
+        File.WriteAllText(
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4"),
+            @"<#= Session[""NamespaceHint""] #>");
+
         var generator = CreateGenerator();
         var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
             .FinalizeModel();
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -189,6 +307,11 @@ ProjectDefaultNamespace: RootNamespace",
         Assert.Equal(
             "ModelNamespace",
             result.ContextFile.Code);
+
+        var entityTypeConfiguration = Assert.Single(result.AdditionalFiles);
+        Assert.Equal(
+            "ModelNamespace",
+            entityTypeConfiguration.Code);
     }
 
     [ConditionalFact]
@@ -204,17 +327,27 @@ ProjectDefaultNamespace: RootNamespace",
 
         File.WriteAllText(
             Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4"),
-            @"<#@ output extension="".fs"" #>
-My entity type template");
+"""
+<#@ output extension=".fs" #>
+My entity type template
+""");
+
+        File.WriteAllText(
+            Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityTypeConfiguration.t4"),
+"""
+<#@ output extension=".py" #>
+My entity type configuration template
+""");
 
         var generator = CreateGenerator();
         var model = new ModelBuilder()
             .Entity("Entity1", b => { })
+            .Entity("Entity2", b => { })
             .FinalizeModel();
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -223,8 +356,11 @@ My entity type template");
 
         Assert.Equal("Context.vb", result.ContextFile.Path);
 
-        var entityType = Assert.Single(result.AdditionalFiles);
-        Assert.Equal("Entity1.fs", entityType.Path);
+        Assert.Equal(4, result.AdditionalFiles.Count);
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1.fs");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2.fs");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity1Configuration.py");
+        Assert.Single(result.AdditionalFiles, f => f.Path == "Entity2Configuration.py");
     }
 
     [ConditionalFact]
@@ -245,7 +381,7 @@ My entity type template");
 
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -270,17 +406,63 @@ My entity type template");
         Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
         File.WriteAllText(
             contextTemplate,
-            @"<# Warning(""This is a warning"");
-Error(""This is an error""); #>");
+            @"<# Error(""This is an error""); #>");
 
         var reporter = new TestOperationReporter();
         var generator = CreateGenerator(reporter);
         var model = new ModelBuilder()
             .FinalizeModel();
 
+        var ex = Assert.Throws<OperationException>(
+            () => generator.GenerateModel(
+                model,
+                new ModelCodeGenerationOptions
+                {
+                    ContextName = "Context",
+                    ConnectionString = @"Name=DefaultConnection",
+                    ProjectDir = projectDir
+                }));
+
+        Assert.Equal(DesignStrings.ErrorGeneratingOutput(contextTemplate), ex.Message);
+
+        Assert.Collection(
+            reporter.Messages,
+            x =>
+            {
+                Assert.Equal(LogLevel.Error, x.Level);
+                Assert.Contains("This is an error", x.Message);
+            });
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_reports_warnings()
+    {
+        using var projectDir = new TempDirectory();
+
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        File.WriteAllText(
+            contextTemplate,
+            @"<# Warning(""Warning about DbContext""); #>");
+        var entityTypeTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "EntityType.t4");
+        File.WriteAllText(
+            entityTypeTemplate,
+"""
+<#@ assembly name="Microsoft.EntityFrameworkCore" #>
+<#@ parameter name="EntityType" type="Microsoft.EntityFrameworkCore.Metadata.IEntityType" #>
+<# Warning("Warning about " + EntityType.Name); #>
+""");
+
+        var reporter = new TestOperationReporter();
+        var generator = CreateGenerator(reporter);
+        var model = new ModelBuilder()
+            .Entity("Entity1", b => { })
+            .Entity("Entity2", b => { })
+            .FinalizeModel();
+
         var result = generator.GenerateModel(
             model,
-            new()
+            new ModelCodeGenerationOptions
             {
                 ContextName = "Context",
                 ConnectionString = @"Name=DefaultConnection",
@@ -292,12 +474,54 @@ Error(""This is an error""); #>");
             x =>
             {
                 Assert.Equal(LogLevel.Warning, x.Level);
-                Assert.Contains("This is a warning", x.Message);
+                Assert.Contains("Warning about DbContext", x.Message);
             },
             x =>
             {
+                Assert.Equal(LogLevel.Warning, x.Level);
+                Assert.Contains("Warning about Entity1", x.Message);
+            },
+            x =>
+            {
+                Assert.Equal(LogLevel.Warning, x.Level);
+                Assert.Contains("Warning about Entity2", x.Message);
+            });
+    }
+
+    [ConditionalFact]
+    public void GenerateModel_reports_compiler_errors()
+    {
+        using var projectDir = new TempDirectory();
+
+        var contextTemplate = Path.Combine(projectDir, "CodeTemplates", "EFCore", "DbContext.t4");
+        Directory.CreateDirectory(Path.GetDirectoryName(contextTemplate));
+        File.WriteAllText(
+            contextTemplate,
+            "<# #error This is a compiler error #>");
+
+        var reporter = new TestOperationReporter();
+        var generator = CreateGenerator(reporter);
+        var model = new ModelBuilder()
+            .FinalizeModel();
+
+        var ex = Assert.Throws<OperationException>(
+            () => generator.GenerateModel(
+                model,
+                new ModelCodeGenerationOptions
+                {
+                    ContextName = "Context",
+                    ConnectionString = @"Name=DefaultConnection",
+                    ProjectDir = projectDir
+                }));
+
+        Assert.Equal(DesignStrings.ErrorGeneratingOutput(contextTemplate), ex.Message);
+
+        Assert.Collection(
+            reporter.Messages,
+            x =>
+            {
                 Assert.Equal(LogLevel.Error, x.Level);
-                Assert.Contains("This is an error", x.Message);
+                Assert.Contains("DbContext.t4(1,9) : error CS1029: #error: 'This is a compiler error '", x.Message);
             });
     }
 
@@ -310,7 +534,7 @@ Error(""This is an error""); #>");
         return serviceCollection
             .BuildServiceProvider()
             .GetServices<IModelCodeGenerator>()
-            .OfType<TemplatedModelGenerator>()
+            .OfType<TextTemplatingModelGenerator>()
             .Last();
     }
 }

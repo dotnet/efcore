@@ -49,6 +49,7 @@ namespace Microsoft.Data.Sqlite
                 ParameterName = null
             };
 
+            Assert.NotNull(parameter.ParameterName);
             Assert.Empty(parameter.ParameterName);
         }
 
@@ -68,6 +69,7 @@ namespace Microsoft.Data.Sqlite
                 SourceColumn = null
             };
 
+            Assert.NotNull(parameter.SourceColumn);
             Assert.Empty(parameter.SourceColumn);
         }
 

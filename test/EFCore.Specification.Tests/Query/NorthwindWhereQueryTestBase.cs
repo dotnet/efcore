@@ -1066,7 +1066,7 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             ss =>
                 from c in ss.Set<Customer>()
                 from e in ss.Set<Employee>()
-                    // ReSharper disable ArrangeRedundantParentheses
+                // ReSharper disable ArrangeRedundantParentheses
 #pragma warning disable RCS1032 // Remove redundant parentheses.
                 where (c.City == "London" && c.Country == "UK")
                     && (e.City == "London" && e.Country == "UK")
@@ -2328,6 +2328,24 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAt_over_custom_projection_compared_to_not_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAt(3) != null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAtOrDefault(3) != null),
+            entryCount: 79);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task ElementAtOrDefault_over_custom_projection_compared_to_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAtOrDefault(7) == null),
+            ss => ss.Set<Customer>().Where(c => c.Orders.Select(o => new { o.OrderID }).ElementAtOrDefault(7) == null),
+            entryCount: 43);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Single_over_custom_projection_compared_to_null(bool async)
         => AssertQuery(
             async,
@@ -2433,4 +2451,14 @@ public abstract class NorthwindWhereQueryTestBase<TFixture> : QueryTestBase<TFix
             async,
             ss => ss.Set<Customer>().Where(c => c.GetType() != typeof(Order)),
             entryCount: 91);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Case_block_simplification_works_correctly(bool async)
+#pragma warning disable IDE0029 // Use coalesce expression
+        => AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(c => (c.Region == null ? "OR" : c.Region) == "OR"),
+            entryCount: 64);
+#pragma warning restore IDE0029 // Use coalesce expression
 }

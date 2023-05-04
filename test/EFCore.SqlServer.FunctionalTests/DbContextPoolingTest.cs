@@ -1,6 +1,12 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 // ReSharper disable MethodHasAsyncOverload
@@ -25,19 +31,51 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
             .EnableServiceProviderCaching(false);
 
-    private static IServiceProvider BuildServiceProvider<TContextService, TContext>()
+    private static IServiceProvider BuildServiceProvider<TContextService, TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContextService : class
         where TContext : DbContext, TContextService
         => new ServiceCollection()
-            .AddDbContextPool<TContextService, TContext>(ob => ConfigureOptions(ob))
-            .AddDbContextPool<ISecondContext, SecondContext>(ob => ConfigureOptions(ob))
+            .AddDbContextPool<TContextService, TContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
+            .AddDbContextPool<ISecondContext, SecondContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
             .BuildServiceProvider(validateScopes: true);
 
-    private static IServiceProvider BuildServiceProvider<TContext>()
+    private static IServiceProvider BuildServiceProvider<TContext>(Action<DbContextOptionsBuilder> optionsAction = null)
         where TContext : DbContext
         => new ServiceCollection()
-            .AddDbContextPool<TContext>(ob => ConfigureOptions(ob))
-            .AddDbContextPool<SecondContext>(ob => ConfigureOptions(ob))
+            .AddDbContextPool<TContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
+            .AddDbContextPool<SecondContext>(
+                ob =>
+                {
+                    var builder = ConfigureOptions(ob);
+                    if (optionsAction != null)
+                    {
+                        optionsAction(builder);
+                    }
+                })
             .BuildServiceProvider(validateScopes: true);
 
     private static IServiceProvider BuildServiceProviderWithFactory<TContext>()
@@ -107,10 +145,21 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
             ChangeTracker.AutoDetectChangesEnabled = false;
             ChangeTracker.LazyLoadingEnabled = false;
-            Database.AutoTransactionsEnabled = false;
+            Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
             Database.AutoSavepointsEnabled = false;
             ChangeTracker.CascadeDeleteTiming = CascadeTiming.Never;
             ChangeTracker.DeleteOrphansTiming = CascadeTiming.Never;
+            SavingChanges += (sender, args) => { };
+            SavedChanges += (sender, args) => { };
+            SaveChangesFailed += (sender, args) => { };
+            ChangeTracker.Tracking += (sender, args) => { };
+            ChangeTracker.Tracked += (sender, args) => { };
+            ChangeTracker.StateChanging += (sender, args) => { };
+            ChangeTracker.StateChanged += (sender, args) => { };
+            ChangeTracker.DetectingAllChanges += (sender, args) => { };
+            ChangeTracker.DetectedAllChanges += (sender, args) => { };
+            ChangeTracker.DetectingEntityChanges += (sender, args) => { };
+            ChangeTracker.DetectedEntityChanges += (sender, args) => { };
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -124,7 +173,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().ToTable("Customers");
+        {
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+        }
 
         public override void Dispose()
         {
@@ -144,13 +196,26 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public DbSet<Customer> Customers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
-            => modelBuilder.Entity<Customer>().ToTable("Customers");
+        {
+            modelBuilder.Entity<Customer>().ToTable("Customers");
+            modelBuilder.Entity<Order>().ToTable("Orders");
+        }
     }
 
     public class Customer
     {
         public string CustomerId { get; set; }
         public string CompanyName { get; set; }
+        public ILazyLoader LazyLoader { get; set; }
+        public ObservableCollection<Order> Orders { get; } = new();
+    }
+
+    public class Order
+    {
+        public int OrderId { get; set; }
+        public ILazyLoader LazyLoader { get; set; }
+        public string CustomerId { get; set; }
+        public Customer Customer { get; set; }
     }
 
     private interface ISecondContext
@@ -389,7 +454,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     }
 
     [ConditionalFact]
-    public void Throws_when_pooled_context_constructor_has_more_than_one_parameter()
+    public void Throws_when_pooled_context_constructor_has_second_parameter_that_cannot_be_resolved_from_service_provider()
     {
         var serviceProvider
             = new ServiceCollection().AddDbContextPool<TwoParameterConstructorContext>(_ => { })
@@ -397,21 +462,22 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         using var scope = serviceProvider.CreateScope();
 
-        Assert.Equal(
-            CoreStrings.PoolingContextCtorError(nameof(TwoParameterConstructorContext)),
-            Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>()).Message);
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>());
     }
 
     private class TwoParameterConstructorContext : DbContext
     {
+        public string StringParameter { get; }
+
         public TwoParameterConstructorContext(DbContextOptions options, string x)
             : base(options)
         {
+            StringParameter = x;
         }
     }
 
     [ConditionalFact]
-    public void Throws_when_pooled_context_constructor_wrong_parameter()
+    public void Throws_when_pooled_context_constructor_has_single_parameter_that_cannot_be_resolved_from_service_provider()
     {
         var serviceProvider
             = new ServiceCollection().AddDbContextPool<WrongParameterConstructorContext>(_ => { })
@@ -419,10 +485,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         using var scope = serviceProvider.CreateScope();
 
-        Assert.Equal(
-            CoreStrings.PoolingContextCtorError(nameof(WrongParameterConstructorContext)),
-            Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>())
-                .Message);
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<WrongParameterConstructorContext>());
     }
 
     private class WrongParameterConstructorContext : DbContext
@@ -430,6 +493,80 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         public WrongParameterConstructorContext(string x)
             : base(new DbContextOptions<WrongParameterConstructorContext>())
         {
+        }
+    }
+
+    [ConditionalFact]
+    public void Throws_when_pooled_context_constructor_has_scoped_service()
+    {
+        var serviceProvider
+            = new ServiceCollection()
+                .AddDbContextPool<TwoParameterConstructorContext>(_ => { })
+                .AddScoped(sp => "string")
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+
+        Assert.Throws<InvalidOperationException>(() => scope.ServiceProvider.GetService<TwoParameterConstructorContext>());
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_when_pooled_context_constructor_has_singleton_service()
+    {
+        var serviceProvider
+            = new ServiceCollection()
+                .AddDbContextPool<TwoParameterConstructorContext>(_ => { })
+                .AddSingleton("string")
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetService<TwoParameterConstructorContext>();
+
+        Assert.Equal("string", context.StringParameter);
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_when_parameterless_and_correct_constructor()
+    {
+        var serviceProvider
+            = new ServiceCollection().AddDbContextPool<WithParameterlessConstructorContext>(_ => { })
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<WithParameterlessConstructorContext>();
+
+        Assert.Equal("Options", context.ConstructorUsed);
+    }
+
+    [ConditionalFact]
+    public void Does_not_throw_when_parameterless_and_correct_constructor_using_factory_pool()
+    {
+        var serviceProvider
+            = new ServiceCollection().AddPooledDbContextFactory<WithParameterlessConstructorContext>(_ => { })
+                .BuildServiceProvider(validateScopes: true);
+
+        using var scope = serviceProvider.CreateScope();
+
+        var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<WithParameterlessConstructorContext>>();
+        using var context = factory.CreateDbContext();
+
+        Assert.Equal("Options", context.ConstructorUsed);
+    }
+
+    private class WithParameterlessConstructorContext : DbContext
+    {
+        public string ConstructorUsed { get; }
+
+        public WithParameterlessConstructorContext()
+        {
+            ConstructorUsed = "Parameterless";
+        }
+
+        public WithParameterlessConstructorContext(DbContextOptions<WithParameterlessConstructorContext> options)
+            : base(options)
+        {
+            ConstructorUsed = "Options";
         }
     }
 
@@ -691,15 +828,27 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     }
 
     [ConditionalTheory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public async Task Context_configuration_is_reset(bool useInterface, bool async)
+    [InlineData(false, false, null)]
+    [InlineData(true, false, null)]
+    [InlineData(false, true, null)]
+    [InlineData(true, true, null)]
+    [InlineData(false, false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(false, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Context_configuration_is_reset(bool useInterface, bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
         var serviceProvider = useInterface
-            ? BuildServiceProvider<IPooledContext, PooledContext>()
-            : BuildServiceProvider<PooledContext>();
+            ? BuildServiceProvider<IPooledContext, PooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior))
+            : BuildServiceProvider<PooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -710,17 +859,43 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Null(context1!.Database.GetCommandTimeout());
 
+        var set = context1.Customers;
+        var localView = set.Local;
+        localView.PropertyChanged += LocalView_OnPropertyChanged;
+        localView.PropertyChanging += LocalView_OnPropertyChanging;
+        localView.CollectionChanged += LocalView_OnCollectionChanged;
+        var customer1 = new Customer { CustomerId = "C" };
+        context1.Customers.Attach(customer1);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer1, localView.ToBindingList().Single());
+        Assert.Same(customer1, localView.ToObservableCollection().Single());
+        Assert.True(_localView_OnPropertyChanging);
+        Assert.True(_localView_OnPropertyChanged);
+        Assert.True(_localView_OnCollectionChanged);
+
         context1.ChangeTracker.AutoDetectChangesEnabled = true;
         context1.ChangeTracker.LazyLoadingEnabled = true;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
-        context1.Database.AutoTransactionsEnabled = true;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
         context1.Database.AutoSavepointsEnabled = true;
         context1.Database.SetCommandTimeout(1);
-        context1.SavingChanges += (sender, args) => { };
-        context1.SavedChanges += (sender, args) => { };
-        context1.SaveChangesFailed += (sender, args) => { };
+        context1.ChangeTracker.Tracking += ChangeTracker_OnTracking;
+        context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+        context1.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
+        context1.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+        context1.ChangeTracker.DetectingAllChanges += ChangeTracker_OnDetectingAllChanges;
+        context1.ChangeTracker.DetectedAllChanges += ChangeTracker_OnDetectedAllChanges;
+        context1.ChangeTracker.DetectingEntityChanges += ChangeTracker_OnDetectingEntityChanges;
+        context1.ChangeTracker.DetectedEntityChanges += ChangeTracker_OnDetectedEntityChanges;
+        context1.SavingChanges += Context_OnSavingChanges;
+        context1.SavedChanges += Context_OnSavedChanges;
+        context1.SaveChangesFailed += Context_OnSaveChangesFailed;
+
+        _localView_OnPropertyChanging = false;
+        _localView_OnPropertyChanged = false;
+        _localView_OnCollectionChanged = false;
 
         await Dispose(serviceScope, async);
 
@@ -733,26 +908,60 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Same(context1, context2);
 
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavingChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavedChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SaveChangesFailed)));
-
         Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+        Assert.Equal(queryTrackingBehavior ?? QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.False(context2.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.Never, context2.Database.AutoTransactionBehavior);
         Assert.False(context2.Database.AutoSavepointsEnabled);
         Assert.Null(context1.Database.GetCommandTimeout());
+
+        Assert.Empty(localView);
+        Assert.Empty(localView.ToBindingList());
+        Assert.Empty(localView.ToObservableCollection());
+
+        var customer2 = new Customer { CustomerId = "C" };
+        context2.Customers.Attach(customer2).State = EntityState.Modified;
+        context2.Customers.Attach(customer2).State = EntityState.Unchanged;
+
+        Assert.False(_changeTracker_OnTracking);
+        Assert.False(_changeTracker_OnTracked);
+        Assert.False(_changeTracker_OnStateChanging);
+        Assert.False(_changeTracker_OnStateChanged);
+
+        context2.SaveChanges();
+
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
+        Assert.False(_context_OnSavedChanges);
+        Assert.False(_context_OnSavingChanges);
+        Assert.False(_context_OnSaveChangesFailed);
+
+        Assert.Same(set, context2!.Customers);
+        Assert.Same(localView, context2!.Customers.Local);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer2, localView.ToBindingList().Single());
+        Assert.Same(customer2, localView.ToObservableCollection().Single());
+        Assert.False(_localView_OnPropertyChanging);
+        Assert.False(_localView_OnPropertyChanged);
+        Assert.False(_localView_OnCollectionChanged);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Uninitialized_context_configuration_is_reset_properly(bool async)
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Uninitialized_context_configuration_is_reset_properly(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
-        var serviceProvider = BuildServiceProvider<SecondContext>();
+        var serviceProvider = BuildServiceProvider<SecondContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var ctx = serviceScope.ServiceProvider.GetRequiredService<SecondContext>();
@@ -784,17 +993,43 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         var factory = BuildFactory<PooledContext>(withDependencyInjection);
 
         var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        var set = context1.Customers;
+
+        var localView = set.Local;
+        localView.PropertyChanged += LocalView_OnPropertyChanged;
+        localView.PropertyChanging += LocalView_OnPropertyChanging;
+        localView.CollectionChanged += LocalView_OnCollectionChanged;
+        var customer1 = new Customer { CustomerId = "C" };
+        context1.Customers.Attach(customer1);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer1, localView.ToBindingList().Single());
+        Assert.Same(customer1, localView.ToObservableCollection().Single());
+        Assert.True(_localView_OnPropertyChanging);
+        Assert.True(_localView_OnPropertyChanged);
+        Assert.True(_localView_OnCollectionChanged);
 
         context1.ChangeTracker.AutoDetectChangesEnabled = true;
         context1.ChangeTracker.LazyLoadingEnabled = true;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
-        context1.Database.AutoTransactionsEnabled = true;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
         context1.Database.AutoSavepointsEnabled = true;
-        context1.SavingChanges += (sender, args) => { };
-        context1.SavedChanges += (sender, args) => { };
-        context1.SaveChangesFailed += (sender, args) => { };
+        context1.ChangeTracker.Tracking += ChangeTracker_OnTracking;
+        context1.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+        context1.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
+        context1.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
+        context1.ChangeTracker.DetectingAllChanges += ChangeTracker_OnDetectingAllChanges;
+        context1.ChangeTracker.DetectedAllChanges += ChangeTracker_OnDetectedAllChanges;
+        context1.ChangeTracker.DetectingEntityChanges += ChangeTracker_OnDetectingEntityChanges;
+        context1.ChangeTracker.DetectedEntityChanges += ChangeTracker_OnDetectedEntityChanges;
+        context1.SavingChanges += Context_OnSavingChanges;
+        context1.SavedChanges += Context_OnSavedChanges;
+        context1.SaveChangesFailed += Context_OnSaveChangesFailed;
+
+        _localView_OnPropertyChanging = false;
+        _localView_OnPropertyChanged = false;
+        _localView_OnCollectionChanged = false;
 
         await Dispose(context1, async);
 
@@ -802,18 +1037,37 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Same(context1, context2);
 
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavingChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SavedChanges)));
-        Assert.Null(GetContextEventField(context2, nameof(DbContext.SaveChangesFailed)));
+        Assert.Empty(localView);
+        Assert.Empty(localView.ToBindingList());
+        Assert.Empty(localView.ToObservableCollection());
 
-        Assert.False(context2!.ChangeTracker.AutoDetectChangesEnabled);
-        Assert.False(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
-        Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.CascadeDeleteTiming);
-        Assert.Equal(CascadeTiming.Never, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.False(context2.Database.AutoTransactionsEnabled);
-        Assert.False(context2.Database.AutoSavepointsEnabled);
-        Assert.Null(context1.Database.GetCommandTimeout());
+        var customer2 = new Customer { CustomerId = "C" };
+        context2.Customers.Attach(customer2).State = EntityState.Modified;
+        context2.Customers.Attach(customer2).State = EntityState.Unchanged;
+
+        Assert.False(_changeTracker_OnTracking);
+        Assert.False(_changeTracker_OnTracked);
+        Assert.False(_changeTracker_OnStateChanging);
+        Assert.False(_changeTracker_OnStateChanged);
+
+        context2.SaveChanges();
+
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
+        Assert.False(_context_OnSavedChanges);
+        Assert.False(_context_OnSavingChanges);
+        Assert.False(_context_OnSaveChangesFailed);
+
+        Assert.Same(set, context2!.Customers);
+        Assert.Same(localView, context2!.Customers.Local);
+        Assert.Equal(1, localView.Count);
+        Assert.Same(customer2, localView.ToBindingList().Single());
+        Assert.Same(customer2, localView.ToObservableCollection().Single());
+        Assert.False(_localView_OnPropertyChanging);
+        Assert.False(_localView_OnPropertyChanged);
+        Assert.False(_localView_OnCollectionChanged);
     }
 
     [ConditionalFact]
@@ -823,22 +1077,24 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
             new DbContextOptionsBuilder().UseSqlServer(
                 SqlServerNorthwindTestStoreFactory.NorthwindConnectionString).Options);
 
-        Assert.Null(GetContextEventField(context, nameof(DbContext.SavingChanges)));
-        Assert.Null(GetContextEventField(context, nameof(DbContext.SavedChanges)));
-        Assert.Null(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
-
         context.ChangeTracker.AutoDetectChangesEnabled = true;
         context.ChangeTracker.LazyLoadingEnabled = true;
         context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         context.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
-        context.Database.AutoTransactionsEnabled = true;
+        context.Database.AutoTransactionBehavior = AutoTransactionBehavior.WhenNeeded;
         context.Database.AutoSavepointsEnabled = true;
+        context.ChangeTracker.Tracking += ChangeTracker_OnTracking;
         context.ChangeTracker.Tracked += ChangeTracker_OnTracked;
+        context.ChangeTracker.StateChanging += ChangeTracker_OnStateChanging;
         context.ChangeTracker.StateChanged += ChangeTracker_OnStateChanged;
-        context.SavingChanges += (sender, args) => { };
-        context.SavedChanges += (sender, args) => { };
-        context.SaveChangesFailed += (sender, args) => { };
+        context.ChangeTracker.DetectingAllChanges += ChangeTracker_OnDetectingAllChanges;
+        context.ChangeTracker.DetectedAllChanges += ChangeTracker_OnDetectedAllChanges;
+        context.ChangeTracker.DetectingEntityChanges += ChangeTracker_OnDetectingEntityChanges;
+        context.ChangeTracker.DetectedEntityChanges += ChangeTracker_OnDetectedEntityChanges;
+        context.SavingChanges += Context_OnSavingChanges;
+        context.SavedChanges += Context_OnSavedChanges;
+        context.SaveChangesFailed += Context_OnSaveChangesFailed;
 
         context.ChangeTracker.Clear();
 
@@ -847,44 +1103,124 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Equal(QueryTrackingBehavior.NoTracking, context.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context.ChangeTracker.DeleteOrphansTiming);
-        Assert.True(context.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.WhenNeeded, context.Database.AutoTransactionBehavior);
         Assert.True(context.Database.AutoSavepointsEnabled);
 
+        Assert.False(_changeTracker_OnTracking);
         Assert.False(_changeTracker_OnTracked);
+        Assert.False(_changeTracker_OnStateChanging);
         Assert.False(_changeTracker_OnStateChanged);
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
 
-        context.Customers.Attach(
-            new Customer { CustomerId = "C" }).State = EntityState.Modified;
+        var customer = new Customer { CustomerId = "C" };
+        context.Customers.Attach(customer).State = EntityState.Modified;
+        context.Customers.Attach(customer).State = EntityState.Unchanged;
 
+        Assert.True(_changeTracker_OnTracking);
         Assert.True(_changeTracker_OnTracked);
+        Assert.True(_changeTracker_OnStateChanging);
         Assert.True(_changeTracker_OnStateChanged);
+        Assert.False(_changeTracker_OnDetectingAllChanges);
+        Assert.False(_changeTracker_OnDetectedAllChanges);
+        Assert.False(_changeTracker_OnDetectingEntityChanges);
+        Assert.False(_changeTracker_OnDetectedEntityChanges);
 
-        Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavingChanges)));
-        Assert.NotNull(GetContextEventField(context, nameof(DbContext.SavedChanges)));
-        Assert.NotNull(GetContextEventField(context, nameof(DbContext.SaveChangesFailed)));
+        context.SaveChanges();
+
+        Assert.True(_changeTracker_OnDetectingAllChanges);
+        Assert.True(_changeTracker_OnDetectedAllChanges);
+        Assert.True(_changeTracker_OnDetectingEntityChanges);
+        Assert.True(_changeTracker_OnDetectedEntityChanges);
+        Assert.True(_context_OnSavedChanges);
+        Assert.True(_context_OnSavingChanges);
+        Assert.False(_context_OnSaveChangesFailed);
     }
 
-    private object GetContextEventField(DbContext context, string eventName)
-        => typeof(DbContext)
-            .GetField(eventName, BindingFlags.GetField | BindingFlags.NonPublic | BindingFlags.Instance)!
-            .GetValue(context);
+    private void Context_OnSavingChanges(object sender, SavingChangesEventArgs e)
+        => _context_OnSavingChanges = true;
+
+    private bool _context_OnSavingChanges;
+
+    private void Context_OnSavedChanges(object sender, SavedChangesEventArgs e)
+        => _context_OnSavedChanges = true;
+
+    private bool _context_OnSavedChanges;
+
+    private void Context_OnSaveChangesFailed(object sender, SaveChangesFailedEventArgs e)
+        => _context_OnSaveChangesFailed = true;
+
+    private bool _context_OnSaveChangesFailed;
+
+    private bool _localView_OnPropertyChanged;
+
+    private void LocalView_OnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        => _localView_OnPropertyChanged = true;
+
+    private bool _localView_OnPropertyChanging;
+
+    private void LocalView_OnPropertyChanging(object sender, PropertyChangingEventArgs e)
+        => _localView_OnPropertyChanging = true;
+
+    private bool _localView_OnCollectionChanged;
+
+    private void LocalView_OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        => _localView_OnCollectionChanged = true;
+
+    private bool _changeTracker_OnTracking;
+
+    private void ChangeTracker_OnTracking(object sender, EntityTrackingEventArgs e)
+        => _changeTracker_OnTracking = true;
 
     private bool _changeTracker_OnTracked;
 
     private void ChangeTracker_OnTracked(object sender, EntityTrackedEventArgs e)
         => _changeTracker_OnTracked = true;
 
+    private bool _changeTracker_OnStateChanging;
+
+    private void ChangeTracker_OnStateChanging(object sender, EntityStateChangingEventArgs e)
+        => _changeTracker_OnStateChanging = true;
+
     private bool _changeTracker_OnStateChanged;
 
     private void ChangeTracker_OnStateChanged(object sender, EntityStateChangedEventArgs e)
         => _changeTracker_OnStateChanged = true;
 
+    private bool _changeTracker_OnDetectingAllChanges;
+
+    private void ChangeTracker_OnDetectingAllChanges(object sender, DetectChangesEventArgs e)
+        => _changeTracker_OnDetectingAllChanges = true;
+
+    private bool _changeTracker_OnDetectedAllChanges;
+
+    private void ChangeTracker_OnDetectedAllChanges(object sender, DetectedChangesEventArgs e)
+        => _changeTracker_OnDetectedAllChanges = true;
+
+    private bool _changeTracker_OnDetectingEntityChanges;
+
+    private void ChangeTracker_OnDetectingEntityChanges(object sender, DetectEntityChangesEventArgs e)
+        => _changeTracker_OnDetectingEntityChanges = true;
+
+    private bool _changeTracker_OnDetectedEntityChanges;
+
+    private void ChangeTracker_OnDetectedEntityChanges(object sender, DetectedEntityChangesEventArgs e)
+        => _changeTracker_OnDetectedEntityChanges = true;
+
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task Default_Context_configuration_is_reset(bool async)
+    [InlineData(false, null)]
+    [InlineData(true, null)]
+    [InlineData(false, QueryTrackingBehavior.TrackAll)]
+    [InlineData(true, QueryTrackingBehavior.TrackAll)]
+    [InlineData(false, QueryTrackingBehavior.NoTracking)]
+    [InlineData(true, QueryTrackingBehavior.NoTracking)]
+    [InlineData(false, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    [InlineData(true, QueryTrackingBehavior.NoTrackingWithIdentityResolution)]
+    public async Task Default_Context_configuration_is_reset(bool async, QueryTrackingBehavior? queryTrackingBehavior)
     {
-        var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>();
+        var serviceProvider = BuildServiceProvider<DefaultOptionsPooledContext>(b => UseQueryTrackingBehavior(b, queryTrackingBehavior));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -894,7 +1230,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1!.ChangeTracker.AutoDetectChangesEnabled = false;
         context1.ChangeTracker.LazyLoadingEnabled = false;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-        context1.Database.AutoTransactionsEnabled = false;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context1.Database.AutoSavepointsEnabled = false;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
@@ -910,10 +1246,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.True(context2!.ChangeTracker.AutoDetectChangesEnabled);
         Assert.True(context2.ChangeTracker.LazyLoadingEnabled);
-        Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
+        Assert.Equal(queryTrackingBehavior ?? QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.True(context2.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.WhenNeeded, context2.Database.AutoTransactionBehavior);
         Assert.True(context2.Database.AutoSavepointsEnabled);
     }
 
@@ -931,7 +1267,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         context1.ChangeTracker.AutoDetectChangesEnabled = false;
         context1.ChangeTracker.LazyLoadingEnabled = false;
         context1.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-        context1.Database.AutoTransactionsEnabled = false;
+        context1.Database.AutoTransactionBehavior = AutoTransactionBehavior.Never;
         context1.Database.AutoSavepointsEnabled = false;
         context1.ChangeTracker.CascadeDeleteTiming = CascadeTiming.Immediate;
         context1.ChangeTracker.DeleteOrphansTiming = CascadeTiming.Immediate;
@@ -947,7 +1283,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         Assert.Equal(QueryTrackingBehavior.TrackAll, context2.ChangeTracker.QueryTrackingBehavior);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.CascadeDeleteTiming);
         Assert.Equal(CascadeTiming.Immediate, context2.ChangeTracker.DeleteOrphansTiming);
-        Assert.True(context2.Database.AutoTransactionsEnabled);
+        Assert.Equal(AutoTransactionBehavior.WhenNeeded, context2.Database.AutoTransactionBehavior);
         Assert.True(context2.Database.AutoSavepointsEnabled);
     }
 
@@ -1031,6 +1367,101 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.False(weakRef.IsAlive);
     }
+
+    [ConditionalTheory] // Issue #25486
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Service_properties_are_disposed(bool useInterface, bool async, bool load)
+    {
+        var serviceProvider = useInterface
+            ? BuildServiceProvider<IPooledContext, PooledContext>()
+            : BuildServiceProvider<PooledContext>();
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = useInterface
+            ? (PooledContext)scopedProvider.GetService<IPooledContext>()
+            : scopedProvider.GetService<PooledContext>();
+
+        context1.ChangeTracker.LazyLoadingEnabled = true;
+
+        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+        var orderLoader = entity.LazyLoader;
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+        }
+
+        Assert.Equal(load ? 7 : 1, context1.ChangeTracker.Entries().Count());
+
+        await Dispose(serviceScope, async);
+
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+            orderLoader.SetLoaded(entity, nameof(Customer.Orders), loaded: false);
+        }
+
+        AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
+    }
+
+    [ConditionalTheory] // Issue #25486
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Service_properties_are_disposed_with_factory(bool async, bool withDependencyInjection, bool load)
+    {
+        var factory = BuildFactory<PooledContext>(withDependencyInjection);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+
+        context1.ChangeTracker.LazyLoadingEnabled = true;
+
+        var entity = context1.Customers.First(c => c.CustomerId == "ALFKI");
+        var orderLoader = entity.LazyLoader;
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+        }
+
+        Assert.Equal(load ? 7 : 1, context1.ChangeTracker.Entries().Count());
+
+        await Dispose(context1, async);
+
+        if (load)
+        {
+            orderLoader.Load(entity, nameof(Customer.Orders));
+            Assert.True(orderLoader.IsLoaded(entity, nameof(Customer.Orders)));
+            orderLoader.SetLoaded(entity, nameof(Customer.Orders), loaded: false);
+        }
+
+        AssertDisposed(() => orderLoader.Load(entity, nameof(Customer.Orders)), "Customer", "Orders");
+    }
+
+    private static void AssertDisposed(Action testCode, string entityTypeName, string navigationName)
+        => Assert.Equal(
+            CoreStrings.WarningAsErrorTemplate(
+                CoreEventId.LazyLoadOnDisposedContextWarning.ToString(),
+                CoreResources.LogLazyLoadOnDisposedContext(new TestLogger<TestLoggingDefinitions>())
+                    .GenerateMessage(entityTypeName, navigationName),
+                "CoreEventId.LazyLoadOnDisposedContextWarning"),
+            Assert.Throws<InvalidOperationException>(
+                testCode).Message);
 
     [ConditionalTheory]
     [InlineData(false, false)]
@@ -1199,7 +1630,7 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
     {
         var serviceProvider = useInterface
             ? BuildServiceProvider<IPooledContext, PooledContext>()
-            : BuildServiceProvider<PooledContext>();
+            : BuildServiceProvider<PooledContext>(o => o.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking));
 
         var serviceScope = serviceProvider.CreateScope();
         var scopedProvider = serviceScope.ServiceProvider;
@@ -1273,6 +1704,313 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
 
         Assert.Same(context2, context3);
         Assert.Null(context3.Database.CurrentTransaction);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection(bool async, bool openWithEf)
+    {
+        var serviceProvider = new ServiceCollection()
+            .AddDbContextPool<PooledContext>(
+                ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                    .EnableServiceProviderCaching(false))
+            .BuildServiceProvider(validateScopes: true);
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = scopedProvider.GetRequiredService<PooledContext>();
+        var connection1 = context1.Database.GetDbConnection();
+
+        if (async)
+        {
+            if (openWithEf)
+            {
+                await context1.Database.OpenConnectionAsync();
+            }
+            else
+            {
+                await connection1.OpenAsync();
+            }
+        }
+        else
+        {
+            if (openWithEf)
+            {
+                context1.Database.OpenConnection();
+            }
+            else
+            {
+                connection1.Open();
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection1.State);
+
+        await Dispose(serviceScope, async);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        serviceScope = serviceProvider.CreateScope();
+        scopedProvider = serviceScope.ServiceProvider;
+
+        var context2 = scopedProvider.GetRequiredService<PooledContext>();
+        Assert.Same(context1, context2);
+
+        var connection2 = context2.Database.GetDbConnection();
+        Assert.Same(connection1, connection2);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        await Dispose(serviceScope, async);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_external_connection(bool async, bool startsOpen, bool openWithEf)
+    {
+        using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+
+        if (startsOpen)
+        {
+            if (async)
+            {
+                await connection.OpenAsync();
+            }
+            else
+            {
+                connection.Open();
+            }
+        }
+
+        var serviceProvider = new ServiceCollection()
+            .AddDbContextPool<PooledContext>(
+                ob => ob.UseSqlServer(connection)
+                    .EnableServiceProviderCaching(false))
+            .BuildServiceProvider(validateScopes: true);
+
+        var serviceScope = serviceProvider.CreateScope();
+        var scopedProvider = serviceScope.ServiceProvider;
+
+        var context1 = scopedProvider.GetRequiredService<PooledContext>();
+        Assert.Same(connection, context1.Database.GetDbConnection());
+
+        if (!startsOpen)
+        {
+            if (async)
+            {
+                if (openWithEf)
+                {
+                    await context1.Database.OpenConnectionAsync();
+                }
+                else
+                {
+                    await connection.OpenAsync();
+                }
+            }
+            else
+            {
+                if (openWithEf)
+                {
+                    context1.Database.OpenConnection();
+                }
+                else
+                {
+                    connection.Open();
+                }
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(serviceScope, async);
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        serviceScope = serviceProvider.CreateScope();
+        scopedProvider = serviceScope.ServiceProvider;
+
+        var context2 = scopedProvider.GetRequiredService<PooledContext>();
+        Assert.Same(context1, context2);
+
+        Assert.Same(connection, context2.Database.GetDbConnection());
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(serviceScope, async);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_owned_connection_with_factory(
+        bool async,
+        bool openWithEf,
+        bool withDependencyInjection)
+    {
+        var options = new DbContextOptionsBuilder<PooledContext>()
+            .UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+            .EnableServiceProviderCaching(false)
+            .Options;
+
+        var factory =
+            withDependencyInjection
+                ? new ServiceCollection()
+                    .AddPooledDbContextFactory<PooledContext>(
+                        ob => ob.UseSqlServer(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString)
+                            .EnableServiceProviderCaching(false))
+                    .BuildServiceProvider(validateScopes: true)
+                    .GetRequiredService<IDbContextFactory<PooledContext>>()
+                : new PooledDbContextFactory<PooledContext>(options);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        var connection1 = context1.Database.GetDbConnection();
+
+        if (async)
+        {
+            if (openWithEf)
+            {
+                await context1.Database.OpenConnectionAsync();
+            }
+            else
+            {
+                await connection1.OpenAsync();
+            }
+        }
+        else
+        {
+            if (openWithEf)
+            {
+                context1.Database.OpenConnection();
+            }
+            else
+            {
+                connection1.Open();
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection1.State);
+
+        await Dispose(context1, async);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        Assert.Same(context1, context2);
+
+        var connection2 = context2.Database.GetDbConnection();
+        Assert.Same(connection1, connection2);
+
+        Assert.Equal(ConnectionState.Closed, connection1.State);
+
+        await Dispose(context2, async);
+    }
+
+    [ConditionalTheory] // Issue #27308.
+    [InlineData(false, false, false, false)]
+    [InlineData(true, false, false, false)]
+    [InlineData(false, true, false, false)]
+    [InlineData(true, true, false, false)]
+    [InlineData(false, false, true, false)]
+    [InlineData(true, false, true, false)]
+    [InlineData(false, false, false, true)]
+    [InlineData(true, false, false, true)]
+    [InlineData(false, true, false, true)]
+    [InlineData(true, true, false, true)]
+    [InlineData(false, false, true, true)]
+    [InlineData(true, false, true, true)]
+    public async Task Handle_open_connection_when_returning_to_pool_for_external_connection_with_factory(
+        bool async,
+        bool startsOpen,
+        bool openWithEf,
+        bool withDependencyInjection)
+    {
+        using var connection = new SqlConnection(SqlServerNorthwindTestStoreFactory.NorthwindConnectionString);
+
+        if (startsOpen)
+        {
+            if (async)
+            {
+                await connection.OpenAsync();
+            }
+            else
+            {
+                connection.Open();
+            }
+        }
+
+        var options = new DbContextOptionsBuilder<PooledContext>()
+            .UseSqlServer(connection)
+            .EnableServiceProviderCaching(false)
+            .Options;
+
+        var factory =
+            withDependencyInjection
+                ? new ServiceCollection()
+                    .AddPooledDbContextFactory<PooledContext>(
+                        ob => ob.UseSqlServer(connection)
+                            .EnableServiceProviderCaching(false))
+                    .BuildServiceProvider(validateScopes: true)
+                    .GetRequiredService<IDbContextFactory<PooledContext>>()
+                : new PooledDbContextFactory<PooledContext>(options);
+
+        var context1 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        Assert.Same(connection, context1.Database.GetDbConnection());
+
+        if (!startsOpen)
+        {
+            if (async)
+            {
+                if (openWithEf)
+                {
+                    await context1.Database.OpenConnectionAsync();
+                }
+                else
+                {
+                    await connection.OpenAsync();
+                }
+            }
+            else
+            {
+                if (openWithEf)
+                {
+                    context1.Database.OpenConnection();
+                }
+                else
+                {
+                    connection.Open();
+                }
+            }
+        }
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(context1, async);
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        var context2 = async ? await factory.CreateDbContextAsync() : factory.CreateDbContext();
+        Assert.Same(context1, context2);
+
+        Assert.Same(connection, context2.Database.GetDbConnection());
+
+        Assert.Equal(ConnectionState.Open, connection.State);
+
+        await Dispose(context2, async);
     }
 
     [ConditionalTheory]
@@ -1417,6 +2155,14 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
                             }
                         }
                     })));
+    }
+
+    private void UseQueryTrackingBehavior(DbContextOptionsBuilder optionsBuilder, QueryTrackingBehavior? queryTrackingBehavior)
+    {
+        if (queryTrackingBehavior.HasValue)
+        {
+            optionsBuilder.UseQueryTrackingBehavior(queryTrackingBehavior.Value);
+        }
     }
 
     private async Task Dispose(IDisposable disposable, bool async)

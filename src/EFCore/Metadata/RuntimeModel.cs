@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -37,6 +38,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     private readonly ConcurrentDictionary<Type, PropertyInfo?> _indexerPropertyInfoMap = new();
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
+    private readonly ConcurrentDictionary<Type, RuntimeEntityType> _adHocEntityTypes = new();
 
     /// <summary>
     ///     Sets a value indicating whether <see cref="ChangeTracker.DetectChanges" /> should be called.
@@ -62,7 +64,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     /// <returns>The new entity type.</returns>
     public virtual RuntimeEntityType AddEntityType(
         string name,
-        Type type,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         RuntimeEntityType? baseType = null,
         bool sharedClrType = false,
         string? discriminatorProperty = null,
@@ -102,6 +104,28 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     }
 
     /// <summary>
+    ///     Adds an ad-hoc entity type to the model.
+    /// </summary>
+    /// <param name="entityType">The entity type.</param>
+    public virtual RuntimeEntityType GetOrAddAdHocEntityType(RuntimeEntityType entityType)
+    {
+        entityType.Reparent(this);
+        return _adHocEntityTypes.GetOrAdd(((IReadOnlyTypeBase)entityType).ClrType, entityType);
+    }
+
+    /// <summary>
+    ///     Gets all ad-hoc entity types defined in the model.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
+    /// </remarks>
+    /// <returns>All entity types defined in the model.</returns>
+    [DebuggerStepThrough]
+    public virtual IEnumerable<IReadOnlyEntityType> GetAdHocEntityTypes()
+        => _adHocEntityTypes.Values;
+
+
+    /// <summary>
     ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name is found
     ///     or the given CLR type is being used by shared type entity type
     ///     or the entity type has a defining navigation.
@@ -110,6 +134,17 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
     public virtual RuntimeEntityType? FindEntityType(string name)
         => _entityTypes.TryGetValue(name, out var entityType)
+            ? entityType
+            : null;
+
+    /// <summary>
+    ///     Gets the entity type with the given name. Returns <see langword="null" /> if no entity type with the given name has been
+    ///     mapped as an ad-hoc type.
+    /// </summary>
+    /// <param name="clrType">The CLR type of the entity type to find.</param>
+    /// <returns>The entity type, or <see langword="null" /> if none is found.</returns>
+    public virtual RuntimeEntityType? FindAdHocEntityType(Type clrType)
+        => _adHocEntityTypes.TryGetValue(clrType, out var entityType)
             ? entityType
             : null;
 
@@ -173,7 +208,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     private string GetDisplayName(Type type)
         => _clrTypeNameMap.GetOrAdd(type, t => t.DisplayName());
 
-    private PropertyInfo? FindIndexerPropertyInfo(Type type)
+    private PropertyInfo? FindIndexerPropertyInfo([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
         => _indexerPropertyInfoMap.GetOrAdd(type, type.FindIndexerProperty());
 
     /// <summary>
@@ -240,7 +275,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    IEntityType? IModel.FindEntityType(Type type)
+    IEntityType? IModel.FindEntityType([DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type)
         => FindEntityType(type);
 
     /// <inheritdoc />
@@ -289,7 +324,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
 
     /// <inheritdoc />
     [DebuggerStepThrough]
-    bool IReadOnlyModel.IsShared(Type type)
+    bool IReadOnlyModel.IsShared([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type)
         => _sharedTypes.ContainsKey(type);
 
     /// <inheritdoc />

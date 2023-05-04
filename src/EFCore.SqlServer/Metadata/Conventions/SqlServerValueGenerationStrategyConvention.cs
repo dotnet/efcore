@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable once CheckNamespace
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -85,9 +84,23 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 }
 
                 // Needed for the annotation to show up in the model snapshot
-                if (strategy != null)
+                if (strategy != null
+                    && declaringTable.Name != null)
                 {
                     property.Builder.HasValueGenerationStrategy(strategy);
+
+                    if (strategy == SqlServerValueGenerationStrategy.Sequence)
+                    {
+                        var sequence = modelBuilder.HasSequence(
+                            property.GetSequenceName(declaringTable)
+                            ?? entityType.GetRootType().ShortName() + modelBuilder.Metadata.GetSequenceNameSuffix(),
+                            property.GetSequenceSchema(declaringTable)
+                            ?? modelBuilder.Metadata.GetSequenceSchema()).Metadata;
+
+                        property.Builder.HasDefaultValueSql(
+                            RelationalDependencies.UpdateSqlGenerator.GenerateObtainNextSequenceValueOperation(
+                                sequence.Name, sequence.Schema));
+                    }
                 }
             }
         }

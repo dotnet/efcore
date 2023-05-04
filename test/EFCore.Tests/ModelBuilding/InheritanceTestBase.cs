@@ -807,10 +807,11 @@ public abstract partial class ModelBuilderTest
 
             Assert.Empty(modelBuilder.Model.FindEntityType(typeof(CityViewModel)).GetForeignKeys());
 
-            modelBuilder.Entity<CityViewModel>(c =>
-            {
-                c.Ignore(c => c.CustomValues);
-            });
+            modelBuilder.Entity<CityViewModel>(
+                c =>
+                {
+                    c.Ignore(c => c.CustomValues);
+                });
 
             Assert.Null(modelBuilder.Model.FindEntityType(typeof(Dictionary<string, string>)));
 

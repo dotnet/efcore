@@ -551,6 +551,12 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> HasMaxLength(int maxLength)
             => Wrap(PropertyBuilder.HasMaxLength(maxLength));
 
+        public override TestPropertyBuilder<TProperty> HasSentinel(object? sentinel)
+            => Wrap(PropertyBuilder.HasSentinel(sentinel));
+
+        public override TestPropertyBuilder<TProperty> HasPrecision(int precision)
+            => Wrap(PropertyBuilder.HasPrecision(precision));
+
         public override TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale)
             => Wrap(PropertyBuilder.HasPrecision(precision, scale));
 
@@ -597,45 +603,52 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode)
             => Wrap(PropertyBuilder.UsePropertyAccessMode(propertyAccessMode));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>()
-            => Wrap(PropertyBuilder.HasConversion<TProvider>());
+        public override TestPropertyBuilder<TProperty> HasConversion<TConversion>()
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConversion)));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
-            => Wrap(PropertyBuilder.HasConversion<TProvider>(valueComparer));
+        public override TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer)
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConversion), valueComparer));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType)
-            => Wrap(PropertyBuilder.HasConversion<TProvider>(valueComparer, providerComparerType));
+        public override TestPropertyBuilder<TProperty> HasConversion<TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
+            => Wrap(PropertyBuilder.HasConversion(typeof(TConversion), valueComparer, providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TProperty>> convertFromProviderExpression)
-            => Wrap(PropertyBuilder.HasConversion(
-                        new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression)));
+            => Wrap(
+                PropertyBuilder.HasConversion(
+                    new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression)));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
             ValueComparer? valueComparer)
-            => Wrap(PropertyBuilder.HasConversion(
-                        new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression),
-                        valueComparer));
+            => Wrap(
+                PropertyBuilder.HasConversion(
+                    new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression),
+                    valueComparer));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
             Expression<Func<TProvider, TProperty>> convertFromProviderExpression,
             ValueComparer? valueComparer,
             ValueComparer? providerComparerType)
-            => Wrap(PropertyBuilder.HasConversion(
-                        new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression),
-                        valueComparer,
-                        providerComparerType));
+            => Wrap(
+                PropertyBuilder.HasConversion(
+                    new ValueConverter<TProperty, TProvider>(convertToProviderExpression, convertFromProviderExpression),
+                    valueComparer,
+                    providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter)
             => Wrap(PropertyBuilder.HasConversion(converter));
-        
-        public override TestPropertyBuilder<TProperty> HasConversion<TStore>(ValueConverter<TProperty, TStore> converter, ValueComparer? valueComparer)
+
+        public override TestPropertyBuilder<TProperty> HasConversion<TStore>(
+            ValueConverter<TProperty, TStore> converter,
+            ValueComparer? valueComparer)
             => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
-        
+
         public override TestPropertyBuilder<TProperty> HasConversion<TStore>(
             ValueConverter<TProperty, TStore> converter,
             ValueComparer? valueComparer,
@@ -648,7 +661,10 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer)
             => Wrap(PropertyBuilder.HasConversion(converter, valueComparer));
 
-        public override TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer, ValueComparer? providerComparerType)
+        public override TestPropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
             => Wrap(PropertyBuilder.HasConversion(converter, valueComparer, providerComparerType));
 
         public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
@@ -681,6 +697,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
 
         public override TestNavigationBuilder AutoInclude(bool autoInclude = true)
             => new NonGenericTestNavigationBuilder(NavigationBuilder.AutoInclude(autoInclude));
+
+        public override TestNavigationBuilder EnableLazyLoading(bool lazyLoadingEnabled = true)
+            => new NonGenericTestNavigationBuilder(NavigationBuilder.EnableLazyLoading(lazyLoadingEnabled));
 
         public override TestNavigationBuilder IsRequired(bool required = true)
             => new NonGenericTestNavigationBuilder(NavigationBuilder.IsRequired(required));
@@ -787,7 +806,7 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
                     navigationExpression?.GetMemberAccess().GetSimpleMemberName()));
 
         public override TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
-            string navigationName)
+            string? navigationName = null)
             => new NonGenericTestCollectionCollectionBuilder<TRelatedEntity, TEntity>(
                 CollectionNavigationBuilder.WithMany(navigationName));
 

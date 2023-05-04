@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class SequentialGuidEndToEndTest : IDisposable
@@ -21,7 +20,7 @@ public class SequentialGuidEndToEndTest : IDisposable
 
             for (var i = 0; i < 50; i++)
             {
-                context.Add(
+                await context.AddAsync(
                     new Pegasus { Name = "Rainbow Dash " + i });
             }
 
@@ -55,13 +54,13 @@ public class SequentialGuidEndToEndTest : IDisposable
             for (var i = 0; i < 50; i++)
             {
                 guids.Add(
-                    context.Add(
+                    (await context.AddAsync(
                         new Pegasus
                         {
                             Name = "Rainbow Dash " + i,
                             Index = i,
                             Id = Guid.NewGuid()
-                        }).Entity.Id);
+                        })).Entity.Id);
             }
 
             await context.SaveChangesAsync();

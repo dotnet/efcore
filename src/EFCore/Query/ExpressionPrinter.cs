@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -72,34 +71,6 @@ public class ExpressionPrinter : ExpressionVisitor
     private bool Verbose { get; set; }
 
     /// <summary>
-    ///     Visit given readonly collection of expression for printing.
-    /// </summary>
-    /// <param name="items">A collection of items to print.</param>
-    /// <param name="joinAction">A join action to use when joining printout of individual item in the collection.</param>
-    public virtual void VisitCollection<T>(
-        IReadOnlyCollection<T> items,
-        Action<ExpressionPrinter>? joinAction = null)
-        where T : Expression
-    {
-        joinAction ??= (p => p.Append(", "));
-
-        var first = true;
-        foreach (var item in items)
-        {
-            if (!first)
-            {
-                joinAction(this);
-            }
-            else
-            {
-                first = false;
-            }
-
-            Visit(item);
-        }
-    }
-
-    /// <summary>
     ///     Appends a new line to current output being built.
     /// </summary>
     /// <returns>This printer so additional calls can be chained.</returns>
@@ -154,26 +125,36 @@ public class ExpressionPrinter : ExpressionVisitor
     ///     Creates a printable string representation of the given expression.
     /// </summary>
     /// <param name="expression">The expression to print.</param>
-    /// <param name="characterLimit">An optional limit to the number of characters included. Additional output will be truncated.</param>
     /// <returns>The printable representation.</returns>
-    public virtual string Print(
-        Expression expression,
-        int? characterLimit = null)
-        => PrintCore(expression, characterLimit, verbose: false);
+    public static string Print(Expression expression)
+        => new ExpressionPrinter().PrintCore(expression);
 
     /// <summary>
     ///     Creates a printable verbose string representation of the given expression.
     /// </summary>
     /// <param name="expression">The expression to print.</param>
     /// <returns>The printable representation.</returns>
-    public virtual string PrintDebug(
-        Expression expression)
-        => PrintCore(expression, characterLimit: null, verbose: true);
+    public static string PrintDebug(Expression expression)
+        => new ExpressionPrinter().PrintCore(expression, verbose: true);
 
-    private string PrintCore(
-        Expression expression,
-        int? characterLimit,
-        bool verbose)
+    /// <summary>
+    ///     Creates a printable string representation of the given expression.
+    /// </summary>
+    /// <param name="expression">The expression to print.</param>
+    /// <param name="characterLimit">An optional limit to the number of characters included. Additional output will be truncated.</param>
+    /// <returns>The printable representation.</returns>
+    public virtual string PrintExpression(Expression expression, int? characterLimit = null)
+        => PrintCore(expression, characterLimit);
+
+    /// <summary>
+    ///     Creates a printable verbose string representation of the given expression.
+    /// </summary>
+    /// <param name="expression">The expression to print.</param>
+    /// <returns>The printable representation.</returns>
+    public virtual string PrintExpressionDebug(Expression expression)
+        => PrintCore(expression, verbose: true);
+
+    private string PrintCore(Expression expression, int? characterLimit = null, bool verbose = false)
     {
         _stringBuilder.Clear();
         _parametersInScope.Clear();
@@ -187,8 +168,7 @@ public class ExpressionPrinter : ExpressionVisitor
 
         var queryPlan = PostProcess(_stringBuilder.ToString());
 
-        if (characterLimit != null
-            && characterLimit.Value > 0)
+        if (characterLimit is > 0)
         {
             queryPlan = queryPlan.Length > characterLimit
                 ? queryPlan[..characterLimit.Value] + "..."
@@ -205,6 +185,32 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <returns>The binary operator string.</returns>
     public virtual string GenerateBinaryOperator(ExpressionType expressionType)
         => _binaryOperandMap[expressionType];
+
+    /// <summary>
+    ///     Visit given readonly collection of expression for printing.
+    /// </summary>
+    /// <param name="items">A collection of items to print.</param>
+    /// <param name="joinAction">A join action to use when joining printout of individual item in the collection.</param>
+    public virtual void VisitCollection<T>(IReadOnlyCollection<T> items, Action<ExpressionPrinter>? joinAction = null)
+        where T : Expression
+    {
+        joinAction ??= (p => p.Append(", "));
+
+        var first = true;
+        foreach (var item in items)
+        {
+            if (!first)
+            {
+                joinAction(this);
+            }
+            else
+            {
+                first = false;
+            }
+
+            Visit(item);
+        }
+    }
 
     /// <inheritdoc />
     [return: NotNullIfNotNull("expression")]
@@ -286,6 +292,7 @@ public class ExpressionPrinter : ExpressionVisitor
                 break;
 
             case ExpressionType.NewArrayInit:
+            case ExpressionType.NewArrayBounds:
                 VisitNewArray((NewArrayExpression)expression);
                 break;
 
@@ -319,6 +326,10 @@ public class ExpressionPrinter : ExpressionVisitor
 
             case ExpressionType.Switch:
                 VisitSwitch((SwitchExpression)expression);
+                break;
+
+            case ExpressionType.Invoke:
+                VisitInvocation((InvocationExpression)expression);
                 break;
 
             case ExpressionType.Extension:
@@ -383,7 +394,7 @@ public class ExpressionPrinter : ExpressionVisitor
                 }
             }
 
-            var expressions = blockExpression.Result != null
+            var expressions = blockExpression.Expressions.Count > 0
                 ? blockExpression.Expressions.Except(new[] { blockExpression.Result })
                 : blockExpression.Expressions;
 
@@ -393,9 +404,13 @@ public class ExpressionPrinter : ExpressionVisitor
                 AppendLine(";");
             }
 
-            if (blockExpression.Result != null)
+            if (blockExpression.Expressions.Count > 0)
             {
-                Append("return ");
+                if (blockExpression.Result.Type != typeof(void))
+                {
+                    Append("return ");
+                }
+
                 Visit(blockExpression.Result);
                 AppendLine(";");
             }
@@ -431,50 +446,50 @@ public class ExpressionPrinter : ExpressionVisitor
         }
         else
         {
-            Print(constantExpression.Value);
+            PrintValue(constantExpression.Value);
         }
 
         return constantExpression;
-    }
 
-    private void Print(object? value)
-    {
-        if (value is IEnumerable enumerable
-            && !(value is string))
+        void PrintValue(object? value)
         {
-            _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
-
-            var first = true;
-            foreach (var item in enumerable)
+            if (value is IEnumerable enumerable
+                && !(value is string))
             {
-                if (first)
+                _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
+
+                var first = true;
+                foreach (var item in enumerable)
                 {
-                    first = false;
-                }
-                else
-                {
-                    _stringBuilder.Append(", ");
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        _stringBuilder.Append(", ");
+                    }
+
+                    PrintValue(item);
                 }
 
-                Print(item);
+                _stringBuilder.Append(" }");
+                return;
             }
 
-            _stringBuilder.Append(" }");
-            return;
+            var stringValue = value == null
+                ? "null"
+                : value.ToString() != value.GetType().ToString()
+                    ? value.ToString()
+                    : value.GetType().ShortDisplayName();
+
+            if (value is string)
+            {
+                stringValue = $@"""{stringValue}""";
+            }
+
+            _stringBuilder.Append(stringValue ?? "Unknown");
         }
-
-        var stringValue = value == null
-            ? "null"
-            : value.ToString() != value.GetType().ToString()
-                ? value.ToString()
-                : value.GetType().ShortDisplayName();
-
-        if (value is string)
-        {
-            stringValue = $@"""{stringValue}""";
-        }
-
-        _stringBuilder.Append(stringValue ?? "Unknown");
     }
 
     /// <inheritdoc />
@@ -605,15 +620,17 @@ public class ExpressionPrinter : ExpressionVisitor
     {
         if (methodCallExpression.Object != null)
         {
-            if (methodCallExpression.Object is BinaryExpression)
+            switch (methodCallExpression.Object)
             {
-                _stringBuilder.Append("(");
-                Visit(methodCallExpression.Object);
-                _stringBuilder.Append(")");
-            }
-            else
-            {
-                Visit(methodCallExpression.Object);
+                case BinaryExpression:
+                case UnaryExpression:
+                    _stringBuilder.Append("(");
+                    Visit(methodCallExpression.Object);
+                    _stringBuilder.Append(")");
+                    break;
+                default:
+                    Visit(methodCallExpression.Object);
+                    break;
             }
 
             _stringBuilder.Append(".");
@@ -633,8 +650,7 @@ public class ExpressionPrinter : ExpressionVisitor
             _stringBuilder.AppendLine();
             _stringBuilder.Append($".{method.Name}");
             methodArguments = methodArguments.Skip(1).ToList();
-            if (method.Name == nameof(Enumerable.Cast)
-                || method.Name == nameof(Enumerable.OfType))
+            if (method.Name is nameof(Enumerable.Cast) or nameof(Enumerable.OfType))
             {
                 PrintGenericArguments(method, _stringBuilder);
             }
@@ -779,6 +795,15 @@ public class ExpressionPrinter : ExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitNewArray(NewArrayExpression newArrayExpression)
     {
+        if (newArrayExpression.NodeType == ExpressionType.NewArrayBounds)
+        {
+            Append("new " + newArrayExpression.Type.GetElementType()!.ShortDisplayName() + "[");
+            VisitArguments(newArrayExpression.Expressions, s => Append(s));
+            Append("]");
+
+            return newArrayExpression;
+        }
+
         var isComplex = newArrayExpression.Expressions.Count > 1;
         var appendAction = isComplex ? s => AppendLine(s) : (Action<string>)(s => Append(s));
 
@@ -999,6 +1024,23 @@ public class ExpressionPrinter : ExpressionVisitor
         _stringBuilder.AppendLine("}");
 
         return switchExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitInvocation(InvocationExpression invocationExpression)
+    {
+        _stringBuilder.Append("Invoke(");
+        Visit(invocationExpression.Expression);
+
+        foreach (var argument in invocationExpression.Arguments)
+        {
+            _stringBuilder.Append(", ");
+            Visit(argument);
+        }
+
+        _stringBuilder.Append(")");
+
+        return invocationExpression;
     }
 
     /// <inheritdoc />

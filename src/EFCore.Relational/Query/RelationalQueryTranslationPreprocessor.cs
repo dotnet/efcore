@@ -36,8 +36,11 @@ public class RelationalQueryTranslationPreprocessor : QueryTranslationPreprocess
     {
         expression = new RelationalQueryMetadataExtractingExpressionVisitor(_relationalQueryCompilationContext).Visit(expression);
         expression = base.NormalizeQueryableMethod(expression);
-        expression = new TableValuedFunctionToQueryRootConvertingExpressionVisitor(QueryCompilationContext.Model).Visit(expression);
 
         return expression;
     }
+
+    /// <inheritdoc />
+    protected override Expression ProcessQueryRoots(Expression expression)
+        => new RelationalQueryRootProcessor(Dependencies, RelationalDependencies, QueryCompilationContext).Visit(expression);
 }

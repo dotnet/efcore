@@ -54,7 +54,7 @@ public abstract class NorthwindSplitIncludeQueryTestBase<TFixture> : NorthwindIn
                     .AsSplitQuery()
                     .Single(c => c.CustomerID == "ALFKI");
 
-        Assert.Equal(orders, customer.Orders, LegacyReferenceEqualityComparer.Instance);
+        Assert.Equal(orders, customer.Orders, ReferenceEqualityComparer.Instance);
         Assert.Equal(6, customer.Orders.Count);
         Assert.True(orders.All(o => ReferenceEquals(o.Customer, customer)));
         Assert.Equal(6 + 1, context.ChangeTracker.Entries().Count());

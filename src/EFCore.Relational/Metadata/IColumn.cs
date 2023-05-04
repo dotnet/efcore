@@ -68,13 +68,13 @@ public interface IColumn : IColumnBase
     ///     Gets the column order.
     /// </summary>
     /// <value> The column order. </value>
-    public virtual int? Order
+    int? Order
         => PropertyMappings.First().Property.GetColumnOrder(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Returns the object that is used as the default value for this column.
     /// </summary>
-    public virtual object? DefaultValue
+    object? DefaultValue
     {
         get
         {
@@ -88,7 +88,7 @@ public interface IColumn : IColumnBase
     /// </summary>
     /// <param name="defaultValue">The default value.</param>
     /// <returns>True if the default value was explicitly set; false otherwise.</returns>
-    public virtual bool TryGetDefaultValue(out object? defaultValue)
+    bool TryGetDefaultValue(out object? defaultValue)
     {
         foreach (var mapping in PropertyMappings)
         {
@@ -114,14 +114,14 @@ public interface IColumn : IColumnBase
     /// <summary>
     ///     Returns the SQL expression that is used as the default value for this column.
     /// </summary>
-    public virtual string? DefaultValueSql
+    string? DefaultValueSql
         => PropertyMappings.First().Property
             .GetDefaultValueSql(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Returns the SQL expression that is used as the computed value for this column.
     /// </summary>
-    public virtual string? ComputedColumnSql
+    string? ComputedColumnSql
         => PropertyMappings.First().Property
             .GetComputedColumnSql(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
@@ -129,50 +129,31 @@ public interface IColumn : IColumnBase
     ///     Returns whether the value of the computed column this property is mapped to is stored in the database, or calculated when
     ///     it is read.
     /// </summary>
-    public virtual bool? IsStored
+    bool? IsStored
         => PropertyMappings.First().Property
             .GetIsStored(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Comment for this column
     /// </summary>
-    public virtual string? Comment
+    string? Comment
         => PropertyMappings.First().Property
             .GetComment(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
 
     /// <summary>
     ///     Collation for this column
     /// </summary>
-    public virtual string? Collation
+    string? Collation
         => PropertyMappings.First().Property
             .GetCollation(StoreObjectIdentifier.Table(Table.Name, Table.Schema));
-
-    /// <summary>
-    ///     Gets the <see cref="ValueComparer" /> for this column.
-    /// </summary>
-    /// <returns>The comparer.</returns>
-    public virtual ValueComparer ProviderValueComparer
-        => PropertyMappings.First().Property
-            .GetProviderValueComparer();
 
     /// <summary>
     ///     Returns the property mapping for the given entity type.
     /// </summary>
     /// <param name="entityType">An entity type.</param>
     /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
-    public virtual IColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
-    {
-        for (var i = 0; i < PropertyMappings.Count; i++)
-        {
-            var mapping = PropertyMappings[i];
-            if (mapping.Property.DeclaringEntityType.IsAssignableFrom(entityType))
-            {
-                return mapping;
-            }
-        }
-
-        return null;
-    }
+    new IColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (IColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
 
     /// <summary>
     ///     <para>
@@ -186,7 +167,7 @@ public interface IColumn : IColumnBase
     /// <param name="options">Options for generating the string.</param>
     /// <param name="indent">The number of indent spaces to use before each new line.</param>
     /// <returns>A human-readable representation.</returns>
-    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    string IColumnBase.ToDebugString(MetadataDebugStringOptions options, int indent)
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);

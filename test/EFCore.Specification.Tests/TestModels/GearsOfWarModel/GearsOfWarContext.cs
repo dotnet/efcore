@@ -11,6 +11,7 @@ public class GearsOfWarContext : PoolableDbContext
     }
 
     public DbSet<Gear> Gears { get; set; }
+    public DbSet<Officer> Officers { get; set; }
     public DbSet<Squad> Squads { get; set; }
     public DbSet<CogTag> Tags { get; set; }
     public DbSet<Weapon> Weapons { get; set; }

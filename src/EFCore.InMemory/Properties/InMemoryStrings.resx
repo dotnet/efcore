@@ -134,6 +134,9 @@
     <value>Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142</value>
     <comment>Warning InMemoryEventId.TransactionIgnoredWarning</comment>
   </data>
+  <data name="NonComposedGroupByNotSupported" xml:space="preserve">
+    <value>A 'GroupBy' operation which is not composed into aggregate or projection of elements is not supported.</value>
+  </data>
   <data name="NoQueryStrings" xml:space="preserve">
     <value>There is no query string because the in-memory provider does not use a string-based query language.</value>
   </data>

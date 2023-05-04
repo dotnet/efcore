@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 // ReSharper disable UnusedMember.Global
 // ReSharper disable InconsistentNaming
@@ -2129,16 +2130,127 @@ public class InternalEntityTypeBuilderTest
     [ConditionalFact]
     public void Can_ignore_property_that_is_part_of_lower_source_index()
     {
-        var modelBuilder = CreateModelBuilder();
+        var logger = CreateTestLogger();
+        var model = new Model(new ConventionSet(), new ModelDependencies(logger));
+        var modelBuilder = CreateModelBuilder(model);
         var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit);
 
         Assert.NotNull(
             entityBuilder.HasIndex(new[] { Order.IdProperty, Order.CustomerIdProperty }, ConfigurationSource.DataAnnotation));
 
-        Assert.NotNull(entityBuilder.Ignore(Order.CustomerIdProperty.Name, ConfigurationSource.Explicit));
+        Assert.NotNull(entityBuilder.Ignore(nameof(Order.CustomerId), ConfigurationSource.Explicit));
 
-        Assert.Empty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == Order.CustomerIdProperty.Name));
+        Assert.Empty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == nameof(Order.CustomerId)));
         Assert.Empty(entityBuilder.Metadata.GetIndexes());
+        Assert.Null(logger.Message);
+    }
+
+    [ConditionalFact]
+    public void Can_ignore_property_that_was_explicitly_mapped()
+    {
+        var logger = CreateTestLogger();
+        var model = new Model(new ConventionSet(), new ModelDependencies(logger));
+        var modelBuilder = CreateModelBuilder(model);
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+
+        Assert.NotNull(entityBuilder.Property(nameof(Order.CustomerId), ConfigurationSource.Explicit));
+        Assert.NotNull(entityBuilder.Ignore(nameof(Order.CustomerId), ConfigurationSource.Explicit));
+
+        Assert.Empty(entityBuilder.Metadata.GetProperties().Where(p => p.Name == nameof(Order.CustomerId)));
+
+        Assert.Equal(
+            CoreResources.LogMappedPropertyIgnored(logger).GenerateMessage(nameof(Order), nameof(Order.CustomerId)),
+            logger.Message);
+    }
+
+    [ConditionalFact]
+    public void Can_ignore_navigation_that_is_part_of_lower_source_index()
+    {
+        var logger = CreateTestLogger();
+        var model = new Model(new ConventionSet(), new ModelDependencies(logger));
+        var modelBuilder = CreateModelBuilder(model);
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+
+        entityBuilder.HasRelationship(
+            entityBuilder.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!.Metadata,
+            Order.CustomerProperty,
+            Customer.OrdersProperty,
+            ConfigurationSource.DataAnnotation);
+
+        Assert.NotNull(entityBuilder.Navigation(nameof(Order.Customer)));
+        Assert.NotNull(entityBuilder.Ignore(nameof(Order.Customer), ConfigurationSource.Explicit));
+
+        Assert.Empty(entityBuilder.Metadata.GetNavigations().Where(p => p.Name == nameof(Order.Customer)));
+
+        Assert.Null(logger.Message);
+    }
+
+    [ConditionalFact]
+    public void Can_ignore_navigation_that_was_explicitly_mapped()
+    {
+        var logger = CreateTestLogger();
+        var model = new Model(new ConventionSet(), new ModelDependencies(logger));
+        var modelBuilder = CreateModelBuilder(model);
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+
+        entityBuilder.HasRelationship(
+            entityBuilder.ModelBuilder.Entity(typeof(Customer), ConfigurationSource.Explicit)!.Metadata,
+            Order.CustomerProperty,
+            Customer.OrdersProperty,
+            ConfigurationSource.Explicit);
+
+        Assert.NotNull(entityBuilder.Navigation(nameof(Order.Customer)));
+        Assert.NotNull(entityBuilder.Ignore(nameof(Order.Customer), ConfigurationSource.Explicit));
+
+        Assert.Empty(entityBuilder.Metadata.GetNavigations().Where(p => p.Name == nameof(Order.Customer)));
+
+        Assert.Equal(
+            CoreResources.LogMappedNavigationIgnored(logger).GenerateMessage(nameof(Order), nameof(Order.Customer)),
+            logger.Message);
+    }
+
+    [ConditionalFact]
+    public void Can_ignore_skip_navigation_that_is_part_of_lower_source_index()
+    {
+        var logger = CreateTestLogger();
+        var model = new Model(new ConventionSet(), new ModelDependencies(logger));
+        var modelBuilder = CreateModelBuilder(model);
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+
+        entityBuilder.HasSkipNavigation(
+            MemberIdentity.Create(Order.ProductsProperty),
+            entityBuilder.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)!.Metadata,
+            ConfigurationSource.DataAnnotation);
+
+        Assert.NotNull(entityBuilder.Navigation(nameof(Order.Products)));
+        Assert.NotNull(entityBuilder.Ignore(nameof(Order.Products), ConfigurationSource.Explicit));
+
+        Assert.Empty(entityBuilder.Metadata.GetSkipNavigations().Where(p => p.Name == nameof(Order.Products)));
+
+        Assert.Null(logger.Message);
+    }
+
+    [ConditionalFact]
+    public void Can_ignore_skip_navigation_that_was_explicitly_mapped()
+    {
+        var logger = CreateTestLogger();
+        var model = new Model(new ConventionSet(), new ModelDependencies(logger));
+        var modelBuilder = CreateModelBuilder(model);
+        var entityBuilder = modelBuilder.Entity(typeof(Order), ConfigurationSource.Explicit)!;
+
+        entityBuilder.HasSkipNavigation(
+            MemberIdentity.Create(Order.ProductsProperty),
+            entityBuilder.ModelBuilder.Entity(typeof(Product), ConfigurationSource.Explicit)!.Metadata,
+            ConfigurationSource.Explicit);
+
+        Assert.NotNull(entityBuilder.Navigation(nameof(Order.Products)));
+        Assert.NotNull(entityBuilder.Ignore(nameof(Order.Products), ConfigurationSource.Explicit));
+
+        Assert.Empty(entityBuilder.Metadata.GetSkipNavigations().Where(p => p.Name == nameof(Order.Products)));
+
+        Assert.Equal(
+            CoreResources.LogMappedNavigationIgnored(logger).GenerateMessage(nameof(Order), nameof(Order.Products)),
+            logger.Message);
     }
 
     [ConditionalFact]
@@ -3305,8 +3417,11 @@ public class InternalEntityTypeBuilderTest
                 () => discriminatorBuilder.HasValue(nonDerivedTypeBuilder.Metadata, "1")).Message);
     }
 
-    private InternalModelBuilder CreateModelBuilder()
-        => new(new Model());
+    private static TestLogger<DbLoggerCategory.Model, TestLoggingDefinitions> CreateTestLogger()
+        => new() { EnabledFor = LogLevel.Warning };
+
+    private InternalModelBuilder CreateModelBuilder(Model model = null)
+        => new(model ?? new Model());
 
     private InternalModelBuilder CreateConventionalModelBuilder()
         => (InternalModelBuilder)InMemoryTestHelpers.Instance.CreateConventionBuilder().GetInfrastructure();

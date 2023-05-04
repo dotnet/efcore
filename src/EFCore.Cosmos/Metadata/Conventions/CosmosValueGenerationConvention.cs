@@ -78,11 +78,11 @@ public class CosmosValueGenerationConvention :
             {
                 var pk = property.FindContainingPrimaryKey();
                 if (pk != null
-                    && !ownership.Properties.Contains(property)
+                    && !property.IsForeignKey()
                     && pk.Properties.Count == ownership.Properties.Count + 1
                     && ownership.Properties.All(fkProperty => pk.Properties.Contains(fkProperty)))
                 {
-                    return base.GetValueGenerated(property);
+                    return ValueGenerated.OnAddOrUpdate;
                 }
             }
         }

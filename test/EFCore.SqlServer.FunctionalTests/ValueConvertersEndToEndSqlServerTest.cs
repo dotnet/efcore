@@ -3,6 +3,8 @@
 
 #nullable enable
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class ValueConvertersEndToEndSqlServerTest
@@ -172,9 +174,11 @@ public class ValueConvertersEndToEndSqlServerTest
         }
 
         Assert.Equal(
-            @"SELECT [c].[Id], [c].[BoolAsChar], [c].[BoolAsInt], [c].[BoolAsNullableChar], [c].[BoolAsNullableInt], [c].[BoolAsNullableString], [c].[BoolAsString], [c].[BytesAsNullableString], [c].[BytesAsString], [c].[CharAsNullableString], [c].[CharAsString], [c].[DateTimeOffsetToBinary], [c].[DateTimeOffsetToNullableBinary], [c].[DateTimeOffsetToNullableString], [c].[DateTimeOffsetToString], [c].[DateTimeToBinary], [c].[DateTimeToNullableBinary], [c].[DateTimeToNullableString], [c].[DateTimeToString], [c].[EnumToNullableNumber], [c].[EnumToNullableString], [c].[EnumToNumber], [c].[EnumToString], [c].[EnumerableOfInt], [c].[GuidToBytes], [c].[GuidToNullableBytes], [c].[GuidToNullableString], [c].[GuidToString], [c].[IPAddressToBytes], [c].[IPAddressToNullableBytes], [c].[IPAddressToNullableString], [c].[IPAddressToString], [c].[IntAsLong], [c].[IntAsNullableLong], [c].[ListOfInt], [c].[NonNullIntToNonNullString], [c].[NonNullIntToNullString], [c].[NonNullStringToNullString], [c].[NullIntToNonNullString], [c].[NullIntToNullString], [c].[NullStringToNonNullString], [c].[NullableBoolAsChar], [c].[NullableBoolAsInt], [c].[NullableBoolAsNullableChar], [c].[NullableBoolAsNullableInt], [c].[NullableBoolAsNullableString], [c].[NullableBoolAsString], [c].[NullableBytesAsNullableString], [c].[NullableBytesAsString], [c].[NullableCharAsNullableString], [c].[NullableCharAsString], [c].[NullableDateTimeOffsetToBinary], [c].[NullableDateTimeOffsetToNullableBinary], [c].[NullableDateTimeOffsetToNullableString], [c].[NullableDateTimeOffsetToString], [c].[NullableDateTimeToBinary], [c].[NullableDateTimeToNullableBinary], [c].[NullableDateTimeToNullableString], [c].[NullableDateTimeToString], [c].[NullableEnumToNullableNumber], [c].[NullableEnumToNullableString], [c].[NullableEnumToNumber], [c].[NullableEnumToString], [c].[NullableEnumerableOfInt], [c].[NullableGuidToBytes], [c].[NullableGuidToNullableBytes], [c].[NullableGuidToNullableString], [c].[NullableGuidToString], [c].[NullableIPAddressToBytes], [c].[NullableIPAddressToNullableBytes], [c].[NullableIPAddressToNullableString], [c].[NullableIPAddressToString], [c].[NullableIntAsLong], [c].[NullableIntAsNullableLong], [c].[NullableListOfInt], [c].[NullableNumberToBytes], [c].[NullableNumberToNullableBytes], [c].[NullableNumberToNullableString], [c].[NullableNumberToString], [c].[NullablePhysicalAddressToBytes], [c].[NullablePhysicalAddressToNullableBytes], [c].[NullablePhysicalAddressToNullableString], [c].[NullablePhysicalAddressToString], [c].[NullableStringToBool], [c].[NullableStringToBytes], [c].[NullableStringToChar], [c].[NullableStringToDateTime], [c].[NullableStringToDateTimeOffset], [c].[NullableStringToEnum], [c].[NullableStringToGuid], [c].[NullableStringToNullableBool], [c].[NullableStringToNullableBytes], [c].[NullableStringToNullableChar], [c].[NullableStringToNullableDateTime], [c].[NullableStringToNullableDateTimeOffset], [c].[NullableStringToNullableEnum], [c].[NullableStringToNullableGuid], [c].[NullableStringToNullableNumber], [c].[NullableStringToNullableTimeSpan], [c].[NullableStringToNumber], [c].[NullableStringToTimeSpan], [c].[NullableTimeSpanToNullableString], [c].[NullableTimeSpanToNullableTicks], [c].[NullableTimeSpanToString], [c].[NullableTimeSpanToTicks], [c].[NullableUriToNullableString], [c].[NullableUriToString], [c].[NumberToBytes], [c].[NumberToNullableBytes], [c].[NumberToNullableString], [c].[NumberToString], [c].[PhysicalAddressToBytes], [c].[PhysicalAddressToNullableBytes], [c].[PhysicalAddressToNullableString], [c].[PhysicalAddressToString], [c].[StringToBool], [c].[StringToBytes], [c].[StringToChar], [c].[StringToDateTime], [c].[StringToDateTimeOffset], [c].[StringToEnum], [c].[StringToGuid], [c].[StringToNullableBool], [c].[StringToNullableBytes], [c].[StringToNullableChar], [c].[StringToNullableDateTime], [c].[StringToNullableDateTimeOffset], [c].[StringToNullableEnum], [c].[StringToNullableGuid], [c].[StringToNullableNumber], [c].[StringToNullableTimeSpan], [c].[StringToNumber], [c].[StringToTimeSpan], [c].[TimeSpanToNullableString], [c].[TimeSpanToNullableTicks], [c].[TimeSpanToString], [c].[TimeSpanToTicks], [c].[UriToNullableString], [c].[UriToString]
+"""
+SELECT [c].[Id], [c].[BoolAsChar], [c].[BoolAsInt], [c].[BoolAsNullableChar], [c].[BoolAsNullableInt], [c].[BoolAsNullableString], [c].[BoolAsString], [c].[BytesAsNullableString], [c].[BytesAsString], [c].[CharAsNullableString], [c].[CharAsString], [c].[DateOnlyToNullableString], [c].[DateOnlyToString], [c].[DateTimeOffsetToBinary], [c].[DateTimeOffsetToNullableBinary], [c].[DateTimeOffsetToNullableString], [c].[DateTimeOffsetToString], [c].[DateTimeToBinary], [c].[DateTimeToNullableBinary], [c].[DateTimeToNullableString], [c].[DateTimeToString], [c].[EnumToNullableNumber], [c].[EnumToNullableString], [c].[EnumToNumber], [c].[EnumToString], [c].[EnumerableOfInt], [c].[GuidToBytes], [c].[GuidToNullableBytes], [c].[GuidToNullableString], [c].[GuidToString], [c].[IPAddressToBytes], [c].[IPAddressToNullableBytes], [c].[IPAddressToNullableString], [c].[IPAddressToString], [c].[IntAsLong], [c].[IntAsNullableLong], [c].[ListOfInt], [c].[NonNullIntToNonNullString], [c].[NonNullIntToNullString], [c].[NonNullStringToNullString], [c].[NullIntToNonNullString], [c].[NullIntToNullString], [c].[NullStringToNonNullString], [c].[NullableBoolAsChar], [c].[NullableBoolAsInt], [c].[NullableBoolAsNullableChar], [c].[NullableBoolAsNullableInt], [c].[NullableBoolAsNullableString], [c].[NullableBoolAsString], [c].[NullableBytesAsNullableString], [c].[NullableBytesAsString], [c].[NullableCharAsNullableString], [c].[NullableCharAsString], [c].[NullableDateOnlyToNullableString], [c].[NullableDateOnlyToString], [c].[NullableDateTimeOffsetToBinary], [c].[NullableDateTimeOffsetToNullableBinary], [c].[NullableDateTimeOffsetToNullableString], [c].[NullableDateTimeOffsetToString], [c].[NullableDateTimeToBinary], [c].[NullableDateTimeToNullableBinary], [c].[NullableDateTimeToNullableString], [c].[NullableDateTimeToString], [c].[NullableEnumToNullableNumber], [c].[NullableEnumToNullableString], [c].[NullableEnumToNumber], [c].[NullableEnumToString], [c].[NullableEnumerableOfInt], [c].[NullableGuidToBytes], [c].[NullableGuidToNullableBytes], [c].[NullableGuidToNullableString], [c].[NullableGuidToString], [c].[NullableIPAddressToBytes], [c].[NullableIPAddressToNullableBytes], [c].[NullableIPAddressToNullableString], [c].[NullableIPAddressToString], [c].[NullableIntAsLong], [c].[NullableIntAsNullableLong], [c].[NullableListOfInt], [c].[NullableNumberToBytes], [c].[NullableNumberToNullableBytes], [c].[NullableNumberToNullableString], [c].[NullableNumberToString], [c].[NullablePhysicalAddressToBytes], [c].[NullablePhysicalAddressToNullableBytes], [c].[NullablePhysicalAddressToNullableString], [c].[NullablePhysicalAddressToString], [c].[NullableStringToBool], [c].[NullableStringToBytes], [c].[NullableStringToChar], [c].[NullableStringToDateTime], [c].[NullableStringToDateTimeOffset], [c].[NullableStringToEnum], [c].[NullableStringToGuid], [c].[NullableStringToNullableBool], [c].[NullableStringToNullableBytes], [c].[NullableStringToNullableChar], [c].[NullableStringToNullableDateTime], [c].[NullableStringToNullableDateTimeOffset], [c].[NullableStringToNullableEnum], [c].[NullableStringToNullableGuid], [c].[NullableStringToNullableNumber], [c].[NullableStringToNullableTimeSpan], [c].[NullableStringToNumber], [c].[NullableStringToTimeSpan], [c].[NullableTimeSpanToNullableString], [c].[NullableTimeSpanToNullableTicks], [c].[NullableTimeSpanToString], [c].[NullableTimeSpanToTicks], [c].[NullableUriToNullableString], [c].[NullableUriToString], [c].[NumberToBytes], [c].[NumberToNullableBytes], [c].[NumberToNullableString], [c].[NumberToString], [c].[PhysicalAddressToBytes], [c].[PhysicalAddressToNullableBytes], [c].[PhysicalAddressToNullableString], [c].[PhysicalAddressToString], [c].[StringToBool], [c].[StringToBytes], [c].[StringToChar], [c].[StringToDateTime], [c].[StringToDateTimeOffset], [c].[StringToEnum], [c].[StringToGuid], [c].[StringToNullableBool], [c].[StringToNullableBytes], [c].[StringToNullableChar], [c].[StringToNullableDateTime], [c].[StringToNullableDateTimeOffset], [c].[StringToNullableEnum], [c].[StringToNullableGuid], [c].[StringToNullableNumber], [c].[StringToNullableTimeSpan], [c].[StringToNumber], [c].[StringToTimeSpan], [c].[TimeSpanToNullableString], [c].[TimeSpanToNullableTicks], [c].[TimeSpanToString], [c].[TimeSpanToTicks], [c].[UriToNullableString], [c].[UriToString]
 FROM [ConvertingEntity] AS [c]
-WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1",
+WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1
+""",
             Fixture.TestSqlLoggerFactory.SqlStatements[0],
             ignoreLineEndingDifferences: true);
     }
@@ -190,6 +194,78 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1",
             : base(v => v.Value, v => new WrappedString { Value = v })
         {
         }
+    }
+
+    [ConditionalFact]
+    public virtual void Fixed_length_hints_are_respected()
+    {
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        using var context = CreateContext();
+
+        var guid = new Guid("d854227f-7076-48c3-997c-4e72c1c713b9");
+
+        var mapping = context.Set<SqlServerConvertingEntity>()
+            .EntityType
+            .FindProperty(nameof(SqlServerConvertingEntity.GuidToFixedLengthString))!
+            .FindRelationalTypeMapping()!;
+
+        Assert.Equal("nchar(40)", mapping.StoreType);
+        Assert.Equal(40, mapping.Size);
+
+        Assert.Empty(context.Set<SqlServerConvertingEntity>().Where(e => e.GuidToFixedLengthString != guid));
+
+        Assert.Equal(
+"""
+@__guid_0='d854227f-7076-48c3-997c-4e72c1c713b9' (Nullable = false) (Size = 40)
+
+SELECT [s].[Id], [s].[GuidToDbTypeString], [s].[GuidToFixedLengthString]
+FROM [SqlServerConvertingEntity] AS [s]
+WHERE [s].[GuidToFixedLengthString] <> @__guid_0
+""",
+            Fixture.TestSqlLoggerFactory.SqlStatements[0],
+            ignoreLineEndingDifferences: true);
+
+        var parameter = Fixture.TestSqlLoggerFactory.Parameters.Single();
+    }
+
+    [ConditionalFact]
+    public virtual void DbType_hints_are_respected()
+    {
+        Fixture.TestSqlLoggerFactory.Clear();
+
+        using var context = CreateContext();
+
+        var mapping = context.Set<SqlServerConvertingEntity>()
+            .EntityType
+            .FindProperty(nameof(SqlServerConvertingEntity.GuidToDbTypeString))!
+            .FindRelationalTypeMapping()!;
+
+        Assert.Equal(DbType.AnsiStringFixedLength, mapping.DbType!);
+        Assert.Equal(40, mapping.Size);
+
+        var guid = new Guid("d854227f-7076-48c3-997c-4e72c1c713b9");
+
+        Assert.Empty(context.Set<SqlServerConvertingEntity>().Where(e => e.GuidToDbTypeString != guid));
+
+        Assert.Equal(
+"""
+@__guid_0='d854227f-7076-48c3-997c-4e72c1c713b9' (Nullable = false) (Size = 40) (DbType = AnsiStringFixedLength)
+
+SELECT [s].[Id], [s].[GuidToDbTypeString], [s].[GuidToFixedLengthString]
+FROM [SqlServerConvertingEntity] AS [s]
+WHERE [s].[GuidToDbTypeString] <> @__guid_0
+""",
+            Fixture.TestSqlLoggerFactory.SqlStatements[0],
+            ignoreLineEndingDifferences: true);
+    }
+
+    protected class SqlServerConvertingEntity
+    {
+        public Guid Id { get; set; }
+
+        public Guid GuidToFixedLengthString { get; set; }
+        public Guid GuidToDbTypeString { get; set; }
     }
 
     public class ValueConvertersEndToEndSqlServerFixture : ValueConvertersEndToEndFixtureBase
@@ -218,6 +294,20 @@ WHERE CAST(DATALENGTH(CAST(N'' AS nvarchar(max))) AS int) = 1",
                     b.Property(e => e.ListOfInt).HasDefaultValue(new List<int>());
                     b.Property(e => e.NullableEnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
                     b.Property(e => e.EnumerableOfInt).HasDefaultValue(Enumerable.Empty<int>());
+                });
+
+            modelBuilder.Entity<SqlServerConvertingEntity>(
+                b =>
+                {
+                    b.Property(e => e.GuidToFixedLengthString).HasConversion(
+                        new GuidToStringConverter(
+                            new RelationalConverterMappingHints(
+                                size: 40, fixedLength: true)));
+
+                    b.Property(e => e.GuidToDbTypeString).HasConversion(
+                        new GuidToStringConverter(
+                            new RelationalConverterMappingHints(
+                                size: 40, unicode: false, dbType: DbType.AnsiStringFixedLength)));
                 });
         }
     }

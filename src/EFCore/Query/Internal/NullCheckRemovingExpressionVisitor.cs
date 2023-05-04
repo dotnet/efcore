@@ -87,6 +87,7 @@ public class NullCheckRemovingExpressionVisitor : ExpressionVisitor
     {
         // Simplify (a ? b : null) == null => !a || b == null
         // Simplify (a ? null : b) == null => a || b == null
+        // Expression.Equal is fine here since we match the binary expression of same kind.
         if (expression is BinaryExpression binaryExpression
             && binaryExpression.NodeType == ExpressionType.Equal
             && (binaryExpression.Left is ConditionalExpression

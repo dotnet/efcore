@@ -1,89 +1,89 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-
 #nullable enable
+
+using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
 public abstract partial class ModelBuilderTest
 {
+    public static void AssertEqual(
+        IEnumerable<string> expectedNames,
+        IEnumerable<string> actualNames,
+        StringComparer? stringComparer = null)
+    {
+        stringComparer ??= StringComparer.Ordinal;
+        Assert.Equal(
+            new SortedSet<string>(expectedNames, stringComparer),
+            new SortedSet<string>(actualNames, stringComparer),
+            stringComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyProperty> expectedProperties,
+        IEnumerable<IReadOnlyProperty> actualProperties,
+        PropertyComparer? propertyComparer = null)
+    {
+        propertyComparer ??= new PropertyComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyProperty>(expectedProperties, propertyComparer),
+            new SortedSet<IReadOnlyProperty>(actualProperties, propertyComparer),
+            propertyComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyNavigation> expectedNavigations,
+        IEnumerable<IReadOnlyNavigation> actualNavigations,
+        NavigationComparer? navigationComparer = null)
+    {
+        navigationComparer ??= new NavigationComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyNavigation>(expectedNavigations, navigationComparer),
+            new SortedSet<IReadOnlyNavigation>(actualNavigations, navigationComparer),
+            navigationComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyKey> expectedKeys,
+        IEnumerable<IReadOnlyKey> actualKeys,
+        TestKeyComparer? testKeyComparer = null)
+    {
+        testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyKey>(expectedKeys, testKeyComparer),
+            new SortedSet<IReadOnlyKey>(actualKeys, testKeyComparer),
+            testKeyComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyForeignKey> expectedForeignKeys,
+        IEnumerable<IReadOnlyForeignKey> actualForeignKeys,
+        ForeignKeyStrictComparer? foreignKeyComparer = null)
+    {
+        foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyForeignKey>(expectedForeignKeys, foreignKeyComparer),
+            new SortedSet<IReadOnlyForeignKey>(actualForeignKeys, foreignKeyComparer),
+            foreignKeyComparer);
+    }
+
+    public static void AssertEqual(
+        IEnumerable<IReadOnlyIndex> expectedIndexes,
+        IEnumerable<IReadOnlyIndex> actualIndexes,
+        TestIndexComparer? testIndexComparer = null)
+    {
+        testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
+        Assert.Equal(
+            new SortedSet<IReadOnlyIndex>(expectedIndexes, testIndexComparer),
+            new SortedSet<IReadOnlyIndex>(actualIndexes, testIndexComparer),
+            testIndexComparer);
+    }
+
     public abstract class ModelBuilderTestBase
     {
-        protected void AssertEqual(
-            IEnumerable<string> expectedNames,
-            IEnumerable<string> actualNames,
-            StringComparer? stringComparer = null)
-        {
-            stringComparer ??= StringComparer.Ordinal;
-            Assert.Equal(
-                new SortedSet<string>(expectedNames, stringComparer),
-                new SortedSet<string>(actualNames, stringComparer),
-                stringComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyProperty> expectedProperties,
-            IEnumerable<IReadOnlyProperty> actualProperties,
-            PropertyComparer? propertyComparer = null)
-        {
-            propertyComparer ??= new PropertyComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyProperty>(expectedProperties, propertyComparer),
-                new SortedSet<IReadOnlyProperty>(actualProperties, propertyComparer),
-                propertyComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyNavigation> expectedNavigations,
-            IEnumerable<IReadOnlyNavigation> actualNavigations,
-            NavigationComparer? navigationComparer = null)
-        {
-            navigationComparer ??= new NavigationComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyNavigation>(expectedNavigations, navigationComparer),
-                new SortedSet<IReadOnlyNavigation>(actualNavigations, navigationComparer),
-                navigationComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyKey> expectedKeys,
-            IEnumerable<IReadOnlyKey> actualKeys,
-            TestKeyComparer? testKeyComparer = null)
-        {
-            testKeyComparer ??= new TestKeyComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyKey>(expectedKeys, testKeyComparer),
-                new SortedSet<IReadOnlyKey>(actualKeys, testKeyComparer),
-                testKeyComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyForeignKey> expectedForeignKeys,
-            IEnumerable<IReadOnlyForeignKey> actualForeignKeys,
-            ForeignKeyStrictComparer? foreignKeyComparer = null)
-        {
-            foreignKeyComparer ??= new ForeignKeyStrictComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyForeignKey>(expectedForeignKeys, foreignKeyComparer),
-                new SortedSet<IReadOnlyForeignKey>(actualForeignKeys, foreignKeyComparer),
-                foreignKeyComparer);
-        }
-
-        protected void AssertEqual(
-            IEnumerable<IReadOnlyIndex> expectedIndexes,
-            IEnumerable<IReadOnlyIndex> actualIndexes,
-            TestIndexComparer? testIndexComparer = null)
-        {
-            testIndexComparer ??= new TestIndexComparer(compareAnnotations: false);
-            Assert.Equal(
-                new SortedSet<IReadOnlyIndex>(expectedIndexes, testIndexComparer),
-                new SortedSet<IReadOnlyIndex>(actualIndexes, testIndexComparer),
-                testIndexComparer);
-        }
-
         protected virtual TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder>? configure = null)
             => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
 
@@ -102,7 +102,7 @@ public abstract partial class ModelBuilderTest
             Action<ModelConfigurationBuilder>? configure);
     }
 
-    public abstract class TestModelBuilder
+    public abstract class TestModelBuilder : IInfrastructure<ModelBuilder>
     {
         protected TestModelBuilder(TestHelpers testHelpers, Action<ModelConfigurationBuilder>? configure)
         {
@@ -133,7 +133,7 @@ public abstract partial class ModelBuilderTest
         public virtual IMutableModel Model
             => ModelBuilder.Model;
 
-        public TestHelpers.TestModelBuilder ModelBuilder { get; }
+        protected TestHelpers.TestModelBuilder ModelBuilder { get; }
         public ListLoggerFactory ValidationLoggerFactory { get; }
         public ListLoggerFactory ModelLoggerFactory { get; }
         protected virtual DiagnosticsLogger<DbLoggerCategory.Model.Validation> ValidationLogger { get; }
@@ -174,6 +174,9 @@ public abstract partial class ModelBuilderTest
 
             return this;
         }
+
+        ModelBuilder IInfrastructure<ModelBuilder>.Instance
+            => ModelBuilder;
     }
 
     public abstract class TestEntityTypeBuilder<TEntity>
@@ -371,6 +374,8 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
+        public abstract TestPropertyBuilder<TProperty> HasSentinel(object? sentinel);
+        public abstract TestPropertyBuilder<TProperty> HasPrecision(int precision);
         public abstract TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale);
         public abstract TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true);
         public abstract TestPropertyBuilder<TProperty> IsRowVersion();
@@ -397,9 +402,12 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> HasField(string fieldName);
         public abstract TestPropertyBuilder<TProperty> UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
 
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>();
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer);
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType);
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>();
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             Expression<Func<TProperty, TProvider>> convertToProviderExpression,
@@ -417,19 +425,27 @@ public abstract partial class ModelBuilderTest
             ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter);
-        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueConverter<TProperty, TProvider> converter, ValueComparer? valueComparer);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            ValueConverter<TProperty, TProvider> converter,
+            ValueComparer? valueComparer);
+
         public abstract TestPropertyBuilder<TProperty> HasConversion<TProvider>(
             ValueConverter<TProperty, TProvider> converter,
             ValueComparer? valueComparer,
             ValueComparer? providerComparerType);
-        
+
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter);
         public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer);
-        public abstract TestPropertyBuilder<TProperty> HasConversion(ValueConverter? converter, ValueComparer? valueComparer, ValueComparer? providerComparerType);
+
+        public abstract TestPropertyBuilder<TProperty> HasConversion(
+            ValueConverter? converter,
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType);
 
         public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
             where TComparer : ValueComparer;
-        
+
         public abstract TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer, TProviderComparer>()
             where TComparer : ValueComparer
             where TProviderComparer : ValueComparer;
@@ -441,6 +457,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestNavigationBuilder UsePropertyAccessMode(PropertyAccessMode propertyAccessMode);
         public abstract TestNavigationBuilder HasField(string fieldName);
         public abstract TestNavigationBuilder AutoInclude(bool autoInclude = true);
+        public abstract TestNavigationBuilder EnableLazyLoading(bool lazyLoadingEnabled = true);
         public abstract TestNavigationBuilder IsRequired(bool required = true);
     }
 
@@ -453,7 +470,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestReferenceCollectionBuilder<TEntity, TRelatedEntity> WithOne(
             Expression<Func<TRelatedEntity, TEntity?>>? navigationExpression = null);
 
-        public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string navigationName);
+        public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(string? navigationName = null);
 
         public abstract TestCollectionCollectionBuilder<TRelatedEntity, TEntity> WithMany(
             Expression<Func<TRelatedEntity, IEnumerable<TEntity>?>> navigationExpression);

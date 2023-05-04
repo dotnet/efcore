@@ -155,6 +155,44 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         => QueryAsserter.AssertAll(
             actualQuery, expectedQuery, actualPredicate, expectedPredicate, async);
 
+    protected Task AssertElementAt<TResult>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Func<int> index,
+        Action<TResult, TResult> asserter = null,
+        int entryCount = 0)
+        => AssertElementAt(async, query, query, index, index, asserter, entryCount);
+
+    protected Task AssertElementAt<TResult>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Func<int> actualIndex,
+        Func<int> expectedIndex,
+        Action<TResult, TResult> asserter = null,
+        int entryCount = 0)
+        => QueryAsserter.AssertElementAt(
+            actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, entryCount, async);
+
+    protected Task AssertElementAtOrDefault<TResult>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> query,
+        Func<int> index,
+        Action<TResult, TResult> asserter = null,
+        int entryCount = 0)
+        => AssertElementAtOrDefault(async, query, query, index, index, asserter, entryCount);
+
+    protected Task AssertElementAtOrDefault<TResult>(
+        bool async,
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Func<int> actualIndex,
+        Func<int> expectedIndex,
+        Action<TResult, TResult> asserter = null,
+        int entryCount = 0)
+        => QueryAsserter.AssertElementAtOrDefault(
+            actualQuery, expectedQuery, actualIndex, expectedIndex, asserter, entryCount, async);
+
     protected Task AssertFirst<TResult>(
         bool async,
         Func<ISetSource, IQueryable<TResult>> query,
@@ -1125,6 +1163,12 @@ public abstract class QueryTestBase<TFixture> : IClassFixture<TFixture>
         => Assert.Contains(
             CoreStrings.TranslationFailed("")[48..],
             (await Assert.ThrowsAsync<InvalidOperationException>(query))
+            .Message);
+
+    protected static void AssertTranslationFailed(Action query)
+        => Assert.Contains(
+            CoreStrings.TranslationFailed("")[48..],
+            Assert.Throws<InvalidOperationException>(query)
             .Message);
 
     protected static async Task AssertTranslationFailedWithDetails(Func<Task> query, string details)

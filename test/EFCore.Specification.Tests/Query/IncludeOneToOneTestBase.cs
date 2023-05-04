@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -24,6 +22,20 @@ public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture
         var people
             = context.Set<Person>()
                 .Include(p => p.Address)
+                .ToList();
+
+        Assert.Equal(4, people.Count);
+        Assert.Equal(3, people.Count(p => p.Address != null));
+        Assert.Equal(4 + 3, context.ChangeTracker.Entries().Count());
+    }
+
+    [ConditionalFact]
+    public virtual void Include_address_EF_Property()
+    {
+        using var context = CreateContext();
+        var people
+            = context.Set<Person>()
+                .Include(p => EF.Property<Person>(p, "Address"))
                 .ToList();
 
         Assert.Equal(4, people.Count);
@@ -61,12 +73,41 @@ public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture
     }
 
     [ConditionalFact]
+    public virtual void Include_address_no_tracking_EF_Property()
+    {
+        using var context = CreateContext();
+        var people
+            = context.Set<Person>()
+                .Include(p => EF.Property<Person>(p, "Address"))
+                .AsNoTracking()
+                .ToList();
+
+        Assert.Equal(4, people.Count);
+        Assert.Equal(3, people.Count(p => p.Address != null));
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
+
+    [ConditionalFact]
     public virtual void Include_person()
     {
         using var context = CreateContext();
         var addresses
             = context.Set<Address>()
                 .Include(a => a.Resident)
+                .ToList();
+
+        Assert.Equal(3, addresses.Count);
+        Assert.True(addresses.All(p => p.Resident != null));
+        Assert.Equal(3 + 3, context.ChangeTracker.Entries().Count());
+    }
+
+    [ConditionalFact]
+    public virtual void Include_person_EF_Property()
+    {
+        using var context = CreateContext();
+        var addresses
+            = context.Set<Address>()
+                .Include(a => EF.Property<Address>(a, "Resident"))
                 .ToList();
 
         Assert.Equal(3, addresses.Count);
@@ -95,6 +136,21 @@ public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture
         var addresses
             = context.Set<Address>()
                 .Include(a => a.Resident)
+                .AsNoTracking()
+                .ToList();
+
+        Assert.Equal(3, addresses.Count);
+        Assert.True(addresses.All(p => p.Resident != null));
+        Assert.Empty(context.ChangeTracker.Entries());
+    }
+
+    [ConditionalFact]
+    public virtual void Include_person_no_tracking_EF_Property()
+    {
+        using var context = CreateContext();
+        var addresses
+            = context.Set<Address>()
+                .Include(a => EF.Property<Address>(a, "Resident"))
                 .AsNoTracking()
                 .ToList();
 
@@ -146,7 +202,8 @@ public abstract class IncludeOneToOneTestBase<TFixture> : IClassFixture<TFixture
 
     public abstract class OneToOneQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "OneToOneQueryTest";
+        protected override string StoreName
+            => "OneToOneQueryTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

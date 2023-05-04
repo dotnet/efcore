@@ -1,9 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
-
 #nullable enable
+
+using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
@@ -56,7 +56,7 @@ public class CosmosRuntimeModelConvention : RuntimeModelConvention
     /// <param name="runtimeEntityType">The target entity type that will contain the annotations.</param>
     /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
     protected override void ProcessEntityTypeAnnotations(
-        IDictionary<string, object?> annotations,
+        Dictionary<string, object?> annotations,
         IEntityType entityType,
         RuntimeEntityType runtimeEntityType,
         bool runtime)

@@ -671,6 +671,7 @@ public abstract class MigrationsSqlGeneratorTestBase
                             Values = new object[,] { { "Targaryen" } }
                         })).Message);
 
+
     [ConditionalTheory]
     [InlineData(false)]
     [InlineData(true)]
@@ -704,12 +705,12 @@ public abstract class MigrationsSqlGeneratorTestBase
             .Join("");
 
         Generate(
-                new CreateTableOperation
+            new CreateTableOperation
+            {
+                Name = "TestLineBreaks",
+                Schema = "dbo",
+                Columns =
                 {
-                    Name = "TestLineBreaks",
-                    Schema = "dbo",
-                    Columns =
-                    {
                     new AddColumnOperation
                     {
                         Name = "TestDefaultValue",
@@ -719,8 +720,22 @@ public abstract class MigrationsSqlGeneratorTestBase
                         DefaultValue = defaultValue,
                         IsUnicode = isUnicode
                     }
-                    }
-                });
+                }
+            });
+    }
+
+    [ConditionalTheory]
+    [InlineData(3L)]
+    [InlineData(null)]
+    public virtual void Sequence_restart_operation(long? startsAt)
+    {
+        Generate(
+            new RestartSequenceOperation
+            {
+                Name = "TestRestartSequenceOperation",
+                Schema = "dbo",
+                StartValue = startsAt
+            });
     }
 
     private static void CreateGotModel(ModelBuilder b)
@@ -749,6 +764,9 @@ public abstract class MigrationsSqlGeneratorTestBase
         CustomServices = customServices;
         ContextOptions = options;
     }
+
+    protected virtual void Generate(MigrationOperation operation, MigrationsSqlGenerationOptions options)
+        => Generate(null, new[] { operation }, options);
 
     protected virtual void Generate(params MigrationOperation[] operation)
         => Generate(null, operation);
@@ -793,7 +811,7 @@ public abstract class MigrationsSqlGeneratorTestBase
     }
 
     protected void AssertSql(string expected)
-        => Assert.Equal(expected, Sql, ignoreLineEndingDifferences: true);
+        => Assert.Equal(expected.TrimEnd(), Sql.TrimEnd(), ignoreLineEndingDifferences: true);
 
     protected class Person
     {

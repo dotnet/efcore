@@ -14,7 +14,7 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             Action<ModelConfigurationBuilder>? configure)
             => new GenericTypeTestModelBuilder(testHelpers, configure);
     }
-    
+
     public class GenericNonRelationshipTest : NonRelationshipTestBase
     {
         protected override TestModelBuilder CreateTestModelBuilder(
@@ -86,9 +86,10 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             Expression<Func<TEntity, TRelatedEntity?>> navigationExpression,
             Action<TestOwnedNavigationBuilder<TEntity, TRelatedEntity>> buildAction)
             where TRelatedEntity : class
-            => Wrap(EntityTypeBuilder.OwnsOne(
-                        navigationExpression,
-                        r => buildAction(new GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
+            => Wrap(
+                EntityTypeBuilder.OwnsOne(
+                    navigationExpression,
+                    r => buildAction(new GenericTypeTestOwnedNavigationBuilder<TEntity, TRelatedEntity>(r))));
 
         public override TestReferenceNavigationBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(
             Expression<Func<TEntity, TRelatedEntity?>>? navigationExpression = null)
@@ -118,9 +119,11 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
         public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer)
             => Wrap(PropertyBuilder.HasConversion(typeof(TProvider), valueComparer));
 
-        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(ValueComparer? valueComparer, ValueComparer? providerComparerType)
+        public override TestPropertyBuilder<TProperty> HasConversion<TProvider>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparerType)
             => Wrap(PropertyBuilder.HasConversion(typeof(TProvider), valueComparer, providerComparerType));
-        
+
         public override TestPropertyBuilder<TProperty> HasConversion<TConverter, TComparer>()
             => Wrap(PropertyBuilder.HasConversion(typeof(TConverter), typeof(TComparer)));
 
@@ -128,7 +131,8 @@ public class ModelBuilderGenericRelationshipTypeTest : ModelBuilderGenericTest
             => Wrap(PropertyBuilder.HasConversion(typeof(TConverter), typeof(TComparer), typeof(TProviderComparer)));
     }
 
-    private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity, TRelatedEntity>
+    private class GenericTypeTestReferenceNavigationBuilder<TEntity, TRelatedEntity> : GenericTestReferenceNavigationBuilder<TEntity,
+        TRelatedEntity>
         where TEntity : class
         where TRelatedEntity : class
     {

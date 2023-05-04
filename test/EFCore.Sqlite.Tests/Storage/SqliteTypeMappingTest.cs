@@ -126,17 +126,13 @@ public class SqliteTypeMappingTest : RelationalTypeMappingTest
 
     [ConditionalFact]
     public override void TimeOnly_literal_generated_correctly()
-        => Test_GenerateSqlLiteral_helper(
-            GetMapping(typeof(TimeOnly)),
-            new TimeOnly(13, 10, 15),
-            "'13:10:15'");
+    {
+        var typeMapping = GetMapping(typeof(TimeOnly));
 
-    [ConditionalFact]
-    public override void TimeOnly_literal_generated_correctly_with_milliseconds()
-        => Test_GenerateSqlLiteral_helper(
-            GetMapping(typeof(TimeOnly)),
-            new TimeOnly(13, 10, 15, 500),
-            "'13:10:15.5000000'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15), "'13:10:15'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120), "'13:10:15.1200000'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "'13:10:15.1200200'");
+    }
 
     public override void Decimal_literal_generated_correctly()
     {

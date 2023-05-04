@@ -123,7 +123,8 @@ public class BaseTypeDiscoveryConvention :
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey.IsOwnership
+        if (entityTypeBuilder.Metadata.IsInModel
+            && foreignKey.IsOwnership
             && !entityTypeBuilder.Metadata.IsOwned())
         {
             ProcessEntityType(entityTypeBuilder);

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
@@ -16,6 +18,27 @@ public static partial class EF
 {
     internal static readonly MethodInfo PropertyMethod
         = typeof(EF).GetTypeInfo().GetDeclaredMethod(nameof(Property))!;
+
+    [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2060",
+        Justification = "EF.Property has no DynamicallyAccessedMembers annotations and is safe to construct.")]
+    internal static MethodInfo MakePropertyMethod(Type type)
+        => PropertyMethod.MakeGenericMethod(type);
+
+    /// <summary>
+    ///     This flag is set to <see langword="true" /> when code is being run from a design-time tool, such
+    ///     as "dotnet ef" or one of the Package Manager Console PowerShell commands "Add-Migration", "Update-Database", etc.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This flag can be inspected to change application behavior. For example, if the application is being executed by an EF
+    ///         design-time tool, then it may choose to skip executing migrations commands as part of startup.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-commandline">EF Core command-line reference </see> for more information
+    ///         and examples.
+    ///     </para>
+    /// </remarks>
+    public static bool IsDesignTime { get; set; }
 
     /// <summary>
     ///     References a given property or navigation on an entity instance. This is useful for shadow state properties, for

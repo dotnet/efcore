@@ -525,8 +525,11 @@ public class NavigationFixer : INavigationFixer
                     foreach (InternalEntityEntry dependentEntry in stateManager
                                  .GetDependentsUsingRelationshipSnapshot(entry, foreignKey).ToList())
                     {
+                        if (dependentEntry.EntityState == EntityState.Deleted)
+                        {
+                            continue;
+                        }
                         SetForeignKeyProperties(dependentEntry, entry, foreignKey, setModified: true, fromQuery: false);
-                        UndeleteDependent(dependentEntry, entry);
                     }
 
                     if (foreignKey.IsOwnership)
@@ -704,7 +707,7 @@ public class NavigationFixer : INavigationFixer
             var dependentEntries = stateManager.GetDependents(entry, foreignKey);
             foreach (InternalEntityEntry dependentEntry in dependentEntries.ToList())
             {
-                if (foreignKey.IsOwnership)
+                if (foreignKey.DeleteBehavior != DeleteBehavior.ClientNoAction)
                 {
                     ConditionallyNullForeignKeyProperties(dependentEntry, entry, foreignKey);
                 }
@@ -777,10 +780,12 @@ public class NavigationFixer : INavigationFixer
                 if (foreignKey.IsUnique)
                 {
                     var dependentEntry = (InternalEntityEntry?)dependents.FirstOrDefault();
-                    if (dependentEntry != null)
+                    if (dependentEntry != null
+                        && dependentEntry.EntityState != EntityState.Deleted)
                     {
                         var toDependent = foreignKey.PrincipalToDependent;
                         if (CanOverrideCurrentValue(entry, toDependent, dependentEntry, fromQuery)
+                            && (!fromQuery || CanOverrideCurrentValue(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery))
                             && !IsAmbiguous(dependentEntry))
                         {
                             SetNavigation(entry, toDependent, dependentEntry, fromQuery);
@@ -792,7 +797,9 @@ public class NavigationFixer : INavigationFixer
                 {
                     foreach (InternalEntityEntry dependentEntry in dependents)
                     {
-                        if (!IsAmbiguous(dependentEntry))
+                        if (dependentEntry.EntityState != EntityState.Deleted
+                            && !IsAmbiguous(dependentEntry)
+                            && (!fromQuery || CanOverrideCurrentValue(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery)))
                         {
                             SetNavigation(dependentEntry, foreignKey.DependentToPrincipal, entry, fromQuery);
                             AddToCollection(entry, foreignKey.PrincipalToDependent, dependentEntry, fromQuery);
@@ -868,6 +875,7 @@ public class NavigationFixer : INavigationFixer
                                 }
                             }
                         }
+
                         navigationValue = duplicateEntry?[principalToDependent];
                         if (navigationValue != null)
                         {
@@ -957,7 +965,7 @@ public class NavigationFixer : INavigationFixer
                         entry.AddToCollectionSnapshot(skipNavigation, otherEntity);
                     }
                 }
-                
+
                 navigationValue = duplicateEntry?[skipNavigation];
                 if (navigationValue != null)
                 {
@@ -1020,7 +1028,7 @@ public class NavigationFixer : INavigationFixer
                 {
                     if (navigation.IsCollection)
                     {
-                        if (entry.CollectionContains(navigation, referencedEntry))
+                        if (entry.CollectionContains(navigation, referencedEntry.Entity))
                         {
                             FixupToDependent(entry, referencedEntry, navigation.ForeignKey, setModified, fromQuery);
                         }
@@ -1028,20 +1036,20 @@ public class NavigationFixer : INavigationFixer
                     else
                     {
                         FixupToDependent(
-                            entry, 
-                            referencedEntry, 
-                            navigation.ForeignKey, 
-                            referencedEntry.Entity == navigationValue && setModified, 
+                            entry,
+                            referencedEntry,
+                            navigation.ForeignKey,
+                            referencedEntry.Entity == navigationValue && setModified,
                             fromQuery);
                     }
                 }
                 else
                 {
                     FixupToPrincipal(
-                        entry, 
-                        referencedEntry, 
-                        navigation.ForeignKey, 
-                        referencedEntry.Entity == navigationValue && setModified, 
+                        entry,
+                        referencedEntry,
+                        navigation.ForeignKey,
+                        referencedEntry.Entity == navigationValue && setModified,
                         fromQuery);
 
                     FixupSkipNavigations(entry, navigation.ForeignKey, fromQuery);
@@ -1087,7 +1095,7 @@ public class NavigationFixer : INavigationFixer
         {
             var joinEntityType = arguments.SkipNavigation.JoinEntityType;
             var joinEntity = _entityMaterializerSource.GetEmptyMaterializer(joinEntityType)
-                (new MaterializationContext(ValueBuffer.Empty, arguments.Entry.StateManager.Context));
+                (new MaterializationContext(ValueBuffer.Empty, arguments.Entry.Context));
 
             joinEntry = arguments.Entry.StateManager.GetOrCreateEntry(joinEntity, joinEntityType);
 
@@ -1408,28 +1416,39 @@ public class NavigationFixer : INavigationFixer
 
         if (foreignKey.IsRequired
             && hasOnlyKeyProperties
-            && dependentEntry.EntityState != EntityState.Detached)
+            && dependentEntry.EntityState != EntityState.Detached
+            && dependentEntry.EntityState != EntityState.Deleted)
         {
-            try
+            if (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
+                || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade
+                || foreignKey.IsOwnership)
             {
-                _inFixup = true;
-                switch (dependentEntry.EntityState)
+                try
                 {
-                    case EntityState.Added:
-                        dependentEntry.SetEntityState(EntityState.Detached);
-                        DeleteFixup(dependentEntry);
-                        break;
-                    case EntityState.Unchanged:
-                    case EntityState.Modified:
-                        dependentEntry.SetEntityState(
-                            dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
-                        DeleteFixup(dependentEntry);
-                        break;
+                    _inFixup = true;
+                    switch (dependentEntry.EntityState)
+                    {
+                        case EntityState.Added:
+                            dependentEntry.SetEntityState(EntityState.Detached);
+                            DeleteFixup(dependentEntry);
+                            break;
+                        case EntityState.Unchanged:
+                        case EntityState.Modified:
+                            dependentEntry.SetEntityState(
+                                dependentEntry.SharedIdentityEntry != null ? EntityState.Detached : EntityState.Deleted);
+                            DeleteFixup(dependentEntry);
+                            break;
+                    }
+                }
+                finally
+                {
+                    _inFixup = false;
                 }
             }
-            finally
+            else
             {
-                _inFixup = false;
+                throw new InvalidOperationException(
+                    CoreStrings.KeyReadOnly(dependentProperties.First().Name, dependentEntry.EntityType.DisplayName()));
             }
         }
     }
@@ -1440,14 +1459,27 @@ public class NavigationFixer : INavigationFixer
         InternalEntityEntry value,
         bool fromQuery)
     {
-        if (fromQuery)
+        var existingValue = navigation == null ? null : entry[navigation];
+        if (existingValue == null
+            || existingValue == value.Entity)
         {
             return true;
         }
 
-        var existingValue = navigation == null ? null : entry[navigation];
-        return existingValue == null
-            || existingValue == value.Entity;
+        if (!fromQuery)
+        {
+            return false;
+        }
+
+        var existingEntry = entry.StateManager.TryGetEntry(existingValue, throwOnNonUniqueness: false);
+        if (existingEntry == null)
+        {
+            return true;
+        }
+
+        SetForeignKeyProperties(entry, existingEntry, ((INavigation)navigation!).ForeignKey, setModified: true, fromQuery);
+
+        return false;
     }
 
     private void SetNavigation(InternalEntityEntry entry, INavigationBase? navigation, InternalEntityEntry? value, bool fromQuery)
@@ -1476,7 +1508,7 @@ public class NavigationFixer : INavigationFixer
             _inFixup = true;
             try
             {
-                if (entry.AddToCollection(navigation, value, fromQuery))
+                if (entry.AddToCollection(navigation, value.Entity, fromQuery))
                 {
                     entry.AddToCollectionSnapshot(navigation, value.Entity);
                 }
@@ -1493,7 +1525,7 @@ public class NavigationFixer : INavigationFixer
         _inFixup = true;
         try
         {
-            if (entry.RemoveFromCollection(navigation, value))
+            if (entry.RemoveFromCollection(navigation, value.Entity))
             {
                 entry.RemoveFromCollectionSnapshot(navigation, value.Entity);
             }

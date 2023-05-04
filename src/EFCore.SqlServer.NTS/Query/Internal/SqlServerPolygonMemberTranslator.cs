@@ -16,6 +16,7 @@ public class SqlServerPolygonMemberTranslator : IMemberTranslator
 {
     private static readonly MemberInfo ExteriorRing
         = typeof(Polygon).GetTypeInfo().GetRuntimeProperty(nameof(Polygon.ExteriorRing))!;
+
     private static readonly MemberInfo NumInteriorRings
         = typeof(Polygon).GetTypeInfo().GetRuntimeProperty(nameof(Polygon.NumInteriorRings))!;
 

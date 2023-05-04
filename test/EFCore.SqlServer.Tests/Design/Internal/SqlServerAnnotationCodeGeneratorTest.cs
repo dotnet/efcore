@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Design.Internal;
@@ -205,10 +206,7 @@ public class SqlServerAnnotationCodeGeneratorTest
         Assert.Equal("UseIdentityColumn", result.Method);
         Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
 
-        Assert.Collection(
-            result.Arguments,
-            seed => Assert.Equal(1L, seed),
-            increment => Assert.Equal(1, increment));
+        Assert.Empty(result.Arguments);
     }
 
     [ConditionalFact]
@@ -248,6 +246,45 @@ public class SqlServerAnnotationCodeGeneratorTest
             result.Arguments,
             name => Assert.Equal("HiLoIndexName", name),
             schema => Assert.Equal("HiLoIndexSchema", schema));
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IModel_works_with_KeySequence()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.UseKeySequences("KeySequenceName", "KeySequenceSchema");
+
+        var annotations = modelBuilder.Model.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var result = generator.GenerateFluentApiCalls((IModel)modelBuilder.Model, annotations).Single();
+
+        Assert.Equal("UseKeySequences", result.Method);
+        Assert.Equal("SqlServerModelBuilderExtensions", result.DeclaringType);
+
+        Assert.Collection(
+            result.Arguments,
+            name => Assert.Equal("KeySequenceName", name),
+            schema => Assert.Equal("KeySequenceSchema", schema));
+    }
+
+    [ConditionalFact]
+    public void GenerateFluentApi_IProperty_works_with_KeySequence()
+    {
+        var generator = CreateGenerator();
+        var modelBuilder = SqlServerConventionSetBuilder.CreateModelBuilder();
+        modelBuilder.Entity("Post", x => x.Property<int>("Id").UseSequence("KeySequenceName", "KeySequenceSchema"));
+        var property = modelBuilder.Model.FindEntityType("Post")!.FindProperty("Id")!;
+
+        var annotations = property.GetAnnotations().ToDictionary(a => a.Name, a => a);
+        var result = generator.GenerateFluentApiCalls((IProperty)property, annotations).Single();
+
+        Assert.Equal("UseSequence", result.Method);
+        Assert.Equal("SqlServerPropertyBuilderExtensions", result.DeclaringType);
+
+        Assert.Collection(
+            result.Arguments,
+            name => Assert.Equal("KeySequenceName", name),
+            schema => Assert.Equal("KeySequenceSchema", schema));
     }
 
     [ConditionalFact]
@@ -334,7 +371,7 @@ public class SqlServerAnnotationCodeGeneratorTest
             x =>
             {
                 x.Property<int>("Id");
-                x.IsMemoryOptimized();
+                x.ToTable(tb => tb.IsMemoryOptimized());
             });
         var entityType = (IEntityType)modelBuilder.Model.FindEntityType("Post")!;
 
@@ -355,5 +392,6 @@ public class SqlServerAnnotationCodeGeneratorTest
                             new ValueConverterSelectorDependencies()),
                         Array.Empty<ITypeMappingSourcePlugin>()),
                     new RelationalTypeMappingSourceDependencies(
-                        Array.Empty<IRelationalTypeMappingSourcePlugin>()))));
+                        Array.Empty<IRelationalTypeMappingSourcePlugin>()),
+                    new SqlServerSingletonOptions())));
 }

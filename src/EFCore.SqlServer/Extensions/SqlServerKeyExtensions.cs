@@ -70,11 +70,10 @@ public static class SqlServerKeyExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static bool? SetIsClustered(this IConventionKey key, bool? clustered, bool fromDataAnnotation = false)
-    {
-        key.SetOrRemoveAnnotation(SqlServerAnnotationNames.Clustered, clustered, fromDataAnnotation);
-
-        return clustered;
-    }
+        => (bool?)key.SetOrRemoveAnnotation(
+            SqlServerAnnotationNames.Clustered,
+            clustered,
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for whether the key is clustered.

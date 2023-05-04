@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtureBase
 {
-    protected override string StoreName { get; } = "TPTGearsOfWarQueryTest";
+    protected override string StoreName
+        => "TPTGearsOfWarQueryTest";
 
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
@@ -22,13 +23,16 @@ public abstract class TPTGearsOfWarQueryRelationalFixture : GearsOfWarQueryFixtu
     {
         base.OnModelCreating(modelBuilder, context);
 
-        modelBuilder.Entity<Gear>().ToTable("Gears");
-        modelBuilder.Entity<Officer>().ToTable("Officers");
+        modelBuilder.Entity<Gear>().UseTptMappingStrategy();
 
-        modelBuilder.Entity<Faction>().ToTable("Factions");
         modelBuilder.Entity<LocustHorde>().ToTable("LocustHordes");
 
-        modelBuilder.Entity<LocustLeader>().ToTable("LocustLeaders");
         modelBuilder.Entity<LocustCommander>().ToTable("LocustCommanders");
+
+        modelBuilder.Entity<Squad>()
+            .HasMany(s => s.Members)
+            .WithOne(g => g.Squad)
+            .HasForeignKey(g => g.SquadId)
+            .OnDelete(DeleteBehavior.ClientCascade);
     }
 }

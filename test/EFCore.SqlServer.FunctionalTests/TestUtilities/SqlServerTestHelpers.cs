@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
-public class SqlServerTestHelpers : TestHelpers
+public class SqlServerTestHelpers : RelationalTestHelpers
 {
     protected SqlServerTestHelpers()
     {

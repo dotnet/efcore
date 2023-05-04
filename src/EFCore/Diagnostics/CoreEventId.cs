@@ -117,6 +117,9 @@ public static class CoreEventId
         RequiredAttributeOnSkipNavigation,
         AmbiguousEndRequiredWarning,
         ShadowForeignKeyPropertyCreated,
+        MappedEntityTypeIgnoredWarning,
+        MappedNavigationIgnoredWarning,
+        MappedPropertyIgnoredWarning,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -511,6 +514,57 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId ShadowForeignKeyPropertyCreated = MakeModelValidationId(Id.ShadowForeignKeyPropertyCreated);
+
+    /// <summary>
+    ///     An entity type  was first mapped explicitly and then ignored.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="EntityTypeEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId MappedEntityTypeIgnoredWarning = MakeModelId(Id.MappedEntityTypeIgnoredWarning);
+
+    /// <summary>
+    ///     A navigation was first mapped explicitly and then ignored.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="NavigationBaseEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId MappedNavigationIgnoredWarning = MakeModelId(Id.MappedNavigationIgnoredWarning);
+
+    /// <summary>
+    ///     A property was first mapped explicitly and then ignored.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="PropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId MappedPropertyIgnoredWarning = MakeModelId(Id.MappedPropertyIgnoredWarning);
 
     /// <summary>
     ///     An index was not created as the properties are already covered.

@@ -26,11 +26,6 @@ public abstract class SaveChangesInterceptor : ISaveChangesInterceptor
     }
 
     /// <inheritdoc />
-    public virtual void SaveChangesCanceled(DbContextEventData eventData)
-    {
-    }
-
-    /// <inheritdoc />
     public virtual ValueTask<InterceptionResult<int>> SavingChangesAsync(
         DbContextEventData eventData,
         InterceptionResult<int> result,
@@ -45,14 +40,26 @@ public abstract class SaveChangesInterceptor : ISaveChangesInterceptor
         => new(result);
 
     /// <inheritdoc />
-    public virtual Task SaveChangesFailedAsync(
-        DbContextErrorEventData eventData,
-        CancellationToken cancellationToken = default)
+    public virtual Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
 
     /// <inheritdoc />
-    public virtual Task SaveChangesCanceledAsync(
-        DbContextEventData eventData,
-        CancellationToken cancellationToken = default)
+    public virtual void SaveChangesCanceled(DbContextEventData eventData)
+    {
+    }
+
+    /// <inheritdoc />
+    public virtual Task SaveChangesCanceledAsync(DbContextEventData eventData, CancellationToken cancellationToken = default)
         => Task.CompletedTask;
+
+    /// <inheritdoc />
+    public virtual InterceptionResult ThrowingConcurrencyException(ConcurrencyExceptionEventData eventData, InterceptionResult result)
+        => result;
+
+    /// <inheritdoc />
+    public virtual ValueTask<InterceptionResult> ThrowingConcurrencyExceptionAsync(
+        ConcurrencyExceptionEventData eventData,
+        InterceptionResult result,
+        CancellationToken cancellationToken = default)
+        => new(result);
 }

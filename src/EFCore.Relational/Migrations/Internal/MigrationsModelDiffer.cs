@@ -1,9 +1,8 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
 
@@ -21,7 +20,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     {
         typeof(DropIndexOperation),
         typeof(DropPrimaryKeyOperation),
-        typeof(DropSequenceOperation),
         typeof(DropUniqueConstraintOperation),
         typeof(DropCheckConstraintOperation)
     };
@@ -86,7 +84,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual IRowIdentityMapFactory RowIdentityMapFactory { get; }        
+    protected virtual IRowIdentityMapFactory RowIdentityMapFactory { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -132,6 +130,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         var dropColumnOperations = new List<MigrationOperation>();
         var dropComputedColumnOperations = new List<MigrationOperation>();
         var dropTableOperations = new List<DropTableOperation>();
+        var dropSequenceOperations = new List<MigrationOperation>();
         var ensureSchemaOperations = new List<MigrationOperation>();
         var createSequenceOperations = new List<MigrationOperation>();
         var createTableOperations = new List<CreateTableOperation>();
@@ -173,6 +172,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             else if (type == typeof(DropTableOperation))
             {
                 dropTableOperations.Add((DropTableOperation)operation);
+            }
+            else if (type == typeof(DropSequenceOperation))
+            {
+                dropSequenceOperations.Add((DropSequenceOperation)operation);
             }
             else if (type == typeof(EnsureSchemaOperation))
             {
@@ -313,6 +316,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             .Concat(sourceDataOperations)
             .Concat(dropComputedColumnOperations)
             .Concat(dropColumnOperations)
+            .Concat(dropSequenceOperations)
             .Concat(ensureSchemaOperations)
             .Concat(renameTableOperations)
             .Concat(renameOperations)
@@ -636,6 +640,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         createTableOperation.Columns.AddRange(
             GetSortedColumns(target).SelectMany(p => Add(p, diffContext, inline: true)).Cast<AddColumnOperation>());
+
         var primaryKey = target.PrimaryKey;
         if (primaryKey != null)
         {
@@ -684,7 +689,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
     private static IEnumerable<IColumn> GetSortedColumns(ITable table)
     {
-        var columns = table.Columns.ToHashSet();
+        var columns = table.Columns.Where(x => x is not JsonColumn).ToHashSet();
         var sortedColumns = new List<IColumn>(columns.Count);
         foreach (var property in GetSortedProperties(GetMainType(table).GetRootType(), table))
         {
@@ -697,9 +702,14 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         Check.DebugAssert(columns.Count == 0, "columns is not empty");
 
+        // issue #28539
+        // ideally we should inject JSON column in the place corresponding to the navigation that maps to it in the clr type
+        var jsonColumns = table.Columns.Where(x => x is JsonColumn).OrderBy(x => x.Name);
+
         return sortedColumns.Where(c => c.Order.HasValue).OrderBy(c => c.Order)
             .Concat(sortedColumns.Where(c => !c.Order.HasValue))
-            .Concat(columns);
+            .Concat(columns)
+            .Concat(jsonColumns);
     }
 
     private static IEnumerable<IProperty> GetSortedProperties(IEntityType entityType, ITable table)
@@ -766,9 +776,16 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
             {
+                // skip JSON entities, their properties are not mapped to anything
+                if (linkingForeignKey.DeclaringEntityType.IsMappedToJson())
+                {
+                    continue;
+                }
+
                 var linkingNavigationProperty = linkingForeignKey.PrincipalToDependent?.PropertyInfo;
                 var properties = GetSortedProperties(linkingForeignKey.DeclaringEntityType, table).ToList();
-                if (linkingNavigationProperty == null)
+                if (linkingNavigationProperty == null
+                    || (linkingForeignKey.PrincipalToDependent!.IsIndexerProperty()))
                 {
                     leastPriorityProperties.AddRange(properties);
 
@@ -918,11 +935,13 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
     private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
     {
-        var sourceTable = diffContext.GetTable(source);
-        var targetTable = diffContext.GetTable(target);
+        var sourceTable = diffContext.FindTable(source);
+        var targetTable = diffContext.FindTable(target);
 
-        if (sourceTable.EntityTypeMappings.Count() == 1
-            && targetTable.EntityTypeMappings.Count() == 1)
+        if ((sourceTable == null
+                && targetTable == null)
+            || (sourceTable?.EntityTypeMappings.Count() == 1
+                && targetTable?.EntityTypeMappings.Count() == 1))
         {
             return true;
         }
@@ -932,8 +951,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return false;
         }
 
-        var nextSource = sourceTable.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
-        var nextTarget = targetTable.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
+        var nextSource = sourceTable?.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
+        var nextTarget = targetTable?.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
         return (nextSource == null && nextTarget == null)
             || (nextSource != null
                 && nextTarget != null
@@ -1007,31 +1026,39 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 IsDestructiveChange = isDestructiveChange
             };
 
-            var sourceTypeMapping = source.PropertyMappings.First().TypeMapping;
-            var targetTypeMapping = target.PropertyMappings.First().TypeMapping;
-
-            Initialize(
-                alterColumnOperation, target, targetTypeMapping,
-                target.IsNullable, targetMigrationsAnnotations, inline: !source.IsNullable);
-
-            Initialize(
-                alterColumnOperation.OldColumn, source, sourceTypeMapping,
-                source.IsNullable, sourceMigrationsAnnotations, inline: true);
+            InitializeColumnHelper(alterColumnOperation, target, inline: !source.IsNullable);
+            InitializeColumnHelper(alterColumnOperation.OldColumn, source, inline: true);
 
             if (source.Order != target.Order)
             {
-                if (source.Order.HasValue)
+                if (source is not JsonColumn && source.Order.HasValue)
                 {
                     alterColumnOperation.OldColumn.AddAnnotation(RelationalAnnotationNames.ColumnOrder, source.Order.Value);
                 }
 
-                if (target.Order.HasValue)
+                if (target is not JsonColumn && target.Order.HasValue)
                 {
                     alterColumnOperation.AddAnnotation(RelationalAnnotationNames.ColumnOrder, target.Order.Value);
                 }
             }
 
             yield return alterColumnOperation;
+        }
+    }
+
+    private void InitializeColumnHelper(ColumnOperation columnOperation, IColumn column, bool inline)
+    {
+        if (column is JsonColumn jsonColumn)
+        {
+            InitializeJsonColumn(columnOperation, jsonColumn, jsonColumn.IsNullable, column.GetAnnotations(), inline);
+        }
+        else
+        {
+            var columnTypeMapping = column.StoreTypeMapping;
+
+            Initialize(
+                columnOperation, column, columnTypeMapping, column.IsNullable,
+                column.GetAnnotations(), inline);
         }
     }
 
@@ -1055,16 +1082,13 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Name = target.Name
         };
 
-        var targetMapping = target.PropertyMappings.First();
-        var targetTypeMapping = targetMapping.TypeMapping;
-
-        Initialize(
-            operation, target, targetTypeMapping, target.IsNullable,
-            target.GetAnnotations(), inline);
-
-        if (!inline && target.Order.HasValue)
+        InitializeColumnHelper(operation, target, inline);
+        if (target is not JsonColumn)
         {
-            operation.AddAnnotation(RelationalAnnotationNames.ColumnOrder, target.Order.Value);
+            if (!inline && target.Order.HasValue)
+            {
+                operation.AddAnnotation(RelationalAnnotationNames.ColumnOrder, target.Order.Value);
+            }
         }
 
         yield return operation;
@@ -1153,6 +1177,26 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         columnOperation.IsStored = column.IsStored;
         columnOperation.Comment = column.Comment;
         columnOperation.Collation = column.Collation;
+        columnOperation.AddAnnotations(migrationsAnnotations);
+    }
+
+    private void InitializeJsonColumn(
+        ColumnOperation columnOperation,
+        JsonColumn jsonColumn,
+        bool isNullable,
+        IEnumerable<IAnnotation> migrationsAnnotations,
+        bool inline = false)
+    {
+        columnOperation.ColumnType = jsonColumn.StoreType;
+        columnOperation.IsNullable = isNullable;
+
+        // TODO: flow this from type mapping
+        // issue #28596
+        columnOperation.ClrType = typeof(string);
+        columnOperation.DefaultValue = inline || isNullable
+            ? null
+            : GetDefaultValue(columnOperation.ClrType);
+
         columnOperation.AddAnnotations(migrationsAnnotations);
     }
 
@@ -1470,7 +1514,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             Diff,
             Add,
             Remove,
-            (s, t, c) => c.GetTable(s.EntityType) == c.FindSource(c.GetTable(t.EntityType))
+            (s, t, c) => c.FindTable(s.EntityType) == c.FindSource(c.FindTable(t.EntityType))
                 && string.Equals(s.Name, t.Name, StringComparison.OrdinalIgnoreCase)
                 && string.Equals(s.Sql, t.Sql, StringComparison.OrdinalIgnoreCase));
 
@@ -1670,7 +1714,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_targetIdentityMaps == null)
         {
-            _targetIdentityMaps = new(TableBaseIdentityComparer.Instance);
+            _targetIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
         }
         else
         {
@@ -1690,7 +1734,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
 
         if (_sourceIdentityMaps == null)
         {
-            _sourceIdentityMaps = new(TableBaseIdentityComparer.Instance);
+            _sourceIdentityMaps = new Dictionary<ITable, IRowIdentityMap>(TableBaseIdentityComparer.Instance);
         }
         else
         {
@@ -1702,7 +1746,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             AddSeedData(sourceEntityType, _sourceIdentityMaps, EntityState.Deleted);
         }
     }
-    
+
     private void AddSeedData(IEntityType entityType, Dictionary<ITable, IRowIdentityMap> identityMaps, EntityState initialState)
     {
         var sensitiveLoggingEnabled = CommandBatchPreparerDependencies.LoggingOptions.IsSensitiveDataLoggingEnabled;
@@ -1725,7 +1769,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     .ToDictionary(p => p.GetSimpleMemberName());
 
                 getValue = (property, seed) =>
-                    anonymousProperties.TryGetValue(property.Name, out var propertyInfo) ? (propertyInfo.GetValue(seed), true) : (null, false);
+                    anonymousProperties.TryGetValue(property.Name, out var propertyInfo)
+                        ? (propertyInfo.GetValue(seed), true)
+                        : (null, false);
             }
 
             foreach (var mapping in entityType.GetTableMappings())
@@ -1775,13 +1821,13 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                                     BuildValuesString(key),
                                     table.SchemaQualifiedName));
                         }
-                        
+
                         throw new InvalidOperationException(
                             RelationalStrings.DuplicateSeedData(
                                 entityType.DisplayName(),
                                 table.SchemaQualifiedName));
                     }
-                    
+
                     command = existingCommand;
                 }
                 else
@@ -1789,7 +1835,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     command = CommandBatchPreparerDependencies.ModificationCommandFactory.CreateNonTrackedModificationCommand(
                         new NonTrackedModificationCommandParameters(table, sensitiveLoggingEnabled));
                     command.EntityState = initialState;
-                    
+
                     identityMap.Add(key, command);
                 }
 
@@ -1837,7 +1883,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             value = column.DefaultValue;
                         }
                         else if (value == null
-                            && !column.IsNullable)
+                                 && !column.IsNullable)
                         {
                             value = column.ProviderClrType.GetDefaultValue();
                         }
@@ -1873,7 +1919,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     writeValue = writeValue
                         && initialState != EntityState.Deleted
                         && property.GetBeforeSaveBehavior() == PropertySaveBehavior.Save;
-                    
+
                     command.AddColumnModification(
                         new ColumnModificationParameters(
                             column, originalValue: value, value, property, columnMapping.TypeMapping,
@@ -1941,7 +1987,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         {
             return;
         }
-        
+
         var tableMapping = new Dictionary<ITable, (ITable, IRowIdentityMap)?>();
         var unchangedColumns = new List<IColumnModification>();
         var overridenColumns = new List<IColumnModification>();
@@ -2008,10 +2054,10 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     {
                         targetRow.EntityState = EntityState.Unchanged;
                     }
-                    
+
                     continue;
                 }
-                
+
                 if (sourceTable.IsExcludedFromMigrations
                     || targetTable.IsExcludedFromMigrations)
                 {
@@ -2032,7 +2078,9 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 var anyColumnsModified = false;
                 foreach (var targetColumnModification in targetRow.ColumnModifications)
                 {
-                    var targetColumn = targetColumnModification.Column!;
+                    var targetColumnBase = targetColumnModification.Column!;
+                    Check.DebugAssert(targetColumnBase is IColumn, "Non-IColumn columns not allowed");
+                    var targetColumn = (IColumn)targetColumnBase;
                     var targetMapping = targetColumn.PropertyMappings.First();
                     var targetProperty = targetMapping.Property;
 
@@ -2057,6 +2105,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             anyColumnsModified = true;
                         }
+
                         continue;
                     }
 
@@ -2093,6 +2142,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         {
                             unchangedColumn.IsWrite = false;
                         }
+
                         foreach (var overridenColumn in overridenColumns)
                         {
                             overridenColumn.IsWrite = true;
@@ -2119,7 +2169,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         DiffContext diffContext)
     {
         TrackData(source, target, diffContext);
-        
+
         DiffData(source, target, diffContext);
 
         var dataOperations = GetDataOperations(forSource: true, diffContext)
@@ -2147,17 +2197,11 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             yield break;
         }
 
-        var commands = identityMaps.Values.SelectMany(m => m.Rows).Where(r =>
-        {
-            return r.EntityState switch
-            {
-                EntityState.Added => true,
-                EntityState.Modified => true,
-                EntityState.Unchanged => false,
-                EntityState.Deleted => diffContext.FindDrop(r.Table!) == null,
-                _ => throw new InvalidOperationException($"Unexpected entity state: {r.EntityState}")
-            };
-        });
+        var commands = identityMaps.Values
+            .SelectMany(m => m.Rows)
+            .Where(
+                r => r.EntityState is EntityState.Added or EntityState.Modified
+                    || (r.EntityState is EntityState.Deleted && diffContext.FindDrop(r.Table!) == null));
 
         var commandSets = new CommandBatchPreparer(CommandBatchPreparerDependencies)
             .TopologicalSort(commands);
@@ -2179,7 +2223,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                             {
                                 batchInsertOperation.Values =
                                     AddToMultidimensionalArray(
-                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.Value).ToList(),
+                                        command.ColumnModifications.Where(col => col.IsKey || col.IsWrite).Select(col => col.Value)
+                                            .ToList(),
                                         batchInsertOperation.Values);
                                 continue;
                             }
@@ -2240,7 +2285,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         Check.DebugAssert(forSource, "Delete using the target model");
 
                         var keyColumns = command.ColumnModifications.Where(col => col.IsKey)
-                            .Select(c => c.Column!);
+                            .Select(c => (IColumn)c.Column!);
                         var anyKeyColumnDropped = keyColumns.Any(c => diffContext.FindDrop(c) != null);
 
                         yield return new DeleteDataOperation
@@ -2348,7 +2393,6 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
     protected virtual bool HasDifferences(IEnumerable<IAnnotation> source, IEnumerable<IAnnotation> target)
     {
         var unmatched = new List<IAnnotation>(target);
-
         foreach (var annotation in source)
         {
             var index = unmatched.FindIndex(
@@ -2517,8 +2561,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ITable GetTable(IEntityType entityType)
-            => entityType.GetTableMappings().First().Table;
+        public virtual ITable? FindTable(IEntityType entityType)
+            => entityType.GetTableMappings().FirstOrDefault()?.Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

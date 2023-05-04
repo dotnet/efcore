@@ -26,6 +26,9 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
     private static readonly MethodInfo UnionMethod
         = typeof(UnaryUnionOp).GetRuntimeMethod(nameof(UnaryUnionOp.Union), new[] { typeof(IEnumerable<Geometry>) })!;
 
+    private static readonly MethodInfo EnvelopeCombineMethod
+        = typeof(EnvelopeCombiner).GetRuntimeMethod(nameof(EnvelopeCombiner.CombineAsGeometry), new[] { typeof(IEnumerable<Geometry>) })!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;
 
@@ -50,7 +53,9 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlExpression? Translate(
-        MethodInfo method, EnumerableExpression source, IReadOnlyList<SqlExpression> arguments,
+        MethodInfo method,
+        EnumerableExpression source,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         // Docs: https://docs.microsoft.com/sql/t-sql/spatial-geometry/static-aggregate-geometry-methods
@@ -72,7 +77,9 @@ public class SqlServerNetTopologySuiteAggregateMethodTranslator : IAggregateMeth
                 ? "UnionAggregate"
                 : method == ConvexHullMethod
                     ? "ConvexHullAggregate"
-                    : null;
+                    : method == EnvelopeCombineMethod
+                        ? "EnvelopeAggregate"
+                        : null;
 
         if (functionName is null)
         {

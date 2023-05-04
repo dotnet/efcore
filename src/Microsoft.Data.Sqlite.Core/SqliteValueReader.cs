@@ -151,10 +151,116 @@ namespace Microsoft.Data.Sqlite
 
         public virtual T? GetFieldValue<T>(int ordinal)
         {
-            if (IsDBNull(ordinal)
-                && typeof(T).IsNullable())
+            // First do checks for value types of T; the JIT recognizes these and elides the rest of the code.
+            if (typeof(T) == typeof(bool))
             {
-                return GetNull<T>(ordinal);
+                return (T)(object)GetBoolean(ordinal);
+            }
+
+            if (typeof(T) == typeof(byte))
+            {
+                return (T)(object)GetByte(ordinal);
+            }
+
+            if (typeof(T) == typeof(char))
+            {
+                return (T)(object)GetChar(ordinal);
+            }
+
+            if (typeof(T) == typeof(DateTime))
+            {
+                return (T)(object)GetDateTime(ordinal);
+            }
+
+            if (typeof(T) == typeof(DateTimeOffset))
+            {
+                return (T)(object)GetDateTimeOffset(ordinal);
+            }
+
+#if NET6_0_OR_GREATER
+            if (typeof(T) == typeof(DateOnly))
+            {
+                return (T)(object)GetDateOnly(ordinal);
+            }
+
+            if (typeof(T) == typeof(TimeOnly))
+            {
+                return (T)(object)GetTimeOnly(ordinal);
+            }
+#endif
+
+            if (typeof(T) == typeof(decimal))
+            {
+                return (T)(object)GetDecimal(ordinal);
+            }
+
+            if (typeof(T) == typeof(double))
+            {
+                return (T)(object)GetDouble(ordinal);
+            }
+
+            if (typeof(T) == typeof(float))
+            {
+                return (T)(object)GetFloat(ordinal);
+            }
+
+            if (typeof(T) == typeof(Guid))
+            {
+                return (T)(object)GetGuid(ordinal);
+            }
+
+            if (typeof(T) == typeof(int))
+            {
+                return (T)(object)GetInt32(ordinal);
+            }
+
+            if (typeof(T) == typeof(long))
+            {
+                return (T)(object)GetInt64(ordinal);
+            }
+
+            if (typeof(T) == typeof(sbyte))
+            {
+                return (T)(object)checked((sbyte)GetInt64(ordinal));
+            }
+
+            if (typeof(T) == typeof(short))
+            {
+                return (T)(object)GetInt16(ordinal);
+            }
+
+            if (typeof(T) == typeof(TimeSpan))
+            {
+                return (T)(object)GetTimeSpan(ordinal);
+            }
+
+            if (typeof(T) == typeof(uint))
+            {
+                return (T)(object)checked((uint)GetInt64(ordinal));
+            }
+
+            if (typeof(T) == typeof(ulong))
+            {
+                return (T)(object)((ulong)GetInt64(ordinal));
+            }
+
+            if (typeof(T) == typeof(ushort))
+            {
+                return (T)(object)checked((ushort)GetInt64(ordinal));
+            }
+
+            // None of the JIT-optimized value-type checks above succeeded.
+            // Go into the "slow" path - from here the JIT actually emits code for the entire function.
+            // Start with null and string as common cases, then handle nullable/enum types.
+
+            if (IsDBNull(ordinal))
+            {
+                return default(T) is null ? GetNull<T>(ordinal) : throw new InvalidCastException();
+            }
+
+            if (typeof(T) == typeof(string))
+            {
+                return (T)(object)GetString(ordinal);
             }
 
             var type = typeof(T).UnwrapNullableType().UnwrapEnumType();
@@ -200,12 +306,6 @@ namespace Microsoft.Data.Sqlite
             }
 #endif
 
-            if (type == typeof(DBNull))
-            {
-                // NB: NULL values handled above
-                throw new InvalidCastException();
-            }
-
             if (type == typeof(decimal))
             {
                 return (T)(object)GetDecimal(ordinal);
@@ -246,11 +346,6 @@ namespace Microsoft.Data.Sqlite
                 return (T)(object)GetInt16(ordinal);
             }
 
-            if (type == typeof(string))
-            {
-                return (T)(object)GetString(ordinal);
-            }
-
             if (type == typeof(TimeSpan))
             {
                 return (T)(object)GetTimeSpan(ordinal);
@@ -275,27 +370,16 @@ namespace Microsoft.Data.Sqlite
         }
 
         public virtual object? GetValue(int ordinal)
-        {
-            var sqliteType = GetSqliteType(ordinal);
-            switch (sqliteType)
+            => GetSqliteType(ordinal) switch
             {
-                case SQLITE_INTEGER:
-                    return GetInt64(ordinal);
+                SQLITE_INTEGER => GetInt64(ordinal),
+                SQLITE_FLOAT => GetDouble(ordinal),
+                SQLITE_TEXT => GetString(ordinal),
+                SQLITE_NULL => GetNull<object>(ordinal),
+                SQLITE_BLOB => GetBlob(ordinal),
 
-                case SQLITE_FLOAT:
-                    return GetDouble(ordinal);
-
-                case SQLITE_TEXT:
-                    return GetString(ordinal);
-
-                case SQLITE_NULL:
-                    return GetNull<object>(ordinal);
-
-                default:
-                    Debug.Assert(sqliteType == SQLITE_BLOB, "Unexpected column type: " + sqliteType);
-                    return GetBlob(ordinal);
-            }
-        }
+                _ => throw new ArgumentOutOfRangeException("Unexpected column type: " + GetSqliteType(ordinal))
+            };
 
         public virtual int GetValues(object?[] values)
         {

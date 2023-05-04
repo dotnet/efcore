@@ -17,7 +17,18 @@ public abstract class TPTTableSplittingTestBase : TableSplittingTestBase
         // TODO: Issue #22060
         => Task.CompletedTask;
 
-    protected override string StoreName { get; } = "TPTTableSplittingTest";
+    // This fails in TPT rather than table sharing. We have coverage for it elsewhere
+    public override Task ExecuteDelete_throws_for_table_sharing(bool async)
+        => Task.CompletedTask;
+
+    public override async Task ExecuteUpdate_works_for_table_sharing(bool async)
+        => Assert.Contains(
+            RelationalStrings.NonQueryTranslationFailedWithDetails(
+                "", RelationalStrings.ExecuteOperationOnTPT("ExecuteUpdate", "Vehicle"))[21..],
+            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.ExecuteUpdate_works_for_table_sharing(async))).Message);
+
+    protected override string StoreName
+        => "TPTTableSplittingTest";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

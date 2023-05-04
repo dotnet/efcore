@@ -29,6 +29,7 @@ public class ClrPropertySetterFactoryTest
         public bool IsStoreGeneratedAlways { get; }
         public ValueGenerated ValueGenerated { get; }
         public bool IsConcurrencyToken { get; }
+        public object Sentinel { get; }
         public PropertyInfo PropertyInfo { get; }
         public FieldInfo FieldInfo { get; }
 

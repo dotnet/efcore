@@ -429,7 +429,8 @@ public class BatchingTest : IClassFixture<BatchingTest.BatchingTestFixture>
 
     public class BatchingTestFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "BatchingTest";
+        protected override string StoreName
+            => "BatchingTest";
 
         public TestSqlLoggerFactory TestSqlLoggerFactory
             => (TestSqlLoggerFactory)ListLoggerFactory;

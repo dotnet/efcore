@@ -89,26 +89,15 @@ public class EntityEntryGraphNode : IInfrastructure<InternalEntityEntry>
         => _entry;
 
     /// <summary>
-    ///     Creates a new node for the entity that is being traversed next in the graph.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="currentNode">The node that the entity is being traversed from.</param>
-    /// <param name="internalEntityEntry">
-    ///     The internal entry tracking information about the entity being traversed to.
-    /// </param>
-    /// <param name="reachedVia">The navigation property that is being traversed to reach the new node.</param>
-    /// <returns>The newly created node.</returns>
+    [EntityFrameworkInternal]
     public virtual EntityEntryGraphNode CreateNode(
         EntityEntryGraphNode currentNode,
         InternalEntityEntry internalEntityEntry,
         INavigationBase reachedVia)
-    {
-        Check.NotNull(currentNode, nameof(currentNode));
-        Check.NotNull(internalEntityEntry, nameof(internalEntityEntry));
-        Check.NotNull(reachedVia, nameof(reachedVia));
-
-        return new EntityEntryGraphNode(
-            internalEntityEntry,
-            currentNode.Entry.GetInfrastructure(),
-            reachedVia);
-    }
+        => new(internalEntityEntry, currentNode.Entry.GetInfrastructure(), reachedVia);
 }

@@ -16,7 +16,8 @@ public class ManyToManyLoadProxySqliteTest
 
     public class ManyToManyLoadProxySqliteFixture : ManyToManyLoadSqliteFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyLoadProxies";
+        protected override string StoreName
+            => "ManyToManyLoadProxies";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).UseLazyLoadingProxies();

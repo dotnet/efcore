@@ -120,13 +120,20 @@ public class DocumentSource
             }
             else
             {
+                SetTemporaryOrdinals(entry, fk, embeddedValue);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                // #16707
+                var stateManager = ((InternalEntityEntry)entry).StateManager;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
                 var embeddedOrdinal = 1;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     // #16707
-                    var dependentEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
+                    var dependentEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
                     array.Add(_database.GetDocumentSource(dependentEntry.EntityType).CreateDocument(dependentEntry, embeddedOrdinal));
 #pragma warning restore EF1001 // Internal EF Core API usage.
                     embeddedOrdinal++;
@@ -157,13 +164,17 @@ public class DocumentSource
     public virtual JObject? UpdateDocument(JObject document, IUpdateEntry entry, int? ordinal)
     {
         var anyPropertyUpdated = false;
-#pragma warning disable EF1001 // Internal EF Core API usage.
-        // #16707
-        var stateManager = ((InternalEntityEntry)entry).StateManager;
-#pragma warning restore EF1001 // Internal EF Core API usage.
         foreach (var property in entry.EntityType.GetProperties())
         {
+            if (ordinal != null
+                && entry.HasTemporaryValue(property)
+                && property.IsOrdinalKeyProperty())
+            {
+                entry.SetStoreGeneratedValue(property, ordinal.Value);
+            }
+
             if (entry.EntityState == EntityState.Added
+                || entry.SharedIdentityEntry != null
                 || entry.IsModified(property))
             {
                 var storeName = property.GetJsonPropertyName();
@@ -172,13 +183,6 @@ public class DocumentSource
                     document[storeName] = ConvertPropertyValue(property, entry);
                     anyPropertyUpdated = true;
                 }
-            }
-
-            if (ordinal != null
-                && entry.HasTemporaryValue(property)
-                && property.IsOrdinalKeyProperty())
-            {
-                entry.SetStoreGeneratedValue(property, ordinal.Value);
             }
         }
 
@@ -207,12 +211,8 @@ public class DocumentSource
             {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                 // #16707
-                var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType);
+                var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(embeddedValue, fk.DeclaringEntityType)!;
 #pragma warning restore EF1001 // Internal EF Core API usage.
-                if (embeddedEntry == null)
-                {
-                    continue;
-                }
 
                 var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                 embeddedDocument = embeddedDocument != null
@@ -227,64 +227,21 @@ public class DocumentSource
             }
             else
             {
+                SetTemporaryOrdinals(entry, fk, embeddedValue);
+
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                // #16707
+                var stateManager = ((InternalEntityEntry)entry).StateManager;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
                 var embeddedOrdinal = 1;
-                var ordinalKeyProperty = FindOrdinalKeyProperty(fk.DeclaringEntityType);
-                if (ordinalKeyProperty != null)
-                {
-                    var shouldSetTemporaryKeys = false;
-                    foreach (var dependent in (IEnumerable)embeddedValue)
-                    {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                        // #16707
-                        var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
-                        if (embeddedEntry == null)
-                        {
-                            continue;
-                        }
-
-                        if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty)! != embeddedOrdinal)
-                        {
-                            shouldSetTemporaryKeys = true;
-                            break;
-                        }
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                        embeddedOrdinal++;
-                    }
-
-                    if (shouldSetTemporaryKeys)
-                    {
-                        var temporaryOrdinal = -1;
-                        foreach (var dependent in (IEnumerable)embeddedValue)
-                        {
-#pragma warning disable EF1001 // Internal EF Core API usage.
-                            // #16707
-                            var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
-                            if (embeddedEntry == null)
-                            {
-                                continue;
-                            }
-
-                            embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
-#pragma warning restore EF1001 // Internal EF Core API usage.
-
-                            temporaryOrdinal--;
-                        }
-                    }
-                }
-
-                embeddedOrdinal = 1;
                 var array = new JArray();
                 foreach (var dependent in (IEnumerable)embeddedValue)
                 {
 #pragma warning disable EF1001 // Internal EF Core API usage.
                     // #16707
-                    var embeddedEntry = ((InternalEntityEntry)entry).StateManager.TryGetEntry(dependent, fk.DeclaringEntityType);
+                    var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
 #pragma warning restore EF1001 // Internal EF Core API usage.
-                    if (embeddedEntry == null)
-                    {
-                        continue;
-                    }
 
                     var embeddedDocument = embeddedDocumentSource.GetCurrentDocument(embeddedEntry);
                     embeddedDocument = embeddedDocument != null
@@ -303,10 +260,58 @@ public class DocumentSource
         return anyPropertyUpdated ? document : null;
     }
 
+    private static void SetTemporaryOrdinals(
+        IUpdateEntry entry,
+        IForeignKey fk,
+        object embeddedValue)
+    {
+        var embeddedOrdinal = 1;
+        var ordinalKeyProperty = FindOrdinalKeyProperty(fk.DeclaringEntityType);
+        if (ordinalKeyProperty != null)
+        {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+            // #16707
+            var stateManager = ((InternalEntityEntry)entry).StateManager;
+#pragma warning restore EF1001 // Internal EF Core API usage.
+            var shouldSetTemporaryKeys = false;
+            foreach (var dependent in (IEnumerable)embeddedValue)
+            {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                // #16707
+                var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
+
+                if ((int)embeddedEntry.GetCurrentValue(ordinalKeyProperty)! != embeddedOrdinal
+                    && !embeddedEntry.HasTemporaryValue(ordinalKeyProperty))
+                {
+                    shouldSetTemporaryKeys = true;
+                    break;
+                }
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                embeddedOrdinal++;
+            }
+
+            if (shouldSetTemporaryKeys)
+            {
+                var temporaryOrdinal = -1;
+                foreach (var dependent in (IEnumerable)embeddedValue)
+                {
+#pragma warning disable EF1001 // Internal EF Core API usage.
+                    // #16707
+                    var embeddedEntry = stateManager.TryGetEntry(dependent, fk.DeclaringEntityType)!;
+
+                    embeddedEntry.SetTemporaryValue(ordinalKeyProperty, temporaryOrdinal, setModified: false);
+#pragma warning restore EF1001 // Internal EF Core API usage.
+
+                    temporaryOrdinal--;
+                }
+            }
+        }
+    }
+
     private static IProperty? FindOrdinalKeyProperty(IEntityType entityType)
         => entityType.FindPrimaryKey()!.Properties.FirstOrDefault(
-            p =>
-                p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
+            p => p.GetJsonPropertyName().Length == 0 && p.IsOrdinalKeyProperty());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

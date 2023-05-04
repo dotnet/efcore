@@ -25,6 +25,14 @@ public static class CoreAnnotationNames
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public const string Sentinel = "Sentinel";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public const string Precision = "Precision";
 
     /// <summary>
@@ -202,6 +210,14 @@ public static class CoreAnnotationNames
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public const string LazyLoadingEnabled = "LazyLoadingEnabled";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public const string ProviderClrType = "ProviderClrType";
 
     /// <summary>
@@ -298,9 +314,18 @@ public static class CoreAnnotationNames
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public const string AdHocModel = "AdHocModel";
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public static readonly ISet<string> AllNames = new HashSet<string>
     {
         MaxLength,
+        Sentinel,
         Precision,
         Scale,
         Unicode,
@@ -325,6 +350,7 @@ public static class CoreAnnotationNames
         DefiningQuery,
 #pragma warning restore CS0612 // Type or member is obsolete
         EagerLoaded,
+        LazyLoadingEnabled,
         ProviderClrType,
         ModelDependencies,
         ReadOnlyModel,
@@ -336,6 +362,7 @@ public static class CoreAnnotationNames
         AmbiguousNavigations,
         AmbiguousField,
         DuplicateServiceProperties,
-        FullChangeTrackingNotificationsRequired
+        FullChangeTrackingNotificationsRequired,
+        AdHocModel
     };
 }

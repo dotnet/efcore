@@ -224,6 +224,9 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
         public static string IdentityStringNonNullableFluent(string s)
             => throw new Exception();
 
+        public static int? NullableValueReturnType()
+            => throw new NotImplementedException();
+
         public string StringLength(string s)
             => throw new Exception();
 
@@ -308,6 +311,14 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                             typeMapping: null),
                         new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
                         negated: false,
+                        typeMapping: null));
+
+            modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), Array.Empty<Type>()))
+                .HasTranslation(
+                    _ => new SqlFunctionExpression(
+                        "foo",
+                        nullable: true,
+                        typeof(int?),
                         typeMapping: null));
 
             //Instance
@@ -1008,6 +1019,23 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
 
         Assert.Equal(4, query.Count);
     }
+
+#if RELEASE
+    [ConditionalFact]
+    public virtual void Scalar_Function_with_nullable_value_return_type_throws()
+    {
+        using var context = CreateContext();
+
+        var exception = Assert.Throws<InvalidOperationException>(
+            () => context.Customers.Where(c => c.Id == UDFSqlContext.NullableValueReturnType()).ToList());
+
+        Assert.Equal(
+            RelationalStrings.DbFunctionNullableValueReturnType(
+                context.Model.FindDbFunction(typeof(UDFSqlContext).GetMethod(nameof(UDFSqlContext.NullableValueReturnType)))!.ModelName,
+                "int?"),
+            exception.Message);
+    }
+#endif
 
     #endregion
 
@@ -2102,6 +2130,52 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
             Assert.Equal(249, products[0].AmountSold);
             Assert.Equal(4, products[1].ProductId);
             Assert.Equal(184, products[1].AmountSold);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void TVF_with_navigation_in_projection_groupby_aggregate()
+    {
+        using (var context = CreateContext())
+        {
+            var query = context.Orders
+                .Where(c => !context.Set<TopSellingProduct>().Select(x => x.ProductId).Contains(25))
+                .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
+                .GroupBy(x => new { x.LastName })
+                .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
+                .ToList();
+
+            Assert.Equal(3, query.Count);
+            var orderedResult = query.OrderBy(x => x.LastName).ToList();
+            Assert.Equal("One", orderedResult[0].LastName);
+            Assert.Equal(24, orderedResult[0].SumOfLengths);
+            Assert.Equal("Three", orderedResult[1].LastName);
+            Assert.Equal(8, orderedResult[1].SumOfLengths);
+            Assert.Equal("Two", orderedResult[2].LastName);
+            Assert.Equal(16, orderedResult[2].SumOfLengths);
+        }
+    }
+
+    [ConditionalFact]
+    public virtual void TVF_with_argument_being_a_subquery_with_navigation_in_projection_groupby_aggregate()
+    {
+        using (var context = CreateContext())
+        {
+            var query = context.Orders
+                .Where(c => !context.GetOrdersWithMultipleProducts(context.Customers.OrderBy(x => x.Id).FirstOrDefault().Id).Select(x => x.CustomerId).Contains(25))
+                .Select(x => new { x.Customer.FirstName, x.Customer.LastName })
+                .GroupBy(x => new { x.LastName })
+                .Select(x => new { x.Key.LastName, SumOfLengths = x.Sum(xx => xx.FirstName.Length) })
+                .ToList();
+
+            Assert.Equal(3, query.Count);
+            var orderedResult = query.OrderBy(x => x.LastName).ToList();
+            Assert.Equal("One", orderedResult[0].LastName);
+            Assert.Equal(24, orderedResult[0].SumOfLengths);
+            Assert.Equal("Three", orderedResult[1].LastName);
+            Assert.Equal(8, orderedResult[1].SumOfLengths);
+            Assert.Equal("Two", orderedResult[2].LastName);
+            Assert.Equal(16, orderedResult[2].SumOfLengths);
         }
     }
 

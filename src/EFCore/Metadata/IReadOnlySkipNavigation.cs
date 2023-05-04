@@ -62,63 +62,70 @@ public interface IReadOnlySkipNavigation : IReadOnlyNavigationBase
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder.Append(indentString);
-
-        var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
-        if (singleLine)
+        try
         {
-            builder.Append($"SkipNavigation: {DeclaringEntityType.DisplayName()}.");
+            builder.Append(indentString);
+
+            var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
+            if (singleLine)
+            {
+                builder.Append($"SkipNavigation: {DeclaringEntityType.DisplayName()}.");
+            }
+
+            builder.Append(Name);
+
+            var field = GetFieldName();
+            if (field == null)
+            {
+                builder.Append(" (no field, ");
+            }
+            else if (!field.EndsWith(">k__BackingField", StringComparison.Ordinal))
+            {
+                builder.Append($" ({field}, ");
+            }
+            else
+            {
+                builder.Append(" (");
+            }
+
+            builder.Append(ClrType.ShortDisplayName()).Append(')');
+
+            if (IsCollection)
+            {
+                builder.Append(" Collection");
+            }
+
+            builder.Append(TargetEntityType.DisplayName());
+
+            if (Inverse != null)
+            {
+                builder.Append(" Inverse: ").Append(Inverse.Name);
+            }
+
+            if (GetPropertyAccessMode() != PropertyAccessMode.PreferField)
+            {
+                builder.Append(" PropertyAccessMode.").Append(GetPropertyAccessMode());
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
+                && ((AnnotatableBase)this).IsReadOnly)
+            {
+                var indexes = ((ISkipNavigation)this).GetPropertyIndexes();
+                builder.Append(' ').Append(indexes.Index);
+                builder.Append(' ').Append(indexes.OriginalValueIndex);
+                builder.Append(' ').Append(indexes.RelationshipIndex);
+                builder.Append(' ').Append(indexes.ShadowIndex);
+                builder.Append(' ').Append(indexes.StoreGenerationIndex);
+            }
+
+            if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent + 2));
+            }
         }
-
-        builder.Append(Name);
-
-        var field = GetFieldName();
-        if (field == null)
+        catch (Exception exception)
         {
-            builder.Append(" (no field, ");
-        }
-        else if (!field.EndsWith(">k__BackingField", StringComparison.Ordinal))
-        {
-            builder.Append($" ({field}, ");
-        }
-        else
-        {
-            builder.Append(" (");
-        }
-
-        builder.Append(ClrType.ShortDisplayName()).Append(')');
-
-        if (IsCollection)
-        {
-            builder.Append(" Collection");
-        }
-
-        builder.Append(TargetEntityType.DisplayName());
-
-        if (Inverse != null)
-        {
-            builder.Append(" Inverse: ").Append(Inverse.Name);
-        }
-
-        if (GetPropertyAccessMode() != PropertyAccessMode.PreferField)
-        {
-            builder.Append(" PropertyAccessMode.").Append(GetPropertyAccessMode());
-        }
-
-        if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0
-            && ((AnnotatableBase)this).IsReadOnly)
-        {
-            var indexes = ((ISkipNavigation)this).GetPropertyIndexes();
-            builder.Append(' ').Append(indexes.Index);
-            builder.Append(' ').Append(indexes.OriginalValueIndex);
-            builder.Append(' ').Append(indexes.RelationshipIndex);
-            builder.Append(' ').Append(indexes.ShadowIndex);
-            builder.Append(' ').Append(indexes.StoreGenerationIndex);
-        }
-
-        if (!singleLine && (options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-        {
-            builder.Append(AnnotationsToDebugString(indent + 2));
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

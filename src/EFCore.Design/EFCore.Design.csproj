@@ -59,6 +59,7 @@
 
   <ItemGroup>
     <PackageReference Include="Humanizer.Core" Version="2.14.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="$(MicrosoftExtensionsDependencyModelVersion)" />
     <PackageReference Include="Microsoft.Extensions.HostFactoryResolver.Sources" PrivateAssets="All" Version="$(MicrosoftExtensionsHostFactoryResolverSourcesVersion)" />
     <PackageReference Include="Mono.TextTemplating" Version="2.2.1" />
   </ItemGroup>
@@ -68,6 +69,14 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DesignStrings.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Microsoft.EntityFrameworkCore.Internal</CustomToolNamespace>
+    </None>
+    <None Update="Scaffolding\Internal\CSharpDbContextGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CSharpDbContextGenerator.cs</LastGenOutput>
+    </None>
+    <None Update="Scaffolding\Internal\CSharpEntityTypeGenerator.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>CSharpEntityTypeGenerator.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -80,6 +89,16 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>DesignStrings.Designer.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Scaffolding\Internal\CSharpDbContextGenerator.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CSharpDbContextGenerator.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Scaffolding\Internal\CSharpEntityTypeGenerator.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CSharpEntityTypeGenerator.tt</DependentUpon>
     </Compile>
   </ItemGroup>
 

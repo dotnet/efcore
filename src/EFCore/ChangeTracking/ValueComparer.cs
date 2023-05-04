@@ -40,9 +40,6 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     internal static readonly MethodInfo EqualityComparerEqualsMethod
         = typeof(IEqualityComparer).GetRuntimeMethod(nameof(IEqualityComparer.Equals), new[] { typeof(object), typeof(object) })!;
 
-    internal static readonly MethodInfo ObjectEqualsMethod
-        = typeof(object).GetRuntimeMethod(nameof(object.Equals), new[] { typeof(object), typeof(object) })!;
-
     internal static readonly MethodInfo ObjectGetHashCodeMethod
         = typeof(object).GetRuntimeMethod(nameof(object.GetHashCode), Type.EmptyTypes)!;
 
@@ -85,7 +82,7 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     /// </summary>
     /// <param name="instance">The instance.</param>
     /// <returns>The hash code.</returns>
-    public abstract int GetHashCode(object instance);
+    public abstract int GetHashCode(object? instance);
 
     /// <summary>
     ///     Creates a snapshot of the given instance.
@@ -185,7 +182,13 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
     ///     implements it. This is usually used when byte arrays act as keys.
     /// </param>
     /// <returns>The <see cref="ValueComparer{T}" />.</returns>
-    public static ValueComparer CreateDefault(Type type, bool favorStructuralComparisons)
+    public static ValueComparer CreateDefault(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicMethods
+            | DynamicallyAccessedMemberTypes.NonPublicMethods
+            | DynamicallyAccessedMemberTypes.PublicProperties)]
+        Type type,
+        bool favorStructuralComparisons)
     {
         var nonNullableType = type.UnwrapNullableType();
 
@@ -210,17 +213,27 @@ public abstract class ValueComparer : IEqualityComparer, IEqualityComparer<objec
             || nonNullableType == typeof(bool)
             || nonNullableType == typeof(string)
             || nonNullableType == typeof(DateTime)
+            || nonNullableType == typeof(DateOnly)
             || nonNullableType == typeof(Guid)
             || nonNullableType == typeof(TimeSpan)
+            || nonNullableType == typeof(TimeOnly)
                 ? typeof(DefaultValueComparer<>)
                 : typeof(ValueComparer<>);
 
-        return (ValueComparer)Activator.CreateInstance(
-            comparerType.MakeGenericType(type),
-            new object[] { favorStructuralComparisons })!;
+        return CreateInstance();
+
+        [UnconditionalSuppressMessage(
+            "ReflectionAnalysis", "IL2055", Justification =
+                "We only create ValueComparer or DefaultValueComparer whose generic type parameter requires Methods/Properties, "
+                + "and our type argument is properly annotated for those.")]
+        ValueComparer CreateInstance()
+            => (ValueComparer)Activator.CreateInstance(
+                comparerType.MakeGenericType(type),
+                new object[] { favorStructuralComparisons })!;
     }
 
-    internal class DefaultValueComparer<T> : ValueComparer<T>
+    // PublicMethods is required to preserve e.g. GetHashCode
+    internal class DefaultValueComparer<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T> : ValueComparer<T>
     {
         public DefaultValueComparer(bool favorStructuralComparisons)
             : base(favorStructuralComparisons)

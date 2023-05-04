@@ -82,6 +82,20 @@ public class NavigationBuilder<TSource, TTarget> : NavigationBuilder
         => (NavigationBuilder<TSource, TTarget>)base.AutoInclude(autoInclude);
 
     /// <summary>
+    ///     Configures whether this navigation should be enabled for lazy-loading. Note that a property can only be lazy-loaded
+    ///     if a lazy-loading mechanism such as lazy-loading proxies or <see cref="ILazyLoader"/> injection has been configured.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="lazyLoadingEnabled">A value indicating if the navigation should be enabled for lazy-loading.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual NavigationBuilder<TSource, TTarget> EnableLazyLoading(bool lazyLoadingEnabled = true)
+        => (NavigationBuilder<TSource, TTarget>)base.EnableLazyLoading(lazyLoadingEnabled);
+
+    /// <summary>
     ///     Configures whether this navigation is required.
     /// </summary>
     /// <param name="required">A value indicating whether the navigation should be required.</param>

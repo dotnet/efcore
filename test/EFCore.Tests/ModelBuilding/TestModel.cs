@@ -1,13 +1,13 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
-
-#nullable enable
 
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
@@ -167,6 +167,27 @@ public abstract partial class ModelBuilderTest
         public int ProductId { get; set; }
         public virtual Order Order { get; set; } = null!;
         public virtual Product Product { get; set; } = null!;
+    }
+
+    protected class UniProduct
+    {
+        public int Id { get; set; }
+    }
+
+    protected class UniCategory
+    {
+        public int Id { get; set; }
+        public virtual ICollection<UniProduct>? Products { get; set; }
+    }
+
+    protected class NoProduct
+    {
+        public int Id { get; set; }
+    }
+
+    protected class NoCategory
+    {
+        public int Id { get; set; }
     }
 
     [NotMapped]
@@ -729,15 +750,27 @@ public abstract partial class ModelBuilderTest
 
     protected class QueryResult
     {
-        public int Id { get; set; }
+        public CustomId Id { get; set; } = null!;
         public int ValueFk { get; set; }
         public Value Value { get; set; } = null!;
     }
 
+    [Owned]
     protected class Value
     {
         public int Id { get; set; }
-        public int AlternateId { get; set; }
+        public CustomId? CategoryId { get; set; }
+        public ValueCategory? Category { get; set; }
+    }
+
+    protected class CustomId
+    {
+        public int Id { get; set; }
+    }
+
+    protected class ValueCategory
+    {
+        public CustomId Id { get; set; } = null!;
     }
 
     protected class KeylessEntity
@@ -1198,5 +1231,24 @@ public abstract partial class ModelBuilderTest
     {
         public int? StoreId { get; set; }
         public Store? Store { get; set; }
+    }
+
+    protected class MainOtter
+    {
+        public Guid Id { get; set; }
+        public decimal Number { get; set; }
+        public OwnedOtter OwnedEntity { get; set; } = null!;
+    }
+
+    protected class OtherOtter
+    {
+        public Guid Id { get; set; }
+        public decimal Number { get; set; }
+        public List<OwnedOtter> OwnedEntities { get; } = new();
+    }
+
+    protected class OwnedOtter
+    {
+        public decimal Number { get; set; }
     }
 }

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class ShapedQueryExpression : Expression, IPrintableExpression
 {
     /// <summary>
-    ///     Creates a new instance of the <see cref="ShapedQueryExpression" /> class with associated query provider.
+    ///     Creates a new instance of the <see cref="ShapedQueryExpression" /> class with associated query and shaper expressions.
     /// </summary>
     /// <param name="queryExpression">The query expression to get results from server.</param>
     /// <param name="shaperExpression">The shaper expression to create result objects from server results.</param>
@@ -91,7 +91,8 @@ public class ShapedQueryExpression : Expression, IPrintableExpression
     /// <returns>This expression if shaper expression did not change, or an expression with the updated shaper expression.</returns>
     public virtual ShapedQueryExpression UpdateQueryExpression(Expression queryExpression)
         => !ReferenceEquals(queryExpression, QueryExpression)
-            ? new ShapedQueryExpression(queryExpression,
+            ? new ShapedQueryExpression(
+                queryExpression,
                 ReplacingExpressionVisitor.Replace(QueryExpression, queryExpression, ShaperExpression), ResultCardinality)
             : this;
 

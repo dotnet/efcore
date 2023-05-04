@@ -44,7 +44,6 @@ public class SqlServerModelValidator : RelationalModelValidator
 
         ValidateDecimalColumns(model, logger);
         ValidateByteIdentityMapping(model, logger);
-        ValidateNonKeyValueGeneration(model, logger);
         ValidateTemporalTables(model, logger);
     }
 
@@ -60,7 +59,8 @@ public class SqlServerModelValidator : RelationalModelValidator
     {
         foreach (IConventionProperty property in model.GetEntityTypes()
                      .SelectMany(t => t.GetDeclaredProperties())
-                     .Where(p => p.ClrType.UnwrapNullableType() == typeof(decimal)
+                     .Where(
+                         p => p.ClrType.UnwrapNullableType() == typeof(decimal)
                              && !p.IsForeignKey()))
         {
             var valueConverterConfigurationSource = property.GetValueConverterConfigurationSource();
@@ -118,23 +118,19 @@ public class SqlServerModelValidator : RelationalModelValidator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected virtual void ValidateNonKeyValueGeneration(
-        IModel model,
+    protected override void ValidateValueGeneration(
+        IEntityType entityType,
+        IKey key,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        foreach (var entityType in model.GetEntityTypes())
+        if (entityType.GetTableName() != null
+            && (string?)entityType[RelationalAnnotationNames.MappingStrategy] == RelationalAnnotationNames.TpcMappingStrategy)
         {
-            foreach (var property in entityType.GetDeclaredProperties()
-                         .Where(
-                             p => p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.SequenceHiLo
-                                 && ((IConventionProperty)p).GetValueGenerationStrategyConfigurationSource() != null
-                                 && !p.IsKey()
-                                 && p.ValueGenerated != ValueGenerated.Never
-                                 && (!(p.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy) is IConventionAnnotation strategy)
-                                     || !ConfigurationSource.Convention.Overrides(strategy.GetConfigurationSource()))))
+            foreach (var storeGeneratedProperty in key.Properties.Where(
+                         p => (p.ValueGenerated & ValueGenerated.OnAdd) != 0
+                             && p.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn))
             {
-                throw new InvalidOperationException(
-                    SqlServerStrings.NonKeyValueGeneration(property.Name, property.DeclaringEntityType.DisplayName()));
+                logger.TpcStoreGeneratedIdentityWarning(storeGeneratedProperty);
             }
         }
     }
@@ -262,7 +258,14 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name, nameof(DateTime)));
         }
 
-        const string expectedPeriodColumnName = "datetime2";
+        const string expectedPeriodColumnNameWithoutPrecision = "datetime2";
+        const string expectedPeriodColumnNameWithPrecision = "datetime2({0})";
+
+        var precision = periodProperty.GetPrecision();
+        var expectedPeriodColumnName = precision != null
+            ? string.Format(expectedPeriodColumnNameWithPrecision, precision.Value)
+            : expectedPeriodColumnNameWithoutPrecision;
+
         if (periodProperty.GetColumnType() != expectedPeriodColumnName)
         {
             throw new InvalidOperationException(
@@ -277,29 +280,11 @@ public class SqlServerModelValidator : RelationalModelValidator
                     temporalEntityType.DisplayName(), periodProperty.Name));
         }
 
-        if (temporalEntityType.GetTableName() is string tableName)
+        if (periodProperty.ValueGenerated != ValueGenerated.OnAddOrUpdate)
         {
-            var storeObjectIdentifier = StoreObjectIdentifier.Table(tableName, temporalEntityType.GetSchema());
-            var periodColumnName = periodProperty.GetColumnName(storeObjectIdentifier);
-
-            var propertiesMappedToPeriodColumn = temporalEntityType.GetProperties().Where(
-                p => p.Name != periodProperty.Name && p.GetColumnName(storeObjectIdentifier) == periodColumnName).ToList();
-            foreach (var propertyMappedToPeriodColumn in propertiesMappedToPeriodColumn)
-            {
-                if (propertyMappedToPeriodColumn.ValueGenerated != ValueGenerated.OnAddOrUpdate)
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
-                            temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name, nameof(ValueGenerated.OnAddOrUpdate)));
-                }
-
-                if (propertyMappedToPeriodColumn.TryGetDefaultValue(out var _))
-                {
-                    throw new InvalidOperationException(
-                        SqlServerStrings.TemporalPropertyMappedToPeriodColumnCantHaveDefaultValue(
-                            temporalEntityType.DisplayName(), propertyMappedToPeriodColumn.Name));
-                }
-            }
+            throw new InvalidOperationException(
+                SqlServerStrings.TemporalPropertyMappedToPeriodColumnMustBeValueGeneratedOnAddOrUpdate(
+                    temporalEntityType.DisplayName(), periodProperty.Name, nameof(ValueGenerated.OnAddOrUpdate)));
         }
 
         // TODO: check that period property is excluded from query (once the annotation is added)
@@ -330,11 +315,33 @@ public class SqlServerModelValidator : RelationalModelValidator
             }
         }
 
+        bool? firstSqlOutputSetting = null;
+        firstMappedType = null;
+        foreach (var mappedType in mappedTypes)
+        {
+            if (((IConventionEntityType)mappedType).GetUseSqlOutputClauseConfigurationSource() is null)
+            {
+                continue;
+            }
+
+            if (firstSqlOutputSetting is null)
+            {
+                (firstSqlOutputSetting, firstMappedType) = (mappedType.IsSqlOutputClauseUsed(), mappedType);
+            }
+            else if (mappedType.IsSqlOutputClauseUsed() != firstSqlOutputSetting)
+            {
+                throw new InvalidOperationException(
+                    SqlServerStrings.IncompatibleSqlOutputClauseMismatch(
+                        storeObject.DisplayName(), firstMappedType!.DisplayName(), mappedType.DisplayName(),
+                        firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName(),
+                        !firstSqlOutputSetting.Value ? firstMappedType.DisplayName() : mappedType.DisplayName()));
+            }
+        }
+
         if (mappedTypes.Any(t => t.IsTemporal())
             && mappedTypes.Select(t => t.GetRootType()).Distinct().Count() > 1)
         {
-            // table splitting is only supported when all entites mapped to this table
-            // have consistent temporal period mappings also
+            // table splitting is only supported when all entities mapped to this table have consistent temporal period mappings also
             var expectedPeriodStartColumnName = default(string);
             var expectedPeriodEndColumnName = default(string);
 
@@ -352,7 +359,7 @@ public class SqlServerModelValidator : RelationalModelValidator
 
                 var periodStartProperty = mappedType.GetProperty(periodStartPropertyName!);
                 var periodEndProperty = mappedType.GetProperty(periodEndPropertyName!);
-                
+
                 var periodStartColumnName = periodStartProperty.GetColumnName(storeObject);
                 var periodEndColumnName = periodEndProperty.GetColumnName(storeObject);
 
@@ -413,7 +420,7 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 continue;
             }
-            
+
             if (property.GetValueGenerationStrategy(storeObject) == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 identityColumns[columnName] = property;

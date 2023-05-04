@@ -72,6 +72,21 @@ public sealed class SqlServerConditionAttribute : Attribute, ITestCondition
             isMet &= TestEnvironment.IsUtf8Supported;
         }
 
+        if (Conditions.HasFlag(SqlServerCondition.SupportsFunctions2019))
+        {
+            isMet &= TestEnvironment.IsFunctions2019Supported;
+        }
+
+        if (Conditions.HasFlag(SqlServerCondition.SupportsFunctions2017))
+        {
+            isMet &= TestEnvironment.IsFunctions2017Supported;
+        }
+
+        if (Conditions.HasFlag(SqlServerCondition.SupportsJsonPathExpressions))
+        {
+            isMet &= TestEnvironment.SupportsJsonPathExpressions;
+        }
+
         return new ValueTask<bool>(isMet);
     }
 

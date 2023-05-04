@@ -16,29 +16,28 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-public class QueryRootExpression : Expression, IPrintableExpression
+public abstract class QueryRootExpression : Expression, IPrintableExpression
 {
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryRootExpression" /> class with associated query provider.
     /// </summary>
     /// <param name="asyncQueryProvider">The query provider associated with this query root.</param>
-    /// <param name="entityType">The entity type this query root represents.</param>
-    public QueryRootExpression(IAsyncQueryProvider asyncQueryProvider, IEntityType entityType)
+    /// <param name="elementType">The element type this query root represents.</param>
+    protected QueryRootExpression(IAsyncQueryProvider asyncQueryProvider, Type elementType)
     {
         QueryProvider = asyncQueryProvider;
-        EntityType = entityType;
-        Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
+        ElementType = elementType;
+        Type = typeof(IQueryable<>).MakeGenericType(elementType);
     }
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="QueryRootExpression" /> class without any query provider.
+    ///     Creates a new instance of the <see cref="EntityQueryRootExpression" /> class without any query provider.
     /// </summary>
-    /// <param name="entityType">The entity type this query root represents.</param>
-    public QueryRootExpression(IEntityType entityType)
+    /// <param name="elementType">The element type this query root represents.</param>
+    protected QueryRootExpression(Type elementType)
     {
-        EntityType = entityType;
-        QueryProvider = null;
-        Type = typeof(IQueryable<>).MakeGenericType(entityType.ClrType);
+        ElementType = elementType;
+        Type = typeof(IQueryable<>).MakeGenericType(elementType);
     }
 
     /// <summary>
@@ -47,27 +46,15 @@ public class QueryRootExpression : Expression, IPrintableExpression
     public virtual IAsyncQueryProvider? QueryProvider { get; }
 
     /// <summary>
-    ///     The entity type represented by this query root.
+    ///     The element type represented by this query root.
     /// </summary>
-    public virtual IEntityType EntityType { get; }
+    public virtual Type ElementType { get; }
 
     /// <summary>
     ///     Detaches the associated query provider from this query root expression.
     /// </summary>
     /// <returns>A new query root expression without query provider.</returns>
-    public virtual Expression DetachQueryProvider()
-        => new QueryRootExpression(EntityType);
-
-    /// <summary>
-    ///     Updates entity type associated with this query root with equivalent optimized version.
-    /// </summary>
-    /// <param name="entityType">The entity type to replace with.</param>
-    /// <returns>New query root containing given entity type.</returns>
-    public virtual QueryRootExpression UpdateEntityType(IEntityType entityType)
-        => entityType.ClrType != EntityType.ClrType
-            || entityType.Name != EntityType.Name
-                ? throw new InvalidOperationException(CoreStrings.QueryRootDifferentEntityType(entityType.DisplayName()))
-                : new QueryRootExpression(entityType);
+    public abstract Expression DetachQueryProvider();
 
     /// <inheritdoc />
     public override ExpressionType NodeType
@@ -88,11 +75,7 @@ public class QueryRootExpression : Expression, IPrintableExpression
     ///     Creates a printable string representation of the given expression using <see cref="ExpressionPrinter" />.
     /// </summary>
     /// <param name="expressionPrinter">The expression printer to use.</param>
-    protected virtual void Print(ExpressionPrinter expressionPrinter)
-        => expressionPrinter.Append(
-            EntityType.HasSharedClrType
-                ? $"DbSet<{EntityType.ClrType.ShortDisplayName()}>(\"{EntityType.Name}\")"
-                : $"DbSet<{EntityType.ClrType.ShortDisplayName()}>()");
+    protected abstract void Print(ExpressionPrinter expressionPrinter);
 
     /// <inheritdoc />
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
@@ -103,9 +86,9 @@ public class QueryRootExpression : Expression, IPrintableExpression
         => obj != null
             && (ReferenceEquals(this, obj)
                 || obj is QueryRootExpression queryRootExpression
-                && EntityType == queryRootExpression.EntityType);
+                && ElementType == queryRootExpression.ElementType);
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => EntityType.GetHashCode();
+        => ElementType.GetHashCode();
 }

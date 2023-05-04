@@ -365,7 +365,7 @@ public class RelationalCommandTest
             ConnectionString,
             new FakeCommandExecutor(
                 executeReader: (c, b) => CreateDbDataReader(),
-                executeReaderAsync: (c, b, ct) => Task.FromResult<DbDataReader>(CreateDbDataReader())));
+                executeReaderAsync: (c, b, ct) => Task.FromResult(CreateDbDataReader())));
         var optionsExtension = new FakeRelationalOptionsExtension().WithConnection(fakeDbConnection);
 
         var options = CreateOptions(optionsExtension);

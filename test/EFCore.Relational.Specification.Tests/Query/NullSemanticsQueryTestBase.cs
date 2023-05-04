@@ -1531,23 +1531,23 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
             ss => ss.Set<NullSemanticsEntity1>().Where(e => e.BoolB != e.NullableBoolA.HasValue));
     }
 
-        [ConditionalTheory]
-        [MemberData(nameof(IsAsyncData))]
-        public virtual async Task Bool_not_equal_nullable_int_HasValue(bool async)
-        {
-            await AssertQuery(
-                async,
-                ss => ss.Set<NullSemanticsEntity1>().Where(e => true != e.NullableIntA.HasValue));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Bool_not_equal_nullable_int_HasValue(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => true != e.NullableIntA.HasValue));
 
-            var prm = false;
-            await AssertQuery(
-                async,
-                ss => ss.Set<NullSemanticsEntity1>().Where(e => prm != e.NullableIntA.HasValue));
+        var prm = false;
+        await AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => prm != e.NullableIntA.HasValue));
 
-            await AssertQuery(
-                async,
-                ss => ss.Set<NullSemanticsEntity1>().Where(e => e.BoolB != e.NullableIntA.HasValue));
-        }
+        await AssertQuery(
+            async,
+            ss => ss.Set<NullSemanticsEntity1>().Where(e => e.BoolB != e.NullableIntA.HasValue));
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

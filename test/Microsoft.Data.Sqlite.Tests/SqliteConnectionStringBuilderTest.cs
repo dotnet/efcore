@@ -86,6 +86,7 @@ namespace Microsoft.Data.Sqlite
                 ConnectionString = null
             };
 
+            Assert.NotNull(builder.ConnectionString);
             Assert.Empty(builder.ConnectionString);
         }
 

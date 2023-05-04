@@ -42,7 +42,8 @@ public class ProxyGraphUpdatesSqliteTest
 
         public class ProxyGraphUpdatesWithLazyLoadingSqliteFixture : ProxyGraphUpdatesSqliteFixtureBase
         {
-            protected override string StoreName { get; } = "ProxyGraphLazyLoadingUpdatesTest";
+            protected override string StoreName
+                => "ProxyGraphLazyLoadingUpdatesTest";
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder.UseLazyLoadingProxies());
@@ -72,7 +73,8 @@ public class ProxyGraphUpdatesSqliteTest
 
         public class ProxyGraphUpdatesWithChangeTrackingSqliteFixture : ProxyGraphUpdatesSqliteFixtureBase
         {
-            protected override string StoreName { get; } = "ProxyGraphChangeTrackingUpdatesTest";
+            protected override string StoreName
+                => "ProxyGraphChangeTrackingUpdatesTest";
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder.UseChangeTrackingProxies());
@@ -98,7 +100,8 @@ public class ProxyGraphUpdatesSqliteTest
 
         public class ProxyGraphUpdatesWithChangeTrackingAndLazyLoadingSqliteFixture : ProxyGraphUpdatesSqliteFixtureBase
         {
-            protected override string StoreName { get; } = "ProxyGraphChangeTrackingAndLazyLoadingUpdatesTest";
+            protected override string StoreName
+                => "ProxyGraphChangeTrackingAndLazyLoadingUpdatesTest";
 
             public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
                 => base.AddOptions(builder.UseChangeTrackingProxies().UseLazyLoadingProxies());

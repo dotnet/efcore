@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TemporalComplexNavigationsQuerySqlServerFixture : ComplexNavigationsQuerySqlServerFixture
 {
-    protected override string StoreName { get; } = "TemporalComplexNavigations";
+    protected override string StoreName
+        => "TemporalComplexNavigations";
 
     public DateTime ChangesDate { get; private set; }
 
@@ -35,7 +36,7 @@ public class TemporalComplexNavigationsQuerySqlServerFixture : ComplexNavigation
             "LevelFour"
         };
 
-        // clean up intermittent history since in the Seed method we do fixup in multiple stages 
+        // clean up intermittent history since in the Seed method we do fixup in multiple stages
         foreach (var tableName in tableNames)
         {
             context.Database.ExecuteSqlRaw($"ALTER TABLE [{tableName}] SET (SYSTEM_VERSIONING = OFF)");

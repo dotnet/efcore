@@ -1,12 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 [SqlServerCondition(SqlServerCondition.SupportsMemoryOptimized)]
@@ -76,12 +75,12 @@ public class MemoryOptimizedTablesTest : IClassFixture<MemoryOptimizedTablesTest
                 .Entity<FastUn>(
                     eb =>
                     {
-                        eb.IsMemoryOptimized();
+                        eb.ToTable(tb => tb.IsMemoryOptimized());
                         eb.HasIndex(e => e.Name).IsUnique();
                         eb.HasOne(e => e.BigUn).WithMany(e => e.FastUns).IsRequired().OnDelete(DeleteBehavior.Restrict);
                     });
 
-            modelBuilder.Entity<BigUn>().IsMemoryOptimized();
+            modelBuilder.Entity<BigUn>().ToTable(tb => tb.IsMemoryOptimized());
         }
     }
 

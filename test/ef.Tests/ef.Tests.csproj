@@ -39,6 +39,7 @@
     <ProjectReference Include="..\..\src\ef\ef.csproj" />
     <ProjectReference Include="..\..\src\EFCore.Design\EFCore.Design.csproj" />
     <ProjectReference Include="..\..\src\EFCore.SqlServer\EFCore.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\EFCore.Analyzers\EFCore.Analyzers.csproj" />
   </ItemGroup>
 
   <ItemGroup>

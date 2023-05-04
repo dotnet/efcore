@@ -2255,22 +2255,23 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     b.Property<string>("Shadow2");
                 });
 
-            modelBuilder.Entity<CurrentEmployee>(b =>
-            {
-                b.Property<int>("Shadow3");
+            modelBuilder.Entity<CurrentEmployee>(
+                b =>
+                {
+                    b.Property<int>("Shadow3");
 
-                b.HasMany(p => p.VirtualTeams)
-                    .WithMany(p => p.Employees)
-                    .UsingEntity<Dictionary<string, object>>(
-                        "VirtualTeamEmployee",
-                        j => j
-                            .HasOne<VirtualTeam>()
-                            .WithMany(),
-                        j => j
-                            .HasOne<CurrentEmployee>()
-                            .WithMany(),
-                        j => j.IndexerProperty<string>("Payload"));
-            });
+                    b.HasMany(p => p.VirtualTeams)
+                        .WithMany(p => p.Employees)
+                        .UsingEntity<Dictionary<string, object>>(
+                            "VirtualTeamEmployee",
+                            j => j
+                                .HasOne<VirtualTeam>()
+                                .WithMany(),
+                            j => j
+                                .HasOne<CurrentEmployee>()
+                                .WithMany(),
+                            j => j.IndexerProperty<string>("Payload"));
+                });
 
             modelBuilder.Entity<PastEmployee>(b => b.Property<string>("Shadow4"));
 
@@ -2353,7 +2354,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     LastName = "Miller",
                     LeaveBalance = 45,
                     Office = offices[0],
-                    VirtualTeams = new List<VirtualTeam>{ teams[0], teams[1] }
+                    VirtualTeams = new List<VirtualTeam> { teams[0], teams[1] }
                 },
                 new CurrentEmployee
                 {
@@ -2362,7 +2363,7 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
                     LastName = "Vickers",
                     LeaveBalance = 62,
                     Office = offices[1],
-                    VirtualTeams = new List<VirtualTeam>{ teams[1], teams[2] }
+                    VirtualTeams = new List<VirtualTeam> { teams[1], teams[2] }
                 },
                 new PastEmployee
                 {
@@ -2433,52 +2434,53 @@ public abstract class PropertyValuesTestBase<TFixture> : IClassFixture<TFixture>
     public class PropertyValuesMaterializationInterceptor : IMaterializationInterceptor
     {
         public InterceptionResult<object> CreatingInstance(
-            MaterializationInterceptionData materializationData, InterceptionResult<object> result)
+            MaterializationInterceptionData materializationData,
+            InterceptionResult<object> result)
             => result;
 
-        public object CreatedInstance(MaterializationInterceptionData materializationData, object instance)
+        public object CreatedInstance(MaterializationInterceptionData materializationData, object entity)
         {
-            if (instance is IDictionary<string, object> joinEntity)
+            if (entity is IDictionary<string, object> joinEntity)
             {
                 joinEntity["CreatedCalled"] = true;
             }
             else
             {
-                ((PropertyValuesBase)instance).CreatedCalled = true;
+                ((PropertyValuesBase)entity).CreatedCalled = true;
             }
 
-            return instance;
+            return entity;
         }
 
         public InterceptionResult InitializingInstance(
             MaterializationInterceptionData materializationData,
-            object instance,
+            object entity,
             InterceptionResult result)
         {
-            if (instance is IDictionary<string, object> joinEntity)
+            if (entity is IDictionary<string, object> joinEntity)
             {
                 joinEntity["InitializingCalled"] = true;
             }
             else
             {
-                ((PropertyValuesBase)instance).InitializingCalled = true;
+                ((PropertyValuesBase)entity).InitializingCalled = true;
             }
 
             return result;
         }
 
-        public object InitializedInstance(MaterializationInterceptionData materializationData, object instance)
+        public object InitializedInstance(MaterializationInterceptionData materializationData, object entity)
         {
-            if (instance is IDictionary<string, object> joinEntity)
+            if (entity is IDictionary<string, object> joinEntity)
             {
                 joinEntity["InitializedCalled"] = true;
             }
             else
             {
-                ((PropertyValuesBase)instance).InitializedCalled = true;
+                ((PropertyValuesBase)entity).InitializedCalled = true;
             }
 
-            return instance;
+            return entity;
         }
     }
 }

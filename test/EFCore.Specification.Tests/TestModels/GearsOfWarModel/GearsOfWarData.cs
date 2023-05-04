@@ -5,6 +5,8 @@ namespace Microsoft.EntityFrameworkCore.TestModels.GearsOfWarModel;
 
 public class GearsOfWarData : ISetSource
 {
+    public static readonly GearsOfWarData Instance = new();
+
     public IReadOnlyList<City> Cities { get; }
     public IReadOnlyList<CogTag> Tags { get; }
     public IReadOnlyList<Faction> Factions { get; }
@@ -16,7 +18,7 @@ public class GearsOfWarData : ISetSource
     public IReadOnlyList<LocustLeader> LocustLeaders { get; }
     public IReadOnlyList<LocustHighCommand> LocustHighCommands { get; }
 
-    public GearsOfWarData()
+    private GearsOfWarData()
     {
         Squads = CreateSquads();
         Missions = CreateMissions();

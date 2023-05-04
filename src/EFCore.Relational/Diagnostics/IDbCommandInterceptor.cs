@@ -70,7 +70,7 @@ public interface IDbCommandInterceptor : IInterceptor
         => result;
 
     /// <summary>
-    ///     Called after EF has initialized <see cref="DbCommand.CommandText"/> and other command configuration.
+    ///     Called after EF has initialized <see cref="DbCommand.CommandText" /> and other command configuration.
     /// </summary>
     /// <param name="eventData">Contextual information about the command and execution.</param>
     /// <param name="result">
@@ -102,7 +102,7 @@ public interface IDbCommandInterceptor : IInterceptor
     ///     An implementation of this method for any interceptor that is not attempting to change the result
     ///     is to return the <paramref name="result" /> value passed in.
     /// </returns>
-    InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command,CommandEventData eventData, InterceptionResult<DbDataReader> result)
+    InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
         => result;
 
     /// <summary>

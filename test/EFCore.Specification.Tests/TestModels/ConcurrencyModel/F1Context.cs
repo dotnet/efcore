@@ -15,6 +15,11 @@ public class F1Context : PoolableDbContext
     public DbSet<Sponsor> Sponsors { get; set; }
     public DbSet<Engine> Engines { get; set; }
     public DbSet<EngineSupplier> EngineSuppliers { get; set; }
+    public DbSet<Fan> Fans { get; set; }
+    public DbSet<FanTpt> FanTpts { get; set; }
+    public DbSet<FanTpc> FanTpcs { get; set; }
+
+    public DbSet<Circuit> Circuits { get; set; }
 
     public static void Seed(F1Context context)
     {
@@ -864,5 +869,22 @@ public class F1Context : PoolableDbContext
 
         teams.Single(t => t.Id == Team.McLaren).Sponsors.Add(vodafone);
         teams.Single(t => t.Id == Team.Ferrari).Sponsors.Add(shell);
+
+        context.AddRange(
+            new SuperFan { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
+            new MegaFan { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
+            new SuperFanTpt { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
+            new MegaFanTpt { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
+            new SuperFanTpc { Id = 1, Name = "Alice", Swag = new() { Stuff = "SuperStuff" }},
+            new MegaFanTpc { Id = 2, Name = "Toast", Swag = new() { Stuff = "MegaStuff" } },
+            new StreetCircuit { Id = 1, Name = "Monaco" },
+            new City { Id = 1, Name = "Monaco" },
+            new OvalCircuit { Id = 2, Name = "Indy" },
+            new StreetCircuitTpt { Id = 1, Name = "Monaco" },
+            new CityTpt { Id = 1, Name = "Monaco" },
+            new OvalCircuitTpt { Id = 2, Name = "Indy" },
+            new StreetCircuitTpc { Id = 1, Name = "Monaco" },
+            new CityTpc { Id = 1, Name = "Monaco" },
+            new OvalCircuitTpc { Id = 2, Name = "Indy" });
     }
 }

@@ -167,7 +167,7 @@ public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFi
 
         var loggerFactory1 = new ListLoggerFactory();
 
-        using (var context = new NorthwindRelationalContext(CreateOptions(loggerFactory1)))
+        using (var context = new NorthwindSqlServerContext(CreateOptions(loggerFactory1)))
         {
             var _ = context.Customers.ToList();
         }
@@ -176,7 +176,7 @@ public class QueryLoggingSqlServerTest : IClassFixture<NorthwindQuerySqlServerFi
 
         var loggerFactory2 = new ListLoggerFactory();
 
-        using (var context = new NorthwindRelationalContext(CreateOptions(loggerFactory2)))
+        using (var context = new NorthwindSqlServerContext(CreateOptions(loggerFactory2)))
         {
             var _ = context.Customers.ToList();
         }

@@ -1,8 +1,8 @@
 # Users referenced in this file will automatically be requested as reviewers for PRs that modify the given paths.
 # See https://help.github.com/articles/about-code-owners/
 
-/azure-pipelines.yml                    @aspnet/build
-/eng/                                   @aspnet/build
-/eng/common/                            @dotnet-maestro-bot @dougbu
-/eng/Versions.props                     @dotnet-maestro-bot @dougbu
-/eng/Version.Details.xml                @dotnet-maestro-bot @dougbu
+/azure-pipelines.yml                    @dotnet/aspnet-build
+/eng/                                   @dotnet/aspnet-build
+/eng/common/                            @dotnet-maestro-bot @wtgodbe
+/eng/Versions.props                     @dotnet-maestro-bot @wtgodbe
+/eng/Version.Details.xml                @dotnet-maestro-bot @wtgodbe

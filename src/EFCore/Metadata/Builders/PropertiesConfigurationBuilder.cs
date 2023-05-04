@@ -70,6 +70,20 @@ public class PropertiesConfigurationBuilder
     }
 
     /// <summary>
+    ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the
+    ///     sentinel value, then it is considered not set. By default, the sentinel value is the CLR default value for the type of
+    ///     the property.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual PropertiesConfigurationBuilder HaveSentinel(object? sentinel)
+    {
+        Configuration.SetSentinel(sentinel);
+
+        return this;
+    }
+
+    /// <summary>
     ///     Configures the precision and scale of the property.
     /// </summary>
     /// <param name="precision">The precision of the property.</param>

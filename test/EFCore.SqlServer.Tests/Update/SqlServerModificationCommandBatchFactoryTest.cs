@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
 using Microsoft.EntityFrameworkCore.Update.Internal;
@@ -19,7 +20,8 @@ public class SqlServerModificationCommandBatchFactoryTest
 
         var typeMapper = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 
@@ -37,7 +39,8 @@ public class SqlServerModificationCommandBatchFactoryTest
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
                 new CurrentDbContext(new FakeDbContext()),
-                logger),
+                logger,
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>()),
             optionsBuilder.Options);
 
         var batch = factory.Create();
@@ -54,7 +57,8 @@ public class SqlServerModificationCommandBatchFactoryTest
 
         var typeMapper = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
         var logger = new FakeRelationalCommandDiagnosticsLogger();
 
@@ -72,7 +76,8 @@ public class SqlServerModificationCommandBatchFactoryTest
                             new RelationalSqlGenerationHelperDependencies()),
                         typeMapper)),
                 new CurrentDbContext(new FakeDbContext()),
-                logger),
+                logger,
+                new FakeDiagnosticsLogger<DbLoggerCategory.Update>()),
             optionsBuilder.Options);
 
         var batch = factory.Create();
@@ -92,7 +97,7 @@ public class SqlServerModificationCommandBatchFactoryTest
     {
         var modificationCommand = new ModificationCommandFactory().CreateNonTrackedModificationCommand(
             new NonTrackedModificationCommandParameters(
-            name, schema, sensitiveLoggingEnabled));
+                name, schema, sensitiveLoggingEnabled));
 
         return modificationCommand;
     }

@@ -53,21 +53,7 @@ public class KeyPropagator : IKeyPropagator
 
             if (valueGenerator != null)
             {
-                var value = valueGenerator.Next(new EntityEntry(entry));
-
-                if (valueGenerator.GeneratesTemporaryValues)
-                {
-                    entry.SetTemporaryValue(property, value);
-                }
-                else
-                {
-                    entry[property] = value;
-                }
-
-                if (!valueGenerator.GeneratesStableValues)
-                {
-                    entry.MarkUnknown(property);
-                }
+                SetValue(entry, property, valueGenerator, valueGenerator.Next(new EntityEntry(entry)));
             }
         }
 
@@ -91,7 +77,8 @@ public class KeyPropagator : IKeyPropagator
         var principalEntry = TryPropagateValue(entry, property, generationProperty);
 
         if (principalEntry == null
-            && property.IsKey())
+            && property.IsKey()
+            && !property.IsForeignKeyToSelf())
         {
             var valueGenerator = TryGetValueGenerator(
                 generationProperty,
@@ -101,26 +88,28 @@ public class KeyPropagator : IKeyPropagator
 
             if (valueGenerator != null)
             {
-                var value = await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken)
-                    .ConfigureAwait(false);
-
-                if (valueGenerator.GeneratesTemporaryValues)
-                {
-                    entry.SetTemporaryValue(property, value);
-                }
-                else
-                {
-                    entry[property] = value;
-                }
-
-                if (!valueGenerator.GeneratesStableValues)
-                {
-                    entry.MarkUnknown(property);
-                }
+                SetValue(
+                    entry,
+                    property,
+                    valueGenerator,
+                    await valueGenerator.NextAsync(new EntityEntry(entry), cancellationToken).ConfigureAwait(false));
             }
         }
 
         return principalEntry;
+    }
+
+    private static void SetValue(InternalEntityEntry entry, IProperty property, ValueGenerator valueGenerator, object? value)
+    {
+        if (valueGenerator.GeneratesStableValues)
+        {
+            entry[property] = value;
+        }
+        else
+        {
+            entry.SetTemporaryValue(property, value);
+            entry.MarkUnknown(property);
+        }
     }
 
     private static InternalEntityEntry? TryPropagateValue(InternalEntityEntry entry, IProperty property, IProperty? generationProperty)
@@ -160,9 +149,8 @@ public class KeyPropagator : IKeyPropagator
 
                         if (principalProperty != property)
                         {
-                            var principalValue = principalEntry[principalProperty];
                             if (generationProperty == null
-                                || !principalProperty.ClrType.IsDefaultValue(principalValue))
+                                || principalEntry.HasExplicitValue(principalProperty))
                             {
                                 entry.PropagateValue(principalEntry, principalProperty, property);
 

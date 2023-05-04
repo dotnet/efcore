@@ -73,7 +73,7 @@ public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
     /// </remarks>
     public new virtual IEnumerable<TRelatedEntity>? CurrentValue
     {
-        get => this.GetInfrastructure().GetCurrentValue<IEnumerable<TRelatedEntity>>(Metadata);
+        get => (IEnumerable<TRelatedEntity>?)this.GetInfrastructure().GetCurrentValue(Metadata);
         set => base.CurrentValue = value;
     }
 

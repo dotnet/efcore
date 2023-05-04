@@ -22,7 +22,4 @@ public abstract class NorthwindQueryRelationalFixture<TModelCustomizer> : Northw
 
     protected override bool ShouldLogCategory(string logCategory)
         => logCategory == DbLoggerCategory.Query.Name;
-
-    protected override Type ContextType
-        => typeof(NorthwindRelationalContext);
 }

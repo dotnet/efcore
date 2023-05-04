@@ -22,8 +22,8 @@ public static class RelationalIndexExtensions
     /// <returns>The name of the index in the database.</returns>
     public static string? GetDatabaseName(this IReadOnlyIndex index)
         => index.DeclaringEntityType.GetTableName() == null
-        ? null
-        : (string?)index[RelationalAnnotationNames.Name]
+            ? null
+            : (string?)index[RelationalAnnotationNames.Name]
             ?? index.Name
             ?? index.GetDefaultDatabaseName();
 
@@ -67,7 +67,7 @@ public static class RelationalIndexExtensions
     /// <returns>The default name that would be used for this index.</returns>
     public static string? GetDefaultDatabaseName(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
         => index.GetDefaultDatabaseName(storeObject, null);
-    
+
     /// <summary>
     ///     Sets the name of the index in the database.
     /// </summary>
@@ -89,14 +89,10 @@ public static class RelationalIndexExtensions
         this IConventionIndex index,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        index.SetOrRemoveAnnotation(
+        => (string?)index.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(name, nameof(name)),
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the name of the index in the database.
@@ -112,9 +108,7 @@ public static class RelationalIndexExtensions
     /// <param name="index">The index.</param>
     /// <returns>The index filter expression.</returns>
     public static string? GetFilter(this IReadOnlyIndex index)
-        => (index is RuntimeIndex)
-            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
-            : (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
+        => (string?)index.FindAnnotation(RelationalAnnotationNames.Filter)?.Value;
 
     /// <summary>
     ///     Returns the index filter expression.
@@ -124,11 +118,6 @@ public static class RelationalIndexExtensions
     /// <returns>The index filter expression.</returns>
     public static string? GetFilter(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
     {
-        if (index is RuntimeIndex)
-        {
-            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
-        }
-
         var annotation = index.FindAnnotation(RelationalAnnotationNames.Filter);
         if (annotation != null)
         {
@@ -157,14 +146,10 @@ public static class RelationalIndexExtensions
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     public static string? SetFilter(this IConventionIndex index, string? value, bool fromDataAnnotation = false)
-    {
-        index.SetAnnotation(
+        => (string?)index.SetAnnotation(
             RelationalAnnotationNames.Filter,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the index filter expression.

@@ -21,8 +21,15 @@ public class SqlServerLongTypeMapping : LongTypeMapping
     /// </summary>
     public SqlServerLongTypeMapping(
         string storeType,
+        ValueConverter? converter = null,
+        ValueComparer? comparer = null,
+        ValueComparer? providerValueComparer = null,
         DbType? dbType = System.Data.DbType.Int64)
-        : base(storeType, dbType)
+        : this(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(typeof(long), converter, comparer, providerValueComparer),
+                storeType,
+                dbType: dbType))
     {
     }
 

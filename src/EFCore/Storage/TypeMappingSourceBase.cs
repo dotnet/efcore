@@ -27,7 +27,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 public abstract class TypeMappingSourceBase : ITypeMappingSource
 {
     /// <summary>
-    ///     Initializes a new instance of the this class.
+    ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     protected TypeMappingSourceBase(TypeMappingSourceDependencies dependencies)

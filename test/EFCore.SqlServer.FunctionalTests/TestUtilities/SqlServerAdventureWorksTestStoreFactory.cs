@@ -12,7 +12,7 @@ public class SqlServerAdventureWorksTestStoreFactory : SqlServerTestStoreFactory
     }
 
     public override TestStore GetOrCreate(string storeName)
-        => SqlServerTestStore.GetOrCreate(
+        => SqlServerTestStore.GetOrCreateWithScriptPath(
             "adventureworks",
             Path.Combine("SqlAzure", "adventureworks.sql"));
 }

@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public abstract class TPCInheritanceQueryTestBase<TFixture> : InheritanceQueryTestBase<TFixture>
     where TFixture : TPCInheritanceQueryFixture, new()
 {
-    public TPCInheritanceQueryTestBase(TFixture fixture)
+    protected TPCInheritanceQueryTestBase(TFixture fixture)
         : base(fixture)
     {
     }
@@ -48,6 +48,11 @@ public abstract class TPCInheritanceQueryTestBase<TFixture> : InheritanceQueryTe
             .Message;
 
         Assert.Equal(RelationalStrings.MethodOnNonTphRootNotSupported("FromSqlInterpolated", typeof(Bird).Name), message);
+
+        message = Assert.Throws<InvalidOperationException>(() => context.Set<Bird>().FromSql($"Select * from Birds"))
+            .Message;
+
+        Assert.Equal(RelationalStrings.MethodOnNonTphRootNotSupported("FromSql", typeof(Bird).Name), message);
     }
 
     protected override void UseTransaction(DatabaseFacade facade, IDbContextTransaction transaction)

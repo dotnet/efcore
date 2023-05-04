@@ -27,6 +27,6 @@ public static class CosmosPropertyExtensions
             && key.Properties.Count > 1
             && !property.IsForeignKey()
             && property.ClrType == typeof(int)
-            && property.ValueGenerated == ValueGenerated.OnAdd;
+            && (property.ValueGenerated & ValueGenerated.OnAdd) != 0;
     }
 }

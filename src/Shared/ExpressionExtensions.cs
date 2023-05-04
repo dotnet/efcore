@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-
 #nullable enable
+
+using System.Diagnostics.CodeAnalysis;
 
 // ReSharper disable once CheckNamespace
 namespace System.Linq.Expressions;
@@ -25,10 +24,10 @@ internal static class ExpressionExtensions
     public static Expression? UnwrapTypeConversion(this Expression? expression, out Type? convertedType)
     {
         convertedType = null;
-        while (expression is UnaryExpression unaryExpression
-               && (unaryExpression.NodeType == ExpressionType.Convert
-                   || unaryExpression.NodeType == ExpressionType.ConvertChecked
-                   || unaryExpression.NodeType == ExpressionType.TypeAs))
+        while (expression is UnaryExpression
+               {
+                   NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs
+               } unaryExpression)
         {
             expression = unaryExpression.Operand;
             if (unaryExpression.Type != typeof(object) // Ignore object conversion

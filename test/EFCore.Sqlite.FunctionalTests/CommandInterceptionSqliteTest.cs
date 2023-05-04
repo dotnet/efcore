@@ -13,7 +13,9 @@ public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTes
     public override async Task<string> Intercept_query_passively(bool async, bool inject)
     {
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Type"" FROM ""Singularity"" AS ""s""",
+"""
+SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
+""",
             await base.Intercept_query_passively(async, inject));
 
         return null;
@@ -22,7 +24,9 @@ public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTes
     protected override async Task<string> QueryMutationTest<TInterceptor>(bool async, bool inject)
     {
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Type"" FROM ""Brane"" AS ""s""",
+"""
+SELECT "s"."Id", "s"."Type" FROM "Brane" AS "s"
+""",
             await base.QueryMutationTest<TInterceptor>(async, inject));
 
         return null;
@@ -31,7 +35,9 @@ public abstract class CommandInterceptionSqliteTestBase : CommandInterceptionTes
     public override async Task<string> Intercept_query_to_replace_execution(bool async, bool inject)
     {
         AssertSql(
-            @"SELECT ""s"".""Id"", ""s"".""Type"" FROM ""Singularity"" AS ""s""",
+"""
+SELECT "s"."Id", "s"."Type" FROM "Singularity" AS "s"
+""",
             await base.Intercept_query_to_replace_execution(async, inject));
 
         return null;

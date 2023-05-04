@@ -42,6 +42,22 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => GetString("BundleFullName");
 
         /// <summary>
+        ///     Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+        /// </summary>
+        public static string CannotCreateContextInstance(object? contextType, object? rootException)
+            => string.Format(
+                GetString("CannotCreateContextInstance", nameof(contextType), nameof(rootException)),
+                contextType, rootException);
+
+        /// <summary>
+        ///     The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+        /// </summary>
+        public static string CannotFindDbContextTypes(object? rootException)
+            => string.Format(
+                GetString("CannotFindDbContextTypes", nameof(rootException)),
+                rootException);
+
+        /// <summary>
         ///     Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.
         /// </summary>
         public static string CannotFindDesignTimeProviderAssemblyAttribute(object? runtimeProviderAssemblyName)
@@ -222,6 +238,14 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("ErrorConnecting", nameof(message)),
                 message);
+
+        /// <summary>
+        ///     Processing '{inputFile}' failed.
+        /// </summary>
+        public static string ErrorGeneratingOutput(object? inputFile)
+            => string.Format(
+                GetString("ErrorGeneratingOutput", nameof(inputFile)),
+                inputFile);
 
         /// <summary>
         ///     The following file(s) already exist in directory '{outputDirectoryName}': {existingFiles}. Use the Force flag to overwrite these files.
@@ -456,6 +480,18 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 assembly);
 
         /// <summary>
+        ///     You must provide a DbContext.t4 file in order to scaffold using custom templates.
+        /// </summary>
+        public static string NoContextTemplate
+            => GetString("NoContextTemplate");
+
+        /// <summary>
+        ///     You've provided an EntityTypeConfiguration.t4 file without a corresponding DbContext.t4 file. The generated DbContext code must be modified to work with your configuration classes. Provide a DbContext.t4 file and try again.
+        /// </summary>
+        public static string NoContextTemplateButConfiguration
+            => GetString("NoContextTemplateButConfiguration");
+
+        /// <summary>
         ///     No DbContext named '{name}' was found.
         /// </summary>
         public static string NoContextWithName(object? name)
@@ -514,14 +550,6 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NonRelationalProvider", nameof(provider)),
                 provider);
-
-        /// <summary>
-        ///     Unable to create an object of type '{contextType}'. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
-        /// </summary>
-        public static string NoParameterlessConstructor(object? contextType)
-            => string.Format(
-                GetString("NoParameterlessConstructor", nameof(contextType)),
-                contextType);
 
         /// <summary>
         ///     No referenced design-time services were found.
@@ -801,4 +829,3 @@ namespace Microsoft.EntityFrameworkCore.Internal
         }
     }
 }
-

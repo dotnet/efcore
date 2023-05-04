@@ -8,19 +8,11 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavigationsQueryFixtureBase, IQueryFixtureBase
 {
-    private ComplexNavigationsWeakData _expectedData;
-
-    protected override string StoreName { get; } = "ComplexNavigationsOwned";
+    protected override string StoreName
+        => "ComplexNavigationsOwned";
 
     public override ISetSource GetExpectedData()
-    {
-        if (_expectedData == null)
-        {
-            _expectedData = new ComplexNavigationsWeakData();
-        }
-
-        return _expectedData;
-    }
+        => ComplexNavigationsWeakData.Instance;
 
     Func<DbContext, ISetSource> IQueryFixtureBase.GetSetSourceCreator()
         => context => new ComplexNavigationsWeakSetExtractor(context);
@@ -289,6 +281,12 @@ public abstract class ComplexNavigationsSharedTypeQueryFixtureBase : ComplexNavi
 
     private class ComplexNavigationsWeakData : ComplexNavigationsData
     {
+        public static readonly ComplexNavigationsWeakData Instance = new();
+
+        private ComplexNavigationsWeakData()
+        {
+        }
+
         public override IQueryable<TEntity> Set<TEntity>()
         {
             if (typeof(TEntity) == typeof(Level1))

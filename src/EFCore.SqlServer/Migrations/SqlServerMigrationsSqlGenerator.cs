@@ -4,7 +4,6 @@
 using System.Collections;
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.SqlServer.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Update.Internal;
@@ -33,16 +32,19 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     private IReadOnlyList<MigrationOperation> _operations = null!;
     private int _variableCounter;
 
+    private readonly ICommandBatchPreparer _commandBatchPreparer;
+
     /// <summary>
     ///     Creates a new <see cref="SqlServerMigrationsSqlGenerator" /> instance.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
-    /// <param name="migrationsAnnotations">Provider-specific Migrations annotations to use.</param>
+    /// <param name="commandBatchPreparer">The command batch preparer.</param>
     public SqlServerMigrationsSqlGenerator(
         MigrationsSqlGeneratorDependencies dependencies,
-        IRelationalAnnotationProvider migrationsAnnotations)
+        ICommandBatchPreparer commandBatchPreparer)
         : base(dependencies)
     {
+        _commandBatchPreparer = commandBatchPreparer;
     }
 
     /// <summary>
@@ -343,6 +345,55 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             (oldDefaultValue, oldDefaultValueSql) = (null, null);
         }
 
+        // The column is being made non-nullable. Generate an update statement before doing that, to convert any existing null values to
+        // the default value (otherwise SQL Server fails).
+        if (!operation.IsNullable
+            && operation.OldColumn.IsNullable
+            && (operation.DefaultValueSql is not null || operation.DefaultValue is not null))
+        {
+            string defaultValueSql;
+            if (operation.DefaultValueSql is not null)
+            {
+                defaultValueSql = operation.DefaultValueSql;
+            }
+            else
+            {
+                Check.DebugAssert(operation.DefaultValue is not null, "operation.DefaultValue is not null");
+
+                var typeMapping = (columnType != null
+                        ? Dependencies.TypeMappingSource.FindMapping(operation.DefaultValue.GetType(), columnType)
+                        : null)
+                    ?? Dependencies.TypeMappingSource.GetMappingForValue(operation.DefaultValue);
+
+                defaultValueSql = typeMapping.GenerateSqlLiteral(operation.DefaultValue);
+            }
+
+            var updateBuilder = new StringBuilder()
+                .Append("UPDATE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Table, operation.Schema))
+                .Append(" SET ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" = ")
+                .Append(defaultValueSql)
+                .Append(" WHERE ")
+                .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name))
+                .Append(" IS NULL");
+
+            if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
+            {
+                builder
+                    .Append("EXEC(N'")
+                    .Append(updateBuilder.ToString().TrimEnd('\n', '\r', ';').Replace("'", "''"))
+                    .Append("')");
+            }
+            else
+            {
+                builder.Append(updateBuilder.ToString());
+            }
+
+            builder.AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
+        }
+
         if (alterStatementNeeded)
         {
             builder
@@ -502,8 +553,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         builder
             .Append("ALTER SEQUENCE ")
             .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(operation.Name, operation.Schema))
-            .Append(" RESTART WITH ")
-            .Append(IntegerConstant(operation.StartValue))
+            .Append(" RESTART");
+
+        if (operation.StartValue.HasValue)
+        {
+            builder
+                .Append(" WITH ")
+                .Append(IntegerConstant(operation.StartValue.Value));
+        }
+
+        builder
             .AppendLine(Dependencies.SqlGenerationHelper.StatementTerminator);
 
         EndStatement(builder);
@@ -1346,49 +1405,47 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
     /// <param name="builder">The command builder to use to build the commands.</param>
     protected override void Generate(SqlOperation operation, IModel? model, MigrationCommandListBuilder builder)
     {
-        var batches = Regex.Split(
-            Regex.Replace(
-                operation.Sql,
-                @"\\\r?\n",
-                string.Empty,
-                default,
-                TimeSpan.FromMilliseconds(1000.0)),
-            @"^\s*(GO[ \t]+[0-9]+|GO)(?:\s+|$)",
-            RegexOptions.IgnoreCase | RegexOptions.Multiline,
-            TimeSpan.FromMilliseconds(1000.0));
-        for (var i = 0; i < batches.Length; i++)
+        var preBatched = operation.Sql
+            .Replace("\\\n", "")
+            .Replace("\\\r\n", "")
+            .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+
+        var batchBuilder = new StringBuilder();
+        foreach (var line in preBatched)
         {
-            if (batches[i].StartsWith("GO", StringComparison.OrdinalIgnoreCase)
-                || string.IsNullOrWhiteSpace(batches[i]))
+            if (string.IsNullOrWhiteSpace(line))
             {
                 continue;
             }
 
-            var count = 1;
-            if (i != batches.Length - 1
-                && batches[i + 1].StartsWith("GO", StringComparison.OrdinalIgnoreCase))
+            var trimmed = line.TrimStart();
+            if (trimmed.StartsWith("GO", StringComparison.OrdinalIgnoreCase))
             {
-                var match = Regex.Match(
-                    batches[i + 1], "([0-9]+)",
-                    default,
-                    TimeSpan.FromMilliseconds(1000.0));
-                if (match.Success)
+                var batch = batchBuilder.ToString();
+                batchBuilder.Clear();
+
+                var count = trimmed.Length >= 4
+                    && int.TryParse(trimmed.Substring(3), out var specifiedCount)
+                        ? specifiedCount
+                        : 1;
+
+                for (var j = 0; j < count; j++)
                 {
-                    count = int.Parse(match.Value);
+                    AppendBatch(batch);
                 }
             }
-
-            for (var j = 0; j < count; j++)
+            else
             {
-                builder.Append(batches[i]);
-
-                if (i == batches.Length - 1)
-                {
-                    builder.AppendLine();
-                }
-
-                EndStatement(builder, operation.SuppressTransaction);
+                batchBuilder.AppendLine(line);
             }
+        }
+
+        AppendBatch(batchBuilder.ToString());
+
+        void AppendBatch(string batch)
+        {
+            builder.Append(batch);
+            EndStatement(builder, operation.SuppressTransaction);
         }
     }
 
@@ -1409,10 +1466,14 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
         GenerateIdentityInsert(builder, operation, on: true, model);
 
         var sqlBuilder = new StringBuilder();
-        ((ISqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator).AppendBulkInsertOperation(
-            sqlBuilder,
-            GenerateModificationCommands(operation, model).ToList(),
-            0);
+
+        var modificationCommands = GenerateModificationCommands(operation, model).ToList();
+        var updateSqlGenerator = (ISqlServerUpdateSqlGenerator)Dependencies.UpdateSqlGenerator;
+
+        foreach (var batch in _commandBatchPreparer.CreateCommandBatches(modificationCommands, moreCommandSets: true))
+        {
+            updateSqlGenerator.AppendBulkInsertOperation(sqlBuilder, batch.ModificationCommands, commandPosition: 0);
+        }
 
         if (Options.HasFlag(MigrationsSqlGenerationOptions.Idempotent))
         {
@@ -2424,7 +2485,8 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                                     var alterHistoryTableColumn = CopyColumnOperation<AlterColumnOperation>(alterColumnOperation);
                                     alterHistoryTableColumn.Table = historyTableName!;
                                     alterHistoryTableColumn.Schema = historyTableSchema;
-                                    alterHistoryTableColumn.OldColumn = CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
+                                    alterHistoryTableColumn.OldColumn =
+                                        CopyColumnOperation<AddColumnOperation>(alterColumnOperation.OldColumn);
                                     alterHistoryTableColumn.OldColumn.Table = historyTableName!;
                                     alterHistoryTableColumn.OldColumn.Schema = historyTableSchema;
 

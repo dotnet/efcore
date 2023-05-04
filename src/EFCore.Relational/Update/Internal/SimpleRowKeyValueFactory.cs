@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Update.Internal;
@@ -111,8 +110,8 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual object CreateValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
-        => new ValueIndex<TKey>(
+    public virtual object CreateEquatableKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false)
+        => new EquatableKeyValue<TKey>(
             _constraint,
             CreateKeyValue(command, fromOriginalValues),
             EqualityComparer);
@@ -139,8 +138,29 @@ public class SimpleRowKeyValueFactory<TKey> : IRowKeyValueFactory<TKey>
 
         public NoNullsCustomEqualityComparer(ValueComparer comparer)
         {
-            _equals = (Func<TKey?, TKey?, bool>)comparer.EqualsExpression.Compile();
-            _hashCode = (Func<TKey, int>)comparer.HashCodeExpression.Compile();
+            var equals = comparer.EqualsExpression;
+            var getHashCode = comparer.HashCodeExpression;
+            var type = typeof(TKey);
+            if (type != comparer.Type)
+            {
+                var newEqualsParam1 = Expression.Parameter(type, "v1");
+                var newEqualsParam2 = Expression.Parameter(type, "v2");
+                equals = Expression.Lambda(
+                    comparer.ExtractEqualsBody(
+                        Expression.Convert(newEqualsParam1, comparer.Type),
+                        Expression.Convert(newEqualsParam2, comparer.Type)),
+                    newEqualsParam1, newEqualsParam2);
+
+
+                var newHashCodeParam = Expression.Parameter(type, "v");
+                getHashCode = Expression.Lambda(
+                    comparer.ExtractHashCodeBody(
+                        Expression.Convert(newHashCodeParam, comparer.Type)),
+                    newHashCodeParam);
+            }
+
+            _equals = (Func<TKey?, TKey?, bool>)equals.Compile();
+            _hashCode = (Func<TKey, int>)getHashCode.Compile();
         }
 
         public bool Equals(TKey? x, TKey? y)

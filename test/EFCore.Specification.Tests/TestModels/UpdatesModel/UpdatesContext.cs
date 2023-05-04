@@ -1,17 +1,20 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+# nullable enable
+
 namespace Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 
 public class UpdatesContext : PoolableDbContext
 {
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<Product> Products { get; set; }
-    public DbSet<ProductWithBytes> ProductWithBytes { get; set; }
-    public DbSet<AFewBytes> AFewBytes { get; set; }
-    public DbSet<ProductViewTable> ProductView { get; set; }
-    public DbSet<ProductTableWithView> ProductTable { get; set; }
-    public DbSet<ProductTableView> ProductTableView { get; set; }
+    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<ProductWithBytes> ProductWithBytes { get; set; } = null!;
+    public DbSet<AFewBytes> AFewBytes { get; set; } = null!;
+    public DbSet<ProductViewTable> ProductView { get; set; } = null!;
+    public DbSet<ProductTableWithView> ProductTable { get; set; } = null!;
+    public DbSet<ProductTableView> ProductTableView { get; set; } = null!;
+    public DbSet<Rodney> Trotters { get; set; } = null!;
 
     public UpdatesContext(DbContextOptions options)
         : base(options)
@@ -24,7 +27,7 @@ public class UpdatesContext : PoolableDbContext
         var productId2 = new Guid("0edc9136-7eed-463b-9b97-bdb9648ab877");
 
         context.Add(
-            new Category { Id = 78, PrincipalId = 778 });
+            new Category { PrincipalId = 778 });
         context.Add(
             new Product
             {

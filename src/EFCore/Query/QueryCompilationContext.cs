@@ -55,6 +55,7 @@ public class QueryCompilationContext
     private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
     private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
+    private readonly IQueryExpressionInterceptor? _queryExpressionInterceptor;
 
     private readonly ExpressionPrinter _expressionPrinter;
 
@@ -84,6 +85,7 @@ public class QueryCompilationContext
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
 
         _expressionPrinter = new ExpressionPrinter();
+        _queryExpressionInterceptor = dependencies.Interceptors.Aggregate<IQueryExpressionInterceptor>();
     }
 
     /// <summary>
@@ -156,11 +158,12 @@ public class QueryCompilationContext
     /// <returns>Returns <see cref="Func{QueryContext, TResult}" /> which can be invoked to get results of this query.</returns>
     public virtual Func<QueryContext, TResult> CreateQueryExecutor<TResult>(Expression query)
     {
-        Logger.QueryCompilationStarting(_expressionPrinter, query);
+        var queryAndEventData = Logger.QueryCompilationStarting(Dependencies.Context, _expressionPrinter, query);
+        query = queryAndEventData.Query;
 
         query = _queryTranslationPreprocessorFactory.Create(this).Process(query);
         // Convert EntityQueryable to ShapedQueryExpression
-        query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Visit(query);
+        query = _queryableMethodTranslatingExpressionVisitorFactory.Create(this).Translate(query);
         query = _queryTranslationPostprocessorFactory.Create(this).Process(query);
 
         // Inject actual entity materializer
@@ -181,7 +184,7 @@ public class QueryCompilationContext
         }
         finally
         {
-            Logger.QueryExecutionPlanned(_expressionPrinter, queryExecutorExpression);
+            Logger.QueryExecutionPlanned(Dependencies.Context, _expressionPrinter, queryExecutorExpression);
         }
     }
 

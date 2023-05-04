@@ -57,20 +57,16 @@ public static class SqlServerServiceCollectionExtensions
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
     public static IServiceCollection AddSqlServer<TContext>(
         this IServiceCollection serviceCollection,
-        string connectionString,
+        string? connectionString,
         Action<SqlServerDbContextOptionsBuilder>? sqlServerOptionsAction = null,
         Action<DbContextOptionsBuilder>? optionsAction = null)
         where TContext : DbContext
-    {
-        Check.NotEmpty(connectionString, nameof(connectionString));
-
-        return serviceCollection.AddDbContext<TContext>(
+        => serviceCollection.AddDbContext<TContext>(
             (_, options) =>
             {
                 optionsAction?.Invoke(options);
                 options.UseSqlServer(connectionString, sqlServerOptionsAction);
             });
-    }
 
     /// <summary>
     ///     <para>
@@ -110,6 +106,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IEvaluatableExpressionFilter, SqlServerEvaluatableExpressionFilter>()
             .TryAdd<IRelationalTransactionFactory, SqlServerTransactionFactory>()
             .TryAdd<IModificationCommandBatchFactory, SqlServerModificationCommandBatchFactory>()
+            .TryAdd<IModificationCommandFactory, SqlServerModificationCommandFactory>()
             .TryAdd<IValueGeneratorSelector, SqlServerValueGeneratorSelector>()
             .TryAdd<IRelationalConnection>(p => p.GetRequiredService<ISqlServerConnection>())
             .TryAdd<IMigrationsSqlGenerator, SqlServerMigrationsSqlGenerator>()
@@ -123,6 +120,7 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<IAggregateMethodCallTranslatorProvider, SqlServerAggregateMethodCallTranslatorProvider>()
             .TryAdd<IMemberTranslatorProvider, SqlServerMemberTranslatorProvider>()
             .TryAdd<IQuerySqlGeneratorFactory, SqlServerQuerySqlGeneratorFactory>()
+            .TryAdd<IQueryTranslationPreprocessorFactory, SqlServerQueryTranslationPreprocessorFactory>()
             .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqlServerSqlTranslatingExpressionVisitorFactory>()
             .TryAdd<ISqlExpressionFactory, SqlServerSqlExpressionFactory>()
             .TryAdd<IQueryTranslationPostprocessorFactory, SqlServerQueryTranslationPostprocessorFactory>()
@@ -130,8 +128,10 @@ public static class SqlServerServiceCollectionExtensions
             .TryAdd<INavigationExpansionExtensibilityHelper, SqlServerNavigationExpansionExtensibilityHelper>()
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqlServerQueryableMethodTranslatingExpressionVisitorFactory>()
             .TryAdd<IExceptionDetector, SqlServerExceptionDetector>()
+            .TryAdd<ISingletonOptions, ISqlServerSingletonOptions>(p => p.GetRequiredService<ISqlServerSingletonOptions>())
             .TryAddProviderSpecificServices(
                 b => b
+                    .TryAddSingleton<ISqlServerSingletonOptions, SqlServerSingletonOptions>()
                     .TryAddSingleton<ISqlServerValueGeneratorCache, SqlServerValueGeneratorCache>()
                     .TryAddSingleton<ISqlServerUpdateSqlGenerator, SqlServerUpdateSqlGenerator>()
                     .TryAddSingleton<ISqlServerSequenceValueGeneratorFactory, SqlServerSequenceValueGeneratorFactory>()

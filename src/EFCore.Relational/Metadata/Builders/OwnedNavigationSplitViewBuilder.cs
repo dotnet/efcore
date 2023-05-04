@@ -21,7 +21,8 @@ public class OwnedNavigationSplitViewBuilder : IInfrastructure<OwnedNavigationBu
     [EntityFrameworkInternal]
     public OwnedNavigationSplitViewBuilder(in StoreObjectIdentifier storeObject, OwnedNavigationBuilder ownedNavigationBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.View,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.View,
             "StoreObjectType should be View, not " + storeObject.StoreObjectType);
 
         MappingFragment = EntityTypeMappingFragment.GetOrCreate(
@@ -32,12 +33,14 @@ public class OwnedNavigationSplitViewBuilder : IInfrastructure<OwnedNavigationBu
     /// <summary>
     ///     The specified view name.
     /// </summary>
-    public virtual string Name => MappingFragment.StoreObject.Name;
+    public virtual string Name
+        => MappingFragment.StoreObject.Name;
 
     /// <summary>
     ///     The specified view schema.
     /// </summary>
-    public virtual string? Schema => MappingFragment.StoreObject.Schema;
+    public virtual string? Schema
+        => MappingFragment.StoreObject.Schema;
 
     /// <summary>
     ///     The mapping fragment being configured.
@@ -65,7 +68,24 @@ public class OwnedNavigationSplitViewBuilder : IInfrastructure<OwnedNavigationBu
     public virtual ViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
         => new(MappingFragment.StoreObject, OwnedNavigationBuilder.Property<TProperty>(propertyName));
 
-    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance => OwnedNavigationBuilder;
+    /// <summary>
+    ///     Adds or updates an annotation on the view. If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual OwnedNavigationSplitViewBuilder HasAnnotation(string annotation, object? value)
+    {
+        Check.NotEmpty(annotation, nameof(annotation));
+
+        ((EntityTypeMappingFragment)MappingFragment).Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    OwnedNavigationBuilder IInfrastructure<OwnedNavigationBuilder>.Instance
+        => OwnedNavigationBuilder;
 
     #region Hidden System.Object members
 

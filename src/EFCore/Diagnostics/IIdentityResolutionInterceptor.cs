@@ -4,12 +4,12 @@
 namespace Microsoft.EntityFrameworkCore.Diagnostics;
 
 /// <summary>
-///     Allows interception of identity resolution conflicts when the <see cref="DbContext"/> starts tracking new entity
+///     Allows interception of identity resolution conflicts when the <see cref="DbContext" /> starts tracking new entity
 ///     instances.
 /// </summary>
 /// <remarks>
 ///     <para>
-///         A <see cref="DbContext"/> can only track one entity instance with any given primary key value. This means multiple instances
+///         A <see cref="DbContext" /> can only track one entity instance with any given primary key value. This means multiple instances
 ///         of an entity with the same key value must be resolved to a single instance. An interceptor of this type can be used to do
 ///         this. It is called with the existing tracked instance and the new instance and must apply any property values and relationship
 ///         changes from the new instance into the existing instance. The new instance is then discarded.
@@ -31,12 +31,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics;
 public interface IIdentityResolutionInterceptor : IInterceptor
 {
     /// <summary>
-    ///     Called when a <see cref="DbContext"/> attempts to track a new instance of an entity with the same primary key value as
+    ///     Called when a <see cref="DbContext" /> attempts to track a new instance of an entity with the same primary key value as
     ///     an already tracked instance. This method must apply any property values and relationship changes from the new instance
     ///     into the existing instance. The new instance is then discarded.
     /// </summary>
-    /// <param name="context">The <see cref="DbContext"/> is use.</param>
+    /// <param name="interceptionData">Contextual information about the identity resolution.</param>
     /// <param name="existingEntry">The entry for the existing tracked entity instance.</param>
-    /// <param name="newInstance">The new entity instance, which will be discarded after this call.</param>
-    void UpdateTrackedInstance(DbContext context, EntityEntry existingEntry, object newInstance);
+    /// <param name="newEntity">The new entity instance, which will be discarded after this call.</param>
+    void UpdateTrackedInstance(IdentityResolutionInterceptionData interceptionData, EntityEntry existingEntry, object newEntity);
 }

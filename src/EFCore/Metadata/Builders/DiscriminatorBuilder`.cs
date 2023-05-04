@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -48,7 +50,8 @@ public class DiscriminatorBuilder<TDiscriminator>
     /// <typeparam name="TEntity">The entity type for which a discriminator value is being set.</typeparam>
     /// <param name="value">The discriminator value.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
-    public virtual DiscriminatorBuilder<TDiscriminator> HasValue<TEntity>(TDiscriminator value)
+    public virtual DiscriminatorBuilder<TDiscriminator> HasValue
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>(TDiscriminator value)
         => HasValue(typeof(TEntity), value);
 
     /// <summary>
@@ -57,7 +60,9 @@ public class DiscriminatorBuilder<TDiscriminator>
     /// <param name="entityType">The entity type for which a discriminator value is being set.</param>
     /// <param name="value">The discriminator value.</param>
     /// <returns>The same builder so that multiple calls can be chained.</returns>
-    public virtual DiscriminatorBuilder<TDiscriminator> HasValue(Type entityType, TDiscriminator value)
+    public virtual DiscriminatorBuilder<TDiscriminator> HasValue(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type entityType,
+        TDiscriminator value)
         => new(Builder.HasValue(entityType, value));
 
     /// <summary>

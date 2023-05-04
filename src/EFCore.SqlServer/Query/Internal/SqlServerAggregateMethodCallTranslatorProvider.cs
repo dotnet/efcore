@@ -21,10 +21,14 @@ public class SqlServerAggregateMethodCallTranslatorProvider : RelationalAggregat
         : base(dependencies)
     {
         var sqlExpressionFactory = dependencies.SqlExpressionFactory;
+        var typeMappingSource = dependencies.RelationalTypeMappingSource;
+
         AddTranslators(
             new IAggregateMethodCallTranslator[]
             {
-                new SqlServerLongCountMethodTranslator(sqlExpressionFactory)
+                new SqlServerLongCountMethodTranslator(sqlExpressionFactory),
+                new SqlServerStatisticsAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource),
+                new SqlServerStringAggregateMethodTranslator(sqlExpressionFactory, typeMappingSource)
             });
     }
 }

@@ -46,6 +46,15 @@ public class InMemorySingletonOptions : IInMemorySingletonOptions
                     nameof(InMemoryDbContextOptionsExtensions.UseInMemoryDatabase),
                     nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
         }
+
+        if (inMemoryOptions != null
+            && IsNullabilityCheckEnabled != inMemoryOptions.IsNullabilityCheckEnabled)
+        {
+            throw new InvalidOperationException(
+                CoreStrings.SingletonOptionChanged(
+                    nameof(InMemoryDbContextOptionsBuilder.EnableNullChecks),
+                    nameof(DbContextOptionsBuilder.UseInternalServiceProvider)));
+        }
     }
 
     /// <summary>

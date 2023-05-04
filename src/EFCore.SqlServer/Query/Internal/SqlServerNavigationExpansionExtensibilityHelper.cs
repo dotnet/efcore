@@ -30,7 +30,7 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override QueryRootExpression CreateQueryRoot(IEntityType entityType, QueryRootExpression? source)
+    public override EntityQueryRootExpression CreateQueryRoot(IEntityType entityType, EntityQueryRootExpression? source)
     {
         if (source is TemporalAsOfQueryRootExpression asOf)
         {
@@ -49,7 +49,7 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override void ValidateQueryRootCreation(IEntityType entityType, QueryRootExpression? source)
+    public override void ValidateQueryRootCreation(IEntityType entityType, EntityQueryRootExpression? source)
     {
         if (source is TemporalQueryRootExpression)
         {
@@ -75,7 +75,7 @@ public class SqlServerNavigationExpansionExtensibilityHelper : NavigationExpansi
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override bool AreQueryRootsCompatible(QueryRootExpression? first, QueryRootExpression? second)
+    public override bool AreQueryRootsCompatible(EntityQueryRootExpression? first, EntityQueryRootExpression? second)
     {
         if (!base.AreQueryRootsCompatible(first, second))
         {

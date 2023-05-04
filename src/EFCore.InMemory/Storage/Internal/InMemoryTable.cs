@@ -23,6 +23,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     private readonly Dictionary<TKey, object?[]> _rows;
     private readonly IList<(int, ValueConverter)>? _valueConverters;
     private readonly IList<(int, ValueComparer)>? _valueComparers;
+    private readonly int _propertyCount;
 
     private Dictionary<int, IInMemoryIntegerValueGenerator>? _integerGenerators;
 
@@ -38,14 +39,15 @@ public class InMemoryTable<TKey> : IInMemoryTable
         bool sensitiveLoggingEnabled,
         bool nullabilityCheckEnabled)
     {
-        EntityType = entityType;
         BaseTable = baseTable;
         _keyValueFactory = entityType.FindPrimaryKey()!.GetPrincipalKeyValueFactory<TKey>();
         _sensitiveLoggingEnabled = sensitiveLoggingEnabled;
         _nullabilityCheckEnabled = nullabilityCheckEnabled;
         _rows = new Dictionary<TKey, object?[]>(_keyValueFactory.EqualityComparer);
+        var properties = entityType.GetProperties().ToList();
+        _propertyCount = properties.Count;
 
-        foreach (var property in entityType.GetProperties())
+        foreach (var property in properties)
         {
             var converter = property.GetValueConverter()
                 ?? property.FindTypeMapping()?.Converter;
@@ -72,14 +74,6 @@ public class InMemoryTable<TKey> : IInMemoryTable
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IInMemoryTable? BaseTable { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual IEntityType EntityType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -130,13 +124,11 @@ public class InMemoryTable<TKey> : IInMemoryTable
     {
         var rows = _rows.Values.ToList();
         var rowCount = rows.Count;
-        var properties = EntityType.GetProperties().ToList();
-        var propertyCount = properties.Count;
 
         for (var rowIndex = 0; rowIndex < rowCount; rowIndex++)
         {
-            var snapshotRow = new object?[propertyCount];
-            Array.Copy(rows[rowIndex], snapshotRow, propertyCount);
+            var snapshotRow = new object?[_propertyCount];
+            Array.Copy(rows[rowIndex], snapshotRow, _propertyCount);
 
             if (_valueConverters != null)
             {
@@ -169,7 +161,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Create(IUpdateEntry entry)
+    public virtual void Create(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
         var properties = entry.EntityType.GetProperties().ToList();
         var row = new object?[properties.Count];
@@ -199,7 +191,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Delete(IUpdateEntry entry)
+    public virtual void Delete(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
         var key = CreateKey(entry);
 
@@ -215,14 +207,19 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
             if (concurrencyConflicts.Count > 0)
             {
-                ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
+                ThrowUpdateConcurrencyException(entry, concurrencyConflicts, updateLogger);
             }
 
             _rows.Remove(key);
         }
         else
         {
-            throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
+            var entries = new[] { entry };
+            var exception = new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, entries);
+            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
+            {
+                throw exception;
+            }
         }
     }
 
@@ -263,7 +260,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void Update(IUpdateEntry entry)
+    public virtual void Update(IUpdateEntry entry, IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
         var key = CreateKey(entry);
 
@@ -294,7 +291,7 @@ public class InMemoryTable<TKey> : IInMemoryTable
 
             if (concurrencyConflicts.Count > 0)
             {
-                ThrowUpdateConcurrencyException(entry, concurrencyConflicts);
+                ThrowUpdateConcurrencyException(entry, concurrencyConflicts, updateLogger);
             }
 
             if (nullabilityErrors.Count > 0)
@@ -308,7 +305,12 @@ public class InMemoryTable<TKey> : IInMemoryTable
         }
         else
         {
-            throw new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, new[] { entry });
+            var entries = new[] { entry };
+            var exception = new DbUpdateConcurrencyException(InMemoryStrings.UpdateConcurrencyException, entries);
+            if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
+            {
+                throw exception;
+            }
         }
     }
 
@@ -394,34 +396,41 @@ public class InMemoryTable<TKey> : IInMemoryTable
     }
 
     /// <summary>
-    ///     Throws an exception indicating that concurrency conflicts were detected.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    /// <param name="entry">The update entry which resulted in the conflict(s).</param>
-    /// <param name="concurrencyConflicts">The conflicting properties with their associated database values.</param>
     protected virtual void ThrowUpdateConcurrencyException(
         IUpdateEntry entry,
-        Dictionary<IProperty, object?> concurrencyConflicts)
+        Dictionary<IProperty, object?> concurrencyConflicts,
+        IDiagnosticsLogger<DbLoggerCategory.Update> updateLogger)
     {
-        if (_sensitiveLoggingEnabled)
-        {
-            throw new DbUpdateConcurrencyException(
-                InMemoryStrings.UpdateConcurrencyTokenExceptionSensitive(
-                    entry.EntityType.DisplayName(),
-                    entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
-                    entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
-                    "{"
-                    + string.Join(
-                        ", ",
-                        concurrencyConflicts.Select(
-                            c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
-                    + "}"),
-                new[] { entry });
-        }
+        var entries = new[] { entry };
 
-        throw new DbUpdateConcurrencyException(
-            InMemoryStrings.UpdateConcurrencyTokenException(
-                entry.EntityType.DisplayName(),
-                concurrencyConflicts.Keys.Format()),
-            new[] { entry });
+        var exception =
+            _sensitiveLoggingEnabled
+                ? new DbUpdateConcurrencyException(
+                    InMemoryStrings.UpdateConcurrencyTokenExceptionSensitive(
+                        entry.EntityType.DisplayName(),
+                        entry.BuildCurrentValuesString(entry.EntityType.FindPrimaryKey()!.Properties),
+                        entry.BuildOriginalValuesString(concurrencyConflicts.Keys),
+                        "{"
+                        + string.Join(
+                            ", ",
+                            concurrencyConflicts.Select(
+                                c => c.Key.Name + ": " + Convert.ToString(c.Value, CultureInfo.InvariantCulture)))
+                        + "}"),
+                    entries)
+                : new DbUpdateConcurrencyException(
+                    InMemoryStrings.UpdateConcurrencyTokenException(
+                        entry.EntityType.DisplayName(),
+                        concurrencyConflicts.Keys.Format()),
+                    entries);
+
+        if (!updateLogger.OptimisticConcurrencyException(entry.Context, entries, exception, null).IsSuppressed)
+        {
+            throw exception;
+        }
     }
 }

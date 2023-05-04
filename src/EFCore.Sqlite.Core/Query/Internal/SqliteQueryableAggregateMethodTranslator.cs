@@ -34,7 +34,9 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual SqlExpression? Translate(
-        MethodInfo method, EnumerableExpression source, IReadOnlyList<SqlExpression> arguments,
+        MethodInfo method,
+        EnumerableExpression source,
+        IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
         if (method.DeclaringType == typeof(Queryable))
@@ -45,20 +47,22 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
             switch (methodInfo.Name)
             {
                 case nameof(Queryable.Average)
-                when (QueryableMethods.IsAverageWithoutSelector(methodInfo)
-                    || QueryableMethods.IsAverageWithSelector(methodInfo))
+                    when (QueryableMethods.IsAverageWithoutSelector(methodInfo)
+                        || QueryableMethods.IsAverageWithSelector(methodInfo))
                     && source.Selector is SqlExpression averageSqlExpression:
                     var averageArgumentType = GetProviderType(averageSqlExpression);
                     if (averageArgumentType == typeof(decimal))
                     {
                         throw new NotSupportedException(
-                            SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Average), averageArgumentType.ShortDisplayName()));
+                            SqliteStrings.AggregateOperationNotSupported(
+                                nameof(Queryable.Average), averageArgumentType.ShortDisplayName()));
                     }
+
                     break;
 
                 case nameof(Queryable.Max)
-                when (methodInfo == QueryableMethods.MaxWithoutSelector
-                    || methodInfo == QueryableMethods.MaxWithSelector)
+                    when (methodInfo == QueryableMethods.MaxWithoutSelector
+                        || methodInfo == QueryableMethods.MaxWithSelector)
                     && source.Selector is SqlExpression maxSqlExpression:
                     var maxArgumentType = GetProviderType(maxSqlExpression);
                     if (maxArgumentType == typeof(DateTimeOffset)
@@ -69,11 +73,12 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Max), maxArgumentType.ShortDisplayName()));
                     }
+
                     break;
 
                 case nameof(Queryable.Min)
-                when (methodInfo == QueryableMethods.MinWithoutSelector
-                    || methodInfo == QueryableMethods.MinWithSelector)
+                    when (methodInfo == QueryableMethods.MinWithoutSelector
+                        || methodInfo == QueryableMethods.MinWithSelector)
                     && source.Selector is SqlExpression minSqlExpression:
                     var minArgumentType = GetProviderType(minSqlExpression);
                     if (minArgumentType == typeof(DateTimeOffset)
@@ -84,11 +89,12 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Min), minArgumentType.ShortDisplayName()));
                     }
+
                     break;
 
                 case nameof(Queryable.Sum)
-                when (QueryableMethods.IsSumWithoutSelector(methodInfo)
-                    || QueryableMethods.IsSumWithSelector(methodInfo))
+                    when (QueryableMethods.IsSumWithoutSelector(methodInfo)
+                        || QueryableMethods.IsSumWithSelector(methodInfo))
                     && source.Selector is SqlExpression sumSqlExpression:
                     var sumArgumentType = GetProviderType(sumSqlExpression);
                     if (sumArgumentType == typeof(decimal))
@@ -96,6 +102,7 @@ public class SqliteQueryableAggregateMethodTranslator : IAggregateMethodCallTran
                         throw new NotSupportedException(
                             SqliteStrings.AggregateOperationNotSupported(nameof(Queryable.Sum), sumArgumentType.ShortDisplayName()));
                     }
+
                     break;
             }
         }

@@ -110,7 +110,8 @@ public abstract class NotificationEntitiesTestBase<TFixture> : IClassFixture<TFi
 
     public abstract class NotificationEntitiesFixtureBase : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "NotificationEntities";
+        protected override string StoreName
+            => "NotificationEntities";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

@@ -20,8 +20,8 @@ public class FunctionColumnMapping : ColumnMappingBase, IFunctionColumnMapping
     public FunctionColumnMapping(
         IProperty property,
         FunctionColumn column,
-        FunctionMapping viewMapping)
-        : base(property, column, viewMapping)
+        FunctionMapping functionMapping)
+        : base(property, column, functionMapping)
     {
     }
 

@@ -30,7 +30,7 @@ public class DbConnectionInterceptorAggregator : InterceptorAggregator<IDbConnec
         }
 
         public InterceptionResult<DbConnection> ConnectionCreating(
-            ConnectionCreatingEventData eventData, 
+            ConnectionCreatingEventData eventData,
             InterceptionResult<DbConnection> result)
         {
             for (var i = 0; i < _interceptors.Length; i++)
@@ -42,7 +42,7 @@ public class DbConnectionInterceptorAggregator : InterceptorAggregator<IDbConnec
         }
 
         public DbConnection ConnectionCreated(
-            ConnectionCreatedEventData eventData, 
+            ConnectionCreatedEventData eventData,
             DbConnection result)
         {
             for (var i = 0; i < _interceptors.Length; i++)

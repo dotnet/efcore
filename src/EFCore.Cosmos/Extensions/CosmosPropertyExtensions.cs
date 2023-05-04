@@ -66,14 +66,10 @@ public static class CosmosPropertyExtensions
         this IConventionProperty property,
         string? name,
         bool fromDataAnnotation = false)
-    {
-        property.SetOrRemoveAnnotation(
+        => (string?)property.SetOrRemoveAnnotation(
             CosmosAnnotationNames.PropertyName,
             name,
-            fromDataAnnotation);
-
-        return name;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> the property name that the property is mapped to when targeting Cosmos.

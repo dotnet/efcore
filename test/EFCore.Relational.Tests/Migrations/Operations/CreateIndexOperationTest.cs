@@ -18,4 +18,16 @@ public class CreateIndexOperationTest
         operation.Columns = new[] { "X", "Y" };
         Assert.Throws<ArgumentException>(() => operation.IsDescending = new[] { true });
     }
+
+    [ConditionalFact]
+    public void IsDescending_accepts_empty_array()
+    {
+        var operation = new CreateIndexOperation();
+
+        operation.IsDescending = Array.Empty<bool>();
+        operation.Columns = new[] { "X", "Y" };
+
+        operation.IsDescending = null;
+        operation.IsDescending = Array.Empty<bool>();
+    }
 }

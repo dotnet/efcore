@@ -10,12 +10,12 @@ public class ExpressionPrinterTest
     [ConditionalFact]
     public void UnaryExpression_printed_correctly()
     {
-        Assert.Equal("(decimal)42", _expressionPrinter.Print(Expression.Convert(Expression.Constant(42), typeof(decimal))));
-        Assert.Equal("throw \"Some exception\"", _expressionPrinter.Print(Expression.Throw(Expression.Constant("Some exception"))));
-        Assert.Equal("!(True)", _expressionPrinter.Print(Expression.Not(Expression.Constant(true))));
+        Assert.Equal("(decimal)42", _expressionPrinter.PrintExpression(Expression.Convert(Expression.Constant(42), typeof(decimal))));
+        Assert.Equal("throw \"Some exception\"", _expressionPrinter.PrintExpression(Expression.Throw(Expression.Constant("Some exception"))));
+        Assert.Equal("!(True)", _expressionPrinter.PrintExpression(Expression.Not(Expression.Constant(true))));
         Assert.Equal(
             "(BaseClass as DerivedClass)",
-            _expressionPrinter.Print(Expression.TypeAs(Expression.Constant(new BaseClass()), typeof(DerivedClass))));
+            _expressionPrinter.PrintExpression(Expression.TypeAs(Expression.Constant(new BaseClass()), typeof(DerivedClass))));
     }
 
     private class BaseClass
@@ -31,65 +31,65 @@ public class ExpressionPrinterTest
     {
         Assert.Equal(
             "7 == 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Equal, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 != 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.NotEqual, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.NotEqual, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 > 42",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.GreaterThan, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 >= 42",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.GreaterThanOrEqual, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 < 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.LessThan, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.LessThan, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 <= 42",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.LessThanOrEqual, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "True && True",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.AndAlso, Expression.Constant(true), Expression.Constant(true))));
         Assert.Equal(
             "True || True",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.OrElse, Expression.Constant(true), Expression.Constant(true))));
         Assert.Equal(
             "7 & 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.And, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.And, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 | 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Or, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Or, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 ^ 42",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.MakeBinary(ExpressionType.ExclusiveOr, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 + 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Add, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Add, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 - 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Subtract, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Subtract, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 * 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Multiply, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Multiply, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 / 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Divide, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Divide, Expression.Constant(7), Expression.Constant(42))));
         Assert.Equal(
             "7 % 42",
-            _expressionPrinter.Print(Expression.MakeBinary(ExpressionType.Modulo, Expression.Constant(7), Expression.Constant(42))));
+            _expressionPrinter.PrintExpression(Expression.MakeBinary(ExpressionType.Modulo, Expression.Constant(7), Expression.Constant(42))));
     }
 
     [ConditionalFact]
     public void ConditionalExpression_printed_correctly()
         => Assert.Equal(
             "True ? \"Foo\" : \"Bar\"",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Condition(
                     Expression.Constant(true),
                     Expression.Constant("Foo"),
@@ -99,7 +99,7 @@ public class ExpressionPrinterTest
     public void Simple_lambda_printed_correctly()
         => Assert.Equal(
             "prm => 42",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Lambda(
                     Expression.Constant(42),
                     Expression.Parameter(typeof(int), "prm"))));
@@ -108,7 +108,7 @@ public class ExpressionPrinterTest
     public void Multi_parameter_lambda_printed_correctly()
         => Assert.Equal(
             "(prm1, prm2) => 42",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Lambda(
                     Expression.Constant(42),
                     Expression.Parameter(typeof(int), "prm1"),
@@ -118,7 +118,7 @@ public class ExpressionPrinterTest
     public void Unhandled_parameter_in_lambda_detected()
         => Assert.Equal(
             "prm1{0} => (Unhandled parameter: prm2){1}",
-            _expressionPrinter.PrintDebug(
+            _expressionPrinter.PrintExpressionDebug(
                 Expression.Lambda(
                     Expression.Parameter(typeof(int), "prm2"),
                     Expression.Parameter(typeof(int), "prm1"))));
@@ -127,7 +127,7 @@ public class ExpressionPrinterTest
     public void MemberAccess_after_BinaryExpression_adds_parentheses()
         => Assert.Equal(
             @"(7 + 42).Value",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Property(
                     Expression.Add(
                         Expression.Constant(7, typeof(int?)),
@@ -138,7 +138,7 @@ public class ExpressionPrinterTest
     public void Simple_MethodCall_printed_correctly()
         => Assert.Equal(
             @"""Foo"".ToUpper()",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Call(
                     Expression.Constant("Foo"),
                     typeof(string).GetMethods().Single(m => m.Name == nameof(string.ToUpper) && m.GetParameters().Count() == 0))));
@@ -150,7 +150,7 @@ public class ExpressionPrinterTest
             + @".Substring(
     startIndex: 0, 
     length: 4)",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Call(
                     Expression.Constant("Foobar"),
                     typeof(string).GetMethods().Single(m => m.Name == nameof(string.Substring) && m.GetParameters().Count() == 2),
@@ -175,7 +175,7 @@ public class ExpressionPrinterTest
     .Select(x => x.ToString())
     .AsEnumerable()
     .Where(x => x.Length > 1)",
-            _expressionPrinter.Print(expr.Body),
+            _expressionPrinter.PrintExpression(expr.Body),
             ignoreLineEndingDifferences: true);
     }
 
@@ -183,7 +183,7 @@ public class ExpressionPrinterTest
     public void Enumerable_Constant_printed_correctly()
         => Assert.Equal(
             @"int[] { 1, 2, 3 }",
-            _expressionPrinter.Print(
+            _expressionPrinter.PrintExpression(
                 Expression.Constant(
                     new[] { 1, 2, 3 })));
 }

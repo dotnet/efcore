@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -45,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 ///     </para>
 /// </remarks>
 /// <typeparam name="TEntity">The type of the entity in the local view.</typeparam>
-public class LocalView<TEntity> :
+public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity> :
     ICollection<TEntity>,
     INotifyCollectionChanged,
     INotifyPropertyChanged,
@@ -56,7 +57,9 @@ public class LocalView<TEntity> :
     private ObservableBackedBindingList<TEntity>? _bindingList;
     private ObservableCollection<TEntity>? _observable;
     private readonly DbContext _context;
+    private readonly IEntityType _entityType;
     private int _countChanges;
+    private IEntityFinder<TEntity>? _finder;
     private int? _count;
     private bool _triggeringStateManagerChange;
     private bool _triggeringObservableChange;
@@ -72,6 +75,7 @@ public class LocalView<TEntity> :
     public LocalView(DbSet<TEntity> set)
     {
         _context = set.GetService<ICurrentDbContext>().Context;
+        _entityType = set.EntityType;
 
         set.GetService<ILocalViewListener>().RegisterView(StateManagerChangedHandler);
     }
@@ -208,7 +212,7 @@ public class LocalView<TEntity> :
         // to Add it again since doing so would change its state to Added, which is probably not what
         // was wanted in this case.
 
-        var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item);
+        var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item, _entityType);
         if (entry.EntityState == EntityState.Deleted
             || entry.EntityState == EntityState.Detached)
         {
@@ -271,7 +275,9 @@ public class LocalView<TEntity> :
     {
         var entry = _context.GetDependencies().StateManager.TryGetEntry(item);
 
-        return entry != null && entry.EntityState != EntityState.Deleted;
+        return entry != null
+            && entry.EntityState != EntityState.Deleted
+            && entry.EntityState != EntityState.Detached;
     }
 
     /// <summary>
@@ -469,6 +475,8 @@ public class LocalView<TEntity> :
     ///     examples.
     /// </remarks>
     /// <returns>The binding list.</returns>
+    [RequiresUnreferencedCode(
+        "BindingList raises ListChanged events with PropertyDescriptors. PropertyDescriptors require unreferenced code.")]
     public virtual BindingList<TEntity> ToBindingList()
         => _bindingList ??= new ObservableBackedBindingList<TEntity>(ToObservableCollection());
 
@@ -492,4 +500,362 @@ public class LocalView<TEntity> :
     /// </summary>
     bool IListSource.ContainsListCollection
         => false;
+
+    /// <summary>
+    ///     Resets this view, clearing any <see cref="IBindingList" /> created with <see cref="ToBindingList" /> and
+    ///     any <see cref="ObservableCollection{T}" /> created with <see cref="ToObservableCollection" />, and clearing any
+    ///     events registered on <see cref="PropertyChanged" />, <see cref="PropertyChanging" />, or <see cref="CollectionChanged" />.
+    /// </summary>
+    public virtual void Reset()
+    {
+        _bindingList = null;
+        _observable = null;
+        _countChanges = 0;
+        _count = 0;
+        _triggeringStateManagerChange = false;
+        _triggeringObservableChange = false;
+        _triggeringLocalViewChange = false;
+        PropertyChanged = null;
+        PropertyChanging = null;
+        CollectionChanged = null;
+    }
+
+    /// <summary>
+    ///     Finds an <see cref="EntityEntry{TEntity}" /> for the entity with the given primary key value in the change tracker, if it is
+    ///     being tracked. <see langword="null" /> is returned if no entity with the given key value is being tracked.
+    ///     This method never queries the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TKey">The type of the primary key property.</typeparam>
+    /// <param name="keyValue">The value of the primary key for the entity to be found.</param>
+    /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
+    public virtual EntityEntry<TEntity>? FindEntry<TKey>(TKey keyValue)
+    {
+        var internalEntityEntry = Finder.FindEntry(keyValue);
+
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
+    }
+
+    /// <summary>
+    ///     Finds an <see cref="EntityEntry{TEntity}" /> for the entity with the given primary key values in the change tracker, if it is
+    ///     being tracked. <see langword="null" /> is returned if no entity with the given key values is being tracked.
+    ///     This method never queries the database.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="keyValues">The values of the primary key for the entity to be found.</param>
+    /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
+    public virtual EntityEntry<TEntity>? FindEntryUntyped(IEnumerable<object?> keyValues)
+    {
+        Check.NotNull(keyValues, nameof(keyValues));
+
+        var internalEntityEntry = Finder.FindEntry(keyValues);
+
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
+    }
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry{TEntity}" /> for the first entity being tracked by the context where the value of the
+    ///     given property matches the given value. The entry provide access to change tracking information and operations for the entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key value.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to match.</param>
+    /// <param name="propertyValue">The value of the property to match.</param>
+    /// <typeparam name="TProperty">The type of the property value.</typeparam>
+    /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
+    public virtual EntityEntry<TEntity>? FindEntry<TProperty>(string propertyName, TProperty? propertyValue)
+        => FindEntry(FindAndValidateProperty<TProperty>(propertyName), propertyValue);
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry{TEntity}" /> for the first entity being tracked by the context where the value of the
+    ///     given property matches the given values. The entry provide access to change tracking information and operations for the entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="propertyNames">The name of the properties to match.</param>
+    /// <param name="propertyValues">The values of the properties to match.</param>
+    /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
+    public virtual EntityEntry<TEntity>? FindEntry(IEnumerable<string> propertyNames, IEnumerable<object?> propertyValues)
+    {
+        Check.NotNull(propertyNames, nameof(propertyNames));
+
+        return FindEntry(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
+    }
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry{TEntity}" /> for each entity being tracked by the context where the value of the given
+    ///     property matches the given value. The entries provide access to change tracking information and operations for each entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entities with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property values.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         Note that modification of entity state while iterating over the returned enumeration may result in
+    ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+    ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to match.</param>
+    /// <param name="propertyValue">The value of the property to match.</param>
+    /// <typeparam name="TProperty">The type of the property value.</typeparam>
+    /// <returns>An entry for each entity being tracked.</returns>
+    public virtual IEnumerable<EntityEntry<TEntity>> GetEntries<TProperty>(string propertyName, TProperty? propertyValue)
+        => GetEntries(FindAndValidateProperty<TProperty>(propertyName), propertyValue);
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry" /> for each entity being tracked by the context where the values of the given properties
+    ///     matches the given values. The entries provide access to change tracking information and operations for each entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entities with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property values.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         Note that modification of entity state while iterating over the returned enumeration may result in
+    ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+    ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="propertyNames">The name of the properties to match.</param>
+    /// <param name="propertyValues">The values of the properties to match.</param>
+    /// <returns>An entry for each entity being tracked.</returns>
+    public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<string> propertyNames, IEnumerable<object?> propertyValues)
+    {
+        Check.NotNull(propertyNames, nameof(propertyNames));
+
+        return GetEntries(propertyNames.Select(n => _entityType.GetProperty(n)), propertyValues);
+    }
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry{TEntity}" /> for the first entity being tracked by the context where the value of the
+    ///     given property matches the given value. The entry provide access to change tracking information and operations for the entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key value.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="property">The property to match.</param>
+    /// <param name="propertyValue">The value of the property to match.</param>
+    /// <typeparam name="TProperty">The type of the property value.</typeparam>
+    /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
+    public virtual EntityEntry<TEntity>? FindEntry<TProperty>(IProperty property, TProperty? propertyValue)
+    {
+        Check.NotNull(property, nameof(property));
+
+        var internalEntityEntry = Finder.FindEntry(property, propertyValue);
+
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
+    }
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry{TEntity}" /> for the first entity being tracked by the context where the value of the
+    ///     given property matches the given values. The entry provide access to change tracking information and operations for the entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entity with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property value.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="properties">The properties to match.</param>
+    /// <param name="propertyValues">The values of the properties to match.</param>
+    /// <returns>An entry for the entity found, or <see langword="null" />.</returns>
+    public virtual EntityEntry<TEntity>? FindEntry(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
+    {
+        Check.NotNull(properties, nameof(properties));
+        Check.NotNull(propertyValues, nameof(propertyValues));
+
+        var internalEntityEntry = Finder.FindEntry(properties, propertyValues);
+
+        return internalEntityEntry == null ? null : new EntityEntry<TEntity>(internalEntityEntry);
+    }
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry{TEntity}" /> for each entity being tracked by the context where the value of the given
+    ///     property matches the given value. The entries provide access to change tracking information and operations for each entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entities with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property values.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         Note that modification of entity state while iterating over the returned enumeration may result in
+    ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+    ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="property">The property to match.</param>
+    /// <param name="propertyValue">The value of the property to match.</param>
+    /// <typeparam name="TProperty">The type of the property value.</typeparam>
+    /// <returns>An entry for each entity being tracked.</returns>
+    public virtual IEnumerable<EntityEntry<TEntity>> GetEntries<TProperty>(IProperty property, TProperty? propertyValue)
+    {
+        Check.NotNull(property, nameof(property));
+
+        return Finder.GetEntries(property, propertyValue).Select(e => new EntityEntry<TEntity>(e));
+    }
+
+    /// <summary>
+    ///     Returns an <see cref="EntityEntry" /> for each entity being tracked by the context where the values of the given properties
+    ///     matches the given values. The entries provide access to change tracking information and operations for each entity.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This method is frequently used to get the entities with a given non-null foreign key, primary key, or alternate key values.
+    ///         Lookups using a key property like this are more efficient than lookups on other property values.
+    ///     </para>
+    ///     <para>
+    ///         By default, accessing <see cref="DbSet{TEntity}.Local" /> will call <see cref="ChangeTracker.DetectChanges" /> to
+    ///         ensure that all entities searched and returned are up-to-date. Calling this method will not result in another call to
+    ///         <see cref="ChangeTracker.DetectChanges" />. Since this method is commonly used for fast lookups, consider reusing
+    ///         the <see cref="DbSet{TEntity}.Local" /> object for multiple lookups and/or disabling automatic detecting of changes using
+    ///         <see cref="ChangeTracker.AutoDetectChangesEnabled" />.
+    ///     </para>
+    ///     <para>
+    ///         Note that modification of entity state while iterating over the returned enumeration may result in
+    ///         an <see cref="InvalidOperationException" /> indicating that the collection was modified while enumerating.
+    ///         To avoid this, create a defensive copy using <see cref="Enumerable.ToList{TSource}" /> or similar before iterating.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-change-tracking">EF Core change tracking</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <param name="properties">The the properties to match.</param>
+    /// <param name="propertyValues">The values of the properties to match.</param>
+    /// <returns>An entry for each entity being tracked.</returns>
+    public virtual IEnumerable<EntityEntry<TEntity>> GetEntries(IEnumerable<IProperty> properties, IEnumerable<object?> propertyValues)
+    {
+        Check.NotNull(properties, nameof(properties));
+        Check.NotNull(propertyValues, nameof(propertyValues));
+
+        return Finder.GetEntries(properties, propertyValues).Select(e => new EntityEntry<TEntity>(e));
+    }
+
+    private IProperty FindAndValidateProperty<TProperty>(string propertyName)
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+
+        var property = _entityType.GetProperty(propertyName);
+
+        if (property.ClrType != typeof(TProperty))
+        {
+            throw new ArgumentException(
+                CoreStrings.WrongGenericPropertyType(
+                    property.Name,
+                    property.DeclaringEntityType.DisplayName(),
+                    property.ClrType.ShortDisplayName(),
+                    typeof(TProperty).ShortDisplayName()));
+        }
+
+        return property;
+    }
+
+    private IEntityFinder<TEntity> Finder
+        => _finder ??= (IEntityFinder<TEntity>)_context.GetDependencies().EntityFinderFactory.Create(_entityType);
 }

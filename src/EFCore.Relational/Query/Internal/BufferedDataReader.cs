@@ -1264,7 +1264,12 @@ public class BufferedDataReader : DbDataReader
 
                     if (!readerColumns.TryGetValue(column.Name!, out var ordinal))
                     {
-                        throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(column.Name));
+                        if (_columns.Count != 1)
+                        {
+                            throw new InvalidOperationException(RelationalStrings.FromSqlMissingColumn(column.Name));
+                        }
+
+                        ordinal = 0;
                     }
 
                     newColumnMap[ordinal] = column;

@@ -15,9 +15,12 @@ public class TwoDatabasesSqliteTest : TwoDatabasesTestBase, IClassFixture<TwoDat
 
     protected override DbContextOptionsBuilder CreateTestOptions(
         DbContextOptionsBuilder optionsBuilder,
-        bool withConnectionString = false)
+        bool withConnectionString = false,
+        bool withNullConnectionString = false)
         => withConnectionString
-            ? optionsBuilder.UseSqlite(DummyConnectionString)
+            ? withNullConnectionString
+                ? optionsBuilder.UseSqlite((string)null)
+                : optionsBuilder.UseSqlite(DummyConnectionString)
             : optionsBuilder.UseSqlite();
 
     protected override TwoDatabasesWithDataContext CreateBackingContext(string databaseName)

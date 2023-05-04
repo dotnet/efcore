@@ -127,7 +127,8 @@ public class EntityGraphAttacher : IEntityGraphAttacher
                     ? (isGenerated ? storeGenTargetState : targetState)
                     : EntityState.Added, // Key can only be not-set if it is store-generated
                 acceptChanges: true,
-                forceStateWhenUnknownKey: force ? targetState : null);
+                forceStateWhenUnknownKey: force ? targetState : null,
+                fallbackState: targetState);
         }
 
         return true;

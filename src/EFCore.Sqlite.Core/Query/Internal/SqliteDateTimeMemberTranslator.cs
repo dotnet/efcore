@@ -26,7 +26,7 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
             { nameof(DateTime.DayOfWeek), "%w" }
         };
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -34,7 +34,7 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteDateTimeMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqliteDateTimeMemberTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -58,8 +58,7 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
             if (DatePartMapping.TryGetValue(memberName, out var datePart))
             {
                 return _sqlExpressionFactory.Convert(
-                    SqliteExpression.Strftime(
-                        _sqlExpressionFactory,
+                    _sqlExpressionFactory.Strftime(
                         typeof(string),
                         datePart,
                         instance!),
@@ -87,8 +86,7 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
                 return _sqlExpressionFactory.Modulo(
                     _sqlExpressionFactory.Multiply(
                         _sqlExpressionFactory.Convert(
-                            SqliteExpression.Strftime(
-                                _sqlExpressionFactory,
+                            _sqlExpressionFactory.Strftime(
                                 typeof(string),
                                 "%f",
                                 instance!),
@@ -142,8 +140,7 @@ public class SqliteDateTimeMemberTranslator : IMemberTranslator
                         "rtrim",
                         new SqlExpression[]
                         {
-                            SqliteExpression.Strftime(
-                                _sqlExpressionFactory,
+                            _sqlExpressionFactory.Strftime(
                                 returnType,
                                 format,
                                 timestring,

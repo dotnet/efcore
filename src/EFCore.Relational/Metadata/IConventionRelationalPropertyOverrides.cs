@@ -17,6 +17,12 @@ public interface IConventionRelationalPropertyOverrides : IReadOnlyRelationalPro
     new IConventionProperty Property { get; }
 
     /// <summary>
+    ///     Gets the builder that can be used to configure this function.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">If the function has been removed from the model.</exception>
+    new IConventionRelationalPropertyOverridesBuilder Builder { get; }
+
+    /// <summary>
     ///     Returns the configuration source for these overrides.
     /// </summary>
     /// <returns>The configuration source.</returns>
@@ -31,7 +37,7 @@ public interface IConventionRelationalPropertyOverrides : IReadOnlyRelationalPro
     string? SetColumnName(string? name, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///    Removes the column name override.
+    ///     Removes the column name override.
     /// </summary>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>A value indicating whether the column name override was removed. </returns>

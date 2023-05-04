@@ -19,6 +19,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         typeof(byte),
         typeof(byte[]),
         typeof(char),
+        typeof(DateOnly),
         typeof(DateTime),
         typeof(DateTimeOffset),
         typeof(decimal),
@@ -29,6 +30,7 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         typeof(long),
         typeof(sbyte),
         typeof(short),
+        typeof(TimeOnly),
         typeof(TimeSpan),
         typeof(uint),
         typeof(ushort)
@@ -62,6 +64,11 @@ public class SqliteObjectToStringTranslator : IMethodCallTranslator
         if (instance == null || method.Name != nameof(ToString) || arguments.Count != 0)
         {
             return null;
+        }
+
+        if (instance.TypeMapping?.ClrType == typeof(string))
+        {
+            return instance;
         }
 
         if (instance.Type == typeof(bool))

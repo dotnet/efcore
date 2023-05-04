@@ -35,7 +35,8 @@ public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataType
 
     public abstract class ConvertToProviderTypesFixtureBase : BuiltInDataTypesFixtureBase
     {
-        protected override string StoreName { get; } = "ConvertToProviderTypes";
+        protected override string StoreName
+            => "ConvertToProviderTypes";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -172,6 +173,7 @@ public abstract class ConvertToProviderTypesTestBase<TFixture> : BuiltInDataType
                 {
                     b.Property(e => e.String3).HasConversion<byte[]>();
                     b.Property(e => e.String9000).HasConversion<byte[]>();
+                    b.Property(e => e.StringUnbounded).HasConversion<byte[]>();
                     b.Property(e => e.ByteArray5).HasConversion<string>().HasMaxLength(8);
                     b.Property(e => e.ByteArray9000).HasConversion<string>().HasMaxLength(LongStringLength * 2);
                 });

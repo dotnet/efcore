@@ -2237,10 +2237,10 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
-        var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original"};
-        var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original"};
+        var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
+        var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
         originalCategory.AddProduct(originalProduct);
         context.Attach(originalCategory);
 
@@ -2250,8 +2250,8 @@ public class FixupTest
             context.Entry(originalCategory).Property(e => e.Value2).CurrentValue = "Changed";
         }
 
-        var newProduct = new Product(2, 0) { Value1 = "New", Value2 = "New"};
-        var newCategory = new Category(1) { Value1 = "New", Value2 = "New"};
+        var newProduct = new Product(2, 0) { Value1 = "New", Value2 = "New" };
+        var newCategory = new Category(1) { Value1 = "New", Value2 = "New" };
         newProduct.SetCategory(newCategory);
 
         context.Attach(newProduct);
@@ -2296,7 +2296,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2348,7 +2348,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2413,7 +2413,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalCategory = new Category(1) { Value1 = "Original", Value2 = "Original" };
         var originalProduct = new Product(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2465,7 +2465,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2514,12 +2514,15 @@ public class FixupTest
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
     [InlineData(true, true, true)]
-    public void Attaching_one_to_one_duplicate_dependent_with_duplicate_principal_resolves(bool copy, bool preserveModified, bool updateOriginal)
+    public void Attaching_one_to_one_duplicate_dependent_with_duplicate_principal_resolves(
+        bool copy,
+        bool preserveModified,
+        bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2570,7 +2573,7 @@ public class FixupTest
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2621,12 +2624,15 @@ public class FixupTest
     [InlineData(true, false, true)]
     [InlineData(true, true, false)]
     [InlineData(true, true, true)]
-    public void Attaching_one_to_one_duplicate_principal_with_duplicate_dependent_resolves(bool copy, bool preserveModified, bool updateOriginal)
+    public void Attaching_one_to_one_duplicate_principal_with_duplicate_dependent_resolves(
+        bool copy,
+        bool preserveModified,
+        bool updateOriginal)
     {
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalParent = new Parent(1) { Value1 = "Original", Value2 = "Original" };
         var originalChild = new Child(1, 0) { Value1 = "Original", Value2 = "Original" };
@@ -2678,12 +2684,15 @@ public class FixupTest
     [InlineData(true, true, false, true)]
     [InlineData(true, true, true, true)]
     public void Attaching_entity_with_duplicate_many_to_many_resolves(
-        bool copy, bool preserveModified, bool updateOriginal, bool attachCatless)
+        bool copy,
+        bool preserveModified,
+        bool updateOriginal,
+        bool attachCatless)
     {
         using var context = new FixupContext(
             copy
                 ? new UpdatingIdentityResolutionInterceptor(preserveModified, updateOriginal)
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var originalHumans = new Human[]
         {
@@ -2747,6 +2756,7 @@ public class FixupTest
             {
                 context.Entry(human).Property(e => e.Age).CurrentValue--;
             }
+
             foreach (var cat in originalCats)
             {
                 context.Entry(cat).Property(e => e.Age).CurrentValue--;
@@ -3252,7 +3262,7 @@ public class FixupTest
         using var context = new BadBeeContext(
             nameof(BadBeeContext), copy
                 ? new UpdatingIdentityResolutionInterceptor()
-                : new SkippingIdentityResolutionInterceptor());
+                : new IgnoringIdentityResolutionInterceptor());
 
         var b1 = new EntityB { EntityBId = 1, Value = "b1" };
         context.BEntities.Attach(b1);
@@ -3960,7 +3970,8 @@ public class FixupTest
             Assert.Same(principal, dependent.Category);
             Assert.Equal(principal.Id, dependent.CategoryId);
             Assert.Equal(EntityState.Detached, context.Entry(principal).State);
-            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);        }
+            Assert.Equal(EntityState.Deleted, context.Entry(dependent).State);
+        }
     }
 
     [ConditionalFact]
@@ -4049,11 +4060,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 
@@ -4091,11 +4098,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 
@@ -4132,11 +4135,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 
@@ -4173,11 +4172,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 
@@ -4215,11 +4210,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 
@@ -4256,11 +4247,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 
@@ -4297,11 +4284,7 @@ public class FixupTest
             context.Database.EnsureCreated();
 
             context.Add(
-                new FixupBlog
-                {
-                    FixupSite = new(),
-                    Posts = {new() { Tags = { new() }}}
-                });
+                new FixupBlog { FixupSite = new FixupSite(), Posts = { new FixupPost { Tags = { new FixupTag() } } } });
             context.SaveChanges();
         }
 

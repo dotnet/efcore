@@ -16,9 +16,10 @@ public class GraphUpdatesSqliteSnapshotNotificationsTest
 
     public class SqliteFixture : GraphUpdatesSqliteFixtureBase
     {
-        protected override string StoreName { get; } = "GraphUpdatesSnapshotTest";
+        protected override string StoreName
+            => "GraphUpdatesSnapshotTest";
 
-        protected override bool AutoDetectChanges
+        public override bool AutoDetectChanges
             => true;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)

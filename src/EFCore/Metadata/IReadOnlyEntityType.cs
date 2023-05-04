@@ -75,10 +75,17 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         return annotation != null
             ? annotation.Value
             : !ClrType.IsInstantiable()
-                || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
-            ? null
-            : (object)ShortName();
+            || (BaseType == null && GetDirectlyDerivedTypes().Count() == 0)
+                ? null
+                : (object?)GetDefaultDiscriminatorValue();
     }
+
+    /// <summary>
+    ///     Returns the default discriminator value that would be used for this entity type.
+    /// </summary>
+    /// <returns>The default discriminator value for this entity type.</returns>
+    string GetDefaultDiscriminatorValue()
+        => !HasSharedClrType ? ClrType.ShortDisplayName() : ShortName();
 
     /// <summary>
     ///     Gets all types in the model from which a given entity type derives, starting with the root.
@@ -735,6 +742,12 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     IEnumerable<IReadOnlyServiceProperty> GetDerivedServiceProperties();
 
     /// <summary>
+    ///     Checks whether or not this entity type has any <see cref="IServiceProperty" /> defined.
+    /// </summary>
+    /// <returns><see langword="true"/> if there are any service properties defined on this entity type or base types.</returns>
+    bool HasServiceProperties();
+
+    /// <summary>
     ///     Gets all the <see cref="IReadOnlyServiceProperty" /> defined on this entity type.
     /// </summary>
     /// <remarks>
@@ -742,6 +755,18 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
     /// </remarks>
     /// <returns>The service properties defined on this entity type.</returns>
     IEnumerable<IReadOnlyServiceProperty> GetServiceProperties();
+
+    /// <summary>
+    ///     Finds a trigger with the given name.
+    /// </summary>
+    /// <param name="name">The trigger name.</param>
+    /// <returns>The trigger or <see langword="null" /> if no trigger with the given name was found.</returns>
+    IReadOnlyTrigger? FindDeclaredTrigger(string name);
+
+    /// <summary>
+    ///     Returns the declared triggers on the entity type.
+    /// </summary>
+    IEnumerable<IReadOnlyTrigger> GetDeclaredTriggers();
 
     /// <summary>
     ///     <para>
@@ -760,118 +785,125 @@ public interface IReadOnlyEntityType : IReadOnlyTypeBase
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder
-            .Append(indentString)
-            .Append("EntityType: ")
-            .Append(DisplayName());
-
-        if (BaseType != null)
+        try
         {
-            builder.Append(" Base: ").Append(BaseType.DisplayName());
+            builder
+                .Append(indentString)
+                .Append("EntityType: ")
+                .Append(DisplayName());
+
+            if (BaseType != null)
+            {
+                builder.Append(" Base: ").Append(BaseType.DisplayName());
+            }
+
+            if (HasSharedClrType)
+            {
+                builder.Append(" CLR Type: ").Append(ClrType.ShortDisplayName());
+            }
+
+            if (IsAbstract())
+            {
+                builder.Append(" Abstract");
+            }
+
+            if (FindPrimaryKey() == null)
+            {
+                builder.Append(" Keyless");
+            }
+
+            if (IsOwned())
+            {
+                builder.Append(" Owned");
+            }
+
+            if (this is EntityType
+                && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
+            }
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                var properties = GetDeclaredProperties().ToList();
+                if (properties.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Properties: ");
+                    foreach (var property in properties)
+                    {
+                        builder.AppendLine().Append(property.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var navigations = GetDeclaredNavigations().ToList();
+                if (navigations.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Navigations: ");
+                    foreach (var navigation in navigations)
+                    {
+                        builder.AppendLine().Append(navigation.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var skipNavigations = GetDeclaredSkipNavigations().ToList();
+                if (skipNavigations.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Skip navigations: ");
+                    foreach (var skipNavigation in skipNavigations)
+                    {
+                        builder.AppendLine().Append(skipNavigation.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var serviceProperties = GetDeclaredServiceProperties().ToList();
+                if (serviceProperties.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Service properties: ");
+                    foreach (var serviceProperty in serviceProperties)
+                    {
+                        builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var keys = GetDeclaredKeys().ToList();
+                if (keys.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Keys: ");
+                    foreach (var key in keys)
+                    {
+                        builder.AppendLine().Append(key.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var fks = GetDeclaredForeignKeys().ToList();
+                if (fks.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Foreign keys: ");
+                    foreach (var fk in fks)
+                    {
+                        builder.AppendLine().Append(fk.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var indexes = GetDeclaredIndexes().ToList();
+                if (indexes.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Indexes: ");
+                    foreach (var index in indexes)
+                    {
+                        builder.AppendLine().Append(index.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(AnnotationsToDebugString(indent: indent + 2));
+                }
+            }
         }
-
-        if (HasSharedClrType)
+        catch (Exception exception)
         {
-            builder.Append(" CLR Type: ").Append(ClrType.ShortDisplayName());
-        }
-
-        if (IsAbstract())
-        {
-            builder.Append(" Abstract");
-        }
-
-        if (FindPrimaryKey() == null)
-        {
-            builder.Append(" Keyless");
-        }
-
-        if (IsOwned())
-        {
-            builder.Append(" Owned");
-        }
-
-        if (this is EntityType
-            && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
-        {
-            builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
-        }
-
-        if ((options & MetadataDebugStringOptions.SingleLine) == 0)
-        {
-            var properties = GetDeclaredProperties().ToList();
-            if (properties.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Properties: ");
-                foreach (var property in properties)
-                {
-                    builder.AppendLine().Append(property.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var navigations = GetDeclaredNavigations().ToList();
-            if (navigations.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Navigations: ");
-                foreach (var navigation in navigations)
-                {
-                    builder.AppendLine().Append(navigation.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var skipNavigations = GetDeclaredSkipNavigations().ToList();
-            if (skipNavigations.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Skip navigations: ");
-                foreach (var skipNavigation in skipNavigations)
-                {
-                    builder.AppendLine().Append(skipNavigation.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var serviceProperties = GetDeclaredServiceProperties().ToList();
-            if (serviceProperties.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Service properties: ");
-                foreach (var serviceProperty in serviceProperties)
-                {
-                    builder.AppendLine().Append(serviceProperty.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var keys = GetDeclaredKeys().ToList();
-            if (keys.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Keys: ");
-                foreach (var key in keys)
-                {
-                    builder.AppendLine().Append(key.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var fks = GetDeclaredForeignKeys().ToList();
-            if (fks.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Foreign keys: ");
-                foreach (var fk in fks)
-                {
-                    builder.AppendLine().Append(fk.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var indexes = GetDeclaredIndexes().ToList();
-            if (indexes.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Indexes: ");
-                foreach (var index in indexes)
-                {
-                    builder.AppendLine().Append(index.ToDebugString(options, indent + 4));
-                }
-            }
-
-            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-            {
-                builder.Append(AnnotationsToDebugString(indent: indent + 2));
-            }
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

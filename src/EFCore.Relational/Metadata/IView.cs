@@ -50,56 +50,63 @@ public interface IView : ITableBase
     /// <param name="options">Options for generating the string.</param>
     /// <param name="indent">The number of indent spaces to use before each new line.</param>
     /// <returns>A human-readable representation.</returns>
-    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    string ITableBase.ToDebugString(MetadataDebugStringOptions options, int indent)
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder
-            .Append(indentString)
-            .Append("View: ");
-
-        if (Schema != null)
+        try
         {
             builder
-                .Append(Schema)
-                .Append('.');
+                .Append(indentString)
+                .Append("View: ");
+
+            if (Schema != null)
+            {
+                builder
+                    .Append(Schema)
+                    .Append('.');
+            }
+
+            builder.Append(Name);
+
+            if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+            {
+                if (ViewDefinitionSql != null)
+                {
+                    builder.AppendLine().Append(indentString).Append("  DefinitionSql: ");
+                    builder.AppendLine().Append(indentString).Append(new string(' ', 4)).Append(ViewDefinitionSql);
+                }
+
+                var mappings = EntityTypeMappings.ToList();
+                if (mappings.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  EntityTypeMappings: ");
+                    foreach (var mapping in mappings)
+                    {
+                        builder.AppendLine().Append(mapping.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                var columns = Columns.ToList();
+                if (columns.Count != 0)
+                {
+                    builder.AppendLine().Append(indentString).Append("  Columns: ");
+                    foreach (var column in columns)
+                    {
+                        builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
+                    }
+                }
+
+                if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+                {
+                    builder.Append(AnnotationsToDebugString(indent + 2));
+                }
+            }
         }
-
-        builder.Append(Name);
-
-        if ((options & MetadataDebugStringOptions.SingleLine) == 0)
+        catch (Exception exception)
         {
-            if (ViewDefinitionSql != null)
-            {
-                builder.AppendLine().Append(indentString).Append("  DefinitionSql: ");
-                builder.AppendLine().Append(indentString).Append(new string(' ', 4)).Append(ViewDefinitionSql);
-            }
-
-            var mappings = EntityTypeMappings.ToList();
-            if (mappings.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  EntityTypeMappings: ");
-                foreach (var mapping in mappings)
-                {
-                    builder.AppendLine().Append(mapping.ToDebugString(options, indent + 4));
-                }
-            }
-
-            var columns = Columns.ToList();
-            if (columns.Count != 0)
-            {
-                builder.AppendLine().Append(indentString).Append("  Columns: ");
-                foreach (var column in columns)
-                {
-                    builder.AppendLine().Append(column.ToDebugString(options, indent + 4));
-                }
-            }
-
-            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-            {
-                builder.Append(AnnotationsToDebugString(indent + 2));
-            }
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

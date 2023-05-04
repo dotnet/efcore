@@ -63,11 +63,27 @@ public class TypeMappingConfigurationBuilder
     ///     Configures the maximum length of data that can be stored in this property.
     ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
     /// </summary>
-    /// <param name="maxLength">The maximum length of data allowed in the property.</param>
+    /// <param name="maxLength">
+    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public virtual TypeMappingConfigurationBuilder HasMaxLength(int maxLength)
     {
         Configuration.SetMaxLength(maxLength);
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the
+    ///     sentinel value, then it is considered not set. By default, the sentinel value is the CLR default value for the type of
+    ///     the property.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public virtual TypeMappingConfigurationBuilder HasSentinel(object? sentinel)
+    {
+        Configuration.SetSentinel(sentinel);
 
         return this;
     }

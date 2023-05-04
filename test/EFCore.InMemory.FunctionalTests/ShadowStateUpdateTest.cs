@@ -23,7 +23,7 @@ public class ShadowStateUpdateTest : IClassFixture<InMemoryFixture>
 
         using (var context = new DbContext(optionsBuilder.Options))
         {
-            context.Add(customer);
+            await context.AddAsync(customer);
 
             context.Entry(customer).Property("Name").CurrentValue = "Daenerys";
 

@@ -26,7 +26,6 @@ public class ExistsExpression : SqlExpression
         RelationalTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
     {
-
 #if DEBUG
         if (subquery.IsMutable())
         {

@@ -75,7 +75,7 @@ public class PropertyChangedInterceptor : PropertyChangeInterceptorBase, IInterc
 
                 if (navigation != null)
                 {
-                    HandleChanged(invocation, navigation, LegacyReferenceEqualityComparer.Instance);
+                    HandleChanged(invocation, navigation, ReferenceEqualityComparer.Instance);
                 }
                 else
                 {

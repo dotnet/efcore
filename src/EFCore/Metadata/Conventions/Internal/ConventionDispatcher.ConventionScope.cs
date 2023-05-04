@@ -203,5 +203,9 @@ public partial class ConventionDispatcher
         public abstract IConventionProperty? OnPropertyRemoved(
             IConventionEntityTypeBuilder entityTypeBuilder,
             IConventionProperty property);
+
+        public abstract IConventionTriggerBuilder? OnTriggerAdded(IConventionTriggerBuilder triggerBuilder);
+
+        public abstract IConventionTrigger? OnTriggerRemoved(IConventionEntityTypeBuilder entityTypeBuilder, IConventionTrigger trigger);
     }
 }

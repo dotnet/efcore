@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -61,7 +62,7 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
     /// </remarks>
     /// <param name="type">The CLR type.</param>
     /// <returns>Whether the CLR type is used by shared type entities in the model.</returns>
-    bool IsShared(Type type);
+    bool IsShared([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type);
 
     /// <summary>
     ///     Gets all entity types defined in the model.
@@ -215,22 +216,42 @@ public interface IReadOnlyModel : IReadOnlyAnnotatable
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        builder.Append(indentString).Append("Model: ");
-
-        if (this is Model
-            && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+        try
         {
-            builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
+            builder.Append(indentString).Append("Model: ");
+
+            if (this is Model
+                && GetChangeTrackingStrategy() != ChangeTrackingStrategy.Snapshot)
+            {
+                builder.Append(" ChangeTrackingStrategy.").Append(GetChangeTrackingStrategy());
+            }
+
+            foreach (var entityType in GetEntityTypes())
+            {
+                builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
+            }
+
+            if (this is RuntimeModel runtimeModel)
+            {
+                var adHocEntityTypes = runtimeModel.GetAdHocEntityTypes().ToList();
+                if (adHocEntityTypes.Count > 0)
+                {
+                    builder.AppendLine().Append(indentString + "  ").Append("Ad-hoc entity types:");
+                    foreach (var entityType in adHocEntityTypes)
+                    {
+                        builder.AppendLine().Append(entityType.ToDebugString(options, indent + 4));
+                    }
+                }
+            }
+
+            if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
+            {
+                builder.Append(AnnotationsToDebugString(indent));
+            }
         }
-
-        foreach (var entityType in GetEntityTypes())
+        catch (Exception exception)
         {
-            builder.AppendLine().Append(entityType.ToDebugString(options, indent + 2));
-        }
-
-        if ((options & MetadataDebugStringOptions.IncludeAnnotations) != 0)
-        {
-            builder.Append(AnnotationsToDebugString(indent));
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

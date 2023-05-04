@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     Represents a column in a SQL query.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public interface ISqlQueryColumn : IColumnBase
@@ -25,6 +25,14 @@ public interface ISqlQueryColumn : IColumnBase
     new IReadOnlyList<ISqlQueryColumnMapping> PropertyMappings { get; }
 
     /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    new ISqlQueryColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (ISqlQueryColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
@@ -36,7 +44,7 @@ public interface ISqlQueryColumn : IColumnBase
     /// <param name="options">Options for generating the string.</param>
     /// <param name="indent">The number of indent spaces to use before each new line.</param>
     /// <returns>A human-readable representation.</returns>
-    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    string IColumnBase.ToDebugString(MetadataDebugStringOptions options, int indent)
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);

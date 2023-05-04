@@ -463,7 +463,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 if (!useExistingParent)
                 {
                     newParent = context.CreateProxy<Optional1>(
-                        e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(LegacyReferenceEqualityComparer.Instance));
+                        e => e.CompositeChildren = new ObservableHashSet<OptionalComposite2>(ReferenceEqualityComparer.Instance));
 
                     context.Set<Optional1>().Add(newParent);
                     context.SaveChanges();
@@ -607,7 +607,7 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                         {
                             e.Id = 3;
                             e.Parent = context.Set<Root>().Single(IsTheRoot);
-                            e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(LegacyReferenceEqualityComparer.Instance)
+                            e.CompositeChildren = new ObservableHashSet<OptionalOverlapping2>(ReferenceEqualityComparer.Instance)
                             {
                                 context.CreateProxy<OptionalOverlapping2>(e => e.Id = 5),
                                 context.CreateProxy<OptionalOverlapping2>(e => e.Id = 6)
@@ -868,6 +868,27 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.True(context.ChangeTracker.HasChanges());
 
+                var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate)
+                        ? EntityState.Modified
+                        : EntityState.Unchanged;
+
+                foreach (var orphanEntry in orphaned.Select(context.Entry))
+                {
+                    Assert.Equal(expectedState, orphanEntry.State);
+                    if (expectedState == EntityState.Unchanged)
+                    {
+                        Assert.Equal(removed.Id, orphanEntry.Entity.ParentId);
+                        Assert.Equal(
+                            context.Entry(removed).Property(e => e.Id).CurrentValue,
+                            orphanEntry.Property(e => e.ParentId).CurrentValue);
+                    }
+                    else
+                    {
+                        Assert.Null(orphanEntry.Entity.ParentId);
+                        Assert.Null(orphanEntry.Property(e => e.ParentId).CurrentValue);
+                    }
+                }
+
                 context.SaveChanges();
 
                 Assert.False(context.ChangeTracker.HasChanges());
@@ -898,6 +919,67 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Empty(context.Set<Optional1>().Where(e => e.Id == removedId));
                 Assert.Equal(orphanedIds.Count, context.Set<Optional2>().Count(e => orphanedIds.Contains(e.Id)));
+            });
+    }
+
+    [ConditionalTheory]
+    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.OnSaveChanges)]
+    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Immediate)]
+    [InlineData(CascadeTiming.OnSaveChanges, CascadeTiming.Never)]
+    [InlineData(CascadeTiming.Immediate, CascadeTiming.OnSaveChanges)]
+    [InlineData(CascadeTiming.Immediate, CascadeTiming.Immediate)]
+    [InlineData(CascadeTiming.Immediate, CascadeTiming.Never)]
+    [InlineData(CascadeTiming.Never, CascadeTiming.OnSaveChanges)]
+    [InlineData(CascadeTiming.Never, CascadeTiming.Immediate)]
+    [InlineData(CascadeTiming.Never, CascadeTiming.Never)]
+    [InlineData(null, null)]
+    public virtual void Optional_many_to_one_dependents_are_orphaned_with_Added_graph(
+        CascadeTiming? cascadeDeleteTiming,
+        CascadeTiming? deleteOrphansTiming) // Issue #29318
+    {
+        ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                context.ChangeTracker.CascadeDeleteTiming = cascadeDeleteTiming ?? CascadeTiming.Never;
+                context.ChangeTracker.DeleteOrphansTiming = deleteOrphansTiming ?? CascadeTiming.Never;
+
+                var root = context.CreateProxy<Root>(e => e.AlternateId = Guid.NewGuid());
+                var removed = context.CreateProxy<Optional1>(e => e.Parent = root);
+                var orphaned = new List<Optional2>
+                {
+                    context.CreateProxy<Optional2>(e => e.Parent = removed), context.CreateProxy<Optional2>(e => e.Parent = removed)
+                };
+
+                context.AddRange(orphaned);
+                var removedId = context.Entry(removed).Property(e => e.Id).CurrentValue;
+                context.Remove(removed);
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+
+                if (cascadeDeleteTiming == null)
+                {
+                    Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Added));
+
+                    context.ChangeTracker.CascadeChanges();
+                }
+
+                foreach (var orphanEntry in orphaned.Select(context.Entry))
+                {
+                    Assert.Equal(EntityState.Added, orphanEntry.State);
+                    Assert.Null(orphanEntry.Entity.ParentId);
+                    Assert.Null(orphanEntry.Property(e => e.ParentId).CurrentValue);
+                }
+
+                context.SaveChanges();
+
+                Assert.False(context.ChangeTracker.HasChanges());
+
+                Assert.Equal(EntityState.Detached, context.Entry(removed).State);
+                Assert.True(orphaned.All(e => context.Entry(e).State == EntityState.Unchanged));
+
+                Assert.Empty(root.OptionalChildren);
+                Assert.Same(root, removed.Parent);
+                Assert.Equal(2, removed.Children.Count());
             });
     }
 
@@ -1234,11 +1316,26 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
 
                 Assert.Equal(EntityState.Deleted, context.Entry(removed).State);
 
-                var expectedState = cascadeDeleteTiming == CascadeTiming.Immediate
+                var expectedState = (cascadeDeleteTiming == CascadeTiming.Immediate)
                     ? EntityState.Modified
                     : EntityState.Unchanged;
 
-                Assert.True(orphaned.All(e => context.Entry(e).State == expectedState));
+                foreach (var orphanEntry in orphaned.Select(context.Entry))
+                {
+                    Assert.Equal(expectedState, orphanEntry.State);
+                    if (expectedState == EntityState.Unchanged)
+                    {
+                        Assert.Equal(removed.Id, orphanEntry.Entity.ParentId);
+                        Assert.Equal(
+                            context.Entry(removed).Property(e => e.Id).CurrentValue,
+                            orphanEntry.Property(e => e.ParentId).CurrentValue);
+                    }
+                    else
+                    {
+                        Assert.Null(orphanEntry.Entity.ParentId);
+                        Assert.Null(orphanEntry.Property(e => e.ParentId).CurrentValue);
+                    }
+                }
 
                 Assert.True(context.ChangeTracker.HasChanges());
 

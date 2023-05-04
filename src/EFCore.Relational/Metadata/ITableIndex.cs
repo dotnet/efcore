@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -84,11 +83,10 @@ public interface ITableIndex : IAnnotatable
                             $@"'{Columns[i].Name}'{(
                                 MappedIndexes.First() is not RuntimeIndex
                                 && IsDescending is not null
-                                && i < IsDescending.Count
-                                && IsDescending[i]
+                                && (IsDescending.Count == 0 || IsDescending[i])
                                     ? " Desc"
                                     : ""
-                                )}"))
+                            )}"))
             .Append('}');
 
         if (IsUnique)

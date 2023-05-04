@@ -62,6 +62,10 @@ public class ExceptExpression : SetOperationBase
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new ExceptExpression(Alias, Source1, Source2, IsDistinct, annotations);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("(");

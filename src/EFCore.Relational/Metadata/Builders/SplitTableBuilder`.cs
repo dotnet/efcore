@@ -22,6 +22,7 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
         : base(storeObject, entityTypeBuilder)
     {
     }
+
     private EntityTypeBuilder<TEntity> EntityTypeBuilder
         => (EntityTypeBuilder<TEntity>)((IInfrastructure<EntityTypeBuilder>)this).GetInfrastructure();
 
@@ -35,7 +36,7 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
     /// <returns>The same builder instance so that multiple calls can be chained.</returns>
     public new virtual SplitTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
         => (SplitTableBuilder<TEntity>)base.ExcludeFromMigrations(excluded);
-    
+
     /// <summary>
     ///     Maps the property to a column on the current table and returns an object that can be used
     ///     to provide table-specific configuration if the property is mapped to more than one table.
@@ -47,5 +48,16 @@ public class SplitTableBuilder<TEntity> : SplitTableBuilder, IInfrastructure<Ent
     public virtual ColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(MappingFragment.StoreObject, EntityTypeBuilder.Property(propertyExpression));
 
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+    /// <summary>
+    ///     Adds or updates an annotation on the table. If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual SplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value)
+        => (SplitTableBuilder<TEntity>)base.HasAnnotation(annotation, value);
+
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

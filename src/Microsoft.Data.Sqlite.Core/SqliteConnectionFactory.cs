@@ -138,20 +138,21 @@ namespace Microsoft.Data.Sqlite
                 }
             }
 
-            for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
-            {
-                var poolGroup = _idlePoolGroups[i];
-
-                if (!poolGroup.Clear())
-                {
-                    _idlePoolGroups.Remove(poolGroup);
-                }
-            }
-
             _lock.EnterWriteLock();
 
             try
             {
+
+                for (var i = _idlePoolGroups.Count - 1; i >= 0; i--)
+                {
+                    var poolGroup = _idlePoolGroups[i];
+
+                    if (!poolGroup.Clear())
+                    {
+                        _idlePoolGroups.Remove(poolGroup);
+                    }
+                }
+
                 var activePoolGroups = new Dictionary<string, SqliteConnectionPoolGroup>();
                 foreach (var entry in _poolGroups)
                 {

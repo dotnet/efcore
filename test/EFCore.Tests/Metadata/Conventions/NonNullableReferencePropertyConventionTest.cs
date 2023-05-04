@@ -116,7 +116,9 @@ public class NonNullableReferencePropertyConventionTest
         // ReSharper disable once UnusedMember.Local
         public int Id { get; set; }
 
-        public string NonNullable => "";
+        public string NonNullable
+            => "";
+
         public string? Nullable { get; set; }
 
         [MaybeNull]

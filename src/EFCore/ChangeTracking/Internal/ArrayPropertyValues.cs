@@ -38,7 +38,7 @@ public class ArrayPropertyValues : PropertyValues
         => MaterializerSource.GetMaterializer(EntityType)(
             new MaterializationContext(
                 new ValueBuffer(_values),
-                InternalEntry.StateManager.Context));
+                InternalEntry.Context));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

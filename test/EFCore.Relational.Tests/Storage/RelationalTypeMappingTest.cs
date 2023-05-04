@@ -31,15 +31,15 @@ public abstract class RelationalTypeMappingTest
 
     public static ValueConverter CreateConverter(Type modelType)
         => (ValueConverter)Activator.CreateInstance(
-                typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, typeof(object)));
 
     public static ValueConverter CreateConverter(Type modelType, Type providerType)
         => (ValueConverter)Activator.CreateInstance(
-                typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
+            typeof(FakeValueConverter<,>).MakeGenericType(modelType, providerType));
 
     public static ValueComparer CreateComparer(Type type)
         => (ValueComparer)Activator.CreateInstance(
-                typeof(FakeValueComparer<>).MakeGenericType(type));
+            typeof(FakeValueComparer<>).MakeGenericType(type));
 
     [ConditionalTheory]
     [InlineData(typeof(BoolTypeMapping), typeof(bool))]
@@ -69,6 +69,11 @@ public abstract class RelationalTypeMappingTest
             null,
             null);
 
+        AssertClone(type, mapping);
+    }
+
+    protected static RelationalTypeMapping AssertClone(Type type, RelationalTypeMapping mapping)
+    {
         var clone = mapping.Clone("<clone>", null);
 
         Assert.NotSame(mapping, clone);
@@ -97,6 +102,8 @@ public abstract class RelationalTypeMappingTest
         Assert.Same(mapping.ProviderValueComparer, clone.ProviderValueComparer);
         Assert.Same(typeof(object), clone.ClrType);
         Assert.Equal(StoreTypePostfix.PrecisionAndScale, clone.StoreTypePostfix);
+
+        return clone;
     }
 
     [ConditionalFact]
@@ -230,7 +237,7 @@ public abstract class RelationalTypeMappingTest
         Assert.Equal(StoreTypePostfix.Size, clone.StoreTypePostfix);
     }
 
-    private class FakeTypeMapping : RelationalTypeMapping
+    protected class FakeTypeMapping : RelationalTypeMapping
     {
         private FakeTypeMapping(RelationalTypeMappingParameters parameters)
             : base(parameters)
@@ -322,6 +329,8 @@ public abstract class RelationalTypeMappingTest
         Assert.True(parameter.IsNullable);
     }
 
+    // TODO: Add tests for parameter directions
+
     [ConditionalFact]
     public void Can_create_required_string_parameter()
     {
@@ -410,17 +419,13 @@ public abstract class RelationalTypeMappingTest
 
     [ConditionalFact]
     public virtual void TimeOnly_literal_generated_correctly()
-        => Test_GenerateSqlLiteral_helper(
-            new TimeOnlyTypeMapping("TimeOnly"),
-            new TimeOnly(13, 10, 15),
-            "TIME '13:10:15'");
+    {
+        var typeMapping = new TimeOnlyTypeMapping("TimeOnly");
 
-    [ConditionalFact]
-    public virtual void TimeOnly_literal_generated_correctly_with_milliseconds()
-        => Test_GenerateSqlLiteral_helper(
-            new TimeOnlyTypeMapping("TimeOnly"),
-            new TimeOnly(13, 10, 15, 500),
-            "TIME '13:10:15.5'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15), "TIME '13:10:15'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120), "TIME '13:10:15.12'");
+        Test_GenerateSqlLiteral_helper(typeMapping, new TimeOnly(13, 10, 15, 120, 20), "TIME '13:10:15.12002'");
+    }
 
     [ConditionalFact]
     public virtual void Decimal_literal_generated_correctly()

@@ -502,7 +502,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("RootNamespaceDescription");
 
         /// <summary>
-        ///     The schemas of tables to generate entity types for.
+        ///     The schemas of tables and views to generate entity types for. All tables and views in the schemas will be included in the model, even if they are not explicitly included with the --table parameter.
         /// </summary>
         public static string SchemasDescription
             => GetString("SchemasDescription");
@@ -532,13 +532,13 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("SuppressOnConfiguringDescription");
 
         /// <summary>
-        ///     The tables to generate entity types for.
+        ///     The tables and views to generate entity types for. Tables or views in a specific schema can be included using the 'schema.table' or 'schema.view' format.
         /// </summary>
         public static string TablesDescription
             => GetString("TablesDescription");
 
         /// <summary>
-        ///     Use table and column names directly from the database.
+        ///     Use table, view, sequence, and column names directly from the database.
         /// </summary>
         public static string UseDatabaseNamesDescription
             => GetString("UseDatabaseNamesDescription");
@@ -647,4 +647,3 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
-

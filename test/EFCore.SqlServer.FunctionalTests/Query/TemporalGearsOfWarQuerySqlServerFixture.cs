@@ -7,14 +7,21 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TemporalGearsOfWarQuerySqlServerFixture : GearsOfWarQuerySqlServerFixture
 {
-    protected override string StoreName { get; } = "TemporalGearsOfWarQueryTest";
+    protected override string StoreName
+        => "TemporalGearsOfWarQueryTest";
 
     public DateTime ChangesDate { get; private set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {
         modelBuilder.Entity<City>().ToTable(tb => tb.IsTemporal());
-        modelBuilder.Entity<CogTag>().ToTable(tb => tb.IsTemporal());
+        modelBuilder.Entity<CogTag>().ToTable(
+            tb => tb.IsTemporal(
+                ttb =>
+                {
+                    ttb.HasPeriodStart("PeriodStart").HasPrecision(0);
+                    ttb.HasPeriodEnd("PeriodEnd").HasPrecision(0);
+                }));
         modelBuilder.Entity<Faction>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<Gear>().ToTable(tb => tb.IsTemporal());
         modelBuilder.Entity<LocustLeader>().ToTable(tb => tb.IsTemporal());

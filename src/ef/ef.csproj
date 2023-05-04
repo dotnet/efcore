@@ -64,8 +64,9 @@
     </Compile>
   </ItemGroup>
 
-  <Target Name="BuildX86" AfterTargets="Build" Condition=" '$(TargetFramework)' == 'net461' And '$(Platform)' != 'x86' ">
+  <Target Name="BuildOtherPlatforms" AfterTargets="Build" Condition=" '$(TargetFramework)' == 'net461' And '$(Platform)' == 'AnyCPU' ">
     <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=x86;Configuration=$(Configuration)" Targets="Build" />
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=ARM64;Configuration=$(Configuration)" Targets="Build" />
   </Target>
 
 </Project>

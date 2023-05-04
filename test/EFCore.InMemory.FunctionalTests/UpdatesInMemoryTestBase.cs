@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 namespace Microsoft.EntityFrameworkCore;
 
 public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixture>
-    where TFixture : UpdatesInMemoryFixtureBase
+    where TFixture : UpdatesInMemoryTestBase<TFixture>.UpdatesInMemoryFixtureBase
 {
     protected UpdatesInMemoryTestBase(TFixture fixture)
         : base(fixture)
@@ -22,8 +22,14 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
         Action<UpdatesContext> nestedTestOperation1 = null,
         Action<UpdatesContext> nestedTestOperation2 = null)
     {
-        base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2);
-        Fixture.Reseed();
+        try
+        {
+            base.ExecuteWithStrategyInTransaction(testOperation, nestedTestOperation1, nestedTestOperation2);
+        }
+        finally
+        {
+            Fixture.Reseed();
+        }
     }
 
     protected override async Task ExecuteWithStrategyInTransactionAsync(
@@ -31,7 +37,29 @@ public abstract class UpdatesInMemoryTestBase<TFixture> : UpdatesTestBase<TFixtu
         Func<UpdatesContext, Task> nestedTestOperation1 = null,
         Func<UpdatesContext, Task> nestedTestOperation2 = null)
     {
-        await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2);
-        Fixture.Reseed();
+        try
+        {
+            await base.ExecuteWithStrategyInTransactionAsync(testOperation, nestedTestOperation1, nestedTestOperation2);
+        }
+        finally
+        {
+            Fixture.Reseed();
+        }
+    }
+
+    // Issue #29875
+    public override Task Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(bool async)
+    {
+        return Assert.ThrowsAsync<DbUpdateConcurrencyException>(
+            () => base.Can_change_type_of_pk_to_pk_dependent_by_replacing_with_new_dependent(async));
+    }
+
+    public abstract class UpdatesInMemoryFixtureBase : UpdatesFixtureBase
+    {
+        protected override ITestStoreFactory TestStoreFactory
+            => InMemoryTestStoreFactory.Instance;
+
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder).ConfigureWarnings(w => w.Log(InMemoryEventId.TransactionIgnoredWarning));
     }
 }

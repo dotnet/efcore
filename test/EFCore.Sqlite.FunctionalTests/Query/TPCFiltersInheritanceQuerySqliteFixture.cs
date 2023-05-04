@@ -7,4 +7,7 @@ public class TPCFiltersInheritanceQuerySqliteFixture : TPCInheritanceQuerySqlite
 {
     protected override bool EnableFilters
         => true;
+
+    protected override bool UseGeneratedKeys
+        => false;
 }

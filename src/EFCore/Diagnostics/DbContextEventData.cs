@@ -17,7 +17,7 @@ public class DbContextEventData : EventData
     /// </summary>
     /// <param name="eventDefinition">The event definition.</param>
     /// <param name="messageGenerator">A delegate that generates a log message for this event.</param>
-    /// <param name="context">The current <see cref="DbContext" />, or null if not known.</param>
+    /// <param name="context">The current <see cref="DbContext" />, or <see langword="null" /> if not known.</param>
     public DbContextEventData(
         EventDefinitionBase eventDefinition,
         Func<EventDefinitionBase, EventData, string> messageGenerator,

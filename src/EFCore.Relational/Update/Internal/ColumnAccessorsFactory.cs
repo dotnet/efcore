@@ -50,8 +50,7 @@ public static class ColumnAccessorsFactory
                     }
 
                     var providerValue = entry.GetCurrentProviderValue(property);
-                    if (providerValue == null
-                        && !typeof(TColumn).IsNullableType())
+                    if (providerValue == null)
                     {
                         return (value!, valueFound);
                     }
@@ -93,8 +92,7 @@ public static class ColumnAccessorsFactory
                     }
 
                     var providerValue = entry.GetOriginalProviderValue(property);
-                    if (providerValue == null
-                        && !typeof(TColumn).IsNullableType())
+                    if (providerValue == null)
                     {
                         return (value!, valueFound);
                     }
@@ -113,9 +111,9 @@ public static class ColumnAccessorsFactory
 
             var modification = c.ColumnModifications.FirstOrDefault(m => m.ColumnName == column.Name);
             return modification == null
-                ? (default(TColumn)!, false)
+                ? (default!, false)
                 : modification.OriginalValue == null
-                    ? (default(TColumn)!, false)
+                    ? (default!, false)
                     : ((TColumn)modification.OriginalValue!, true);
         };
 }

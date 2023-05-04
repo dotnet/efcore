@@ -1,6 +1,7 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos;
@@ -30,6 +31,43 @@ public class ConnectionSpecificationTest
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration());
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+        }
+
+        public DbSet<Blog> Blogs { get; set; }
+    }
+
+    [ConditionalFact]
+    public async Task Specifying_connection_string_and_TokenCredential_throws()
+    {
+        await using var testDatabase = CosmosTestStore.Create("NonExisting");
+        using var context = new BloggingContextWithTokenCredential(testDatabase);
+
+        Assert.Equal(
+            CosmosStrings.ConnectionStringConflictingConfiguration,
+            Assert.Throws<InvalidOperationException>(() => context.GetService<IDatabaseCreator>()).Message);
+    }
+
+    public class BloggingContextWithTokenCredential : DbContext
+    {
+        private readonly string _connectionString;
+        private readonly string _connectionUri;
+        private readonly TokenCredential _tokenCredential;
+        private readonly string _name;
+
+        public BloggingContextWithTokenCredential(CosmosTestStore testStore)
+        {
+            _connectionString = testStore.ConnectionString;
+            _connectionUri = testStore.ConnectionUri;
+            _tokenCredential = testStore.TokenCredential;
+            _name = testStore.Name;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+            => optionsBuilder.UseCosmos(_connectionString, _name, b => b.ApplyConfiguration())
+                .UseCosmos(_connectionUri, _tokenCredential, _name, b => b.ApplyConfiguration());
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

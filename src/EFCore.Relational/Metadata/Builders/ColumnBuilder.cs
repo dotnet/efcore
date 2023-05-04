@@ -21,7 +21,8 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
     [EntityFrameworkInternal]
     public ColumnBuilder(in StoreObjectIdentifier storeObject, PropertyBuilder propertyBuilder)
     {
-        Check.DebugAssert(storeObject.StoreObjectType == StoreObjectType.Table,
+        Check.DebugAssert(
+            storeObject.StoreObjectType == StoreObjectType.Table,
             "StoreObjectType should be Table, not " + storeObject.StoreObjectType);
 
         InternalOverrides = RelationalPropertyOverrides.GetOrCreate(
@@ -32,7 +33,8 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
     /// <summary>
     ///     The table-specific overrides being configured.
     /// </summary>
-    public virtual IMutableRelationalPropertyOverrides Overrides => InternalOverrides;
+    public virtual IMutableRelationalPropertyOverrides Overrides
+        => InternalOverrides;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -62,7 +64,25 @@ public class ColumnBuilder : IInfrastructure<PropertyBuilder>
         return this;
     }
 
-    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance => PropertyBuilder;
+    /// <summary>
+    ///     Adds or updates an annotation on the property for a specific table.
+    ///     If an annotation with the key specified in <paramref name="annotation" />
+    ///     already exists, its value will be updated.
+    /// </summary>
+    /// <param name="annotation">The key of the annotation to be added or updated.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual ColumnBuilder HasAnnotation(string annotation, object? value)
+    {
+        Check.NotEmpty(annotation, nameof(annotation));
+
+        InternalOverrides.Builder.HasAnnotation(annotation, value, ConfigurationSource.Explicit);
+
+        return this;
+    }
+
+    PropertyBuilder IInfrastructure<PropertyBuilder>.Instance
+        => PropertyBuilder;
 
     #region Hidden System.Object members
 

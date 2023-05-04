@@ -56,8 +56,8 @@ public static class SqlitePropertyExtensions
     /// <param name="property">The property.</param>
     /// <param name="value">The SRID.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    public static void SetSrid(this IConventionProperty property, int? value, bool fromDataAnnotation = false)
-        => property.SetOrRemoveAnnotation(SqliteAnnotationNames.Srid, value, fromDataAnnotation);
+    public static int? SetSrid(this IConventionProperty property, int? value, bool fromDataAnnotation = false)
+        => (int?)property.SetOrRemoveAnnotation(SqliteAnnotationNames.Srid, value, fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the column SRID.

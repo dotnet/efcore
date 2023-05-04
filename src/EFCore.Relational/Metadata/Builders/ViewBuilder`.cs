@@ -37,5 +37,6 @@ public class ViewBuilder<TEntity> : ViewBuilder, IInfrastructure<EntityTypeBuild
     public virtual ViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
         => new(StoreObject, EntityTypeBuilder.Property(propertyExpression));
 
-    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance => EntityTypeBuilder;
+    EntityTypeBuilder<TEntity> IInfrastructure<EntityTypeBuilder<TEntity>>.Instance
+        => EntityTypeBuilder;
 }

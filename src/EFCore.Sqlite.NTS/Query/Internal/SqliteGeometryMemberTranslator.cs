@@ -34,8 +34,10 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
 
     private static readonly MemberInfo GeometryType
         = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.GeometryType))!;
+
     private static readonly MemberInfo OgcGeometryType
         = typeof(Geometry).GetTypeInfo().GetRuntimeProperty(nameof(Geometry.OgcGeometryType))!;
+
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
@@ -142,13 +144,17 @@ public class SqliteGeometryMemberTranslator : IMemberTranslator
                     new[]
                     {
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("POINT"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Point)),
+                            _sqlExpressionFactory.Constant("POINT"),
+                            _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Point)),
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("LINESTRING"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.LineString)),
+                            _sqlExpressionFactory.Constant("LINESTRING"),
+                            _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.LineString)),
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("POLYGON"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Polygon)),
+                            _sqlExpressionFactory.Constant("POLYGON"),
+                            _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.Polygon)),
                         new CaseWhenClause(
-                            _sqlExpressionFactory.Constant("MULTIPOINT"), _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiPoint)),
+                            _sqlExpressionFactory.Constant("MULTIPOINT"),
+                            _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiPoint)),
                         new CaseWhenClause(
                             _sqlExpressionFactory.Constant("MULTILINESTRING"),
                             _sqlExpressionFactory.Constant(NetTopologySuite.Geometries.OgcGeometryType.MultiLineString)),

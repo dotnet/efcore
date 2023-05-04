@@ -7,7 +7,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Microsoft.EntityFrameworkCore;
 
-public abstract class SingletonInterceptorsTestBase
+public abstract class SingletonInterceptorsTestBase<TContext>
+    where TContext : DbContext
 {
     protected SingletonInterceptorsTestBase(SingletonInterceptorsFixtureBase fixture)
     {
@@ -46,9 +47,31 @@ public abstract class SingletonInterceptorsTestBase
         public string? Title { get; set; }
     }
 
-    public class LibraryContext : PoolableDbContext
+    public class TestEntity30244
     {
-        public LibraryContext(DbContextOptions options)
+        [DatabaseGenerated((DatabaseGeneratedOption.None))]
+        public int Id { get; set; }
+
+        public string? Name { get; set; }
+        public List<KeyValueSetting30244> Settings { get; } = new();
+    }
+
+    public class KeyValueSetting30244
+    {
+        public KeyValueSetting30244(string key, string value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
+
+    public abstract class LibraryContext : PoolableDbContext
+    {
+        protected LibraryContext(DbContextOptions options)
             : base(options)
         {
         }
@@ -69,10 +92,9 @@ public abstract class SingletonInterceptorsTestBase
         }
     }
 
-    public LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
-        => new(Fixture.CreateOptions(interceptors, inject));
+    public abstract LibraryContext CreateContext(IEnumerable<ISingletonInterceptor> interceptors, bool inject);
 
-    public abstract class SingletonInterceptorsFixtureBase : SharedStoreFixtureBase<LibraryContext>
+    public abstract class SingletonInterceptorsFixtureBase : SharedStoreFixtureBase<TContext>
     {
         public virtual DbContextOptions CreateOptions(IEnumerable<ISingletonInterceptor> interceptors, bool inject)
         {

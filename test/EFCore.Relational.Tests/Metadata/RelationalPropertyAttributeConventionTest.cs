@@ -146,13 +146,13 @@ public class RelationalPropertyAttributeConventionTest
     }
 
     private ProviderConventionSetBuilderDependencies CreateDependencies()
-        => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
+        => FakeRelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<ProviderConventionSetBuilderDependencies>();
 
     private RelationalConventionSetBuilderDependencies CreateRelationalDependencies()
-        => RelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<RelationalConventionSetBuilderDependencies>();
+        => FakeRelationalTestHelpers.Instance.CreateContextServices().GetRequiredService<RelationalConventionSetBuilderDependencies>();
 
     protected virtual ModelBuilder CreateConventionalModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private class A
     {

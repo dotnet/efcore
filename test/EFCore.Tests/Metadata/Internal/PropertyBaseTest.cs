@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
 // ReSharper disable ClassNeverInstantiated.Local
 // ReSharper disable MemberHidesStaticFromOuterClass
@@ -12,6 +10,7 @@
 // ReSharper disable FieldCanBeMadeReadOnly.Local
 // ReSharper disable UnusedMember.Local
 // ReSharper disable ConvertToAutoProperty
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class PropertyBaseTest

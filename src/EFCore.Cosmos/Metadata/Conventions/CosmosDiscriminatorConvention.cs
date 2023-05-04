@@ -64,7 +64,8 @@ public class CosmosDiscriminatorConvention :
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey.IsOwnership)
+        if (entityTypeBuilder.Metadata.IsInModel
+            && foreignKey.IsOwnership)
         {
             ProcessEntityType(entityTypeBuilder);
         }

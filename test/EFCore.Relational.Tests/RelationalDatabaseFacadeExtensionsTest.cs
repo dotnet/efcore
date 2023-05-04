@@ -13,7 +13,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     [ConditionalFact]
     public void Return_true_if_relational()
     {
-        using var context = RelationalTestHelpers.Instance.CreateContext();
+        using var context = FakeRelationalTestHelpers.Instance.CreateContext();
         Assert.True(context.Database.IsRelational());
     }
 
@@ -28,7 +28,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     public void GetDbConnection_returns_the_current_connection()
     {
         var dbConnection = new FakeDbConnection("A=B");
-        var context = RelationalTestHelpers.Instance.CreateContext();
+        var context = FakeRelationalTestHelpers.Instance.CreateContext();
 
         ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
@@ -55,7 +55,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     public async Task Can_open_the_underlying_connection(bool async)
     {
         var dbConnection = new FakeDbConnection("A=B");
-        var context = RelationalTestHelpers.Instance.CreateContext();
+        var context = FakeRelationalTestHelpers.Instance.CreateContext();
 
         ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
@@ -77,7 +77,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     public async Task Can_close_the_underlying_connection(bool async)
     {
         var dbConnection = new FakeDbConnection("A=B");
-        var context = RelationalTestHelpers.Instance.CreateContext();
+        var context = FakeRelationalTestHelpers.Instance.CreateContext();
 
         ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
@@ -101,7 +101,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     public async Task Can_begin_transaction_with_isolation_level(bool async)
     {
         var dbConnection = new FakeDbConnection("A=B");
-        var context = RelationalTestHelpers.Instance.CreateContext();
+        var context = FakeRelationalTestHelpers.Instance.CreateContext();
         ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
 
         var transaction = async
@@ -116,7 +116,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     public void Can_use_transaction()
     {
         var dbConnection = new FakeDbConnection("A=B");
-        var context = RelationalTestHelpers.Instance.CreateContext();
+        var context = FakeRelationalTestHelpers.Instance.CreateContext();
         ((FakeRelationalConnection)context.GetService<IRelationalConnection>()).UseConnection(dbConnection);
         var transaction = new FakeDbTransaction(dbConnection, IsolationLevel.Chaos);
 
@@ -211,7 +211,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         var migrationsAssembly = new FakeIMigrationsAssembly { Migrations = migrations.ToDictionary(x => x, x => default(TypeInfo)) };
 
-        var db = RelationalTestHelpers.Instance.CreateContext(
+        var db = FakeRelationalTestHelpers.Instance.CreateContext(
             new ServiceCollection().AddSingleton<IMigrationsAssembly>(migrationsAssembly));
 
         Assert.Equal(migrations, db.Database.GetMigrations());
@@ -239,7 +239,7 @@ public class RelationalDatabaseFacadeExtensionsTest
 
         var repository = new FakeHistoryRepository { AppliedMigrations = migrations.Select(id => new HistoryRow(id, "1.1.0")).ToList() };
 
-        var context = RelationalTestHelpers.Instance.CreateContext(
+        var context = FakeRelationalTestHelpers.Instance.CreateContext(
             new ServiceCollection().AddSingleton<IHistoryRepository>(repository));
 
         Assert.Equal(
@@ -303,7 +303,7 @@ public class RelationalDatabaseFacadeExtensionsTest
             AppliedMigrations = appliedMigrations.Select(id => new HistoryRow(id, "1.1.0")).ToList()
         };
 
-        var context = RelationalTestHelpers.Instance.CreateContext(
+        var context = FakeRelationalTestHelpers.Instance.CreateContext(
             new ServiceCollection()
                 .AddSingleton<IHistoryRepository>(repository)
                 .AddSingleton<IMigrationsAssembly>(migrationsAssembly));

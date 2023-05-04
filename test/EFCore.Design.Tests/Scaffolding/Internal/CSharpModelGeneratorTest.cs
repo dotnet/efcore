@@ -22,7 +22,7 @@ public class CSharpModelGeneratorTest
     public void WriteCode_works()
     {
         var generator = CreateGenerator();
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity("TestEntity").Property<int>("Id");
 
         var result = generator.GenerateModel(

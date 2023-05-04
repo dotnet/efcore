@@ -26,7 +26,7 @@ public class EntityQueryable<TResult>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public EntityQueryable(IAsyncQueryProvider queryProvider, IEntityType entityType)
-        : this(queryProvider, new QueryRootExpression(queryProvider, entityType))
+        : this(queryProvider, new EntityQueryRootExpression(queryProvider, entityType))
     {
     }
 

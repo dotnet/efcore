@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 ///     Represents entity type mapping to a SQL query.
 /// </summary>
 /// <remarks>
-///     See <see href="https://aka.ms/efcore-docs-efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
+///     See <see href="https://aka.ms/efcore-docs-raw-sql">Executing raw SQL commands with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
 public interface ISqlQueryMapping : ITableMappingBase
@@ -42,7 +42,7 @@ public interface ISqlQueryMapping : ITableMappingBase
     /// <param name="options">Options for generating the string.</param>
     /// <param name="indent">The number of indent spaces to use before each new line.</param>
     /// <returns>A human-readable representation.</returns>
-    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    string ITableMappingBase.ToDebugString(MetadataDebugStringOptions options, int indent)
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);

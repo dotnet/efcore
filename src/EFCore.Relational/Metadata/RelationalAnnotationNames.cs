@@ -78,6 +78,21 @@ public static class RelationalAnnotationNames
     public const string FunctionName = Prefix + "FunctionName";
 
     /// <summary>
+    ///     The name for mapped delete stored procedure annotations.
+    /// </summary>
+    public const string DeleteStoredProcedure = Prefix + "DeleteStoredProcedure";
+
+    /// <summary>
+    ///     The name for mapped insert stored procedure annotations.
+    /// </summary>
+    public const string InsertStoredProcedure = Prefix + "InsertStoredProcedure";
+
+    /// <summary>
+    ///     The name for mapped update stored procedure annotations.
+    /// </summary>
+    public const string UpdateStoredProcedure = Prefix + "UpdateStoredProcedure";
+
+    /// <summary>
     ///     The name for mapped sql query annotations.
     /// </summary>
     public const string SqlQuery = Prefix + "SqlQuery";
@@ -128,11 +143,6 @@ public static class RelationalAnnotationNames
     ///     The name for functions annotation.
     /// </summary>
     public const string DbFunctions = Prefix + "DbFunctions";
-
-    /// <summary>
-    ///     The name for trigger annotation.
-    /// </summary>
-    public const string Triggers = Prefix + "Triggers";
 
     /// <summary>
     ///     The name for the annotation containing the maximum length for database identifiers.
@@ -220,6 +230,46 @@ public static class RelationalAnnotationNames
     public const string FunctionColumnMappings = Prefix + "FunctionColumnMappings";
 
     /// <summary>
+    ///     The name for insert stored procedure mappings annotations.
+    /// </summary>
+    public const string InsertStoredProcedureMappings = Prefix + "InsertStoredProcedureMappings";
+
+    /// <summary>
+    ///     The name for insert stored procedure result column mappings annotations.
+    /// </summary>
+    public const string InsertStoredProcedureResultColumnMappings = Prefix + "InsertStoredProcedureResultColumnMappings";
+
+    /// <summary>
+    ///     The name for insert stored procedure parameter mappings annotations.
+    /// </summary>
+    public const string InsertStoredProcedureParameterMappings = Prefix + "InsertStoredProcedureParameterMappings";
+
+    /// <summary>
+    ///     The name for delete stored procedure mappings annotations.
+    /// </summary>
+    public const string DeleteStoredProcedureMappings = Prefix + "DeleteStoredProcedureMappings";
+
+    /// <summary>
+    ///     The name for delete stored procedure parameter mappings annotations.
+    /// </summary>
+    public const string DeleteStoredProcedureParameterMappings = Prefix + "DeleteStoredProcedureParameterMappings";
+
+    /// <summary>
+    ///     The name for update stored procedure mappings annotations.
+    /// </summary>
+    public const string UpdateStoredProcedureMappings = Prefix + "UpdateStoredProcedureMappings";
+
+    /// <summary>
+    ///     The name for update stored procedure result column mappings annotations.
+    /// </summary>
+    public const string UpdateStoredProcedureResultColumnMappings = Prefix + "UpdateStoredProcedureResultColumnMappings";
+
+    /// <summary>
+    ///     The name for update stored procedure parameter mappings annotations.
+    /// </summary>
+    public const string UpdateStoredProcedureParameterMappings = Prefix + "UpdateStoredProcedureParameterMappings";
+
+    /// <summary>
     ///     The name for sql query mappings annotations.
     /// </summary>
     public const string SqlQueryMappings = Prefix + "SqlQueryMappings";
@@ -248,7 +298,7 @@ public static class RelationalAnnotationNames
     ///     The name for the annotation that contains entity type mapping fragments.
     /// </summary>
     public const string MappingFragments = Prefix + "MappingFragments";
-    
+
     /// <summary>
     ///     The name for the annotation that contains table-specific facet overrides.
     /// </summary>
@@ -260,7 +310,23 @@ public static class RelationalAnnotationNames
     public const string ModelDependencies = Prefix + "ModelDependencies";
 
     /// <summary>
-    ///     The name for the reader get value delegate annotations.
+    ///     The name for the reader field value getter delegate annotation.
     /// </summary>
-    public const string GetReaderFieldValue = Prefix + "GetReaderFieldValue";
+    public const string FieldValueGetter = Prefix + "FieldValueGetter";
+
+    /// <summary>
+    ///     The name for the annotation specifying container column name to which the object is mapped.
+    /// </summary>
+    public const string ContainerColumnName = Prefix + "ContainerColumnName";
+
+    /// <summary>
+    ///     The name for the annotation specifying container column type mapping.
+    /// </summary>
+    [Obsolete("Container column mappings are now obtained from IColumnBase.StoreTypeMapping")]
+    public const string ContainerColumnTypeMapping = Prefix + "ContainerColumnTypeMapping";
+
+    /// <summary>
+    ///     The JSON property name for the element that the property/navigation maps to.
+    /// </summary>
+    public const string JsonPropertyName = Prefix + "JsonPropertyName";
 }

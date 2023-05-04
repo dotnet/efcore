@@ -8,6 +8,8 @@ namespace Microsoft.EntityFrameworkCore;
 
 public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
 {
+    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
+
     protected abstract string StoreName { get; }
     protected abstract ITestStoreFactory TestStoreFactory { get; }
 
@@ -16,14 +18,14 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
     protected IServiceProvider ServiceProvider
         => _serviceProvider
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
+                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private TestStore _testStore;
 
     protected TestStore TestStore
         => _testStore
             ?? throw new InvalidOperationException(
-                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beggining of the test.");
+                $"You must call `await {nameof(InitializeAsync)}(\"DatabaseName\");` at the beginning of the test.");
 
     private ListLoggerFactory _listLoggerFactory;
 
@@ -129,7 +131,11 @@ public abstract class NonSharedModelTestBase : IDisposable, IAsyncLifetime
             .ConfigureWarnings(
                 b => b.Default(WarningBehavior.Throw)
                     .Log(CoreEventId.SensitiveDataLoggingEnabledWarning)
-                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning));
+                    .Log(CoreEventId.PossibleUnintendedReferenceComparisonWarning)
+                    .Ignore(
+                        CoreEventId.MappedEntityTypeIgnoredWarning,
+                        CoreEventId.MappedPropertyIgnoredWarning,
+                        CoreEventId.MappedNavigationIgnoredWarning));
 
     protected virtual TestStore CreateTestStore()
         => TestStoreFactory.Create(StoreName);

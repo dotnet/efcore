@@ -17,8 +17,8 @@ public class FunctionColumn : ColumnBase<FunctionColumnMapping>, IFunctionColumn
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public FunctionColumn(string name, string type, StoreFunction function)
-        : base(name, type, function)
+    public FunctionColumn(string name, string type, StoreFunction function, RelationalTypeMapping? storeTypeMapping = null)
+        : base(name, type, function, storeTypeMapping)
     {
     }
 

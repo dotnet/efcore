@@ -4,18 +4,19 @@
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///    Represents a lookup based on <see cref="StoreObjectIdentifier" /> keys.
+///     Represents a lookup based on <see cref="StoreObjectIdentifier" /> keys.
 /// </summary>
 /// <typeparam name="T">The values type.</typeparam>
-public class StoreObjectDictionary<T> : IReadOnlyStoreObjectDictionary<T> where T : class
+public class StoreObjectDictionary<T> : IReadOnlyStoreObjectDictionary<T>
+    where T : class
 {
     private readonly Dictionary<StoreObjectIdentifier, T> _dictionary = new();
 
     /// <inheritdoc />
     public virtual T? Find(in StoreObjectIdentifier storeObject)
         => _dictionary.TryGetValue(storeObject, out var value)
-                ? value
-                : null;
+            ? value
+            : null;
 
     /// <inheritdoc />
     public virtual IEnumerable<T> GetValues()

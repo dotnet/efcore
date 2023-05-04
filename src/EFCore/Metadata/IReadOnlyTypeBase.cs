@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
@@ -29,6 +31,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     ///     Shadow types are not currently supported in a model that is used at runtime with a <see cref="DbContext" />.
     ///     Therefore, shadow types will only exist in migration model snapshots, etc.
     /// </remarks>
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
     Type ClrType { get; }
 
     /// <summary>
@@ -113,7 +116,19 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     {
         if (!HasSharedClrType)
         {
-            return ClrType.ShortDisplayName();
+            var name = ClrType.ShortDisplayName();
+            if (name.StartsWith("<>", StringComparison.Ordinal))
+            {
+                name = name[2..];
+            }
+
+            var lessIndex = name.IndexOf("<", StringComparison.Ordinal);
+            if (lessIndex == -1)
+            {
+                return name;
+            }
+
+            return name[..lessIndex];
         }
 
         var hashIndex = Name.LastIndexOf("#", StringComparison.Ordinal);

@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace Microsoft.EntityFrameworkCore.TestModels.Northwind;
 
 public class Product
@@ -18,9 +20,13 @@ public class Product
         set => _productId = value;
     }
 
+    [MaxLength(40)]
+    [Required]
     public string ProductName { get; set; }
     public int? SupplierID { get; set; }
     public int? CategoryID { get; set; }
+
+    [MaxLength(20)]
     public string QuantityPerUnit { get; set; }
     public decimal? UnitPrice { get; set; }
     public ushort UnitsInStock { get; set; }

@@ -1,9 +1,9 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Cosmos.Internal;
-
 #nullable disable
+
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -86,9 +86,9 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 && methodCallExpression.Method.IsGenericMethod
                 && queryRootMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where)
             {
-                if (queryRootMethodCallExpression.Arguments[0] is QueryRootExpression queryRootExpression)
+                if (queryRootMethodCallExpression.Arguments[0] is EntityQueryRootExpression entityQueryRootExpression)
                 {
-                    var entityType = queryRootExpression.EntityType;
+                    var entityType = entityQueryRootExpression.EntityType;
 
                     if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression unaryExpression
                         && unaryExpression.Operand is LambdaExpression lambdaExpression)

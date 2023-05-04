@@ -61,7 +61,14 @@ public class ForeignKeyIndexConvention :
         IConventionEntityTypeBuilder entityTypeBuilder,
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
-        => OnForeignKeyRemoved(foreignKey.DeclaringEntityType, foreignKey.Properties);
+    {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
+        OnForeignKeyRemoved(foreignKey.DeclaringEntityType, foreignKey.Properties);
+    }
 
     /// <summary>
     ///     Called after the foreign key properties or principal key are changed.
@@ -139,6 +146,11 @@ public class ForeignKeyIndexConvention :
         IConventionKey key,
         IConventionContext<IConventionKey> context)
     {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
         foreach (var otherForeignKey in key.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredForeignKeys())
                      .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, key.Properties, coveringIndexUnique: true)))
@@ -223,6 +235,11 @@ public class ForeignKeyIndexConvention :
         IConventionIndex index,
         IConventionContext<IConventionIndex> context)
     {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
         foreach (var foreignKey in index.DeclaringEntityType.GetDerivedTypesInclusive()
                      .SelectMany(t => t.GetDeclaredForeignKeys())
                      .Where(fk => AreIndexedBy(fk.Properties, fk.IsUnique, index.Properties, index.IsUnique)))

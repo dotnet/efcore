@@ -89,16 +89,16 @@ public abstract class SharedStoreFixtureBase<TContext> : FixtureBase, IDisposabl
     public virtual void Reseed()
     {
         using var context = CreateContext();
-        Clean(context);
         TestStore.Clean(context);
+        Clean(context);
         Seed(context);
     }
 
     public virtual async Task ReseedAsync()
     {
         using var context = CreateContext();
-        await CleanAsync(context);
         await TestStore.CleanAsync(context);
+        await CleanAsync(context);
         await SeedAsync(context);
     }
 

@@ -15,7 +15,8 @@ public class GraphUpdatesSqlServerIdentityTest : GraphUpdatesSqlServerTestBase<G
 
     public class SqlServerFixture : GraphUpdatesSqlServerFixtureBase
     {
-        protected override string StoreName { get; } = "GraphIdentityUpdatesTest";
+        protected override string StoreName
+            => "GraphIdentityUpdatesTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

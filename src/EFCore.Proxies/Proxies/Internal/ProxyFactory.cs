@@ -79,10 +79,7 @@ public class ProxyFactory : IProxyFactory
             throw new InvalidOperationException(ProxiesStrings.ProxyServicesMissing);
         }
 
-        return CreateLazyLoadingProxy(
-            entityType,
-            context.GetService<ILazyLoader>(),
-            constructorArguments);
+        return CreateLazyLoadingProxy(entityType, loader, constructorArguments);
     }
 
     private object CreateLazyLoadingProxy(
@@ -175,7 +172,7 @@ public class ProxyFactory : IProxyFactory
         if ((bool?)entityType.Model[ProxyAnnotationNames.ChangeTracking] == true)
         {
             var checkEquality = (bool?)entityType.Model[ProxyAnnotationNames.CheckEquality] == true;
-            
+
             if (!NotifyPropertyChangedInterface.IsAssignableFrom(entityType.ClrType))
             {
                 interceptors.Add(new PropertyChangedInterceptor(entityType, checkEquality));

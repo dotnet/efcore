@@ -38,8 +38,8 @@ public class QueryAsserter
         QueryFixture = queryFixture;
         _contextCreator = queryFixture.GetContextCreator();
         _expectedData = queryFixture.GetExpectedData();
-        _entitySorters = queryFixture.GetEntitySorters() ?? new Dictionary<Type, object>();
-        _entityAsserters = queryFixture.GetEntityAsserters() ?? new Dictionary<Type, object>();
+        _entitySorters = queryFixture.EntitySorters ?? new Dictionary<Type, object>();
+        _entityAsserters = queryFixture.EntityAsserters ?? new Dictionary<Type, object>();
         SetSourceCreator = queryFixture.GetSetSourceCreator();
 
         _rewriteExpectedQueryExpression = rewriteExpectedQueryExpression;
@@ -284,6 +284,50 @@ public class QueryAsserter
         var expected = RewriteExpectedQuery(expectedQuery(expectedData)).All(rewrittenExpectedPredicate);
 
         Assert.Equal(expected, actual);
+    }
+
+    public async Task AssertElementAt<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Func<int> actualIndex,
+        Func<int> expectedIndex,
+        Action<TResult, TResult> asserter = null,
+        int entryCount = 0,
+        bool async = false,
+        bool filteredQuery = false)
+    {
+        using var context = _contextCreator();
+        var actual = async
+            ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).ElementAtAsync(actualIndex())
+            : RewriteServerQuery(actualQuery(SetSourceCreator(context))).ElementAt(actualIndex());
+
+        var expectedData = GetExpectedData(context, filteredQuery);
+        var expected = RewriteExpectedQuery(expectedQuery(expectedData)).ElementAt(expectedIndex());
+
+        AssertEqual(expected, actual, asserter);
+        AssertEntryCount(context, entryCount);
+    }
+
+    public async Task AssertElementAtOrDefault<TResult>(
+        Func<ISetSource, IQueryable<TResult>> actualQuery,
+        Func<ISetSource, IQueryable<TResult>> expectedQuery,
+        Func<int> actualIndex,
+        Func<int> expectedIndex,
+        Action<TResult, TResult> asserter = null,
+        int entryCount = 0,
+        bool async = false,
+        bool filteredQuery = false)
+    {
+        using var context = _contextCreator();
+        var actual = async
+            ? await RewriteServerQuery(actualQuery(SetSourceCreator(context))).ElementAtOrDefaultAsync(actualIndex())
+            : RewriteServerQuery(actualQuery(SetSourceCreator(context))).ElementAtOrDefault(actualIndex());
+
+        var expectedData = GetExpectedData(context, filteredQuery);
+        var expected = RewriteExpectedQuery(expectedQuery(expectedData)).ElementAtOrDefault(expectedIndex());
+
+        AssertEqual(expected, actual, asserter);
+        AssertEntryCount(context, entryCount);
     }
 
     public async Task AssertFirst<TResult>(

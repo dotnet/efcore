@@ -18,11 +18,18 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         {
             [ExpressionType.Add] = new HashSet<Type>
             {
+                typeof(DateOnly),
                 typeof(DateTime),
                 typeof(DateTimeOffset),
+                typeof(TimeOnly),
                 typeof(TimeSpan)
             },
-            [ExpressionType.Divide] = new HashSet<Type> { typeof(TimeSpan), typeof(ulong) },
+            [ExpressionType.Divide] = new HashSet<Type>
+            {
+                typeof(TimeOnly),
+                typeof(TimeSpan),
+                typeof(ulong)
+            },
             [ExpressionType.GreaterThan] = new HashSet<Type>
             {
                 typeof(DateTimeOffset),
@@ -48,11 +55,18 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                 typeof(ulong)
             },
             [ExpressionType.Modulo] = new HashSet<Type> { typeof(ulong) },
-            [ExpressionType.Multiply] = new HashSet<Type> { typeof(TimeSpan), typeof(ulong) },
+            [ExpressionType.Multiply] = new HashSet<Type>
+            {
+                typeof(TimeOnly),
+                typeof(TimeSpan),
+                typeof(ulong)
+            },
             [ExpressionType.Subtract] = new HashSet<Type>
             {
+                typeof(DateOnly),
                 typeof(DateTime),
                 typeof(DateTimeOffset),
+                typeof(TimeOnly),
                 typeof(TimeSpan)
             }
         };
@@ -119,7 +133,8 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
                     visitedExpression.Type);
             }
 
-            if (operandType == typeof(TimeSpan))
+            if (operandType == typeof(TimeOnly)
+                || operandType == typeof(TimeSpan))
             {
                 return QueryCompilationContext.NotTranslatedExpression;
             }

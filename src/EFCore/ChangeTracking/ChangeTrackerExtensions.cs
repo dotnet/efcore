@@ -39,10 +39,17 @@ public static class ChangeTrackerExtensions
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);
 
-        var stateManager = changeTracker.Context.GetService<IStateManager>();
-        foreach (var entry in stateManager.Entries.OrderBy(e => e, EntityEntryComparer.Instance))
+        try
         {
-            builder.Append(indentString).AppendLine(entry.ToDebugString(options, indent));
+            var stateManager = changeTracker.Context.GetService<IStateManager>();
+            foreach (var entry in stateManager.Entries.OrderBy(e => e, EntityEntryComparer.Instance))
+            {
+                builder.Append(indentString).AppendLine(entry.ToDebugString(options, indent));
+            }
+        }
+        catch (Exception exception)
+        {
+            builder.AppendLine().AppendLine(CoreStrings.DebugViewError(exception.Message));
         }
 
         return builder.ToString();

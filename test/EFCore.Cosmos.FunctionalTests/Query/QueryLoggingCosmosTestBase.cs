@@ -44,9 +44,11 @@ public abstract class QueryLoggingCosmosTestBase
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "(null)", "", Environment.NewLine,
-                    @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")"),
+WHERE (c["Discriminator"] = "Customer")
+"""),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
         else
@@ -54,9 +56,11 @@ WHERE (c[""Discriminator""] = ""Customer"")"),
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "?", "", Environment.NewLine,
-                    @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE (c[""Discriminator""] = ""Customer"")"),
+WHERE (c["Discriminator"] = "Customer")
+"""),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
     }
@@ -89,9 +93,11 @@ WHERE (c[""Discriminator""] = ""Customer"")"),
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "(null)", "@__city_0='Redmond'", Environment.NewLine,
-                    @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
+WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
+"""),
                 Fixture.TestSqlLoggerFactory.Log[3].Message);
         }
         else
@@ -99,9 +105,11 @@ WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
             Assert.Equal(
                 CosmosResources.LogExecutingSqlQuery(new TestLogger<CosmosLoggingDefinitions>()).GenerateMessage(
                     "NorthwindContext", "?", "@__city_0=?", Environment.NewLine,
-                    @"SELECT c
+"""
+SELECT c
 FROM root c
-WHERE ((c[""Discriminator""] = ""Customer"") AND (c[""City""] = @__city_0))"),
+WHERE ((c["Discriminator"] = "Customer") AND (c["City"] = @__city_0))
+"""),
                 Fixture.TestSqlLoggerFactory.Log[2].Message);
         }
     }

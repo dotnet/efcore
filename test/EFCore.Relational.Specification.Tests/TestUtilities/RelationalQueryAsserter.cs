@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Data;
+
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class RelationalQueryAsserter : QueryAsserter
@@ -65,17 +67,30 @@ public class RelationalQueryAsserter : QueryAsserter
 
     private static int ExecuteReader(DbCommand command)
     {
-        using var reader = command.ExecuteReader();
-
-        // Not materializing objects here since automatic creation of objects does not
-        // work for some SQL types, such as geometry/geography
-        var count = 0;
-        if (reader.HasRows)
+        var needToOpen = command.Connection?.State == ConnectionState.Closed;
+        if (needToOpen)
         {
-            while (reader.Read())
+            command.Connection.Open();
+        }
+
+        var count = 0;
+
+        using (var reader = command.ExecuteReader())
+        {
+            // Not materializing objects here since automatic creation of objects does not
+            // work for some SQL types, such as geometry/geography
+            if (reader.HasRows)
             {
-                count++;
+                while (reader.Read())
+                {
+                    count++;
+                }
             }
+        }
+
+        if (needToOpen)
+        {
+            command.Connection.Close();
         }
 
         return count;

@@ -19,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///         your constructor so that an instance will be created and injected automatically by the
 ///         dependency injection container. To create an instance with some dependent services replaced,
 ///         first resolve the object from the dependency injection container, then replace selected
-///         services using the 'With...' methods. Do not call the constructor at any point in this process.
+///         services using the C# 'with' operator. Do not call the constructor at any point in this process.
 ///     </para>
 ///     <para>
 ///         The service lifetime is <see cref="ServiceLifetime.Scoped" />. This means that each
@@ -43,7 +43,7 @@ public sealed record QueryCompilationContextDependencies
     ///     as new dependencies are added. Instead, use this type in your constructor so that an instance
     ///     will be created and injected automatically by the dependency injection container. To create
     ///     an instance with some dependent services replaced, first resolve the object from the dependency
-    ///     injection container, then replace selected services using the 'With...' methods. Do not call
+    ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]
@@ -56,7 +56,8 @@ public sealed record QueryCompilationContextDependencies
         IExecutionStrategy executionStrategy,
         ICurrentDbContext currentContext,
         IDbContextOptions contextOptions,
-        IDiagnosticsLogger<DbLoggerCategory.Query> logger)
+        IDiagnosticsLogger<DbLoggerCategory.Query> logger,
+        IInterceptors interceptors)
     {
         _currentContext = currentContext;
         Model = model;
@@ -67,7 +68,14 @@ public sealed record QueryCompilationContextDependencies
         IsRetryingExecutionStrategy = executionStrategy.RetriesOnFailure;
         ContextOptions = contextOptions;
         Logger = logger;
+        Interceptors = interceptors;
     }
+
+    /// <summary>
+    ///     The current context.
+    /// </summary>
+    public DbContext Context
+        => _currentContext.Context;
 
     /// <summary>
     ///     The CLR type of DbContext.
@@ -120,4 +128,9 @@ public sealed record QueryCompilationContextDependencies
     ///     The logger.
     /// </summary>
     public IDiagnosticsLogger<DbLoggerCategory.Query> Logger { get; init; }
+
+    /// <summary>
+    ///     Registered interceptors.
+    /// </summary>
+    public IInterceptors Interceptors { get; }
 }

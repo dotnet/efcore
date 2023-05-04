@@ -2001,6 +2001,24 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void GetSchemaTable_works_when_quotes()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                connection.Open();
+                connection.ExecuteNonQuery(
+                    @"CREATE TABLE ""Bad""""Table""(Value);");
+
+                using (var reader = connection.ExecuteReader(@"SELECT * FROM ""Bad""""Table"";"))
+                {
+                    var schemaTable = reader.GetSchemaTable();
+                    Assert.Equal(1, schemaTable.Rows.Count);
+                    Assert.Equal(@"Bad""Table", schemaTable.Rows[0][SchemaTableColumn.BaseTableName]);
+                }
+            }
+        }
+
+        [Fact]
         public void GetSchemaTable_works_when_view()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))

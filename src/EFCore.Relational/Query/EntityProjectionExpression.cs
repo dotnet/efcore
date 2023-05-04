@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -18,21 +17,35 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class EntityProjectionExpression : Expression
 {
     private readonly IReadOnlyDictionary<IProperty, ColumnExpression> _propertyExpressionMap;
-    private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap = new();
+    private readonly Dictionary<INavigation, EntityShaperExpression> _ownedNavigationMap;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="EntityProjectionExpression" /> class.
     /// </summary>
-    /// <param name="entityType">The entity type to shape.</param>
+    /// <param name="entityType">An entity type to shape.</param>
     /// <param name="propertyExpressionMap">A dictionary of column expressions corresponding to properties of the entity type.</param>
     /// <param name="discriminatorExpression">A <see cref="SqlExpression" /> to generate discriminator for each concrete entity type in hierarchy.</param>
     public EntityProjectionExpression(
         IEntityType entityType,
         IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
         SqlExpression? discriminatorExpression = null)
+        : this(
+            entityType,
+            propertyExpressionMap,
+            new Dictionary<INavigation, EntityShaperExpression>(),
+            discriminatorExpression)
+    {
+    }
+
+    private EntityProjectionExpression(
+        IEntityType entityType,
+        IReadOnlyDictionary<IProperty, ColumnExpression> propertyExpressionMap,
+        Dictionary<INavigation, EntityShaperExpression> ownedNavigationMap,
+        SqlExpression? discriminatorExpression = null)
     {
         EntityType = entityType;
         _propertyExpressionMap = propertyExpressionMap;
+        _ownedNavigationMap = ownedNavigationMap;
         DiscriminatorExpression = discriminatorExpression;
     }
 
@@ -70,8 +83,16 @@ public class EntityProjectionExpression : Expression
         var discriminatorExpression = (SqlExpression?)visitor.Visit(DiscriminatorExpression);
         changed |= discriminatorExpression != DiscriminatorExpression;
 
+        var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
+        foreach (var (navigation, entityShaperExpression) in _ownedNavigationMap)
+        {
+            var newExpression = (EntityShaperExpression)visitor.Visit(entityShaperExpression);
+            changed |= newExpression != entityShaperExpression;
+            ownedNavigationMap[navigation] = newExpression;
+        }
+
         return changed
-            ? new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression)
+            ? new EntityProjectionExpression(EntityType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression)
             : this;
     }
 
@@ -93,7 +114,26 @@ public class EntityProjectionExpression : Expression
             // if discriminator is column then we need to make it nullable
             discriminatorExpression = ce.MakeNullable();
         }
-        return new EntityProjectionExpression(EntityType, propertyExpressionMap, discriminatorExpression);
+
+        var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
+        foreach (var (navigation, shaper) in _ownedNavigationMap)
+        {
+            if (shaper.EntityType.IsMappedToJson())
+            {
+                // even if shaper is nullable, we need to make sure key property map contains nullable keys,
+                // if json entity itself is optional, the shaper would be null, but the PK of the owner entity would be non-nullable intially
+                var jsonQueryExpression = (JsonQueryExpression)shaper.ValueBufferExpression;
+                var newJsonQueryExpression = jsonQueryExpression.MakeNullable();
+                var newShaper = shaper.Update(newJsonQueryExpression).MakeNullable();
+                ownedNavigationMap[navigation] = newShaper;
+            }
+        }
+
+        return new EntityProjectionExpression(
+            EntityType,
+            propertyExpressionMap,
+            ownedNavigationMap,
+            discriminatorExpression);
     }
 
     /// <summary>
@@ -120,10 +160,21 @@ public class EntityProjectionExpression : Expression
             }
         }
 
+        var ownedNavigationMap = new Dictionary<INavigation, EntityShaperExpression>();
+        foreach (var (navigation, entityShaperExpression) in _ownedNavigationMap)
+        {
+            if (derivedType.IsAssignableFrom(navigation.DeclaringEntityType)
+                || navigation.DeclaringEntityType.IsAssignableFrom(derivedType))
+            {
+                ownedNavigationMap[navigation] = entityShaperExpression;
+            }
+        }
+
         var discriminatorExpression = DiscriminatorExpression;
         if (DiscriminatorExpression is CaseExpression caseExpression)
         {
-            var entityTypesToSelect = derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
+            var entityTypesToSelect =
+                derivedType.GetConcreteDerivedTypesInclusive().Select(e => (string)e.GetDiscriminatorValue()!).ToList();
             var whenClauses = caseExpression.WhenClauses
                 .Where(wc => entityTypesToSelect.Contains((string)((SqlConstantExpression)wc.Result).Value!))
                 .ToList();
@@ -131,7 +182,7 @@ public class EntityProjectionExpression : Expression
             discriminatorExpression = caseExpression.Update(operand: null, whenClauses, elseResult: null);
         }
 
-        return new EntityProjectionExpression(derivedType, propertyExpressionMap, discriminatorExpression);
+        return new EntityProjectionExpression(derivedType, propertyExpressionMap, ownedNavigationMap, discriminatorExpression);
     }
 
     /// <summary>

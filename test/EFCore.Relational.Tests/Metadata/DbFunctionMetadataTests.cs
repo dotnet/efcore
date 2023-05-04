@@ -841,5 +841,5 @@ public class DbFunctionMetadataTests
     }
 
     private TestHelpers.TestModelBuilder GetModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 }

@@ -510,7 +510,7 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            .ToTable(tb => tb.HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id"));
 
         var checkConstraint = entityType.FindCheckConstraint("CK_Customer_AlternateId");
 
@@ -528,11 +528,11 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id");
+            .ToTable(tb => tb.HasCheckConstraint("CK_Customer_AlternateId", "AlternateId > Id"));
 
         modelBuilder
             .Entity<Customer>()
-            .HasCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id");
+            .ToTable(tb => tb.HasCheckConstraint("CK_Customer_AlternateId", "AlternateId < Id"));
 
         var checkConstraint = entityType.FindCheckConstraint("CK_Customer_AlternateId");
 
@@ -568,6 +568,7 @@ public class RelationalBuilderExtensionsTest
 
         var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
         IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
+        derivedBuilder.HasBaseType((EntityType)null, ConfigurationSource.DataAnnotation);
 
         Assert.NotNull(
             derivedBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
@@ -581,17 +582,13 @@ public class RelationalBuilderExtensionsTest
         Assert.False(derivedBuilder.CanHaveCheckConstraint("Splew", "s > p"));
         Assert.True(derivedBuilder.CanHaveCheckConstraint("Splot", "s > p"));
 
+        Assert.Null(derivedBuilder.HasCheckConstraint("Splew", "s > p"));
+        Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
+
         var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.DataAnnotation);
         IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
-
-        Assert.True(baseBuilder.CanHaveCheckConstraint("Splew", "s < p"));
-        Assert.True(baseBuilder.CanHaveCheckConstraint("Splew", "s > p", fromDataAnnotation: true));
-        Assert.False(baseBuilder.CanHaveCheckConstraint("Splew", "s > p"));
-        Assert.True(baseBuilder.CanHaveCheckConstraint("Splot", "s > p"));
-
-        Assert.Null(baseBuilder.HasCheckConstraint("Splew", "s > p"));
+        Assert.Null(derivedEntityType.BaseType);
         Assert.Empty(baseEntityType.GetCheckConstraints());
-        Assert.Equal("s < p", derivedEntityType.GetCheckConstraints().Single().Sql);
 
         Assert.NotNull(
             baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
@@ -600,7 +597,7 @@ public class RelationalBuilderExtensionsTest
         Assert.Equal("s < p", baseEntityType.GetCheckConstraints().Single().Sql);
         Assert.Equal("CK_Splot", baseEntityType.GetCheckConstraints().Single().Name);
 
-        derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.Convention);
+        Assert.NotNull(derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.DataAnnotation));
 
         Assert.Null(
             baseBuilder.HasCheckConstraint("Splew", "s < p", fromDataAnnotation: true)
@@ -661,12 +658,12 @@ public class RelationalBuilderExtensionsTest
             .Entity<Customer>()
             .ToTable(tb => tb.HasTrigger("Customer_Trigger"));
 
-        var trigger = entityType.FindTrigger("Customer_Trigger");
+        var trigger = entityType.FindDeclaredTrigger("Customer_Trigger");
 
         Assert.NotNull(trigger);
         Assert.Same(entityType, trigger.EntityType);
         Assert.Equal("Customer_Trigger", trigger.ModelName);
-        Assert.Equal("Customer_Trigger", trigger.Name);
+        Assert.Equal("Customer_Trigger", trigger.GetDatabaseName());
     }
 
     [ConditionalFact]
@@ -677,18 +674,18 @@ public class RelationalBuilderExtensionsTest
 
         modelBuilder
             .Entity<Customer>()
-            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasName("Table1"));
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasDatabaseName("Table1"));
 
         modelBuilder
             .Entity<Customer>()
-            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasName("Table2"));
+            .ToTable(tb => tb.HasTrigger("Customer_Trigger").HasDatabaseName("Table2"));
 
-        var trigger = entityType.FindTrigger("Customer_Trigger");
+        var trigger = entityType.FindDeclaredTrigger("Customer_Trigger");
 
         Assert.NotNull(trigger);
         Assert.Equal(entityType, trigger.EntityType);
         Assert.Equal("Customer_Trigger", trigger.ModelName);
-        Assert.Equal("Table2", trigger.Name);
+        Assert.Equal("Table2", trigger.GetDatabaseName());
     }
 
     [ConditionalFact]
@@ -697,112 +694,24 @@ public class RelationalBuilderExtensionsTest
         var typeBuilder = CreateBuilder().Entity(typeof(Splot), ConfigurationSource.Convention);
         IReadOnlyEntityType entityType = typeBuilder.Metadata;
 
-        Assert.NotNull(typeBuilder.HasTrigger("Splew", "Table1", "dbo"));
-        Assert.Equal("Splew", entityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table1", entityType.GetTriggers().Single().TableName);
+        var trigger = typeBuilder.HasTrigger("Splew", ConfigurationSource.Convention);
+        Assert.NotNull(trigger.HasTableName("Table1"));
+        Assert.NotNull(trigger.HasTableSchema("dbo"));
+        Assert.Equal("Splew", entityType.GetDeclaredTriggers().Single().ModelName);
+        Assert.Equal("Table1", entityType.GetDeclaredTriggers().Single().GetTableName());
+        Assert.Equal("dbo", entityType.GetDeclaredTriggers().Single().GetTableSchema());
 
-        Assert.NotNull(typeBuilder.HasTrigger("Splew", "Table2", "dbo", fromDataAnnotation: true));
-        Assert.Equal("Splew", entityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table2", entityType.GetTriggers().Single().TableName);
+        trigger = typeBuilder.HasTrigger("Splew", ConfigurationSource.DataAnnotation);
+        Assert.NotNull(trigger.HasTableName("Table2", fromDataAnnotation: true));
+        Assert.NotNull(trigger.HasTableSchema("dbo", fromDataAnnotation: true));
+        Assert.Equal("Splew", entityType.GetDeclaredTriggers().Single().ModelName);
+        Assert.Equal("Table2", entityType.GetDeclaredTriggers().Single().GetTableName());
 
-        Assert.Null(typeBuilder.HasTrigger("Splew", "Table1", "dbo"));
-        Assert.Equal("Splew", entityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table2", entityType.GetTriggers().Single().TableName);
-    }
-
-    [ConditionalFact]
-    public void Base_trigger_overrides_derived_one()
-    {
-        var modelBuilder = CreateBuilder();
-
-        var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
-        IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
-
-        Assert.NotNull(
-            derivedBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
-                .HasName("Splow_Trigger", fromDataAnnotation: true));
-        Assert.Equal("Splew", derivedEntityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Splow_Trigger", derivedEntityType.GetTriggers().Single().Name);
-        Assert.Equal("Table1", derivedEntityType.GetTriggers().Single().TableName);
-        Assert.Equal("dbo", derivedEntityType.GetTriggers().Single().TableSchema);
-
-        Assert.True(derivedBuilder.CanHaveTrigger("Splew", "Table1", "dbo"));
-        Assert.True(derivedBuilder.CanHaveTrigger("Splew", "Table2", "dbo", fromDataAnnotation: true));
-        Assert.True(derivedBuilder.CanHaveTrigger("Splew", "Table1", "dbo2", fromDataAnnotation: true));
-        Assert.False(derivedBuilder.CanHaveTrigger("Splew", "Table2", "dbo"));
-        Assert.False(derivedBuilder.CanHaveTrigger("Splew", "Table1", "dbo2"));
-        Assert.True(derivedBuilder.CanHaveTrigger("Splot", "Table2", "dbo2"));
-
-        var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.DataAnnotation);
-        IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
-
-        Assert.True(baseBuilder.CanHaveTrigger("Splew", "Table1", "dbo"));
-        Assert.True(baseBuilder.CanHaveTrigger("Splew", "Table2", "dbo", fromDataAnnotation: true));
-        Assert.True(baseBuilder.CanHaveTrigger("Splew", "Table1", "dbo2", fromDataAnnotation: true));
-        Assert.False(baseBuilder.CanHaveTrigger("Splew", "Table2", "dbo"));
-        Assert.False(baseBuilder.CanHaveTrigger("Splew", "Table1", "dbo2"));
-        Assert.True(baseBuilder.CanHaveTrigger("Splot", "Table2", "dbo2"));
-
-        Assert.Null(baseBuilder.HasTrigger("Splew", "Table2", "dbo"));
-        Assert.Empty(baseEntityType.GetTriggers());
-        Assert.Equal("Table1", derivedEntityType.GetTriggers().Single().TableName);
-
-        Assert.NotNull(
-            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
-                .HasName("Another_Splot_Trigger", fromDataAnnotation: true));
-        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
-        Assert.Equal("Another_Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
-
-        derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.Convention);
-
-        Assert.Null(
-            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
-                .HasName("Yet_Another_Splot_Trigger"));
-        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
-        Assert.Equal("Another_Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
-        Assert.Empty(derivedEntityType.GetDeclaredTriggers());
-        Assert.Same(baseEntityType.GetTriggers().Single(), derivedEntityType.GetTriggers().Single());
-    }
-
-    [ConditionalFact]
-    public void Base_trigger_overrides_derived_one_after_base_is_set()
-    {
-        var modelBuilder = CreateBuilder();
-
-        var derivedBuilder = modelBuilder.Entity(typeof(Splow), ConfigurationSource.Convention);
-        Assert.NotNull(derivedBuilder.HasBaseType((string)null, ConfigurationSource.DataAnnotation));
-        IReadOnlyEntityType derivedEntityType = derivedBuilder.Metadata;
-
-        Assert.NotNull(
-            derivedBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
-                .HasName("Splow_Trigger", fromDataAnnotation: true));
-        Assert.Equal("Splew", derivedEntityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table1", derivedEntityType.GetTriggers().Single().TableName);
-        Assert.Equal("Splow_Trigger", derivedEntityType.GetTriggers().Single().Name);
-
-        var baseBuilder = modelBuilder.Entity(typeof(Splot), ConfigurationSource.Convention);
-        IReadOnlyEntityType baseEntityType = baseBuilder.Metadata;
-        Assert.Null(derivedEntityType.BaseType);
-
-        Assert.NotNull(
-            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
-                .HasName("Splot_Trigger", fromDataAnnotation: true));
-        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
-        Assert.Equal("Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
-
-        Assert.NotNull(derivedBuilder.HasBaseType((EntityType)baseEntityType, ConfigurationSource.DataAnnotation));
-
-        Assert.Null(
-            baseBuilder.HasTrigger("Splew", "Table1", "dbo", fromDataAnnotation: true)
-                .HasName("Splew_Trigger"));
-        Assert.Equal("Splew", baseEntityType.GetTriggers().Single().ModelName);
-        Assert.Equal("Table1", baseEntityType.GetTriggers().Single().TableName);
-        Assert.Equal("Splot_Trigger", baseEntityType.GetTriggers().Single().Name);
-        Assert.Empty(derivedEntityType.GetDeclaredTriggers());
-        Assert.Same(baseEntityType.GetTriggers().Single(), derivedEntityType.GetTriggers().Single());
+        trigger = typeBuilder.HasTrigger("Splew", ConfigurationSource.Convention);
+        Assert.Null(trigger.HasTableName("Table1"));
+        Assert.NotNull(trigger.HasTableSchema("dbo"));
+        Assert.Equal("Splew", entityType.GetDeclaredTriggers().Single().ModelName);
+        Assert.Equal("Table2", entityType.GetDeclaredTriggers().Single().GetTableName());
     }
 
     [ConditionalFact]
@@ -1536,7 +1445,7 @@ public class RelationalBuilderExtensionsTest
     }
 
     protected virtual ModelBuilder CreateConventionModelBuilder()
-        => RelationalTestHelpers.Instance.CreateConventionBuilder();
+        => FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
 
     private InternalModelBuilder CreateBuilder()
         => (InternalModelBuilder)CreateConventionModelBuilder().GetInfrastructure();

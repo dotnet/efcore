@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
@@ -134,7 +135,7 @@ public class MemberClassifier : IMemberClassifier
     }
 
     private bool IsCandidateNavigationPropertyType(
-        Type targetType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type targetType,
         MemberInfo memberInfo,
         Model model,
         out bool? shouldBeOwned)
@@ -185,15 +186,15 @@ public class MemberClassifier : IMemberClassifier
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IParameterBindingFactory? FindServicePropertyCandidateBindingFactory(
-        PropertyInfo propertyInfo,
+        MemberInfo memberInfo,
         IConventionModel model)
     {
-        if (!propertyInfo.IsCandidateProperty(publicOnly: false))
+        if (!memberInfo.IsCandidateProperty(publicOnly: false))
         {
             return null;
         }
 
-        var type = propertyInfo.PropertyType;
+        var type = memberInfo.GetMemberType();
         var configurationType = ((Model)model).Configuration?.GetConfigurationType(type);
         if (configurationType != TypeConfigurationType.ServiceProperty)
         {
@@ -202,13 +203,13 @@ public class MemberClassifier : IMemberClassifier
                 return null;
             }
 
-            if (propertyInfo.IsCandidateProperty()
-                && _typeMappingSource.FindMapping(propertyInfo.GetMemberType(), (IModel)model) != null)
+            if (memberInfo.IsCandidateProperty()
+                && _typeMappingSource.FindMapping(memberInfo.GetMemberType(), (IModel)model) != null)
             {
                 return null;
             }
         }
 
-        return _parameterBindingFactories.FindFactory(type, propertyInfo.GetSimpleMemberName());
+        return _parameterBindingFactories.FindFactory(type, memberInfo.GetSimpleMemberName());
     }
 }

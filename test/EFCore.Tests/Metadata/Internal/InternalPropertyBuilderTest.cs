@@ -1,8 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -117,6 +115,37 @@ public class InternalPropertyBuilderTest
 
         Assert.NotNull(builder.HasMaxLength(2, ConfigurationSource.Explicit));
         Assert.Equal(2, metadata.GetMaxLength().Value);
+    }
+
+    [ConditionalFact]
+    public void Can_only_override_lower_or_equal_source_sentinel()
+    {
+        var builder = CreateInternalPropertyBuilder();
+        var metadata = builder.Metadata;
+
+        Assert.NotNull(builder.HasSentinel(1, ConfigurationSource.DataAnnotation));
+        Assert.NotNull(builder.HasSentinel(2, ConfigurationSource.DataAnnotation));
+
+        Assert.Equal(2, metadata.Sentinel);
+
+        Assert.Null(builder.HasSentinel(1, ConfigurationSource.Convention));
+        Assert.Equal(2, metadata.Sentinel);
+    }
+
+    [ConditionalFact]
+    public void Can_only_override_existing_sentinel_value_explicitly()
+    {
+        var metadata = CreateProperty();
+        metadata.SetSentinel(1, ConfigurationSource.Explicit);
+        var builder = metadata.Builder;
+
+        Assert.NotNull(builder.HasSentinel(1, ConfigurationSource.DataAnnotation));
+        Assert.Null(builder.HasSentinel(2, ConfigurationSource.DataAnnotation));
+
+        Assert.Equal(1, metadata.Sentinel);
+
+        Assert.NotNull(builder.HasSentinel(2, ConfigurationSource.Explicit));
+        Assert.Equal(2, metadata.Sentinel);
     }
 
     [ConditionalFact]

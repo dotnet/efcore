@@ -723,7 +723,8 @@ public abstract partial class ConferencePlannerTestBase<TFixture> : IClassFixtur
 
     public abstract class ConferencePlannerFixtureBase : SharedStoreFixtureBase<ApplicationDbContext>
     {
-        protected override string StoreName { get; } = "ConferencePlanner";
+        protected override string StoreName
+            => "ConferencePlanner";
 
         protected override bool UsePooling
             => false;

@@ -138,7 +138,7 @@ public abstract class RelationalTypeMapperTestBase
         }
     }
 
-    protected abstract ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null);
+    protected abstract ModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configureConventions = null);
     protected abstract IRelationalTypeMappingSource CreateRelationalTypeMappingSource();
 
     protected class MyType

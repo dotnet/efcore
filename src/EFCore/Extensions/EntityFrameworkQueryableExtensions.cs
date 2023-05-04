@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -11,10 +12,17 @@ namespace Microsoft.EntityFrameworkCore;
 /// <summary>
 ///     Entity Framework LINQ related extension methods.
 /// </summary>
+[UnconditionalSuppressMessage(
+    "ReflectionAnalysis",
+    "IL2060",
+    Justification =
+        "MakeGenericMethod is used in this class to create MethodCallExpression nodes, but only if the method in question is called " +
+        "from user code - so it's never trimmed. After https://github.com/dotnet/linker/issues/2482 is fixed, the suppression will no " +
+        "longer be necessary.")]
 public static class EntityFrameworkQueryableExtensions
 {
     /// <summary>
-    ///     Generates a string representation of the query used. This string may not be suitable for direct execution is intended only
+    ///     Generates a string representation of the query used. This string may not be suitable for direct execution and is intended only
     ///     for use in debugging.
     /// </summary>
     /// <remarks>
@@ -267,6 +275,87 @@ public static class EntityFrameworkQueryableExtensions
 
     #endregion
 
+    #region ElementAt/ElementAtOrDefault
+
+    /// <summary>
+    ///     Asynchronously returns the element at a specified index in a sequence.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
+    ///         that any asynchronous operations have completed before calling another method on this context.
+    ///         See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information and examples.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-async-linq">Querying data with EF Core</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}" /> to return the element from.</param>
+    /// <param name="index">The zero-based index of the element to retrieve.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation.
+    ///     The task result contains the element at a specified index in a <paramref name="source" /> sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <paramref name="source" /> is <see langword="null" />.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    ///     <para>
+    ///         <paramref name="index" /> is less than zero.
+    ///     </para>
+    /// </exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static Task<TSource> ElementAtAsync<TSource>(
+        this IQueryable<TSource> source,
+        int index,
+        CancellationToken cancellationToken = default)
+    {
+        Check.NotNull(index, nameof(index));
+
+        return ExecuteAsync<TSource, Task<TSource>>(
+            QueryableMethods.ElementAt, source, Expression.Constant(index), cancellationToken);
+    }
+
+    /// <summary>
+    ///     Asynchronously returns the element at a specified index in a sequence, or a default value if the index is out of range.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
+    ///         that any asynchronous operations have completed before calling another method on this context.
+    ///         See <see href="https://aka.ms/efcore-docs-threading">Avoiding DbContext threading issues</see> for more information and examples.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-async-linq">Querying data with EF Core</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}" /> to return the element from.</param>
+    /// <param name="index">The zero-based index of the element to retrieve.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>
+    ///     A task that represents the asynchronous operation.
+    ///     The task result contains the element at a specified index in a <paramref name="source" /> sequence.
+    /// </returns>
+    /// <exception cref="ArgumentNullException">
+    ///     <paramref name="source" /> is <see langword="null" />.
+    /// </exception>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public static Task<TSource> ElementAtOrDefaultAsync<TSource>(
+        this IQueryable<TSource> source,
+        int index,
+        CancellationToken cancellationToken = default)
+    {
+        Check.NotNull(index, nameof(index));
+
+        return ExecuteAsync<TSource, Task<TSource>>(
+            QueryableMethods.ElementAtOrDefault, source, Expression.Constant(index), cancellationToken);
+    }
+
+    #endregion
+
     #region First/FirstOrDefault
 
     /// <summary>
@@ -393,7 +482,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the first
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the first
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -539,7 +628,7 @@ public static class EntityFrameworkQueryableExtensions
     /// <returns>
     ///     A task that represents the asynchronous operation.
     ///     The task result contains <see langword="default" /> ( <typeparamref name="TSource" /> ) if <paramref name="source" />
-    ///     is empty or if no element passes the test specified by <paramref name="predicate" /> ; otherwise, the last
+    ///     is empty or if no element passes the test specified by <paramref name="predicate" />, otherwise, the last
     ///     element in <paramref name="source" /> that passes the test specified by <paramref name="predicate" />.
     /// </returns>
     /// <exception cref="ArgumentNullException">
@@ -2687,20 +2776,14 @@ public static class EntityFrameworkQueryableExtensions
     #region Tagging
 
     internal static readonly MethodInfo TagWithMethodInfo
-        = typeof(EntityFrameworkQueryableExtensions).GetMethod(nameof(TagWith), new[]
-        {
-            typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-            typeof(string)
-        })!;
+        = typeof(EntityFrameworkQueryableExtensions).GetMethod(
+            nameof(TagWith), new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string) })!;
 
     internal static readonly MethodInfo TagWithCallSiteMethodInfo
         = typeof(EntityFrameworkQueryableExtensions)
-            .GetMethod(nameof(TagWithCallSite), new[]
-            {
-                typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
-                typeof(string),
-                typeof(int)
-            })!;
+            .GetMethod(
+                nameof(TagWithCallSite),
+                new[] { typeof(IQueryable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)), typeof(string), typeof(int) })!;
 
     /// <summary>
     ///     Adds a tag to the collection of tags associated with an EF LINQ query. Tags are query annotations

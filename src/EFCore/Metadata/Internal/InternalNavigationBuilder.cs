@@ -97,6 +97,46 @@ public class InternalNavigationBuilder : InternalPropertyBaseBuilder<Navigation>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual bool CanSetLazyLoadingEnabled(bool? lazyLoadingEnabled, ConfigurationSource configurationSource)
+    {
+        IConventionNavigation conventionNavigation = Metadata;
+
+        return configurationSource.Overrides(conventionNavigation.GetLazyLoadingEnabledConfigurationSource())
+            || conventionNavigation.LazyLoadingEnabled == lazyLoadingEnabled;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalNavigationBuilder? EnableLazyLoading(bool? lazyLoadingEnabled, ConfigurationSource configurationSource)
+    {
+        if (CanSetLazyLoadingEnabled(lazyLoadingEnabled, configurationSource))
+        {
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                ((IMutableNavigation)Metadata).SetLazyLoadingEnabled(lazyLoadingEnabled);
+            }
+            else
+            {
+                ((IConventionNavigation)Metadata).SetLazyLoadingEnabled(
+                    lazyLoadingEnabled, configurationSource == ConfigurationSource.DataAnnotation);
+            }
+
+            return this;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual bool CanSetIsRequired(bool? required, ConfigurationSource configurationSource)
     {
         var foreignKey = Metadata.ForeignKey;
@@ -238,6 +278,16 @@ public class InternalNavigationBuilder : InternalPropertyBaseBuilder<Navigation>
     [DebuggerStepThrough]
     IConventionNavigationBuilder? IConventionNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
         => AutoInclude(autoInclude, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionNavigationBuilder.CanSetLazyLoadingEnabled(bool? lazyLoadingEnabled, bool fromDataAnnotation)
+        => CanSetLazyLoadingEnabled(lazyLoadingEnabled, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionNavigationBuilder? IConventionNavigationBuilder.EnableLazyLoading(bool? lazyLoadingEnabled, bool fromDataAnnotation)
+        => EnableLazyLoading(lazyLoadingEnabled, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <inheritdoc />
     [DebuggerStepThrough]

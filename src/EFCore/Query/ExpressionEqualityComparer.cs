@@ -5,6 +5,8 @@
 // ReSharper disable ForCanBeConvertedToForeach
 // ReSharper disable LoopCanBeConvertedToQuery
 
+using System.Collections;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -64,10 +66,19 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                     break;
 
                 case ConstantExpression constantExpression:
-                    if (constantExpression.Value != null
-                        && !(constantExpression.Value is IQueryable))
+                    switch (constantExpression.Value)
                     {
-                        hash.Add(constantExpression.Value);
+                        case IQueryable:
+                        case null:
+                            break;
+
+                        case IStructuralEquatable structuralEquatable:
+                            hash.Add(structuralEquatable.GetHashCode(StructuralComparisons.StructuralEqualityComparer));
+                            break;
+
+                        default:
+                            hash.Add(constantExpression.Value);
+                            break;
                     }
 
                     break;
@@ -354,7 +365,12 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                 && Compare(a.IfFalse, b.IfFalse);
 
         private static bool CompareConstant(ConstantExpression a, ConstantExpression b)
-            => Equals(a.Value, b.Value);
+        {
+            var (v1, v2) = (a.Value, b.Value);
+
+            return Equals(v1, v2)
+                || (v1 is IStructuralEquatable array1 && array1.Equals(v2, StructuralComparisons.StructuralEqualityComparer));
+        }
 
         private bool CompareGoto(GotoExpression a, GotoExpression b)
             => a.Kind == b.Kind
@@ -387,7 +403,9 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
 
             for (var i = 0; i < n; i++)
             {
-                if (a.Parameters[i].Type != b.Parameters[i].Type)
+                var (p1, p2) = (a.Parameters[i], b.Parameters[i]);
+
+                if (p1.Type != p2.Type)
                 {
                     for (var j = 0; j < i; j++)
                     {
@@ -397,7 +415,10 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                     return false;
                 }
 
-                _parameterScope.Add(a.Parameters[i], b.Parameters[i]);
+                if (!_parameterScope.TryAdd(p1, p2))
+                {
+                    throw new InvalidOperationException(CoreStrings.SameParameterInstanceUsedInMultipleLambdas(p1.Name));
+                }
             }
 
             try

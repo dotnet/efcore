@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,7 +12,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
 /// </remarks>
-public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavigationBuilder
+public class OwnedNavigationBuilder<
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TOwnerEntity,
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TDependentEntity> : OwnedNavigationBuilder
     where TOwnerEntity : class
     where TDependentEntity : class
 {
@@ -257,8 +260,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     The name of the reference navigation property on this entity type that represents the relationship.
     /// </param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
-        string navigationName)
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(string navigationName)
         where TNewDependentEntity : class
         => OwnsOneBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
@@ -288,7 +291,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     The name of the reference navigation property on this entity type that represents the relationship.
     /// </param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         string ownedTypeName,
         string navigationName)
         where TNewDependentEntity : class
@@ -320,8 +324,9 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     the relationship (<c>customer => customer.Address</c>).
     /// </param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
-        Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
         where TNewDependentEntity : class
         => OwnsOneBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
@@ -352,7 +357,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     the relationship (<c>customer => customer.Address</c>).
     /// </param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne<TNewDependentEntity>(
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         string ownedTypeName,
         Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression)
         where TNewDependentEntity : class
@@ -384,9 +390,10 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
-        string navigationName,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            string navigationName,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotEmpty(navigationName, nameof(navigationName));
@@ -456,7 +463,7 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// <returns>An object that can be used to configure the entity type.</returns>
     public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne(
         string ownedTypeName,
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.OwnsOne(ownedTypeName, ownedType, navigationName, buildAction);
@@ -486,7 +493,7 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// <param name="buildAction">An action that performs configuration of the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
     public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne(
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.OwnsOne(ownedType, navigationName, buildAction);
@@ -516,10 +523,11 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
-        string ownedTypeName,
-        string navigationName,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            string ownedTypeName,
+            string navigationName,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
@@ -557,9 +565,10 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
-        Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotNull(navigationExpression, nameof(navigationExpression));
@@ -598,10 +607,11 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne<TNewDependentEntity>(
-        string ownedTypeName,
-        Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            string ownedTypeName,
+            Expression<Func<TDependentEntity, TNewDependentEntity?>> navigationExpression,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
@@ -615,7 +625,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
         return this;
     }
 
-    private OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOneBuilder<TNewDependentEntity>(
+    private OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsOneBuilder
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         TypeIdentity ownedType,
         MemberIdentity navigation)
         where TNewDependentEntity : class
@@ -653,8 +664,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     The name of the reference navigation property on this entity type that represents the relationship.
     /// </param>
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
-        string navigationName)
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(string navigationName)
         where TNewDependentEntity : class
         => OwnsManyBuilder<TNewDependentEntity>(
             new TypeIdentity(typeof(TNewDependentEntity), (Model)Metadata.DeclaringEntityType.Model),
@@ -683,7 +694,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     The name of the reference navigation property on this entity type that represents the relationship.
     /// </param>
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         string ownedTypeName,
         string navigationName)
         where TNewDependentEntity : class
@@ -714,7 +726,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     the relationship (<c>customer => customer.Address</c>).
     /// </param>
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression)
         where TNewDependentEntity : class
         => OwnsManyBuilder<TNewDependentEntity>(
@@ -745,7 +758,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     the relationship (<c>customer => customer.Address</c>).
     /// </param>
     /// <returns>An object that can be used to configure the owned type and the relationship.</returns>
-    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany<TNewDependentEntity>(
+    public virtual OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         string ownedTypeName,
         Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression)
         where TNewDependentEntity : class
@@ -776,7 +790,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
         string navigationName,
         Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
@@ -847,7 +862,7 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
     public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany(
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.OwnsMany(ownedType, navigationName, buildAction);
@@ -878,7 +893,7 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// <returns>An object that can be used to configure the entity type.</returns>
     public new virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany(
         string ownedTypeName,
-        Type ownedType,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type ownedType,
         string navigationName,
         Action<OwnedNavigationBuilder> buildAction)
         => (OwnedNavigationBuilder<TOwnerEntity, TDependentEntity>)base.OwnsMany(ownedTypeName, ownedType, navigationName, buildAction);
@@ -907,10 +922,11 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
-        string ownedTypeName,
-        string navigationName,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            string ownedTypeName,
+            string navigationName,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
@@ -950,9 +966,10 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
-        Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotNull(navigationExpression, nameof(navigationExpression));
@@ -993,10 +1010,11 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     /// </param>
     /// <param name="buildAction">An action that performs configuration of the owned type and the relationship.</param>
     /// <returns>An object that can be used to configure the entity type.</returns>
-    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany<TNewDependentEntity>(
-        string ownedTypeName,
-        Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression,
-        Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
+    public virtual OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> OwnsMany
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewDependentEntity>(
+            string ownedTypeName,
+            Expression<Func<TDependentEntity, IEnumerable<TNewDependentEntity>?>> navigationExpression,
+            Action<OwnedNavigationBuilder<TDependentEntity, TNewDependentEntity>> buildAction)
         where TNewDependentEntity : class
     {
         Check.NotEmpty(ownedTypeName, nameof(ownedTypeName));
@@ -1013,9 +1031,10 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
         }
     }
 
-    private OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity> OwnsManyBuilder<TNewRelatedEntity>(
-        TypeIdentity ownedType,
-        MemberIdentity navigation)
+    private OwnedNavigationBuilder<TDependentEntity, TNewRelatedEntity> OwnsManyBuilder
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewRelatedEntity>(
+            TypeIdentity ownedType,
+            MemberIdentity navigation)
         where TNewRelatedEntity : class
     {
         InternalForeignKeyBuilder relationship;
@@ -1055,8 +1074,8 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     end.
     /// </param>
     /// <returns>An object that can be used to configure the relationship.</returns>
-    public virtual ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
-        string? navigationName)
+    public virtual ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewRelatedEntity>(string? navigationName)
         where TNewRelatedEntity : class
     {
         var relatedEntityType = FindRelatedEntityType(typeof(TNewRelatedEntity), navigationName);
@@ -1098,8 +1117,9 @@ public class OwnedNavigationBuilder<TOwnerEntity, TDependentEntity> : OwnedNavig
     ///     configured without a navigation property on this end.
     /// </param>
     /// <returns>An object that can be used to configure the relationship.</returns>
-    public virtual ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne<TNewRelatedEntity>(
-        Expression<Func<TDependentEntity, TNewRelatedEntity?>>? navigationExpression = null)
+    public virtual ReferenceNavigationBuilder<TDependentEntity, TNewRelatedEntity> HasOne
+        <[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TNewRelatedEntity>(
+            Expression<Func<TDependentEntity, TNewRelatedEntity?>>? navigationExpression = null)
         where TNewRelatedEntity : class
     {
         var navigation = navigationExpression?.GetMemberAccess();

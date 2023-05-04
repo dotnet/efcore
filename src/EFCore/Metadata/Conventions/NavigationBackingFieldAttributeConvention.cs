@@ -10,7 +10,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class NavigationBackingFieldAttributeConvention : NavigationAttributeConventionBase<BackingFieldAttribute>
+public class NavigationBackingFieldAttributeConvention :
+    NavigationAttributeConventionBase<BackingFieldAttribute>,
+    INavigationAddedConvention,
+    ISkipNavigationAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="NavigationBackingFieldAttributeConvention" />.

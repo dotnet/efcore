@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // ReSharper disable UnusedMember.Local
@@ -65,21 +64,12 @@ public class ModelSourceTest
     [ConditionalFact]
     public void Adds_all_entities_based_on_all_distinct_entity_types_found()
     {
-        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
-
-        var model = serviceProvider.GetRequiredService<IModelSource>()
-            .GetModel(
-                new Context1(),
-                serviceProvider.GetRequiredService<ModelCreationDependencies>()
-                    with
-                    {
-                        ConventionSetBuilder = CreateRuntimeConventionSetBuilder(new FakeSetFinder(), serviceProvider)
-                    },
-                designTime: false);
+        var context = InMemoryTestHelpers.Instance.CreateContext(
+            new ServiceCollection().AddSingleton<IDbSetFinder, FakeSetFinder>());
 
         Assert.Equal(
             new[] { typeof(SetA).DisplayName(), typeof(SetB).DisplayName() },
-            model.GetEntityTypes().Select(e => e.Name).ToArray());
+            context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
     }
 
     private class FakeModelValidator : IModelValidator
@@ -121,23 +111,25 @@ public class ModelSourceTest
     [ConditionalFact]
     public void Caches_model_by_context_type()
     {
-        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
+        var options = InMemoryTestHelpers.Instance.CreateOptions();
+        var serviceProvider = new DbContext(options).GetInfrastructure();
+
         var modelSource = serviceProvider.GetRequiredService<IModelSource>();
         var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
-        var model1 = modelSource.GetModel(new Context1(), testModelDependencies, designTime: false);
-        var model2 = modelSource.GetModel(new Context2(), testModelDependencies, designTime: false);
+        var model1 = modelSource.GetModel(new Context1(options), testModelDependencies, designTime: false);
+        var model2 = modelSource.GetModel(new Context2(options), testModelDependencies, designTime: false);
 
-        var designModel1 = modelSource.GetModel(new Context1(), testModelDependencies, designTime: true);
-        var designModel2 = modelSource.GetModel(new Context2(), testModelDependencies, designTime: true);
+        var designModel1 = modelSource.GetModel(new Context1(options), testModelDependencies, designTime: true);
+        var designModel2 = modelSource.GetModel(new Context2(options), testModelDependencies, designTime: true);
 
         Assert.NotSame(model1, model2);
-        Assert.Same(model1, modelSource.GetModel(new Context1(), testModelDependencies, designTime: false));
-        Assert.Same(model2, modelSource.GetModel(new Context2(), testModelDependencies, designTime: false));
+        Assert.Same(model1, modelSource.GetModel(new Context1(options), testModelDependencies, designTime: false));
+        Assert.Same(model2, modelSource.GetModel(new Context2(options), testModelDependencies, designTime: false));
 
         Assert.NotSame(designModel1, designModel2);
-        Assert.Same(designModel1, modelSource.GetModel(new Context1(), testModelDependencies, designTime: true));
-        Assert.Same(designModel2, modelSource.GetModel(new Context2(), testModelDependencies, designTime: true));
+        Assert.Same(designModel1, modelSource.GetModel(new Context1(options), testModelDependencies, designTime: true));
+        Assert.Same(designModel2, modelSource.GetModel(new Context2(options), testModelDependencies, designTime: true));
 
         Assert.NotSame(model1, designModel1);
         Assert.NotSame(model2, designModel2);
@@ -146,24 +138,27 @@ public class ModelSourceTest
     [ConditionalFact]
     public void Model_from_options_is_preserved()
     {
-        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
+        var options = InMemoryTestHelpers.Instance.CreateOptions();
+        var context = new Context1(options);
+        var serviceProvider = context.GetInfrastructure();
+
         var modelSource = serviceProvider.GetRequiredService<IModelSource>();
         var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
-        var model = modelSource.GetModel(new Context1(), testModelDependencies, designTime: false);
-        var designTimeModel = modelSource.GetModel(new Context1(), testModelDependencies, designTime: true);
+        var model = modelSource.GetModel(context, testModelDependencies, designTime: false);
+        var designTimeModel = modelSource.GetModel(new Context1(options), testModelDependencies, designTime: true);
 
         Assert.NotSame(model, designTimeModel);
 
-        var context = new ModelContext(model, _serviceProvider);
+        var modelContext = new ModelContext(model, _serviceProvider);
 
-        Assert.NotSame(context.Model, context.GetService<IDesignTimeModel>().Model);
-        Assert.Same(model, context.Model);
-        Assert.NotSame(model, context.GetService<IDesignTimeModel>().Model);
+        Assert.NotSame(modelContext.Model, modelContext.GetService<IDesignTimeModel>().Model);
+        Assert.Same(model, modelContext.Model);
+        Assert.NotSame(model, modelContext.GetService<IDesignTimeModel>().Model);
 
         var designTimeContext = new ModelContext(designTimeModel, _serviceProvider);
 
-        Assert.NotSame(context.Model, designTimeContext.GetService<IDesignTimeModel>().Model);
+        Assert.NotSame(modelContext.Model, designTimeContext.GetService<IDesignTimeModel>().Model);
         Assert.NotSame(model, designTimeContext.Model);
         Assert.Same(designTimeModel, designTimeContext.GetService<IDesignTimeModel>().Model);
     }
@@ -228,11 +223,13 @@ public class ModelSourceTest
     [ConditionalFact]
     public void Stores_model_version_information_as_annotation_on_model()
     {
-        var serviceProvider = InMemoryTestHelpers.Instance.CreateContextServices();
+        var options = InMemoryTestHelpers.Instance.CreateOptions();
+        var context = new Context1(options);
+        var serviceProvider = context.GetInfrastructure();
         var modelSource = serviceProvider.GetRequiredService<IModelSource>();
         var testModelDependencies = serviceProvider.GetRequiredService<ModelCreationDependencies>();
 
-        var model = modelSource.GetModel(new Context1(), testModelDependencies, designTime: false);
+        var model = modelSource.GetModel(context, testModelDependencies, designTime: false);
         var packageVersion = typeof(Context1).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .Single(m => m.Key == "PackageVersion").Value;
 
@@ -247,17 +244,17 @@ public class ModelSourceTest
 
     private class Context1 : DbContext
     {
+        public Context1(DbContextOptions options)
+            : base(options)
+        {
+        }
     }
 
     private class Context2 : DbContext
     {
+        public Context2(DbContextOptions options)
+            : base(options)
+        {
+        }
     }
-
-    private static RuntimeConventionSetBuilder CreateRuntimeConventionSetBuilder(
-        IDbSetFinder setFinder,
-        IServiceProvider serviceProvider)
-        => new(
-            new ProviderConventionSetBuilder(
-                serviceProvider.GetRequiredService<ProviderConventionSetBuilderDependencies>() with { SetFinder = setFinder }),
-            new List<IConventionSetPlugin>());
 }

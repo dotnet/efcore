@@ -66,9 +66,9 @@ public class IntegerGeneratorEndToEndInMemoryTest
         using var context = new BronieContext(serviceProvider);
         for (var i = 0; i < 50; i++)
         {
-            context.Add(
+            await context.AddAsync(
                 new Pegasus { Name = "Rainbow Dash " + i });
-            context.Add(
+            await context.AddAsync(
                 new Pegasus { Name = "Fluttershy " + i });
         }
 

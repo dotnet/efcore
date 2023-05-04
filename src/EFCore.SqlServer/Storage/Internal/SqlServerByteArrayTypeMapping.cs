@@ -58,7 +58,7 @@ public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
     }
 
     private static int CalculateSize(int? size)
-        => size.HasValue && size < MaxSize ? size.Value : MaxSize;
+        => size is > 0 and < MaxSize ? size.Value : MaxSize;
 
     /// <summary>
     ///     Creates a copy of this mapping.

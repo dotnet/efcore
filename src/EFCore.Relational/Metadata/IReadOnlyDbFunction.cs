@@ -119,6 +119,11 @@ public interface IReadOnlyDbFunction : IReadOnlyAnnotatable
 
         builder.Append(Name);
 
+        if (Name != ModelName)
+        {
+            builder.Append('*');
+        }
+
         if ((options & MetadataDebugStringOptions.SingleLine) == 0)
         {
             var parameters = Parameters.ToList();

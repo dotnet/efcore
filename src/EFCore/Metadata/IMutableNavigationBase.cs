@@ -26,4 +26,11 @@ public interface IMutableNavigationBase : IReadOnlyNavigationBase, IMutablePrope
     /// <param name="eagerLoaded">A value indicating whether this navigation should be eager loaded by default.</param>
     void SetIsEagerLoaded(bool? eagerLoaded)
         => SetOrRemoveAnnotation(CoreAnnotationNames.EagerLoaded, eagerLoaded);
+
+    /// <summary>
+    ///     Sets a value indicating whether this navigation should be enabled for lazy-loading.
+    /// </summary>
+    /// <param name="lazyLoadingEnabled">A value indicating whether this navigation should enabled for lazy-loading.</param>
+    void SetLazyLoadingEnabled(bool? lazyLoadingEnabled)
+        => SetOrRemoveAnnotation(CoreAnnotationNames.LazyLoadingEnabled, lazyLoadingEnabled);
 }

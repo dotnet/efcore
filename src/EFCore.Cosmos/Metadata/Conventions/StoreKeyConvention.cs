@@ -184,7 +184,8 @@ public class StoreKeyConvention :
         IConventionForeignKey foreignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey.IsOwnership)
+        if (entityTypeBuilder.Metadata.IsInModel
+            && foreignKey.IsOwnership)
         {
             ProcessIdProperty(foreignKey.DeclaringEntityType.Builder);
         }
@@ -209,6 +210,11 @@ public class StoreKeyConvention :
         IConventionKey key,
         IConventionContext<IConventionKey> context)
     {
+        if (!entityTypeBuilder.Metadata.IsInModel)
+        {
+            return;
+        }
+
         if (entityTypeBuilder.Metadata.IsKeyless)
         {
             ProcessIdProperty(entityTypeBuilder);

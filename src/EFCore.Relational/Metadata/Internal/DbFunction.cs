@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -25,6 +24,7 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     private RelationalTypeMapping? _typeMapping;
     private Func<IReadOnlyList<SqlExpression>, SqlExpression>? _translation;
     private InternalDbFunctionBuilder? _builder;
+    private IStoreFunction? _storeFunction;
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _schemaConfigurationSource;
@@ -139,7 +139,12 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         return builder.ToString();
     }
 
-    /// <inheritdoc />
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual IMutableModel Model { get; }
 
     /// <summary>
@@ -173,7 +178,10 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         => _builder = null;
 
     /// <summary>
-    ///     Indicates whether the function is read-only.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override bool IsReadOnly
         => ((Annotatable)Model).IsReadOnly;
@@ -639,8 +647,8 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    [DisallowNull]
-    public virtual IStoreFunction? StoreFunction { get; set; }
+    public virtual DbFunctionParameter? FindParameter(string name)
+        => Parameters.SingleOrDefault(p => p.Name == name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -650,6 +658,18 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
     /// </summary>
     public override string ToString()
         => ((IDbFunction)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((IDbFunction)this).ToDebugString(),
+            () => ((IDbFunction)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
     IConventionDbFunctionBuilder IConventionDbFunction.Builder
@@ -707,15 +727,6 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
         get => _parameters;
     }
 
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual DbFunctionParameter? FindParameter(string name)
-        => Parameters.SingleOrDefault(p => p.Name == name);
-
     /// <inheritdoc />
     [DebuggerStepThrough]
     string? IConventionDbFunction.SetName(string? name, bool fromDataAnnotation)
@@ -755,11 +766,11 @@ public class DbFunction : ConventionAnnotatable, IMutableDbFunction, IConvention
 
     /// <inheritdoc />
     IStoreFunction IDbFunction.StoreFunction
-        => StoreFunction!; // Relational model creation ensures StoreFunction is populated
+        => _storeFunction!; // Relational model creation ensures StoreFunction is populated
 
     IStoreFunction IRuntimeDbFunction.StoreFunction
     {
-        get => StoreFunction!;
-        set => StoreFunction = value;
+        get => _storeFunction!;
+        set => _storeFunction = value;
     }
 }

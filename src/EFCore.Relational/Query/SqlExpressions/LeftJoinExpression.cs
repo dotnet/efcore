@@ -54,6 +54,10 @@ public class LeftJoinExpression : PredicateJoinExpressionBase
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new LeftJoinExpression(Table, JoinPredicate, annotations);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("LEFT JOIN ");

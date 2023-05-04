@@ -1,12 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable MemberCanBePrivate.Local
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class MetadataBuilderTest

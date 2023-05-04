@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public abstract class MigrationsInfrastructureTestBase<TFixture> : IClassFixture<TFixture>
@@ -319,7 +318,8 @@ public abstract class
     public new RelationalTestStore TestStore
         => (RelationalTestStore)base.TestStore;
 
-    protected override string StoreName { get; } = "MigrationsTest";
+    protected override string StoreName
+        => "MigrationsTest";
 
     public EmptyMigrationsContext CreateEmptyContext()
         => new(

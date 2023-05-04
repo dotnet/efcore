@@ -3,6 +3,8 @@
 
 using System.Collections;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -40,7 +42,8 @@ namespace Microsoft.EntityFrameworkCore;
 ///     </para>
 /// </remarks>
 /// <typeparam name="TEntity">The type of entity being operated on by this set.</typeparam>
-public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
+public abstract class DbSet<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TEntity>
+    : IQueryable<TEntity>, IInfrastructure<IServiceProvider>, IListSource
     where TEntity : class
 {
     /// <summary>
@@ -588,6 +591,19 @@ public abstract class DbSet<TEntity> : IQueryable<TEntity>, IInfrastructure<ISer
     /// </remarks>
     /// <param name="entities">The entities to update.</param>
     public virtual void UpdateRange(IEnumerable<TEntity> entities)
+        => throw new NotSupportedException();
+
+    /// <summary>
+    ///     Gets an <see cref="EntityEntry{TEntity}" /> for the given entity. The entry provides
+    ///     access to change tracking information and operations for the entity.
+    /// </summary>
+    /// <remarks>
+    ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
+    ///     examples.
+    /// </remarks>
+    /// <param name="entity">The entity to get the entry for.</param>
+    /// <returns>The entry for the given entity.</returns>
+    public virtual EntityEntry<TEntity> Entry(TEntity entity)
         => throw new NotSupportedException();
 
     /// <summary>

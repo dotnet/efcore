@@ -3,6 +3,9 @@ trigger:
     include:
       - main
 
+variables:
+- template: /eng/common/templates/variables/pool-providers.yml
+
 stages:
 - stage: build
   displayName: Build
@@ -18,8 +21,8 @@ stages:
             timeoutInMinutes: 90
             enablePublishTestResults: true
             pool:
-              name: NetCore1ESPool-Public
-              demands: ImageOverride -equals Build.Server.Amd64.VS2019.Open
+              name: $(DncEngPublicBuildPool)
+              demands: ImageOverride -equals 1es-windows-2019-open
             steps:
               - task: NuGetCommand@2
                 displayName: 'Clear NuGet caches'

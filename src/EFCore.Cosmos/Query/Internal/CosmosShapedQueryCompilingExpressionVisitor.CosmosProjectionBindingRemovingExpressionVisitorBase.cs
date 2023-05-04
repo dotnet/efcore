@@ -1,14 +1,14 @@
 ﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable disable
+
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Newtonsoft.Json.Linq;
-
-#nullable disable
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -368,18 +368,23 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var navigationExpression = Visit(includeExpression.NavigationExpression);
 
             shaperExpressions.Add(
-                Expression.Call(
-                    includeMethod.MakeGenericMethod(includingClrType, relatedEntityClrType),
-                    entityEntryVariable,
-                    instanceVariable,
-                    concreteEntityTypeVariable,
-                    navigationExpression,
-                    Expression.Constant(navigation),
-                    Expression.Constant(inverseNavigation, typeof(INavigation)),
-                    Expression.Constant(fixup),
-                    Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
+                Expression.IfThen(
+                    Expression.Call(
+                        Expression.Constant(navigation.DeclaringEntityType, typeof(IReadOnlyEntityType)),
+                        IsAssignableFromMethodInfo,
+                        Expression.Convert(concreteEntityTypeVariable, typeof(IReadOnlyEntityType))),
+                    Expression.Call(
+                        includeMethod.MakeGenericMethod(includingClrType, relatedEntityClrType),
+                        entityEntryVariable,
+                        instanceVariable,
+                        concreteEntityTypeVariable,
+                        navigationExpression,
+                        Expression.Constant(navigation),
+                        Expression.Constant(inverseNavigation, typeof(INavigation)),
+                        Expression.Constant(fixup),
+                        Expression.Constant(initialize, typeof(Action<>).MakeGenericType(includingClrType)),
 #pragma warning disable EF1001 // Internal EF Core API usage.
-                    Expression.Constant(includeExpression.SetLoaded)));
+                        Expression.Constant(includeExpression.SetLoaded))));
 #pragma warning restore EF1001 // Internal EF Core API usage.
         }
 
@@ -562,6 +567,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             = typeof(CosmosProjectionBindingRemovingExpressionVisitorBase).GetTypeInfo()
                 .GetDeclaredMethod(nameof(PopulateCollection));
 
+        private static readonly MethodInfo IsAssignableFromMethodInfo
+            = typeof(IReadOnlyEntityType).GetMethod(nameof(IReadOnlyEntityType.IsAssignableFrom), new[] { typeof(IReadOnlyEntityType) })!;
+
         private static TCollection PopulateCollection<TEntity, TCollection>(
             IClrCollectionAccessor accessor,
             IEnumerable<TEntity> entities)
@@ -695,7 +703,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 }
 
                 Expression replaceExpression;
-                if (converter.ConvertsNulls == true)
+                if (converter.ConvertsNulls)
                 {
                     replaceExpression = ReplacingExpressionVisitor.Replace(
                         converter.ConvertFromProviderExpression.Parameters.Single(),

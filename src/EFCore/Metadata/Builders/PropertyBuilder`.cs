@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
@@ -54,10 +56,22 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     ///     Configures the maximum length of data that can be stored in this property.
     ///     Maximum length can only be set on array properties (including <see cref="string" /> properties).
     /// </summary>
-    /// <param name="maxLength">The maximum length of data allowed in the property.</param>
+    /// <param name="maxLength">
+    /// The maximum length of data allowed in the property. A value of <c>-1</c> indicates that the property has no maximum length.
+    /// </param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasMaxLength(int maxLength)
         => (PropertyBuilder<TProperty>)base.HasMaxLength(maxLength);
+
+    /// <summary>
+    ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the
+    ///     sentinel value, then it is considered not set. By default, the sentinel value is the CLR default value for the type of
+    ///     the property.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    public new virtual PropertyBuilder<TProperty> HasSentinel(object? sentinel)
+        => (PropertyBuilder<TProperty>)base.HasSentinel(sentinel);
 
     /// <summary>
     ///     Configures the precision and scale of the property.
@@ -118,7 +132,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </remarks>
     /// <typeparam name="TGenerator">A type that inherits from <see cref="ValueGenerator" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasValueGenerator<TGenerator>()
+    public new virtual PropertyBuilder<TProperty> HasValueGenerator
+        <[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TGenerator>()
         where TGenerator : ValueGenerator
         => (PropertyBuilder<TProperty>)base.HasValueGenerator<TGenerator>();
 
@@ -147,7 +162,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </remarks>
     /// <param name="valueGeneratorType">A type that inherits from <see cref="ValueGenerator" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasValueGenerator(Type? valueGeneratorType)
+    public new virtual PropertyBuilder<TProperty> HasValueGenerator(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? valueGeneratorType)
         => (PropertyBuilder<TProperty>)base.HasValueGenerator(valueGeneratorType);
 
     /// <summary>
@@ -201,7 +217,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </remarks>
     /// <typeparam name="TFactory">A type that inherits from <see cref="ValueGeneratorFactory" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasValueGeneratorFactory<TFactory>()
+    public new virtual PropertyBuilder<TProperty> HasValueGeneratorFactory
+        <[DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] TFactory>()
         where TFactory : ValueGeneratorFactory
         => (PropertyBuilder<TProperty>)base.HasValueGeneratorFactory<TFactory>();
 
@@ -231,7 +248,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </remarks>
     /// <param name="valueGeneratorFactoryType">A type that inherits from <see cref="ValueGeneratorFactory" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasValueGeneratorFactory(Type? valueGeneratorFactoryType)
+    public new virtual PropertyBuilder<TProperty> HasValueGeneratorFactory(
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactoryType)
         => (PropertyBuilder<TProperty>)base.HasValueGeneratorFactory(valueGeneratorFactoryType);
 
     /// <summary>
@@ -339,7 +357,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </summary>
     /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>()
+    public new virtual PropertyBuilder<TProperty> HasConversion
+        <[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TConversion>()
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>();
 
     /// <summary>
@@ -348,7 +367,8 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// </summary>
     /// <param name="providerClrType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion(Type? providerClrType)
+    public new virtual PropertyBuilder<TProperty> HasConversion(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? providerClrType)
         => (PropertyBuilder<TProperty>)base.HasConversion(providerClrType);
 
     /// <summary>
@@ -393,7 +413,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer)
+    public new virtual PropertyBuilder<TProperty> HasConversion
+        <[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TConversion>(
+            ValueComparer? valueComparer)
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>(valueComparer);
 
     /// <summary>
@@ -404,7 +426,10 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
     /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion<TConversion>(ValueComparer? valueComparer, ValueComparer? providerComparer)
+    public new virtual PropertyBuilder<TProperty> HasConversion
+        <[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TConversion>(
+            ValueComparer? valueComparer,
+            ValueComparer? providerComparer)
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion>(valueComparer, providerComparer);
 
     /// <summary>
@@ -415,7 +440,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <param name="valueComparer">The comparer to use for values before conversion.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(
-        Type conversionType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type conversionType,
         ValueComparer? valueComparer)
         => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, valueComparer);
 
@@ -428,7 +453,7 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <param name="providerComparer">The comparer to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual PropertyBuilder<TProperty> HasConversion(
-        Type conversionType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type conversionType,
         ValueComparer? valueComparer,
         ValueComparer? providerComparer)
         => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, valueComparer, providerComparer);
@@ -535,7 +560,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <typeparam name="TConversion">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</typeparam>
     /// <typeparam name="TComparer">A type that inherits from <see cref="ValueComparer" />.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion<TConversion, TComparer>()
+    public new virtual PropertyBuilder<TProperty> HasConversion<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TConversion,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TComparer>()
         where TComparer : ValueComparer
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer>();
 
@@ -547,7 +574,10 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <typeparam name="TComparer">A type that inherits from <see cref="ValueComparer" />.</typeparam>
     /// <typeparam name="TProviderComparer">A type that inherits from <see cref="ValueComparer" /> to use for the provider values.</typeparam>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion<TConversion, TComparer, TProviderComparer>()
+    public new virtual PropertyBuilder<TProperty> HasConversion<
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TConversion,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TComparer,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] TProviderComparer>()
         where TComparer : ValueComparer
         where TProviderComparer : ValueComparer
         => (PropertyBuilder<TProperty>)base.HasConversion<TConversion, TComparer, TProviderComparer>();
@@ -559,7 +589,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <param name="conversionType">The type to convert to and from or a type that inherits from <see cref="ValueConverter" />.</param>
     /// <param name="comparerType">A type that inherits from <see cref="ValueComparer" />.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion(Type conversionType, Type? comparerType)
+    public new virtual PropertyBuilder<TProperty> HasConversion(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type conversionType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType)
         => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, comparerType);
 
     /// <summary>
@@ -570,6 +602,9 @@ public class PropertyBuilder<TProperty> : PropertyBuilder
     /// <param name="comparerType">A type that inherits from <see cref="ValueComparer" />.</param>
     /// <param name="providerComparerType">A type that inherits from <see cref="ValueComparer" /> to use for the provider values.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public new virtual PropertyBuilder<TProperty> HasConversion(Type conversionType, Type? comparerType, Type? providerComparerType)
+    public new virtual PropertyBuilder<TProperty> HasConversion(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type conversionType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? providerComparerType)
         => (PropertyBuilder<TProperty>)base.HasConversion(conversionType, comparerType, providerComparerType);
 }

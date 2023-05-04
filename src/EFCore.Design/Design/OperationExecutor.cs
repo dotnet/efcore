@@ -4,7 +4,6 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Microsoft.EntityFrameworkCore.Design;
 
@@ -706,6 +705,7 @@ public class OperationExecutor : MarshalByRefObject
         /// <param name="action">The action to execute.</param>
         protected virtual void Execute(Action action)
         {
+            EF.IsDesignTime = true;
             try
             {
                 action();
@@ -713,6 +713,10 @@ public class OperationExecutor : MarshalByRefObject
             catch (Exception ex)
             {
                 _resultHandler.OnError(ex.GetType().FullName!, ex.Message, ex.ToString());
+            }
+            finally
+            {
+                EF.IsDesignTime = false;
             }
         }
 

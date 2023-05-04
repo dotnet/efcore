@@ -18,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore.Design.Internal;
 ///     your constructor so that an instance will be created and injected automatically by the
 ///     dependency injection container. To create an instance with some dependent services replaced,
 ///     first resolve the object from the dependency injection container, then replace selected
-///     services using the 'With...' methods. Do not call the constructor at any point in this process.
+///     services using the C# 'with' operator. Do not call the constructor at any point in this process.
 /// </remarks>
 public sealed record CSharpRuntimeAnnotationCodeGeneratorDependencies
 {
@@ -33,7 +33,7 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorDependencies
     ///     as new dependencies are added. Instead, use this type in your constructor so that an instance
     ///     will be created and injected automatically by the dependency injection container. To create
     ///     an instance with some dependent services replaced, first resolve the object from the dependency
-    ///     injection container, then replace selected services using the 'With...' methods. Do not call
+    ///     injection container, then replace selected services using the C# 'with' operator. Do not call
     ///     the constructor at any point in this process.
     /// </remarks>
     [EntityFrameworkInternal]

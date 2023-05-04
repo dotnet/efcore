@@ -85,9 +85,8 @@ public abstract class HistoryRepository : IHistoryRepository
         {
             var conventionSet = Dependencies.ConventionSetBuilder.CreateConventionSet();
 
-            // Use public API to remove the convention, issue #214
-            ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(DbSetFindingConvention));
-            ConventionSet.Remove(conventionSet.ModelInitializedConventions, typeof(RelationalDbFunctionAttributeConvention));
+            conventionSet.Remove(typeof(DbSetFindingConvention));
+            conventionSet.Remove(typeof(RelationalDbFunctionAttributeConvention));
 
             var modelBuilder = new ModelBuilder(conventionSet);
             modelBuilder.Entity<HistoryRow>(

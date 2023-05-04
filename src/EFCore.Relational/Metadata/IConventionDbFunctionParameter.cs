@@ -4,15 +4,15 @@
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a <see cref="IConventionDbFunction" /> parameter.
+///     Represents a function parameter.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
 /// </remarks>
-public interface IConventionDbFunctionParameter : IConventionAnnotatable, IReadOnlyDbFunctionParameter
+public interface IConventionDbFunctionParameter : IReadOnlyDbFunctionParameter, IConventionAnnotatable
 {
     /// <summary>
-    ///     The <see cref="IConventionDbFunction" /> to which this parameter belongs.
+    ///     The function to which this parameter belongs.
     /// </summary>
     new IConventionDbFunction Function { get; }
 

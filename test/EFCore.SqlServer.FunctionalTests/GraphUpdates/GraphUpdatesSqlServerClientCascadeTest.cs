@@ -19,7 +19,8 @@ public class GraphUpdatesSqlServerClientCascadeTest : GraphUpdatesSqlServerTestB
         public override bool NoStoreCascades
             => true;
 
-        protected override string StoreName { get; } = "GraphClientCascadeUpdatesTest";
+        protected override string StoreName
+            => "GraphClientCascadeUpdatesTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

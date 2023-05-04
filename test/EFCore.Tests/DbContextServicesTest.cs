@@ -19,6 +19,9 @@ namespace Microsoft.EntityFrameworkCore
 {
     public partial class DbContextTest
     {
+        protected static readonly Guid GuidSentinel = new Guid("56D3784D-6F7F-4935-B7F6-E77DC6E1D91E");
+        protected static readonly int IntSentinel = 667;
+
         [ConditionalFact]
         public void Can_log_debug_events_with_OnConfiguring()
             => DebugLogTest(useLoggerFactory: false, configureForDebug: false, shouldLog: true);
@@ -253,6 +256,216 @@ namespace Microsoft.EntityFrameworkCore
             Assert.Equal(
                 CoreStrings.NoProviderConfiguredFailedToResolveService("System.Random"),
                 Assert.Throws<InvalidOperationException>(() => context.GetService<Random>()).Message);
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Resolve_singleton_application_service(bool autoResolve)
+        {
+            var serviceProvider = AddServiceResolutionContext(autoResolve)
+                .AddSingleton<ApplicationService>()
+                .BuildServiceProvider(validateScopes: true);
+
+            ApplicationService applicationService;
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ServiceResolutionContext>();
+                applicationService = serviceProvider.GetRequiredService<ApplicationService>();
+                Assert.Same(applicationService, scope.ServiceProvider.GetRequiredService<ApplicationService>());
+                Assert.Same(applicationService, context.GetService<ApplicationService>());
+                Assert.Same(applicationService, context.GetService<ApplicationService>());
+
+                var singletonService = (TestSingletonService)context.GetService<IDbSetFinder>();
+                Assert.Same(applicationService, singletonService.ApplicationService);
+
+                var scopedService = (TestScopedService)context.GetService<IEntityGraphAttacher>();
+                Assert.Same(applicationService, scopedService.ApplicationService);
+
+                var transientService = (TestTransientService)context.GetService<ILazyLoader>();
+                Assert.Same(applicationService, transientService.ApplicationService);
+            }
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ServiceResolutionContext>();
+                Assert.Same(applicationService, context.GetService<ApplicationService>());
+
+                var singletonService = (TestSingletonService)context.GetService<IDbSetFinder>();
+                Assert.Same(applicationService, singletonService.ApplicationService);
+
+                var scopedService = (TestScopedService)context.GetService<IEntityGraphAttacher>();
+                Assert.Same(applicationService, scopedService.ApplicationService);
+
+                var transientService = (TestTransientService)context.GetService<ILazyLoader>();
+                Assert.Same(applicationService, transientService.ApplicationService);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Resolve_scoped_application_service(bool autoResolve)
+        {
+            var serviceProvider = AddServiceResolutionContext(autoResolve)
+                .AddScoped<ApplicationService>()
+                .BuildServiceProvider(validateScopes: true);
+
+            ApplicationService applicationService1;
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ServiceResolutionContext>();
+                applicationService1 = scope.ServiceProvider.GetRequiredService<ApplicationService>();
+                Assert.Same(applicationService1, scope.ServiceProvider.GetRequiredService<ApplicationService>());
+                Assert.Same(applicationService1, context.GetService<ApplicationService>());
+                Assert.Same(applicationService1, context.GetService<ApplicationService>());
+
+                var scopedService = (TestScopedService)context.GetService<IEntityGraphAttacher>();
+                Assert.Same(applicationService1, scopedService.ApplicationService);
+
+                var transientService = (TestTransientService)context.GetService<ILazyLoader>();
+                Assert.Same(applicationService1, transientService.ApplicationService);
+
+                var singletonService = (TestSingletonService)context.GetService<IDbSetFinder>();
+                // Cannot resolve scoped service from root provider.
+                Assert.Throws<InvalidOperationException>(() => singletonService.ApplicationService);
+            }
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ServiceResolutionContext>();
+                var applicationService2 = scope.ServiceProvider.GetRequiredService<ApplicationService>();
+                Assert.NotSame(applicationService1, applicationService2);
+                Assert.Same(applicationService2, context.GetService<ApplicationService>());
+
+                var scopedService = (TestScopedService)context.GetService<IEntityGraphAttacher>();
+                Assert.Same(applicationService2, scopedService.ApplicationService);
+
+                var transientService = (TestTransientService)context.GetService<ILazyLoader>();
+                Assert.Same(applicationService2, transientService.ApplicationService);
+
+                var singletonService = (TestSingletonService)context.GetService<IDbSetFinder>();
+                // Cannot resolve scoped service from root provider.
+                Assert.Throws<InvalidOperationException>(() => singletonService.ApplicationService);
+            }
+        }
+
+        [ConditionalTheory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void Resolve_transient_application_service(bool autoResolve)
+        {
+            var serviceProvider = AddServiceResolutionContext(autoResolve)
+                .AddTransient<ApplicationService>()
+                .BuildServiceProvider(validateScopes: true);
+
+            ApplicationService applicationService1;
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ServiceResolutionContext>();
+                applicationService1 = scope.ServiceProvider.GetRequiredService<ApplicationService>();
+                Assert.NotSame(applicationService1, scope.ServiceProvider.GetRequiredService<ApplicationService>());
+                Assert.NotSame(applicationService1, context.GetService<ApplicationService>());
+                Assert.NotSame(context.GetService<ApplicationService>(), context.GetService<ApplicationService>());
+
+                var singletonService = (TestSingletonService)context.GetService<IDbSetFinder>();
+                Assert.NotSame(applicationService1, singletonService.ApplicationService);
+
+                var scopedService = (TestScopedService)context.GetService<IEntityGraphAttacher>();
+                Assert.NotSame(applicationService1, scopedService.ApplicationService);
+
+                var transientService = (TestTransientService)context.GetService<ILazyLoader>();
+                Assert.NotSame(applicationService1, transientService.ApplicationService);
+            }
+
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ServiceResolutionContext>();
+                Assert.NotSame(applicationService1, scope.ServiceProvider.GetRequiredService<ApplicationService>());
+                Assert.NotSame(applicationService1, context.GetService<ApplicationService>());
+
+                var singletonService = (TestSingletonService)context.GetService<IDbSetFinder>();
+                Assert.NotSame(applicationService1, singletonService.ApplicationService);
+
+                var scopedService = (TestScopedService)context.GetService<IEntityGraphAttacher>();
+                Assert.NotSame(applicationService1, scopedService.ApplicationService);
+
+                var transientService = (TestTransientService)context.GetService<ILazyLoader>();
+                Assert.NotSame(applicationService1, transientService.ApplicationService);
+            }
+        }
+
+        private static IServiceCollection AddServiceResolutionContext(bool autoResolve)
+            => new ServiceCollection()
+                .AddDbContext<ServiceResolutionContext>(
+                    (p, b) =>
+                    {
+                        b = b.UseInMemoryDatabase(nameof(ServiceResolutionContext))
+                            .ReplaceService<IDbSetFinder, TestSingletonService>()
+                            .ReplaceService<IEntityGraphAttacher, TestScopedService>()
+                            .ReplaceService<ILazyLoader, TestTransientService>();
+
+                        if (autoResolve)
+                        {
+                            b.UseRootApplicationServiceProvider();
+                        }
+                        else
+                        {
+                            b.UseRootApplicationServiceProvider(p.GetService<ServiceProviderAccessor>().RootServiceProvider);
+                        }
+                    });
+
+        private class TestSingletonService : DbSetFinder
+        {
+            private readonly ICoreSingletonOptions _singletonOptions;
+
+            public TestSingletonService(ICoreSingletonOptions singletonOptions)
+            {
+                _singletonOptions = singletonOptions;
+            }
+
+            public ApplicationService ApplicationService
+                => _singletonOptions.RootApplicationServiceProvider!.GetService<ApplicationService>();
+        }
+
+        private class TestScopedService : EntityGraphAttacher
+        {
+            private readonly ICurrentDbContext _currentContext;
+
+            public TestScopedService(ICurrentDbContext currentContext, IEntityEntryGraphIterator graphIterator)
+                : base(graphIterator)
+            {
+                _currentContext = currentContext;
+            }
+
+            public ApplicationService ApplicationService
+                => _currentContext.Context.GetService<ApplicationService>();
+        }
+
+        private class TestTransientService : LazyLoader
+        {
+            public TestTransientService(ICurrentDbContext currentContext, IDiagnosticsLogger<DbLoggerCategory.Infrastructure> logger)
+                : base(currentContext, logger)
+            {
+            }
+
+            public ApplicationService ApplicationService
+                => Context!.GetService<ApplicationService>();
+        }
+
+        private class ApplicationService
+        {
+        }
+
+        private class ServiceResolutionContext : DbContext
+        {
+            public ServiceResolutionContext(DbContextOptions options)
+                : base(options)
+            {
+            }
         }
 
         [ConditionalFact]
@@ -589,6 +802,30 @@ namespace Microsoft.EntityFrameworkCore
             public string ShirtColor { get; set; }
         }
 
+        private class CategoryWithSentinel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public List<ProductWithSentinel> Products { get; set; }
+        }
+
+        private class ProductWithSentinel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public decimal Price { get; set; }
+
+            public int CategoryId { get; set; }
+            public CategoryWithSentinel Category { get; set; }
+        }
+
+        private class TheGuWithSentinel
+        {
+            public Guid Id { get; set; }
+            public string ShirtColor { get; set; }
+        }
+
         private class EarlyLearningCenter : DbContext
         {
             private readonly IServiceProvider _serviceProvider;
@@ -611,6 +848,9 @@ namespace Microsoft.EntityFrameworkCore
             public DbSet<Product> Products { get; set; }
             public DbSet<Category> Categories { get; set; }
             public DbSet<TheGu> Gus { get; set; }
+            public DbSet<ProductWithSentinel> ProductWithSentinels { get; set; }
+            public DbSet<CategoryWithSentinel> CategoryWithSentinels { get; set; }
+            public DbSet<TheGuWithSentinel> GuWithSentinels { get; set; }
 
             protected internal override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
                 => optionsBuilder
@@ -620,8 +860,11 @@ namespace Microsoft.EntityFrameworkCore
                     .EnableServiceProviderCaching(false);
 
             protected internal override void OnModelCreating(ModelBuilder modelBuilder)
-                => modelBuilder
-                    .Entity<Category>().HasMany(e => e.Products).WithOne(e => e.Category);
+            {
+                modelBuilder.Entity<CategoryWithSentinel>().Property(e => e.Id).HasSentinel(IntSentinel);
+                modelBuilder.Entity<ProductWithSentinel>().Property(e => e.Id).HasSentinel(IntSentinel);
+                modelBuilder.Entity<TheGuWithSentinel>().Property(e => e.Id).HasSentinel(GuidSentinel);
+            }
         }
 
         private class FakeEntityMaterializerSource : EntityMaterializerSource

@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
@@ -13,6 +12,39 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         : base(fixture)
     {
         fixture.ListLoggerFactory.Clear();
+    }
+
+    [ConditionalTheory] // Issue #26257
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Can_query_owner_with_different_owned_types_having_same_property_name_in_hierarchy(bool async)
+    {
+        using (var context = CreateContext())
+        {
+            await context.AddAsync(
+                new HeliumBalloon
+                {
+                    Id = Guid.NewGuid().ToString(), Gas = new Helium(),
+                });
+
+            await context.AddAsync(new HydrogenBalloon { Id = Guid.NewGuid().ToString(), Gas = new Hydrogen() });
+
+            _ = async ? await context.SaveChangesAsync() : context.SaveChanges();
+        }
+
+        using (var context = CreateContext())
+        {
+            var balloons = async
+                ? await context.Set<Balloon>().ToListAsync()
+                : context.Set<Balloon>().ToList();
+
+            Assert.NotEmpty(balloons);
+            var heliumBalloons = balloons.OfType<HeliumBalloon>().ToList();
+            var hydrogenBalloons = balloons.OfType<HydrogenBalloon>().ToList();
+            Assert.Equal(heliumBalloons.Count, hydrogenBalloons.Count);
+
+            Assert.All(heliumBalloons, b => Assert.IsType<Helium>(b.Gas));
+            Assert.All(hydrogenBalloons, b => Assert.IsType<Hydrogen>(b.Gas));
+        }
     }
 
     [ConditionalTheory]
@@ -791,17 +823,90 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Simple_query_entity_with_owned_collection(bool async)
-    {
-        return AssertQuery(
+        => AssertQuery(
             async,
             ss => ss.Set<Star>());
-    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_on_entity_with_owned_navigations(bool async)
+        => AssertQuery(
+            async,
+            ss => from c1 in ss.Set<Planet>()
+                  join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
+                  from c2 in grouping.DefaultIfEmpty()
+                  select new
+                  {
+                      c1,
+                      c2.Id,
+                      c2,
+                      c2.Orders,
+                      c2.PersonAddress
+                  },
+            elementSorter: e => (e.c1.Id, e.c2.Id),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.c1, a.c1);
+                AssertEqual(e.Id, a.Id);
+                AssertEqual(e.c2, a.c2);
+                AssertCollection(e.Orders, a.Orders, elementSorter: ee => ee.Id);
+                AssertEqual(e.PersonAddress, a.PersonAddress);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Left_join_on_entity_with_owned_navigations_complex(bool async)
+        => AssertQuery(
+            async,
+            ss =>
+                from o in ss.Set<Planet>()
+                join sub in (
+                    from c1 in ss.Set<Planet>()
+                    join c2 in ss.Set<OwnedPerson>() on c1.Id equals c2.Id into grouping
+                    from c2 in grouping.DefaultIfEmpty()
+                    select new
+                    {
+                        c1,
+                        c2.Id,
+                        c2
+                    }).Distinct() on o.Id equals sub.Id into grouping2
+                from sub in grouping2.DefaultIfEmpty()
+                select new { o, sub },
+            elementSorter: e => (e.o.Id, e.sub.c1.Id, e.sub.Id),
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.o, a.o);
+                AssertEqual(e.sub.Id, a.sub.Id);
+                AssertEqual(e.sub.c1, a.sub.c1);
+                AssertEqual(e.sub.c2, a.sub.c2);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task GroupBy_aggregate_on_owned_navigation_in_aggregate_selector(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<OwnedPerson>()
+                    .GroupBy(e => e.Id)
+                    .Select(e => new
+                    {
+                        e.Key,
+                        Sum = e.Sum(i => i.PersonAddress.Country.PlanetId)
+                    }),
+            elementSorter: e => e.Key,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Key, a.Key);
+                AssertEqual(e.Sum, a.Sum);
+            });
 
     protected virtual DbContext CreateContext()
         => Fixture.CreateContext();
 
     public abstract class OwnedQueryFixtureBase : SharedStoreFixtureBase<PoolableDbContext>, IQueryFixtureBase
     {
+        private OwnedQueryData _expectedData;
+
         private static void AssertAddress(OwnedAddress expectedAddress, OwnedAddress actualAddress)
         {
             Assert.Equal(expectedAddress["AddressLine"], actualAddress["AddressLine"]);
@@ -841,265 +946,266 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
             => () => CreateContext();
 
         public virtual ISetSource GetExpectedData()
-            => new OwnedQueryData();
-
-        public IReadOnlyDictionary<Type, object> GetEntitySorters()
-            => new Dictionary<Type, Func<object, object>>
+        {
+            if (_expectedData == null)
             {
-                { typeof(OwnedPerson), e => ((OwnedPerson)e)?.Id },
-                { typeof(Branch), e => ((Branch)e)?.Id },
-                { typeof(LeafA), e => ((LeafA)e)?.Id },
-                { typeof(LeafB), e => ((LeafB)e)?.Id },
-                { typeof(Planet), e => ((Planet)e)?.Id },
-                { typeof(Star), e => ((Star)e)?.Id },
-                { typeof(Moon), e => ((Moon)e)?.Id },
-                { typeof(Fink), e => ((Fink)e)?.Id },
-                { typeof(Barton), e => ((Barton)e)?.Id },
+                _expectedData = new OwnedQueryData();
+            }
 
-                // owned entities - still need comparers in case they are projected directly
-                { typeof(Order), e => ((Order)e)?.Id },
-                { typeof(OrderDetail), e => ((OrderDetail)e)?.Detail },
-                { typeof(OwnedAddress), e => ((OwnedAddress)e)?.Country.Name },
-                { typeof(OwnedCountry), e => ((OwnedCountry)e)?.Name },
-                { typeof(Element), e => ((Element)e)?.Id },
-                { typeof(Throned), e => ((Throned)e)?.Property }
-            }.ToDictionary(e => e.Key, e => (object)e.Value);
+            return _expectedData;
+        }
 
-        public IReadOnlyDictionary<Type, object> GetEntityAsserters()
-            => new Dictionary<Type, Action<object, object>>
+        public IReadOnlyDictionary<Type, object> EntitySorters { get; } = new Dictionary<Type, Func<object, object>>
+        {
+            { typeof(OwnedPerson), e => ((OwnedPerson)e)?.Id },
+            { typeof(Branch), e => ((Branch)e)?.Id },
+            { typeof(LeafA), e => ((LeafA)e)?.Id },
+            { typeof(LeafB), e => ((LeafB)e)?.Id },
+            { typeof(Planet), e => ((Planet)e)?.Id },
+            { typeof(Star), e => ((Star)e)?.Id },
+            { typeof(Moon), e => ((Moon)e)?.Id },
+            { typeof(Fink), e => ((Fink)e)?.Id },
+            { typeof(Barton), e => ((Barton)e)?.Id },
+
+            // owned entities - still need comparers in case they are projected directly
+            { typeof(Order), e => ((Order)e)?.Id },
+            { typeof(OrderDetail), e => ((OrderDetail)e)?.Detail },
+            { typeof(OwnedAddress), e => ((OwnedAddress)e)?.Country.Name },
+            { typeof(OwnedCountry), e => ((OwnedCountry)e)?.Name },
+            { typeof(Element), e => ((Element)e)?.Id },
+            { typeof(Throned), e => ((Throned)e)?.Property }
+        }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+        public IReadOnlyDictionary<Type, object> EntityAsserters { get; } = new Dictionary<Type, Action<object, object>>
+        {
             {
+                typeof(OwnedPerson), (e, a) =>
                 {
-                    typeof(OwnedPerson), (e, a) =>
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (OwnedPerson)e;
-                            var aa = (OwnedPerson)a;
+                        var ee = (OwnedPerson)e;
+                        var aa = (OwnedPerson)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee["Name"], aa["Name"]);
-                            AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                            AssertOrders(ee.Orders, aa.Orders);
-                        }
-
-                        if (e is Branch branch)
-                        {
-                            AssertAddress(branch.BranchAddress, ((Branch)a).BranchAddress);
-                        }
-
-                        if (e is LeafA leafA)
-                        {
-                            AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
-                        }
-
-                        if (e is LeafB leafB)
-                        {
-                            AssertAddress(leafB.LeafBAddress, ((LeafB)a).LeafBAddress);
-                        }
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee["Name"], aa["Name"]);
+                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                        AssertOrders(ee.Orders, aa.Orders);
                     }
-                },
-                {
-                    typeof(Branch), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (Branch)e;
-                            var aa = (Branch)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                            AssertAddress(ee.BranchAddress, aa.BranchAddress);
-                            AssertOrders(ee.Orders, aa.Orders);
-                        }
+                    if (e is Branch branch)
+                    {
+                        AssertAddress(branch.BranchAddress, ((Branch)a).BranchAddress);
+                    }
 
-                        if (e is LeafA leafA)
-                        {
-                            AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
-                        }
-                    }
-                },
-                {
-                    typeof(LeafA), (e, a) =>
+                    if (e is LeafA leafA)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (LeafA)e;
-                            var aa = (LeafA)a;
+                        AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
+                    }
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                            AssertAddress(ee.BranchAddress, aa.BranchAddress);
-                            AssertAddress(ee.LeafAAddress, aa.LeafAAddress);
-                            AssertOrders(ee.Orders, aa.Orders);
-                        }
-                    }
-                },
-                {
-                    typeof(LeafB), (e, a) =>
+                    if (e is LeafB leafB)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (LeafB)e;
-                            var aa = (LeafB)a;
+                        AssertAddress(leafB.LeafBAddress, ((LeafB)a).LeafBAddress);
+                    }
+                }
+            },
+            {
+                typeof(Branch), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (Branch)e;
+                        var aa = (Branch)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            AssertAddress(ee.PersonAddress, aa.PersonAddress);
-                            AssertAddress(ee.LeafBAddress, aa.LeafBAddress);
-                            AssertOrders(ee.Orders, aa.Orders);
-                        }
+                        Assert.Equal(ee.Id, aa.Id);
+                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                        AssertAddress(ee.BranchAddress, aa.BranchAddress);
+                        AssertOrders(ee.Orders, aa.Orders);
                     }
-                },
-                {
-                    typeof(Planet), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (Planet)e;
-                            var aa = (Planet)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.Name, aa.Name);
-                            Assert.Equal(ee.StarId, aa.StarId);
-                        }
-                    }
-                },
-                {
-                    typeof(Star), (e, a) =>
+                    if (e is LeafA leafA)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (Star)e;
-                            var aa = (Star)a;
+                        AssertAddress(leafA.LeafAAddress, ((LeafA)a).LeafAAddress);
+                    }
+                }
+            },
+            {
+                typeof(LeafA), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (LeafA)e;
+                        var aa = (LeafA)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.Name, aa.Name);
-                            Assert.Equal(ee.Composition.Count, aa.Composition.Count);
-                            foreach (var (eec, aac) in ee.Composition.OrderBy(eec => eec.Id).Zip(aa.Composition.OrderBy(aac => aac.Id)))
-                            {
-                                Assert.Equal(eec.Id, aac.Id);
-                                Assert.Equal(eec.Name, aac.Name);
-                                Assert.Equal(eec.StarId, aac.StarId);
-                            }
-                        }
+                        Assert.Equal(ee.Id, aa.Id);
+                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                        AssertAddress(ee.BranchAddress, aa.BranchAddress);
+                        AssertAddress(ee.LeafAAddress, aa.LeafAAddress);
+                        AssertOrders(ee.Orders, aa.Orders);
                     }
-                },
+                }
+            },
+            {
+                typeof(LeafB), (e, a) =>
                 {
-                    typeof(Moon), (e, a) =>
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (Moon)e;
-                            var aa = (Moon)a;
+                        var ee = (LeafB)e;
+                        var aa = (LeafB)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.PlanetId, aa.PlanetId);
-                            Assert.Equal(ee.Diameter, aa.Diameter);
-                        }
+                        Assert.Equal(ee.Id, aa.Id);
+                        AssertAddress(ee.PersonAddress, aa.PersonAddress);
+                        AssertAddress(ee.LeafBAddress, aa.LeafBAddress);
+                        AssertOrders(ee.Orders, aa.Orders);
                     }
-                },
+                }
+            },
+            {
+                typeof(Planet), (e, a) =>
                 {
-                    typeof(Fink), (e, a) =>
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
                     {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            Assert.Equal(((Fink)e).Id, ((Fink)a).Id);
-                        }
-                    }
-                },
-                {
-                    typeof(Barton), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (Barton)e;
-                            var aa = (Barton)a;
+                        var ee = (Planet)e;
+                        var aa = (Planet)a;
 
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.Simple, aa.Simple);
-                            Assert.Equal(ee.Throned.Property, aa.Throned.Property);
-                        }
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.StarId, aa.StarId);
                     }
-                },
+                }
+            },
+            {
+                typeof(Star), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (Star)e;
+                        var aa = (Star)a;
 
-                // owned entities - still need comparers in case they are projected directly
-                {
-                    typeof(Order), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.Composition.Count, aa.Composition.Count);
+                        foreach (var (eec, aac) in ee.Composition.OrderBy(eec => eec.Id).Zip(aa.Composition.OrderBy(aac => aac.Id)))
                         {
-                            Assert.Equal(((Order)e).Id, ((Order)a).Id);
-                        }
-                    }
-                },
-                {
-                    typeof(OrderDetail), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            Assert.Equal(((OrderDetail)e).Detail, ((OrderDetail)a).Detail);
-                        }
-                    }
-                },
-                {
-                    typeof(OwnedAddress), (e, a) =>
-                    {
-                        AssertAddress(((OwnedAddress)e), ((OwnedAddress)a));
-                    }
-                },
-                {
-                    typeof(OwnedCountry), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (OwnedCountry)e;
-                            var aa = (OwnedCountry)a;
-
-                            Assert.Equal(ee.Name, aa.Name);
-                            Assert.Equal(ee.PlanetId, aa.PlanetId);
-                        }
-                    }
-                },
-                {
-                    typeof(Element), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            var ee = (Element)e;
-                            var aa = (Element)a;
-
-                            Assert.Equal(ee.Id, aa.Id);
-                            Assert.Equal(ee.Name, aa.Name);
-                            Assert.Equal(ee.StarId, aa.StarId);
-                        }
-                    }
-                },
-                {
-                    typeof(Throned), (e, a) =>
-                    {
-                        Assert.Equal(e == null, a == null);
-                        if (a != null)
-                        {
-                            Assert.Equal(((Throned)e).Value, ((Throned)a).Value);
-                            Assert.Equal(((Throned)e).Property, ((Throned)a).Property);
+                            Assert.Equal(eec.Id, aac.Id);
+                            Assert.Equal(eec.Name, aac.Name);
+                            Assert.Equal(eec.StarId, aac.StarId);
                         }
                     }
                 }
-            }.ToDictionary(e => e.Key, e => (object)e.Value);
+            },
+            {
+                typeof(Moon), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (Moon)e;
+                        var aa = (Moon)a;
 
-        protected override string StoreName { get; } = "OwnedQueryTest";
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.PlanetId, aa.PlanetId);
+                        Assert.Equal(ee.Diameter, aa.Diameter);
+                    }
+                }
+            },
+            {
+                typeof(Fink), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        Assert.Equal(((Fink)e).Id, ((Fink)a).Id);
+                    }
+                }
+            },
+            {
+                typeof(Barton), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (Barton)e;
+                        var aa = (Barton)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Simple, aa.Simple);
+                        Assert.Equal(ee.Throned.Property, aa.Throned.Property);
+                    }
+                }
+            },
+
+            // owned entities - still need comparers in case they are projected directly
+            {
+                typeof(Order), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        Assert.Equal(((Order)e).Id, ((Order)a).Id);
+                    }
+                }
+            },
+            {
+                typeof(OrderDetail), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        Assert.Equal(((OrderDetail)e).Detail, ((OrderDetail)a).Detail);
+                    }
+                }
+            },
+            { typeof(OwnedAddress), (e, a) => { AssertAddress(((OwnedAddress)e), ((OwnedAddress)a)); } },
+            {
+                typeof(OwnedCountry), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (OwnedCountry)e;
+                        var aa = (OwnedCountry)a;
+
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.PlanetId, aa.PlanetId);
+                    }
+                }
+            },
+            {
+                typeof(Element), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        var ee = (Element)e;
+                        var aa = (Element)a;
+
+                        Assert.Equal(ee.Id, aa.Id);
+                        Assert.Equal(ee.Name, aa.Name);
+                        Assert.Equal(ee.StarId, aa.StarId);
+                    }
+                }
+            },
+            {
+                typeof(Throned), (e, a) =>
+                {
+                    Assert.Equal(e == null, a == null);
+                    if (a != null)
+                    {
+                        Assert.Equal(((Throned)e).Value, ((Throned)a).Value);
+                        Assert.Equal(((Throned)e).Property, ((Throned)a).Property);
+                    }
+                }
+            }
+        }.ToDictionary(e => e.Key, e => (object)e.Value);
+
+        protected override string StoreName
+            => "OwnedQueryTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {
@@ -1369,7 +1475,14 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
                         });
                 });
 
-            modelBuilder.Entity<Planet>(pb => pb.HasData(new Planet { Id = 1, StarId = 1, Name = "Earth" }));
+            modelBuilder.Entity<Planet>(
+                pb => pb.HasData(
+                    new Planet
+                    {
+                        Id = 1,
+                        StarId = 1,
+                        Name = "Earth"
+                    }));
 
             modelBuilder.Entity<Moon>(
                 mb => mb.HasData(
@@ -1422,6 +1535,10 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
             modelBuilder.Entity<Fink>().HasData(
                 new { Id = 1, BartonId = 1 });
+
+            modelBuilder.Entity<Balloon>();
+            modelBuilder.Entity<HydrogenBalloon>().OwnsOne(e => e.Gas);
+            modelBuilder.Entity<HeliumBalloon>().OwnsOne(e => e.Gas);
         }
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
@@ -1508,7 +1625,15 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
         }
 
         private static IReadOnlyList<Planet> CreatePlanets()
-            => new List<Planet> { new() { Id = 1, StarId = 1, Name = "Earth" } };
+            => new List<Planet>
+            {
+                new()
+                {
+                    Id = 1,
+                    StarId = 1,
+                    Name = "Earth"
+                }
+            };
 
         private static IReadOnlyList<Star> CreateStars()
             => new List<Star>
@@ -1895,5 +2020,30 @@ public abstract class OwnedQueryTestBase<TFixture> : QueryTestBase<TFixture>
     {
         public int Value { get; set; }
         public string Property { get; set; }
+    }
+
+    protected abstract class Balloon
+    {
+        public string Id { get; set; }
+    }
+
+    protected class Helium
+    {
+        public int X { get; set; }
+    }
+
+    protected class Hydrogen
+    {
+        public int Y { get; set; }
+    }
+
+    protected class HeliumBalloon : Balloon
+    {
+        public Helium Gas { get; set; }
+    }
+
+    protected class HydrogenBalloon : Balloon
+    {
+        public Hydrogen Gas { get; set; }
     }
 }

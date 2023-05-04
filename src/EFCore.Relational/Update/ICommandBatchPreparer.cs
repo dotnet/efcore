@@ -32,6 +32,15 @@ public interface ICommandBatchPreparer
     /// </summary>
     /// <param name="entries">The entries that represent the entities to be modified.</param>
     /// <param name="updateAdapter">The model data.</param>
-    /// <returns>A list of value tuples, each of which contains a batch to execute, and whether more batches are available.</returns>
-    IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> BatchCommands(IList<IUpdateEntry> entries, IUpdateAdapter updateAdapter);
+    /// <returns>The list of batches to execute.</returns>
+    IEnumerable<ModificationCommandBatch> BatchCommands(IList<IUpdateEntry> entries, IUpdateAdapter updateAdapter);
+
+    /// <summary>
+    ///     Given a set of modification commands, returns one more ready-to-execute batches for those commands, taking into account e.g.
+    ///     maximum batch sizes and other batching constraints.
+    /// </summary>
+    /// <param name="commandSet">The set of commands to be organized in batches.</param>
+    /// <param name="moreCommandSets">Whether more command sets are expected after this one within the same save operation.</param>
+    /// <returns>The list of batches to execute.</returns>
+    IEnumerable<ModificationCommandBatch> CreateCommandBatches(IEnumerable<IReadOnlyModificationCommand> commandSet, bool moreCommandSets);
 }

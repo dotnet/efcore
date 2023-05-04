@@ -23,7 +23,7 @@ public class SqliteDateOnlyMemberTranslator : IMemberTranslator
             { nameof(DateOnly.DayOfWeek), "%w" }
         };
 
-    private readonly ISqlExpressionFactory _sqlExpressionFactory;
+    private readonly SqliteSqlExpressionFactory _sqlExpressionFactory;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -31,7 +31,7 @@ public class SqliteDateOnlyMemberTranslator : IMemberTranslator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqliteDateOnlyMemberTranslator(ISqlExpressionFactory sqlExpressionFactory)
+    public SqliteDateOnlyMemberTranslator(SqliteSqlExpressionFactory sqlExpressionFactory)
     {
         _sqlExpressionFactory = sqlExpressionFactory;
     }
@@ -49,8 +49,7 @@ public class SqliteDateOnlyMemberTranslator : IMemberTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         => member.DeclaringType == typeof(DateOnly) && DatePartMapping.TryGetValue(member.Name, out var datePart)
             ? _sqlExpressionFactory.Convert(
-                SqliteExpression.Strftime(
-                    _sqlExpressionFactory,
+                _sqlExpressionFactory.Strftime(
                     typeof(string),
                     datePart,
                     instance!),

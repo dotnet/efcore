@@ -27,7 +27,10 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
         IConcurrencyDetector concurrencyDetector,
         IRelationalConnection relationalConnection,
         IRawSqlCommandBuilder rawSqlCommandBuilder,
-        ICoreSingletonOptions coreOptions)
+        ICoreSingletonOptions coreOptions,
+        IAsyncQueryProvider queryProvider,
+        IAdHocMapper adHocMapper,
+        IRelationalTypeMappingSource relationalTypeMappingSource)
     {
         TransactionManager = transactionManager;
         DatabaseCreator = databaseCreator;
@@ -39,6 +42,9 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
         RelationalConnection = relationalConnection;
         RawSqlCommandBuilder = rawSqlCommandBuilder;
         CoreOptions = coreOptions;
+        QueryProvider = queryProvider;
+        AdHocMapper = adHocMapper;
+        TypeMappingSource = relationalTypeMappingSource;
     }
 
     /// <summary>
@@ -47,7 +53,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IDbContextTransactionManager TransactionManager { get; init; }
+    public virtual IDbContextTransactionManager TransactionManager { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -55,7 +61,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IDatabaseCreator DatabaseCreator { get; init; }
+    public virtual IDatabaseCreator DatabaseCreator { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -63,7 +69,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IExecutionStrategy ExecutionStrategy { get; init; }
+    public virtual IExecutionStrategy ExecutionStrategy { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -71,7 +77,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; init; }
+    public virtual IExecutionStrategyFactory ExecutionStrategyFactory { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,7 +85,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IEnumerable<IDatabaseProvider> DatabaseProviders { get; init; }
+    public virtual IEnumerable<IDatabaseProvider> DatabaseProviders { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -87,7 +93,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRelationalCommandDiagnosticsLogger CommandLogger { get; init; }
+    public virtual IRelationalCommandDiagnosticsLogger CommandLogger { get; }
 
     IDiagnosticsLogger<DbLoggerCategory.Database.Command> IDatabaseFacadeDependencies.CommandLogger
         => CommandLogger;
@@ -98,7 +104,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IConcurrencyDetector ConcurrencyDetector { get; init; }
+    public virtual IConcurrencyDetector ConcurrencyDetector { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -106,7 +112,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRelationalConnection RelationalConnection { get; init; }
+    public virtual IRelationalConnection RelationalConnection { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -114,7 +120,7 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IRawSqlCommandBuilder RawSqlCommandBuilder { get; init; }
+    public virtual IRawSqlCommandBuilder RawSqlCommandBuilder { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -122,5 +128,29 @@ public record RelationalDatabaseFacadeDependencies : IRelationalDatabaseFacadeDe
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual ICoreSingletonOptions CoreOptions { get; init; }
+    public virtual ICoreSingletonOptions CoreOptions { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IAsyncQueryProvider QueryProvider { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IAdHocMapper AdHocMapper { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ITypeMappingSource TypeMappingSource { get; }
 }

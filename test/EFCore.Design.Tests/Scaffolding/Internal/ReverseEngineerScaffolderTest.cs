@@ -190,6 +190,7 @@ public class ReverseEngineerScaffolderTest
         Assert.Contains("Data Source=ScaffoldedConnectionString", result.ContextFile.Code);
         Assert.DoesNotContain("Name=DefaultConnection", result.ContextFile.Code);
         Assert.DoesNotContain("Data Source=Test", result.ContextFile.Code);
+        Assert.DoesNotContain(ScaffoldingAnnotationNames.ConnectionString, result.ContextFile.Code);
     }
 
     private class TestNamedConnectionStringResolver : IDesignTimeConnectionStringResolver

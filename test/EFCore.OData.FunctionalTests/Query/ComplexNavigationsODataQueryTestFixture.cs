@@ -12,7 +12,8 @@ public class ComplexNavigationsODataQueryTestFixture : ComplexNavigationsQuerySq
 {
     private IHost _selfHostServer;
 
-    protected override string StoreName { get; } = "ODataComplexNavigations";
+    protected override string StoreName
+        => "ODataComplexNavigations";
 
     public ComplexNavigationsODataQueryTestFixture()
     {

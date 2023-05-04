@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
@@ -31,7 +30,8 @@ public class DefaultValuesTest : SharedStoreFixtureBase<DbContext>
         }
     }
 
-    protected override string StoreName { get; } = "DefaultKettleChips";
+    protected override string StoreName
+        => "DefaultKettleChips";
 
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;

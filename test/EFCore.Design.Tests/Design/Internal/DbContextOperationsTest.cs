@@ -103,6 +103,19 @@ public class DbContextOperationsTest
         Assert.Equal("Microsoft.EntityFrameworkCore.InMemory", info.ProviderName);
     }
 
+    [ConditionalFact]
+    public void Useful_exception_if_finding_context_types_throws()
+        => Assert.Equal(
+            DesignStrings.CannotFindDbContextTypes("Bang!"),
+            Assert.Throws<OperationException>(
+                () => CreateOperations(typeof(ThrowingTestProgram)).CreateContext(typeof(TestContext).FullName)).Message);
+
+    private static class ThrowingTestProgram
+    {
+        private static TestWebHost BuildWebHost(string[] args)
+            => CreateWebHost(_ => throw new Exception("Bang!"));
+    }
+
     private static class TestProgram
     {
         private static TestWebHost BuildWebHost(string[] args)

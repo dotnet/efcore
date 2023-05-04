@@ -67,7 +67,23 @@ public class RelationalAnnotationProvider : IRelationalAnnotationProvider
         => Enumerable.Empty<IAnnotation>();
 
     /// <inheritdoc />
+    public virtual IEnumerable<IAnnotation> For(IStoreFunctionParameter parameter, bool designTime)
+        => Enumerable.Empty<IAnnotation>();
+
+    /// <inheritdoc />
     public virtual IEnumerable<IAnnotation> For(IFunctionColumn column, bool designTime)
+        => Enumerable.Empty<IAnnotation>();
+
+    /// <inheritdoc />
+    public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedure storedProcedure, bool designTime)
+        => Enumerable.Empty<IAnnotation>();
+
+    /// <inheritdoc />
+    public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedureParameter parameter, bool designTime)
+        => Enumerable.Empty<IAnnotation>();
+
+    /// <inheritdoc />
+    public virtual IEnumerable<IAnnotation> For(IStoreStoredProcedureResultColumn column, bool designTime)
         => Enumerable.Empty<IAnnotation>();
 
     /// <inheritdoc />

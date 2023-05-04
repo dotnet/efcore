@@ -56,4 +56,13 @@ public class NorthwindMiscellaneousQueryInMemoryTest : NorthwindMiscellaneousQue
             CoreStrings.EntityEqualityOnCompositeKeyEntitySubqueryNotSupported("==", nameof(OrderDetail)),
             (await Assert.ThrowsAsync<InvalidOperationException>(
                 () => base.Entity_equality_through_subquery_composite_key(async))).Message);
+
+    public override Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_zero(bool async)
+        => Task.CompletedTask;
+
+    public override Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_constant_one(bool async)
+        => Task.CompletedTask;
+
+    public override Task Collection_navigation_equal_to_null_for_subquery_using_ElementAtOrDefault_parameter(bool async)
+        => Task.CompletedTask;
 }

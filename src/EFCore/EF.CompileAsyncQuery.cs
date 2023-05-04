@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -22,7 +23,9 @@ namespace Microsoft.EntityFrameworkCore
         /// <typeparam name="TResult">The query result type.</typeparam>
         /// <param name="queryExpression">The LINQ query expression.</param>
         /// <returns>A delegate that can be invoked to execute the compiled query.</returns>
-        public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<TContext, TResult>(
+        public static Func<TContext, IAsyncEnumerable<TResult>> CompileAsyncQuery<
+            TContext,
+            [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] TResult>(
             Expression<Func<TContext, DbSet<TResult>>> queryExpression)
             where TContext : DbContext
             where TResult : class

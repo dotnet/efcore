@@ -31,5 +31,5 @@ public interface IClrPropertyGetter
     /// </summary>
     /// <param name="entity">The entity instance.</param>
     /// <returns><see langword="true" /> if the property value is the CLR default; <see langword="false" /> it is any other value.</returns>
-    bool HasDefaultValue(object entity);
+    bool HasSentinelValue(object entity);
 }

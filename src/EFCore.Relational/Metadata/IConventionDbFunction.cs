@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IConventionDbFunction : IReadOnlyDbFunction, IConventionAnnotatable
 {
     /// <summary>
-    ///     Gets the <see cref="IConventionModel" /> in which this function is defined.
+    ///     Gets the model in which this function is defined.
     /// </summary>
     new IConventionModel Model { get; }
 

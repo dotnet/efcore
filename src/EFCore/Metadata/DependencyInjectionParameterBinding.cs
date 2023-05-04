@@ -16,7 +16,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public class DependencyInjectionParameterBinding : ServiceParameterBinding
 {
     private static readonly MethodInfo GetServiceMethod
-        = typeof(InfrastructureExtensions).GetMethod(nameof(InfrastructureExtensions.GetService))!;
+        = typeof(InfrastructureExtensions).GetRuntimeMethod(
+            nameof(InfrastructureExtensions.GetService), new[] { typeof(IInfrastructure<IServiceProvider>) })!;
 
     /// <summary>
     ///     Creates a new <see cref="DependencyInjectionParameterBinding" /> instance for the given service type.
@@ -37,14 +38,14 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
     ///     materialization expression to a parameter of the constructor, factory method, etc.
     /// </summary>
     /// <param name="materializationExpression">The expression representing the materialization context.</param>
-    /// <param name="entityTypeExpression">The expression representing the <see cref="IEntityType" /> constant.</param>
+    /// <param name="bindingInfoExpression">The expression representing the <see cref="ParameterBindingInfo" /> constant.</param>
     /// <returns>The expression tree.</returns>
     public override Expression BindToParameter(
         Expression materializationExpression,
-        Expression entityTypeExpression)
+        Expression bindingInfoExpression)
     {
         Check.NotNull(materializationExpression, nameof(materializationExpression));
-        Check.NotNull(entityTypeExpression, nameof(entityTypeExpression));
+        Check.NotNull(bindingInfoExpression, nameof(bindingInfoExpression));
 
         return Expression.Call(
             GetServiceMethod.MakeGenericMethod(ServiceType),
@@ -62,4 +63,10 @@ public class DependencyInjectionParameterBinding : ServiceParameterBinding
     /// <returns>A copy with replaced consumed properties.</returns>
     public override ParameterBinding With(IPropertyBase[] consumedProperties)
         => new DependencyInjectionParameterBinding(ParameterType, ServiceType, consumedProperties);
+
+    /// <summary>
+    ///     A delegate to set a CLR service property on an entity instance.
+    /// </summary>
+    public override Func<MaterializationContext, IEntityType, object, object?> ServiceDelegate
+        => (materializationContext, _, _) => materializationContext.Context.GetService(ServiceType);
 }

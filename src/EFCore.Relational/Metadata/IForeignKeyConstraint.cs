@@ -42,7 +42,8 @@ public interface IForeignKeyConstraint : IAnnotatable
     /// <summary>
     ///     Gets the columns that are referenced by the foreign key constraint.
     /// </summary>
-    IReadOnlyList<IColumn> PrincipalColumns => PrincipalUniqueConstraint.Columns;
+    IReadOnlyList<IColumn> PrincipalColumns
+        => PrincipalUniqueConstraint.Columns;
 
     /// <summary>
     ///     Gets the unique constraint on the columns referenced by the foreign key constraint.

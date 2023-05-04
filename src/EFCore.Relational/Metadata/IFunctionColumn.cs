@@ -24,6 +24,14 @@ public interface IFunctionColumn : IColumnBase
     new IReadOnlyList<IFunctionColumnMapping> PropertyMappings { get; }
 
     /// <summary>
+    ///     Returns the property mapping for the given entity type.
+    /// </summary>
+    /// <param name="entityType">An entity type.</param>
+    /// <returns>The property mapping or <see langword="null" /> if not found.</returns>
+    new IFunctionColumnMapping? FindColumnMapping(IReadOnlyEntityType entityType)
+        => (IFunctionColumnMapping?)((IColumnBase)this).FindColumnMapping(entityType);
+
+    /// <summary>
     ///     <para>
     ///         Creates a human-readable representation of the given metadata.
     ///     </para>
@@ -35,7 +43,7 @@ public interface IFunctionColumn : IColumnBase
     /// <param name="options">Options for generating the string.</param>
     /// <param name="indent">The number of indent spaces to use before each new line.</param>
     /// <returns>A human-readable representation.</returns>
-    string ToDebugString(MetadataDebugStringOptions options = MetadataDebugStringOptions.ShortDefault, int indent = 0)
+    string IColumnBase.ToDebugString(MetadataDebugStringOptions options, int indent)
     {
         var builder = new StringBuilder();
         var indentString = new string(' ', indent);

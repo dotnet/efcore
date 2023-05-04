@@ -47,6 +47,14 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
                     null
                 ),
                 (
+                    typeof(IReadOnlyEntityType),
+                    typeof(CosmosEntityTypeExtensions),
+                    typeof(CosmosEntityTypeExtensions),
+                    typeof(CosmosEntityTypeExtensions),
+                    typeof(CosmosEntityTypeBuilderExtensions),
+                    null
+                ),
+                (
                     typeof(IReadOnlyProperty),
                     typeof(CosmosPropertyExtensions),
                     typeof(CosmosPropertyExtensions),

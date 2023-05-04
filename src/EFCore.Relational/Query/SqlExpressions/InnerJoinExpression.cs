@@ -54,6 +54,10 @@ public class InnerJoinExpression : PredicateJoinExpressionBase
             : this;
 
     /// <inheritdoc />
+    protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
+        => new InnerJoinExpression(Table, JoinPredicate, annotations);
+
+    /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Append("INNER JOIN ");

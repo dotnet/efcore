@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Storage;
 public class RelationalSqlGenerationHelper : ISqlGenerationHelper
 {
     /// <summary>
-    ///     Initializes a new instance of the this class.
+    ///     Initializes a new instance of this class.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this service.</param>
     public RelationalSqlGenerationHelper(RelationalSqlGenerationHelperDependencies dependencies)

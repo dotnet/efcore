@@ -26,8 +26,7 @@ public class FromSqlQueryCosmosTest : QueryTestBase<NorthwindQueryCosmosFixture<
     public async Task FromSqlRaw_queryable_simple(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
             @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""ContactName""] LIKE '%z%'");
 
         var actual = async
@@ -38,10 +37,12 @@ public class FromSqlQueryCosmosTest : QueryTestBase<NorthwindQueryCosmosFixture<
         Assert.Equal(14, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""ContactName""] LIKE '%z%'
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["ContactName"] LIKE '%z%'
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -49,9 +50,7 @@ FROM (
     public async Task FromSqlRaw_queryable_incorrect_discriminator_throws(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
-            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Order""");
+        var query = context.Set<Customer>().FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Order""");
 
         var exception = async
             ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())
@@ -67,8 +66,7 @@ FROM (
     public async Task FromSqlRaw_queryable_simple_columns_out_of_order(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
             @"SELECT c[""id""], c[""Discriminator""], c[""Region""], c[""PostalCode""], c[""Phone""], c[""Fax""], c[""CustomerID""], c[""Country""], c[""ContactTitle""], c[""ContactName""], c[""CompanyName""], c[""City""], c[""Address""] FROM root c WHERE c[""Discriminator""] = ""Customer""");
 
         var actual = async
@@ -79,10 +77,12 @@ FROM (
         Assert.Equal(91, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT c[""id""], c[""Discriminator""], c[""Region""], c[""PostalCode""], c[""Phone""], c[""Fax""], c[""CustomerID""], c[""Country""], c[""ContactTitle""], c[""ContactName""], c[""CompanyName""], c[""City""], c[""Address""] FROM root c WHERE c[""Discriminator""] = ""Customer""
-) c");
+    SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -90,8 +90,7 @@ FROM (
     public async Task FromSqlRaw_queryable_simple_columns_out_of_order_and_extra_columns(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
             @"SELECT c[""id""], c[""Discriminator""], c[""Region""], c[""PostalCode""], c[""PostalCode""] AS Foo, c[""Phone""], c[""Fax""], c[""CustomerID""], c[""Country""], c[""ContactTitle""], c[""ContactName""], c[""CompanyName""], c[""City""], c[""Address""] FROM root c WHERE c[""Discriminator""] = ""Customer""");
 
         var actual = async
@@ -102,10 +101,12 @@ FROM (
         Assert.Equal(91, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT c[""id""], c[""Discriminator""], c[""Region""], c[""PostalCode""], c[""PostalCode""] AS Foo, c[""Phone""], c[""Fax""], c[""CustomerID""], c[""Country""], c[""ContactTitle""], c[""ContactName""], c[""CompanyName""], c[""City""], c[""Address""] FROM root c WHERE c[""Discriminator""] = ""Customer""
-) c");
+    SELECT c["id"], c["Discriminator"], c["Region"], c["PostalCode"], c["PostalCode"] AS Foo, c["Phone"], c["Fax"], c["CustomerID"], c["Country"], c["ContactTitle"], c["ContactName"], c["CompanyName"], c["City"], c["Address"] FROM root c WHERE c["Discriminator"] = "Customer"
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -113,9 +114,8 @@ FROM (
     public async Task FromSqlRaw_queryable_composed(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
-            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""").Where(c => c.ContactName.Contains("z"));
+        var query = context.Set<Customer>().FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+            .Where(c => c.ContactName.Contains("z"));
 
         var sql = query.ToQueryString();
 
@@ -127,11 +127,13 @@ FROM (
         Assert.Equal(14, context.ChangeTracker.Entries().Count());
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) c
-WHERE CONTAINS(c[""ContactName""], ""z"")");
+WHERE CONTAINS(c["ContactName"], "z")
+""");
     }
 
     [ConditionalTheory]
@@ -139,8 +141,7 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
     public virtual async Task FromSqlRaw_queryable_composed_after_removing_whitespaces(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
                 _eol + "    " + _eol + _eol + _eol + "SELECT" + _eol + @"* FROM root c WHERE c[""Discriminator""] = ""Customer""")
             .Where(c => c.ContactName.Contains("z"));
 
@@ -171,9 +172,8 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         if (async)
         {
             var query = EF.CompileAsyncQuery(
-                (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
-                        context.Set<Customer>(),
-                        @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -186,9 +186,8 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         else
         {
             var query = EF.CompileQuery(
-                (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
-                        context.Set<Customer>(),
-                        @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+                (NorthwindContext context) => context.Set<Customer>()
+                    .FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
                     .Where(c => c.ContactName.Contains("z")));
 
             using (var context = CreateContext())
@@ -200,11 +199,13 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         }
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) c
-WHERE CONTAINS(c[""ContactName""], ""z"")");
+WHERE CONTAINS(c["ContactName"], "z")
+""");
     }
 
     [ConditionalTheory]
@@ -214,8 +215,7 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         if (async)
         {
             var query = EF.CompileAsyncQuery(
-                (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
-                        context.Set<Customer>(),
+                (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
                         @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = {0}", "CONSH")
                     .Where(c => c.ContactName.Contains("z")));
 
@@ -229,8 +229,7 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         else
         {
             var query = EF.CompileQuery(
-                (NorthwindContext context) => CosmosQueryableExtensions.FromSqlRaw(
-                        context.Set<Customer>(),
+                (NorthwindContext context) => context.Set<Customer>().FromSqlRaw(
                         @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = {0}", "CONSH")
                     .Where(c => c.ContactName.Contains("z")));
 
@@ -243,11 +242,13 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
         }
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""CustomerID""] = ""CONSH""
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["CustomerID"] = "CONSH"
 ) c
-WHERE CONTAINS(c[""ContactName""], ""z"")");
+WHERE CONTAINS(c["ContactName"], "z")
+""");
     }
 
     [ConditionalTheory]
@@ -255,11 +256,12 @@ WHERE CONTAINS(c[""ContactName""], ""z"")");
     public virtual async Task FromSqlRaw_queryable_multiple_line_query(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
-            @"SELECT *
+        var query = context.Set<Customer>().FromSqlRaw(
+"""
+SELECT *
 FROM root c
-WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'");
+WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
+""");
 
         var actual = async
             ? await query.ToArrayAsync()
@@ -269,12 +271,14 @@ WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'");
         Assert.True(actual.All(c => c.City == "London"));
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
     SELECT *
     FROM root c
-    WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'
-) c");
+    WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -282,11 +286,12 @@ FROM (
     public virtual async Task FromSqlRaw_queryable_composed_multiple_line_query(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Customer>(),
-                @"SELECT *
+        var query = context.Set<Customer>().FromSqlRaw(
+"""
+SELECT *
 FROM root c
-WHERE c[""Discriminator""] = ""Customer""")
+WHERE c["Discriminator"] = "Customer"
+""")
             .Where(c => c.City == "London");
 
         var actual = async
@@ -297,13 +302,15 @@ WHERE c[""Discriminator""] = ""Customer""")
         Assert.True(actual.All(c => c.City == "London"));
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
     SELECT *
     FROM root c
-    WHERE c[""Discriminator""] = ""Customer""
+    WHERE c["Discriminator"] = "Customer"
 ) c
-WHERE (c[""City""] = ""London"")");
+WHERE (c["City"] = "London")
+""");
     }
 
     [ConditionalTheory]
@@ -314,8 +321,7 @@ WHERE (c[""City""] = ""London"")");
         var contactTitle = "Sales Representative";
 
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
             @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}", city,
             contactTitle);
 
@@ -328,13 +334,15 @@ WHERE (c[""City""] = ""London"")");
         Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
         AssertSql(
-            @"@p0='London'
+"""
+@p0='London'
 @p1='Sales Representative'
 
 SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = @p0 AND c[""ContactTitle""] = @p1
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -342,8 +350,7 @@ FROM (
     public async Task FromSqlRaw_queryable_with_parameters_inline(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
             @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}",
             "London",
             "Sales Representative");
@@ -357,13 +364,15 @@ FROM (
         Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
         AssertSql(
-            @"@p0='London'
+"""
+@p0='London'
 @p1='Sales Representative'
 
 SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = @p0 AND c[""ContactTitle""] = @p1
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -373,8 +382,7 @@ FROM (
         uint? reportsTo = null;
 
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Employee>(),
+        var query = context.Set<Employee>().FromSqlRaw(
             @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Employee"" AND c[""ReportsTo""] = {0} OR (IS_NULL(c[""ReportsTo""]) AND IS_NULL({0}))",
             reportsTo);
 
@@ -385,12 +393,14 @@ FROM (
         Assert.Single(actual);
 
         AssertSql(
-            @"@p0=null
+"""
+@p0=null
 
 SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Employee"" AND c[""ReportsTo""] = @p0 OR (IS_NULL(c[""ReportsTo""]) AND IS_NULL(@p0))
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Employee" AND c["ReportsTo"] = @p0 OR (IS_NULL(c["ReportsTo"]) AND IS_NULL(@p0))
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -401,8 +411,7 @@ FROM (
         var contactTitle = "Sales Representative";
 
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Customer>(),
+        var query = context.Set<Customer>().FromSqlRaw(
                 @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0}", city)
             .Where(c => c.ContactTitle == contactTitle);
         var queryString = query.ToQueryString();
@@ -416,14 +425,16 @@ FROM (
         Assert.True(actual.All(c => c.ContactTitle == "Sales Representative"));
 
         AssertSql(
-            @"@p0='London'
+"""
+@p0='London'
 @__contactTitle_1='Sales Representative'
 
 SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = @p0
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0
 ) c
-WHERE (c[""ContactTitle""] = @__contactTitle_1)");
+WHERE (c["ContactTitle"] = @__contactTitle_1)
+""");
     }
 
     [ConditionalTheory]
@@ -431,9 +442,8 @@ WHERE (c[""ContactTitle""] = @__contactTitle_1)");
     public virtual async Task FromSqlRaw_queryable_simple_cache_key_includes_query_string(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
-            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'");
+        var query = context.Set<Customer>()
+            .FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'");
 
         var actual = async
             ? await query.ToArrayAsync()
@@ -442,9 +452,8 @@ WHERE (c[""ContactTitle""] = @__contactTitle_1)");
         Assert.Equal(6, actual.Length);
         Assert.True(actual.All(c => c.City == "London"));
 
-        query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Set<Customer>(),
-            @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'Seattle'");
+        query = context.Set<Customer>()
+            .FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'Seattle'");
 
         actual = async
             ? await query.ToArrayAsync()
@@ -454,15 +463,19 @@ WHERE (c[""ContactTitle""] = @__contactTitle_1)");
         Assert.True(actual.All(c => c.City == "Seattle"));
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'London'
-) c",
-            //
-            @"SELECT c
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = 'London'
+) c
+""",
+                //
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = 'Seattle'
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = 'Seattle'
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -474,7 +487,7 @@ FROM (
         var sql = @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = {0} AND c[""ContactTitle""] = {1}";
 
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(), sql, city, contactTitle);
+        var query = context.Set<Customer>().FromSqlRaw(sql, city, contactTitle);
 
         var actual = async
             ? await query.ToArrayAsync()
@@ -487,7 +500,7 @@ FROM (
         city = "Madrid";
         contactTitle = "Accounting Manager";
 
-        query = CosmosQueryableExtensions.FromSqlRaw(context.Set<Customer>(), sql, city, contactTitle);
+        query = context.Set<Customer>().FromSqlRaw(sql, city, contactTitle);
 
         actual = async
             ? await query.ToArrayAsync()
@@ -498,21 +511,25 @@ FROM (
         Assert.True(actual.All(c => c.ContactTitle == "Accounting Manager"));
 
         AssertSql(
-            @"@p0='London'
+"""
+@p0='London'
 @p1='Sales Representative'
 
 SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = @p0 AND c[""ContactTitle""] = @p1
-) c",
-            //
-            @"@p0='Madrid'
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+) c
+""",
+                //
+"""
+@p0='Madrid'
 @p1='Accounting Manager'
 
 SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer"" AND c[""City""] = @p0 AND c[""ContactTitle""] = @p1
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer" AND c["City"] = @p0 AND c["ContactTitle"] = @p1
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -520,9 +537,7 @@ FROM (
     public virtual async Task FromSqlRaw_queryable_simple_as_no_tracking_not_composed(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+        var query = context.Set<Customer>().FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
             .AsNoTracking();
 
         var actual = async
@@ -533,10 +548,12 @@ FROM (
         Assert.Empty(context.ChangeTracker.Entries());
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -544,8 +561,7 @@ FROM (
     public virtual async Task FromSqlRaw_queryable_simple_projection_composed(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Product>(),
+        var query = context.Set<Product>().FromSqlRaw(
                 @"SELECT *
 FROM root c
 WHERE c[""Discriminator""] = ""Product"" AND NOT c[""Discontinued""] AND ((c[""UnitsInStock""] + c[""UnitsOnOrder""]) < c[""ReorderLevel""])")
@@ -558,12 +574,14 @@ WHERE c[""Discriminator""] = ""Product"" AND NOT c[""Discontinued""] AND ((c[""U
         Assert.Equal(2, actual.Length);
 
         AssertSql(
-            @"SELECT c[""ProductName""]
+"""
+SELECT c["ProductName"]
 FROM (
     SELECT *
     FROM root c
-    WHERE c[""Discriminator""] = ""Product"" AND NOT c[""Discontinued""] AND ((c[""UnitsInStock""] + c[""UnitsOnOrder""]) < c[""ReorderLevel""])
-) c");
+    WHERE c["Discriminator"] = "Product" AND NOT c["Discontinued"] AND ((c["UnitsInStock"] + c["UnitsOnOrder"]) < c["ReorderLevel"])
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -571,9 +589,7 @@ FROM (
     public virtual async Task FromSqlRaw_composed_with_nullable_predicate(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+        var query = context.Set<Customer>().FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
             .Where(c => c.ContactName == c.CompanyName);
 
         var actual = async
@@ -583,11 +599,13 @@ FROM (
         Assert.Empty(actual);
 
         AssertSql(
-            @"SELECT c
+"""
+SELECT c
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
 ) c
-WHERE (c[""ContactName""] = c[""CompanyName""])");
+WHERE (c["ContactName"] = c["CompanyName"])
+""");
     }
 
     [ConditionalTheory]
@@ -597,8 +615,7 @@ WHERE (c[""ContactName""] = c[""CompanyName""])");
         using var context = CreateContext();
         var propertyName = "OrderID";
         var max = 10250;
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-            context.Orders,
+        var query = context.Orders.FromSqlRaw(
             $@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Order"" AND c[""{propertyName}""] < {{0}}", max);
 
         var actual = async
@@ -613,9 +630,7 @@ WHERE (c[""ContactName""] = c[""CompanyName""])");
     public virtual async Task FromSqlRaw_queryable_simple_projection_not_composed(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions.FromSqlRaw(
-                context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
+        var query = context.Set<Customer>().FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""")
             .Select(
                 c => new { c.CustomerID, c.City })
             .AsNoTracking();
@@ -628,10 +643,12 @@ WHERE (c[""ContactName""] = c[""CompanyName""])");
         Assert.Empty(context.ChangeTracker.Entries());
 
         AssertSql(
-            @"SELECT c[""CustomerID""], c[""City""]
+"""
+SELECT c["CustomerID"], c["City"]
 FROM (
-    SELECT * FROM root c WHERE c[""Discriminator""] = ""Customer""
-) c");
+    SELECT * FROM root c WHERE c["Discriminator"] = "Customer"
+) c
+""");
     }
 
     [ConditionalTheory]
@@ -639,10 +656,8 @@ FROM (
     public async Task FromSqlRaw_queryable_simple_with_missing_key_and_non_tracking_throws(bool async)
     {
         using var context = CreateContext();
-        var query = CosmosQueryableExtensions
-            .FromSqlRaw(
-                context.Set<Customer>(),
-                @"SELECT * FROM root c WHERE c[""Discriminator""] = ""Category""")
+        var query = context.Set<Customer>()
+            .FromSqlRaw(@"SELECT * FROM root c WHERE c[""Discriminator""] = ""Category""")
             .AsNoTracking();
         var exception = async
             ? await Assert.ThrowsAsync<InvalidOperationException>(() => query.ToArrayAsync())

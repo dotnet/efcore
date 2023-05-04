@@ -1,10 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServerTriggersFixture>
@@ -109,12 +108,13 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
             modelBuilder.Entity<Product>(
                 eb =>
                 {
-                    eb.ToTable(tb =>
-                    {
-                        tb.HasTrigger("TRG_InsertProduct");
-                        tb.HasTrigger("TRG_UpdateProduct");
-                        tb.HasTrigger("TRG_DeleteProduct");
-                    });
+                    eb.ToTable(
+                        tb =>
+                        {
+                            tb.HasTrigger("TRG_InsertProduct");
+                            tb.HasTrigger("TRG_UpdateProduct");
+                            tb.HasTrigger("TRG_DeleteProduct");
+                        });
                     eb.Property(e => e.Version)
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken();
@@ -143,7 +143,9 @@ public class SqlServerTriggersTest : IClassFixture<SqlServerTriggersTest.SqlServ
 
     public class SqlServerTriggersFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "SqlServerTriggers";
+        protected override string StoreName
+            => "SqlServerTriggers";
+
         protected override Type ContextType { get; } = typeof(TriggersContext);
 
         protected override ITestStoreFactory TestStoreFactory

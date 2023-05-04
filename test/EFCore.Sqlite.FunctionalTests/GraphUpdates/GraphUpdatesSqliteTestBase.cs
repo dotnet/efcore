@@ -49,7 +49,10 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBas
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;
 
-        protected virtual bool AutoDetectChanges
+        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
+            => base.AddOptions(builder.ConfigureWarnings(b => b.Ignore(SqliteEventId.CompositeKeyWithValueGeneration)));
+
+        public override bool AutoDetectChanges
             => false;
 
         public override PoolableDbContext CreateContext()
@@ -77,6 +80,23 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBas
                     b.Property(e => e.IdUserState).HasDefaultValue(1);
                     b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
                 });
+
+            modelBuilder.Entity<AccessStateWithSentinel>(
+                b =>
+                {
+                    b.Property(e => e.AccessStateWithSentinelId).ValueGeneratedNever();
+                    b.HasData(new AccessStateWithSentinel { AccessStateWithSentinelId = 1 });
+                });
+
+            modelBuilder.Entity<CruiserWithSentinel>(
+                b =>
+                {
+                    b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
+                    b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
+                });
+
+            modelBuilder.Entity<SomethingOfCategoryA>().Property<int>("CategoryId").HasDefaultValue(1);
+            modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);;
         }
     }
 }

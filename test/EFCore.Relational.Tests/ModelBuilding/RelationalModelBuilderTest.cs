@@ -3,6 +3,8 @@
 
 #nullable enable
 
+using System.Data;
+
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.ModelBuilding;
 
@@ -14,23 +16,26 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public virtual void Can_use_table_splitting()
         {
             var modelBuilder = CreateModelBuilder();
-            modelBuilder.Entity<Order>().SplitToTable("OrderDetails", s =>
-            {
-                s.ExcludeFromMigrations();
-                var propertyBuilder = s.Property(o => o.CustomerId);
-                var columnBuilder = propertyBuilder.HasColumnName("id");
-                if (columnBuilder is IInfrastructure<ColumnBuilder<int?>> genericBuilder)
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
                 {
-                    Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
-                    Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
-                }
-                else
-                {
-                    var nonGenericBuilder = (IInfrastructure<ColumnBuilder>)columnBuilder;
-                    Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
-                    Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
-                }
-            });
+                    s.ExcludeFromMigrations();
+                    var propertyBuilder = s.Property(o => o.CustomerId);
+                    var columnBuilder = propertyBuilder.HasColumnName("id");
+                    if (columnBuilder is IInfrastructure<ColumnBuilder<int?>> genericBuilder)
+                    {
+                        Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
+                        Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                    }
+                    else
+                    {
+                        var nonGenericBuilder = (IInfrastructure<ColumnBuilder>)columnBuilder;
+                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                        Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                    }
+                });
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Product>();
 
@@ -39,15 +44,16 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             var entity = model.FindEntityType(typeof(Order))!;
 
             Assert.False(entity.IsTableExcludedFromMigrations());
-            Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order")));
-            Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails")));
-            Assert.Same(entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails")));
+            Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order", "dbo")));
+            Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
 
             var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
             Assert.Equal("CustomerId", customerId.GetColumnName());
-            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order")));
-            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.Table("OrderDetails")));
-            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails")));
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order", "dbo")));
+            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
         }
 
         [ConditionalFact]
@@ -55,9 +61,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Order>().ToTable("Order", "dbo")
-                .SplitToTable("OrderDetails", "sch", s =>
-                    s.ExcludeFromMigrations()
-                    .Property(o => o.CustomerId).HasColumnName("id"));
+                .SplitToTable(
+                    "OrderDetails", "sch", s =>
+                        s.ExcludeFromMigrations()
+                            .Property(o => o.CustomerId).HasColumnName("id"));
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Product>();
 
@@ -68,9 +75,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.False(entity.IsTableExcludedFromMigrations());
             Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order", "dbo")));
             Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails", "sch")));
-            Assert.Same(entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "sch")));
-            Assert.Equal(RelationalStrings.TableNotMappedEntityType(nameof(Order), "Order"),
-                Assert.Throws<InvalidOperationException>(() => entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order"))).Message);
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "sch")));
+            Assert.Equal(
+                RelationalStrings.TableNotMappedEntityType(nameof(Order), "Order"),
+                Assert.Throws<InvalidOperationException>(() => entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order")))
+                    .Message);
 
             var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
             Assert.Equal("CustomerId", customerId.GetColumnName());
@@ -85,22 +95,23 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Order>().ToView("Order")
-                .SplitToView("OrderDetails", s =>
-            {
-                var propertyBuilder = s.Property(o => o.CustomerId);
-                var columnBuilder = propertyBuilder.HasColumnName("id");
-                if (columnBuilder is IInfrastructure<ViewColumnBuilder<int?>> genericBuilder)
-                {
-                    Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
-                    Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
-                }
-                else
-                {
-                    var nonGenericBuilder = (IInfrastructure<ViewColumnBuilder>)columnBuilder;
-                    Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
-                    Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
-                }
-            });
+                .SplitToView(
+                    "OrderDetails", s =>
+                    {
+                        var propertyBuilder = s.Property(o => o.CustomerId);
+                        var columnBuilder = propertyBuilder.HasColumnName("id");
+                        if (columnBuilder is IInfrastructure<ViewColumnBuilder<int?>> genericBuilder)
+                        {
+                            Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                        }
+                        else
+                        {
+                            var nonGenericBuilder = (IInfrastructure<ViewColumnBuilder>)columnBuilder;
+                            Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                        }
+                    });
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Product>();
 
@@ -122,8 +133,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         {
             var modelBuilder = CreateModelBuilder();
             modelBuilder.Entity<Order>().ToView("Order", "dbo")
-                .SplitToView("OrderDetails", "sch", s =>
-                    s.Property(o => o.CustomerId).HasColumnName("id"));
+                .SplitToView(
+                    "OrderDetails", "sch", s =>
+                        s.Property(o => o.CustomerId).HasColumnName("id"));
             modelBuilder.Ignore<Customer>();
             modelBuilder.Ignore<Product>();
 
@@ -131,9 +143,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
             var entity = model.FindEntityType(typeof(Order))!;
 
-            Assert.Same(entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.View("OrderDetails", "sch")));
-            Assert.Equal(RelationalStrings.TableNotMappedEntityType(nameof(Order), "Order"),
-                Assert.Throws<InvalidOperationException>(() => entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.View("Order"))).Message);
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.View("OrderDetails", "sch")));
+            Assert.Equal(
+                RelationalStrings.TableNotMappedEntityType(nameof(Order), "Order"),
+                Assert.Throws<InvalidOperationException>(() => entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.View("Order")))
+                    .Message);
 
             var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
             Assert.Equal("CustomerId", customerId.GetColumnName());
@@ -142,10 +157,399 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.View("OrderDetails", "sch")));
             Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order")));
         }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_return_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedReturnValue()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_return_and_result_column_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedResultColumn()
+                                    .HasRowsAffectedReturnValue()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_rows_affected_result_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .UpdateUsingStoredProcedure(
+                    s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_result_column_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedResultColumn()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_rows_affected_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .UpdateUsingStoredProcedure(
+                    s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateParameter("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddParameter("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_original_value_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateOriginalValueParameter("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddOriginalValueParameter("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_result_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateResultColumn("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddResultColumn("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Configuring_direction_on_RowsAffectedParameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var param = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureParameterInvalidConfiguration("Direction", "RowsAffected", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => param.Direction = ParameterDirection.Input)
+                    .Message);
+        }
     }
 
     public abstract class RelationalInheritanceTestBase : InheritanceTestBase
     {
+        [ConditionalFact]
+        public virtual void Can_use_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.ExcludeFromMigrations();
+                    var propertyBuilder = s.Property(o => o.CustomerId);
+                    var columnBuilder = propertyBuilder.HasColumnName("id");
+                    if (columnBuilder is IInfrastructure<ColumnBuilder<int?>> genericBuilder)
+                    {
+                        Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
+                        Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                    }
+                    else
+                    {
+                        var nonGenericBuilder = (IInfrastructure<ColumnBuilder>)columnBuilder;
+                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                        Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                    }
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+
+            Assert.False(entity.IsTableExcludedFromMigrations());
+            Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order")));
+            Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails")));
+            Assert.Same(entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails")));
+
+            var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
+            Assert.Equal("CustomerId", customerId.GetColumnName());
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order")));
+            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.Table("OrderDetails")));
+            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails")));
+        }
+
+        [ConditionalFact]
+        public virtual void Sproc_overrides_update_when_renamed_in_TPH()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("mySchema");
+
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<Book>();
+
+            modelBuilder.Entity<BookLabel>().Property<byte[]>("RowVersion").IsRowVersion();
+            modelBuilder.Entity<BookLabel>()
+                .Ignore(s => s.SpecialBookLabel)
+                .InsertUsingStoredProcedure(
+                    s => s.HasAnnotation("foo", "bar1")
+                        .HasParameter(b => b.BookId)
+                        .HasParameter("Discriminator")
+                        .HasResultColumn(
+                            b => b.Id, p =>
+                            {
+                                var resultColumnBuilder = p.HasName("InsertId");
+                                var nonGenericBuilder = (IInfrastructure<StoredProcedureResultColumnBuilder>)resultColumnBuilder;
+                                Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                            })
+                        .HasResultColumn("RowVersion"))
+                .UpdateUsingStoredProcedure(
+                    s => s.HasAnnotation("foo", "bar2")
+                        .HasOriginalValueParameter(
+                            b => b.Id, p =>
+                            {
+                                var parameterBuilder = p.HasName("UpdateId");
+                                var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
+                                Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                            })
+                        .HasParameter(b => b.BookId)
+                        .HasRowsAffectedParameter()
+                        .HasOriginalValueParameter("RowVersion", p => p.HasName("OriginalRowVersion"))
+                        .HasParameter("RowVersion", p => p.IsOutput()))
+                .DeleteUsingStoredProcedure(
+                    s => s.HasAnnotation("foo", "bar3")
+                        .HasOriginalValueParameter(b => b.Id, p => p.HasName("DeleteId"))
+                        .HasRowsAffectedResultColumn()
+                        .HasOriginalValueParameter("RowVersion"));
+
+            modelBuilder.Entity<SpecialBookLabel>()
+                .Ignore(s => s.BookLabel);
+            modelBuilder.Entity<ExtraSpecialBookLabel>();
+
+            modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure("Insert", s => { })
+                .UpdateUsingStoredProcedure("Update", "dbo", s => { })
+                .DeleteUsingStoredProcedure("BookLabel_Delete", s => { });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var bookLabel = model.FindEntityType(typeof(BookLabel))!;
+            var insertSproc = bookLabel.GetInsertStoredProcedure()!;
+            Assert.Equal("Insert", insertSproc.Name);
+            Assert.Equal("mySchema", insertSproc.Schema);
+            Assert.Equal(new[] { "BookId", "Discriminator" }, insertSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "Id", "RowVersion" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
+            Assert.False(insertSproc.FindParameter("Discriminator")!.ForOriginalValue);
+            Assert.Null(insertSproc.FindParameter("Id"));
+            Assert.Null(insertSproc.FindResultColumn("Discriminator"));
+            Assert.False(insertSproc.FindResultColumn("Id")!.ForRowsAffected);
+            Assert.Equal("bar1", insertSproc["foo"]);
+            Assert.Same(bookLabel, insertSproc.EntityType);
+
+            var updateSproc = bookLabel.GetUpdateStoredProcedure()!;
+            Assert.Equal("Update", updateSproc.Name);
+            Assert.Equal("dbo", updateSproc.Schema);
+            Assert.Equal(new[] { "Id", "BookId", null, "RowVersion", "RowVersion" }, updateSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(
+                new[] { "UpdateId", "BookId", "RowsAffected", "OriginalRowVersion", "RowVersion" },
+                updateSproc.Parameters.Select(p => p.Name));
+            Assert.Empty(updateSproc.ResultColumns);
+            Assert.Equal("bar2", updateSproc["foo"]);
+            Assert.Same(bookLabel, updateSproc.EntityType);
+
+            var rowsAffectedParameter = updateSproc.Parameters[2];
+            Assert.Null(rowsAffectedParameter.ForOriginalValue);
+            Assert.True(rowsAffectedParameter.ForRowsAffected);
+            Assert.Equal(ParameterDirection.Output, rowsAffectedParameter.Direction);
+            Assert.Same(updateSproc, rowsAffectedParameter.StoredProcedure);
+
+            var originalRowVersionParameter = updateSproc.Parameters[3];
+            Assert.True(originalRowVersionParameter.ForOriginalValue);
+            Assert.False(originalRowVersionParameter.ForRowsAffected);
+            Assert.Equal(ParameterDirection.Input, originalRowVersionParameter.Direction);
+            Assert.Same(updateSproc, originalRowVersionParameter.StoredProcedure);
+
+            var currentRowVersionParameter = updateSproc.Parameters[4];
+            Assert.False(currentRowVersionParameter.ForOriginalValue);
+            Assert.False(currentRowVersionParameter.ForRowsAffected);
+            Assert.Equal(ParameterDirection.Output, currentRowVersionParameter.Direction);
+            Assert.Same(updateSproc, currentRowVersionParameter.StoredProcedure);
+
+            var deleteSproc = bookLabel.GetDeleteStoredProcedure()!;
+            Assert.Equal("BookLabel_Delete", deleteSproc.Name);
+            Assert.Equal("mySchema", deleteSproc.Schema);
+            Assert.Equal(new[] { "Id", "RowVersion" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "DeleteId", "RowVersion_Original" }, deleteSproc.Parameters.Select(p => p.Name));
+            Assert.Equal(new[] { "RowsAffected" }, deleteSproc.ResultColumns.Select(p => p.Name));
+            Assert.Equal("bar3", deleteSproc["foo"]);
+            Assert.Same(bookLabel, deleteSproc.EntityType);
+
+            var rowsAffectedResultColumn = deleteSproc.ResultColumns[0];
+            Assert.True(rowsAffectedResultColumn.ForRowsAffected);
+            Assert.Same(deleteSproc, rowsAffectedResultColumn.StoredProcedure);
+
+            var id = bookLabel.FindProperty(nameof(BookLabel.Id))!;
+            Assert.Single(id.GetOverrides());
+            Assert.Equal(
+                "InsertId",
+                id.GetColumnName(StoreObjectIdentifier.Create(bookLabel, StoreObjectType.InsertStoredProcedure)!.Value));
+            Assert.Equal(
+                "Id",
+                id.GetColumnName(StoreObjectIdentifier.Create(bookLabel, StoreObjectType.UpdateStoredProcedure)!.Value));
+            Assert.Equal(
+                "Id",
+                id.GetColumnName(StoreObjectIdentifier.Create(bookLabel, StoreObjectType.DeleteStoredProcedure)!.Value));
+
+            var specialBookLabel = model.FindEntityType(typeof(SpecialBookLabel))!;
+            Assert.Same(insertSproc, specialBookLabel.GetInsertStoredProcedure());
+            Assert.Same(updateSproc, specialBookLabel.GetUpdateStoredProcedure());
+            Assert.Same(deleteSproc, specialBookLabel.GetDeleteStoredProcedure());
+
+            var extraSpecialBookLabel = model.FindEntityType(typeof(ExtraSpecialBookLabel))!;
+            Assert.Same(insertSproc, extraSpecialBookLabel.GetInsertStoredProcedure());
+            Assert.Same(updateSproc, extraSpecialBookLabel.GetUpdateStoredProcedure());
+            Assert.Same(deleteSproc, extraSpecialBookLabel.GetDeleteStoredProcedure());
+        }
+
+        [ConditionalFact]
+        public virtual void Sproc_overrides_are_removed_with_sproc()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Ignore<Book>();
+
+            modelBuilder.Entity<BookLabel>()
+                .Ignore(s => s.SpecialBookLabel)
+                .InsertUsingStoredProcedure(
+                    s => s.HasParameter(b => b.BookId)
+                        .HasResultColumn(b => b.Id, p => p.HasName("InsertId")))
+                .UpdateUsingStoredProcedure(
+                    s => s.HasParameter(b => b.Id, p => p.HasName("UpdateId"))
+                        .HasParameter(b => b.BookId))
+                .DeleteUsingStoredProcedure(
+                    s => s.HasParameter(b => b.Id, p => p.HasName("DeleteId")));
+
+            var bookLabelEntityType = modelBuilder.Entity<BookLabel>().Metadata;
+
+            bookLabelEntityType.RemoveInsertStoredProcedure();
+            bookLabelEntityType.RemoveUpdateStoredProcedure();
+            bookLabelEntityType.RemoveDeleteStoredProcedure();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var bookLabel = model.FindEntityType(typeof(BookLabel))!;
+            Assert.Null(bookLabel.GetInsertStoredProcedure());
+            Assert.Null(bookLabel.GetUpdateStoredProcedure());
+            Assert.Null(bookLabel.GetDeleteStoredProcedure());
+
+            var id = bookLabel.FindProperty(nameof(BookLabel.Id))!;
+            Assert.Empty(id.GetOverrides());
+        }
     }
 
     public abstract class RelationalOneToManyTestBase : OneToManyTestBase
@@ -166,6 +570,307 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
     public abstract class RelationalOwnedTypesTestBase : OwnedTypesTestBase
     {
+        [ConditionalFact]
+        public virtual void Can_use_table_splitting_with_owned_reference()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Ignore<BookDetails>();
+
+            modelBuilder.Entity<Book>().OwnsOne(
+                b => b.Label, lb =>
+                {
+                    lb.Ignore(l => l.Book);
+                    lb.Property<string>("ShadowProp");
+
+                    lb.SplitToTable(
+                        "BookLabelDetails", s =>
+                        {
+                            var propertyBuilder = s.Property(o => o.Id);
+                            var columnBuilder = propertyBuilder.HasColumnName("bid");
+                            if (columnBuilder is IInfrastructure<ColumnBuilder<int>> genericBuilder)
+                            {
+                                Assert.IsType<PropertyBuilder<int>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int>>());
+                                Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                            }
+                            else
+                            {
+                                var nonGenericBuilder = (IInfrastructure<ColumnBuilder>)columnBuilder;
+                                Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                            }
+                        });
+                });
+            modelBuilder.Entity<Book>()
+                .OwnsOne(b => b.AlternateLabel);
+
+            var model = modelBuilder.Model;
+
+            Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            var book = model.FindEntityType(typeof(Book))!;
+            var bookOwnership1 = book.FindNavigation(nameof(Book.Label))!.ForeignKey;
+            var bookOwnership2 = book.FindNavigation(nameof(Book.AlternateLabel))!.ForeignKey;
+            Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
+
+            var splitTable = StoreObjectIdentifier.Table("BookLabelDetails");
+            var fragment = bookOwnership1.DeclaringEntityType.GetMappingFragments().Single();
+            Assert.Same(fragment, bookOwnership1.DeclaringEntityType.FindMappingFragment(splitTable));
+            Assert.Same(fragment, bookOwnership1.DeclaringEntityType.GetMappingFragments(StoreObjectType.Table).Single());
+
+            Assert.True(((IConventionEntityTypeMappingFragment)fragment).IsInModel);
+            Assert.Same(bookOwnership1.DeclaringEntityType, fragment.EntityType);
+
+            var bookId = bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.Id))!;
+            Assert.Equal("Id", bookId.GetColumnName());
+            Assert.Null(bookId.GetColumnName(StoreObjectIdentifier.Table("Book")));
+            Assert.Equal("bid", bookId.GetColumnName(splitTable));
+
+            var overrides = bookId.GetOverrides().Single();
+            Assert.Same(overrides, bookId.FindOverrides(splitTable));
+            Assert.True(((IConventionRelationalPropertyOverrides)overrides).IsInModel);
+            Assert.Same(bookId, overrides.Property);
+
+            var readOnlyModel = modelBuilder.FinalizeModel();
+
+            Assert.Equal(2, readOnlyModel.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
+            Assert.Equal(3, readOnlyModel.GetEntityTypes().Count());
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_view_splitting_with_owned_collection()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Product>();
+            modelBuilder.Entity<Customer>().OwnsMany(
+                c => c.Orders,
+                r =>
+                {
+                    r.Ignore(o => o.OrderCombination);
+                    r.Ignore(o => o.Details);
+                    r.Property<string>("ShadowProp");
+
+                    r.ToView("Order");
+                    r.SplitToView(
+                        "OrderDetails", s =>
+                        {
+                            var propertyBuilder = s.Property(o => o.AnotherCustomerId);
+                            var columnBuilder = propertyBuilder.HasColumnName("cid");
+                            if (columnBuilder is IInfrastructure<ViewColumnBuilder<Guid>> genericBuilder)
+                            {
+                                Assert.IsType<PropertyBuilder<Guid>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<Guid>>());
+                                Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                            }
+                            else
+                            {
+                                var nonGenericBuilder = (IInfrastructure<ViewColumnBuilder>)columnBuilder;
+                                Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                            }
+                        });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            var ownership = model.FindEntityType(typeof(Customer))!.FindNavigation(nameof(Customer.Orders))!.ForeignKey;
+            var owned = ownership.DeclaringEntityType;
+            Assert.True(ownership.IsOwnership);
+
+            var splitView = StoreObjectIdentifier.View("OrderDetails");
+            var fragment = owned.GetMappingFragments().Single();
+            Assert.Same(fragment, owned.FindMappingFragment(splitView));
+            Assert.Same(fragment, owned.GetMappingFragments(StoreObjectType.View).Single());
+
+            Assert.True(((IConventionEntityTypeMappingFragment)fragment).IsInModel);
+            Assert.Same(owned, fragment.EntityType);
+
+            var anotherCustomerId = owned.FindProperty(nameof(Order.AnotherCustomerId))!;
+            Assert.Equal("AnotherCustomerId", anotherCustomerId.GetColumnName());
+            Assert.Null(anotherCustomerId.GetColumnName(StoreObjectIdentifier.View("Order")));
+            Assert.Equal("cid", anotherCustomerId.GetColumnName(splitView));
+
+            var overrides = anotherCustomerId.GetOverrides().Single();
+            Assert.Same(overrides, anotherCustomerId.FindOverrides(splitView));
+            Assert.True(((IConventionRelationalPropertyOverrides)overrides).IsInModel);
+            Assert.Same(anotherCustomerId, overrides.Property);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_sproc_mapping_with_owned_reference()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<AnotherBookLabel>();
+            modelBuilder.Ignore<SpecialBookLabel>();
+            modelBuilder.Ignore<BookDetails>();
+
+            modelBuilder.Entity<Book>().OwnsOne(
+                b => b.Label, lb =>
+                {
+                    lb.Ignore(l => l.Book);
+                    lb.Ignore(s => s.SpecialBookLabel);
+
+                    lb.Property(l => l.Id).ValueGeneratedOnUpdate();
+
+                    lb.InsertUsingStoredProcedure(
+                            s => s
+                                .HasAnnotation("foo", "bar1")
+                                .HasParameter(b => b.Id)
+                                .HasParameter(b => b.BookId, p => p.HasName("InsertId")))
+                        .UpdateUsingStoredProcedure(
+                            s => s
+                                .HasAnnotation("foo", "bar2")
+                                .HasOriginalValueParameter(b => b.Id)
+                                .HasOriginalValueParameter(
+                                    b => b.BookId, p =>
+                                    {
+                                        var parameterBuilder = p.HasName("UpdateId");
+                                        var nonGenericBuilder = (IInfrastructure<StoredProcedureParameterBuilder>)parameterBuilder;
+                                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                    })
+                                .HasResultColumn(
+                                    b => b.Id, p =>
+                                    {
+                                        var nonGenericBuilder = (IInfrastructure<StoredProcedureResultColumnBuilder>)p;
+                                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                                    }))
+                        .DeleteUsingStoredProcedure(
+                            s => s
+                                .HasAnnotation("foo", "bar3")
+                                .HasOriginalValueParameter(b => b.BookId, p => p.HasName("DeleteId")));
+                });
+            modelBuilder.Entity<Book>()
+                .OwnsOne(b => b.AlternateLabel);
+
+            modelBuilder.Entity<Book>().OwnsOne(
+                b => b.Label, lb =>
+                {
+                    lb.InsertUsingStoredProcedure("Insert", s => { });
+                    lb.UpdateUsingStoredProcedure("Update", "dbo", s => { });
+                    lb.DeleteUsingStoredProcedure("BookLabel_Delete", s => { });
+                });
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Equal(2, model.GetEntityTypes().Count(e => e.ClrType == typeof(BookLabel)));
+            Assert.Equal(3, model.GetEntityTypes().Count());
+
+            var book = model.FindEntityType(typeof(Book))!;
+            var bookOwnership1 = book.FindNavigation(nameof(Book.Label))!.ForeignKey;
+            var bookOwnership2 = book.FindNavigation(nameof(Book.AlternateLabel))!.ForeignKey;
+            Assert.NotSame(bookOwnership1.DeclaringEntityType, bookOwnership2.DeclaringEntityType);
+
+            var insertSproc = bookOwnership1.DeclaringEntityType.GetInsertStoredProcedure()!;
+            Assert.Equal("Insert", insertSproc.Name);
+            Assert.Null(insertSproc.Schema);
+            Assert.Equal(new[] { "Id", "BookId" }, insertSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Empty(insertSproc.ResultColumns);
+            Assert.Equal("bar1", insertSproc["foo"]);
+            Assert.Same(bookOwnership1.DeclaringEntityType, insertSproc.EntityType);
+
+            var updateSproc = bookOwnership1.DeclaringEntityType.GetUpdateStoredProcedure()!;
+            Assert.Equal("Update", updateSproc.Name);
+            Assert.Equal("dbo", updateSproc.Schema);
+            Assert.Equal(new[] { "Id", "BookId" }, updateSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Equal(new[] { "Id" }, updateSproc.ResultColumns.Select(p => p.Name));
+            Assert.Equal("bar2", updateSproc["foo"]);
+            Assert.Same(bookOwnership1.DeclaringEntityType, updateSproc.EntityType);
+
+            var deleteSproc = bookOwnership1.DeclaringEntityType.GetDeleteStoredProcedure()!;
+            Assert.Equal("BookLabel_Delete", deleteSproc.Name);
+            Assert.Null(deleteSproc.Schema);
+            Assert.Equal(new[] { "BookId" }, deleteSproc.Parameters.Select(p => p.PropertyName));
+            Assert.Empty(deleteSproc.ResultColumns);
+            Assert.Equal("bar3", deleteSproc["foo"]);
+            Assert.Same(bookOwnership1.DeclaringEntityType, deleteSproc.EntityType);
+
+            var bookId = bookOwnership1.DeclaringEntityType.FindProperty(nameof(BookLabel.BookId))!;
+            Assert.Empty(bookId.GetOverrides());
+            Assert.Equal(
+                "BookId",
+                bookId.GetColumnName(
+                    StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.InsertStoredProcedure)!.Value));
+            Assert.Equal(
+                "BookId",
+                bookId.GetColumnName(
+                    StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.UpdateStoredProcedure)!.Value));
+            Assert.Equal(
+                "BookId",
+                bookId.GetColumnName(
+                    StoreObjectIdentifier.Create(bookOwnership1.DeclaringEntityType, StoreObjectType.DeleteStoredProcedure)!.Value));
+
+            Assert.Null(bookOwnership2.DeclaringEntityType.GetInsertStoredProcedure());
+            Assert.Null(bookOwnership2.DeclaringEntityType.GetUpdateStoredProcedure());
+            Assert.Null(bookOwnership2.DeclaringEntityType.GetDeleteStoredProcedure());
+        }
+#nullable disable
+        protected class JsonEntity
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public OwnedEntity OwnedReference1 { get; set; }
+            public OwnedEntity OwnedReference2 { get; set; }
+
+            public List<OwnedEntity> OwnedCollection1 { get; set; }
+            public List<OwnedEntity> OwnedCollection2 { get; set; }
+        }
+
+        protected class OwnedEntity
+        {
+            public DateTime Date { get; set; }
+            public double Fraction { get; set; }
+            public MyJsonEnum Enum { get; set; }
+        }
+
+        protected enum MyJsonEnum
+        {
+            One,
+            Two,
+            Three,
+        }
+
+        protected class JsonEntityInheritanceBase
+        {
+            public int Id { get; set; }
+            public OwnedEntity OwnedReferenceOnBase { get; set; }
+            public List<OwnedEntity> OwnedCollectionOnBase { get; set; }
+        }
+
+        protected class JsonEntityInheritanceDerived : JsonEntityInheritanceBase
+        {
+            public string Name { get; set; }
+            public OwnedEntity OwnedReferenceOnDerived { get; set; }
+            public List<OwnedEntity> OwnedCollectionOnDerived { get; set; }
+        }
+
+        protected class OwnedEntityExtraLevel
+        {
+            public DateTime Date { get; set; }
+            public double Fraction { get; set; }
+            public MyJsonEnum Enum { get; set; }
+
+            public OwnedEntity Reference1 { get; set; }
+            public OwnedEntity Reference2 { get; set; }
+            public List<OwnedEntity> Collection1 { get; set; }
+            public List<OwnedEntity> Collection2 { get; set; }
+        }
+
+        protected class JsonEntityWithNesting
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+
+            public OwnedEntityExtraLevel OwnedReference1 { get; set; }
+            public OwnedEntityExtraLevel OwnedReference2 { get; set; }
+            public List<OwnedEntityExtraLevel> OwnedCollection1 { get; set; }
+            public List<OwnedEntityExtraLevel> OwnedCollection2 { get; set; }
+        }
+#nullable enable
     }
 
     public abstract class TestTableBuilder<TEntity>
@@ -176,6 +881,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract string? Schema { get; }
 
         public abstract TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true);
+
+        public abstract TestCheckConstraintBuilder HasCheckConstraint(
+            string name,
+            string? sql);
 
         public abstract TestTriggerBuilder HasTrigger(string name);
 
@@ -208,6 +917,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
+
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
 
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
@@ -244,6 +956,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override TestTableBuilder<TEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
 
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
+
         public override TestTriggerBuilder HasTrigger(string name)
             => new NonGenericTestTriggerBuilder(TableBuilder.HasTrigger(name));
 
@@ -263,6 +978,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract string? Schema { get; }
 
         public abstract TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true);
+
+        public abstract TestCheckConstraintBuilder HasCheckConstraint(
+            string name,
+            string? sql);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
@@ -288,7 +1007,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override string? Schema
             => TableBuilder.Schema;
 
-        OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
+        OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>
+            IInfrastructure<OwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
             => TableBuilder;
 
         protected virtual TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
@@ -298,6 +1018,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
 
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
+
         public override TestColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyName));
 
@@ -306,7 +1029,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
     }
 
     public class NonGenericTestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> :
-        TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>, IInfrastructure<OwnedNavigationTableBuilder>
+        TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationTableBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
@@ -332,6 +1056,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override TestOwnedNavigationTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
             => Wrap(TableBuilder.ExcludeFromMigrations(excluded));
 
+        public override TestCheckConstraintBuilder HasCheckConstraint(string name, string? sql)
+            => new(TableBuilder.HasCheckConstraint(name, sql));
+
         public override TestColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyName));
 
@@ -353,6 +1080,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
+
+        public abstract TestSplitTableBuilder<TEntity> HasAnnotation(
+            string annotation,
+            object? value);
     }
 
     public class GenericTestSplitTableBuilder<TEntity> : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder<TEntity>>
@@ -388,6 +1119,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             => new GenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyExpression));
+
+        public override TestSplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
     public class NonGenericTestSplitTableBuilder<TEntity> : TestSplitTableBuilder<TEntity>, IInfrastructure<SplitTableBuilder>
@@ -423,6 +1157,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             => new NonGenericTestColumnBuilder<TProperty>(TableBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
+
+        public override TestSplitTableBuilder<TEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
     public abstract class TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>
@@ -438,6 +1175,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
         public abstract TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+        public abstract TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+            string annotation,
+            object? value);
     }
 
     public class GenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
@@ -459,7 +1200,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override string? Schema
             => TableBuilder.Schema;
 
-        OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
+        OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>
+            IInfrastructure<OwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>>.Instance
             => TableBuilder;
 
         protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
@@ -474,10 +1216,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestColumnBuilder<TProperty>(TableBuilder.Property(propertyExpression));
+
+        public override TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
     public class NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> :
-        TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>, IInfrastructure<OwnedNavigationSplitTableBuilder>
+        TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationSplitTableBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
@@ -497,7 +1243,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         OwnedNavigationSplitTableBuilder IInfrastructure<OwnedNavigationSplitTableBuilder>.Instance
             => TableBuilder;
 
-        protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationSplitTableBuilder tableBuilder)
+        protected virtual TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationSplitTableBuilder tableBuilder)
             => new NonGenericTestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity>(tableBuilder);
 
         public override TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> ExcludeFromMigrations(bool excluded = true)
@@ -508,11 +1255,18 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestColumnBuilder<TProperty>(TableBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
+
+        public override TestOwnedNavigationSplitTableBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(TableBuilder.HasAnnotation(annotation, value));
     }
 
     public abstract class TestColumnBuilder<TProperty>
     {
         public abstract TestColumnBuilder<TProperty> HasColumnName(string? name);
+
+        public abstract TestColumnBuilder<TProperty> HasAnnotation(
+            string annotation,
+            object? value);
     }
 
     public class GenericTestColumnBuilder<TProperty> : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder<TProperty>>
@@ -532,6 +1286,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> HasColumnName(string? name)
             => Wrap(ColumnBuilder.HasColumnName(name));
+
+        public override TestColumnBuilder<TProperty> HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(ColumnBuilder.HasAnnotation(annotation, value));
     }
 
     public class NonGenericTestColumnBuilder<TProperty> : TestColumnBuilder<TProperty>, IInfrastructure<ColumnBuilder>
@@ -551,6 +1310,11 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestColumnBuilder<TProperty> HasColumnName(string? name)
             => Wrap(ColumnBuilder.HasColumnName(name));
+
+        public override TestColumnBuilder<TProperty> HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(ColumnBuilder.HasAnnotation(annotation, value));
     }
 
     public abstract class TestViewBuilder<TEntity>
@@ -633,7 +1397,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
-        public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+        public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression);
     }
 
     public class GenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> :
@@ -655,7 +1420,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override string? Schema
             => ViewBuilder.Schema;
 
-        OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>>.Instance
+        OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>
+            IInfrastructure<OwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>>.Instance
             => ViewBuilder;
 
         protected virtual TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> Wrap(
@@ -665,12 +1431,14 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property(propertyName));
 
-        public override TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+        public override TestViewColumnBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
     }
 
     public class NonGenericTestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity> :
-        TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>, IInfrastructure<OwnedNavigationViewBuilder>
+        TestOwnedNavigationViewBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
@@ -696,7 +1464,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property(propertyName));
 
-        public override TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+        public override TestViewColumnBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
     }
 
@@ -710,6 +1479,10 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression);
+
+        public abstract TestSplitViewBuilder<TEntity> HasAnnotation(
+            string annotation,
+            object? value);
     }
 
     public class GenericTestSplitViewBuilder<TEntity> : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder<TEntity>>
@@ -739,6 +1512,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property(propertyExpression));
+
+        public override TestSplitViewBuilder<TEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
     public class NonGenericTestSplitViewBuilder<TEntity> : TestSplitViewBuilder<TEntity>, IInfrastructure<SplitViewBuilder>
@@ -768,6 +1544,9 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TEntity, TProperty>> propertyExpression)
             => new NonGenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
+
+        public override TestSplitViewBuilder<TEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
     public abstract class TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>
@@ -780,7 +1559,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName);
 
-        public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+        public abstract TestViewColumnBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+        public abstract TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+            string annotation,
+            object? value);
     }
 
     public class GenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
@@ -802,7 +1586,8 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override string? Schema
             => ViewBuilder.Schema;
 
-        OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> IInfrastructure<OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>>.Instance
+        OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>
+            IInfrastructure<OwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>>.Instance
             => ViewBuilder;
 
         protected virtual TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> Wrap(
@@ -812,12 +1597,17 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         public override TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property(propertyName));
 
-        public override TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+        public override TestViewColumnBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
+
+        public override TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
     public class NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> :
-        TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>, IInfrastructure<OwnedNavigationSplitViewBuilder>
+        TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>,
+        IInfrastructure<OwnedNavigationSplitViewBuilder>
         where TOwnerEntity : class
         where TDependentEntity : class
     {
@@ -837,19 +1627,28 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         OwnedNavigationSplitViewBuilder IInfrastructure<OwnedNavigationSplitViewBuilder>.Instance
             => ViewBuilder;
 
-        protected virtual TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> Wrap(OwnedNavigationSplitViewBuilder tableBuilder)
+        protected virtual TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationSplitViewBuilder tableBuilder)
             => new NonGenericTestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity>(tableBuilder);
 
         public override TestViewColumnBuilder<TProperty> Property<TProperty>(string propertyName)
             => new NonGenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property(propertyName));
 
-        public override TestViewColumnBuilder<TProperty> Property<TProperty>(Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+        public override TestViewColumnBuilder<TProperty> Property<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
             => new GenericTestViewColumnBuilder<TProperty>(ViewBuilder.Property<TProperty>(propertyExpression.GetPropertyAccess().Name));
+
+        public override TestOwnedNavigationSplitViewBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(ViewBuilder.HasAnnotation(annotation, value));
     }
 
     public abstract class TestViewColumnBuilder<TProperty>
     {
         public abstract TestViewColumnBuilder<TProperty> HasColumnName(string? name);
+
+        public abstract TestViewColumnBuilder<TProperty> HasAnnotation(
+            string annotation,
+            object? value);
     }
 
     public class GenericTestViewColumnBuilder<TProperty> : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder<TProperty>>
@@ -869,9 +1668,15 @@ public class RelationalModelBuilderTest : ModelBuilderTest
 
         public override TestViewColumnBuilder<TProperty> HasColumnName(string? name)
             => Wrap(ViewColumnBuilder.HasColumnName(name));
+
+        public override TestViewColumnBuilder<TProperty> HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(ViewColumnBuilder.HasAnnotation(annotation, value));
     }
 
-    public class NonGenericTestViewColumnBuilder<TProperty> : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder>
+    public class NonGenericTestViewColumnBuilder<TProperty>
+        : TestViewColumnBuilder<TProperty>, IInfrastructure<ViewColumnBuilder>
     {
         public NonGenericTestViewColumnBuilder(ViewColumnBuilder tableBuilder)
         {
@@ -883,51 +1688,750 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         ViewColumnBuilder IInfrastructure<ViewColumnBuilder>.Instance
             => ViewColumnBuilder;
 
-        protected virtual TestViewColumnBuilder<TProperty> Wrap(ViewColumnBuilder tableBuilder)
-            => new NonGenericTestViewColumnBuilder<TProperty>(tableBuilder);
+        protected virtual TestViewColumnBuilder<TProperty> Wrap(ViewColumnBuilder viewColumnBuilder)
+            => new NonGenericTestViewColumnBuilder<TProperty>(viewColumnBuilder);
 
         public override TestViewColumnBuilder<TProperty> HasColumnName(string? name)
             => Wrap(ViewColumnBuilder.HasColumnName(name));
+
+        public override TestViewColumnBuilder<TProperty> HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(ViewColumnBuilder.HasAnnotation(annotation, value));
+    }
+
+    public abstract class TestStoredProcedureBuilder<TEntity>
+        where TEntity : class
+    {
+        public abstract TestStoredProcedureBuilder<TEntity> HasParameter(
+            string propertyName);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            where TDerivedEntity : class, TEntity;
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            where TDerivedEntity : class, TEntity;
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+            string propertyName);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            where TDerivedEntity : class, TEntity;
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            where TDerivedEntity : class, TEntity;
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter();
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter(
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasResultColumn(
+            string propertyName);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasResultColumn(
+            string propertyName,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            where TDerivedEntity : class, TEntity;
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            where TDerivedEntity : class, TEntity;
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn();
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
+            Action<TestStoredProcedureResultColumnBuilder> buildAction);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
+
+        public abstract TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value);
+    }
+
+    public class GenericTestStoredProcedureBuilder<TEntity>
+        : TestStoredProcedureBuilder<TEntity>, IInfrastructure<StoredProcedureBuilder<TEntity>>
+        where TEntity : class
+    {
+        public GenericTestStoredProcedureBuilder(StoredProcedureBuilder<TEntity> storedProcedureBuilder)
+        {
+            StoredProcedureBuilder = storedProcedureBuilder;
+        }
+
+        private StoredProcedureBuilder<TEntity> StoredProcedureBuilder { get; }
+
+        StoredProcedureBuilder<TEntity> IInfrastructure<StoredProcedureBuilder<TEntity>>.Instance
+            => StoredProcedureBuilder;
+
+        protected virtual TestStoredProcedureBuilder<TEntity> Wrap(StoredProcedureBuilder<TEntity> storedProcedureBuilder)
+            => new GenericTestStoredProcedureBuilder<TEntity>(storedProcedureBuilder);
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasParameter<TProperty>(propertyExpression));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasParameter<TProperty>(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(propertyExpression));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter<TProperty>(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter(
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
+            string propertyName,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasResultColumn<TProperty>(propertyExpression));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn<TProperty>(
+                    propertyExpression, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
+
+        public override TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
+    }
+
+    public class NonGenericTestStoredProcedureBuilder<TEntity>
+        : TestStoredProcedureBuilder<TEntity>, IInfrastructure<StoredProcedureBuilder>
+        where TEntity : class
+    {
+        public NonGenericTestStoredProcedureBuilder(StoredProcedureBuilder storedProcedureBuilder)
+        {
+            StoredProcedureBuilder = storedProcedureBuilder;
+        }
+
+        private StoredProcedureBuilder StoredProcedureBuilder { get; }
+
+        StoredProcedureBuilder IInfrastructure<StoredProcedureBuilder>.Instance
+            => StoredProcedureBuilder;
+
+        protected virtual TestStoredProcedureBuilder<TEntity> Wrap(StoredProcedureBuilder storedProcedureBuilder)
+            => new NonGenericTestStoredProcedureBuilder<TEntity>(storedProcedureBuilder);
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression.GetMemberAccess().Name));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasParameter(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression.GetMemberAccess().Name));
+
+        public override TestStoredProcedureBuilder<TEntity> HasParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasParameter(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression.GetMemberAccess().Name));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression.GetMemberAccess().Name));
+
+        public override TestStoredProcedureBuilder<TEntity> HasOriginalValueParameter<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedParameter(
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn(
+            string propertyName,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression.GetMemberAccess().Name));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression.GetMemberAccess().Name));
+
+        public override TestStoredProcedureBuilder<TEntity> HasResultColumn<TDerivedEntity, TProperty>(
+            Expression<Func<TDerivedEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedResultColumn(
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestStoredProcedureBuilder<TEntity> HasRowsAffectedReturnValue(bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
+
+        public override TestStoredProcedureBuilder<TEntity> HasAnnotation(string annotation, object? value)
+            => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
+    }
+
+    public abstract class TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+            string propertyName);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+            string propertyName);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter();
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
+            Action<TestStoredProcedureParameterBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
+            string propertyName);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
+            string propertyName,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn();
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
+            Action<TestStoredProcedureResultColumnBuilder> buildAction);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+            HasRowsAffectedReturnValue(bool rowsAffectedReturned = true);
+
+        public abstract TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+            string annotation,
+            object? value);
+    }
+
+    public class GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+        : TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>,
+            IInfrastructure<OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>>
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        public GenericTestOwnedNavigationStoredProcedureBuilder(
+            OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> storedProcedureBuilder)
+        {
+            StoredProcedureBuilder = storedProcedureBuilder;
+        }
+
+        private OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> StoredProcedureBuilder { get; }
+
+        OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+            IInfrastructure<OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>>.Instance
+            => StoredProcedureBuilder;
+
+        protected virtual TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> storedProcedureBuilder)
+            => new GenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(storedProcedureBuilder);
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
+            string propertyName,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(
+            bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
+    }
+
+    public class NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>
+        : TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>,
+            IInfrastructure<OwnedNavigationStoredProcedureBuilder>
+        where TOwnerEntity : class
+        where TDependentEntity : class
+    {
+        public NonGenericTestOwnedNavigationStoredProcedureBuilder(OwnedNavigationStoredProcedureBuilder storedProcedureBuilder)
+        {
+            StoredProcedureBuilder = storedProcedureBuilder;
+        }
+
+        private OwnedNavigationStoredProcedureBuilder StoredProcedureBuilder { get; }
+
+        OwnedNavigationStoredProcedureBuilder IInfrastructure<OwnedNavigationStoredProcedureBuilder>.Instance
+            => StoredProcedureBuilder;
+
+        protected virtual TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> Wrap(
+            OwnedNavigationStoredProcedureBuilder storedProcedureBuilder)
+            => new NonGenericTestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity>(storedProcedureBuilder);
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasParameter(propertyExpression.GetMemberAccess().Name));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasParameter(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyName));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter(
+            string propertyName,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyName, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasOriginalValueParameter(propertyExpression.GetMemberAccess().Name));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasOriginalValueParameter<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasOriginalValueParameter(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter());
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedParameter(
+            Action<TestStoredProcedureParameterBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedParameter(s => buildAction(new TestStoredProcedureParameterBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
+            string propertyName)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn(
+            string propertyName,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyName, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression)
+            => Wrap(StoredProcedureBuilder.HasResultColumn(propertyExpression.GetMemberAccess().Name));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasResultColumn<TProperty>(
+            Expression<Func<TDependentEntity, TProperty>> propertyExpression,
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(
+                StoredProcedureBuilder.HasResultColumn(
+                    propertyExpression.GetMemberAccess().Name, s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn()
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn());
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedResultColumn(
+            Action<TestStoredProcedureResultColumnBuilder> buildAction)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedResultColumn(s => buildAction(new TestStoredProcedureResultColumnBuilder(s))));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasRowsAffectedReturnValue(
+            bool rowsAffectedReturned)
+            => Wrap(StoredProcedureBuilder.HasRowsAffectedReturnValue(rowsAffectedReturned));
+
+        public override TestOwnedNavigationStoredProcedureBuilder<TOwnerEntity, TDependentEntity> HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(StoredProcedureBuilder.HasAnnotation(annotation, value));
+    }
+
+    public class TestStoredProcedureParameterBuilder : IInfrastructure<StoredProcedureParameterBuilder>
+    {
+        public TestStoredProcedureParameterBuilder(StoredProcedureParameterBuilder storedProcedureParameterBuilder)
+        {
+            StoredProcedureParameterBuilder = storedProcedureParameterBuilder;
+        }
+
+        private StoredProcedureParameterBuilder StoredProcedureParameterBuilder { get; }
+
+        StoredProcedureParameterBuilder IInfrastructure<StoredProcedureParameterBuilder>.Instance
+            => StoredProcedureParameterBuilder;
+
+        protected virtual TestStoredProcedureParameterBuilder Wrap(StoredProcedureParameterBuilder storedProcedureParameterBuilder)
+            => new(storedProcedureParameterBuilder);
+
+        public virtual TestStoredProcedureParameterBuilder HasName(string name)
+            => Wrap(StoredProcedureParameterBuilder.HasName(name));
+
+        public virtual TestStoredProcedureParameterBuilder IsOutput()
+            => Wrap(StoredProcedureParameterBuilder.IsOutput());
+
+        public virtual TestStoredProcedureParameterBuilder IsInputOutput()
+            => Wrap(StoredProcedureParameterBuilder.IsInputOutput());
+
+        public virtual TestStoredProcedureParameterBuilder HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(StoredProcedureParameterBuilder.HasAnnotation(annotation, value));
+    }
+
+    public class TestStoredProcedureResultColumnBuilder : IInfrastructure<StoredProcedureResultColumnBuilder>
+    {
+        public TestStoredProcedureResultColumnBuilder(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder)
+        {
+            StoredProcedureResultColumnBuilder = storedProcedureResultColumnBuilder;
+        }
+
+        private StoredProcedureResultColumnBuilder StoredProcedureResultColumnBuilder { get; }
+
+        StoredProcedureResultColumnBuilder IInfrastructure<StoredProcedureResultColumnBuilder>.Instance
+            => StoredProcedureResultColumnBuilder;
+
+        protected virtual TestStoredProcedureResultColumnBuilder Wrap(StoredProcedureResultColumnBuilder storedProcedureResultColumnBuilder)
+            => new(storedProcedureResultColumnBuilder);
+
+        public virtual TestStoredProcedureResultColumnBuilder HasName(string name)
+            => Wrap(StoredProcedureResultColumnBuilder.HasName(name));
+
+        public virtual TestStoredProcedureResultColumnBuilder HasAnnotation(
+            string annotation,
+            object? value)
+            => Wrap(StoredProcedureResultColumnBuilder.HasAnnotation(annotation, value));
+    }
+
+    public abstract class TestTableValuedFunctionBuilder<TEntity> : DbFunctionBuilderBase
+        where TEntity : class
+    {
+        protected TestTableValuedFunctionBuilder(IMutableDbFunction function)
+            : base(function)
+        {
+        }
+
+        public new abstract TestTableValuedFunctionBuilder<TEntity> HasName(string name);
+
+        public new abstract TestTableValuedFunctionBuilder<TEntity> HasSchema(string? schema);
+
+        public abstract TestTableValuedFunctionBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression);
+
+        public abstract TestTableValuedFunctionBuilder<TEntity> HasParameter<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            Action<DbFunctionParameterBuilder> buildAction);
     }
 
     public abstract class TestTriggerBuilder
     {
-        public abstract TestTriggerBuilder HasName(string name);
+        public abstract TestTriggerBuilder HasDatabaseName(string name);
         public abstract TestTriggerBuilder HasAnnotation(string annotation, object? value);
     }
 
-    public class NonGenericTestTriggerBuilder : TestTriggerBuilder, IInfrastructure<TriggerBuilder>
+    public class NonGenericTestTriggerBuilder : TestTriggerBuilder, IInfrastructure<TableTriggerBuilder>
     {
-        public NonGenericTestTriggerBuilder(TriggerBuilder triggerBuilder)
+        public NonGenericTestTriggerBuilder(TableTriggerBuilder triggerBuilder)
         {
             TriggerBuilder = triggerBuilder;
         }
 
-        private TriggerBuilder TriggerBuilder { get; }
+        private TableTriggerBuilder TriggerBuilder { get; }
 
-        TriggerBuilder IInfrastructure<TriggerBuilder>.Instance
+        TableTriggerBuilder IInfrastructure<TableTriggerBuilder>.Instance
             => TriggerBuilder;
 
-        protected virtual TestTriggerBuilder Wrap(TriggerBuilder checkConstraintBuilder)
+        protected virtual TestTriggerBuilder Wrap(TableTriggerBuilder checkConstraintBuilder)
             => new NonGenericTestTriggerBuilder(checkConstraintBuilder);
 
-        public override TestTriggerBuilder HasName(string name)
-            => Wrap(TriggerBuilder.HasName(name));
+        public override TestTriggerBuilder HasDatabaseName(string name)
+            => Wrap(TriggerBuilder.HasDatabaseName(name));
 
         public override TestTriggerBuilder HasAnnotation(string annotation, object? value)
             => Wrap(TriggerBuilder.HasAnnotation(annotation, value));
     }
 
-    public abstract class TestCheckConstraintBuilder
+    public class TestCheckConstraintBuilder : IInfrastructure<CheckConstraintBuilder>
     {
-        public abstract TestCheckConstraintBuilder HasName(string name);
-
-        public abstract TestCheckConstraintBuilder HasAnnotation(string annotation, object? value);
-    }
-
-    public class NonGenericTestCheckConstraintBuilder : TestCheckConstraintBuilder, IInfrastructure<CheckConstraintBuilder>
-    {
-        public NonGenericTestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder)
+        public TestCheckConstraintBuilder(CheckConstraintBuilder checkConstraintBuilder)
         {
             CheckConstraintBuilder = checkConstraintBuilder;
         }
@@ -938,12 +2442,12 @@ public class RelationalModelBuilderTest : ModelBuilderTest
             => CheckConstraintBuilder;
 
         protected virtual TestCheckConstraintBuilder Wrap(CheckConstraintBuilder checkConstraintBuilder)
-            => new NonGenericTestCheckConstraintBuilder(checkConstraintBuilder);
+            => new(checkConstraintBuilder);
 
-        public override TestCheckConstraintBuilder HasName(string name)
+        public virtual TestCheckConstraintBuilder HasName(string name)
             => Wrap(CheckConstraintBuilder.HasName(name));
 
-        public override TestCheckConstraintBuilder HasAnnotation(string annotation, object? value)
+        public virtual TestCheckConstraintBuilder HasAnnotation(string annotation, object? value)
             => Wrap(CheckConstraintBuilder.HasAnnotation(annotation, value));
     }
 }

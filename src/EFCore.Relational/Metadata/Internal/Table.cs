@@ -22,7 +22,7 @@ public class Table : TableBase, ITable
     public Table(string name, string? schema, RelationalModel model)
         : base(name, schema, model)
     {
-        Columns = new(new ColumnNameComparer(this));
+        Columns = new SortedDictionary<string, IColumnBase>(new ColumnNameComparer(this));
     }
 
     /// <summary>
@@ -149,6 +149,15 @@ public class Table : TableBase, ITable
         => property.GetTableColumnMappings()
             .FirstOrDefault(cm => cm.TableMapping.Table == this)
             ?.Column;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public new virtual Column? FindColumn(string name)
+        => (Column?)base.FindColumn(name);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

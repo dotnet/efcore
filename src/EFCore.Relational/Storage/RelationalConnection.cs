@@ -67,7 +67,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         if (relationalOptions.Connection != null)
         {
             _connection = relationalOptions.Connection;
-            _connectionOwned = false;
+            _connectionOwned = relationalOptions.IsConnectionOwned;
 
             if (_connectionString != null)
             {
@@ -160,8 +160,8 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
                 _connection = interceptionResult.HasResult
                     ? interceptionResult.Result
                     : CreateDbConnection();
-            
-                _connection = logger.ConnectionCreated(this, startTime, _stopwatch.Elapsed);            
+
+                _connection = logger.ConnectionCreated(this, startTime, _stopwatch.Elapsed);
             }
             else
             {
@@ -172,19 +172,25 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         }
         set
         {
-            if (!ReferenceEquals(_connection, value))
+            SetDbConnection(value, contextOwnsConnection: false);
+        }
+    }
+
+    /// <inheritdoc />
+    public virtual void SetDbConnection(DbConnection? value, bool contextOwnsConnection)
+    {
+        if (!ReferenceEquals(_connection, value))
+        {
+            if (_connectionOwned && _openedCount > 0)
             {
-                if (_openedCount > 0)
-                {
-                    throw new InvalidOperationException(RelationalStrings.CannotChangeWhenOpen);
-                }
-
-                Dispose();
-
-                _connection = value;
-                _connectionString = null;
-                _connectionOwned = false;
+                throw new InvalidOperationException(RelationalStrings.CannotChangeWhenOpen);
             }
+
+            Dispose();
+
+            _connection = value;
+            _connectionString = null;
+            _connectionOwned = contextOwnsConnection;
         }
     }
 
@@ -1036,14 +1042,18 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         _openedCount = 0;
         _openedInternally = false;
 
-        if (disposeDbConnection
-            && _connectionOwned
+        if (_connectionOwned
             && _connection is not null)
         {
-            DisposeDbConnection();
-            _connection = null;
-            _openedCount = 0;
-            _openedInternally = false;
+            CloseDbConnection();
+
+            if (disposeDbConnection)
+            {
+                DisposeDbConnection();
+                _connection = null;
+                _openedCount = 0;
+                _openedInternally = false;
+            }
         }
     }
 
@@ -1065,14 +1075,18 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
 
         _commandTimeout = _defaultCommandTimeout;
 
-        if (disposeDbConnection
-            && _connectionOwned
+        if (_connectionOwned
             && _connection is not null)
         {
-            await DisposeDbConnectionAsync().ConfigureAwait(false);
-            _connection = null;
-            _openedCount = 0;
-            _openedInternally = false;
+            await CloseDbConnectionAsync().ConfigureAwait(continueOnCapturedContext: false);
+
+            if (disposeDbConnection)
+            {
+                await DisposeDbConnectionAsync().ConfigureAwait(false);
+                _connection = null;
+                _openedCount = 0;
+                _openedInternally = false;
+            }
         }
     }
 

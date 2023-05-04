@@ -17,7 +17,7 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class FromSqlParameterExpandingExpressionVisitor : ExpressionVisitor
 {
     private readonly IDictionary<FromSqlExpression, Expression> _visitedFromSqlExpressions
-        = new Dictionary<FromSqlExpression, Expression>(LegacyReferenceEqualityComparer.Instance);
+        = new Dictionary<FromSqlExpression, Expression>(ReferenceEqualityComparer.Instance);
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
     private readonly IRelationalTypeMappingSource _typeMappingSource;

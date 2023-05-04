@@ -643,20 +643,14 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
             context.Entry(left).State = EntityState.Detached;
         }
 
-        Assert.Equal(
-            CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
-            (await Assert.ThrowsAsync<InvalidOperationException>(
-                async () =>
-                {
-                    if (async)
-                    {
-                        await collectionEntry.LoadAsync();
-                    }
-                    else
-                    {
-                        collectionEntry.Load();
-                    }
-                })).Message);
+        if (async)
+        {
+            await collectionEntry.LoadAsync();
+        }
+        else
+        {
+            collectionEntry.Load();
+        }
     }
 
     [ConditionalTheory]
@@ -676,9 +670,7 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
             context.Entry(left).State = EntityState.Detached;
         }
 
-        Assert.Equal(
-            CoreStrings.CannotLoadDetached(nameof(left.TwoSkip), nameof(EntityOne)),
-            Assert.Throws<InvalidOperationException>(() => collectionEntry.Query()).Message);
+        var query = collectionEntry.Query();
     }
 
     [ConditionalTheory]
@@ -1002,7 +994,8 @@ public abstract class ManyToManyFieldsLoadTestBase<TFixture> : IClassFixture<TFi
 
     public abstract class ManyToManyFieldsLoadFixtureBase : ManyToManyFieldsQueryFixtureBase
     {
-        protected override string StoreName { get; } = "ManyToManyFieldsLoadTest";
+        protected override string StoreName
+            => "ManyToManyFieldsLoadTest";
 
         public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
             => base.AddOptions(builder).ConfigureWarnings(

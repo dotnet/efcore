@@ -336,6 +336,46 @@ public class InternalSkipNavigationBuilder : InternalPropertyBaseBuilder<SkipNav
         return null;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetLazyLoadingEnabled(bool? lazyLoadingEnabled, ConfigurationSource configurationSource)
+    {
+        IConventionSkipNavigation conventionNavigation = Metadata;
+
+        return configurationSource.Overrides(conventionNavigation.GetLazyLoadingEnabledConfigurationSource())
+            || conventionNavigation.LazyLoadingEnabled == lazyLoadingEnabled;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalSkipNavigationBuilder? EnableLazyLoading(bool? lazyLoadingEnabled, ConfigurationSource configurationSource)
+    {
+        if (CanSetLazyLoadingEnabled(lazyLoadingEnabled, configurationSource))
+        {
+            if (configurationSource == ConfigurationSource.Explicit)
+            {
+                ((IMutableSkipNavigation)Metadata).SetLazyLoadingEnabled(lazyLoadingEnabled);
+            }
+            else
+            {
+                ((IConventionSkipNavigation)Metadata).SetLazyLoadingEnabled(
+                    lazyLoadingEnabled, configurationSource == ConfigurationSource.DataAnnotation);
+            }
+
+            return this;
+        }
+
+        return null;
+    }
+
     IConventionPropertyBase IConventionPropertyBaseBuilder.Metadata
     {
         [DebuggerStepThrough]
@@ -462,4 +502,14 @@ public class InternalSkipNavigationBuilder : InternalPropertyBaseBuilder<SkipNav
     [DebuggerStepThrough]
     IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.AutoInclude(bool? autoInclude, bool fromDataAnnotation)
         => AutoInclude(autoInclude, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    bool IConventionSkipNavigationBuilder.CanSetLazyLoadingEnabled(bool? lazyLoadingEnabled, bool fromDataAnnotation)
+        => CanSetLazyLoadingEnabled(lazyLoadingEnabled, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionSkipNavigationBuilder? IConventionSkipNavigationBuilder.EnableLazyLoading(bool? lazyLoadingEnabled, bool fromDataAnnotation)
+        => EnableLazyLoading(lazyLoadingEnabled, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 }

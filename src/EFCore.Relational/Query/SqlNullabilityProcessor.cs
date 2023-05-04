@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -77,12 +76,45 @@ public class SqlNullabilityProcessor
 
         var result = queryExpression switch
         {
-            SelectExpression selectExpression => Visit(selectExpression),
-            _ => throw new InvalidOperationException()
+            SelectExpression selectExpression => (Expression)Visit(selectExpression),
+            DeleteExpression deleteExpression => deleteExpression.Update(Visit(deleteExpression.SelectExpression)),
+            UpdateExpression updateExpression => VisitUpdate(updateExpression),
+            _ => throw new InvalidOperationException(),
         };
+
         canCache = _canCache;
 
         return result;
+    }
+
+    private UpdateExpression VisitUpdate(UpdateExpression updateExpression)
+    {
+        var selectExpression = Visit(updateExpression.SelectExpression);
+        List<ColumnValueSetter>? columnValueSetters = null;
+        for (var (i, n) = (0, updateExpression.ColumnValueSetters.Count); i < n; i++)
+        {
+            var columnValueSetter = updateExpression.ColumnValueSetters[i];
+            var newValue = Visit(columnValueSetter.Value, out _);
+            if (columnValueSetters != null)
+            {
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+            }
+            else if (!ReferenceEquals(newValue, columnValueSetter.Value))
+            {
+                columnValueSetters = new List<ColumnValueSetter>(n);
+                for (var j = 0; j < i; j++)
+                {
+                    columnValueSetters.Add(updateExpression.ColumnValueSetters[j]);
+                }
+
+                columnValueSetters.Add(new ColumnValueSetter(columnValueSetter.Column, newValue));
+            }
+        }
+
+        return selectExpression != updateExpression.SelectExpression
+            || columnValueSetters != null
+                ? updateExpression.Update(selectExpression, columnValueSetters ?? updateExpression.ColumnValueSetters)
+                : updateExpression;
     }
 
     /// <summary>
@@ -152,6 +184,33 @@ public class SqlNullabilityProcessor
 
             case OuterApplyExpression outerApplyExpression:
                 return outerApplyExpression.Update(Visit(outerApplyExpression.Table));
+
+            case ValuesExpression valuesExpression:
+            {
+                RowValueExpression[]? newRowValues = null;
+
+                for (var i = 0; i < valuesExpression.RowValues.Count; i++)
+                {
+                    var rowValue = valuesExpression.RowValues[i];
+                    var newRowValue = (RowValueExpression)VisitRowValue(rowValue, allowOptimizedExpansion: false, out _);
+
+                    if (newRowValue != rowValue && newRowValues is null)
+                    {
+                        newRowValues = new RowValueExpression[valuesExpression.RowValues.Count];
+                        for (var j = 0; j < i; j++)
+                        {
+                            newRowValues[j] = valuesExpression.RowValues[j];
+                        }
+                    }
+
+                    if (newRowValues is not null)
+                    {
+                        newRowValues[i] = newRowValue;
+                    }
+                }
+
+                return newRowValues is null ? valuesExpression : valuesExpression.Update(newRowValues);
+            }
 
             case SelectExpression selectExpression:
                 return Visit(selectExpression);
@@ -371,6 +430,8 @@ public class SqlNullabilityProcessor
                 => VisitLike(likeExpression, allowOptimizedExpansion, out nullable),
             RowNumberExpression rowNumberExpression
                 => VisitRowNumber(rowNumberExpression, allowOptimizedExpansion, out nullable),
+            RowValueExpression rowValueExpression
+                => VisitRowValue(rowValueExpression, allowOptimizedExpansion, out nullable),
             ScalarSubqueryExpression scalarSubqueryExpression
                 => VisitScalarSubquery(scalarSubqueryExpression, allowOptimizedExpansion, out nullable),
             SqlBinaryExpression sqlBinaryExpression
@@ -385,6 +446,8 @@ public class SqlNullabilityProcessor
                 => VisitSqlParameter(sqlParameterExpression, allowOptimizedExpansion, out nullable),
             SqlUnaryExpression sqlUnaryExpression
                 => VisitSqlUnary(sqlUnaryExpression, allowOptimizedExpansion, out nullable),
+            JsonScalarExpression jsonScalarExpression
+                => VisitJsonScalar(jsonScalarExpression, allowOptimizedExpansion, out nullable),
             _ => VisitCustomSqlExpression(sqlExpression, allowOptimizedExpansion, out nullable)
         };
 
@@ -686,26 +749,28 @@ public class SqlNullabilityProcessor
         {
             var inValues = new List<object?>();
             var hasNullValue = false;
-            RelationalTypeMapping? typeMapping = null;
+            RelationalTypeMapping? typeMapping;
 
-            IEnumerable? values = null;
-            if (valuesExpression is SqlConstantExpression sqlConstant)
+            IEnumerable values;
+            switch (valuesExpression)
             {
-                typeMapping = sqlConstant.TypeMapping;
-                values = (IEnumerable)sqlConstant.Value!;
-            }
-            else if (valuesExpression is SqlParameterExpression sqlParameter)
-            {
-                DoNotCache();
-                typeMapping = sqlParameter.TypeMapping;
-                values = (IEnumerable?)ParameterValues[sqlParameter.Name];
-                if (values == null)
-                {
-                    throw new NullReferenceException();
-                }
+                case SqlConstantExpression sqlConstant:
+                    typeMapping = sqlConstant.TypeMapping;
+                    values = (IEnumerable)sqlConstant.Value!;
+                    break;
+
+                case SqlParameterExpression sqlParameter:
+                    DoNotCache();
+                    typeMapping = sqlParameter.TypeMapping;
+                    values = (IEnumerable?)ParameterValues[sqlParameter.Name] ?? Array.Empty<object>();
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        RelationalStrings.NonConstantOrParameterAsInExpressionValues(valuesExpression.GetType().Name));
             }
 
-            foreach (var value in values!)
+            foreach (var value in values)
             {
                 if (value == null && extractNullValues)
                 {
@@ -788,6 +853,47 @@ public class SqlNullabilityProcessor
         return changed
             ? rowNumberExpression.Update(partitions, orderings)
             : rowNumberExpression;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="RowValueExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="rowValueExpression">A row value expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitRowValue(
+        RowValueExpression rowValueExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        SqlExpression[]? newValues = null;
+
+        for (var i = 0; i < rowValueExpression.Values.Count; i++)
+        {
+            var value = rowValueExpression.Values[i];
+
+            // Note that we disallow optimized expansion, since the null vs. false distinction does matter inside the row's values
+            var newValue = Visit(value, allowOptimizedExpansion: false, out _);
+            if (newValue != value && newValues is null)
+            {
+                newValues = new SqlExpression[rowValueExpression.Values.Count];
+                for (var j = 0; j < i; j++)
+                {
+                    newValues[j] = rowValueExpression.Values[j];
+                }
+            }
+
+            if (newValues is not null)
+            {
+                newValues[i] = newValue;
+            }
+        }
+
+        // The row value expression itself can never be null
+        nullable = false;
+
+        return rowValueExpression.Update(newValues ?? rowValueExpression.Values);
     }
 
     /// <summary>
@@ -1118,6 +1224,23 @@ public class SqlNullabilityProcessor
         return !operandNullable && sqlUnaryExpression.OperatorType == ExpressionType.Not
             ? OptimizeNonNullableNotExpression(updated)
             : updated;
+    }
+
+    /// <summary>
+    ///     Visits a <see cref="JsonScalarExpression" /> and computes its nullability.
+    /// </summary>
+    /// <param name="jsonScalarExpression">A json scalar expression to visit.</param>
+    /// <param name="allowOptimizedExpansion">A bool value indicating if optimized expansion which considers null value as false value is allowed.</param>
+    /// <param name="nullable">A bool value indicating whether the sql expression is nullable.</param>
+    /// <returns>An optimized sql expression.</returns>
+    protected virtual SqlExpression VisitJsonScalar(
+        JsonScalarExpression jsonScalarExpression,
+        bool allowOptimizedExpansion,
+        out bool nullable)
+    {
+        nullable = jsonScalarExpression.IsNullable;
+
+        return jsonScalarExpression;
     }
 
     private static bool? TryGetBoolConstantValue(SqlExpression? expression)
@@ -1476,7 +1599,12 @@ public class SqlNullabilityProcessor
         return sqlBinaryExpression;
     }
 
-    private SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
+    /// <summary>
+    ///     Attempts to simplify a unary not operation on a non-nullable operand.
+    /// </summary>
+    /// <param name="sqlUnaryExpression">The expression to simplify.</param>
+    /// <returns>The simplified expression, or the original expression if it cannot be simplified.</returns>
+    protected virtual SqlExpression OptimizeNonNullableNotExpression(SqlUnaryExpression sqlUnaryExpression)
     {
         if (sqlUnaryExpression.OperatorType != ExpressionType.Not)
         {
@@ -1581,7 +1709,7 @@ public class SqlNullabilityProcessor
                         sqlBinaryOperand.TypeMapping)!;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;
@@ -1791,7 +1919,7 @@ public class SqlNullabilityProcessor
                     return result;
                 }
             }
-                break;
+            break;
         }
 
         return sqlUnaryExpression;

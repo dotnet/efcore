@@ -37,6 +37,15 @@ public class SelectExpressionPruningExpressionVisitor : ExpressionVisitor
                     relationalSplitCollectionShaperExpression.SelectExpression.Prune(),
                     Visit(relationalSplitCollectionShaperExpression.InnerShaper));
 
+            case DeleteExpression deleteExpression:
+                return deleteExpression.Update(deleteExpression.SelectExpression.Prune());
+
+            case UpdateExpression updateExpression:
+                return updateExpression.Update(
+                    updateExpression.SelectExpression.Prune(),
+                    updateExpression.ColumnValueSetters.Select(e => new ColumnValueSetter(e.Column, (SqlExpression)Visit(e.Value)))
+                        .ToList());
+
             default:
                 return base.Visit(expression);
         }

@@ -18,6 +18,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     private const int UnicodeMax = 4000;
     private const int AnsiMax = 8000;
 
+    private static readonly CaseInsensitiveValueComparer CaseInsensitiveValueComparer = new();
+
     private readonly bool _isUtf16;
     private readonly SqlDbType? _sqlDbType;
     private readonly int _maxSpecificSize;
@@ -35,10 +37,14 @@ public class SqlServerStringTypeMapping : StringTypeMapping
         int? size = null,
         bool fixedLength = false,
         SqlDbType? sqlDbType = null,
-        StoreTypePostfix? storeTypePostfix = null)
+        StoreTypePostfix? storeTypePostfix = null,
+        bool useKeyComparison = false)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(string)),
+                new CoreTypeMappingParameters(
+                    typeof(string),
+                    comparer: useKeyComparison ? CaseInsensitiveValueComparer : null,
+                    keyComparer: useKeyComparison ? CaseInsensitiveValueComparer : null),
                 storeType ?? GetDefaultStoreName(unicode, fixedLength),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 GetDbType(unicode, fixedLength),
@@ -76,12 +82,12 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     {
         if (parameters.Unicode)
         {
-            _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= UnicodeMax ? parameters.Size.Value : UnicodeMax;
+            _maxSpecificSize = parameters.Size is > 0 and <= UnicodeMax ? parameters.Size.Value : UnicodeMax;
             _maxSize = UnicodeMax;
         }
         else
         {
-            _maxSpecificSize = parameters.Size.HasValue && parameters.Size <= AnsiMax ? parameters.Size.Value : AnsiMax;
+            _maxSpecificSize = parameters.Size is > 0 and <= AnsiMax ? parameters.Size.Value : AnsiMax;
             _maxSize = AnsiMax;
         }
 
@@ -98,7 +104,7 @@ public class SqlServerStringTypeMapping : StringTypeMapping
     {
         if (parameters.Unicode)
         {
-            parameters = new(
+            parameters = new RelationalTypeMappingParameters(
                 parameters.CoreParameters,
                 parameters.StoreType,
                 parameters.StoreTypePostfix,
@@ -112,6 +118,17 @@ public class SqlServerStringTypeMapping : StringTypeMapping
 
         return new SqlServerStringTypeMapping(parameters, _sqlDbType);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual RelationalTypeMapping CloneWithElementTypeMapping(RelationalTypeMapping elementTypeMapping)
+        => new SqlServerStringTypeMapping(
+            Parameters.WithCoreParameters(Parameters.CoreParameters.WithElementTypeMapping(elementTypeMapping)),
+            _sqlDbType);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -152,13 +169,11 @@ public class SqlServerStringTypeMapping : StringTypeMapping
             // 8000 bytes if no size facet specified, if the data will fit so as to avoid query cache
             // fragmentation by setting lots of different Size values otherwise set to the max bounded length
             // if the value will fit, otherwise set to -1 (unbounded) to avoid SQL client size inference.
-            if (length != null
-                && length <= _maxSpecificSize)
+            if (length <= _maxSpecificSize)
             {
                 parameter.Size = _maxSpecificSize;
             }
-            else if (length != null
-                     && length <= _maxSize)
+            else if (length <= _maxSize)
             {
                 parameter.Size = _maxSize;
             }

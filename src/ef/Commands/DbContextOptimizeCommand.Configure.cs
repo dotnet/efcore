@@ -4,21 +4,20 @@
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
 
-namespace Microsoft.EntityFrameworkCore.Tools.Commands
+namespace Microsoft.EntityFrameworkCore.Tools.Commands;
+
+internal partial class DbContextOptimizeCommand : ContextCommandBase
 {
-    internal partial class DbContextOptimizeCommand : ContextCommandBase
+    private CommandOption? _outputDir;
+    private CommandOption? _namespace;
+
+    public override void Configure(CommandLineApplication command)
     {
-        private CommandOption? _outputDir;
-        private CommandOption? _namespace;
+        command.Description = Resources.DbContextOptimizeDescription;
 
-        public override void Configure(CommandLineApplication command)
-        {
-            command.Description = Resources.DbContextOptimizeDescription;
+        _outputDir = command.Option("-o|--output-dir <PATH>", Resources.OutputDirDescription);
+        _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
 
-            _outputDir = command.Option("-o|--output-dir <PATH>", Resources.OutputDirDescription);
-            _namespace = command.Option("-n|--namespace <NAMESPACE>", Resources.NamespaceDescription);
-
-            base.Configure(command);
-        }
+        base.Configure(command);
     }
 }

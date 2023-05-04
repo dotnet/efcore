@@ -208,12 +208,12 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
 
         using (var context = CreateContext())
         {
-            query(context, new[] { "ALFKI" });
+            Assert.Equal(1, query(context, new[] { "ALFKI" }).Count());
         }
 
         using (var context = CreateContext())
         {
-            query(context, new[] { "ANATR" });
+            Assert.Equal(1, query(context, new[] { "ANATR" }).Count());
         }
     }
 
@@ -466,12 +466,12 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
 
         using (var context = CreateContext())
         {
-            await Enumerate(query(context, new[] { "ALFKI" }));
+            Assert.Equal(1, await CountAsync(query(context, new[] { "ALFKI" })));
         }
 
         using (var context = CreateContext())
         {
-            await Enumerate(query(context, new[] { "ANATR" }));
+            Assert.Equal(1, await CountAsync(query(context, new[] { "ANATR" })));
         }
     }
 
@@ -847,27 +847,18 @@ public abstract class NorthwindCompiledQueryTestBase<TFixture> : IClassFixture<T
                 "CHOPS", "CONSH", default));
     }
 
-    [ConditionalFact]
-    public virtual void MakeBinary_does_not_throw_for_unsupported_operator()
+    protected async Task<int> CountAsync<T>(IAsyncEnumerable<T> source)
     {
-        var query = EF.CompileQuery(
-            (NorthwindContext context, object[] parameters)
-                => context.Customers.Where(c => c.CustomerID == (string)parameters[0]));
-
-        using var context = CreateContext();
-
-        var result = query(context, new[] { "ALFKI" }).ToList();
-
-        Assert.Single(result);
-    }
-
-    protected async Task Enumerate<T>(IAsyncEnumerable<T> source)
-    {
+        var count = 0;
         await foreach (var _ in source)
         {
+            count++;
         }
+        return count;
     }
 
     protected NorthwindContext CreateContext()
         => Fixture.CreateContext();
+
+    public static IEnumerable<object[]> IsAsyncData = new[] { new object[] { false }, new object[] { true } };
 }

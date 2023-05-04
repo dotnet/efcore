@@ -48,24 +48,32 @@ public class SqlServerQueryStringFactory : IRelationalQueryStringFactory
         foreach (DbParameter parameter in command.Parameters)
         {
             var typeName = TypeNameBuilder.CreateTypeName(parameter);
-            var typeMapping = _typeMapper.FindMapping(typeName);
 
             builder
                 .Append("DECLARE ")
                 .Append(parameter.ParameterName)
                 .Append(' ')
                 .Append(typeName)
-                .Append(" = ")
-                .Append(
-                    (parameter.Value == DBNull.Value
-                        || parameter.Value == null)
-                        ? "NULL"
-                        : parameter.Value is SqlBytes sqlBytes
+                .Append(" = ");
+
+            if (parameter.Value == DBNull.Value || parameter.Value is null)
+            {
+                builder.Append("NULL");
+            }
+            else
+            {
+                var typeMapping = _typeMapper.FindMapping(parameter.Value.GetType(), typeName);
+
+                builder
+                    .Append(
+                        parameter.Value is SqlBytes sqlBytes
                             ? new SqlServerByteArrayTypeMapping(typeName).GenerateSqlLiteral(sqlBytes.Value)
                             : typeMapping != null
                                 ? typeMapping.GenerateSqlLiteral(parameter.Value)
-                                : parameter.Value.ToString())
-                .AppendLine(";");
+                                : parameter.Value.ToString());
+            }
+
+            builder.AppendLine(";");
         }
 
         return builder
@@ -116,12 +124,25 @@ internal static class TypeNameBuilder
         return builder;
     }
 
+    private static StringBuilder AppendScale(this StringBuilder builder, DbParameter parameter)
+    {
+        if (parameter.Scale > 0)
+        {
+            builder
+                .Append('(')
+                .Append(parameter.Scale.ToString(CultureInfo.InvariantCulture))
+                .Append(')');
+        }
+
+        return builder;
+    }
+
     private static StringBuilder AppendPrecisionAndScale(this StringBuilder builder, DbParameter parameter)
     {
         if (parameter.Precision > 0
             && parameter.Scale > 0)
         {
-            builder
+            return builder
                 .Append('(')
                 .Append(parameter.Precision.ToString(CultureInfo.InvariantCulture))
                 .Append(',')
@@ -161,7 +182,7 @@ internal static class TypeNameBuilder
                 SqlDbType.SmallMoney => builder.Append("smallmoney"),
                 SqlDbType.Structured => builder.Append("structured"),
                 SqlDbType.Text => builder.Append("text"),
-                SqlDbType.Time => builder.Append("time").AppendPrecision(parameter),
+                SqlDbType.Time => builder.Append("time").AppendScale(parameter),
                 SqlDbType.Timestamp => builder.Append("rowversion"),
                 SqlDbType.TinyInt => builder.Append("tinyint"),
                 SqlDbType.Udt => builder.Append(sqlParameter.UdtTypeName),

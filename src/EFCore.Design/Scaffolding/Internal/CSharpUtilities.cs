@@ -223,8 +223,9 @@ public class CSharpUtilities : ICSharpUtilities
     {
         if (ch < 'a')
         {
-            return ch >= 'A' && (ch <= 'Z'
-                || ch == '_');
+            return ch >= 'A'
+                && (ch <= 'Z'
+                    || ch == '_');
         }
 
         if (ch <= 'z')

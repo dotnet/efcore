@@ -1,9 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-
-
 // ReSharper disable InconsistentNaming
+
 namespace Microsoft.EntityFrameworkCore;
 
 public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.CommandConfigurationTestFixture>
@@ -27,7 +26,8 @@ public class CommandConfigurationTest : IClassFixture<CommandConfigurationTest.C
 
     public class CommandConfigurationTestFixture : SharedStoreFixtureBase<PoolableDbContext>
     {
-        protected override string StoreName { get; } = "Empty";
+        protected override string StoreName
+            => "Empty";
 
         protected override ITestStoreFactory TestStoreFactory
             => SqliteTestStoreFactory.Instance;

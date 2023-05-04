@@ -1,15 +1,16 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+#nullable enable
+
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-
-#nullable enable
 
 // ReSharper disable once CheckNamespace
 namespace System;
@@ -50,7 +51,7 @@ internal static class SharedTypeExtensions
         => type.IsClass
             && !type.IsArray;
 
-    public static bool IsPropertyBagType(this Type type)
+    public static bool IsPropertyBagType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         if (type.IsGenericTypeDefinition)
         {
@@ -106,7 +107,10 @@ internal static class SharedTypeExtensions
             && type.GetCustomAttributes(typeof(CompilerGeneratedAttribute), inherit: false).Length > 0
             && type.Name.Contains("AnonymousType");
 
-    public static PropertyInfo? GetAnyProperty(this Type type, string name)
+    public static PropertyInfo? GetAnyProperty(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.NonPublicProperties)]
+        this Type type,
+        string name)
     {
         var props = type.GetRuntimeProperties().Where(p => p.Name == name).ToList();
         if (props.Count > 1)
@@ -135,7 +139,7 @@ internal static class SharedTypeExtensions
         return isNullable ? MakeNullable(underlyingEnumType) : underlyingEnumType;
     }
 
-    public static Type GetSequenceType(this Type type)
+    public static Type GetSequenceType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var sequenceType = TryGetSequenceType(type);
         if (sequenceType == null)
@@ -146,11 +150,13 @@ internal static class SharedTypeExtensions
         return sequenceType;
     }
 
-    public static Type? TryGetSequenceType(this Type type)
+    public static Type? TryGetSequenceType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
         => type.TryGetElementType(typeof(IEnumerable<>))
             ?? type.TryGetElementType(typeof(IAsyncEnumerable<>));
 
-    public static Type? TryGetElementType(this Type type, Type interfaceOrBaseType)
+    public static Type? TryGetElementType(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type,
+        Type interfaceOrBaseType)
     {
         if (type.IsGenericTypeDefinition)
         {
@@ -280,7 +286,8 @@ internal static class SharedTypeExtensions
         }
     }
 
-    public static IEnumerable<Type> GetDeclaredInterfaces(this Type type)
+    public static IEnumerable<Type> GetDeclaredInterfaces(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
         var interfaces = type.GetInterfaces();
         if (type.BaseType == typeof(object)
@@ -289,10 +296,18 @@ internal static class SharedTypeExtensions
             return interfaces;
         }
 
-        return interfaces.Except(type.BaseType.GetInterfaces());
+        return interfaces.Except(GetInterfacesSuppressed(type.BaseType));
+
+        [UnconditionalSuppressMessage("ReflectionAnalysis", "IL2070", Justification = "https://github.com/dotnet/linker/issues/2473")]
+        static IEnumerable<Type> GetInterfacesSuppressed(Type type)
+            => type.GetInterfaces();
     }
 
-    public static ConstructorInfo? GetDeclaredConstructor(this Type type, Type[]? types)
+    public static ConstructorInfo? GetDeclaredConstructor(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.NonPublicConstructors)]
+        this Type type,
+        Type[]? types)
     {
         types ??= Array.Empty<Type>();
 
@@ -345,7 +360,14 @@ internal static class SharedTypeExtensions
         while (currentType != null);
     }
 
-    public static IEnumerable<MemberInfo> GetMembersInHierarchy(this Type type, string name)
+    public static IEnumerable<MemberInfo> GetMembersInHierarchy(
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicProperties
+            | DynamicallyAccessedMemberTypes.NonPublicProperties
+            | DynamicallyAccessedMemberTypes.PublicFields
+            | DynamicallyAccessedMemberTypes.NonPublicFields)]
+        this Type type,
+        string name)
         => type.GetMembersInHierarchy().Where(m => m.Name == name);
 
     private static readonly Dictionary<Type, object> CommonTypeDictionary = new()
@@ -371,7 +393,8 @@ internal static class SharedTypeExtensions
 #pragma warning restore IDE0034 // Simplify 'default' expression
     };
 
-    public static object? GetDefaultValue(this Type type)
+    public static object? GetDefaultValue(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] this Type type)
     {
         if (!type.IsValueType)
         {
@@ -386,11 +409,13 @@ internal static class SharedTypeExtensions
             : Activator.CreateInstance(type);
     }
 
+    [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
         => assembly.GetLoadableDefinedTypes().Where(
             t => !t.IsAbstract
                 && !t.IsGenericTypeDefinition);
 
+    [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(this Assembly assembly)
     {
         try
@@ -553,6 +578,16 @@ internal static class SharedTypeExtensions
     {
         if (BuiltInTypeNames.ContainsKey(type))
         {
+            yield break;
+        }
+
+        if (type.IsArray)
+        {
+            foreach (var ns in type.GetElementType()!.GetNamespaces())
+            {
+                yield return ns;
+            }
+
             yield break;
         }
 

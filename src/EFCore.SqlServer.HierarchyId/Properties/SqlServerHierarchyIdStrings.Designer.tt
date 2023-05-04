@@ -1,0 +1,7 @@
+<#
+    Session["ResourceFile"] = "SqlServerHierarchyIdStrings.resx";
+    Session["ResourceNamespace"] = "Microsoft.EntityFrameworkCore.SqlServer.Properties";
+    Session["LoggingDefinitionsClass"] = "SqlServerHierarchyIdLoggingDefinitions";
+    Session["NoDiagnostics"] = true;
+#>
+<#@ include file="..\..\..\tools\Resources.tt" #>

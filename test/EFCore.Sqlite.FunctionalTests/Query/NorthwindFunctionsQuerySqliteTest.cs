@@ -1,6 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore.TestModels.Northwind;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelationalTestBase<
@@ -248,9 +251,11 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
         await base.String_StartsWith_Literal(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE 'M%'
+""");
     }
 
     public override async Task String_StartsWith_Identity(bool async)
@@ -258,9 +263,11 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
         await base.String_StartsWith_Identity(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"") OR ""c"".""ContactName"" = ''))");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (("c"."ContactName" LIKE "c"."ContactName" || '%' AND substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName") OR "c"."ContactName" = ''))
+""");
     }
 
     public override async Task String_StartsWith_Column(bool async)
@@ -268,9 +275,11 @@ WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (((""
         await base.String_StartsWith_Column(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (((""c"".""ContactName"" LIKE ""c"".""ContactName"" || '%') AND substr(""c"".""ContactName"", 1, length(""c"".""ContactName"")) = ""c"".""ContactName"") OR ""c"".""ContactName"" = ''))");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (("c"."ContactName" LIKE "c"."ContactName" || '%' AND substr("c"."ContactName", 1, length("c"."ContactName")) = "c"."ContactName") OR "c"."ContactName" = ''))
+""");
     }
 
     public override async Task String_StartsWith_MethodCall(bool async)
@@ -278,9 +287,11 @@ WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (((""
         await base.String_StartsWith_MethodCall(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE 'M%'
+""");
     }
 
     public override async Task String_EndsWith_Literal(bool async)
@@ -288,9 +299,11 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE 'M%')");
         await base.String_EndsWith_Literal(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%b')");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE '%b'
+""");
     }
 
     public override async Task String_EndsWith_Identity(bool async)
@@ -298,9 +311,11 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%b')");
         await base.String_EndsWith_Identity(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"" OR ""c"".""ContactName"" = ''))");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = ''))
+""");
     }
 
     public override async Task String_EndsWith_Column(bool async)
@@ -308,9 +323,11 @@ WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (subs
         await base.String_EndsWith_Column(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (substr(""c"".""ContactName"", -length(""c"".""ContactName"")) = ""c"".""ContactName"" OR ""c"".""ContactName"" = ''))");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" = '' OR ("c"."ContactName" IS NOT NULL AND (substr("c"."ContactName", -length("c"."ContactName")) = "c"."ContactName" OR "c"."ContactName" = ''))
+""");
     }
 
     public override async Task String_EndsWith_MethodCall(bool async)
@@ -318,9 +335,11 @@ WHERE ""c"".""ContactName"" = '' OR (""c"".""ContactName"" IS NOT NULL AND (subs
         await base.String_EndsWith_MethodCall(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%m')");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" IS NOT NULL AND "c"."ContactName" LIKE '%m'
+""");
     }
 
     public override async Task String_Contains_Literal(bool async)
@@ -328,9 +347,11 @@ WHERE ""c"".""ContactName"" IS NOT NULL AND (""c"".""ContactName"" LIKE '%m')");
         await base.String_Contains_Literal(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE 'M' = '' OR instr(""c"".""ContactName"", 'M') > 0");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE 'M' = '' OR instr("c"."ContactName", 'M') > 0
+""");
     }
 
     public override async Task String_Contains_Identity(bool async)
@@ -338,9 +359,11 @@ WHERE 'M' = '' OR instr(""c"".""ContactName"", 'M') > 0");
         await base.String_Contains_Identity(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" = '' OR instr(""c"".""ContactName"", ""c"".""ContactName"") > 0");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" = '' OR instr("c"."ContactName", "c"."ContactName") > 0
+""");
     }
 
     public override async Task String_Contains_Column(bool async)
@@ -348,27 +371,33 @@ WHERE ""c"".""ContactName"" = '' OR instr(""c"".""ContactName"", ""c"".""Contact
         await base.String_Contains_Column(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""ContactName"" = '' OR instr(""c"".""ContactName"", ""c"".""ContactName"") > 0");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."ContactName" = '' OR instr("c"."ContactName", "c"."ContactName") > 0
+""");
     }
 
     public override async Task String_FirstOrDefault_MethodCall(bool async)
     {
         await base.String_FirstOrDefault_MethodCall(async);
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""ContactName"", 1, 1) = 'A'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE substr("c"."ContactName", 1, 1) = 'A'
+""");
     }
 
     public override async Task String_LastOrDefault_MethodCall(bool async)
     {
         await base.String_LastOrDefault_MethodCall(async);
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""ContactName"", length(""c"".""ContactName""), 1) = 's'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE substr("c"."ContactName", length("c"."ContactName"), 1) = 's'
+""");
     }
 
     public override async Task String_Contains_MethodCall(bool async)
@@ -376,9 +405,79 @@ WHERE substr(""c"".""ContactName"", length(""c"".""ContactName""), 1) = 's'");
         await base.String_Contains_MethodCall(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE 'M' = '' OR instr(""c"".""ContactName"", 'M') > 0");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE 'M' = '' OR instr("c"."ContactName", 'M') > 0
+""");
+    }
+
+    public override async Task String_Join_over_non_nullable_column(bool async)
+    {
+        await base.String_Join_over_non_nullable_column(async);
+
+        AssertSql(
+"""
+SELECT "c"."City", COALESCE(group_concat("c"."CustomerID", '|'), '') AS "Customers"
+FROM "Customers" AS "c"
+GROUP BY "c"."City"
+""");
+    }
+
+    public override async Task String_Join_over_nullable_column(bool async)
+    {
+        await base.String_Join_over_nullable_column(async);
+
+        AssertSql(
+"""
+SELECT "c"."City", COALESCE(group_concat(COALESCE("c"."Region", ''), '|'), '') AS "Regions"
+FROM "Customers" AS "c"
+GROUP BY "c"."City"
+""");
+    }
+
+    public override async Task String_Join_with_predicate(bool async)
+    {
+        await base.String_Join_with_predicate(async);
+
+        AssertSql(
+"""
+SELECT "c"."City", COALESCE(group_concat(CASE
+    WHEN length("c"."ContactName") > 10 THEN "c"."CustomerID"
+END, '|'), '') AS "Customers"
+FROM "Customers" AS "c"
+GROUP BY "c"."City"
+""");
+    }
+
+    public override async Task String_Join_with_ordering(bool async)
+    {
+        // SQLite does not support input ordering on aggregate methods; the below does client evaluation.
+        await base.String_Join_with_ordering(async);
+
+        AssertSql(
+"""
+SELECT "t"."City", "c0"."CustomerID"
+FROM (
+    SELECT "c"."City"
+    FROM "Customers" AS "c"
+    GROUP BY "c"."City"
+) AS "t"
+LEFT JOIN "Customers" AS "c0" ON "t"."City" = "c0"."City"
+ORDER BY "t"."City", "c0"."CustomerID" DESC
+""");
+    }
+
+    public override async Task String_Concat(bool async)
+    {
+        await base.String_Concat(async);
+
+        AssertSql(
+"""
+SELECT "c"."City", COALESCE(group_concat("c"."CustomerID", ''), '') AS "Customers"
+FROM "Customers" AS "c"
+GROUP BY "c"."City"
+""");
     }
 
     public override async Task IsNullOrWhiteSpace_in_predicate(bool async)
@@ -386,9 +485,11 @@ WHERE 'M' = '' OR instr(""c"".""ContactName"", 'M') > 0");
         await base.IsNullOrWhiteSpace_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NULL OR trim(""c"".""Region"") = ''");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."Region" IS NULL OR trim("c"."Region") = ''
+""");
     }
 
     public override async Task Indexof_with_emptystring(bool async)
@@ -396,9 +497,11 @@ WHERE ""c"".""Region"" IS NULL OR trim(""c"".""Region"") = ''");
         await base.Indexof_with_emptystring(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE (instr(""c"".""ContactName"", '') - 1) = 0");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE instr("c"."ContactName", '') - 1 = 0
+""");
     }
 
     public override async Task Indexof_with_one_constant_arg(bool async)
@@ -406,9 +509,11 @@ WHERE (instr(""c"".""ContactName"", '') - 1) = 0");
         await base.Indexof_with_one_constant_arg(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE (instr(""c"".""ContactName"", 'a') - 1) = 1");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE instr("c"."ContactName", 'a') - 1 = 1
+""");
     }
 
     public override async Task Indexof_with_one_parameter_arg(bool async)
@@ -416,11 +521,13 @@ WHERE (instr(""c"".""ContactName"", 'a') - 1) = 1");
         await base.Indexof_with_one_parameter_arg(async);
 
         AssertSql(
-            @"@__pattern_0='a' (Size = 1)
+"""
+@__pattern_0='a' (Size = 1)
 
-SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE (instr(""c"".""ContactName"", @__pattern_0) - 1) = 1");
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE instr("c"."ContactName", @__pattern_0) - 1 = 1
+""");
     }
 
     public override Task Indexof_with_constant_starting_position(bool async)
@@ -434,9 +541,11 @@ WHERE (instr(""c"".""ContactName"", @__pattern_0) - 1) = 1");
         await base.Replace_with_emptystring(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE replace(""c"".""ContactName"", 'ia', '') = 'Mar Anders'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE replace("c"."ContactName", 'ia', '') = 'Mar Anders'
+""");
     }
 
     public override async Task Replace_using_property_arguments(bool async)
@@ -444,9 +553,11 @@ WHERE replace(""c"".""ContactName"", 'ia', '') = 'Mar Anders'");
         await base.Replace_using_property_arguments(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE replace(""c"".""ContactName"", ""c"".""ContactName"", ""c"".""CustomerID"") = ""c"".""CustomerID""");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE replace("c"."ContactName", "c"."ContactName", "c"."CustomerID") = "c"."CustomerID"
+""");
     }
 
     public override async Task Substring_with_one_arg_with_zero_startindex(bool async)
@@ -454,9 +565,11 @@ WHERE replace(""c"".""ContactName"", ""c"".""ContactName"", ""c"".""CustomerID""
         await base.Substring_with_one_arg_with_zero_startindex(async);
 
         AssertSql(
-            @"SELECT ""c"".""ContactName""
-FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""CustomerID"", 0 + 1) = 'ALFKI'");
+"""
+SELECT "c"."ContactName"
+FROM "Customers" AS "c"
+WHERE substr("c"."CustomerID", 0 + 1) = 'ALFKI'
+""");
     }
 
     public override async Task Substring_with_one_arg_with_constant(bool async)
@@ -464,9 +577,11 @@ WHERE substr(""c"".""CustomerID"", 0 + 1) = 'ALFKI'");
         await base.Substring_with_one_arg_with_constant(async);
 
         AssertSql(
-            @"SELECT ""c"".""ContactName""
-FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""CustomerID"", 1 + 1) = 'LFKI'");
+"""
+SELECT "c"."ContactName"
+FROM "Customers" AS "c"
+WHERE substr("c"."CustomerID", 1 + 1) = 'LFKI'
+""");
     }
 
     public override async Task Substring_with_one_arg_with_closure(bool async)
@@ -474,11 +589,13 @@ WHERE substr(""c"".""CustomerID"", 1 + 1) = 'LFKI'");
         await base.Substring_with_one_arg_with_closure(async);
 
         AssertSql(
-            @"@__start_0='2'
+"""
+@__start_0='2'
 
-SELECT ""c"".""ContactName""
-FROM ""Customers"" AS ""c""
-WHERE substr(""c"".""CustomerID"", @__start_0 + 1) = 'FKI'");
+SELECT "c"."ContactName"
+FROM "Customers" AS "c"
+WHERE substr("c"."CustomerID", @__start_0 + 1) = 'FKI'
+""");
     }
 
     public override async Task Substring_with_two_args_with_zero_startindex(bool async)
@@ -486,9 +603,11 @@ WHERE substr(""c"".""CustomerID"", @__start_0 + 1) = 'FKI'");
         await base.Substring_with_two_args_with_zero_startindex(async);
 
         AssertSql(
-            @"SELECT substr(""c"".""ContactName"", 0 + 1, 3)
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+"""
+SELECT substr("c"."ContactName", 0 + 1, 3)
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" = 'ALFKI'
+""");
     }
 
     public override async Task Substring_with_two_args_with_constant(bool async)
@@ -496,9 +615,11 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
         await base.Substring_with_two_args_with_constant(async);
 
         AssertSql(
-            @"SELECT substr(""c"".""ContactName"", 1 + 1, 3)
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+"""
+SELECT substr("c"."ContactName", 1 + 1, 3)
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" = 'ALFKI'
+""");
     }
 
     public override async Task Substring_with_two_args_with_closure(bool async)
@@ -506,11 +627,13 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
         await base.Substring_with_two_args_with_closure(async);
 
         AssertSql(
-            @"@__start_0='2'
+"""
+@__start_0='2'
 
-SELECT substr(""c"".""ContactName"", @__start_0 + 1, 3)
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+SELECT substr("c"."ContactName", @__start_0 + 1, 3)
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" = 'ALFKI'
+""");
     }
 
     public override async Task Substring_with_two_args_with_Index_of(bool async)
@@ -518,9 +641,11 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
         await base.Substring_with_two_args_with_Index_of(async);
 
         AssertSql(
-            @"SELECT substr(""c"".""ContactName"", (instr(""c"".""ContactName"", 'a') - 1) + 1, 3)
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+"""
+SELECT substr("c"."ContactName", (instr("c"."ContactName", 'a') - 1) + 1, 3)
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" = 'ALFKI'
+""");
     }
 
     public override async Task Substring_with_two_args_with_zero_length(bool async)
@@ -528,9 +653,11 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
         await base.Substring_with_two_args_with_zero_length(async);
 
         AssertSql(
-            @"SELECT substr(""c"".""ContactName"", 2 + 1, 0)
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""CustomerID"" = 'ALFKI'");
+"""
+SELECT substr("c"."ContactName", 2 + 1, 0)
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" = 'ALFKI'
+""");
     }
 
     public override async Task Where_math_abs1(bool async)
@@ -538,9 +665,11 @@ WHERE ""c"".""CustomerID"" = 'ALFKI'");
         await base.Where_math_abs1(async);
 
         AssertSql(
-            @"SELECT ""p"".""ProductID"", ""p"".""Discontinued"", ""p"".""ProductName"", ""p"".""SupplierID"", ""p"".""UnitPrice"", ""p"".""UnitsInStock""
-FROM ""Products"" AS ""p""
-WHERE abs(""p"".""ProductID"") > 10");
+"""
+SELECT "p"."ProductID", "p"."Discontinued", "p"."ProductName", "p"."SupplierID", "p"."UnitPrice", "p"."UnitsInStock"
+FROM "Products" AS "p"
+WHERE abs("p"."ProductID") > 10
+""");
     }
 
     public override async Task Where_math_abs2(bool async)
@@ -548,9 +677,11 @@ WHERE abs(""p"".""ProductID"") > 10");
         await base.Where_math_abs2(async);
 
         AssertSql(
-            @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
-FROM ""Order Details"" AS ""o""
-WHERE ""o"".""UnitPrice"" < 7.0 AND abs(""o"".""Quantity"") > 10");
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."UnitPrice" < 7.0 AND abs("o"."Quantity") > 10
+""");
     }
 
     public override async Task Where_math_abs_uncorrelated(bool async)
@@ -558,9 +689,11 @@ WHERE ""o"".""UnitPrice"" < 7.0 AND abs(""o"".""Quantity"") > 10");
         await base.Where_math_abs_uncorrelated(async);
 
         AssertSql(
-            @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
-FROM ""Order Details"" AS ""o""
-WHERE ""o"".""UnitPrice"" < 7.0 AND 10 < ""o"".""ProductID""");
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."UnitPrice" < 7.0 AND 10 < "o"."ProductID"
+""");
     }
 
     public override async Task Select_math_round_int(bool async)
@@ -568,9 +701,11 @@ WHERE ""o"".""UnitPrice"" < 7.0 AND 10 < ""o"".""ProductID""");
         await base.Select_math_round_int(async);
 
         AssertSql(
-            @"SELECT round(CAST(""o"".""OrderID"" AS REAL)) AS ""A""
-FROM ""Orders"" AS ""o""
-WHERE ""o"".""OrderID"" < 10250");
+"""
+SELECT round(CAST("o"."OrderID" AS REAL)) AS "A"
+FROM "Orders" AS "o"
+WHERE "o"."OrderID" < 10250
+""");
     }
 
     public override async Task Where_math_min(bool async)
@@ -578,9 +713,11 @@ WHERE ""o"".""OrderID"" < 10250");
         await base.Where_math_min(async);
 
         AssertSql(
-            @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
-FROM ""Order Details"" AS ""o""
-WHERE ""o"".""OrderID"" = 11077 AND min(""o"".""OrderID"", ""o"".""ProductID"") = ""o"".""ProductID""");
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND min("o"."OrderID", "o"."ProductID") = "o"."ProductID"
+""");
     }
 
     public override async Task Where_math_max(bool async)
@@ -588,9 +725,11 @@ WHERE ""o"".""OrderID"" = 11077 AND min(""o"".""OrderID"", ""o"".""ProductID"") 
         await base.Where_math_max(async);
 
         AssertSql(
-            @"SELECT ""o"".""OrderID"", ""o"".""ProductID"", ""o"".""Discount"", ""o"".""Quantity"", ""o"".""UnitPrice""
-FROM ""Order Details"" AS ""o""
-WHERE ""o"".""OrderID"" = 11077 AND max(""o"".""OrderID"", ""o"".""ProductID"") = ""o"".""OrderID""");
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND max("o"."OrderID", "o"."ProductID") = "o"."OrderID"
+""");
     }
 
     public override async Task Where_string_to_lower(bool async)
@@ -598,9 +737,11 @@ WHERE ""o"".""OrderID"" = 11077 AND max(""o"".""OrderID"", ""o"".""ProductID"") 
         await base.Where_string_to_lower(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE lower(""c"".""CustomerID"") = 'alfki'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE lower("c"."CustomerID") = 'alfki'
+""");
     }
 
     public override async Task Where_string_to_upper(bool async)
@@ -608,9 +749,11 @@ WHERE lower(""c"".""CustomerID"") = 'alfki'");
         await base.Where_string_to_upper(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE upper(""c"".""CustomerID"") = 'ALFKI'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE upper("c"."CustomerID") = 'ALFKI'
+""");
     }
 
     public override async Task TrimStart_without_arguments_in_predicate(bool async)
@@ -618,9 +761,11 @@ WHERE upper(""c"".""CustomerID"") = 'ALFKI'");
         await base.TrimStart_without_arguments_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ltrim(""c"".""ContactTitle"") = 'Owner'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE ltrim("c"."ContactTitle") = 'Owner'
+""");
     }
 
     public override async Task TrimStart_with_char_argument_in_predicate(bool async)
@@ -628,9 +773,11 @@ WHERE ltrim(""c"".""ContactTitle"") = 'Owner'");
         await base.TrimStart_with_char_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ltrim(""c"".""ContactTitle"", 'O') = 'wner'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE ltrim("c"."ContactTitle", 'O') = 'wner'
+""");
     }
 
     public override async Task TrimStart_with_char_array_argument_in_predicate(bool async)
@@ -638,9 +785,11 @@ WHERE ltrim(""c"".""ContactTitle"", 'O') = 'wner'");
         await base.TrimStart_with_char_array_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ltrim(""c"".""ContactTitle"", 'Ow') = 'ner'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE ltrim("c"."ContactTitle", 'Ow') = 'ner'
+""");
     }
 
     public override async Task TrimEnd_without_arguments_in_predicate(bool async)
@@ -648,9 +797,11 @@ WHERE ltrim(""c"".""ContactTitle"", 'Ow') = 'ner'");
         await base.TrimEnd_without_arguments_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE rtrim(""c"".""ContactTitle"") = 'Owner'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE rtrim("c"."ContactTitle") = 'Owner'
+""");
     }
 
     public override async Task TrimEnd_with_char_argument_in_predicate(bool async)
@@ -658,9 +809,11 @@ WHERE rtrim(""c"".""ContactTitle"") = 'Owner'");
         await base.TrimEnd_with_char_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE rtrim(""c"".""ContactTitle"", 'r') = 'Owne'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE rtrim("c"."ContactTitle", 'r') = 'Owne'
+""");
     }
 
     public override async Task TrimEnd_with_char_array_argument_in_predicate(bool async)
@@ -668,9 +821,11 @@ WHERE rtrim(""c"".""ContactTitle"", 'r') = 'Owne'");
         await base.TrimEnd_with_char_array_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE rtrim(""c"".""ContactTitle"", 'er') = 'Own'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE rtrim("c"."ContactTitle", 'er') = 'Own'
+""");
     }
 
     public override async Task Trim_without_argument_in_predicate(bool async)
@@ -678,9 +833,11 @@ WHERE rtrim(""c"".""ContactTitle"", 'er') = 'Own'");
         await base.Trim_without_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE trim(""c"".""ContactTitle"") = 'Owner'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE trim("c"."ContactTitle") = 'Owner'
+""");
     }
 
     public override async Task Trim_with_char_argument_in_predicate(bool async)
@@ -688,9 +845,11 @@ WHERE trim(""c"".""ContactTitle"") = 'Owner'");
         await base.Trim_with_char_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE trim(""c"".""ContactTitle"", 'O') = 'wner'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE trim("c"."ContactTitle", 'O') = 'wner'
+""");
     }
 
     public override async Task Trim_with_char_array_argument_in_predicate(bool async)
@@ -698,9 +857,11 @@ WHERE trim(""c"".""ContactTitle"", 'O') = 'wner'");
         await base.Trim_with_char_array_argument_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE trim("c"."ContactTitle", 'Or') = 'wne'
+""");
     }
 
     public override async Task Regex_IsMatch_MethodCall(bool async)
@@ -708,9 +869,11 @@ WHERE trim(""c"".""ContactTitle"", 'Or') = 'wne'");
         await base.Regex_IsMatch_MethodCall(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE regexp('^T', ""c"".""CustomerID"")");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" REGEXP '^T'
+""");
     }
 
     public override async Task Regex_IsMatch_MethodCall_constant_input(bool async)
@@ -718,9 +881,28 @@ WHERE regexp('^T', ""c"".""CustomerID"")");
         await base.Regex_IsMatch_MethodCall_constant_input(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE regexp(""c"".""CustomerID"", 'ALFKI')");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE 'ALFKI' REGEXP "c"."CustomerID"
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Regex_IsMatch_MethodCall_negated(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<Customer>().Where(o => !Regex.IsMatch(o.CustomerID, "^[^T]")),
+            entryCount: 6);
+
+        AssertSql(
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."CustomerID" NOT REGEXP '^[^T]'
+""");
     }
 
     public override async Task IsNullOrEmpty_in_predicate(bool async)
@@ -728,9 +910,11 @@ WHERE regexp(""c"".""CustomerID"", 'ALFKI')");
         await base.IsNullOrEmpty_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NULL OR ""c"".""Region"" = ''");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."Region" IS NULL OR "c"."Region" = ''
+""");
     }
 
     public override async Task IsNullOrEmpty_in_projection(bool async)
@@ -738,8 +922,10 @@ WHERE ""c"".""Region"" IS NULL OR ""c"".""Region"" = ''");
         await base.IsNullOrEmpty_in_projection(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"" AS ""Id"", ""c"".""Region"" IS NULL OR ""c"".""Region"" = '' AS ""Value""
-FROM ""Customers"" AS ""c""");
+"""
+SELECT "c"."CustomerID" AS "Id", "c"."Region" IS NULL OR "c"."Region" = '' AS "Value"
+FROM "Customers" AS "c"
+""");
     }
 
     public override async Task IsNullOrEmpty_negated_in_predicate(bool async)
@@ -747,9 +933,11 @@ FROM ""Customers"" AS ""c""");
         await base.IsNullOrEmpty_negated_in_predicate(async);
 
         AssertSql(
-            @"SELECT ""c"".""CustomerID"", ""c"".""Address"", ""c"".""City"", ""c"".""CompanyName"", ""c"".""ContactName"", ""c"".""ContactTitle"", ""c"".""Country"", ""c"".""Fax"", ""c"".""Phone"", ""c"".""PostalCode"", ""c"".""Region""
-FROM ""Customers"" AS ""c""
-WHERE ""c"".""Region"" IS NOT NULL AND ""c"".""Region"" <> ''");
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE "c"."Region" IS NOT NULL AND "c"."Region" <> ''
+""");
     }
 
     public override Task Datetime_subtraction_TotalDays(bool async)

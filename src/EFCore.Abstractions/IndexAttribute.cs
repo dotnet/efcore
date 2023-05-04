@@ -18,11 +18,27 @@ public sealed class IndexAttribute : Attribute
     private string? _name;
     private bool? _isUnique;
     private bool[]? _isDescending;
+    private bool _allDescending;
+
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
+    /// </summary>
+    /// <param name="propertyName">The first (or only) property in the index.</param>
+    /// <param name="additionalPropertyNames">The additional properties which constitute the index, if any, in order.</param>
+    public IndexAttribute(string propertyName, params string[] additionalPropertyNames)
+    {
+        Check.NotEmpty(propertyName, nameof(propertyName));
+        Check.HasNoEmptyElements(additionalPropertyNames, nameof(additionalPropertyNames));
+
+        PropertyNames = new List<string> { propertyName };
+        ((List<string>)PropertyNames).AddRange(additionalPropertyNames);
+    }
 
     /// <summary>
     ///     Initializes a new instance of the <see cref="IndexAttribute" /> class.
     /// </summary>
     /// <param name="propertyNames">The properties which constitute the index, in order (there must be at least one).</param>
+    [Obsolete("Use the other constructor")]
     public IndexAttribute(params string[] propertyNames)
     {
         Check.NotEmpty(propertyNames, nameof(propertyNames));
@@ -63,13 +79,38 @@ public sealed class IndexAttribute : Attribute
         get => _isDescending;
         set
         {
-            if (value is not null && value.Length != PropertyNames.Count)
+            if (value is not null)
             {
-                throw new ArgumentException(
-                    AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(value.Length, PropertyNames.Count), nameof(IsDescending));
+                if (value.Length != PropertyNames.Count)
+                {
+                    throw new ArgumentException(
+                        AbstractionsStrings.InvalidNumberOfIndexSortOrderValues(value.Length, PropertyNames.Count), nameof(IsDescending));
+                }
+
+                if (_allDescending)
+                {
+                    throw new ArgumentException(AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending);
+                }
             }
 
             _isDescending = value;
+        }
+    }
+
+    /// <summary>
+    ///     Whether all index columns have descending sort order.
+    /// </summary>
+    public bool AllDescending
+    {
+        get => _allDescending;
+        set
+        {
+            if (IsDescending is not null)
+            {
+                throw new ArgumentException(AbstractionsStrings.CannotSpecifyBothIsDescendingAndAllDescending);
+            }
+
+            _allDescending = value;
         }
     }
 

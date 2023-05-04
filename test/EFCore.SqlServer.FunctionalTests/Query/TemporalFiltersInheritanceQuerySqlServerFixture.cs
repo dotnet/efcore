@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class TemporalFiltersInheritanceQuerySqlServerFixture : FiltersInheritanceQuerySqlServerFixture
 {
-    protected override string StoreName { get; } = "TemporalFiltersInheritanceQueryTest";
+    protected override string StoreName
+        => "TemporalFiltersInheritanceQueryTest";
 
     public DateTime ChangesDate { get; private set; }
 

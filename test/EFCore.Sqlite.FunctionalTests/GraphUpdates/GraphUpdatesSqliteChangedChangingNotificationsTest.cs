@@ -16,7 +16,8 @@ public class GraphUpdatesSqliteChangedChangingNotificationsTest
 
     public class SqliteFixture : GraphUpdatesSqliteFixtureBase
     {
-        protected override string StoreName { get; } = "GraphUpdatesChangedChangingTest";
+        protected override string StoreName
+            => "GraphUpdatesChangedChangingTest";
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
         {

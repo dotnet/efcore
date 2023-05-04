@@ -133,6 +133,42 @@ public static class ProxiesExtensions
     ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <param name="optionsBuilder">
+    ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
+    ///     or exposed AddDbContext.
+    /// </param>
+    /// <param name="lazyLoadingProxiesOptionsAction">An optional action to allow additional proxy-specific configuration.</param>
+    /// <returns>The same builder to allow method calls to be chained.</returns>
+    public static DbContextOptionsBuilder UseLazyLoadingProxies(
+        this DbContextOptionsBuilder optionsBuilder,
+        Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
+    {
+        Check.NotNull(lazyLoadingProxiesOptionsAction, nameof(lazyLoadingProxiesOptionsAction));
+
+        var extension = optionsBuilder.Options.FindExtension<ProxiesOptionsExtension>()
+            ?? new ProxiesOptionsExtension();
+
+        ((IDbContextOptionsBuilderInfrastructure)optionsBuilder).AddOrUpdateExtension(
+            extension.WithLazyLoading(useLazyLoadingProxies: true));
+
+        lazyLoadingProxiesOptionsAction.Invoke(new LazyLoadingProxiesOptionsBuilder(optionsBuilder));
+
+        return optionsBuilder;
+    }
+
+    /// <summary>
+    ///     Turns on the creation of lazy loading proxies.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
+    ///         will happen automatically, but if the application is controlling the service provider, then a call to
+    ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <typeparam name="TContext">The <see cref="DbContext" /> type.</typeparam>
     /// <param name="optionsBuilder">
     ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
@@ -145,6 +181,32 @@ public static class ProxiesExtensions
         bool useLazyLoadingProxies = true)
         where TContext : DbContext
         => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies((DbContextOptionsBuilder)optionsBuilder, useLazyLoadingProxies);
+
+    /// <summary>
+    ///     Turns on the creation of lazy loading proxies.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Note that this requires appropriate services to be available in the EF internal service provider. Normally this
+    ///         will happen automatically, but if the application is controlling the service provider, then a call to
+    ///         <see cref="ProxiesServiceCollectionExtensions.AddEntityFrameworkProxies" /> may be needed.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-lazy-loading">Lazy loading</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
+    /// <typeparam name="TContext">The <see cref="DbContext" /> type.</typeparam>
+    /// <param name="optionsBuilder">
+    ///     The options builder, as passed to <see cref="DbContext.OnConfiguring" />
+    ///     or exposed AddDbContext.
+    /// </param>
+    /// <param name="lazyLoadingProxiesOptionsAction">An optional action to allow additional proxy-specific configuration.</param>
+    /// <returns>The same builder to allow method calls to be chained.</returns>
+    public static DbContextOptionsBuilder<TContext> UseLazyLoadingProxies<TContext>(
+        this DbContextOptionsBuilder<TContext> optionsBuilder,
+        Action<LazyLoadingProxiesOptionsBuilder> lazyLoadingProxiesOptionsAction)
+        where TContext : DbContext
+        => (DbContextOptionsBuilder<TContext>)UseLazyLoadingProxies((DbContextOptionsBuilder)optionsBuilder, lazyLoadingProxiesOptionsAction);
 
     /// <summary>
     ///     Creates a proxy instance for an entity type if proxy creation has been turned on.

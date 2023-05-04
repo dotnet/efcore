@@ -15,7 +15,8 @@ public class NorthwindODataQueryTestFixture : NorthwindQuerySqlServerFixture<Noo
 {
     private IHost _selfHostServer;
 
-    protected override string StoreName { get; } = "ODataNorthwind";
+    protected override string StoreName
+        => "ODataNorthwind";
 
     public NorthwindODataQueryTestFixture()
     {

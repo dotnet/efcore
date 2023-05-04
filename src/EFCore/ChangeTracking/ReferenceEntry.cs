@@ -65,7 +65,7 @@ public class ReferenceEntry : NavigationEntry
             var target = GetTargetEntry();
             if (target != null)
             {
-                var context = InternalEntry.StateManager.Context;
+                var context = InternalEntry.Context;
                 if (context.ChangeTracker.AutoDetectChangesEnabled
                     && !((IRuntimeModel)context.Model).SkipDetectChanges)
                 {
@@ -76,34 +76,29 @@ public class ReferenceEntry : NavigationEntry
     }
 
     /// <summary>
-    ///     Loads the entity or entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to true.
+    ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+    ///     is already set to <see langword="true"/>.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-    ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    public override void Load()
+    /// <param name="options">Options to control the way related entities are loaded.</param>
+    public override void Load(LoadOptions options = LoadOptions.None)
     {
         if (!IsLoaded)
         {
-            TargetFinder.Load((INavigation)Metadata, InternalEntry);
+            TargetFinder.Load((INavigation)Metadata, InternalEntry, options);
         }
     }
 
     /// <summary>
-    ///     Loads the entity or entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to true.
+    ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+    ///     is already set to <see langword="true"/>.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-    ///     </para>
     ///     <para>
     ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
     ///         that any asynchronous operations have completed before calling another method on this context.
@@ -113,13 +108,14 @@ public class ReferenceEntry : NavigationEntry
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <param name="options">Options to control the way related entities are loaded.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task LoadAsync(CancellationToken cancellationToken = default)
+    public override Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default)
         => IsLoaded
             ? Task.CompletedTask
-            : TargetFinder.LoadAsync((INavigation)Metadata, InternalEntry, cancellationToken);
+            : TargetFinder.LoadAsync((INavigation)Metadata, InternalEntry, options, cancellationToken);
 
     /// <summary>
     ///     Returns the query that would be used by <see cref="Load" /> to load entities referenced by

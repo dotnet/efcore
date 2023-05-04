@@ -10,9 +10,8 @@ using Microsoft.EntityFrameworkCore.InMemory.Internal;
 // ReSharper disable UnusedMember.Local
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore.Query;
-#pragma warning disable xUnit1000 // Test classes must be public
-internal class WarningsTest
-#pragma warning restore xUnit1000 // Test classes must be public
+
+public class WarningsTest
 {
     [ConditionalFact]
     public void Should_throw_by_default_when_transaction()
@@ -208,6 +207,8 @@ internal class WarningsTest
                     .GenerateMessage("WarningAsErrorEntity", "Nav"),
                 loggerFactory.Log.Select(l => l.Message));
 
+            var entityEntry = context.Entry(entity);
+            Assert.True(entityEntry.Navigation("Nav").IsLoaded);
             loggerFactory.Clear();
             Assert.NotNull(entity.Nav);
             Assert.DoesNotContain(

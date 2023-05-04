@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal;
 
@@ -61,7 +60,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
             modelBuilder.HasAnnotation(ProxyAnnotationNames.LazyLoading, _options.UseLazyLoadingProxies);
             modelBuilder.HasAnnotation(ProxyAnnotationNames.ChangeTracking, _options.UseChangeTrackingProxies);
             modelBuilder.HasAnnotation(ProxyAnnotationNames.CheckEquality, _options.CheckEquality);
-            
+
             foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
             {
                 var clrType = entityType.ClrType;
@@ -78,30 +77,48 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                 foreach (var navigationBase in entityType.GetDeclaredNavigations()
                              .Concat<IConventionNavigationBase>(entityType.GetDeclaredSkipNavigations()))
                 {
-                    if (navigationBase.PropertyInfo == null)
+                    if (!navigationBase.IsShadowProperty())
                     {
-                        throw new InvalidOperationException(
-                            ProxiesStrings.FieldProperty(navigationBase.Name, entityType.DisplayName()));
-                    }
-
-                    if (_options.UseChangeTrackingProxies
-                        && navigationBase.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
-                    {
-                        throw new InvalidOperationException(
-                            ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
-                    }
-
-                    if (_options.UseLazyLoadingProxies)
-                    {
-                        if (!navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual()
-                            && (!(navigationBase is INavigation navigation
-                                && navigation.ForeignKey.IsOwnership)))
+                        if (_options.UseChangeTrackingProxies)
                         {
-                            throw new InvalidOperationException(
-                                ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                            if (navigationBase.PropertyInfo == null)
+                            {
+                                throw new InvalidOperationException(
+                                    ProxiesStrings.FieldProperty(navigationBase.Name, entityType.DisplayName()));
+                            }
+
+                            if (navigationBase.PropertyInfo.SetMethod?.IsReallyVirtual() == false)
+                            {
+                                throw new InvalidOperationException(
+                                    ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                            }
                         }
 
-                        navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                        if (_options.UseLazyLoadingProxies
+                            && navigationBase.LazyLoadingEnabled)
+                        {
+                            if (navigationBase.PropertyInfo == null
+                                || !navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual())
+                            {
+                                if (!_options.IgnoreNonVirtualNavigations
+                                    && !(navigationBase is INavigation navigation
+                                        && navigation.ForeignKey.IsOwnership))
+                                {
+                                    if (navigationBase.PropertyInfo == null)
+                                    {
+                                        throw new InvalidOperationException(
+                                            ProxiesStrings.FieldProperty(navigationBase.Name, entityType.DisplayName()));
+                                    }
+
+                                    throw new InvalidOperationException(
+                                        ProxiesStrings.NonVirtualProperty(navigationBase.Name, entityType.DisplayName()));
+                                }
+                            }
+                            else
+                            {
+                                navigationBase.SetPropertyAccessMode(PropertyAccessMode.Field);
+                            }
+                        }
                     }
                 }
 
@@ -113,8 +130,9 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                     {
                         if (!ConfigurationSource.Convention.Overrides(conflictingProperty.GetConfigurationSource()))
                         {
-                                break;
+                            break;
                         }
+
                         conflictingProperty.DeclaringEntityType.RemoveServiceProperty(conflictingProperty.Name);
                     }
 
@@ -132,7 +150,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                     nameof(IProxyLazyLoader.LazyLoader)));
                     }
                 }
-                
+
                 if (_options.UseChangeTrackingProxies)
                 {
                     var indexerChecked = false;

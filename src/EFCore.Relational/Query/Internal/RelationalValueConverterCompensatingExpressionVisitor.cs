@@ -142,9 +142,9 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
     [return: NotNullIfNotNull("sqlExpression")]
     private SqlExpression? TryCompensateForBoolWithValueConverter(SqlExpression? sqlExpression)
     {
-        if (sqlExpression is ColumnExpression columnExpression
-            && columnExpression.TypeMapping!.ClrType == typeof(bool)
-            && columnExpression.TypeMapping.Converter != null)
+        if ((sqlExpression is ColumnExpression or JsonScalarExpression)
+            && sqlExpression.TypeMapping!.ClrType == typeof(bool)
+            && sqlExpression.TypeMapping.Converter != null)
         {
             return _sqlExpressionFactory.Equal(
                 sqlExpression,

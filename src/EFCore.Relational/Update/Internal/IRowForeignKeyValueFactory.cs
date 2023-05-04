@@ -33,7 +33,7 @@ public interface IRowForeignKeyValueFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    object CreatePrincipalValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false);
+    object CreatePrincipalEquatableKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -41,5 +41,5 @@ public interface IRowForeignKeyValueFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    object? CreateDependentValueIndex(IReadOnlyModificationCommand command, bool fromOriginalValues = false);
+    object? CreateDependentEquatableKeyValue(IReadOnlyModificationCommand command, bool fromOriginalValues = false);
 }

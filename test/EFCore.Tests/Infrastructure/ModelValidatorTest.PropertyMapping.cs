@@ -361,4 +361,10 @@ public partial class ModelValidatorTest
     {
         public string Value { get; set; }
     }
+
+    protected class CarbonComposite
+    {
+        public int Id1 { get; set; }
+        public int Id2 { get; set; }
+    }
 }

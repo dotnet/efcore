@@ -51,49 +51,89 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     private ValueGenerator GetOrCreate(IProperty property)
     {
         var type = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-
-        if (type == typeof(long))
+        if (FindGenerator(property, type, out var valueGenerator))
         {
-            return _inMemoryStore.GetIntegerValueGenerator<long>(property);
-        }
-
-        if (type == typeof(int))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<int>(property);
-        }
-
-        if (type == typeof(short))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<short>(property);
-        }
-
-        if (type == typeof(byte))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<byte>(property);
-        }
-
-        if (type == typeof(ulong))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<ulong>(property);
-        }
-
-        if (type == typeof(uint))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<uint>(property);
-        }
-
-        if (type == typeof(ushort))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<ushort>(property);
-        }
-
-        if (type == typeof(sbyte))
-        {
-            return _inMemoryStore.GetIntegerValueGenerator<sbyte>(property);
+            return valueGenerator!;
         }
 
         throw new ArgumentException(
             CoreStrings.InvalidValueGeneratorFactoryProperty(
                 "InMemoryIntegerValueGeneratorFactory", property.Name, property.DeclaringEntityType.DisplayName()));
     }
+
+    private bool FindGenerator(IProperty property, Type type, out ValueGenerator? valueGenerator)
+    {
+        if (type == typeof(long))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<long>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(int))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<int>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(short))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<short>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(byte))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<byte>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(ulong))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ulong>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(uint))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<uint>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(ushort))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ushort>(property);
+                return true;
+            }
+        }
+
+        if (type == typeof(sbyte))
+        {
+            {
+                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<sbyte>(property);
+                return true;
+            }
+        }
+
+        valueGenerator = null;
+        return false;
+    }
+
+    /// <inheritdoc />
+    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+        => property.ValueGenerated != ValueGenerated.Never && FindGenerator(property, clrType, out var valueGenerator)
+            ? valueGenerator!
+            : base.FindForType(property, entityType, clrType);
 }

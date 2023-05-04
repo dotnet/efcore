@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Query.Internal;
 public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 {
     private readonly QueryCompilationContext _queryCompilationContext;
-
     private readonly SelectManyVerifyingExpressionVisitor _selectManyVerifyingExpressionVisitor = new();
+    private readonly GroupJoinConvertingExpressionVisitor _groupJoinConvertingExpressionVisitor = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,6 +35,43 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual Expression Normalize(Expression expression)
+    {
+        var result = Visit(expression);
+
+        return _groupJoinConvertingExpressionVisitor.Visit(result);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitBinary(BinaryExpression binaryExpression)
+    {
+        // Convert array[x] to array.ElementAt(x)
+        if (binaryExpression is
+            {
+                NodeType: ExpressionType.ArrayIndex,
+                Left: var source,
+                Right: var index
+            })
+        {
+            return VisitMethodCall(
+                Expression.Call(
+                    EnumerableMethods.ElementAt.MakeGenericMethod(source.Type.GetSequenceType()), source, index));
+        }
+
+        return base.VisitBinary(binaryExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
     {
         var method = methodCallExpression.Method;
@@ -45,6 +82,27 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             && ExtractQueryMetadata(methodCallExpression) is Expression expression)
         {
             return expression;
+        }
+
+        // Normalize list[x] to list.ElementAt(x)
+        if (methodCallExpression is
+            {
+                Method:
+                {
+                    Name: "get_Item",
+                    IsStatic: false,
+                    DeclaringType: Type declaringType
+                },
+                Object: Expression indexerSource,
+                Arguments: [var index]
+            }
+            && declaringType.GetInterface("IReadOnlyList`1") is not null)
+        {
+            return VisitMethodCall(
+                Expression.Call(
+                    EnumerableMethods.ElementAt.MakeGenericMethod(indexerSource.Type.GetSequenceType()),
+                    indexerSource,
+                    index));
         }
 
         Expression? visitedExpression = null;
@@ -152,7 +210,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 {
                     throw new InvalidOperationException(
                         CoreStrings.QueryInvalidMaterializationType(
-                            new ExpressionPrinter().Print(Expression.Lambda(expression, lambdaParameter)),
+                            new ExpressionPrinter().PrintExpression(Expression.Lambda(expression, lambdaParameter)),
                             expression.Type.ShortDisplayName()));
                 }
 
@@ -239,9 +297,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         }
 
         if (methodCallExpression.Arguments.Count > 0
-            && ClientSource(methodCallExpression.Arguments[0]))
+            && methodCallExpression.Arguments[0] is MemberInitExpression or NewExpression)
         {
-            // this is methodCall over closure variable or constant
             return base.VisitMethodCall(methodCallExpression);
         }
 
@@ -373,9 +430,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
     private Expression TryConvertListContainsToQueryableContains(MethodCallExpression methodCallExpression)
     {
-        if (ClientSource(methodCallExpression.Object))
+        if (methodCallExpression.Object is MemberInitExpression or NewExpression)
         {
-            // this is methodCall over closure variable or constant
             return base.VisitMethodCall(methodCallExpression);
         }
 
@@ -388,13 +444,6 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 methodCallExpression.Object!),
             methodCallExpression.Arguments[0]);
     }
-
-    private static bool ClientSource(Expression? expression)
-        => expression is ConstantExpression
-            || expression is MemberInitExpression
-            || expression is NewExpression
-            || expression is ParameterExpression parameter
-            && parameter.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true;
 
     private static bool CanConvertEnumerableToQueryable(Type enumerableType, Type queryableType)
     {
@@ -418,7 +467,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             || enumerableType == typeof(IOrderedEnumerable<>) && queryableType == typeof(IOrderedQueryable<>);
     }
 
-    private Expression TryFlattenGroupJoinSelectMany(MethodCallExpression methodCallExpression)
+    private MethodCallExpression TryFlattenGroupJoinSelectMany(MethodCallExpression methodCallExpression)
     {
         var genericMethod = methodCallExpression.Method.GetGenericMethodDefinition();
         if (genericMethod == QueryableMethods.SelectManyWithCollectionSelector)
@@ -488,7 +537,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(genericArguments),
+                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                            genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
                 // TODO: Convert correlated patterns to SelectMany
@@ -579,13 +629,84 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     genericArguments[^1] = resultSelector.ReturnType;
 
                     return Expression.Call(
-                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(genericArguments),
+                        (defaultIfEmpty ? QueryableExtensions.LeftJoinMethodInfo : QueryableMethods.Join).MakeGenericMethod(
+                            genericArguments),
                         outer, inner, outerKeySelector, innerKeySelector, resultSelector);
                 }
             }
         }
 
         return methodCallExpression;
+    }
+
+    private sealed class GroupJoinConvertingExpressionVisitor : ExpressionVisitor
+    {
+        protected override Expression VisitMethodCall(MethodCallExpression methodCallExpression)
+        {
+            if (methodCallExpression.Method.DeclaringType == typeof(Queryable)
+                && methodCallExpression.Method.IsGenericMethod
+                && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
+            {
+                var genericArguments = methodCallExpression.Method.GetGenericArguments();
+                var outerSource = methodCallExpression.Arguments[0];
+                var innerSource = methodCallExpression.Arguments[1];
+                var outerKeySelector = methodCallExpression.Arguments[2].UnwrapLambdaFromQuote();
+                var innerKeySelector = methodCallExpression.Arguments[3].UnwrapLambdaFromQuote();
+                var resultSelector = methodCallExpression.Arguments[4].UnwrapLambdaFromQuote();
+
+                if (innerSource.Type.IsGenericType
+                    && innerSource.Type.GetGenericTypeDefinition() != typeof(IQueryable<>))
+                {
+                    // In case of collection navigation it can be of enumerable or other type.
+                    innerSource = Expression.Call(
+                        QueryableMethods.AsQueryable.MakeGenericMethod(innerSource.Type.GetSequenceType()),
+                        innerSource);
+                }
+
+                var correlationPredicate = ReplacingExpressionVisitor.Replace(
+                    outerKeySelector.Parameters[0],
+                    resultSelector.Parameters[0],
+                    Expression.AndAlso(
+                        Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                            outerKeySelector.Body,
+                            Expression.Constant(null),
+                            negated: true),
+                        Infrastructure.ExpressionExtensions.CreateEqualsExpression(
+                            outerKeySelector.Body,
+                            innerKeySelector.Body)));
+
+                innerSource = Expression.Call(
+                    QueryableMethods.Where.MakeGenericMethod(genericArguments[1]),
+                    innerSource,
+                    Expression.Quote(
+                        Expression.Lambda(
+                            correlationPredicate,
+                            innerKeySelector.Parameters)));
+
+                var selector = ReplacingExpressionVisitor.Replace(
+                    resultSelector.Parameters[1],
+                    innerSource,
+                    resultSelector.Body);
+
+                if (genericArguments[3].IsGenericType
+                    && genericArguments[3].GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                {
+                    selector = Expression.Call(
+                        EnumerableMethods.AsEnumerable.MakeGenericMethod(genericArguments[3].GetSequenceType()),
+                        selector);
+                }
+
+                return Expression.Call(
+                    QueryableMethods.Select.MakeGenericMethod(genericArguments[0], genericArguments[3]),
+                    outerSource,
+                    Expression.Quote(
+                        Expression.Lambda(
+                            selector,
+                            resultSelector.Parameters[0])));
+            }
+
+            return base.VisitMethodCall(methodCallExpression);
+        }
     }
 
     private sealed class SelectManyVerifyingExpressionVisitor : ExpressionVisitor
@@ -689,7 +810,8 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
 
         protected override Expression VisitParameter(ParameterExpression parameterExpression)
         {
-            if (_allowedParameters.Contains(parameterExpression))
+            if (_allowedParameters.Contains(parameterExpression)
+                || parameterExpression.Name?.StartsWith(QueryCompilationContext.QueryParameterPrefix, StringComparison.Ordinal) == true)
             {
                 return parameterExpression;
             }

@@ -7,7 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class TPTRelationshipsQueryRelationalFixture : InheritanceRelationshipsQueryRelationalFixture
 {
-    protected override string StoreName { get; } = "TPTRelationships";
+    protected override string StoreName
+        => "TPTRelationships";
 
     protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
     {

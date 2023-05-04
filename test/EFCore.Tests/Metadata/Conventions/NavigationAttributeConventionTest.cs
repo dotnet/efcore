@@ -889,7 +889,6 @@ public class NavigationAttributeConventionTest
 
         new RequiredNavigationAttributeConvention(dependencies)
             .ProcessNavigationAdded(navigation.Builder, context);
-
     }
 
     private void RunNavigationBackingFieldAttributeConvention(
@@ -969,6 +968,7 @@ public class NavigationAttributeConventionTest
     #endregion
 
     #region DeleteBehaviorAttribute
+
     [ConditionalFact]
     public void DeleteBehaviorAttribute_overrides_configuration_from_convention_source()
     {
@@ -1015,7 +1015,6 @@ public class NavigationAttributeConventionTest
         Assert.Equal(DeleteBehavior.NoAction, foreignKey.DeleteBehavior);
     }
 
-
     private void RunDeleteBehaviorAttributeConvention(
         InternalForeignKeyBuilder relationshipBuilder,
         InternalNavigationBuilder navigationBuilder
@@ -1028,6 +1027,7 @@ public class NavigationAttributeConventionTest
         new DeleteBehaviorAttributeConvention(dependencies)
             .ProcessNavigationAdded(navigationBuilder, context);
     }
+
     #endregion
 
     [ConditionalFact]
@@ -1120,7 +1120,12 @@ public class NavigationAttributeConventionTest
         public ICollection<Blog> Blogs { get; set; }
     }
 
-    private class Principal
+    private interface IPrincipal
+    {
+        MismatchedInverseProperty MismatchedInverseProperty { get; set; }
+    }
+
+    private class Principal : IPrincipal
     {
         public static readonly PropertyInfo DependentIdProperty = typeof(Principal).GetProperty("DependentId");
 
@@ -1139,6 +1144,8 @@ public class NavigationAttributeConventionTest
 
         [InverseProperty("AnotherPrincipal")]
         public MismatchedInverseProperty MismatchedInverseProperty { get; set; }
+
+        MismatchedInverseProperty IPrincipal.MismatchedInverseProperty { get; set; }
     }
 
     private class Dependent

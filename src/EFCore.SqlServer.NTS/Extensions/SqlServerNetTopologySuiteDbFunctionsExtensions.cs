@@ -8,12 +8,13 @@ using NetTopologySuite.Geometries;
 namespace Microsoft.EntityFrameworkCore;
 
 /// <summary>
-/// Contains extension methods on <see cref="DbFunctions" /> for the Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite library.
+///     Contains extension methods on <see cref="DbFunctions" /> for the Microsoft.EntityFrameworkCore.SqlServer.NetTopologySuite library.
 /// </summary>
 public static class SqlServerNetTopologySuiteDbFunctionsExtensions
 {
     /// <summary>
-    /// Maps to the SQL Server <c>STCurveToLine</c> function which returns a polygonal approximation of an instance that contains circular arc segments.
+    ///     Maps to the SQL Server <c>STCurveToLine</c> function which returns a polygonal approximation of an instance that contains circular arc
+    ///     segments.
     /// </summary>
     /// <param name="_">The <see cref="DbFunctions" /> instance.</param>
     /// <param name="geometry">The instance containing circular arc segments.</param>

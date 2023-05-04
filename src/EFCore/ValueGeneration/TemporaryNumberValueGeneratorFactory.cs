@@ -27,70 +27,91 @@ public class TemporaryNumberValueGeneratorFactory : ValueGeneratorFactory
     /// <returns>The newly created value generator.</returns>
     public override ValueGenerator Create(IProperty property, IEntityType entityType)
     {
-        var type = (property.GetValueConverter()?.ProviderClrType ?? property.GetTypeMapping().ClrType).UnwrapEnumType();
+        var type = property.GetTypeMapping().ClrType.UnwrapEnumType();
 
-        if (type == typeof(int))
+        var generator = TryCreate();
+        if (generator != null)
         {
-            return new TemporaryIntValueGenerator();
+            return generator;
         }
 
-        if (type == typeof(long))
+        type = property.GetValueConverter()?.ProviderClrType.UnwrapEnumType();
+        if (type != null)
         {
-            return new TemporaryLongValueGenerator();
-        }
-
-        if (type == typeof(short))
-        {
-            return new TemporaryShortValueGenerator();
-        }
-
-        if (type == typeof(byte))
-        {
-            return new TemporaryByteValueGenerator();
-        }
-
-        if (type == typeof(char))
-        {
-            return new TemporaryCharValueGenerator();
-        }
-
-        if (type == typeof(ulong))
-        {
-            return new TemporaryULongValueGenerator();
-        }
-
-        if (type == typeof(uint))
-        {
-            return new TemporaryUIntValueGenerator();
-        }
-
-        if (type == typeof(ushort))
-        {
-            return new TemporaryUShortValueGenerator();
-        }
-
-        if (type == typeof(sbyte))
-        {
-            return new TemporarySByteValueGenerator();
-        }
-
-        if (type == typeof(decimal))
-        {
-            return new TemporaryDecimalValueGenerator();
-        }
-
-        if (type == typeof(float))
-        {
-            return new TemporaryFloatValueGenerator();
-        }
-
-        if (type == typeof(double))
-        {
-            return new TemporaryDoubleValueGenerator();
+            generator = TryCreate();
+            if (generator != null)
+            {
+                return generator;
+            }
         }
 
         throw new ArgumentException(
             CoreStrings.InvalidValueGeneratorFactoryProperty(
                 nameof(TemporaryNumberValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+
+        ValueGenerator? TryCreate()
+        {
+            if (type == typeof(int))
+            {
+                return new TemporaryIntValueGenerator();
+            }
+
+            if (type == typeof(long))
+            {
+                return new TemporaryLongValueGenerator();
+            }
+
+            if (type == typeof(short))
+            {
+                return new TemporaryShortValueGenerator();
+            }
+
+            if (type == typeof(byte))
+            {
+                return new TemporaryByteValueGenerator();
+            }
+
+            if (type == typeof(char))
+            {
+                return new TemporaryCharValueGenerator();
+            }
+
+            if (type == typeof(ulong))
+            {
+                return new TemporaryULongValueGenerator();
+            }
+
+            if (type == typeof(uint))
+            {
+                return new TemporaryUIntValueGenerator();
+            }
+
+            if (type == typeof(ushort))
+            {
+                return new TemporaryUShortValueGenerator();
+            }
+
+            if (type == typeof(sbyte))
+            {
+                return new TemporarySByteValueGenerator();
+            }
+
+            if (type == typeof(decimal))
+            {
+                return new TemporaryDecimalValueGenerator();
+            }
+
+            if (type == typeof(float))
+            {
+                return new TemporaryFloatValueGenerator();
+            }
+
+            if (type == typeof(double))
+            {
+                return new TemporaryDoubleValueGenerator();
+            }
+
+            return null;
+        }
     }
 }

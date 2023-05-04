@@ -1,13 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-
 #nullable enable
+
+using System.Collections;
 
 namespace Microsoft.EntityFrameworkCore;
 
@@ -93,7 +89,7 @@ internal static class EnumerableMethods
 
     public static MethodInfo Join { get; }
 
-    //public static MethodInfo JoinWithComparer { get; }
+    public static MethodInfo JoinWithComparer { get; }
 
     public static MethodInfo LastWithoutPredicate { get; }
 
@@ -206,6 +202,7 @@ internal static class EnumerableMethods
 
     // private static Dictionary<Type, MethodInfo> SumWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> SumWithSelectorMethods { get; }
+
     // private static Dictionary<Type, MethodInfo> AverageWithoutSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> AverageWithSelectorMethods { get; }
     private static Dictionary<Type, MethodInfo> MaxWithoutSelectorMethods { get; }
@@ -398,6 +395,18 @@ internal static class EnumerableMethods
                 typeof(Func<,>).MakeGenericType(types[0], types[2]),
                 typeof(Func<,>).MakeGenericType(types[1], types[2]),
                 typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3])
+            });
+
+        JoinWithComparer = GetMethod(
+            nameof(Enumerable.Join), 4,
+            types => new[]
+            {
+                typeof(IEnumerable<>).MakeGenericType(types[0]),
+                typeof(IEnumerable<>).MakeGenericType(types[1]),
+                typeof(Func<,>).MakeGenericType(types[0], types[2]),
+                typeof(Func<,>).MakeGenericType(types[1], types[2]),
+                typeof(Func<,,>).MakeGenericType(types[0], types[1], types[3]),
+                typeof(IEqualityComparer<>).MakeGenericType(types[2])
             });
 
         LastWithoutPredicate = GetMethod(

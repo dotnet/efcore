@@ -3,6 +3,8 @@
 
 using System.Collections;
 using System.Data;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -41,6 +43,26 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
                 v => v.ToArray()),
             storeTypePostfix: StoreTypePostfix.None);
+
+    private readonly SqlServerLongTypeMapping _longRowversion
+        = new(
+            "rowversion",
+            converter: new NumberToBytesConverter<long>(),
+            providerValueComparer: new ValueComparer<byte[]>(
+                (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
+                v => v.ToArray()),
+            dbType: DbType.Binary);
+
+    private readonly SqlServerLongTypeMapping _ulongRowversion
+        = new(
+            "rowversion",
+            converter: new NumberToBytesConverter<ulong>(),
+            providerValueComparer: new ValueComparer<byte[]>(
+                (v1, v2) => StructuralComparisons.StructuralEqualityComparer.Equals(v1, v2),
+                v => StructuralComparisons.StructuralEqualityComparer.GetHashCode(v),
+                v => v.ToArray()),
+            dbType: DbType.Binary);
 
     private readonly IntTypeMapping _int
         = new("int");
@@ -84,8 +106,14 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     private readonly SqlServerByteArrayTypeMapping _fixedLengthBinary
         = new(fixedLength: true);
 
-    private readonly SqlServerDateTimeTypeMapping _date
+    private readonly SqlServerDateOnlyTypeMapping _dateAsDateOnly
+        = new("date");
+
+    private readonly SqlServerDateTimeTypeMapping _dateAsDateTime
         = new("date", DbType.Date);
+
+    private readonly SqlServerDateTimeTypeMapping _smallDatetime
+        = new("smalldatetime", DbType.DateTime, SqlDbType.SmallDateTime);
 
     private readonly SqlServerDateTimeTypeMapping _datetime
         = new("datetime", DbType.DateTime);
@@ -94,7 +122,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new("datetime2", DbType.DateTime2);
 
     private readonly SqlServerDateTimeTypeMapping _datetime2Alias
-        = new("placeholder", DbType.DateTime2, StoreTypePostfix.None);
+        = new("placeholder", DbType.DateTime2, null, StoreTypePostfix.None);
 
     private readonly DoubleTypeMapping _double
         = new SqlServerDoubleTypeMapping("float");
@@ -112,7 +140,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new("uniqueidentifier");
 
     private readonly DecimalTypeMapping _decimal
-        = new SqlServerDecimalTypeMapping("decimal");
+        = new SqlServerDecimalTypeMapping("decimal", precision: 18, scale: 0);
 
     private readonly DecimalTypeMapping _decimalAlias
         = new SqlServerDecimalTypeMapping("placeholder", precision: 18, scale: 2, storeTypePostfix: StoreTypePostfix.None);
@@ -121,19 +149,34 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         = new SqlServerDecimalTypeMapping("decimal(18, 2)", precision: 18, scale: 2);
 
     private readonly DecimalTypeMapping _money
-        = new SqlServerDecimalTypeMapping("money", storeTypePostfix: StoreTypePostfix.None);
+        = new SqlServerDecimalTypeMapping("money", DbType.Currency, sqlDbType: SqlDbType.Money, storeTypePostfix: StoreTypePostfix.None);
 
-    private readonly TimeSpanTypeMapping _time
+    private readonly DecimalTypeMapping _smallMoney
+        = new SqlServerDecimalTypeMapping(
+            "smallmoney", DbType.Currency, sqlDbType: SqlDbType.SmallMoney, storeTypePostfix: StoreTypePostfix.None);
+
+    private readonly TimeSpanTypeMapping _timeAsTimeSpan
         = new SqlServerTimeSpanTypeMapping("time");
+
+    private readonly TimeOnlyTypeMapping _timeAsTimeOnly
+        = new SqlServerTimeOnlyTypeMapping("time");
+
+    private readonly TimeOnlyTypeMapping _timeAlias
+        = new SqlServerTimeOnlyTypeMapping("placeholder", StoreTypePostfix.None);
 
     private readonly SqlServerStringTypeMapping _xml
         = new("xml", unicode: true, storeTypePostfix: StoreTypePostfix.None);
+
+    private readonly SqlServerJsonTypeMapping _json
+        = new("nvarchar(max)");
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrTypeMappings;
 
     private readonly Dictionary<Type, RelationalTypeMapping> _clrNoFacetTypeMappings;
 
-    private readonly Dictionary<string, RelationalTypeMapping> _storeTypeMappings;
+    private readonly Dictionary<string, RelationalTypeMapping[]> _storeTypeMappings;
+
+    private readonly bool _supportsOpenJson;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -143,7 +186,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     public SqlServerTypeMappingSource(
         TypeMappingSourceDependencies dependencies,
-        RelationalTypeMappingSourceDependencies relationalDependencies)
+        RelationalTypeMappingSourceDependencies relationalDependencies,
+        ISqlServerSingletonOptions sqlServerSingletonOptions)
         : base(dependencies, relationalDependencies)
     {
         _clrTypeMappings
@@ -151,6 +195,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             {
                 { typeof(int), _int },
                 { typeof(long), _long },
+                { typeof(DateOnly), _dateAsDateOnly },
                 { typeof(DateTime), _datetime2 },
                 { typeof(Guid), _uniqueidentifier },
                 { typeof(bool), _bool },
@@ -160,70 +205,77 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 { typeof(short), _short },
                 { typeof(float), _real },
                 { typeof(decimal), _decimal182 },
-                { typeof(TimeSpan), _time }
+                { typeof(TimeOnly), _timeAsTimeOnly },
+                { typeof(TimeSpan), _timeAsTimeSpan },
+                { typeof(JsonElement), _json }
             };
 
         _clrNoFacetTypeMappings
             = new Dictionary<Type, RelationalTypeMapping>
             {
                 { typeof(DateTime), _datetime2Alias },
-                { typeof(double), _doubleAlias },
                 { typeof(DateTimeOffset), _datetimeoffsetAlias },
+                { typeof(TimeOnly), _timeAlias },
+                { typeof(double), _doubleAlias },
                 { typeof(float), _realAlias },
                 { typeof(decimal), _decimalAlias }
             };
 
+        // ReSharper disable CoVariantArrayConversion
         _storeTypeMappings
-            = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
+            = new Dictionary<string, RelationalTypeMapping[]>(StringComparer.OrdinalIgnoreCase)
             {
-                { "bigint", _long },
-                { "binary varying", _variableLengthBinary },
-                { "binary", _fixedLengthBinary },
-                { "bit", _bool },
-                { "char varying", _variableLengthAnsiString },
-                { "char varying(max)", _variableLengthMaxAnsiString },
-                { "char", _fixedLengthAnsiString },
-                { "character varying", _variableLengthAnsiString },
-                { "character varying(max)", _variableLengthMaxAnsiString },
-                { "character", _fixedLengthAnsiString },
-                { "date", _date },
-                { "datetime", _datetime },
-                { "datetime2", _datetime2 },
-                { "datetimeoffset", _datetimeoffset },
-                { "dec", _decimal },
-                { "decimal", _decimal },
-                { "double precision", _double },
-                { "float", _double },
-                { "image", _imageBinary },
-                { "int", _int },
-                { "money", _money },
-                { "national char varying", _variableLengthUnicodeString },
-                { "national char varying(max)", _variableLengthMaxUnicodeString },
-                { "national character varying", _variableLengthUnicodeString },
-                { "national character varying(max)", _variableLengthMaxUnicodeString },
-                { "national character", _fixedLengthUnicodeString },
-                { "nchar", _fixedLengthUnicodeString },
-                { "ntext", _textUnicodeString },
-                { "numeric", _decimal },
-                { "nvarchar", _variableLengthUnicodeString },
-                { "nvarchar(max)", _variableLengthMaxUnicodeString },
-                { "real", _real },
-                { "rowversion", _rowversion },
-                { "smalldatetime", _datetime },
-                { "smallint", _short },
-                { "smallmoney", _money },
-                { "sql_variant", _sqlVariant },
-                { "text", _textAnsiString },
-                { "time", _time },
-                { "timestamp", _rowversion },
-                { "tinyint", _byte },
-                { "uniqueidentifier", _uniqueidentifier },
-                { "varbinary", _variableLengthBinary },
-                { "varbinary(max)", _variableLengthMaxBinary },
-                { "varchar", _variableLengthAnsiString },
-                { "varchar(max)", _variableLengthMaxAnsiString },
-                { "xml", _xml }
+                { "bigint", new[] { _long } },
+                { "binary varying", new[] { _variableLengthBinary } },
+                { "binary", new[] { _fixedLengthBinary } },
+                { "bit", new[] { _bool } },
+                { "char varying", new[] { _variableLengthAnsiString } },
+                { "char varying(max)", new[] { _variableLengthMaxAnsiString } },
+                { "char", new[] { _fixedLengthAnsiString } },
+                { "character varying", new[] { _variableLengthAnsiString } },
+                { "character varying(max)", new[] { _variableLengthMaxAnsiString } },
+                { "character", new[] { _fixedLengthAnsiString } },
+                { "date", new RelationalTypeMapping[] { _dateAsDateOnly, _dateAsDateTime } },
+                { "datetime", new[] { _datetime } },
+                { "datetime2", new[] { _datetime2 } },
+                { "datetimeoffset", new[] { _datetimeoffset } },
+                { "dec", new[] { _decimal } },
+                { "decimal", new[] { _decimal } },
+                { "double precision", new[] { _double } },
+                { "float", new[] { _double } },
+                { "image", new[] { _imageBinary } },
+                { "int", new[] { _int } },
+                { "money", new[] { _money } },
+                { "national char varying", new[] { _variableLengthUnicodeString } },
+                { "national char varying(max)", new[] { _variableLengthMaxUnicodeString } },
+                { "national character varying", new[] { _variableLengthUnicodeString } },
+                { "national character varying(max)", new[] { _variableLengthMaxUnicodeString } },
+                { "national character", new[] { _fixedLengthUnicodeString } },
+                { "nchar", new[] { _fixedLengthUnicodeString } },
+                { "ntext", new[] { _textUnicodeString } },
+                { "numeric", new[] { _decimal } },
+                { "nvarchar", new[] { _variableLengthUnicodeString } },
+                { "nvarchar(max)", new[] { _variableLengthMaxUnicodeString } },
+                { "real", new[] { _real } },
+                { "rowversion", new[] { _rowversion } },
+                { "smalldatetime", new[] { _smallDatetime } },
+                { "smallint", new[] { _short } },
+                { "smallmoney", new[] {_smallMoney } },
+                { "sql_variant", new[] { _sqlVariant } },
+                { "text", new[] { _textAnsiString } },
+                { "time", new RelationalTypeMapping[] { _timeAsTimeOnly, _timeAsTimeSpan } },
+                { "timestamp", new[] { _rowversion } },
+                { "tinyint", new[] { _byte } },
+                { "uniqueidentifier", new[] { _uniqueidentifier } },
+                { "varbinary", new[] { _variableLengthBinary } },
+                { "varbinary(max)", new[] { _variableLengthMaxBinary } },
+                { "varchar", new[] { _variableLengthAnsiString } },
+                { "varchar(max)", new[] { _variableLengthMaxAnsiString } },
+                { "xml", new[] { _xml } }
             };
+        // ReSharper restore CoVariantArrayConversion
+
+        _supportsOpenJson = sqlServerSingletonOptions.CompatibilityLevel >= 130;
     }
 
     /// <summary>
@@ -233,7 +285,9 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override RelationalTypeMapping? FindMapping(in RelationalTypeMappingInfo mappingInfo)
-        => base.FindMapping(mappingInfo) ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo);
+        => base.FindMapping(mappingInfo)
+            ?? FindRawMapping(mappingInfo)?.Clone(mappingInfo)
+            ?? FindCollectionMapping(mappingInfo)?.Clone(mappingInfo);
 
     private RelationalTypeMapping? FindRawMapping(RelationalTypeMappingInfo mappingInfo)
     {
@@ -250,25 +304,43 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             }
 
             if (clrType == typeof(float)
-                && mappingInfo.Precision != null
-                && mappingInfo.Precision <= 24
+                && mappingInfo.Precision is <= 24
                 && (storeTypeNameBase.Equals("float", StringComparison.OrdinalIgnoreCase)
                     || storeTypeNameBase.Equals("double precision", StringComparison.OrdinalIgnoreCase)))
             {
                 return _real;
             }
 
-            if (_storeTypeMappings.TryGetValue(storeTypeName, out var mapping)
-                || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mapping))
+            if (_storeTypeMappings.TryGetValue(storeTypeName, out var mappings)
+                || _storeTypeMappings.TryGetValue(storeTypeNameBase, out mappings))
             {
-                return clrType == null
-                    || mapping.ClrType == clrType
-                        ? mapping
-                        : null;
+                // We found the user-specified store type. No CLR type was provided - we're probably scaffolding from an existing database,
+                // take the first mapping as the default.
+                if (clrType is null)
+                {
+                    return mappings[0];
+                }
+
+                // A CLR type was provided - look for a mapping between the store and CLR types. If not found, fail
+                // immediately.
+                foreach (var m in mappings)
+                {
+                    if (m.ClrType == clrType)
+                    {
+                        return m;
+                    }
+                }
+
+                return null;
             }
 
+            // SQL Server supports aliases (e.g. CREATE TYPE datetimeAlias FROM datetime2(6))
+            // Since we don't know the store name above, usually we end up in the clrType-only lookup below and everything goes well.
+            // However, when a facet is specified (length/precision/scale), that facet would get appended to the store type; we don't want
+            // this in the case of aliased types, since the facet is already part of the type. So we check whether the CLR type supports
+            // facets, and return a special type mapping that doesn't support facets.
             if (clrType != null
-                && _clrNoFacetTypeMappings.TryGetValue(clrType, out mapping))
+                && _clrNoFacetTypeMappings.TryGetValue(clrType, out var mapping))
             {
                 return mapping;
             }
@@ -281,6 +353,16 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 return mapping;
             }
 
+            if (clrType == typeof(ulong) && mappingInfo.IsRowVersion == true)
+            {
+                return _ulongRowversion;
+            }
+
+            if (clrType == typeof(long) && mappingInfo.IsRowVersion == true)
+            {
+                return _longRowversion;
+            }
+
             if (clrType == typeof(string))
             {
                 var isAnsi = mappingInfo.IsUnicode == false;
@@ -288,13 +370,14 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 var maxSize = isAnsi ? 8000 : 4000;
 
                 var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? isAnsi ? 900 : 450 : null);
-                if (size > maxSize)
+                if (size < 0 || size > maxSize)
                 {
                     size = isFixedLength ? maxSize : null;
                 }
 
                 if (size == null
-                    && storeTypeName == null)
+                    && storeTypeName == null
+                    && !mappingInfo.IsKeyOrIndex)
                 {
                     return isAnsi
                         ? isFixedLength
@@ -309,7 +392,8 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                     unicode: !isAnsi,
                     size: size,
                     fixedLength: isFixedLength,
-                    storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None);
+                    storeTypePostfix: storeTypeName == null ? StoreTypePostfix.Size : StoreTypePostfix.None,
+                    useKeyComparison: mappingInfo.IsKeyOrIndex);
             }
 
             if (clrType == typeof(byte[]))
@@ -322,7 +406,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 var isFixedLength = mappingInfo.IsFixedLength == true;
 
                 var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
-                if (size > 8000)
+                if (size < 0 || size > 8000)
                 {
                     size = isFixedLength ? 8000 : null;
                 }
@@ -337,6 +421,87 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
         }
 
         return null;
+    }
+
+    private RelationalTypeMapping? FindCollectionMapping(RelationalTypeMappingInfo mappingInfo)
+    {
+        // Support mapping to a JSON array when the following is satisfied:
+        // 1. The ClrType is an IEnumerable.
+        // 2. The store type is either not given or a string type.
+        // 3. The element CLR type has a supported type mapping which isn't itself a collection (nested collections not yet supported).
+
+        // Note that e.g. Newtonsoft.Json's JToken is enumerable over itself, exclude that scenario to avoid stack overflow.
+        if (mappingInfo.ClrType?.TryGetElementType(typeof(IEnumerable<>)) is not { } elementClrType
+            || elementClrType == mappingInfo.ClrType)
+        {
+            return null;
+        }
+
+        switch (mappingInfo.StoreTypeNameBase)
+        {
+            case "char varying":
+            case "char":
+            case "character varying":
+            case "character":
+            case "national char varying":
+            case "national character varying":
+            case "national character":
+            case "varchar":
+            case null:
+                break;
+            default:
+                return null;
+        }
+
+        // TODO: need to allow the user to set the element store type
+
+        // Make sure the element type is mapped and isn't itself a collection (nested collections not supported)
+        if (FindMapping(elementClrType) is not { ElementTypeMapping: null } elementTypeMapping)
+        {
+            return null;
+        }
+
+        // Specifically exclude collections over Geometry, since there's a dedicated GeometryCollection type for that (see #30630)
+        if (elementClrType.Namespace == "NetTopologySuite.Geometries")
+        {
+            return null;
+        }
+
+        // TODO: This can be moved into a SQL Server implementation of ValueConverterSelector.. But it seems better for this method's logic
+        // to be in the type mapping source.
+        var stringMappingInfo = new RelationalTypeMappingInfo(
+                typeof(string),
+                mappingInfo.StoreTypeName,
+                mappingInfo.StoreTypeNameBase,
+                mappingInfo.IsKeyOrIndex,
+                mappingInfo.IsUnicode,
+                mappingInfo.Size,
+                mappingInfo.IsRowVersion,
+                mappingInfo.IsFixedLength,
+                mappingInfo.Precision,
+                mappingInfo.Scale);
+
+        if (FindMapping(stringMappingInfo) is not SqlServerStringTypeMapping stringTypeMapping)
+        {
+            return null;
+        }
+
+        stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping
+            .Clone(new CollectionToJsonStringConverter(mappingInfo.ClrType, elementTypeMapping));
+
+        // OpenJson was introduced in SQL Server 2016 (compatibility level 130). If the user configures an older compatibility level,
+        // we allow mapping the column, but don't set the element type mapping on the mapping, so that it isn't queryable.
+        // This causes us to go into the old translation path for Contains over parameter via IN with constants.
+        if (_supportsOpenJson)
+        {
+            // The JSON representation for new[] { 1, 2 } is AQI= (base64?), this cannot simply be cast to varbinary(max) (0x0102)
+            if (elementTypeMapping is not SqlServerByteArrayTypeMapping)
+            {
+                stringTypeMapping = (SqlServerStringTypeMapping)stringTypeMapping.CloneWithElementTypeMapping(elementTypeMapping);
+            }
+        }
+
+        return stringTypeMapping;
     }
 
     private static readonly List<string> NameBasesUsingPrecision = new()
@@ -359,19 +524,28 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
     /// </summary>
     protected override string? ParseStoreTypeName(
         string? storeTypeName,
-        out bool? unicode,
-        out int? size,
-        out int? precision,
-        out int? scale)
+        ref bool? unicode,
+        ref int? size,
+        ref int? precision,
+        ref int? scale)
     {
-        var parsedName = base.ParseStoreTypeName(storeTypeName, out unicode, out size, out precision, out scale);
+        if (storeTypeName == null)
+        {
+            return null;
+        }
+
+        var originalSize = size;
+        var parsedName = base.ParseStoreTypeName(storeTypeName, ref unicode, ref size, ref precision, ref scale);
 
         if (size.HasValue
-            && storeTypeName != null
             && NameBasesUsingPrecision.Any(n => storeTypeName.StartsWith(n, StringComparison.OrdinalIgnoreCase)))
         {
             precision = size;
-            size = null;
+            size = originalSize;
+        }
+        else if (storeTypeName.Trim().EndsWith("(max)", StringComparison.OrdinalIgnoreCase))
+        {
+            size = -1;
         }
 
         return parsedName;

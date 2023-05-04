@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Collections.Concurrent;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
@@ -121,7 +120,7 @@ public class RelationalCommandCache : IPrintableExpression
 
         public bool Equals(CommandCacheKey commandCacheKey)
         {
-            // Intentionally reference equals
+            // Intentionally reference equal, don't check internal components
             if (!ReferenceEquals(_queryExpression, commandCacheKey._queryExpression))
             {
                 return false;

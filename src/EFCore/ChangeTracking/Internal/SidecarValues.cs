@@ -26,8 +26,11 @@ public sealed partial class InternalEntityEntry
             return true;
         }
 
+        public object? GetValue(int index)
+            => _values[index];
+
         public T GetValue<T>(int index)
-            => IsEmpty ? default! : _values.GetValue<T>(index);
+            => _values.GetValue<T>(index);
 
         public void SetValue(IProperty property, object? value, int index)
         {

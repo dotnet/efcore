@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Globalization;
+using System.Reflection.Emit;
 
 // ReSharper disable CollectionNeverUpdated.Local
 // ReSharper disable UnusedAutoPropertyAccessor.Local
@@ -2957,6 +2958,56 @@ public partial class EntityTypeTest
         Assert.Equal(2, entityType.FindNavigation("ReferenceNav").GetRelationshipIndex());
 
         Assert.Equal(3, entityType.RelationshipPropertyCount());
+    }
+
+    [ConditionalFact]
+    public void ShortName_on_compiler_generated_type1()
+    {
+        var model = CreateModel();
+
+        var typeName = "<>f__AnonymousType01Child";
+        model.AddEntityType(typeName);
+        var entityType = model.FinalizeModel().FindEntityType(typeName);
+
+        Assert.Equal(typeName, entityType.ShortName());
+    }
+
+    [ConditionalFact]
+    public void ShortName_on_compiler_generated_type2()
+    {
+        var model = CreateModel();
+
+        var typeName = "<>f__AnonymousType01Child";
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(typeName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(typeName);
+
+        Assert.Equal(typeName[2..], entityType.ShortName());
+    }
+
+    [ConditionalFact]
+    public void ShortName_on_compiler_generated_type3()
+    {
+        var model = CreateModel();
+
+        var typeName = "<>__AnonymousType01Child<int>";
+        var assemblyName = new AssemblyName("DynamicEntityClrTypeAssembly");
+        var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var moduleBuilder = assemblyBuilder.DefineDynamicModule("MyModule");
+        var typeBuilder = moduleBuilder.DefineType(typeName);
+        var type = typeBuilder.CreateType();
+
+        model.AddEntityType(type);
+
+        var entityType = model.FinalizeModel().FindEntityType(typeName);
+
+        Assert.Equal("__AnonymousType01Child", entityType.ShortName());
     }
 
     private readonly IMutableModel _model = BuildModel();

@@ -1,7 +1,9 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -27,6 +29,7 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
         string name,
         PropertyInfo? propertyInfo,
         FieldInfo? fieldInfo,
+        Type serviceType,
         RuntimeEntityType declaringEntityType,
         PropertyAccessMode propertyAccessMode)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
@@ -34,7 +37,7 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
         Check.NotNull(declaringEntityType, nameof(declaringEntityType));
 
         DeclaringEntityType = declaringEntityType;
-        ClrType = (propertyInfo?.PropertyType ?? fieldInfo?.FieldType)!;
+        ClrType = serviceType;
     }
 
     /// <summary>
@@ -45,6 +48,7 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
     /// <summary>
     ///     Gets the type of value that this property-like object holds.
     /// </summary>
+    [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)]
     protected override Type ClrType { get; }
 
     /// <summary>
@@ -64,6 +68,10 @@ public class RuntimeServiceProperty : RuntimePropertyBase, IServiceProperty
         [DebuggerStepThrough]
         set => _parameterBinding = value;
     }
+
+    /// <inheritdoc />
+    public override object? Sentinel
+        => null;
 
     /// <summary>
     ///     Returns a string that represents the current object.

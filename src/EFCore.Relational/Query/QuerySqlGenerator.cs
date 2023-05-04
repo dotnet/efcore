@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -68,11 +69,22 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         _relationalCommandBuilder = _relationalCommandBuilderFactory.Create();
 
+        GenerateRootCommand(queryExpression);
+
+        return _relationalCommandBuilder.Build();
+    }
+
+    /// <summary>
+    ///     Generates the command for the given top-level query expression. This allows providers to intercept if an expression
+    ///     requires different processing when it is at top-level.
+    /// </summary>
+    /// <param name="queryExpression">A query expression to print in command.</param>
+    protected virtual void GenerateRootCommand(Expression queryExpression)
+    {
         switch (queryExpression)
         {
             case SelectExpression selectExpression:
-            {
-                GenerateTagsHeaderComment(selectExpression);
+                GenerateTagsHeaderComment(selectExpression.Tags);
 
                 if (selectExpression.IsNonComposedFromSql())
                 {
@@ -82,14 +94,23 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 {
                     VisitSelect(selectExpression);
                 }
-            }
-            break;
+
+                break;
+
+            case UpdateExpression updateExpression:
+                GenerateTagsHeaderComment(updateExpression.Tags);
+                VisitUpdate(updateExpression);
+                break;
+
+            case DeleteExpression deleteExpression:
+                GenerateTagsHeaderComment(deleteExpression.Tags);
+                VisitDelete(deleteExpression);
+                break;
 
             default:
-                throw new InvalidOperationException();
+                base.Visit(queryExpression);
+                break;
         }
-
-        return _relationalCommandBuilder.Build();
     }
 
     /// <summary>
@@ -108,11 +129,29 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     ///     Generates the head comment for tags.
     /// </summary>
     /// <param name="selectExpression">A select expression to generate tags for.</param>
+    [Obsolete("Use the method which takes tags instead.")]
     protected virtual void GenerateTagsHeaderComment(SelectExpression selectExpression)
     {
         if (selectExpression.Tags.Count > 0)
         {
             foreach (var tag in selectExpression.Tags)
+            {
+                _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
+            }
+
+            _relationalCommandBuilder.AppendLine();
+        }
+    }
+
+    /// <summary>
+    ///     Generates the head comment for tags.
+    /// </summary>
+    /// <param name="tags">A set of tags to print as comment.</param>
+    protected virtual void GenerateTagsHeaderComment(ISet<string> tags)
+    {
+        if (tags.Count > 0)
+        {
+            foreach (var tag in tags)
             {
                 _relationalCommandBuilder.AppendLines(_sqlGenerationHelper.GenerateComment(tag));
             }
@@ -148,6 +187,36 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 .All(e => e);
 
     /// <inheritdoc />
+    protected override Expression VisitDelete(DeleteExpression deleteExpression)
+    {
+        var selectExpression = deleteExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Tables.Count == 1
+            && selectExpression.Tables[0] == deleteExpression.Table
+            && selectExpression.Projection.Count == 0)
+        {
+            _relationalCommandBuilder.Append("DELETE FROM ");
+            Visit(deleteExpression.Table);
+
+            if (selectExpression.Predicate != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("WHERE ");
+                Visit(selectExpression.Predicate);
+            }
+
+            return deleteExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteDelete)));
+    }
+
+    /// <inheritdoc />
     protected override Expression VisitSelect(SelectExpression selectExpression)
     {
         IDisposable? subQueryIndent = null;
@@ -157,12 +226,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             subQueryIndent = _relationalCommandBuilder.Indent();
         }
 
-        if (IsNonComposedSetOperation(selectExpression))
-        {
-            // Naked set operation
-            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
-        }
-        else
+        if (!TryGenerateWithoutWrappingSelect(selectExpression))
         {
             _relationalCommandBuilder.Append("SELECT ");
 
@@ -179,7 +243,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             }
             else
             {
-                _relationalCommandBuilder.Append("1");
+                GenerateEmptyProjection(selectExpression);
             }
 
             if (selectExpression.Tables.Any())
@@ -232,10 +296,56 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <summary>
+    ///     If possible, generates the expression contained within the provided <paramref name="selectExpression" /> without the wrapping
+    ///     SELECT. This can be done for set operations and VALUES, which can appear as top-level statements without needing to be wrapped
+    ///     in SELECT.
+    /// </summary>
+    protected virtual bool TryGenerateWithoutWrappingSelect(SelectExpression selectExpression)
+    {
+        if (IsNonComposedSetOperation(selectExpression))
+        {
+            GenerateSetOperation((SetOperationBase)selectExpression.Tables[0]);
+            return true;
+        }
+
+        if (selectExpression is
+            {
+                Tables: [ValuesExpression valuesExpression],
+                Offset: null,
+                Limit: null,
+                IsDistinct: false,
+                Predicate: null,
+                Having: null,
+                Orderings.Count: 0,
+                GroupBy.Count: 0,
+            }
+            && selectExpression.Projection.Count == valuesExpression.ColumnNames.Count
+            && selectExpression.Projection.Select(
+                    (pe, index) => pe.Expression is ColumnExpression column
+                        && column.Name == valuesExpression.ColumnNames[index])
+                .All(e => e))
+        {
+            GenerateValues(valuesExpression);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
     ///     Generates a pseudo FROM clause. Required by some providers when a query has no actual FROM clause.
     /// </summary>
     protected virtual void GeneratePseudoFromClause()
     {
+    }
+
+    /// <summary>
+    ///     Generates empty projection for a SelectExpression.
+    /// </summary>
+    /// <param name="selectExpression">SelectExpression for which the empty projection will be generated.</param>
+    protected virtual void GenerateEmptyProjection(SelectExpression selectExpression)
+    {
+        _relationalCommandBuilder.Append("1");
     }
 
     /// <inheritdoc />
@@ -293,16 +403,16 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitTableValuedFunction(TableValuedFunctionExpression tableValuedFunctionExpression)
     {
-        if (!string.IsNullOrEmpty(tableValuedFunctionExpression.StoreFunction.Schema))
+        if (!string.IsNullOrEmpty(tableValuedFunctionExpression.Schema))
         {
             _relationalCommandBuilder
-                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Schema))
+                .Append(_sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Schema))
                 .Append(".");
         }
 
-        var name = tableValuedFunctionExpression.StoreFunction.IsBuiltIn
-            ? tableValuedFunctionExpression.StoreFunction.Name
-            : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.StoreFunction.Name);
+        var name = tableValuedFunctionExpression.IsBuiltIn
+            ? tableValuedFunctionExpression.Name
+            : _sqlGenerationHelper.DelimitIdentifier(tableValuedFunctionExpression.Name);
 
         _relationalCommandBuilder
             .Append(name)
@@ -482,32 +592,32 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitSqlBinary(SqlBinaryExpression sqlBinaryExpression)
     {
-        var requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
+        var requiresParentheses = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Left);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append("(");
         }
 
         Visit(sqlBinaryExpression.Left);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append(")");
         }
 
         _relationalCommandBuilder.Append(GetOperator(sqlBinaryExpression));
 
-        requiresBrackets = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
+        requiresParentheses = RequiresParentheses(sqlBinaryExpression, sqlBinaryExpression.Right);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append("(");
         }
 
         Visit(sqlBinaryExpression.Right);
 
-        if (requiresBrackets)
+        if (requiresParentheses)
         {
             _relationalCommandBuilder.Append(")");
         }
@@ -529,21 +639,36 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     {
         var invariantName = sqlParameterExpression.Name;
         var parameterName = sqlParameterExpression.Name;
+        var typeMapping = sqlParameterExpression.TypeMapping!;
 
-        if (_relationalCommandBuilder.Parameters
-            .All(
-                p => p.InvariantName != parameterName
-                    || (p is TypeMappedRelationalParameter typeMappedRelationalParameter
-                        && (typeMappedRelationalParameter.RelationalTypeMapping.StoreType != sqlParameterExpression.TypeMapping!.StoreType
-                            || typeMappedRelationalParameter.RelationalTypeMapping.Converter
-                            != sqlParameterExpression.TypeMapping!.Converter))))
+        // Try to see if a parameter already exists - if so, just integrate the same placeholder into the SQL instead of sending the same
+        // data twice.
+        // Note that if the type mapping differs, we do send the same data twice (e.g. the same string may be sent once as Unicode, once as
+        // non-Unicode).
+        // TODO: Note that we perform Equals comparison on the value converter. We should be able to do reference comparison, but for
+        // that we need to ensure that there's only ever one type mapping instance (i.e. no type mappings are ever instantiated out of the
+        // type mapping source). See #30677.
+        var parameter = _relationalCommandBuilder.Parameters.FirstOrDefault(
+            p =>
+                p.InvariantName == parameterName
+                && p is TypeMappedRelationalParameter { RelationalTypeMapping: var existingTypeMapping }
+                && string.Equals(existingTypeMapping.StoreType, typeMapping.StoreType, StringComparison.OrdinalIgnoreCase)
+                && (existingTypeMapping.Converter is null && typeMapping.Converter is null
+                    || existingTypeMapping.Converter is not null && existingTypeMapping.Converter.Equals(typeMapping.Converter)));
+
+        if (parameter is null)
         {
             parameterName = GetUniqueParameterName(parameterName);
+
             _relationalCommandBuilder.AddParameter(
                 invariantName,
                 _sqlGenerationHelper.GenerateParameterName(parameterName),
                 sqlParameterExpression.TypeMapping!,
                 sqlParameterExpression.IsNullable);
+        }
+        else
+        {
+            parameterName = ((TypeMappedRelationalParameter)parameter).Name;
         }
 
         _relationalCommandBuilder
@@ -675,14 +800,14 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             case ExpressionType.Convert:
             {
                 _relationalCommandBuilder.Append("CAST(");
-                var requiresBrackets = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
-                if (requiresBrackets)
+                var requiresParentheses = RequiresParentheses(sqlUnaryExpression, sqlUnaryExpression.Operand);
+                if (requiresParentheses)
                 {
                     _relationalCommandBuilder.Append("(");
                 }
 
                 Visit(sqlUnaryExpression.Operand);
-                if (requiresBrackets)
+                if (requiresParentheses)
                 {
                     _relationalCommandBuilder.Append(")");
                 }
@@ -875,64 +1000,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         => OperatorMap[binaryExpression.OperatorType];
 
     /// <summary>
-    ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis
-    ///     when generating SQL for outer SQL expression.
-    /// </summary>
-    /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
-    /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
-    /// <returns>A bool value indicating that parenthesis is required or not. </returns>
-    protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
-    {
-        switch (innerExpression)
-        {
-            case AtTimeZoneExpression or LikeExpression:
-                return true;
-
-            case SqlUnaryExpression sqlUnaryExpression:
-            {
-                // Wrap IS (NOT) NULL operation when applied on bool column.
-                if ((sqlUnaryExpression.OperatorType == ExpressionType.Equal
-                        || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
-                    && sqlUnaryExpression.Operand.Type == typeof(bool))
-                {
-                    return true;
-                }
-
-                if (sqlUnaryExpression.OperatorType == ExpressionType.Negate
-                    && outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Negate })
-                {
-                    // double negative sign is interpreted as a comment in SQL, so we need to enclose it in brackets
-                    return true;
-                }
-
-                return false;
-            }
-
-            case SqlBinaryExpression sqlBinaryExpression:
-            {
-                if (outerExpression is SqlBinaryExpression outerBinary)
-                {
-                    // Math, bitwise, comparison and equality operators have higher precedence
-                    if (outerBinary.OperatorType == ExpressionType.AndAlso)
-                    {
-                        return sqlBinaryExpression.OperatorType == ExpressionType.OrElse;
-                    }
-
-                    if (outerBinary.OperatorType == ExpressionType.OrElse)
-                    {
-                        // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
-                        return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso;
-                    }
-                }
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /// <summary>
     ///     Generates a TOP construct in the relational command
     /// </summary>
     /// <param name="selectExpression">A select expression to use.</param>
@@ -1100,6 +1167,28 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         return rowNumberExpression;
     }
 
+    /// <inheritdoc />
+    protected override Expression VisitRowValue(RowValueExpression rowValueExpression)
+    {
+        Sql.Append("(");
+
+        var values = rowValueExpression.Values;
+        var count = values.Count;
+        for (var i = 0; i < count; i++)
+        {
+            if (i > 0)
+            {
+                Sql.Append(", ");
+            }
+
+            Visit(values[i]);
+        }
+
+        Sql.Append(")");
+
+        return rowValueExpression;
+    }
+
     /// <summary>
     ///     Generates a set operation in the relational command.
     /// </summary>
@@ -1185,5 +1274,299 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         GenerateSetOperationHelper(unionExpression);
 
         return unionExpression;
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitUpdate(UpdateExpression updateExpression)
+    {
+        var selectExpression = updateExpression.SelectExpression;
+
+        if (selectExpression.Offset == null
+            && selectExpression.Limit == null
+            && selectExpression.Having == null
+            && selectExpression.Orderings.Count == 0
+            && selectExpression.GroupBy.Count == 0
+            && selectExpression.Projection.Count == 0
+            && (selectExpression.Tables.Count == 1
+                || !ReferenceEquals(selectExpression.Tables[0], updateExpression.Table)
+                || selectExpression.Tables[1] is InnerJoinExpression
+                || selectExpression.Tables[1] is CrossJoinExpression))
+        {
+            _relationalCommandBuilder.Append("UPDATE ");
+            Visit(updateExpression.Table);
+            _relationalCommandBuilder.AppendLine();
+            _relationalCommandBuilder.Append("SET ");
+            _relationalCommandBuilder.Append(
+                $"{_sqlGenerationHelper.DelimitIdentifier(updateExpression.ColumnValueSetters[0].Column.Name)} = ");
+            Visit(updateExpression.ColumnValueSetters[0].Value);
+            using (_relationalCommandBuilder.Indent())
+            {
+                foreach (var columnValueSetter in updateExpression.ColumnValueSetters.Skip(1))
+                {
+                    _relationalCommandBuilder.AppendLine(",");
+                    _relationalCommandBuilder.Append($"{_sqlGenerationHelper.DelimitIdentifier(columnValueSetter.Column.Name)} = ");
+                    Visit(columnValueSetter.Value);
+                }
+            }
+
+            var predicate = selectExpression.Predicate;
+            var firstTablePrinted = false;
+            if (selectExpression.Tables.Count > 1)
+            {
+                _relationalCommandBuilder.AppendLine().Append("FROM ");
+                for (var i = 0; i < selectExpression.Tables.Count; i++)
+                {
+                    var table = selectExpression.Tables[i];
+                    var joinExpression = table as JoinExpressionBase;
+
+                    if (ReferenceEquals(updateExpression.Table, joinExpression?.Table ?? table))
+                    {
+                        LiftPredicate(table);
+                        continue;
+                    }
+
+                    if (firstTablePrinted)
+                    {
+                        _relationalCommandBuilder.AppendLine();
+                    }
+                    else
+                    {
+                        firstTablePrinted = true;
+                        LiftPredicate(table);
+                        table = joinExpression?.Table ?? table;
+                    }
+
+                    Visit(table);
+
+                    void LiftPredicate(TableExpressionBase joinTable)
+                    {
+                        if (joinTable is PredicateJoinExpressionBase predicateJoinExpression)
+                        {
+                            predicate = predicate == null
+                                ? predicateJoinExpression.JoinPredicate
+                                : new SqlBinaryExpression(
+                                    ExpressionType.AndAlso,
+                                    predicateJoinExpression.JoinPredicate,
+                                    predicate,
+                                    typeof(bool),
+                                    predicate.TypeMapping);
+                        }
+                    }
+                }
+            }
+
+            if (predicate != null)
+            {
+                _relationalCommandBuilder.AppendLine().Append("WHERE ");
+                Visit(predicate);
+            }
+
+            return updateExpression;
+        }
+
+        throw new InvalidOperationException(
+            RelationalStrings.ExecuteOperationWithUnsupportedOperatorInSqlGeneration(nameof(RelationalQueryableExtensions.ExecuteUpdate)));
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitValues(ValuesExpression valuesExpression)
+    {
+        _relationalCommandBuilder.Append("(");
+
+        GenerateValues(valuesExpression);
+
+        _relationalCommandBuilder
+            .Append(")")
+            .Append(AliasSeparator)
+            .Append(_sqlGenerationHelper.DelimitIdentifier(valuesExpression.Alias));
+
+        return valuesExpression;
+    }
+
+    /// <summary>
+    ///     Generates a VALUES expression.
+    /// </summary>
+    protected virtual void GenerateValues(ValuesExpression valuesExpression)
+    {
+        var rowValues = valuesExpression.RowValues;
+
+        // Some databases support providing the names of columns projected out of VALUES, e.g.
+        // SQL Server/PG: (VALUES (1, 3), (2, 4)) AS x(a, b). Others unfortunately don't; so by default, we extract out the first row,
+        // and generate a SELECT for it with the names, and a UNION ALL over the rest of the values.
+        _relationalCommandBuilder.Append("SELECT ");
+
+        Check.DebugAssert(rowValues.Count > 0, "rowValues.Count > 0");
+        var firstRowValues = rowValues[0].Values;
+        for (var i = 0; i < firstRowValues.Count; i++)
+        {
+            if (i > 0)
+            {
+                _relationalCommandBuilder.Append(", ");
+            }
+
+            Visit(firstRowValues[i]);
+
+            _relationalCommandBuilder
+                .Append(AliasSeparator)
+                .Append(_sqlGenerationHelper.DelimitIdentifier(valuesExpression.ColumnNames[i]));
+        }
+
+        if (rowValues.Count > 1)
+        {
+            _relationalCommandBuilder.Append(" UNION ALL VALUES ");
+
+            for (var i = 1; i < rowValues.Count; i++)
+            {
+                if (i > 1)
+                {
+                    _relationalCommandBuilder.Append(", ");
+                }
+
+                Visit(valuesExpression.RowValues[i]);
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
+        => throw new InvalidOperationException(
+            RelationalStrings.JsonNodeMustBeHandledByProviderSpecificVisitor);
+
+    /// <summary>
+    ///     Returns a bool value indicating if the inner SQL expression required to be put inside parenthesis when generating SQL for outer
+    ///     SQL expression.
+    /// </summary>
+    /// <param name="outerExpression">The outer expression which provides context in which SQL is being generated.</param>
+    /// <param name="innerExpression">The inner expression which may need to be put inside parenthesis.</param>
+    /// <returns>A bool value indicating that parenthesis is required or not. </returns>
+    protected virtual bool RequiresParentheses(SqlExpression outerExpression, SqlExpression innerExpression)
+    {
+        int outerPrecedence, innerPrecedence;
+
+        // Convert is rendered as a function (CAST()) and not as an operator, so we never need to add parentheses around the inner
+        if (outerExpression is SqlUnaryExpression { OperatorType: ExpressionType.Convert })
+        {
+            return false;
+        }
+
+        switch (innerExpression)
+        {
+            case SqlUnaryExpression innerUnaryExpression:
+            {
+                // If the same unary operator is used in both outer and inner (e.g. NOT NOT), no parentheses are needed
+                if (outerExpression is SqlUnaryExpression outerUnary
+                    && innerUnaryExpression.OperatorType == outerUnary.OperatorType)
+                {
+                    // ... except for double negative (--), which is interpreted as a comment in SQL
+                    return innerUnaryExpression.OperatorType == ExpressionType.Negate;
+                }
+
+                // If the provider defined precedence for the two expression, use that
+                if (TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
+                    && TryGetOperatorInfo(innerExpression, out innerPrecedence, out _))
+                {
+                    return outerPrecedence >= innerPrecedence;
+                }
+
+                // Otherwise, wrap IS (NOT) NULL operation, except if it's in a logical operator
+                if (innerUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual
+                    && outerExpression is not SqlBinaryExpression
+                    {
+                        OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse or ExpressionType.Not
+                    })
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            case SqlBinaryExpression innerBinaryExpression:
+            {
+                // Precedence-wise AND is above OR but we still add parenthesis for ease of understanding
+                if (innerBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.And
+                    && outerExpression is SqlBinaryExpression { OperatorType: ExpressionType.OrElse or ExpressionType.Or })
+                {
+                    return true;
+                }
+
+                // If the provider defined precedence for the two expression, use that
+                if (TryGetOperatorInfo(outerExpression, out outerPrecedence, out var isOuterAssociative)
+                    && TryGetOperatorInfo(innerExpression, out innerPrecedence, out _))
+                {
+                    return outerPrecedence.CompareTo(innerPrecedence) switch
+                    {
+                        > 0 => true,
+                        < 0 => false,
+
+                        // If both operators have the same precedence, add parentheses unless they're the same operator, and
+                        // that operator is associative (e.g. a + b + c)
+                        0 => outerExpression is not SqlBinaryExpression outerBinary
+                            || outerBinary.OperatorType != innerBinaryExpression.OperatorType
+                            || !isOuterAssociative
+                            // Arithmetic operators on floating points aren't associative, because of rounding errors.
+                            || outerExpression.Type == typeof(float)
+                            || outerExpression.Type == typeof(double)
+                            || innerExpression.Type == typeof(float)
+                            || innerExpression.Type == typeof(double)
+                    };
+                }
+
+                // Even if the provider doesn't define precedence, assume that AND has less precedence than any other binary operator
+                // except for OR. This is universal, was our behavior before introducing provider precedence and removes the need for many
+                // parentheses. Do the same for OR (though here we add parentheses around inner AND just for readability).
+                if (outerExpression is SqlBinaryExpression outerBinary2)
+                {
+                    if (outerBinary2.OperatorType ==  ExpressionType.AndAlso)
+                    {
+                        return innerBinaryExpression.OperatorType == ExpressionType.OrElse;
+                    }
+
+                    if (outerBinary2.OperatorType == ExpressionType.OrElse)
+                    {
+                        // Precedence-wise AND is above OR but we still add parentheses for ease of understanding
+                        return innerBinaryExpression.OperatorType == ExpressionType.AndAlso;
+                    }
+                }
+
+                // Otherwise always parenthesize for safety
+                return true;
+            }
+
+            case CollateExpression or LikeExpression or AtTimeZoneExpression:
+                return !TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
+                    || !TryGetOperatorInfo(innerExpression, out innerPrecedence, out _)
+                    || outerPrecedence >= innerPrecedence;
+
+            default:
+                return false;
+        }
+    }
+
+    /// <summary>
+    ///     Returns a numeric value representing the precedence of the given <paramref name="expression" />, as well as its associativity.
+    ///     These control whether parentheses are generated around the expression.
+    /// </summary>
+    /// <param name="expression">The expression for which to get the precedence and associativity.</param>
+    /// <param name="precedence">
+    ///     If the method returned <see langword="true" />, contains the precedence of the provided <paramref name="expression" />.
+    ///     Otherwise, contains default values.
+    /// </param>
+    /// <param name="isAssociative">
+    ///     If the method returned <see langword="true" />, contains the associativity of the provided <paramref name="expression" />.
+    ///     Otherwise, contains default values.
+    /// </param>
+    /// <returns>
+    ///     <see langword="true" /> if the expression operator info is known and was returned in <paramref name="precedence" /> and
+    ///     <paramref name="isAssociative" />. Otherwise, <see langword="false" />.
+    /// </returns>
+    /// <remarks>
+    ///     The default implementation always returns false, so that parentheses almost always get added. Providers can override this method
+    ///     to remove parentheses where they aren't necessary.
+    /// </remarks>
+    protected virtual bool TryGetOperatorInfo(SqlExpression expression, out int precedence, out bool isAssociative)
+    {
+        (precedence, isAssociative) = (default, default);
+        return false;
     }
 }

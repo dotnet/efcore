@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
@@ -20,7 +21,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 ///         <see href="https://aka.ms/efcore-docs-dbcontext-pooling">Using DbContext pooling</see> for more information and examples.
 ///     </para>
 /// </remarks>
-public class PooledDbContextFactory<TContext> : IDbContextFactory<TContext>
+public class PooledDbContextFactory<[DynamicallyAccessedMembers(DbContext.DynamicallyAccessedMemberTypes)] TContext>
+    : IDbContextFactory<TContext>
     where TContext : DbContext
 {
     private readonly IDbContextPool<TContext> _pool;

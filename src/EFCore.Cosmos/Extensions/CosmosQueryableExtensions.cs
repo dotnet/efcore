@@ -86,9 +86,9 @@ public static class CosmosQueryableExtensions
         Check.NotNull(parameters, nameof(parameters));
 
         var queryableSource = (IQueryable)source;
-        var queryRootExpression = (QueryRootExpression)queryableSource.Expression;
+        var entityQueryRootExpression = (EntityQueryRootExpression)queryableSource.Expression;
 
-        var entityType = queryRootExpression.EntityType;
+        var entityType = entityQueryRootExpression.EntityType;
 
         Check.DebugAssert(
             (entityType.BaseType is null && !entityType.GetDirectlyDerivedTypes().Any())
@@ -96,7 +96,7 @@ public static class CosmosQueryableExtensions
             "Found FromSql on a TPT entity type, but TPT isn't supported on Cosmos");
 
         var fromSqlQueryRootExpression = new FromSqlQueryRootExpression(
-            queryRootExpression.QueryProvider!,
+            entityQueryRootExpression.QueryProvider!,
             entityType,
             sql,
             Expression.Constant(parameters));

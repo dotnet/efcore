@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -21,6 +22,10 @@ public class CollectionTypeFactory
     /// </summary>
     public virtual Type? TryFindTypeToInstantiate(
         Type entityType,
+        [DynamicallyAccessedMembers(
+            DynamicallyAccessedMemberTypes.PublicConstructors |
+            DynamicallyAccessedMemberTypes.NonPublicConstructors |
+            DynamicallyAccessedMemberTypes.Interfaces)]
         Type collectionType,
         bool requireFullNotifications)
     {

@@ -43,7 +43,8 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
         bool collection,
         bool onDependent,
         PropertyAccessMode propertyAccessMode,
-        bool eagerLoaded)
+        bool eagerLoaded,
+        bool lazyLoadingEnabled)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
         ClrType = clrType;
@@ -65,11 +66,16 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
         {
             SetAnnotation(CoreAnnotationNames.EagerLoaded, true);
         }
+        if (!lazyLoadingEnabled)
+        {
+            SetAnnotation(CoreAnnotationNames.LazyLoadingEnabled, false);
+        }
     }
 
     /// <summary>
     ///     Gets the type of value that this navigation holds.
     /// </summary>
+    [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)]
     protected override Type ClrType { get; }
 
     /// <summary>
@@ -87,6 +93,10 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     /// </summary>
     [DisallowNull]
     public virtual RuntimeSkipNavigation? Inverse { get; set; }
+
+    /// <inheritdoc />
+    public override object? Sentinel
+        => null;
 
     /// <summary>
     ///     Returns a string that represents the current object.

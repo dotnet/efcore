@@ -2444,20 +2444,17 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task List_from_result_of_single_result(bool async)
-    {
-        return AssertFirstOrDefault(
+        => AssertFirstOrDefault(
             async,
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
                 .Select(c => c.Orders.Select(e => e.OrderID)),
             asserter: (e, a) => AssertCollection(e, a, elementSorter: e => e, elementAsserter: (ee, aa) => AssertEqual(ee, aa)));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task List_from_result_of_single_result_2(bool async)
-    {
-        return AssertFirstOrDefault(
+        => AssertFirstOrDefault(
             async,
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
@@ -2469,13 +2466,11 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                     AssertEqual(ee.OrderID, aa.OrderID);
                     AssertEqual(ee.OrderDate, aa.OrderDate);
                 }));
-    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task List_from_result_of_single_result_3(bool async)
-    {
-        return AssertFirstOrDefault(
+        => AssertFirstOrDefault(
             async,
             ss => ss.Set<Customer>()
                 .OrderBy(c => c.CustomerID)
@@ -2483,5 +2478,4 @@ public abstract class NorthwindSelectQueryTestBase<TFixture> : QueryTestBase<TFi
                     c => c.Orders.OrderBy(o => o.OrderDate)
                         .Select(e => e.OrderDetails.Select(od => od.ProductID)).FirstOrDefault()),
             asserter: (e, a) => AssertCollection(e, a, elementSorter: e => e, elementAsserter: (ee, aa) => AssertEqual(ee, aa)));
-    }
 }

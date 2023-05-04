@@ -515,7 +515,7 @@ public interface IRelationalCommandDiagnosticsLogger : IDiagnosticsLogger<DbLogg
         int recordsAffected,
         int readCount,
         DateTimeOffset startTime);
-    
+
     /// <summary>
     ///     Logs for the <see cref="RelationalEventId.DataReaderClosing" /> event.
     /// </summary>

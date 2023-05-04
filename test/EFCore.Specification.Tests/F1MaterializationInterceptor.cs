@@ -84,28 +84,60 @@ public class F1MaterializationInterceptor : IMaterializationInterceptor
             nameof(TitleSponsor) => InterceptionResult<object>.SuppressWithResult(
                 new TitleSponsor.TitleSponsorProxy(
                     materializationData.GetPropertyValue<ILazyLoader>("_loader"))),
+            nameof(SuperFan) => InterceptionResult<object>.SuppressWithResult(
+                new SuperFan.SuperFanProxy()),
+            nameof(MegaFan) => InterceptionResult<object>.SuppressWithResult(
+                new MegaFan.MegaFanProxy()),
+            nameof(SuperFanTpt) => InterceptionResult<object>.SuppressWithResult(
+                new SuperFanTpt.SuperFanTptProxy()),
+            nameof(MegaFanTpt) => InterceptionResult<object>.SuppressWithResult(
+                new MegaFanTpt.MegaFanTptProxy()),
+            nameof(SuperFanTpc) => InterceptionResult<object>.SuppressWithResult(
+                new SuperFanTpc.SuperFanTpcProxy()),
+            nameof(MegaFanTpc) => InterceptionResult<object>.SuppressWithResult(
+                new MegaFanTpc.MegaFanTpcProxy()),
+            nameof(SwagBag) => InterceptionResult<object>.SuppressWithResult(
+                new SwagBag.SwagBagProxy()),
+            nameof(StreetCircuit) => InterceptionResult<object>.SuppressWithResult(
+                new StreetCircuit.StreetCircuitProxy()),
+            nameof(OvalCircuit) => InterceptionResult<object>.SuppressWithResult(
+                new OvalCircuit.OvalCircuitProxy()),
+            nameof(City) => InterceptionResult<object>.SuppressWithResult(
+                new City.CityProxy()),
+            nameof(StreetCircuitTpt) => InterceptionResult<object>.SuppressWithResult(
+                new StreetCircuitTpt.StreetCircuitTptProxy()),
+            nameof(OvalCircuitTpt) => InterceptionResult<object>.SuppressWithResult(
+                new OvalCircuitTpt.OvalCircuitTptProxy()),
+            nameof(CityTpt) => InterceptionResult<object>.SuppressWithResult(
+                new CityTpt.CityTptProxy()),
+            nameof(StreetCircuitTpc) => InterceptionResult<object>.SuppressWithResult(
+                new StreetCircuitTpc.StreetCircuitTpcProxy()),
+            nameof(OvalCircuitTpc) => InterceptionResult<object>.SuppressWithResult(
+                new OvalCircuit.OvalCircuitProxy()),
+            nameof(CityTpc) => InterceptionResult<object>.SuppressWithResult(
+                new CityTpc.CityTpcProxy()),
             _ => result
         };
 
-    public object CreatedInstance(MaterializationInterceptionData materializationData, object instance)
+    public object CreatedInstance(MaterializationInterceptionData materializationData, object entity)
     {
-        Assert.True(instance is IF1Proxy);
+        Assert.True(entity is IF1Proxy);
 
-        ((IF1Proxy)instance).CreatedCalled = true;
+        ((IF1Proxy)entity).CreatedCalled = true;
 
-        return instance;
+        return entity;
     }
 
     public InterceptionResult InitializingInstance(
         MaterializationInterceptionData materializationData,
-        object instance,
+        object entity,
         InterceptionResult result)
     {
-        Assert.True(instance is IF1Proxy);
+        Assert.True(entity is IF1Proxy);
 
-        ((IF1Proxy)instance).InitializingCalled = true;
+        ((IF1Proxy)entity).InitializingCalled = true;
 
-        if (instance is Sponsor sponsor)
+        if (entity is Sponsor sponsor)
         {
             sponsor.Id = materializationData.GetPropertyValue<int>(nameof(sponsor.Id));
             sponsor.Name = "Intercepted: " + materializationData.GetPropertyValue<string>(nameof(sponsor.Name));
@@ -116,17 +148,17 @@ public class F1MaterializationInterceptor : IMaterializationInterceptor
         return result;
     }
 
-    public object InitializedInstance(MaterializationInterceptionData materializationData, object instance)
+    public object InitializedInstance(MaterializationInterceptionData materializationData, object entity)
     {
-        Assert.True(instance is IF1Proxy);
+        Assert.True(entity is IF1Proxy);
 
-        ((IF1Proxy)instance).InitializedCalled = true;
+        ((IF1Proxy)entity).InitializedCalled = true;
 
-        if (instance is Sponsor.SponsorProxy sponsor)
+        if (entity is Sponsor.SponsorProxy sponsor)
         {
             return new Sponsor.SponsorDoubleProxy(sponsor);
         }
 
-        return instance;
+        return entity;
     }
 }

@@ -51,4 +51,3 @@ public enum TemporalOperationType
     /// </summary>
     FromTo
 }
-

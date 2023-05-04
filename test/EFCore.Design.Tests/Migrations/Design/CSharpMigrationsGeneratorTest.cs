@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
 // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local
@@ -18,6 +19,7 @@ public class CSharpMigrationsGeneratorTest
 {
     private static readonly string _nl = Environment.NewLine;
     private static readonly string _toTable = _nl + @"entityTypeBuilder.ToTable(""WithAnnotations"")";
+    private static readonly string _toNullTable = _nl + @"entityTypeBuilder.ToTable((string)null)";
 
     [ConditionalFact]
     public void Test_new_annotations_handled_for_entity_types()
@@ -40,7 +42,9 @@ public class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.AfterSaveBehavior,
             CoreAnnotationNames.ProviderClrType,
             CoreAnnotationNames.EagerLoaded,
+            CoreAnnotationNames.LazyLoadingEnabled,
             CoreAnnotationNames.DuplicateServiceProperties,
+            CoreAnnotationNames.AdHocModel,
             RelationalAnnotationNames.ColumnName,
             RelationalAnnotationNames.ColumnOrder,
             RelationalAnnotationNames.ColumnType,
@@ -48,10 +52,18 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ViewColumnMappings,
             RelationalAnnotationNames.SqlQueryColumnMappings,
             RelationalAnnotationNames.FunctionColumnMappings,
+            RelationalAnnotationNames.InsertStoredProcedureParameterMappings,
+            RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings,
             RelationalAnnotationNames.DefaultColumnMappings,
             RelationalAnnotationNames.TableMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.FunctionMappings,
+            RelationalAnnotationNames.InsertStoredProcedureMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureMappings,
             RelationalAnnotationNames.SqlQueryMappings,
             RelationalAnnotationNames.DefaultMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
@@ -79,8 +91,13 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.Triggers, // Appears on entity but requires provider-specific support
-            RelationalAnnotationNames.GetReaderFieldValue
+            RelationalAnnotationNames.FieldValueGetter,
+            RelationalAnnotationNames.JsonPropertyName,
+            // Appears on entity type but requires specific model (i.e. owned types that can map to json, otherwise validation throws)
+            RelationalAnnotationNames.ContainerColumnName,
+#pragma warning disable CS0618
+            RelationalAnnotationNames.ContainerColumnTypeMapping,
+#pragma warning restore CS0618
         };
 
         // Add a line here if the code generator is supposed to handle this annotation
@@ -99,8 +116,7 @@ public class CSharpMigrationsGeneratorTest
                     + @"(""WithAnnotations"", ""MySchema"")")
             },
             {
-                RelationalAnnotationNames.MappingStrategy,
-                (RelationalAnnotationNames.TphMappingStrategy,
+                RelationalAnnotationNames.MappingStrategy, (RelationalAnnotationNames.TphMappingStrategy,
                     _toTable
                     + ";"
                     + _nl
@@ -129,29 +145,47 @@ public class CSharpMigrationsGeneratorTest
             },
             {
                 RelationalAnnotationNames.Comment, ("My Comment",
-                    _toTable
-                    + ";"
+                    _nl
+                    + @"entityTypeBuilder.ToTable(""WithAnnotations"", t =>"
                     + _nl
+                    + "    {"
                     + _nl
-                    + @"entityTypeBuilder.HasComment(""My Comment"")")
+                    + @"        t.HasComment(""My Comment"");"
+                    + _nl
+                    + "    })")
             },
             {
 #pragma warning disable CS0612 // Type or member is obsolete
                 CoreAnnotationNames.DefiningQuery,
 #pragma warning restore CS0612 // Type or member is obsolete
-                (Expression.Lambda(Expression.Constant(null)), "")
+                (Expression.Lambda(Expression.Constant(null)), _toNullTable)
             },
             {
-                RelationalAnnotationNames.ViewName,
-                ("MyView", _nl + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToView) + @"(""MyView"")")
+                RelationalAnnotationNames.ViewName, ("MyView", _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToView)
+                    + @"(""MyView"")")
             },
             {
-                RelationalAnnotationNames.FunctionName,
-                (null, _nl + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToFunction) + @"(null)")
+                RelationalAnnotationNames.FunctionName, (null, _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToFunction)
+                    + @"(null)")
             },
             {
-                RelationalAnnotationNames.SqlQuery,
-                (null, _nl + "entityTypeBuilder." + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery) + @"(null)")
+                RelationalAnnotationNames.SqlQuery, (null, _toNullTable
+                    + ";"
+                    + _nl
+                    + _nl
+                    + "entityTypeBuilder."
+                    + nameof(RelationalEntityTypeBuilderExtensions.ToSqlQuery)
+                    + @"(null)")
             }
         };
 
@@ -171,6 +205,7 @@ public class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.ProductVersion,
             CoreAnnotationNames.NavigationAccessMode,
             CoreAnnotationNames.EagerLoaded,
+            CoreAnnotationNames.LazyLoadingEnabled,
             CoreAnnotationNames.QueryFilter,
 #pragma warning disable CS0612 // Type or member is obsolete
             CoreAnnotationNames.DefiningQuery,
@@ -181,6 +216,7 @@ public class CSharpMigrationsGeneratorTest
             CoreAnnotationNames.NavigationCandidates,
             CoreAnnotationNames.AmbiguousNavigations,
             CoreAnnotationNames.DuplicateServiceProperties,
+            CoreAnnotationNames.AdHocModel,
             RelationalAnnotationNames.TableName,
             RelationalAnnotationNames.IsTableExcludedFromMigrations,
             RelationalAnnotationNames.ViewName,
@@ -195,10 +231,18 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.ViewColumnMappings,
             RelationalAnnotationNames.SqlQueryColumnMappings,
             RelationalAnnotationNames.FunctionColumnMappings,
+            RelationalAnnotationNames.InsertStoredProcedureParameterMappings,
+            RelationalAnnotationNames.InsertStoredProcedureResultColumnMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureParameterMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureResultColumnMappings,
             RelationalAnnotationNames.DefaultColumnMappings,
             RelationalAnnotationNames.TableMappings,
             RelationalAnnotationNames.ViewMappings,
             RelationalAnnotationNames.FunctionMappings,
+            RelationalAnnotationNames.InsertStoredProcedureMappings,
+            RelationalAnnotationNames.DeleteStoredProcedureMappings,
+            RelationalAnnotationNames.UpdateStoredProcedureMappings,
             RelationalAnnotationNames.SqlQueryMappings,
             RelationalAnnotationNames.ForeignKeyMappings,
             RelationalAnnotationNames.TableIndexMappings,
@@ -219,8 +263,12 @@ public class CSharpMigrationsGeneratorTest
             RelationalAnnotationNames.TptMappingStrategy,
             RelationalAnnotationNames.RelationalModel,
             RelationalAnnotationNames.ModelDependencies,
-            RelationalAnnotationNames.Triggers,
-            RelationalAnnotationNames.GetReaderFieldValue
+            RelationalAnnotationNames.FieldValueGetter,
+            RelationalAnnotationNames.ContainerColumnName,
+#pragma warning disable CS0618
+            RelationalAnnotationNames.ContainerColumnTypeMapping,
+#pragma warning restore CS0618
+            RelationalAnnotationNames.JsonPropertyName,
         };
 
         var columnMapping = $@"{_nl}.{nameof(RelationalPropertyBuilderExtensions.HasColumnType)}(""default_int_mapping"")";
@@ -299,7 +347,8 @@ public class CSharpMigrationsGeneratorTest
     {
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
         var sqlServerAnnotationCodeGenerator = new SqlServerAnnotationCodeGenerator(
             new AnnotationCodeGeneratorDependencies(sqlServerTypeMappingSource));
@@ -324,10 +373,9 @@ public class CSharpMigrationsGeneratorTest
                      typeof(RelationalAnnotationNames).GetFields().Where(f => f.Name != "Prefix")))
         {
             var annotationName = (string)field.GetValue(null);
-
             if (!invalidAnnotations.Contains(annotationName))
             {
-                var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+                var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
                 var metadataItem = createMetadataItem(modelBuilder);
                 metadataItem.SetAnnotation(
                     annotationName, validAnnotations.ContainsKey(annotationName)
@@ -402,7 +450,8 @@ public class CSharpMigrationsGeneratorTest
     {
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
         var codeHelper = new CSharpHelper(
             sqlServerTypeMappingSource);
@@ -423,7 +472,7 @@ public class CSharpMigrationsGeneratorTest
                     new CSharpSnapshotGeneratorDependencies(
                         codeHelper, sqlServerTypeMappingSource, sqlServerAnnotationCodeGenerator))));
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         modelBuilder.Entity<WithAnnotations>(
             eb =>
@@ -450,7 +499,7 @@ public class CSharpMigrationsGeneratorTest
 
     private static void AssertConverter(ValueConverter valueConverter, string expected)
     {
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         var property = modelBuilder.Entity<WithAnnotations>().Property(e => e.Id).Metadata;
         property.SetMaxLength(1000);
         property.SetValueConverter(valueConverter);
@@ -459,7 +508,8 @@ public class CSharpMigrationsGeneratorTest
 
         var sqlServerTypeMappingSource = new SqlServerTypeMappingSource(
             TestServiceFactory.Instance.Create<TypeMappingSourceDependencies>(),
-            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>());
+            TestServiceFactory.Instance.Create<RelationalTypeMappingSourceDependencies>(),
+            new SqlServerSingletonOptions());
 
         var codeHelper = new CSharpHelper(sqlServerTypeMappingSource);
 
@@ -510,7 +560,8 @@ public class CSharpMigrationsGeneratorTest
             },
             Array.Empty<MigrationOperation>());
         Assert.Equal(
-            @"using System.Text.RegularExpressions;
+"""
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -526,23 +577,23 @@ namespace MyNamespace
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(""-- TEST"")
-                .Annotation(""Some:EnumValue"", RegexOptions.Multiline);
+            migrationBuilder.Sql("-- TEST")
+                .Annotation("Some:EnumValue", RegexOptions.Multiline);
 
             migrationBuilder.AlterColumn<Database>(
-                name: ""C2"",
-                table: ""T1"",
+                name: "C2",
+                table: "T1",
                 nullable: false,
                 oldClrType: typeof(Property));
 
             migrationBuilder.AddColumn<PropertyEntry>(
-                name: ""C3"",
-                table: ""T1"",
+                name: "C3",
+                table: "T1",
                 nullable: false);
 
             migrationBuilder.InsertData(
-                table: ""T1"",
-                columns: new[] { ""Id"", ""C2"", ""C3"" },
+                table: "T1",
+                columns: new[] { "Id", "C2", "C3" },
                 values: new object[] { 1, null, -1 });
         }
 
@@ -553,11 +604,12 @@ namespace MyNamespace
         }
     }
 }
-",
+
+""",
             migrationCode,
             ignoreLineEndingDifferences: true);
 
-        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureModel: c => c.RemoveAllConventions());
+        var modelBuilder = SqlServerTestHelpers.Instance.CreateConventionBuilder(configureConventions: c => c.RemoveAllConventions());
         modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
         modelBuilder.HasAnnotation(RelationalAnnotationNames.DbFunctions, new SortedDictionary<string, IDbFunction>());
         modelBuilder.Entity(
@@ -579,7 +631,8 @@ namespace MyNamespace
             "20150511161616_MyMigration",
             finalizedModel);
         Assert.Equal(
-            @"// <auto-generated />
+"""
+// <auto-generated />
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -592,36 +645,37 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MyNamespace
 {
     [DbContext(typeof(CSharpMigrationsGeneratorTest.MyContext))]
-    [Migration(""20150511161616_MyMigration"")]
+    [Migration("20150511161616_MyMigration")]
     partial class MyMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
+            modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
 
-            modelBuilder.Entity(""T1"", b =>
+            modelBuilder.Entity("T1", b =>
                 {
-                    b.Property<int>(""Id"")
-                        .HasColumnType(""int"");
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
 
-                    b.Property<string>(""C2"")
+                    b.Property<string>("C2")
                         .IsRequired()
-                        .HasColumnType(""nvarchar(max)"");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>(""C3"")
-                        .HasColumnType(""int"");
+                    b.Property<int>("C3")
+                        .HasColumnType("int");
 
-                    b.HasKey(""Id"");
+                    b.HasKey("Id");
 
-                    b.ToTable(""T1"");
+                    b.ToTable("T1");
                 });
 #pragma warning restore 612, 618
         }
     }
 }
-",
+
+""",
             migrationMetadataCode,
             ignoreLineEndingDifferences: true);
 
@@ -678,7 +732,7 @@ namespace MyNamespace
     {
         var generator = CreateMigrationsCodeGenerator();
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Model.RemoveAnnotation(CoreAnnotationNames.ProductVersion);
         modelBuilder.Entity<EntityWithConstructorBinding>(
             x =>
@@ -713,7 +767,8 @@ namespace MyNamespace
             "MySnapshot",
             finalizedModel);
         Assert.Equal(
-            @"// <auto-generated />
+"""
+// <auto-generated />
 using System;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -731,39 +786,40 @@ namespace MyNamespace
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation(""Some:EnumValue"", RegexOptions.Multiline);
+            modelBuilder.HasAnnotation("Some:EnumValue", RegexOptions.Multiline);
 
-            modelBuilder.Entity(""Cheese"", b =>
+            modelBuilder.Entity("Cheese", b =>
                 {
-                    b.Property<string>(""Ham"")
-                        .HasColumnType(""just_string(10)"");
+                    b.Property<string>("Ham")
+                        .HasColumnType("just_string(10)");
 
-                    b.Property<string>(""Pickle"")
-                        .HasColumnType(""just_string(10)"");
+                    b.Property<string>("Pickle")
+                        .HasColumnType("just_string(10)");
 
-                    b.HasKey(""Ham"");
+                    b.HasKey("Ham");
 
-                    b.ToTable(""Cheese"");
+                    b.ToTable("Cheese");
                 });
 
-            modelBuilder.Entity(""Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithConstructorBinding"", b =>
+            modelBuilder.Entity("Microsoft.EntityFrameworkCore.Migrations.Design.CSharpMigrationsGeneratorTest+EntityWithConstructorBinding", b =>
                 {
-                    b.Property<int>(""Id"")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType(""default_int_mapping"");
+                        .HasColumnType("default_int_mapping");
 
-                    b.Property<Guid>(""PropertyWithValueGenerator"")
-                        .HasColumnType(""default_guid_mapping"");
+                    b.Property<Guid>("PropertyWithValueGenerator")
+                        .HasColumnType("default_guid_mapping");
 
-                    b.HasKey(""Id"");
+                    b.HasKey("Id");
 
-                    b.ToTable(""EntityWithConstructorBinding"");
+                    b.ToTable("EntityWithConstructorBinding");
                 });
 #pragma warning restore 612, 618
         }
     }
 }
-", modelSnapshotCode, ignoreLineEndingDifferences: true);
+
+""", modelSnapshotCode, ignoreLineEndingDifferences: true);
 
         var snapshot = CompileModelSnapshot(modelSnapshotCode, "MyNamespace.MySnapshot");
         Assert.Equal(2, snapshot.Model.GetEntityTypes().Count());
@@ -774,7 +830,7 @@ namespace MyNamespace
     {
         var generator = CreateMigrationsCodeGenerator();
 
-        var modelBuilder = RelationalTestHelpers.Instance.CreateConventionBuilder();
+        var modelBuilder = FakeRelationalTestHelpers.Instance.CreateConventionBuilder();
         modelBuilder.Entity<EntityWithEveryPrimitive>(
             eb =>
             {

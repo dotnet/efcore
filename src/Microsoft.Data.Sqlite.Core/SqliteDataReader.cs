@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -311,6 +312,9 @@ namespace Microsoft.Data.Sqlite
         /// </summary>
         /// <param name="ordinal">The zero-based column ordinal.</param>
         /// <returns>The data type of the column.</returns>
+#if NET6_0_OR_GREATER
+        [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.PublicFields)]
+#endif
         public override Type GetFieldType(int ordinal)
             => _closed
                 ? throw new InvalidOperationException(Resources.DataReaderClosed(nameof(GetFieldType)))
@@ -707,7 +711,7 @@ namespace Microsoft.Data.Sqlite
                         var columnType = "typeof(\"" + columnName.Replace("\"", "\"\"") + "\")";
                         command.CommandText = new StringBuilder()
                             .AppendLine($"SELECT {columnType}")
-                            .AppendLine($"FROM \"{tableName}\"")
+                            .AppendLine($"FROM \"{tableName.Replace("\"", "\"\"")}\"")
                             .AppendLine($"WHERE {columnType} != 'null'")
                             .AppendLine($"GROUP BY {columnType}")
                             .AppendLine("ORDER BY count() DESC")

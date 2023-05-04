@@ -19,6 +19,16 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
     protected override Assembly TargetAssembly
         => typeof(RelationalDatabase).Assembly;
 
+    protected override HashSet<MethodInfo> NonCancellableAsyncMethods
+    {
+        get
+        {
+            var methods = base.NonCancellableAsyncMethods;
+            methods.Add(typeof(DbConnectionInterceptor).GetMethod(nameof(DbConnectionInterceptor.ConnectionDisposedAsync)));
+            return methods;
+        }
+    }
+
     [ConditionalFact]
     public void Readonly_relational_metadata_methods_have_expected_name()
     {
@@ -39,50 +49,55 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             => new()
             {
                 {
-                    typeof(IReadOnlyDbFunction),
-                    (typeof(IMutableDbFunction),
+                    typeof(IReadOnlyDbFunction), (typeof(IMutableDbFunction),
                         typeof(IConventionDbFunction),
                         typeof(IConventionDbFunctionBuilder),
                         typeof(IDbFunction))
                 },
                 {
-                    typeof(IReadOnlyDbFunctionParameter),
-                    (typeof(IMutableDbFunctionParameter),
+                    typeof(IReadOnlyDbFunctionParameter), (typeof(IMutableDbFunctionParameter),
                         typeof(IConventionDbFunctionParameter),
                         typeof(IConventionDbFunctionParameterBuilder),
                         typeof(IDbFunctionParameter))
                 },
                 {
-                    typeof(IReadOnlySequence),
-                    (typeof(IMutableSequence),
+                    typeof(IReadOnlyStoredProcedure), (typeof(IMutableStoredProcedure),
+                        typeof(IConventionStoredProcedure),
+                        typeof(IConventionStoredProcedureBuilder),
+                        typeof(IStoredProcedure))
+                },
+                {
+                    typeof(IReadOnlyStoredProcedureParameter), (typeof(IMutableStoredProcedureParameter),
+                        typeof(IConventionStoredProcedureParameter),
+                        typeof(IConventionStoredProcedureParameterBuilder),
+                        typeof(IStoredProcedureParameter))
+                },
+                {
+                    typeof(IReadOnlyStoredProcedureResultColumn), (typeof(IMutableStoredProcedureResultColumn),
+                        typeof(IConventionStoredProcedureResultColumn),
+                        typeof(IConventionStoredProcedureResultColumnBuilder),
+                        typeof(IStoredProcedureResultColumn))
+                },
+                {
+                    typeof(IReadOnlySequence), (typeof(IMutableSequence),
                         typeof(IConventionSequence),
                         typeof(IConventionSequenceBuilder),
                         typeof(ISequence))
                 },
                 {
-                    typeof(IReadOnlyCheckConstraint),
-                    (typeof(IMutableCheckConstraint),
+                    typeof(IReadOnlyCheckConstraint), (typeof(IMutableCheckConstraint),
                         typeof(IConventionCheckConstraint),
                         typeof(IConventionCheckConstraintBuilder),
                         typeof(ICheckConstraint))
                 },
                 {
-                    typeof(IReadOnlyTrigger),
-                    (typeof(IMutableTrigger),
-                        typeof(IConventionTrigger),
-                        typeof(IConventionTriggerBuilder),
-                        typeof(ITrigger))
-                },
-                {
-                    typeof(IReadOnlyEntityTypeMappingFragment),
-                    (typeof(IMutableEntityTypeMappingFragment),
+                    typeof(IReadOnlyEntityTypeMappingFragment), (typeof(IMutableEntityTypeMappingFragment),
                         typeof(IConventionEntityTypeMappingFragment),
                         null,
                         typeof(IEntityTypeMappingFragment))
                 },
                 {
-                    typeof(IReadOnlyRelationalPropertyOverrides),
-                    (typeof(IMutableRelationalPropertyOverrides),
+                    typeof(IReadOnlyRelationalPropertyOverrides), (typeof(IMutableRelationalPropertyOverrides),
                         typeof(IConventionRelationalPropertyOverrides),
                         null,
                         typeof(IRelationalPropertyOverrides))
@@ -95,12 +110,21 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(ITableBase),
             typeof(ITable),
             typeof(IView),
+            typeof(IStoreFunction),
+            typeof(IStoreStoredProcedure),
             typeof(ITableMappingBase),
             typeof(ITableMapping),
             typeof(IViewMapping),
+            typeof(IFunctionMapping),
+            typeof(IStoredProcedureMapping),
             typeof(IColumnBase),
             typeof(IColumn),
             typeof(IViewColumn),
+            typeof(IFunctionColumn),
+            typeof(IStoreFunctionParameter),
+            typeof(IStoreStoredProcedureParameter),
+            typeof(IStoreStoredProcedureResultColumn),
+            typeof(IFunctionColumnMapping),
             typeof(IColumnMappingBase),
             typeof(IColumnMapping),
             typeof(IViewColumnMapping),
@@ -108,7 +132,6 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(IForeignKeyConstraint),
             typeof(IUniqueConstraint),
             typeof(ITrigger),
-            typeof(IEntityTypeMappingFragment),
             typeof(IRelationalPropertyOverrides)
         };
 
@@ -138,14 +161,21 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(SplitViewBuilder<>),
             typeof(OwnedNavigationSplitViewBuilder),
             typeof(OwnedNavigationSplitViewBuilder<,>),
+            typeof(TableTriggerBuilder),
             typeof(TableValuedFunctionBuilder),
             typeof(TableValuedFunctionBuilder<>),
             typeof(OwnedNavigationTableValuedFunctionBuilder),
             typeof(OwnedNavigationTableValuedFunctionBuilder<,>),
+            typeof(StoredProcedureBuilder),
+            typeof(StoredProcedureBuilder<>),
+            typeof(OwnedNavigationStoredProcedureBuilder),
+            typeof(OwnedNavigationStoredProcedureBuilder<,>),
             typeof(ColumnBuilder),
             typeof(ColumnBuilder<>),
             typeof(ViewColumnBuilder),
             typeof(ViewColumnBuilder<>),
+            typeof(StoredProcedureParameterBuilder),
+            typeof(StoredProcedureResultColumnBuilder),
             typeof(SequenceBuilder),
             typeof(MigrationBuilder),
             typeof(AlterOperationBuilder<>),
@@ -235,7 +265,61 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
                 new[] { typeof(IReadOnlyProperty), typeof(StoreObjectIdentifier).MakeByRefType() }),
             typeof(RelationalPropertyExtensions).GetMethod(
                 nameof(RelationalPropertyExtensions.GetOverrides),
-                new[] { typeof(IReadOnlyProperty) })
+                new[] { typeof(IReadOnlyProperty) }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasParameter),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasParameter),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
+                    typeof(Action<StoredProcedureParameterBuilder>)
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasOriginalValueParameter),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasOriginalValueParameter),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
+                    typeof(Action<StoredProcedureParameterBuilder>)
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasResultColumn),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1]))
+                }),
+            GetMethod(
+                typeof(StoredProcedureBuilder<>),
+                nameof(StoredProcedureBuilder<object>.HasResultColumn),
+                genericParameterCount: 2,
+                (typeTypes, methodTypes) => new[]
+                {
+                    typeof(Expression<>).MakeGenericType(typeof(Func<,>).MakeGenericType(methodTypes[0], methodTypes[1])),
+                    typeof(Action<StoredProcedureResultColumnBuilder>)
+                }),
+            typeof(IConventionStoredProcedure).GetMethod(
+                nameof(IConventionStoredProcedure.SetIsRowsAffectedReturned),
+                new[] { typeof(bool), typeof(bool) })
         };
 
         public override HashSet<MethodInfo> AsyncMethodExceptions { get; } = new()
@@ -263,9 +347,15 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionClosedAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
-                    nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
+                nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposingAsync)),
             typeof(RelationalConnectionDiagnosticsLogger).GetMethod(
                 nameof(IRelationalConnectionDiagnosticsLogger.ConnectionDisposedAsync))
+        };
+
+        public override HashSet<MethodInfo> MetadataMethodExceptions { get; } = new()
+        {
+            typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddParameter)),
+            typeof(IMutableStoredProcedure).GetMethod(nameof(IMutableStoredProcedure.AddResultColumn))
         };
 
         public List<IReadOnlyList<MethodInfo>> RelationalMetadataMethods { get; } = new();
@@ -294,7 +384,10 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             GenericFluentApiTypes.Add(typeof(SplitViewBuilder), typeof(SplitViewBuilder<>));
             GenericFluentApiTypes.Add(typeof(OwnedNavigationSplitViewBuilder), typeof(OwnedNavigationSplitViewBuilder<,>));
             GenericFluentApiTypes.Add(typeof(TableValuedFunctionBuilder), typeof(TableValuedFunctionBuilder<>));
-            GenericFluentApiTypes.Add(typeof(OwnedNavigationTableValuedFunctionBuilder), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
+            GenericFluentApiTypes.Add(
+                typeof(OwnedNavigationTableValuedFunctionBuilder), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
+            GenericFluentApiTypes.Add(typeof(StoredProcedureBuilder), typeof(StoredProcedureBuilder<>));
+            GenericFluentApiTypes.Add(typeof(OwnedNavigationStoredProcedureBuilder), typeof(OwnedNavigationStoredProcedureBuilder<,>));
             GenericFluentApiTypes.Add(typeof(ColumnBuilder), typeof(ColumnBuilder<>));
             GenericFluentApiTypes.Add(typeof(ViewColumnBuilder), typeof(ViewColumnBuilder<>));
 
@@ -307,7 +400,9 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             MirrorTypes.Add(typeof(SplitViewBuilder), typeof(OwnedNavigationSplitViewBuilder));
             MirrorTypes.Add(typeof(SplitViewBuilder<>), typeof(OwnedNavigationSplitViewBuilder<,>));
             MirrorTypes.Add(typeof(TableValuedFunctionBuilder), typeof(OwnedNavigationTableValuedFunctionBuilder));
-            MirrorTypes.Add(typeof(TableValuedFunctionBuilder<>), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));            
+            MirrorTypes.Add(typeof(TableValuedFunctionBuilder<>), typeof(OwnedNavigationTableValuedFunctionBuilder<,>));
+            MirrorTypes.Add(typeof(StoredProcedureBuilder), typeof(OwnedNavigationStoredProcedureBuilder));
+            MirrorTypes.Add(typeof(StoredProcedureBuilder<>), typeof(OwnedNavigationStoredProcedureBuilder<,>));
 
             base.Initialize();
         }

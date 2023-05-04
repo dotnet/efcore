@@ -55,11 +55,16 @@ public class CollectionEntry : NavigationEntry
 
     private void LocalDetectChanges()
     {
+        if (Metadata.IsShadowProperty())
+        {
+            EnsureInitialized();
+        }
+
         var collection = CurrentValue;
         if (collection != null)
         {
             var targetType = Metadata.TargetEntityType;
-            var context = InternalEntry.StateManager.Context;
+            var context = InternalEntry.Context;
 
             var changeDetector = context.ChangeTracker.AutoDetectChangesEnabled
                 && !((IRuntimeModel)context.Model).SkipDetectChanges
@@ -202,35 +207,30 @@ public class CollectionEntry : NavigationEntry
 
     /// <summary>
     ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to true.
+    ///     is already set to <see langword="true"/>.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-    ///     </para>
     ///     <para>
     ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
-    public override void Load()
+    /// <param name="options">Options to control the way related entities are loaded.</param>
+    public override void Load(LoadOptions options = LoadOptions.None)
     {
         EnsureInitialized();
 
         if (!IsLoaded)
         {
-            TargetLoader.Load(InternalEntry);
+            TargetLoader.Load(InternalEntry, options);
         }
     }
 
     /// <summary>
     ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
-    ///     is already set to true.
+    ///     is already set to <see langword="true"/>.
     /// </summary>
     /// <remarks>
-    ///     <para>
-    ///         Note that entities that are already being tracked are not overwritten with new data from the database.
-    ///     </para>
     ///     <para>
     ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
     ///         that any asynchronous operations have completed before calling another method on this context.
@@ -240,16 +240,17 @@ public class CollectionEntry : NavigationEntry
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <param name="options">Options to control the way related entities are loaded.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task LoadAsync(CancellationToken cancellationToken = default)
+    public override Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default)
     {
         EnsureInitialized();
 
         return IsLoaded
             ? Task.CompletedTask
-            : TargetLoader.LoadAsync(InternalEntry, cancellationToken);
+            : TargetLoader.LoadAsync(InternalEntry, options, cancellationToken);
     }
 
     /// <summary>
@@ -274,7 +275,7 @@ public class CollectionEntry : NavigationEntry
     }
 
     private void EnsureInitialized()
-        => Metadata.GetCollectionAccessor()!.GetOrCreate(InternalEntry.Entity, forMaterialization: true);
+        => InternalEntry.GetOrCreateCollection(Metadata, forMaterialization: true);
 
     /// <summary>
     ///     The <see cref="EntityEntry" /> of an entity this navigation targets.
@@ -302,7 +303,7 @@ public class CollectionEntry : NavigationEntry
     [EntityFrameworkInternal]
     protected virtual InternalEntityEntry? GetInternalTargetEntry(object entity)
         => CurrentValue == null
-            || !Metadata.GetCollectionAccessor()!.Contains(InternalEntry.Entity, entity)
+            || !InternalEntry.CollectionContains(Metadata, entity)
                 ? null
                 : InternalEntry.StateManager.GetOrCreateEntry(entity, Metadata.TargetEntityType);
 

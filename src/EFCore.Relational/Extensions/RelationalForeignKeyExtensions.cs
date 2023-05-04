@@ -1,4 +1,4 @@
-// Licensed to the .NET Foundation under one or more agreements.
+﻿// Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Text;
@@ -114,14 +114,10 @@ public static class RelationalForeignKeyExtensions
         this IConventionForeignKey foreignKey,
         string? value,
         bool fromDataAnnotation = false)
-    {
-        foreignKey.SetOrRemoveAnnotation(
+        => (string?)foreignKey.SetOrRemoveAnnotation(
             RelationalAnnotationNames.Name,
             Check.NullButNotEmpty(value, nameof(value)),
-            fromDataAnnotation);
-
-        return value;
-    }
+            fromDataAnnotation)?.Value;
 
     /// <summary>
     ///     Gets the <see cref="ConfigurationSource" /> for the constraint name.
@@ -158,9 +154,14 @@ public static class RelationalForeignKeyExtensions
         this IReadOnlyForeignKey foreignKey,
         in StoreObjectIdentifier storeObject)
     {
+        if (foreignKey.PrincipalEntityType.GetTableName() is not { } principalTableName)
+        {
+            return null;
+        }
+
         var foreignKeyName = foreignKey.GetConstraintName(
             storeObject,
-            StoreObjectIdentifier.Table(foreignKey.PrincipalEntityType.GetTableName()!, foreignKey.PrincipalEntityType.GetSchema()));
+            StoreObjectIdentifier.Table(principalTableName, foreignKey.PrincipalEntityType.GetSchema()));
         var rootForeignKey = foreignKey;
 
         // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
@@ -172,11 +173,16 @@ public static class RelationalForeignKeyExtensions
                          .FindRowInternalForeignKeys(storeObject)
                          .SelectMany(fk => fk.PrincipalEntityType.GetForeignKeys()))
             {
+                principalTableName = otherForeignKey.PrincipalEntityType.GetTableName();
+
+                if (principalTableName is null)
+                {
+                    return null;
+                }
+
                 if (otherForeignKey.GetConstraintName(
                         storeObject,
-                        StoreObjectIdentifier.Table(
-                            otherForeignKey.PrincipalEntityType.GetTableName()!,
-                            otherForeignKey.PrincipalEntityType.GetSchema()))
+                        StoreObjectIdentifier.Table(principalTableName, otherForeignKey.PrincipalEntityType.GetSchema()))
                     == foreignKeyName)
                 {
                     linkedForeignKey = otherForeignKey;
@@ -193,6 +199,42 @@ public static class RelationalForeignKeyExtensions
         }
 
         return rootForeignKey == foreignKey ? null : rootForeignKey;
+    }
+
+    /// <summary>
+    ///     Returns a value indicating whether this foreign key is between two entity types
+    ///     sharing the same table-like store object.
+    /// </summary>
+    /// <param name="foreignKey">The foreign key.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    public static bool IsRowInternal(
+        this IReadOnlyForeignKey foreignKey,
+        StoreObjectIdentifier storeObject)
+    {
+        var entityType = foreignKey.DeclaringEntityType;
+        var primaryKey = entityType.FindPrimaryKey();
+        if (primaryKey == null || entityType.IsMappedToJson())
+        {
+            return false;
+        }
+
+        if (!foreignKey.PrincipalKey.IsPrimaryKey()
+            || foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
+            || !foreignKey.Properties.SequenceEqual(primaryKey.Properties)
+            || !IsMapped(foreignKey, storeObject))
+        {
+            return false;
+        }
+
+        return true;
+
+        static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
+            => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
+                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == storeObject))
+                && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
+                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == storeObject));
     }
 
     /// <summary>

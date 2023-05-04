@@ -124,7 +124,16 @@ internal class RootCommand : CommandBase
             if (targetPlatformIdentifier.Length != 0
                 && !string.Equals(targetPlatformIdentifier, "Windows", StringComparison.OrdinalIgnoreCase))
             {
-                throw new CommandException(Resources.UnsupportedPlatform(startupProject.ProjectName, targetPlatformIdentifier));
+                executable = Path.Combine(
+                    toolsPath,
+                    "net461",
+                    startupProject.PlatformTarget switch
+                    {
+                        "x86" => "win-x86",
+                        "ARM64" => "win-arm64",
+                        _ => "any"
+                    },
+                    "ef.exe");
             }
 
             executable = "dotnet";

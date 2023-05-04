@@ -150,7 +150,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
         var sequencesDictionary = new SortedDictionary<(string, string?), ISequence>();
         foreach (var sequence in sequences)
         {
-            sequencesDictionary[(sequence.Name, sequence.Schema)] = sequence;
+            sequencesDictionary[(sequence.Name, sequence.ModelSchema)] = sequence;
         }
 
         if (sequencesDictionary.Count > 0)

@@ -13,7 +13,11 @@ public abstract class
     }
 
     protected override Expression RewriteServerQueryExpression(Expression serverQueryExpression)
-        => new SplitQueryRewritingExpressionVisitor().Visit(serverQueryExpression);
+    {
+        serverQueryExpression = base.RewriteServerQueryExpression(serverQueryExpression);
+
+        return new SplitQueryRewritingExpressionVisitor().Visit(serverQueryExpression);
+    }
 
     private class SplitQueryRewritingExpressionVisitor : ExpressionVisitor
     {
@@ -22,7 +26,7 @@ public abstract class
 
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is QueryRootExpression rootExpression)
+            if (extensionExpression is EntityQueryRootExpression rootExpression)
             {
                 var splitMethod = _asSplitQueryMethod.MakeGenericMethod(rootExpression.EntityType.ClrType);
 

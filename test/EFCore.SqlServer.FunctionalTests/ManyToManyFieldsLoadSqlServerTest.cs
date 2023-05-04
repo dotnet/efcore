@@ -18,7 +18,8 @@ public class ManyToManyFieldsLoadSqlServerTest : ManyToManyFieldsLoadTestBase<
         await base.Load_collection(state, queryTrackingBehavior, async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneId], [t].[TwoId], [t0].[OneId], [t0].[TwoId], [t0].[Id], [t0].[Name]
 FROM [EntityOnes] AS [e]
@@ -34,7 +35,8 @@ LEFT JOIN (
     WHERE [e1].[Id] = @__p_0
 ) AS [t0] ON [t].[Id] = [t0].[TwoId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId]");
+ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId]
+""");
     }
 
     public override async Task Load_collection_using_Query_with_Include_for_inverse(bool async)
@@ -42,7 +44,8 @@ ORDER BY [e].[Id], [t].[OneId], [t].[TwoId], [t].[Id], [t0].[OneId], [t0].[TwoId
         await base.Load_collection_using_Query_with_Include_for_inverse(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name]
 FROM [EntityOnes] AS [e]
@@ -58,7 +61,8 @@ LEFT JOIN (
     WHERE [e3].[Id] = @__p_0
 ) AS [t0] ON [t].[Id] = [t0].[TwoSkipSharedId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId]");
+ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId]
+""");
     }
 
     public override async Task Load_collection_using_Query_with_Include_for_same_collection(bool async)
@@ -66,7 +70,8 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_Include_for_same_collection(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0], [t0].[Id0], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -87,7 +92,8 @@ LEFT JOIN (
     WHERE [e3].[Id] = @__p_0
 ) AS [t0] ON [t].[Id] = [t0].[TwoSkipSharedId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0]");
+ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId0], [t0].[TwoSkipSharedId0]
+""");
     }
 
     public override async Task Load_collection_using_Query_with_Include(bool async)
@@ -95,7 +101,8 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_Include(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -116,7 +123,8 @@ LEFT JOIN (
     INNER JOIN [EntityThrees] AS [e4] ON [j].[ThreeId] = [e4].[Id]
 ) AS [t1] ON [t].[Id] = [t1].[TwoId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t1].[ThreeId], [t1].[TwoId]");
+ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t1].[ThreeId], [t1].[TwoId]
+""");
     }
 
     public override async Task Load_collection_using_Query_with_filtered_Include(bool async)
@@ -124,7 +132,8 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_filtered_Include(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t0].[Name], [t1].[ThreeId], [t1].[TwoId], [t1].[Id], [t1].[CollectionInverseId], [t1].[Name], [t1].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -146,7 +155,8 @@ LEFT JOIN (
     WHERE [e4].[Id] IN (13, 11)
 ) AS [t1] ON [t].[Id] = [t1].[TwoId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t1].[ThreeId], [t1].[TwoId]");
+ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id], [t1].[ThreeId], [t1].[TwoId]
+""");
     }
 
     public override async Task Load_collection_using_Query_with_filtered_Include_and_projection(bool async)
@@ -154,7 +164,8 @@ ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].
         await base.Load_collection_using_Query_with_filtered_Include_and_projection(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[Name], (
     SELECT COUNT(*)
@@ -172,7 +183,8 @@ INNER JOIN (
     INNER JOIN [EntityTwos] AS [e1] ON [e0].[TwoSkipSharedId] = [e1].[Id]
 ) AS [t] ON [e].[Id] = [t].[OneSkipSharedId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [t].[Id]");
+ORDER BY [t].[Id]
+""");
     }
 
     public override async Task Load_collection_using_Query_with_join(bool async)
@@ -180,7 +192,8 @@ ORDER BY [t].[Id]");
         await base.Load_collection_using_Query_with_join(async);
 
         AssertSql(
-            @"@__p_0='3'
+"""
+@__p_0='3'
 
 SELECT [t].[Id], [t].[CollectionInverseId], [t].[Name], [t].[ReferenceInverseId], [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId], [t2].[Id], [t2].[Name], [t0].[CollectionInverseId], [t0].[Name0], [t0].[ReferenceInverseId]
 FROM [EntityOnes] AS [e]
@@ -205,7 +218,8 @@ LEFT JOIN (
     WHERE [e6].[Id] = @__p_0
 ) AS [t2] ON [t].[Id] = [t2].[TwoSkipSharedId]
 WHERE [e].[Id] = @__p_0
-ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId]");
+ORDER BY [e].[Id], [t].[OneSkipSharedId], [t].[TwoSkipSharedId], [t].[Id], [t0].[Id], [t0].[OneSkipSharedId], [t0].[TwoSkipSharedId], [t0].[Id0], [t2].[OneSkipSharedId], [t2].[TwoSkipSharedId]
+""");
     }
 
     protected override void ClearLog()

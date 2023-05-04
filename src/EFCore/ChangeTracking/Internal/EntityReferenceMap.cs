@@ -73,24 +73,24 @@ public class EntityReferenceMap
                 switch (state)
                 {
                     case EntityState.Detached:
-                        _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _detachedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                         _detachedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Unchanged:
                         _unchangedReferenceMap ??=
-                            new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                            new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                         _unchangedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Deleted:
-                        _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _deletedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                         _deletedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Modified:
-                        _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _modifiedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                         _modifiedReferenceMap[mapKey] = entry;
                         break;
                     case EntityState.Added:
-                        _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(LegacyReferenceEqualityComparer.Instance);
+                        _addedReferenceMap ??= new Dictionary<object, InternalEntityEntry>(ReferenceEqualityComparer.Instance);
                         _addedReferenceMap[mapKey] = entry;
                         break;
                 }
@@ -228,29 +228,11 @@ public class EntityReferenceMap
     {
         // Perf sensitive
 
-        var returnAdded
-            = added
-            && _addedReferenceMap != null
-            && _addedReferenceMap.Count > 0;
-
-        var returnModified
-            = modified
-            && _modifiedReferenceMap != null
-            && _modifiedReferenceMap.Count > 0;
-
-        var returnDeleted
-            = deleted
-            && _deletedReferenceMap != null
-            && _deletedReferenceMap.Count > 0;
-
-        var returnUnchanged
-            = unchanged
-            && _unchangedReferenceMap != null
-            && _unchangedReferenceMap.Count > 0;
-
-        var hasSharedTypes
-            = _sharedTypeReferenceMap != null
-            && _sharedTypeReferenceMap.Count > 0;
+        var returnAdded = added && _addedReferenceMap is { Count: > 0 };
+        var returnModified = modified && _modifiedReferenceMap is { Count: > 0 };
+        var returnDeleted = deleted && _deletedReferenceMap is { Count: > 0 };
+        var returnUnchanged = unchanged && _unchangedReferenceMap is { Count: > 0 };
+        var hasSharedTypes = _sharedTypeReferenceMap is { Count: > 0 };
 
         if (!hasSharedTypes)
         {

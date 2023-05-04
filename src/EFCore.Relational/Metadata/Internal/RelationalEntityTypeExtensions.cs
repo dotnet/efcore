@@ -29,6 +29,11 @@ public static class RelationalEntityTypeExtensions
         this IEntityType entityType,
         StoreObjectIdentifier storeObject)
     {
+        if (entityType.IsMappedToJson())
+        {
+            yield break;
+        }
+
         foreach (var foreignKey in entityType.GetDeclaredReferencingForeignKeys())
         {
             var dependentPrimaryKey = foreignKey.DeclaringEntityType.FindPrimaryKey();
@@ -50,9 +55,11 @@ public static class RelationalEntityTypeExtensions
 
         static bool IsMapped(IReadOnlyForeignKey foreignKey, StoreObjectIdentifier storeObject)
             => (StoreObjectIdentifier.Create(foreignKey.DeclaringEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject))
+                    || foreignKey.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == storeObject))
                 && (StoreObjectIdentifier.Create(foreignKey.PrincipalEntityType, storeObject.StoreObjectType) == storeObject
-                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType).Any(f => f.StoreObject == storeObject));
+                    || foreignKey.PrincipalEntityType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == storeObject));
     }
 
     /// <summary>
@@ -73,10 +80,11 @@ public static class RelationalEntityTypeExtensions
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public static IEnumerable<IProperty> GetNonPrincipalSharedNonPkProperties(this IEntityType entityType, ITableBase table)
+    public static List<IProperty> GetNonPrincipalSharedNonPkProperties(this IEntityType entityType, ITableBase table)
     {
         var principalEntityTypes = new HashSet<IEntityType>();
         PopulatePrincipalEntityTypes(table, entityType, principalEntityTypes);
+        var properties = new List<IProperty>();
         foreach (var property in entityType.GetProperties())
         {
             if (property.IsPrimaryKey())
@@ -84,15 +92,23 @@ public static class RelationalEntityTypeExtensions
                 continue;
             }
 
-            var propertyMappings = table.FindColumn(property)!.PropertyMappings;
+            var column = table.FindColumn(property);
+            if (column == null)
+            {
+                continue;
+            }
+
+            var propertyMappings = column.PropertyMappings;
             if (propertyMappings.Count() > 1
                 && propertyMappings.Any(pm => principalEntityTypes.Contains(pm.TableMapping.EntityType)))
             {
                 continue;
             }
 
-            yield return property;
+            properties.Add(property);
         }
+
+        return properties;
 
         static void PopulatePrincipalEntityTypes(ITableBase table, IEntityType entityType, HashSet<IEntityType> entityTypes)
         {

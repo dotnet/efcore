@@ -201,6 +201,45 @@ public partial class DbContextTest
         public virtual void Resume()
         {
         }
+
+        public (EventHandler<DetectChangesEventArgs> DetectingAllChanges,
+            EventHandler<DetectedChangesEventArgs> DetectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs>
+            DetectedEntityChanges) CaptureEvents()
+            => (null, null, null, null);
+
+        public void SetEvents(
+            EventHandler<DetectChangesEventArgs> detectingAllChanges,
+            EventHandler<DetectedChangesEventArgs> detectedAllChanges,
+            EventHandler<DetectEntityChangesEventArgs> detectingEntityChanges,
+            EventHandler<DetectedEntityChangesEventArgs> detectedEntityChanges)
+        {
+        }
+
+        public event EventHandler<DetectEntityChangesEventArgs> DetectingEntityChanges;
+
+        public void OnDetectingEntityChanges(InternalEntityEntry internalEntityEntry)
+            => DetectingEntityChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectChangesEventArgs> DetectingAllChanges;
+
+        public void OnDetectingAllChanges(IStateManager stateManager)
+            => DetectingAllChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectedEntityChangesEventArgs> DetectedEntityChanges;
+
+        public void OnDetectedEntityChanges(InternalEntityEntry internalEntityEntry, bool changesFound)
+            => DetectedEntityChanges?.Invoke(null, null);
+
+        public event EventHandler<DetectedChangesEventArgs> DetectedAllChanges;
+
+        public void OnDetectedAllChanges(IStateManager stateManager, bool changesFound)
+            => DetectedAllChanges?.Invoke(null, null);
+
+        public void ResetState()
+        {
+        }
     }
 
     [ConditionalTheory]
@@ -288,23 +327,31 @@ public partial class DbContextTest
     {
         using var context = new EarlyLearningCenter(InMemoryTestHelpers.Instance.CreateServiceProvider());
         Assert.Equal(
-            new[] { typeof(Category).FullName, typeof(Product).FullName, typeof(TheGu).FullName },
+            new[]
+            {
+                typeof(Category).FullName,
+                typeof(CategoryWithSentinel).FullName,
+                typeof(Product).FullName,
+                typeof(ProductWithSentinel).FullName,
+                typeof(TheGu).FullName,
+                typeof(TheGuWithSentinel).FullName
+            },
             context.Model.GetEntityTypes().Select(e => e.Name).ToArray());
 
-        var categoryType = context.Model.FindEntityType(typeof(Category));
-        Assert.Equal("Id", categoryType.FindPrimaryKey().Properties.Single().Name);
+        var categoryType = context.Model.FindEntityType(typeof(Category))!;
+        Assert.Equal("Id", categoryType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal(
             new[] { "Id", "Name" },
             categoryType.GetProperties().Select(p => p.Name).ToArray());
 
-        var productType = context.Model.FindEntityType(typeof(Product));
-        Assert.Equal("Id", productType.FindPrimaryKey().Properties.Single().Name);
+        var productType = context.Model.FindEntityType(typeof(Product))!;
+        Assert.Equal("Id", productType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal(
             new[] { "Id", "CategoryId", "Name", "Price" },
             productType.GetProperties().Select(p => p.Name).ToArray());
 
-        var guType = context.Model.FindEntityType(typeof(TheGu));
-        Assert.Equal("Id", guType.FindPrimaryKey().Properties.Single().Name);
+        var guType = context.Model.FindEntityType(typeof(TheGu))!;
+        Assert.Equal("Id", guType.FindPrimaryKey()!.Properties.Single().Name);
         Assert.Equal(
             new[] { "Id", "ShirtColor" },
             guType.GetProperties().Select(p => p.Name).ToArray());
@@ -460,8 +507,8 @@ public partial class DbContextTest
         {
             Assert.True(context.ChangeTracker.AutoDetectChangesEnabled);
 
-            var product = context.Add(
-                new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+            var product = (await context.AddAsync(
+                new Product { Id = 1, Name = "Little Hedgehogs" })).Entity;
 
             if (async)
             {
@@ -502,8 +549,8 @@ public partial class DbContextTest
             context.ChangeTracker.AutoDetectChangesEnabled = false;
             Assert.False(context.ChangeTracker.AutoDetectChangesEnabled);
 
-            var product = context.Add(
-                new Product { Id = 1, Name = "Little Hedgehogs" }).Entity;
+            var product = (await context.AddAsync(
+                new Product { Id = 1, Name = "Little Hedgehogs" })).Entity;
 
             if (async)
             {
@@ -547,6 +594,41 @@ public partial class DbContextTest
             => optionsBuilder
                 .UseInMemoryDatabase(nameof(ButTheHedgehogContext))
                 .UseInternalServiceProvider(_serviceProvider);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void DetectChanges_is_called_for_cascade_delete_unless_disabled(bool autoDetectChangesEnabled)
+    {
+        var detectedChangesFor = new List<object>();
+
+        using var context = new EarlyLearningCenter();
+        context.ChangeTracker.DetectingEntityChanges += (_, args) =>
+        {
+            detectedChangesFor.Add(args.Entry.Entity);
+        };
+
+        context.ChangeTracker.AutoDetectChangesEnabled = autoDetectChangesEnabled;
+
+        var products = new List<Product> { new() { Id = 1 }, new() { Id = 2 } };
+        var category = context.Attach(new Category { Id = 1, Products = products }).Entity;
+
+        Assert.Empty(detectedChangesFor);
+
+        context.Remove(category);
+
+        if (autoDetectChangesEnabled)
+        {
+            Assert.Equal(4, detectedChangesFor.Count);
+            Assert.Contains(products[0], detectedChangesFor);
+            Assert.Contains(products[1], detectedChangesFor);
+            Assert.Equal(2, detectedChangesFor.Count(e => ReferenceEquals(e, category)));
+        }
+        else
+        {
+            Assert.Empty(detectedChangesFor);
+        }
     }
 
     [ConditionalTheory]

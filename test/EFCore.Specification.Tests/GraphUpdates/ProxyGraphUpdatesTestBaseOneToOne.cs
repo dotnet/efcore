@@ -288,6 +288,8 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 {
                     context.Add(new1);
                     new1.Id = root.Id;
+                    context.Entry(new1).Property(e => e.Id).IsTemporary = false;
+                    context.Entry(new2).Property(e => e.Id).IsTemporary = false;
                 }
 
                 Assert.True(context.ChangeTracker.HasChanges());
@@ -419,9 +421,9 @@ public abstract partial class ProxyGraphUpdatesTestBase<TFixture> : IClassFixtur
                 }
                 else
                 {
-                    new1d.Root = old1d.Root;
-                    new1dd.Root = old1dd.Root;
-                    new1dd.DerivedRoot = old1dd.DerivedRoot;
+                    new1d.RootId = old1d.RootId;
+                    new1dd.RootId = old1dd.RootId;
+                    new1dd.DerivedRootId = old1dd.DerivedRootId;
                     context.AddRange(new1, new1d, new1dd, new2, new2d, new2dd);
                 }
 

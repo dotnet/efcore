@@ -328,7 +328,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder,
                     methodBuilder,
                     namespaces,
-                    variables);
+                    variables,
+                    nullable);
 
                 foreach (var typeConfiguration in model.GetTypeMappingConfigurations())
                 {
@@ -344,8 +345,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             var methods = methodBuilder.ToString();
             if (!string.IsNullOrEmpty(methods))
             {
-                mainBuilder.AppendLine()
-                    .AppendLines(methods);
+                mainBuilder.AppendLines(methods);
             }
         }
 
@@ -471,7 +471,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 CreateSkipNavigation(navigation, navigationNumber++, mainBuilder, methodBuilder, namespaces, className, nullable);
             }
 
-            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className);
+            CreateAnnotations(entityType, mainBuilder, methodBuilder, namespaces, className, nullable);
         }
 
         mainBuilder.AppendLine("}");
@@ -522,7 +522,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             Create(entityType, parameters);
 
@@ -545,6 +546,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             foreach (var index in entityType.GetDeclaredIndexes())
             {
                 Create(index, propertyVariables, parameters, nullable);
+            }
+
+            foreach (var trigger in entityType.GetDeclaredTriggers())
+            {
+                Create(trigger, parameters);
             }
 
             mainBuilder
@@ -687,7 +693,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
-        var valueConverterType = (Type?)property[CoreAnnotationNames.ValueConverterType];
+        var valueConverterType = GetValueConverterType(property);
         if (valueConverterType == null
             && property.GetValueConverter() != null)
         {
@@ -828,6 +834,14 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
+        var sentinel = property.Sentinel;
+        if (sentinel != null)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("sentinel: ")
+                .Append(_code.UnknownLiteral(sentinel));
+        }
+
         mainBuilder
             .AppendLine(");")
             .DecrementIndent();
@@ -838,6 +852,57 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             parameters with { TargetName = variableName });
 
         mainBuilder.AppendLine();
+    }
+
+    private static Type? GetValueConverterType(IProperty property)
+    {
+        var annotation = property.FindAnnotation(CoreAnnotationNames.ValueConverterType);
+        if (annotation != null)
+        {
+            return (Type?)annotation.Value;
+        }
+
+        var principalProperty = property;
+        var i = 0;
+        for (; i < ForeignKey.LongestFkChainAllowedLength; i++)
+        {
+            IProperty? nextProperty = null;
+            foreach (var foreignKey in principalProperty.GetContainingForeignKeys())
+            {
+                for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
+                {
+                    if (principalProperty == foreignKey.Properties[propertyIndex])
+                    {
+                        var newPrincipalProperty = foreignKey.PrincipalKey.Properties[propertyIndex];
+                        if (newPrincipalProperty == property
+                            || newPrincipalProperty == principalProperty)
+                        {
+                            break;
+                        }
+
+                        annotation = newPrincipalProperty.FindAnnotation(CoreAnnotationNames.ValueConverterType);
+                        if (annotation != null)
+                        {
+                            return (Type?)annotation.Value;
+                        }
+
+                        nextProperty = newPrincipalProperty;
+                    }
+                }
+            }
+
+            if (nextProperty == null)
+            {
+                break;
+            }
+
+            principalProperty = nextProperty;
+        }
+
+        return i == ForeignKey.LongestFkChainAllowedLength
+            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
+                property.DeclaringEntityType.DisplayName(), property.Name, "ValueConverterType"))
+            : null;
     }
 
     private void PropertyBaseParameters(
@@ -965,6 +1030,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .Append(_code.Literal(property.Name));
 
         PropertyBaseParameters(property, parameters, skipType: true);
+
+        mainBuilder
+            .AppendLine(",")
+            .Append("serviceType: typeof(" + property.ClrType.DisplayName(fullName: true, compilable: true) + ")");
 
         mainBuilder
             .AppendLine(");")
@@ -1145,7 +1214,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             var navigation = foreignKey.DependentToPrincipal;
             if (navigation != null)
@@ -1196,6 +1266,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("eagerLoaded: ").Append(_code.Literal(true));
         }
 
+        if (!navigation.LazyLoadingEnabled)
+        {
+            mainBuilder.AppendLine(",")
+                .Append("lazyLoadingEnabled: ").Append(_code.Literal(false));
+        }
+
         mainBuilder
             .AppendLine(");")
             .AppendLine()
@@ -1244,7 +1320,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 mainBuilder,
                 methodBuilder,
                 namespaces,
-                variables);
+                variables,
+                nullable);
 
             mainBuilder
                 .Append("var ").Append(navigationVariable).Append(" = ")
@@ -1282,6 +1359,12 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             {
                 mainBuilder.AppendLine(",")
                     .Append("eagerLoaded: ").Append(_code.Literal(true));
+            }
+
+            if (!navigation.LazyLoadingEnabled)
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("lazyLoadingEnabled: ").Append(_code.Literal(false));
             }
 
             mainBuilder
@@ -1322,12 +1405,33 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             .AppendLine("}");
     }
 
+    private void Create(ITrigger trigger, CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
+        var triggerVariable = _code.Identifier(trigger.ModelName, parameters.ScopeVariables, capitalize: false);
+
+        var mainBuilder = parameters.MainBuilder;
+        mainBuilder
+            .Append("var ").Append(triggerVariable).Append(" = ").Append(parameters.TargetName).AppendLine(".AddTrigger(")
+            .IncrementIndent()
+            .Append(_code.Literal(trigger.ModelName))
+            .AppendLine(");")
+            .DecrementIndent();
+
+        CreateAnnotations(
+            trigger,
+            _annotationCodeGenerator.Generate,
+            parameters with { TargetName = triggerVariable });
+
+        mainBuilder.AppendLine();
+    }
+
     private void CreateAnnotations(
         IEntityType entityType,
         IndentedStringBuilder mainBuilder,
         IndentedStringBuilder methodBuilder,
         SortedSet<string> namespaces,
-        string className)
+        string className,
+        bool nullable)
     {
         mainBuilder.AppendLine()
             .Append("public static void CreateAnnotations")
@@ -1348,7 +1452,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                     mainBuilder,
                     methodBuilder,
                     namespaces,
-                    variables));
+                    variables,
+                    nullable));
 
             mainBuilder
                 .AppendLine()
@@ -1369,13 +1474,18 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     {
         process(
             annotatable,
-            parameters with { Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = false });
+            parameters with
+            {
+                Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = false
+            });
 
         process(
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
+                IsRuntime = true
             });
     }
 

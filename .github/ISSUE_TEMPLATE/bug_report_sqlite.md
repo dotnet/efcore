@@ -38,6 +38,6 @@ Unhandled exception. System.NullReferenceException: Object reference not set to 
 ### Include version information
 
 Microsoft.Data.Sqlite version:
-Target framework: (e.g. .NET 5.0)
+Target framework: (e.g. .NET 6.0)
 Operating system:
 

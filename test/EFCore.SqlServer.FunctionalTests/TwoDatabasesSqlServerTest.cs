@@ -15,9 +15,12 @@ public class TwoDatabasesSqlServerTest : TwoDatabasesTestBase, IClassFixture<Sql
 
     protected override DbContextOptionsBuilder CreateTestOptions(
         DbContextOptionsBuilder optionsBuilder,
-        bool withConnectionString = false)
+        bool withConnectionString = false,
+        bool withNullConnectionString = false)
         => withConnectionString
-            ? optionsBuilder.UseSqlServer(DummyConnectionString)
+            ? withNullConnectionString
+                ? optionsBuilder.UseSqlServer((string)null)
+                : optionsBuilder.UseSqlServer(DummyConnectionString)
             : optionsBuilder.UseSqlServer();
 
     protected override TwoDatabasesWithDataContext CreateBackingContext(string databaseName)

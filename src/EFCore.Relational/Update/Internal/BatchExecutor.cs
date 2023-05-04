@@ -48,9 +48,7 @@ public class BatchExecutor : IBatchExecutor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual int Execute(
-        IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> commandBatches,
-        IRelationalConnection connection)
+    public virtual int Execute(IEnumerable<ModificationCommandBatch> commandBatches, IRelationalConnection connection)
     {
         using var batchEnumerator = commandBatches.GetEnumerator();
 
@@ -59,7 +57,7 @@ public class BatchExecutor : IBatchExecutor
             return 0;
         }
 
-        var (batch, hasMoreBatches) = batchEnumerator.Current;
+        var batch = batchEnumerator.Current;
 
         var rowsAffected = 0;
         var transaction = connection.CurrentTransaction;
@@ -68,12 +66,14 @@ public class BatchExecutor : IBatchExecutor
         try
         {
             var transactionEnlistManager = connection as ITransactionEnlistmentManager;
+            var autoTransactionBehavior = CurrentContext.Context.Database.AutoTransactionBehavior;
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled
                 // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
-                && (hasMoreBatches || batch.RequiresTransaction))
+                && ((autoTransactionBehavior == AutoTransactionBehavior.WhenNeeded
+                        && (batch.AreMoreBatchesExpected || batch.RequiresTransaction))
+                    || autoTransactionBehavior == AutoTransactionBehavior.Always))
             {
                 transaction = connection.BeginTransaction();
                 beganTransaction = true;
@@ -92,7 +92,7 @@ public class BatchExecutor : IBatchExecutor
 
             do
             {
-                batch = batchEnumerator.Current.Batch;
+                batch = batchEnumerator.Current;
                 batch.Execute(connection);
                 rowsAffected += batch.ModificationCommands.Count;
             }
@@ -156,7 +156,7 @@ public class BatchExecutor : IBatchExecutor
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual async Task<int> ExecuteAsync(
-        IEnumerable<(ModificationCommandBatch Batch, bool HasMore)> commandBatches,
+        IEnumerable<ModificationCommandBatch> commandBatches,
         IRelationalConnection connection,
         CancellationToken cancellationToken = default)
     {
@@ -167,7 +167,7 @@ public class BatchExecutor : IBatchExecutor
             return 0;
         }
 
-        var (batch, hasMoreBatches) = batchEnumerator.Current;
+        var batch = batchEnumerator.Current;
 
         var rowsAffected = 0;
         var transaction = connection.CurrentTransaction;
@@ -176,12 +176,14 @@ public class BatchExecutor : IBatchExecutor
         try
         {
             var transactionEnlistManager = connection as ITransactionEnlistmentManager;
+            var autoTransactionBehavior = CurrentContext.Context.Database.AutoTransactionBehavior;
             if (transaction == null
                 && transactionEnlistManager?.EnlistedTransaction is null
                 && transactionEnlistManager?.CurrentAmbientTransaction is null
-                && CurrentContext.Context.Database.AutoTransactionsEnabled
                 // Don't start a transaction if we have a single batch which doesn't require a transaction (single command), for perf.
-                && (hasMoreBatches || batch.RequiresTransaction))
+                && ((autoTransactionBehavior == AutoTransactionBehavior.WhenNeeded
+                        && (batch.AreMoreBatchesExpected || batch.RequiresTransaction))
+                    || autoTransactionBehavior == AutoTransactionBehavior.Always))
             {
                 transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
                 beganTransaction = true;
@@ -200,7 +202,7 @@ public class BatchExecutor : IBatchExecutor
 
             do
             {
-                batch = batchEnumerator.Current.Batch;
+                batch = batchEnumerator.Current;
                 await batch.ExecuteAsync(connection, cancellationToken).ConfigureAwait(false);
                 rowsAffected += batch.ModificationCommands.Count;
             }

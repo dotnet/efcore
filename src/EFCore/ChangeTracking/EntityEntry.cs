@@ -121,7 +121,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
     ///     Gets the context that is tracking the entity.
     /// </summary>
     public virtual DbContext Context
-        => InternalEntry.StateManager.Context;
+        => InternalEntry.Context;
 
     /// <summary>
     ///     Gets the metadata about the shape of the entity, its relationships to other entities, and how it maps to the database.
@@ -188,7 +188,7 @@ public class EntityEntry : IInfrastructure<InternalEntityEntry>
 
     /// <summary>
     ///     Provides access to change tracking information and operations for all properties and navigations of this entity.
-    /// </summary>-
+    /// </summary>
     /// <remarks>
     ///     See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see> for more information and
     ///     examples.

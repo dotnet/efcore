@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a <see cref="IMutableDbFunction" /> parameter.
+///     Represents a function parameter.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IMutableDbFunctionParameter : IReadOnlyDbFunctionParameter, IMutableAnnotatable
 {
     /// <summary>
-    ///     Gets the <see cref="IMutableDbFunction" /> to which this parameter belongs.
+    ///     Gets the function to which this parameter belongs.
     /// </summary>
     new IMutableDbFunction Function { get; }
 

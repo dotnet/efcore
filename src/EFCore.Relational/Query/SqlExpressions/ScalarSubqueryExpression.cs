@@ -19,7 +19,13 @@ public class ScalarSubqueryExpression : SqlExpression
     /// </summary>
     /// <param name="subquery">A subquery projecting single row with a single scalar projection.</param>
     public ScalarSubqueryExpression(SelectExpression subquery)
-        : base(Verify(subquery).Projection[0].Type, subquery.Projection[0].Expression.TypeMapping)
+        : this(subquery, subquery.Projection[0].Expression.TypeMapping)
+    {
+        Subquery = subquery;
+    }
+
+    private ScalarSubqueryExpression(SelectExpression subquery, RelationalTypeMapping? typeMapping)
+        : base(Verify(subquery).Projection[0].Type, typeMapping)
     {
         Subquery = subquery;
     }
@@ -45,6 +51,14 @@ public class ScalarSubqueryExpression : SqlExpression
     ///     The subquery projecting single row with single scalar projection.
     /// </summary>
     public virtual SelectExpression Subquery { get; }
+
+    /// <summary>
+    ///     Applies supplied type mapping to this expression.
+    /// </summary>
+    /// <param name="typeMapping">A relational type mapping to apply.</param>
+    /// <returns>A new expression which has supplied type mapping.</returns>
+    public virtual SqlExpression ApplyTypeMapping(RelationalTypeMapping? typeMapping)
+        => new ScalarSubqueryExpression(Subquery, typeMapping);
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)

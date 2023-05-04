@@ -355,8 +355,8 @@ public class KeysWithConvertersCosmosTest : KeysWithConvertersTestBase<KeysWithC
                             p => p.Value,
                             p => new Key(p),
                             new ValueComparer<Key>(
-                                (l, r) => l.Value == r.Value,
-                                v => v.Value.GetHashCode()));
+                                (l, r) => (l == null && r == null) || (l != null && r != null && l.Value == r.Value),
+                                v => v == null ? 0 : v.Value.GetHashCode()));
 
                     entity.OwnsOne(p => p.Text);
                     entity.Navigation(p => p.Text).IsRequired();

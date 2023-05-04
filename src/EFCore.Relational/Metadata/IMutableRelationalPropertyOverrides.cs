@@ -22,7 +22,7 @@ public interface IMutableRelationalPropertyOverrides : IReadOnlyRelationalProper
     new string? ColumnName { get; set; }
 
     /// <summary>
-    ///    Removes the column name override.
+    ///     Removes the column name override.
     /// </summary>
     void RemoveColumnNameOverride();
 }

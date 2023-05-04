@@ -250,7 +250,6 @@ public class SqlFunctionExpression : SqlExpression
     /// <summary>
     ///     A list of bool values indicating whether individual argument propagate null to the result.
     /// </summary>
-
     public virtual IReadOnlyList<bool>? ArgumentsPropagateNullability { get; }
 
     /// <inheritdoc />

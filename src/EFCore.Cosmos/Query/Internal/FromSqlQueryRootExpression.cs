@@ -9,7 +9,7 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class FromSqlQueryRootExpression : QueryRootExpression
+public class FromSqlQueryRootExpression : EntityQueryRootExpression
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,7 +75,7 @@ public class FromSqlQueryRootExpression : QueryRootExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override QueryRootExpression UpdateEntityType(IEntityType entityType)
+    public override EntityQueryRootExpression UpdateEntityType(IEntityType entityType)
         => entityType.ClrType != EntityType.ClrType
             || entityType.Name != EntityType.Name
                 ? throw new InvalidOperationException(CoreStrings.QueryRootDifferentEntityType(entityType.DisplayName()))

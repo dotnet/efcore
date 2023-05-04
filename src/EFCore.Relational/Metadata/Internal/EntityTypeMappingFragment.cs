@@ -16,10 +16,11 @@ public class EntityTypeMappingFragment :
     IConventionEntityTypeMappingFragment
 {
     private bool? _isTableExcludedFromMigrations;
+    private InternalEntityTypeMappingFragmentBuilder? _builder;
 
     private ConfigurationSource _configurationSource;
     private ConfigurationSource? _isTableExcludedFromMigrationsConfigurationSource;
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -34,7 +35,39 @@ public class EntityTypeMappingFragment :
         EntityType = entityType;
         StoreObject = storeObject;
         _configurationSource = configurationSource;
+        _builder = new InternalEntityTypeMappingFragmentBuilder(this, ((IConventionModel)entityType.Model).Builder);
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InternalEntityTypeMappingFragmentBuilder Builder
+    {
+        [DebuggerStepThrough]
+        get => _builder ?? throw new InvalidOperationException(CoreStrings.ObjectRemovedFromModel);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsInModel
+        => _builder is not null
+            && ((IConventionAnnotatable)EntityType).IsInModel;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void SetRemovedFromModel()
+        => _builder = null;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,6 +112,45 @@ public class EntityTypeMappingFragment :
     public virtual void UpdateConfigurationSource(ConfigurationSource configurationSource)
         => _configurationSource = configurationSource.Max(_configurationSource);
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static void Attach(IConventionEntityType entityType, IConventionEntityTypeMappingFragment detachedFragment)
+    {
+        var newFragment = GetOrCreate(
+            (IMutableEntityType)entityType,
+            detachedFragment.StoreObject,
+            detachedFragment.GetConfigurationSource());
+
+        MergeInto(detachedFragment, newFragment);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public static EntityTypeMappingFragment MergeInto(
+        IConventionEntityTypeMappingFragment detachedFragment,
+        IConventionEntityTypeMappingFragment existingFragment)
+    {
+        var isTableExcludedFromMigrationsConfigurationSource = detachedFragment.GetIsTableExcludedFromMigrationsConfigurationSource();
+        if (isTableExcludedFromMigrationsConfigurationSource != null)
+        {
+            existingFragment = ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder).ExcludeTableFromMigrations(
+                    detachedFragment.IsTableExcludedFromMigrations, isTableExcludedFromMigrationsConfigurationSource.Value)
+                !.Metadata;
+        }
+
+        return ((InternalEntityTypeMappingFragmentBuilder)existingFragment.Builder)
+            .MergeAnnotationsFrom((EntityTypeMappingFragment)detachedFragment)
+            .Metadata;
+    }
+
     /// <inheritdoc />
     public virtual bool? IsTableExcludedFromMigrations
     {
@@ -98,12 +170,12 @@ public class EntityTypeMappingFragment :
         {
             return null;
         }
-        
+
         _isTableExcludedFromMigrations = excluded;
         _isTableExcludedFromMigrationsConfigurationSource =
             excluded == null
-            ? null
-            : configurationSource.Max(_isTableExcludedFromMigrationsConfigurationSource);
+                ? null
+                : configurationSource.Max(_isTableExcludedFromMigrationsConfigurationSource);
         return excluded;
     }
 
@@ -153,14 +225,14 @@ public class EntityTypeMappingFragment :
             entityType[RelationalAnnotationNames.MappingFragments];
         if (fragments == null)
         {
-            fragments = new();
+            fragments = new StoreObjectDictionary<EntityTypeMappingFragment>();
             entityType[RelationalAnnotationNames.MappingFragments] = fragments;
         }
 
         var fragment = fragments.Find(storeObject);
         if (fragment == null)
         {
-            fragment = new (entityType, storeObject, configurationSource);
+            fragment = new EntityTypeMappingFragment(entityType, storeObject, configurationSource);
             fragments.Add(storeObject, fragment);
         }
         else
@@ -170,7 +242,7 @@ public class EntityTypeMappingFragment :
 
         return fragment;
     }
-    
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -179,8 +251,7 @@ public class EntityTypeMappingFragment :
     /// </summary>
     public static EntityTypeMappingFragment? Remove(
         IMutableEntityType entityType,
-        in StoreObjectIdentifier storeObject,
-        ConfigurationSource configurationSource)
+        in StoreObjectIdentifier storeObject)
     {
         var fragments = (StoreObjectDictionary<EntityTypeMappingFragment>?)
             entityType[RelationalAnnotationNames.MappingFragments];
@@ -195,15 +266,32 @@ public class EntityTypeMappingFragment :
             return null;
         }
 
-        if (configurationSource.Overrides(fragment.GetConfigurationSource()))
-        {
-            fragments.Remove(storeObject);
+        fragments.Remove(storeObject);
+        fragment.SetRemovedFromModel();
 
-            return fragment;
-        }
-
-        return null;
+        return fragment;
     }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override string ToString()
+        => ((IEntityTypeMappingFragment)this).ToDebugString(MetadataDebugStringOptions.SingleLineDefault);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [EntityFrameworkInternal]
+    public virtual DebugView DebugView
+        => new(
+            () => ((IEntityTypeMappingFragment)this).ToDebugString(),
+            () => ((IEntityTypeMappingFragment)this).ToDebugString(MetadataDebugStringOptions.LongDefault));
 
     /// <inheritdoc />
     IEntityType IEntityTypeMappingFragment.EntityType
@@ -211,7 +299,7 @@ public class EntityTypeMappingFragment :
         [DebuggerStepThrough]
         get => (IEntityType)EntityType;
     }
-    
+
     /// <inheritdoc />
     IMutableEntityType IMutableEntityTypeMappingFragment.EntityType
     {
@@ -227,7 +315,18 @@ public class EntityTypeMappingFragment :
     }
 
     bool? IConventionEntityTypeMappingFragment.SetIsTableExcludedFromMigrations(bool? excluded, bool fromDataAnnotation)
-        => SetIsTableExcludedFromMigrations(excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+        => SetIsTableExcludedFromMigrations(
+            excluded, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
-    bool? IReadOnlyEntityTypeMappingFragment.IsTableExcludedFromMigrations => IsTableExcludedFromMigrations;
+    bool? IReadOnlyEntityTypeMappingFragment.IsTableExcludedFromMigrations
+    {
+        [DebuggerStepThrough]
+        get => IsTableExcludedFromMigrations;
+    }
+
+    IConventionEntityTypeMappingFragmentBuilder IConventionEntityTypeMappingFragment.Builder
+    {
+        [DebuggerStepThrough]
+        get => Builder;
+    }
 }

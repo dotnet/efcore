@@ -51,6 +51,14 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     public virtual string? TranslationErrorDetails { get; private set; }
 
     /// <summary>
+    ///     Translates an expression to an equivalent SQL representation.
+    /// </summary>
+    /// <param name="expression">An expression to translate.</param>
+    /// <returns>A SQL translation of the given expression.</returns>
+    public virtual Expression Translate(Expression expression)
+        => Visit(expression);
+
+    /// <summary>
     ///     Adds detailed information about errors encountered during translation.
     /// </summary>
     /// <param name="details">Error encountered during translation.</param>
@@ -77,14 +85,17 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
         if (extensionExpression is QueryRootExpression queryRootExpression)
         {
             // Query roots must be processed.
-            if (extensionExpression.GetType() == typeof(QueryRootExpression))
+            if (extensionExpression.GetType() == typeof(EntityQueryRootExpression)
+                && extensionExpression is EntityQueryRootExpression entityQueryRootExpression)
             {
                 // This requires exact type match on query root to avoid processing derived query roots.
-                return CreateShapedQueryExpression(queryRootExpression.EntityType);
+                return CreateShapedQueryExpression(entityQueryRootExpression.EntityType);
             }
 
             throw new InvalidOperationException(
-                CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName()));
+                TranslationErrorDetails is null
+                    ? CoreStrings.QueryUnhandledQueryRootExpression(queryRootExpression.GetType().ShortDisplayName())
+                    : CoreStrings.TranslationFailedWithDetails(queryRootExpression, TranslationErrorDetails));
         }
 
         return base.VisitExtension(extensionExpression);
@@ -152,10 +163,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         var source2 = Visit(methodCallExpression.Arguments[1]);
                         if (source2 is ShapedQueryExpression innerShapedQueryExpression)
                         {
-                            return CheckTranslated(
-                                TranslateConcat(
-                                    shapedQueryExpression,
-                                    innerShapedQueryExpression));
+                            return CheckTranslated(TranslateConcat(shapedQueryExpression, innerShapedQueryExpression));
                         }
 
                         break;
@@ -206,10 +214,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
                         var source2 = Visit(methodCallExpression.Arguments[1]);
                         if (source2 is ShapedQueryExpression innerShapedQueryExpression)
                         {
-                            return CheckTranslated(
-                                TranslateExcept(
-                                    shapedQueryExpression,
-                                    innerShapedQueryExpression));
+                            return CheckTranslated(TranslateExcept(shapedQueryExpression, innerShapedQueryExpression));
                         }
 
                         break;
@@ -513,7 +518,7 @@ public abstract class QueryableMethodTranslatingExpressionVisitor : ExpressionVi
     public virtual ShapedQueryExpression? TranslateSubquery(Expression expression)
     {
         var subqueryVisitor = CreateSubqueryVisitor();
-        var translation = subqueryVisitor.Visit(expression) as ShapedQueryExpression;
+        var translation = subqueryVisitor.Translate(expression) as ShapedQueryExpression;
         if (translation == null && subqueryVisitor.TranslationErrorDetails != null)
         {
             AddTranslationErrorDetails(subqueryVisitor.TranslationErrorDetails);

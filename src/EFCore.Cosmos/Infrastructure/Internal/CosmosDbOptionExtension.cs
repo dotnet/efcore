@@ -4,6 +4,7 @@
 using System.Globalization;
 using System.Net;
 using System.Text;
+using Azure.Core;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Infrastructure.Internal;
@@ -18,6 +19,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
 {
     private string? _accountEndpoint;
     private string? _accountKey;
+    private TokenCredential? _tokenCredential;
     private string? _connectionString;
     private string? _databaseName;
     private string? _region;
@@ -55,6 +57,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     {
         _accountEndpoint = copyFrom._accountEndpoint;
         _accountKey = copyFrom._accountKey;
+        _tokenCredential = copyFrom._tokenCredential;
         _databaseName = copyFrom._databaseName;
         _connectionString = copyFrom._connectionString;
         _region = copyFrom._region;
@@ -144,6 +147,35 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual TokenCredential? TokenCredential
+        => _tokenCredential;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual CosmosOptionsExtension WithTokenCredential(TokenCredential? tokenCredential)
+    {
+        if (tokenCredential is not null && _connectionString is not null)
+        {
+            throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
+        }
+
+        var clone = Clone();
+
+        clone._tokenCredential = tokenCredential;
+
+        return clone;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual string? ConnectionString
         => _connectionString;
 
@@ -155,7 +187,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
     /// </summary>
     public virtual CosmosOptionsExtension WithConnectionString(string? connectionString)
     {
-        if (connectionString is not null && (_accountEndpoint != null || _accountKey != null))
+        if (connectionString is not null && (_accountEndpoint != null || _accountKey != null || _tokenCredential != null))
         {
             throw new InvalidOperationException(CosmosStrings.ConnectionStringConflictingConfiguration);
         }
@@ -565,6 +597,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 {
                     hashCode.Add(Extension._accountEndpoint);
                     hashCode.Add(Extension._accountKey);
+                    hashCode.Add(Extension._tokenCredential);
                 }
 
                 hashCode.Add(Extension._region);
@@ -591,6 +624,7 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
                 && Extension._connectionString == otherInfo.Extension._connectionString
                 && Extension._accountEndpoint == otherInfo.Extension._accountEndpoint
                 && Extension._accountKey == otherInfo.Extension._accountKey
+                && Extension._tokenCredential == otherInfo.Extension._tokenCredential
                 && Extension._region == otherInfo.Extension._region
                 && Extension._connectionMode == otherInfo.Extension._connectionMode
                 && Extension._limitToEndpoint == otherInfo.Extension._limitToEndpoint
@@ -615,8 +649,17 @@ public class CosmosOptionsExtension : IDbContextOptionsExtension
             {
                 debugInfo["Cosmos:" + nameof(AccountEndpoint)] =
                     (Extension._accountEndpoint?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
-                debugInfo["Cosmos:" + nameof(AccountKey)] =
-                    (Extension._accountKey?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+
+                if (Extension._accountKey == null)
+                {
+                    debugInfo["Cosmos:" + nameof(TokenCredential)] =
+                        (Extension._tokenCredential?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+                }
+                else
+                {
+                    debugInfo["Cosmos:" + nameof(AccountKey)] =
+                        (Extension._accountKey?.GetHashCode() ?? 0L).ToString(CultureInfo.InvariantCulture);
+                }
             }
 
             debugInfo["Cosmos:" + nameof(CosmosDbContextOptionsBuilder.Region)] =
