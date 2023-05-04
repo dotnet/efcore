@@ -324,8 +324,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                 .Entity<BlogWithStringKey>()
                 .Property(e => e.Id)
                 .HasDefaultValueSql("'i' + CAST((NEXT VALUE FOR MyStringSequence) AS VARCHAR(20))")
-                .Metadata
-                .Sentinel = _stringSentinel;
+                .HasSentinel(_stringSentinel);
         }
     }
 
@@ -424,7 +423,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                 .Entity<BlogWithUIntKey>()
                 .Property(e => e.Id)
                 .HasConversion<int>()
-                .Metadata.Sentinel = _uintSentinel;
+                .HasSentinel(_uintSentinel);
         }
     }
 
@@ -478,7 +477,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                 .Entity<BlogWithIntEnumKey>()
                 .Property(e => e.Id)
                 .ValueGeneratedOnAdd()
-                .Metadata.Sentinel = _sentinel;
+                .HasSentinel(_sentinel);
         }
     }
 
@@ -539,7 +538,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                 .Entity<BlogWithULongEnumKey>()
                 .Property(e => e.Id)
                 .ValueGeneratedOnAdd()
-                .Metadata.Sentinel = _sentinel;
+                .HasSentinel(_sentinel);
         }
     }
 
@@ -606,7 +605,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                         : int.Parse(v),
                     v => v.ToString())
                 .ValueGeneratedOnAdd()
-                .Metadata.Sentinel = _sentinel;
+                .HasSentinel(_sentinel);
         }
     }
 
@@ -693,7 +692,7 @@ public abstract class SqlServerValueGenerationScenariosTestBase
                 .Entity<NullableKeyBlog>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever()
-                .Metadata.Sentinel = _sentinel;
+                .HasSentinel(_sentinel);
         }
     }
 
@@ -898,11 +897,10 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             modelBuilder.Entity<Blog>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = _intSentinel;
+                    b.Property(e => e.Id).HasSentinel(_intSentinel);
 
-                    var property = b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()");
+                    var property = b.Property(e => e.CreatedOn).HasDefaultValueSql("getdate()").HasSentinel(_dateTimeSentinel);
                     property.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
-                    property.Metadata.Sentinel = _dateTimeSentinel;
                 });
         }
     }
@@ -962,15 +960,15 @@ public abstract class SqlServerValueGenerationScenariosTestBase
             modelBuilder.Entity<FullNameBlog>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = _intSentinel;
+                    b.Property(e => e.Id).HasSentinel(_intSentinel);
 
                     var property = b.Property(e => e.FullName)
                         .HasComputedColumnSql("FirstName + ' ' + LastName")
+                        .HasSentinel(_stringSentinel)
                         .Metadata;
 
                     property.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
                     property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-                    property.Sentinel = _stringSentinel;
                 });
         }
     }
@@ -1063,15 +1061,15 @@ RETURNS NVARCHAR(MAX) WITH SCHEMABINDING AS BEGIN RETURN @First + @Second END");
             modelBuilder.Entity<FullNameBlog>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = _intSentinel;
+                    b.Property(e => e.Id).HasSentinel(_intSentinel);
 
                     var property = modelBuilder.Entity<FullNameBlog>()
                         .Property(e => e.FullName)
                         .HasComputedColumnSql("[dbo].[GetFullName]([FirstName], [LastName])")
+                        .HasSentinel(_stringSentinel)
                         .Metadata;
 
                     property.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-                    property.Sentinel = _stringSentinel;
                 });
         }
     }
@@ -1316,8 +1314,8 @@ END");
                 eb =>
                 {
                     eb.HasAlternateKey(e => e.NotId);
-                    eb.Property(e => e.NotId).ValueGeneratedOnAdd().Metadata.Sentinel = _sentinel;
-                    eb.Property(e => e.Id).Metadata.Sentinel = _sentinel;
+                    eb.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
+                    eb.Property(e => e.Id).HasSentinel(_sentinel);
                 });
         }
     }
@@ -1362,8 +1360,8 @@ END");
             modelBuilder.Entity<GuidBlog>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = _sentinel;
-                    b.Property(e => e.NotId).ValueGeneratedOnAdd().Metadata.Sentinel = _sentinel;
+                    b.Property(e => e.Id).HasSentinel(_sentinel);
+                    b.Property(e => e.NotId).ValueGeneratedOnAdd().HasSentinel(_sentinel);
                 });
         }
     }
@@ -1426,8 +1424,8 @@ END");
                 .Entity<GuidBlog>(
                     eb =>
                     {
-                        eb.Property(e => e.Id).HasDefaultValueSql("newsequentialid()").Metadata.Sentinel = _sentinel;
-                        eb.Property(e => e.NotId).HasDefaultValueSql("newsequentialid()").Metadata.Sentinel = _sentinel;
+                        eb.Property(e => e.Id).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
+                        eb.Property(e => e.NotId).HasDefaultValueSql("newsequentialid()").HasSentinel(_sentinel);
                     });
         }
     }
@@ -1517,7 +1515,7 @@ END");
                 .Entity<Blog>()
                 .Property(e => e.Id)
                 .ValueGeneratedNever()
-                .Metadata.Sentinel = _sentinel;
+                .HasSentinel(_sentinel);
         }
     }
 
@@ -1557,10 +1555,10 @@ END");
             var property = modelBuilder
                 .Entity<Blog>()
                 .Property(e => e.Id)
-                .HasDefaultValueSql("next value for MySequence");
+                .HasDefaultValueSql("next value for MySequence")
+                .HasSentinel(_sentinel);
 
             property.Metadata.SetBeforeSaveBehavior(PropertySaveBehavior.Throw);
-            property.Metadata.Sentinel = _sentinel;
         }
     }
 
@@ -1715,11 +1713,11 @@ END");
             modelBuilder.Entity<ConcurrentBlog>(
                 b =>
                 {
-                    b.Property(e => e.Id).Metadata.Sentinel = _intSentinel;
+                    b.Property(e => e.Id).HasSentinel(_intSentinel);
                     b.Property(e => e.Timestamp)
                         .ValueGeneratedOnAddOrUpdate()
                         .IsConcurrencyToken()
-                        .Metadata.Sentinel = _timestampSentinel;
+                        .HasSentinel(_timestampSentinel);
                 });
         }
     }

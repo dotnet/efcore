@@ -51,12 +51,12 @@ public class SqlServerSentinelValueGenerationScenariosTest : SqlServerValueGener
         modelBuilder.Entity<Blog>(
             b =>
             {
-                b.Property(e => e.Id).Metadata.Sentinel = IntSentinel;
-                b.Property(e => e.Name).Metadata.Sentinel = StringSentinel;
-                b.Property(e => e.CreatedOn).Metadata.Sentinel = DateTimeSentinel;
-                b.Property(e => e.GeometryCollection).Metadata.Sentinel = GeometryCollectionSentinel;
-                b.Property(e => e.OtherId).Metadata.Sentinel = NullableIntSentinel;
-                b.Property(e => e.NeedsConverter).Metadata.Sentinel = new NeedsConverter(IntSentinel);
+                b.Property(e => e.Id).HasSentinel(IntSentinel);
+                b.Property(e => e.Name).HasSentinel(StringSentinel);
+                b.Property(e => e.CreatedOn).HasSentinel(DateTimeSentinel);
+                b.Property(e => e.GeometryCollection).HasSentinel(GeometryCollectionSentinel);
+                b.Property(e => e.OtherId).HasSentinel(NullableIntSentinel);
+                b.Property(e => e.NeedsConverter).HasSentinel(new NeedsConverter(IntSentinel));
             });
     }
 }

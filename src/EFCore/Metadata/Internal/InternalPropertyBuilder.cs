@@ -199,6 +199,34 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalPropertyBuilder? HasSentinel(object? sentinel, ConfigurationSource configurationSource)
+    {
+        if (CanSetSentinel(sentinel, configurationSource))
+        {
+            Metadata.SetSentinel(sentinel, configurationSource);
+
+            return this;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool CanSetSentinel(object? sentinel, ConfigurationSource? configurationSource)
+        => configurationSource.Overrides(Metadata.GetSentinelConfigurationSource())
+            || Equals(Metadata.Sentinel, sentinel);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual InternalPropertyBuilder? HasPrecision(int? precision, ConfigurationSource configurationSource)
     {
         if (CanSetPrecision(precision, configurationSource))
@@ -1012,6 +1040,24 @@ public class InternalPropertyBuilder : InternalPropertyBaseBuilder<Property>, IC
     /// </summary>
     bool IConventionPropertyBuilder.CanSetMaxLength(int? maxLength, bool fromDataAnnotation)
         => CanSetMaxLength(maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    IConventionPropertyBuilder? IConventionPropertyBuilder.HasSentinel(object? sentinel, bool fromDataAnnotation)
+        => HasSentinel(sentinel, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    bool IConventionPropertyBuilder.CanSetSentinel(object? sentinel, bool fromDataAnnotation)
+        => CanSetSentinel(sentinel, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

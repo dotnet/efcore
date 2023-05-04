@@ -162,6 +162,24 @@ public interface IConventionPropertyBuilder : IConventionPropertyBaseBuilder
     bool CanSetMaxLength(int? maxLength, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Configures the value that will be used to determine if the property has been set or not. If the property is set to the
+    ///     sentinel value, then it is considered not set. By default, the sentinel value is the CLR default value for the type of
+    ///     the property.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The same builder instance if the configuration was applied, <see langword="null" /> otherwise.</returns>
+    IConventionPropertyBuilder? HasSentinel(object? sentinel, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the sentinel can be set for this property from the current configuration source.
+    /// </summary>
+    /// <param name="sentinel">The sentinel value.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the sentinel can be set for this property.</returns>
+    bool CanSetSentinel(object? sentinel, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Configures whether the property as capable of persisting unicode characters.
     /// </summary>
     /// <param name="unicode">A value indicating whether the property can contain unicode characters.</param>

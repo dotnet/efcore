@@ -374,6 +374,7 @@ public abstract partial class ModelBuilderTest
         public abstract TestPropertyBuilder<TProperty> HasAnnotation(string annotation, object? value);
         public abstract TestPropertyBuilder<TProperty> IsRequired(bool isRequired = true);
         public abstract TestPropertyBuilder<TProperty> HasMaxLength(int maxLength);
+        public abstract TestPropertyBuilder<TProperty> HasSentinel(object? sentinel);
         public abstract TestPropertyBuilder<TProperty> HasPrecision(int precision);
         public abstract TestPropertyBuilder<TProperty> HasPrecision(int precision, int scale);
         public abstract TestPropertyBuilder<TProperty> IsUnicode(bool unicode = true);

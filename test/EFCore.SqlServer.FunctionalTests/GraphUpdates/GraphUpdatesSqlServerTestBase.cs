@@ -53,7 +53,7 @@ public abstract class GraphUpdatesSqlServerTestBase<TFixture> : GraphUpdatesTest
             modelBuilder.Entity<CruiserWithSentinel>(
                 b =>
                 {
-                    b.Property(e => e.IdUserState).HasDefaultValue(1).Metadata.Sentinel = 667;
+                    b.Property(e => e.IdUserState).HasDefaultValue(1).HasSentinel(667);
                     b.HasOne(e => e.UserState).WithMany(e => e.Users).HasForeignKey(e => e.IdUserState);
                 });
 
