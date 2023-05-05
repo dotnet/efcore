@@ -101,6 +101,8 @@ public class SqlServerRuntimeModelConvention : RelationalRuntimeModelConvention
             annotations.Remove(SqlServerAnnotationNames.CreatedOnline);
             annotations.Remove(SqlServerAnnotationNames.Include);
             annotations.Remove(SqlServerAnnotationNames.FillFactor);
+            annotations.Remove(SqlServerAnnotationNames.SortedInTempDb);
+            annotations.Remove(SqlServerAnnotationNames.DataCompression);
         }
     }
 

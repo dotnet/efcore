@@ -30,6 +30,49 @@ CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName])
     }
 
     [ConditionalFact]
+    public void CreateIndexOperation_unique_sortintempdb()
+    {
+        Generate(
+            new CreateIndexOperation
+            {
+                Name = "IX_People_Name",
+                Table = "People",
+                Schema = "dbo",
+                Columns = new[] { "FirstName", "LastName" },
+                IsUnique = true,
+                [SqlServerAnnotationNames.SortedInTempDb] = true
+            });
+
+        AssertSql(
+"""
+CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL WITH (SORT_IN_TEMPDB = ON);
+""");
+    }
+
+    [ConditionalTheory]
+    [InlineData(DataCompressionType.None, "NONE")]
+    [InlineData(DataCompressionType.Row, "ROW")]
+    [InlineData(DataCompressionType.Page, "PAGE")]
+    public void CreateIndexOperation_unique_datacompression(DataCompressionType dataCompression, string dataCompressionSql)
+    {
+        Generate(
+            new CreateIndexOperation
+            {
+                Name = "IX_People_Name",
+                Table = "People",
+                Schema = "dbo",
+                Columns = new[] { "FirstName", "LastName" },
+                IsUnique = true,
+                [SqlServerAnnotationNames.DataCompression] = dataCompression
+            });
+
+        AssertSql(
+$"""
+CREATE UNIQUE INDEX [IX_People_Name] ON [dbo].[People] ([FirstName], [LastName]) WHERE [FirstName] IS NOT NULL AND [LastName] IS NOT NULL WITH (DATA_COMPRESSION = {dataCompressionSql});
+""");
+    }
+
+    [ConditionalFact]
     public virtual void AddColumnOperation_identity_legacy()
     {
         Generate(

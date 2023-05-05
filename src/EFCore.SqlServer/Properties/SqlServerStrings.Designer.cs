@@ -92,6 +92,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different data compression configurations.
+        /// </summary>
+        public static string DuplicateIndexDataCompressionMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
+            => string.Format(
+                GetString("DuplicateIndexDataCompressionMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
+
+        /// <summary>
         ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different fill factor configurations.
         /// </summary>
         public static string DuplicateIndexFillFactorMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
@@ -113,6 +121,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
         public static string DuplicateIndexOnlineMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
             => string.Format(
                 GetString("DuplicateIndexOnlineMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
+                index1, entityType1, index2, entityType2, table, indexName);
+
+        /// <summary>
+        ///     The indexes {index1} on '{entityType1}' and {index2} on '{entityType2}' are both mapped to '{table}.{indexName}', but have different sort in tempdb configurations.
+        /// </summary>
+        public static string DuplicateIndexSortInTempDbMismatch(object? index1, object? entityType1, object? index2, object? entityType2, object? table, object? indexName)
+            => string.Format(
+                GetString("DuplicateIndexSortInTempDbMismatch", nameof(index1), nameof(entityType1), nameof(index2), nameof(entityType2), nameof(table), nameof(indexName)),
                 index1, entityType1, index2, entityType2, table, indexName);
 
         /// <summary>

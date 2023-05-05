@@ -1852,6 +1852,27 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             options.Add("ONLINE = ON");
         }
 
+        if (operation[SqlServerAnnotationNames.SortedInTempDb] is bool isSortedInTempDb && isSortedInTempDb)
+        {
+            options.Add("SORT_IN_TEMPDB = ON");
+        }
+
+        if (operation[SqlServerAnnotationNames.DataCompression] is DataCompressionType dataCompressionType)
+        {
+            switch (dataCompressionType)
+            {
+                case DataCompressionType.None:
+                    options.Add("DATA_COMPRESSION = NONE");
+                    break;
+                case DataCompressionType.Row:
+                    options.Add("DATA_COMPRESSION = ROW");
+                    break;
+                case DataCompressionType.Page:
+                    options.Add("DATA_COMPRESSION = PAGE");
+                    break;
+            }
+        }
+
         if (options.Count > 0)
         {
             builder

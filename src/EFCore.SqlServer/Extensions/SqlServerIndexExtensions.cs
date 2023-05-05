@@ -297,4 +297,136 @@ public static class SqlServerIndexExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for whether the index uses the fill factor.</returns>
     public static ConfigurationSource? GetFillFactorConfigurationSource(this IConventionIndex index)
         => index.FindAnnotation(SqlServerAnnotationNames.FillFactor)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns a value indicating whether the index is sorted in tempdb.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns><see langword="true" /> if the index is sorted in tempdb.</returns>
+    public static bool? GetIsSortedInTempDb(this IReadOnlyIndex index)
+        => (index is RuntimeIndex)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (bool?)index[SqlServerAnnotationNames.SortedInTempDb];
+
+    /// <summary>
+    ///     Returns a value indicating whether the index is sorted in tempdb.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns><see langword="true" /> if the index is sorted in tempdb.</returns>
+    public static bool? GetIsSortedInTempDb(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.SortedInTempDb);
+        if (annotation != null)
+        {
+            return (bool?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetIsSortedInTempDb(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets a value indicating whether the index is sorted in tempdb.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="sortedInTempDb">The value to set.</param>
+    public static void SetIsSortedInTempDb(this IMutableIndex index, bool? sortedInTempDb)
+        => index.SetAnnotation(
+            SqlServerAnnotationNames.SortedInTempDb,
+            sortedInTempDb);
+
+    /// <summary>
+    ///     Sets a value indicating whether the index is sorted in tempdb.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="sortedInTempDb">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static bool? SetIsSortedInTempDb(
+        this IConventionIndex index,
+        bool? sortedInTempDb,
+        bool fromDataAnnotation = false)
+        => (bool?)index.SetAnnotation(
+            SqlServerAnnotationNames.SortedInTempDb,
+            sortedInTempDb,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for whether the index is sorted in tempdb.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for whether the index is sorted in tempdb.</returns>
+    public static ConfigurationSource? GetIsSortedInTempDbConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.SortedInTempDb)?.GetConfigurationSource();
+
+    /// <summary>
+    ///     Returns the data compression that the index uses.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The data compression that the index uses</returns>
+    public static DataCompressionType? GetDataCompression(this IReadOnlyIndex index)
+        => (index is RuntimeIndex)
+            ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
+            : (DataCompressionType?)index[SqlServerAnnotationNames.DataCompression];
+
+    /// <summary>
+    ///     Returns the data compression that the index uses.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="storeObject">The identifier of the store object.</param>
+    /// <returns>The data compression that the index uses</returns>
+    public static DataCompressionType? GetDataCompression(this IReadOnlyIndex index, in StoreObjectIdentifier storeObject)
+    {
+        if (index is RuntimeIndex)
+        {
+            throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData);
+        }
+
+        var annotation = index.FindAnnotation(SqlServerAnnotationNames.DataCompression);
+        if (annotation != null)
+        {
+            return (DataCompressionType?)annotation.Value;
+        }
+
+        var sharedTableRootIndex = index.FindSharedObjectRootIndex(storeObject);
+        return sharedTableRootIndex?.GetDataCompression(storeObject);
+    }
+
+    /// <summary>
+    ///     Sets a value indicating the data compression the index uses.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="dataCompression">The value to set.</param>
+    public static void SetDataCompression(this IMutableIndex index, DataCompressionType? dataCompression) => index.SetAnnotation(
+            SqlServerAnnotationNames.DataCompression,
+            dataCompression);
+
+    /// <summary>
+    ///     Sets a value indicating the data compression the index uses.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <param name="dataCompression">The value to set.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    public static DataCompressionType? SetDataCompression(
+        this IConventionIndex index,
+        DataCompressionType? dataCompression,
+        bool fromDataAnnotation = false) => (DataCompressionType?)index.SetAnnotation(
+            SqlServerAnnotationNames.DataCompression,
+            dataCompression,
+            fromDataAnnotation)?.Value;
+
+    /// <summary>
+    ///     Returns the <see cref="ConfigurationSource" /> for the data compression the index uses.
+    /// </summary>
+    /// <param name="index">The index.</param>
+    /// <returns>The <see cref="ConfigurationSource" /> for the data compression the index uses.</returns>
+    public static ConfigurationSource? GetDataCompressionConfigurationSource(this IConventionIndex index)
+        => index.FindAnnotation(SqlServerAnnotationNames.DataCompression)?.GetConfigurationSource();
 }
