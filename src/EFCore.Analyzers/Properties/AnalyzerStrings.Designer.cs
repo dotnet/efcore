@@ -77,6 +77,24 @@ namespace Microsoft.EntityFrameworkCore {
                 return ResourceManager.GetString("InternalUsageTitle", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Do not use interpolated strings in methods that provide access to raw queries..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesAnalyzerTitle {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesAnalyzerTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use safe for interpolations method..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesCodeActionTitle {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesCodeActionTitle", resourceCulture);
+            }
+        }
         
         /// <summary>
         ///   Looks up a localized string similar to Method &apos;{0}&apos; provides access to raw sql queries and must be correctly parameterized in order to be used securely. Usage of interpolated strings leads to direct string concatenation, making this call vulnerable to sql injection attacks..
@@ -84,15 +102,6 @@ namespace Microsoft.EntityFrameworkCore {
         public static string InterpolatedStringUsageInRawQueriesMessageFormat {
             get {
                 return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesMessageFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Do not use interpolated strings in methods that provide access to raw queries..
-        /// </summary>
-        public static string InterpolatedStringUsageInRawQueriesTitle {
-            get {
-                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesTitle", resourceCulture);
             }
         }
         

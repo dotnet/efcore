@@ -18,7 +18,7 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
         = new DiagnosticDescriptor(
             Id,
-            title: AnalyzerStrings.InterpolatedStringUsageInRawQueriesTitle,
+            title: AnalyzerStrings.InterpolatedStringUsageInRawQueriesAnalyzerTitle,
             messageFormat: AnalyzerStrings.InterpolatedStringUsageInRawQueriesMessageFormat,
             category: "Security",
             defaultSeverity: DiagnosticSeverity.Warning,

@@ -27,10 +27,13 @@
   <data name="InternalUsageTitle" xml:space="preserve">
     <value>Internal EF Core API usage.</value>
   </data>
+  <data name="InterpolatedStringUsageInRawQueriesAnalyzerTitle" xml:space="preserve">
+    <value>Do not use interpolated strings in methods that provide access to raw queries.</value>
+  </data>
+  <data name="InterpolatedStringUsageInRawQueriesCodeActionTitle" xml:space="preserve">
+    <value>Use safe for interpolations method</value>
+  </data>
   <data name="InterpolatedStringUsageInRawQueriesMessageFormat" xml:space="preserve">
     <value>Method '{0}' provides access to raw sql queries and must be correctly parameterized in order to be used securely. Usage of interpolated strings leads to direct string concatenation, making this call vulnerable to sql injection attacks.</value>
-  </data>
-  <data name="InterpolatedStringUsageInRawQueriesTitle" xml:space="preserve">
-    <value>Do not use interpolated strings in methods that provide access to raw queries.</value>
   </data>
 </root>

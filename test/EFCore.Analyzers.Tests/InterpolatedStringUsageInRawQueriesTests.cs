@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
-using VerifyCS = CSharpAnalyzerVerifier<InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer>;
+using VerifyCS = CSharpCodeFixVerifier<InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer, InterpolatedStringUsageInRawQueriesCodeFixProvider>;
 
 public class InterpolatedStringUsageInRawQueriesTests
 {
@@ -52,7 +52,7 @@ class C
 
     [Fact]
     public Task FromSqlRaw_interpolated_string_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -60,11 +60,20 @@ class C
         db.Users.[|FromSqlRaw|]($"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
 """);
 
     [Fact]
-    public Task FromSqlRaw_interpolated_string_with_other_parameters_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+    public async Task FromSqlRaw_interpolated_string_with_other_parameters_report()
+    {
+        var source = MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -72,7 +81,10 @@ class C
         db.Users.[|FromSqlRaw|]($"SELECT * FROM [Users] WHERE [Id] = {id};", id);
     }
 }
-""");
+""";
+
+        await VerifyCS.VerifyCodeFixAsync(source, source);
+    }
 
     [Fact]
     public Task FromSqlRaw_constant_interpolated_string_do_not_report()
@@ -89,12 +101,20 @@ class C
 
     [Fact]
     public Task FromSqlRaw_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
     {
         RelationalQueryableExtensions.[|FromSqlRaw|](db.Users, $"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        RelationalQueryableExtensions.FromSqlInterpolated(db.Users, $"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -142,7 +162,7 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_interpolated_string_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -150,11 +170,20 @@ class C
         db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
 """);
 
     [Fact]
-    public Task ExecuteSqlRaw_interpolated_string_with_other_parameters_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+    public async Task ExecuteSqlRaw_interpolated_string_with_other_parameters_report()
+    {
+        var source = MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -162,11 +191,15 @@ class C
         db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};", id);
     }
 }
-""");
+""";
+
+        await VerifyCS.VerifyCodeFixAsync(source, source);
+    }
 
     [Fact]
-    public Task ExecuteSqlRaw_interpolated_string_with_other_parameters_IEnumerable_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+    public async Task ExecuteSqlRaw_interpolated_string_with_other_parameters_IEnumerable_report()
+    {
+        var source = MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -174,7 +207,10 @@ class C
         db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};", (IEnumerable<object>)null);
     }
 }
-""");
+""";
+
+        await VerifyCS.VerifyCodeFixAsync(source, source);
+    }
 
     [Fact]
     public Task ExecuteSqlRaw_constant_interpolated_string_do_not_report()
@@ -191,12 +227,20 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
     {
         RelationalDatabaseFacadeExtensions.[|ExecuteSqlRaw|](db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        RelationalDatabaseFacadeExtensions.ExecuteSqlInterpolated(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -244,7 +288,7 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_interpolated_string_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -252,11 +296,20 @@ class C
         db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
 """);
 
     [Fact]
-    public Task ExecuteSqlRawAsync_interpolated_string_with_other_parameters_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+    public async Task ExecuteSqlRawAsync_interpolated_string_with_other_parameters_report()
+    {
+        var source = MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -264,11 +317,15 @@ class C
         db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};", id);
     }
 }
-""");
+""";
+
+        await VerifyCS.VerifyCodeFixAsync(source, source);
+    }
 
     [Fact]
-    public Task ExecuteSqlRawAsync_interpolated_string_with_other_parameters_IEnumerable_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+    public async Task ExecuteSqlRawAsync_interpolated_string_with_other_parameters_IEnumerable_report()
+    {
+        var source = MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
@@ -276,7 +333,10 @@ class C
         db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};", (IEnumerable<object>)null);
     }
 }
-""");
+""";
+
+        await VerifyCS.VerifyCodeFixAsync(source, source);
+    }
 
     [Fact]
     public Task ExecuteSqlRawAsync_constant_interpolated_string_do_not_report()
@@ -293,12 +353,20 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
 {
     void M(MyDbContext db, int id)
     {
         RelationalDatabaseFacadeExtensions.[|ExecuteSqlRawAsync|](db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        RelationalDatabaseFacadeExtensions.ExecuteSqlInterpolatedAsync(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
