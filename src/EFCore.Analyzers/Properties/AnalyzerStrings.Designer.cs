@@ -79,6 +79,24 @@ namespace Microsoft.EntityFrameworkCore {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; provides access to raw sql queries and must be correctly parameterized in order to be used securely. Usage of interpolated strings leads to direct string concatenation, making this call vulnerable to sql injection attacks..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesMessageFormat {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Do not use interpolated strings in methods that provide access to raw queries..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesTitle {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor..
         /// </summary>
         public static string UninitializedDbSetWarningSuppressionJustification {
