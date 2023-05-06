@@ -79,6 +79,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Tests", "test\EFCore
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers", "src\EFCore.Analyzers\EFCore.Analyzers.csproj", "{C0D4A199-3ED4-447B-8657-0502493294E7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Deployment", "src\EFCore.Analyzers.Deployment\EFCore.Analyzers.Deployment.csproj", "{F4C3AAA8-85C5-468E-A84C-9A253435BB10}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Analyzers.Tests", "test\EFCore.Analyzers.Tests\EFCore.Analyzers.Tests.csproj", "{7BC66E5C-BAA3-420B-8331-22821EBA361A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFCore.Cosmos", "src\EFCore.Cosmos\EFCore.Cosmos.csproj", "{6C115EF9-519E-4A4E-BD02-3801777BFEBA}"
@@ -355,6 +357,10 @@ Global
 		{2AC6A8AC-5C0A-422A-B21A-CDC8D75F20A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2AC6A8AC-5C0A-422A-B21A-CDC8D75F20A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2AC6A8AC-5C0A-422A-B21A-CDC8D75F20A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4C3AAA8-85C5-468E-A84C-9A253435BB10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4C3AAA8-85C5-468E-A84C-9A253435BB10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4C3AAA8-85C5-468E-A84C-9A253435BB10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4C3AAA8-85C5-468E-A84C-9A253435BB10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

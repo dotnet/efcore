@@ -9,6 +9,7 @@
       "benchmark\\EFCore.Sqlite.Benchmarks\\EFCore.Sqlite.Benchmarks.csproj",
       "src\\EFCore.Abstractions\\EFCore.Abstractions.csproj",
       "src\\EFCore.Analyzers\\EFCore.Analyzers.csproj",
+      "src\\EFCore.Analyzers.Deployment\\EFCore.Analyzers.Deployment.csproj",
       "src\\EFCore.Cosmos\\EFCore.Cosmos.csproj",
       "src\\EFCore.Design\\EFCore.Design.csproj",
       "src\\EFCore.InMemory\\EFCore.InMemory.csproj",
