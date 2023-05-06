@@ -132,6 +132,28 @@ class C
 }
 """);
 
+    [Fact]
+    public Task FromSqlRaw_FixAll()
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Users.[|FromSqlRaw|]($"SELECT * FROM [Users] WHERE [Id] = {id};");
+        db.Users.[|FromSqlRaw|]($"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
+        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
     #endregion
 
     #region ExecuteSqlRaw
@@ -258,6 +280,28 @@ class C
 }
 """);
 
+    [Fact]
+    public Task ExecuteSqlRaw_FixAll()
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
     #endregion
 
     #region ExecuteSqlRawAsync
@@ -380,6 +424,28 @@ class C
     {
         const string id = "1";
         RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSqlRawAsync_FixAll()
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
