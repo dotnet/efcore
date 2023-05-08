@@ -1056,22 +1056,22 @@ ORDER BY c["CustomerID"]
 
     public override async Task Distinct_OrderBy(bool async)
         // Subquery pushdown. Issue #16156.
-        => Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.Distinct_OrderBy(async))).Message);
+        => await AssertTranslationFailedWithDetails(
+            () => base.Distinct_OrderBy(async),
+            CosmosStrings.NoSubqueryPushdown);
 
     public override async Task Distinct_OrderBy2(bool async)
         // Subquery pushdown. Issue #16156.
-        => Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.Distinct_OrderBy2(async))).Message);
+        => await AssertTranslationFailedWithDetails(
+            () => base.Distinct_OrderBy2(async),
+            CosmosStrings.NoSubqueryPushdown);
 
     public override async Task Distinct_OrderBy3(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(async () => await base.Distinct_OrderBy3(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Distinct_OrderBy(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }

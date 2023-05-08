@@ -206,6 +206,12 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
                 resourceId, partitionKey);
 
         /// <summary>
+        ///     Azure Cosmos DB does not have an appropriate subquery for this translation.
+        /// </summary>
+        public static string NoSubqueryPushdown
+            => GetString("NoSubqueryPushdown");
+
+        /// <summary>
         ///     The expression '{sqlExpression}' in the SQL tree does not have a type mapping assigned.
         /// </summary>
         public static string NullTypeMappingInSqlTree(object? sqlExpression)
