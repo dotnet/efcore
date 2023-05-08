@@ -689,7 +689,9 @@ public class RelationalModelValidator : ModelValidator
 
                 bool IsNotNullAndNotDefault(object? value)
                     => value != null
+#pragma warning disable EF1001 // Internal EF Core API usage.
                         && !property.ClrType.IsDefaultValue(value);
+#pragma warning restore EF1001 // Internal EF Core API usage.
             }
         }
 

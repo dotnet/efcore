@@ -56,9 +56,11 @@ public class RelationalValueGenerationConvention :
         switch (name)
         {
             case RelationalAnnotationNames.DefaultValue:
+#pragma warning disable EF1001 // Internal EF Core API usage.
                 if ((((IProperty)property).TryGetMemberInfo(forMaterialization: false, forSet: false, out var member, out _)
                         ? member!.GetMemberType()
                         : property.ClrType)
+#pragma warning restore EF1001 // Internal EF Core API usage.
                     == typeof(bool)
                     && Equals(true, property.GetDefaultValue()))
                 {
