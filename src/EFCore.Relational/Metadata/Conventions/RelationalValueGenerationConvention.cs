@@ -56,6 +56,16 @@ public class RelationalValueGenerationConvention :
         switch (name)
         {
             case RelationalAnnotationNames.DefaultValue:
+                if ((((IProperty)property).TryGetMemberInfo(forMaterialization: false, forSet: false, out var member, out _)
+                        ? member!.GetMemberType()
+                        : property.ClrType)
+                    == typeof(bool)
+                    && Equals(true, property.GetDefaultValue()))
+                {
+                    propertyBuilder.HasSentinel(true);
+                }
+
+                goto case RelationalAnnotationNames.DefaultValueSql;
             case RelationalAnnotationNames.DefaultValueSql:
             case RelationalAnnotationNames.ComputedColumnSql:
                 propertyBuilder.ValueGenerated(GetValueGenerated(property));

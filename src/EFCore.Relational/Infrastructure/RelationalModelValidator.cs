@@ -675,21 +675,24 @@ public class RelationalModelValidator : ModelValidator
         {
             foreach (var property in entityType.GetDeclaredProperties())
             {
-                if (property.ClrType == typeof(bool)
+                if (!property.ClrType.IsNullableType()
+                    && (property.ClrType.IsEnum || property.ClrType == typeof(bool))
                     && property.ValueGenerated != ValueGenerated.Never
-                    && property.FieldInfo?.FieldType != typeof(bool?)
+                    && property.FieldInfo?.FieldType.IsNullableType() != true
+                    && !((IConventionProperty)property).GetSentinelConfigurationSource().HasValue
                     && (StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table) is { } table
-                        && (IsNotNullAndFalse(property.GetDefaultValue(table))
+                        && (IsNotNullAndNotDefault(property.GetDefaultValue(table))
                             || property.GetDefaultValueSql(table) != null)))
                 {
                     logger.BoolWithDefaultWarning(property);
                 }
+
+                bool IsNotNullAndNotDefault(object? value)
+                    => value != null
+                        && !property.ClrType.IsDefaultValue(value);
             }
         }
 
-        static bool IsNotNullAndFalse(object? value)
-            => value != null
-                && (value is not bool asBool || asBool);
     }
 
     /// <summary>

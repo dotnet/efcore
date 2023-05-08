@@ -103,6 +103,15 @@ public class StoreGeneratedSqliteTest : StoreGeneratedTestBase<StoreGeneratedSql
                     b.Property(e => e.OnUpdateThrowBeforeThrowAfter).HasDefaultValue("Rabbit");
                 });
 
+            modelBuilder.Entity<WithNoBackingFields>(
+                b =>
+                {
+                    b.Property(e => e.TrueDefault).HasDefaultValue(true);
+                    b.Property(e => e.NonZeroDefault).HasDefaultValue(-1);
+                    b.Property(e => e.FalseDefault).HasDefaultValue(false);
+                    b.Property(e => e.ZeroDefault).HasDefaultValue(0);
+                });
+
             modelBuilder.Entity<WithNullableBackingFields>(
                 b =>
                 {

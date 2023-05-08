@@ -2337,9 +2337,9 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
         }
 
         /// <summary>
-        ///     The 'bool' property '{property}' on entity type '{entityType}' is configured with a database-generated default. This default will always be used for inserts when the property has the value 'false', since this is the CLR default for the 'bool' type. Consider using the nullable 'bool?' type instead, so that the default will only be used for inserts when the property value is 'null'.
+        ///     The '{type}' property '{property}' on entity type '{entityType}' is configured with a database-generated default, but has no configured sentinel value. The database-generated default will always be used for inserts when the property has the value '{defaultValue}', since this is the CLR default for the '{type2}' type. Consider using a nullable type, using a nullable backing field, or setting the sentinel value for the property to ensure the database default is used when, and only when, appropriate. See https://aka.ms/efcore-docs-default-values for more information.
         /// </summary>
-        public static EventDefinition<string, string> LogBoolWithDefaultWarning(IDiagnosticsLogger logger)
+        public static EventDefinition<string, string, string, string, string> LogBoolWithDefaultWarning(IDiagnosticsLogger logger)
         {
             var definition = ((RelationalLoggingDefinitions)logger.Definitions).LogBoolWithDefaultWarning;
             if (definition == null)
@@ -2347,18 +2347,18 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics.Internal
                 definition = NonCapturingLazyInitializer.EnsureInitialized(
                     ref ((RelationalLoggingDefinitions)logger.Definitions).LogBoolWithDefaultWarning,
                     logger,
-                    static logger => new EventDefinition<string, string>(
+                    static logger => new EventDefinition<string, string, string, string, string>(
                         logger.Options,
                         RelationalEventId.BoolWithDefaultWarning,
                         LogLevel.Warning,
                         "RelationalEventId.BoolWithDefaultWarning",
-                        level => LoggerMessage.Define<string, string>(
+                        level => LoggerMessage.Define<string, string, string, string, string>(
                             level,
                             RelationalEventId.BoolWithDefaultWarning,
                             _resourceManager.GetString("LogBoolWithDefaultWarning")!)));
             }
 
-            return (EventDefinition<string, string>)definition;
+            return (EventDefinition<string, string, string, string, string>)definition;
         }
 
         /// <summary>

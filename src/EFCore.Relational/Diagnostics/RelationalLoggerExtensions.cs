@@ -2505,7 +2505,14 @@ public static class RelationalLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+            var defaultValue = property.ClrType.GetDefaultValue();
+            definition.Log(
+                diagnostics,
+                property.ClrType.ShortDisplayName(),
+                property.Name,
+                property.DeclaringEntityType.DisplayName(),
+                defaultValue == null ? "null" : defaultValue.ToString()!,
+                property.ClrType.ShortDisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2521,9 +2528,15 @@ public static class RelationalLoggerExtensions
 
     private static string BoolWithDefaultWarning(EventDefinitionBase definition, EventData payload)
     {
-        var d = (EventDefinition<string, string>)definition;
+        var d = (EventDefinition<string, string, string, string, string>)definition;
         var p = (PropertyEventData)payload;
-        return d.GenerateMessage(p.Property.Name, p.Property.DeclaringEntityType.DisplayName());
+        var defaultValue = p.Property.ClrType.GetDefaultValue();
+        return d.GenerateMessage(
+            p.Property.ClrType.ShortDisplayName(),
+            p.Property.Name,
+            p.Property.DeclaringEntityType.DisplayName(),
+            defaultValue == null ? "null" : defaultValue.ToString()!,
+            p.Property.ClrType.ShortDisplayName());
     }
 
     /// <summary>
