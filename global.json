@@ -1,11 +1,11 @@
 {
   "sdk": {
-    "version": "8.0.100-preview.5.23228.7",
+    "version": "8.0.100-preview.5.23257.1",
     "allowPrerelease": true,
     "rollForward": "latestMajor"
   },
   "tools": {
-    "dotnet": "8.0.100-preview.5.23228.7",
+    "dotnet": "8.0.100-preview.5.23257.1",
     "runtimes": {
       "aspnetcore": [
         "7.0.3"
