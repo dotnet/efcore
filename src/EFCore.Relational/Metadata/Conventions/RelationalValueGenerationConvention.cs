@@ -64,7 +64,7 @@ public class RelationalValueGenerationConvention :
                     == typeof(bool)
                     && Equals(true, property.GetDefaultValue()))
                 {
-                    propertyBuilder.HasSentinel(true);
+                    propertyBuilder.HasSentinel(annotation != null ? true : null);
                 }
 
                 goto case RelationalAnnotationNames.DefaultValueSql;
