@@ -1334,6 +1334,72 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             });
 
     [ConditionalFact]
+    public virtual void Properties_get_database_defaults_when_set_to_sentinel_values()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var entity = new WithNoBackingFields
+                {
+                    Id = Fixture.IntSentinel,
+                    TrueDefault = true, // Bool sentinel is always true by convention when default value is true
+                    NonZeroDefault = Fixture.IntSentinel,
+                    FalseDefault = Fixture.BoolSentinel,
+                    ZeroDefault = Fixture.IntSentinel
+                };
+
+                context.Add(entity);
+
+                context.SaveChanges();
+
+                Assert.NotEqual(0, entity.Id);
+                Assert.True(entity.TrueDefault);
+                Assert.Equal(-1, entity.NonZeroDefault);
+                Assert.False(entity.FalseDefault);
+                Assert.Equal(0, entity.ZeroDefault);
+            },
+            context =>
+            {
+                var entity = context.Set<WithNoBackingFields>().Single();
+                Assert.True(entity.TrueDefault);
+                Assert.Equal(-1, entity.NonZeroDefault);
+                Assert.False(entity.FalseDefault);
+                Assert.Equal(0, entity.ZeroDefault);
+            });
+
+    [ConditionalFact]
+    public virtual void Properties_get_set_values_when_not_set_to_sentinel_values()
+        => ExecuteWithStrategyInTransaction(
+            context =>
+            {
+                var entity = new WithNoBackingFields
+                {
+                    Id = Fixture.IntSentinel,
+                    TrueDefault = false, // Bool sentinel is always true by convention when default value is true
+                    NonZeroDefault = 3,
+                    FalseDefault = !Fixture.BoolSentinel,
+                    ZeroDefault = 5
+                };
+
+                context.Add(entity);
+
+                context.SaveChanges();
+
+                Assert.NotEqual(0, entity.Id);
+                Assert.False(entity.TrueDefault);
+                Assert.Equal(3, entity.NonZeroDefault);
+                Assert.Equal(!Fixture.BoolSentinel, entity.FalseDefault);
+                Assert.Equal(5, entity.ZeroDefault);
+            },
+            context =>
+            {
+                var entity = context.Set<WithNoBackingFields>().Single();
+                Assert.False(entity.TrueDefault);
+                Assert.Equal(3, entity.NonZeroDefault);
+                Assert.Equal(!Fixture.BoolSentinel, entity.FalseDefault);
+                Assert.Equal(5, entity.ZeroDefault);
+            });
+
+    [ConditionalFact]
     public virtual void Nullable_fields_store_non_defaults_when_set()
         => ExecuteWithStrategyInTransaction(
             context =>
@@ -1688,6 +1754,15 @@ public abstract class StoreGeneratedTestBase<TFixture> : IClassFixture<TFixture>
             get => _nonNullableAsNullable;
             set => _nonNullableAsNullable = value ?? 0;
         }
+    }
+
+    protected class WithNoBackingFields
+    {
+        public int Id { get; set; }
+        public bool TrueDefault { get; set; }
+        public int NonZeroDefault { get; set; }
+        public bool FalseDefault { get; set; }
+        public int ZeroDefault { get; set; }
     }
 
     protected class WithNullableBackingFields

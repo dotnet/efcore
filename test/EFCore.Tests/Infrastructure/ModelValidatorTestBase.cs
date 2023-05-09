@@ -180,6 +180,33 @@ public abstract class ModelValidatorTestBase
         }
     }
 
+    protected enum X
+    {
+        A,
+        B
+    }
+
+    protected class WithEnum
+    {
+        public int Id { get; set; }
+        public X EnumWithDefaultConstraint { get; set; }
+        public X EnumNoDefaultConstraint { get; set; }
+        public X? NullableEnum { get; set; }
+    }
+
+    protected class WithEnum2
+    {
+        private X? _enumWithDefaultConstraint;
+
+        public int Id { get; set; }
+
+        public X EnumWithDefaultConstraint
+        {
+            get => _enumWithDefaultConstraint ?? X.B;
+            set => _enumWithDefaultConstraint = value;
+        }
+    }
+
     protected class EntityWithInvalidProperties
     {
         public int Id { get; set; }

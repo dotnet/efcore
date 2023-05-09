@@ -112,15 +112,14 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     [ConditionalFact]
     public virtual void Ignores_bool_with_default_value_false()
     {
-        var modelBuilder = CreateConventionlessModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         var model = modelBuilder.Model;
 
         var entityType = model.AddEntityType(typeof(E));
-        SetPrimaryKey(entityType);
-        entityType.AddProperty("ImNot", typeof(bool?)).SetDefaultValue(false);
-        entityType.AddProperty("ImNotUsed", typeof(bool)).SetDefaultValue(false);
+        entityType.FindProperty("ImNot")!.SetDefaultValue(false);
+        entityType.FindProperty("ImNotUsed")!.SetDefaultValue(false);
 
-        var property = entityType.AddProperty("ImBool", typeof(bool));
+        var property = entityType.FindProperty("ImBool")!;
         property.SetDefaultValue(false);
         property.ValueGenerated = ValueGenerated.OnAdd;
 
@@ -130,61 +129,134 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
     }
 
     [ConditionalFact]
-    public virtual void Detects_bool_with_default_value_not_false()
+    public virtual void Bool_with_true_default_value_okay_because_sentinel_set_to_true()
     {
-        var modelBuilder = CreateConventionlessModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         var model = modelBuilder.Model;
 
         var entityType = model.AddEntityType(typeof(E));
-        SetPrimaryKey(entityType);
-        entityType.AddProperty("ImNot", typeof(bool?)).SetDefaultValue(true);
-        entityType.AddProperty("ImNotUsed", typeof(bool)).SetDefaultValue(true);
+        entityType.FindProperty("ImNot")!.SetDefaultValue(true);
+        entityType.FindProperty("ImNotUsed")!.SetDefaultValue(true);
 
-        var property = entityType.AddProperty("ImBool", typeof(bool));
+        var property = entityType.FindProperty("ImBool")!;
         property.SetDefaultValue(true);
         property.ValueGenerated = ValueGenerated.OnAdd;
 
-        VerifyWarning(
-            RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("ImBool", "E"), modelBuilder);
+        Assert.True((bool)property.Sentinel!);
+
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     [ConditionalFact] // Issue #28509
     public virtual void Bool_with_default_value_and_nullable_backing_field_is_fine()
     {
-        var modelBuilder = CreateConventionlessModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         var model = modelBuilder.Model;
 
         var entityType = model.AddEntityType(typeof(E2));
-        SetPrimaryKey(entityType);
-        var property = entityType.AddProperty(typeof(E2).GetAnyProperty("ImBool")!);
+        var property = entityType.FindProperty("ImBool")!;
         property.SetField("_imBool");
         property.SetDefaultValue(true);
         property.ValueGenerated = ValueGenerated.OnAdd;
 
-        VerifyLogDoesNotContain(
-            RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("ImBool", "E2"), modelBuilder);
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
     }
 
     [ConditionalFact]
     public virtual void Detects_bool_with_default_expression()
     {
-        var modelBuilder = CreateConventionlessModelBuilder();
+        var modelBuilder = CreateConventionModelBuilder();
         var model = modelBuilder.Model;
 
         var entityType = model.AddEntityType(typeof(E));
-        SetPrimaryKey(entityType);
-        entityType.AddProperty("ImNot", typeof(bool?)).SetDefaultValueSql("TRUE");
-        entityType.AddProperty("ImNotUsed", typeof(bool)).SetDefaultValueSql("TRUE");
-
-        var property = entityType.AddProperty("ImBool", typeof(bool));
+        entityType.FindProperty("ImNot")!.SetDefaultValueSql("TRUE");
+        var property = entityType.FindProperty("ImBool")!;
         property.SetDefaultValueSql("TRUE");
         property.ValueGenerated = ValueGenerated.OnAddOrUpdate;
 
         VerifyWarning(
             RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
-                .GenerateMessage("ImBool", "E"), modelBuilder);
+                .GenerateMessage("bool", "ImBool", "E", "False", "bool"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Ignores_enum_with_default_value_matching_CLR_default()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithEnum));
+        entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!.SetDefaultValue(X.A);
+        entityType.FindProperty(nameof(WithEnum.NullableEnum))!.SetDefaultValue(X.B);
+
+        Validate(modelBuilder);
+
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_enum_with_database_default_not_set_to_CLR_default()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithEnum));
+        entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!.SetDefaultValue(X.B);
+        entityType.FindProperty(nameof(WithEnum.NullableEnum))!.SetDefaultValue(X.B);
+
+        Validate(modelBuilder);
+
+        VerifyWarning(
+            RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "A", "X"), modelBuilder);
+    }
+
+    [ConditionalFact]
+    public virtual void Enum_with_database_default_not_set_to_CLR_default_okay_if_sentinel_set()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithEnum));
+        var property = entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!;
+        property.SetDefaultValue(X.B);
+        property.Sentinel = X.B;
+        entityType.FindProperty(nameof(WithEnum.NullableEnum))!.SetDefaultValue(X.B);
+
+        Validate(modelBuilder);
+
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public virtual void Enum_with_database_default_not_set_to_CLR_default_and_nullable_backing_field_is_fine()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithEnum2));
+        entityType.FindProperty(nameof(WithEnum2.EnumWithDefaultConstraint))!.SetDefaultValue(X.B);
+
+        Validate(modelBuilder);
+
+        Assert.DoesNotContain(LoggerFactory.Log, l => l.Level == LogLevel.Warning);
+    }
+
+    [ConditionalFact]
+    public virtual void Detects_enum_with_default_expression()
+    {
+        var modelBuilder = CreateConventionModelBuilder();
+        var model = modelBuilder.Model;
+
+        var entityType = model.AddEntityType(typeof(WithEnum));
+        entityType.FindProperty(nameof(WithEnum.EnumWithDefaultConstraint))!.SetDefaultValueSql("SQL");
+        entityType.FindProperty(nameof(WithEnum.NullableEnum))!.SetDefaultValueSql("SQL");
+
+        Validate(modelBuilder);
+
+        VerifyWarning(
+            RelationalResources.LogBoolWithDefaultWarning(new TestLogger<TestRelationalLoggingDefinitions>())
+                .GenerateMessage("X", "EnumWithDefaultConstraint", "WithEnum", "A", "X"), modelBuilder);
     }
 
     [ConditionalFact]
@@ -195,10 +267,10 @@ public partial class RelationalModelValidatorTest : ModelValidatorTest
 
         var entityA = model.AddEntityType(typeof(A));
         SetPrimaryKey(entityA);
-        entityA.FindProperty("Id").SetDefaultValue(1);
+        entityA.FindProperty("Id")!.SetDefaultValue(1);
         AddProperties(entityA);
 
-        entityA.FindProperty("Id").SetDefaultValue(1);
+        entityA.FindProperty("Id")!.SetDefaultValue(1);
 
         VerifyWarning(
             RelationalResources.LogKeyHasDefaultValue(

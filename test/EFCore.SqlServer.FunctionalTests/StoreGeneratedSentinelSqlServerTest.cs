@@ -175,6 +175,16 @@ public class StoreGeneratedSentinelSqlServerTest : StoreGeneratedSqlServerTestBa
                     b.Property(e => e.NonNullableAsNullable).HasSentinel(IntSentinel);
                 });
 
+            modelBuilder.Entity<WithNoBackingFields>(
+                b =>
+                {
+                    b.Property(e => e.Id).HasSentinel(IntSentinel);
+                    b.Property(e => e.TrueDefault).HasSentinel(BoolSentinel);
+                    b.Property(e => e.NonZeroDefault).HasSentinel(IntSentinel);
+                    b.Property(e => e.FalseDefault).HasSentinel(BoolSentinel);
+                    b.Property(e => e.ZeroDefault).HasSentinel(IntSentinel);
+                });
+
             modelBuilder.Entity<WithNullableBackingFields>(
                 b =>
                 {
