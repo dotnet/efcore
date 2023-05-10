@@ -33,6 +33,11 @@ public class DatabaseColumn : Annotatable
     public virtual string? StoreType { get; set; }
 
     /// <summary>
+    ///     The default value for the column, or <see langword="null" /> if there is no default value or it could not be parsed.
+    /// </summary>
+    public virtual object? DefaultValue { get; set; }
+
+    /// <summary>
     ///     The default constraint for the column, or <see langword="null" /> if none.
     /// </summary>
     public virtual string? DefaultValueSql { get; set; }

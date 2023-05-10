@@ -184,12 +184,6 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
         return fragments;
     }
 
-    /// <inheritdoc />
-    public override IReadOnlyList<MethodCallCodeFragment> GenerateFluentApiCalls(
-        IRelationalPropertyOverrides overrides,
-        IDictionary<string, IAnnotation> annotations)
-        => base.GenerateFluentApiCalls(overrides, annotations);
-
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in

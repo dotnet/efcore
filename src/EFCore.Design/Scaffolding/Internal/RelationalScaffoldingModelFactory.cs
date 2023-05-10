@@ -453,6 +453,11 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
             property.ValueGeneratedOnAddOrUpdate();
         }
 
+        if (column.DefaultValue != null)
+        {
+            property.HasDefaultValue(column.DefaultValue);
+        }
+
         if (column.DefaultValueSql != null)
         {
             property.HasDefaultValueSql(column.DefaultValueSql);
