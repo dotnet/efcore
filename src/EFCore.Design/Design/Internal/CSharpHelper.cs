@@ -924,7 +924,9 @@ public class CSharpHelper : ICSharpHelper
         var name = Enum.GetName(type, value);
 
         return name == null
-            ? GetCompositeEnumValue(type, value, fullName)
+            ? type.IsDefined(typeof(FlagsAttribute), false)
+                ? GetCompositeEnumValue(type, value, fullName)
+                : $"({Reference(type)}){UnknownLiteral(Convert.ChangeType(value, Enum.GetUnderlyingType(type)))}"
             : GetSimpleEnumValue(type, name, fullName);
     }
 
