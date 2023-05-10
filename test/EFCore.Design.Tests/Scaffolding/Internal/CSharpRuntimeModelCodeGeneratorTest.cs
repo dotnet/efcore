@@ -1803,7 +1803,7 @@ namespace TestNamespace
                 typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: (Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
             enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var enum2 = runtimeEntityType.AddProperty(
@@ -3570,7 +3570,7 @@ namespace TestNamespace
                 typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: (Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
             enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var enum2 = runtimeEntityType.AddProperty(
@@ -5483,7 +5483,7 @@ namespace TestNamespace
                 typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                sentinel: (Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
             enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var enum2 = runtimeEntityType.AddProperty(
