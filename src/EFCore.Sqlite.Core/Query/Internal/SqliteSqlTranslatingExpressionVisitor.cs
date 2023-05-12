@@ -1,6 +1,7 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -71,11 +72,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             }
         };
 
-    private static readonly IReadOnlyCollection<Type> FunctionModuloTypes = new HashSet<Type>
+    private static readonly IReadOnlyDictionary<Type, string> ModuloFunctions = new Dictionary<Type, string>
     {
-        typeof(decimal),
-        typeof(double),
-        typeof(float)
+        { typeof(decimal), "ef_mod" },
+        { typeof(double), "mod" },
+        { typeof(float), "mod" }
     };
 
     /// <summary>
@@ -192,11 +193,11 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         if (visitedExpression is SqlBinaryExpression sqlBinary)
         {
             if (sqlBinary.OperatorType == ExpressionType.Modulo
-                && (FunctionModuloTypes.Contains(GetProviderType(sqlBinary.Left))
-                    || FunctionModuloTypes.Contains(GetProviderType(sqlBinary.Right))))
+                && (ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Left), out var function)
+                    || ModuloFunctions.TryGetValue(GetProviderType(sqlBinary.Right), out function)))
             {
                 return Dependencies.SqlExpressionFactory.Function(
-                    "ef_mod",
+                    function,
                     new[] { sqlBinary.Left, sqlBinary.Right },
                     nullable: true,
                     argumentsPropagateNullability: new[] { true, true },
@@ -225,6 +226,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
         return visitedExpression;
     }
 
+    [return: NotNullIfNotNull(nameof(expression))]
     private static Type? GetProviderType(SqlExpression? expression)
         => expression == null
             ? null

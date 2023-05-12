@@ -42,17 +42,56 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Convert_ToString(bool async)
         => AssertTranslationFailed(() => base.Convert_ToString(async));
 
-    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
-        => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice(async));
+    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
+    {
+        await base.Projecting_Math_Truncate_and_ordering_by_it_twice(async);
 
-    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
-        => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async));
+        AssertSql(
+"""
+SELECT trunc(CAST("o"."OrderID" AS REAL)) AS "A"
+FROM "Orders" AS "o"
+WHERE "o"."OrderID" < 10250
+ORDER BY trunc(CAST("o"."OrderID" AS REAL))
+""");
+    }
 
-    public override Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
-        => AssertTranslationFailed(() => base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async));
+    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice2(bool async)
+    {
+        await base.Projecting_Math_Truncate_and_ordering_by_it_twice2(async);
 
-    public override Task Where_functions_nested(bool async)
-        => AssertTranslationFailed(() => base.Where_functions_nested(async));
+        AssertSql(
+"""
+SELECT trunc(CAST("o"."OrderID" AS REAL)) AS "A"
+FROM "Orders" AS "o"
+WHERE "o"."OrderID" < 10250
+ORDER BY trunc(CAST("o"."OrderID" AS REAL)) DESC
+""");
+    }
+
+    public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice3(bool async)
+    {
+        await base.Projecting_Math_Truncate_and_ordering_by_it_twice3(async);
+
+        AssertSql(
+"""
+SELECT trunc(CAST("o"."OrderID" AS REAL)) AS "A"
+FROM "Orders" AS "o"
+WHERE "o"."OrderID" < 10250
+ORDER BY trunc(CAST("o"."OrderID" AS REAL)) DESC
+""");
+    }
+
+    public override async Task Where_functions_nested(bool async)
+    {
+        await base.Where_functions_nested(async);
+
+        AssertSql(
+"""
+SELECT "c"."CustomerID", "c"."Address", "c"."City", "c"."CompanyName", "c"."ContactName", "c"."ContactTitle", "c"."Country", "c"."Fax", "c"."Phone", "c"."PostalCode", "c"."Region"
+FROM "Customers" AS "c"
+WHERE pow(CAST(length("c"."CustomerID") AS REAL), 2.0) = 25.0
+""");
+    }
 
     public override Task Where_guid_newguid(bool async)
         => AssertTranslationFailed(() => base.Where_guid_newguid(async));
@@ -60,47 +99,240 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Where_math_abs3(bool async)
         => AssertTranslationFailed(() => base.Where_math_abs3(async));
 
-    public override Task Where_math_acos(bool async)
-        => AssertTranslationFailed(() => base.Where_math_acos(async));
+    public override async Task Where_math_acos(bool async)
+    {
+        await base.Where_math_acos(async);
 
-    public override Task Where_math_asin(bool async)
-        => AssertTranslationFailed(() => base.Where_math_asin(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND acos(CAST("o"."Discount" AS REAL)) > 1.0
+""");
+    }
 
-    public override Task Where_math_atan(bool async)
-        => AssertTranslationFailed(() => base.Where_math_atan(async));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_acosh(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Acosh(od.Discount + 1) > 0),
+            entryCount: 13);
 
-    public override Task Where_math_atan2(bool async)
-        => AssertTranslationFailed(() => base.Where_math_atan2(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND acosh(CAST("o"."Discount" + 1 AS REAL)) > 0.0
+""");
+    }
 
-    public override Task Where_math_ceiling1(bool async)
-        => AssertTranslationFailed(() => base.Where_math_ceiling1(async));
+    public override async Task Where_math_asin(bool async)
+    {
+        await base.Where_math_asin(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND asin(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_asinh(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Asinh(od.Discount) > 0),
+            entryCount: 13);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND asinh(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    public override async Task Where_math_atan(bool async)
+    {
+        await base.Where_math_atan(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND atan(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    public override async Task Where_math_atan2(bool async)
+    {
+        await base.Where_math_atan2(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND atan2(CAST("o"."Discount" AS REAL), 1.0) > 0.0
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_atanh(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Atanh(od.Discount) > 0),
+            entryCount: 13);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND atanh(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    public override async Task Where_math_ceiling1(bool async)
+    {
+        await base.Where_math_ceiling1(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."UnitPrice" < 7.0 AND ceiling(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
 
     public override Task Where_math_ceiling2(bool async)
         => AssertTranslationFailed(() => base.Where_math_ceiling2(async));
 
-    public override Task Where_math_cos(bool async)
-        => AssertTranslationFailed(() => base.Where_math_cos(async));
+    public override async Task Where_math_cos(bool async)
+    {
+        await base.Where_math_cos(async);
 
-    public override Task Where_math_exp(bool async)
-        => AssertTranslationFailed(() => base.Where_math_exp(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND cos(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_cosh(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Cosh(od.Discount) > 0),
+            entryCount: 25);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND cosh(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    public override async Task Where_math_exp(bool async)
+    {
+        await base.Where_math_exp(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND exp(CAST("o"."Discount" AS REAL)) > 1.0
+""");
+    }
 
     public override Task Where_math_floor(bool async)
         => AssertTranslationFailed(() => base.Where_math_floor(async));
 
-    public override Task Where_math_log(bool async)
-        => AssertTranslationFailed(() => base.Where_math_log(async));
+    public override async Task Where_math_log(bool async)
+    {
+        await base.Where_math_log(async);
 
-    public override Task Where_math_log_new_base(bool async)
-        => AssertTranslationFailed(() => base.Where_math_log_new_base(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln(CAST("o"."Discount" AS REAL)) < 0.0
+""");
+    }
 
-    public override Task Where_math_log10(bool async)
-        => AssertTranslationFailed(() => base.Where_math_log10(async));
+    public override async Task Where_math_log_new_base(bool async)
+    {
+        await base.Where_math_log_new_base(async);
 
-    public override Task Where_math_power(bool async)
-        => AssertTranslationFailed(() => base.Where_math_power(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7.0, CAST("o"."Discount" AS REAL)) < 0.0
+""");
+    }
 
-    public override Task Where_math_square(bool async)
-        => AssertTranslationFailed(() => base.Where_math_square(async));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_log2(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077 && od.Discount > 0).Where(od => Math.Log2(od.Discount) < 0),
+            entryCount: 13);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log2(CAST("o"."Discount" AS REAL)) < 0.0
+""");
+    }
+
+    public override async Task Where_math_log10(bool async)
+    {
+        await base.Where_math_log10(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log10(CAST("o"."Discount" AS REAL)) < 0.0
+""");
+    }
+
+    public override async Task Where_math_power(bool async)
+    {
+        await base.Where_math_power(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE pow(CAST("o"."Discount" AS REAL), 3.0) > 0.004999999888241291
+""");
+    }
+
+    public override async Task Where_math_square(bool async)
+    {
+        await base.Where_math_square(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE pow(CAST("o"."Discount" AS REAL), 2.0) > 0.05000000074505806
+""");
+    }
 
     public override Task Where_math_round(bool async)
         => AssertTranslationFailed(() => base.Where_math_round(async));
@@ -132,62 +364,258 @@ WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
 """);
     }
 
-    public override Task Where_math_sin(bool async)
-        => AssertTranslationFailed(() => base.Where_math_sin(async));
+    public override async Task Where_math_sin(bool async)
+    {
+        await base.Where_math_sin(async);
 
-    public override Task Where_math_sqrt(bool async)
-        => AssertTranslationFailed(() => base.Where_math_sqrt(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sin(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
 
-    public override Task Where_math_tan(bool async)
-        => AssertTranslationFailed(() => base.Where_math_tan(async));
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_sinh(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Sinh(od.Discount) > 0),
+            entryCount: 13);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sinh(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    public override async Task Where_math_sqrt(bool async)
+    {
+        await base.Where_math_sqrt(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sqrt(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    public override async Task Where_math_tan(bool async)
+    {
+        await base.Where_math_tan(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND tan(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Where_math_tanh(bool async)
+    {
+        await AssertQuery(
+            async,
+            ss => ss.Set<OrderDetail>().Where(od => od.OrderID == 11077).Where(od => Math.Tanh(od.Discount) > 0),
+            entryCount: 13);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND tanh(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
 
     public override Task Where_math_truncate(bool async)
         => AssertTranslationFailed(() => base.Where_math_truncate(async));
 
-    public override Task Where_math_degrees(bool async)
-        => AssertTranslationFailed(() => base.Where_math_degrees(async));
+    public override async Task Where_math_degrees(bool async)
+    {
+        await base.Where_math_degrees(async);
 
-    public override Task Where_math_radians(bool async)
-        => AssertTranslationFailed(() => base.Where_math_radians(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND degrees(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
 
-    public override Task Where_mathf_acos(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_acos(async));
+    public override async Task Where_math_radians(bool async)
+    {
+        await base.Where_math_radians(async);
 
-    public override Task Where_mathf_asin(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_asin(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND radians(CAST("o"."Discount" AS REAL)) > 0.0
+""");
+    }
 
-    public override Task Where_mathf_atan(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_atan(async));
+    public override async Task Where_mathf_acos(bool async)
+    {
+        await base.Where_mathf_acos(async);
 
-    public override Task Where_mathf_atan2(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_atan2(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND acos("o"."Discount") > 1
+""");
+    }
 
-    public override Task Where_mathf_ceiling1(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_ceiling1(async));
+    public override async Task Where_mathf_asin(bool async)
+    {
+        await base.Where_mathf_asin(async);
 
-    public override Task Where_mathf_cos(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_cos(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND asin("o"."Discount") > 0
+""");
+    }
 
-    public override Task Where_mathf_exp(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_exp(async));
+    public override async Task Where_mathf_atan(bool async)
+    {
+        await base.Where_mathf_atan(async);
 
-    public override Task Where_mathf_floor(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_floor(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND atan("o"."Discount") > 0
+""");
+    }
 
-    public override Task Where_mathf_log(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_log(async));
+    public override async Task Where_mathf_atan2(bool async)
+    {
+        await base.Where_mathf_atan2(async);
 
-    public override Task Where_mathf_log_new_base(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_log_new_base(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND atan2("o"."Discount", 1) > 0
+""");
+    }
 
-    public override Task Where_mathf_log10(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_log10(async));
+    public override async Task Where_mathf_ceiling1(bool async)
+    {
+        await base.Where_mathf_ceiling1(async);
 
-    public override Task Where_mathf_power(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_power(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."UnitPrice" < 7.0 AND ceiling("o"."Discount") > 0
+""");
+    }
 
-    public override Task Where_mathf_square(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_square(async));
+    public override async Task Where_mathf_cos(bool async)
+    {
+        await base.Where_mathf_cos(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND cos("o"."Discount") > 0
+""");
+    }
+
+    public override async Task Where_mathf_exp(bool async)
+    {
+        await base.Where_mathf_exp(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND exp("o"."Discount") > 1
+""");
+    }
+
+    public override async Task Where_mathf_floor(bool async)
+    {
+        await base.Where_mathf_floor(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."Quantity" < 5 AND floor(CAST("o"."UnitPrice" AS REAL)) > 10
+""");
+    }
+
+    public override async Task Where_mathf_log(bool async)
+    {
+        await base.Where_mathf_log(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND ln("o"."Discount") < 0
+""");
+    }
+
+    public override async Task Where_mathf_log_new_base(bool async)
+    {
+        await base.Where_mathf_log_new_base(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log(7, "o"."Discount") < 0
+""");
+    }
+
+    public override async Task Where_mathf_log10(bool async)
+    {
+        await base.Where_mathf_log10(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND "o"."Discount" > 0 AND log10("o"."Discount") < 0
+""");
+    }
+
+    public override async Task Where_mathf_power(bool async)
+    {
+        await base.Where_mathf_power(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE pow("o"."Discount", 3) > 0.005
+""");
+    }
+
+    public override async Task Where_mathf_square(bool async)
+    {
+        await base.Where_mathf_square(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE pow("o"."Discount", 2) > 0.05
+""");
+    }
 
     public override async Task Where_mathf_sign(bool async)
     {
@@ -201,23 +629,77 @@ WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
 """);
     }
 
-    public override Task Where_mathf_sin(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_sin(async));
+    public override async Task Where_mathf_sin(bool async)
+    {
+        await base.Where_mathf_sin(async);
 
-    public override Task Where_mathf_sqrt(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_sqrt(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sin("o"."Discount") > 0
+""");
+    }
 
-    public override Task Where_mathf_tan(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_tan(async));
+    public override async Task Where_mathf_sqrt(bool async)
+    {
+        await base.Where_mathf_sqrt(async);
 
-    public override Task Where_mathf_truncate(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_truncate(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sqrt("o"."Discount") > 0
+""");
+    }
 
-    public override Task Where_mathf_degrees(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_degrees(async));
+    public override async Task Where_mathf_tan(bool async)
+    {
+        await base.Where_mathf_tan(async);
 
-    public override Task Where_mathf_radians(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_radians(async));
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND tan("o"."Discount") > 0
+""");
+    }
+
+    public override async Task Where_mathf_truncate(bool async)
+    {
+        await base.Where_mathf_truncate(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."Quantity" < 5 AND trunc(CAST("o"."UnitPrice" AS REAL)) > 10
+""");
+    }
+
+    public override async Task Where_mathf_degrees(bool async)
+    {
+        await base.Where_mathf_degrees(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND degrees("o"."Discount") > 0
+""");
+    }
+
+    public override async Task Where_mathf_radians(bool async)
+    {
+        await base.Where_mathf_radians(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND radians("o"."Discount") > 0
+""");
+    }
 
     public override async Task String_StartsWith_Literal(bool async)
     {

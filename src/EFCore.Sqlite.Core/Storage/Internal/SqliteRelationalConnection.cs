@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Sqlite.Infrastructure.Internal;
@@ -112,25 +111,9 @@ public class SqliteRelationalConnection : RelationalConnection, ISqliteRelationa
                 },
                 isDeterministic: true);
 
-            sqliteConnection.CreateFunction<object, object, object?>(
+            sqliteConnection.CreateFunction(
                 "ef_mod",
-                (dividend, divisor) =>
-                {
-                    if (dividend == null
-                        || divisor == null)
-                    {
-                        return null;
-                    }
-
-                    if (dividend is string s)
-                    {
-                        return decimal.Parse(s, CultureInfo.InvariantCulture)
-                            % Convert.ToDecimal(divisor, CultureInfo.InvariantCulture);
-                    }
-
-                    return Convert.ToDouble(dividend, CultureInfo.InvariantCulture)
-                        % Convert.ToDouble(divisor, CultureInfo.InvariantCulture);
-                },
+                (decimal? dividend, decimal? divisor) => dividend % divisor,
                 isDeterministic: true);
 
             sqliteConnection.CreateFunction(

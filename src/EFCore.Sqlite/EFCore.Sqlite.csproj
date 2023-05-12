@@ -47,8 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- TODO: Remove NoWarn NETSDK1206 in Directory.Build.props after updating -->
-    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.5" />
+    <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.6-pre20230809203314" />
   </ItemGroup>
 
   <ItemGroup>
