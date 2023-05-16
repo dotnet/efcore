@@ -1533,7 +1533,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
                 return true;
             }
 
-            case CollateExpression or LikeExpression or AtTimeZoneExpression:
+            case CollateExpression or LikeExpression or AtTimeZoneExpression or JsonScalarExpression:
                 return !TryGetOperatorInfo(outerExpression, out outerPrecedence, out _)
                     || !TryGetOperatorInfo(innerExpression, out innerPrecedence, out _)
                     || outerPrecedence >= innerPrecedence;

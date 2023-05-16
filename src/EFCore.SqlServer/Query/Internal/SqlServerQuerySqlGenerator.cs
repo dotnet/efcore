@@ -591,6 +591,9 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             LikeExpression => (350, false),
             AtTimeZoneExpression => (1200, false),
 
+            // On SQL Server, JsonScalarExpression renders as a function (JSON_VALUE()), so there's never a need for parentheses.
+            JsonScalarExpression => (9999, false),
+
             _ => default,
         };
 

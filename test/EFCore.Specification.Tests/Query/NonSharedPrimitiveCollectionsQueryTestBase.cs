@@ -131,12 +131,10 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     public virtual async Task Parameter_with_inferred_value_converter()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b =>
-                {
-                    b.Property<IntWrapper>("PropertyWithValueConverter")
-                        .HasConversion(w => w.Value, i => new IntWrapper(i));
-                }),
+            onModelCreating: mb => mb
+                .Entity<TestEntity>()
+                .Property<IntWrapper>("PropertyWithValueConverter")
+                .HasConversion(w => w.Value, i => new IntWrapper(i)),
             seed: context =>
             {
                 var entry1 = context.Add(new TestEntity { Id = 1 });
@@ -158,12 +156,10 @@ public abstract class NonSharedPrimitiveCollectionsQueryTestBase : NonSharedMode
     public virtual async Task Constant_with_inferred_value_converter()
     {
         var contextFactory = await InitializeAsync<TestContext>(
-            onModelCreating: mb => mb.Entity<TestEntity>(
-                b =>
-                {
-                    b.Property<IntWrapper>("PropertyWithValueConverter")
-                        .HasConversion(w => w.Value, i => new IntWrapper(i));
-                }),
+            onModelCreating: mb => mb
+                .Entity<TestEntity>()
+                .Property<IntWrapper>("PropertyWithValueConverter")
+                .HasConversion(w => w.Value, i => new IntWrapper(i)),
             seed: context =>
             {
                 var entry1 = context.Add(new TestEntity { Id = 1 });

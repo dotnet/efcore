@@ -169,7 +169,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
                       from e5 in context.Set<OperatorEntityLong>()
                       orderby e3.Id, e4.Id, e5.Id
                       select ((~(-(-((e5.Value + e3.Value) + 2))) % (-(e4.Value + e4.Value) - e3.Value)))).ToList();
-       
+
         Assert.Equal(expected.Count, actual.Count);
         for (var i = 0; i < expected.Count; i++)
         {
@@ -266,5 +266,39 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
         {
             Assert.Equal(expected[i], actual[i]);
         }
+    }
+
+#nullable enable
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Concat_and_json_scalar(bool async)
+    {
+        var contextFactory = await InitializeAsync<DbContext>(
+            onModelCreating: mb => mb
+                .Entity<Owner>()
+                .OwnsOne(o => o.Owned)
+                .ToJson(),
+            seed: context =>
+            {
+                context.Set<Owner>().AddRange(
+                    new Owner { Owned = new() { SomeProperty = "Bar" } },
+                    new Owner { Owned = new() { SomeProperty = "Baz" } });
+                context.SaveChanges();
+            });
+        await using var context = contextFactory.CreateContext();
+
+        var result = await context.Set<Owner>().SingleAsync(o => "Foo" + o.Owned.SomeProperty == "FooBar");
+        Assert.Equal("Bar", result.Owned.SomeProperty);
+    }
+
+    class Owner
+    {
+        public int Id { get; set; }
+        public Owned Owned { get; set; } = null!;
+    }
+
+    class Owned
+    {
+        public string SomeProperty { get; set; } = "";
     }
 }
