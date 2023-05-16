@@ -586,7 +586,12 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             {
                 var valueBufferExpression = Expression.Call(
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);
-                var shadowProperties = concreteEntityType.GetProperties().Where(p => p.IsShadowProperty());
+
+                var shadowProperties = concreteEntityType.GetProperties()
+                    .Concat<IPropertyBase>(concreteEntityType.GetNavigations())
+                    .Concat(concreteEntityType.GetSkipNavigations())
+                    .Where(n => n.IsShadowProperty())
+                    .OrderBy(e => e.GetShadowIndex());
 
                 blockExpressions.Add(
                     Expression.Assign(
