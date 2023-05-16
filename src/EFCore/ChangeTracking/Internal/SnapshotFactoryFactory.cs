@@ -41,7 +41,7 @@ public abstract class SnapshotFactoryFactory
         var count = GetPropertyCount(entityType);
 
         var types = new Type[count];
-        var propertyBases = new IPropertyBase[count];
+        var propertyBases = new IPropertyBase?[count];
 
         foreach (var propertyBase in entityType.GetPropertiesAndNavigations())
         {
@@ -93,7 +93,7 @@ public abstract class SnapshotFactoryFactory
         Type? entityType,
         ParameterExpression? parameter,
         Type[] types,
-        IList<IPropertyBase> propertyBases)
+        IList<IPropertyBase?> propertyBases)
     {
         var count = types.Length;
 
