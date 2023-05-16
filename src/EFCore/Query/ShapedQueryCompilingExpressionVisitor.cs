@@ -590,7 +590,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);
 
                 var shadowProperties = concreteEntityType.GetProperties()
-                    .Concat<IPropertyBase>(concreteEntityType.GetSkipNavigations())
+                    .Concat<IPropertyBase>(concreteEntityType.GetNavigations())
+                    .Concat(concreteEntityType.GetSkipNavigations())
                     .Where(n => n.IsShadowProperty())
                     .OrderBy(e => e.GetShadowIndex());
 
