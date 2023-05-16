@@ -458,7 +458,7 @@ ORDER BY "cid"
         commandText
             .Append(" FROM (SELECT * FROM ")
             .Append(DelimitIdentifier(table.Name))
-            .Append(" LIMIT 131072)");
+            .Append(" LIMIT 65537)");
 
         command.CommandText = commandText.ToString();
 
