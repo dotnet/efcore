@@ -20,8 +20,7 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<ValueBuffer>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override int GetPropertyIndex(IPropertyBase propertyBase)
-        // Navigations are not included in the supplied value buffer
-        => (propertyBase as IProperty)?.GetShadowIndex() ?? -1;
+        => propertyBase.GetShadowIndex();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

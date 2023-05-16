@@ -288,11 +288,13 @@ public static class ExpressionExtensions
         Type type,
         int index,
         IPropertyBase? property)
-        => Expression.Call(
-            MakeValueBufferTryReadValueMethod(type),
-            valueBuffer,
-            Expression.Constant(index),
-            Expression.Constant(property, typeof(IPropertyBase)));
+        => property is INavigationBase
+            ? Expression.Constant(null, typeof(object))
+            : Expression.Call(
+                MakeValueBufferTryReadValueMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
 
     /// <summary>
     ///     <para>

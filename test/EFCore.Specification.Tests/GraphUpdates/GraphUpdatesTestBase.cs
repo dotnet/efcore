@@ -555,6 +555,17 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
                     b.HasOne(x => x.Parent).WithMany(x => x.Children).OnDelete(DeleteBehavior.Restrict);
                     b.HasAlternateKey(x => new { x.Id, x.ParentId });
                 });
+
+            modelBuilder.Entity<Beetroot2>().HasData(
+                new { Id = 1, Key = "root-1", Name = "Root One" });
+
+            modelBuilder.Entity<Lettuce2>().HasData(
+                new { Id = 4, Key = "root-1/leaf-1", Name = "Leaf One-One", RootId = 1 });
+
+            modelBuilder.Entity<Radish2>()
+                .HasMany(entity => entity.Entities)
+                .WithMany()
+                .UsingEntity<RootStructure>();
         }
 
         protected virtual object CreateFullGraph()
@@ -4071,6 +4082,68 @@ public abstract partial class GraphUpdatesTestBase<TFixture> : IClassFixture<TFi
             get => _parent;
             set => SetWithNotify(value, ref _parent);
         }
+    }
+
+    protected abstract class Parsnip2 : NotifyingEntity
+    {
+        private int _id;
+
+        public int Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+    }
+
+    protected class Lettuce2 : Parsnip2
+    {
+        private Beetroot2 _root;
+
+        public Beetroot2 Root
+        {
+            get => _root;
+            set => SetWithNotify(value, ref _root);
+        }
+    }
+
+    protected class RootStructure : NotifyingEntity
+    {
+        private Guid _radish2Id;
+        private int _parsnip2Id;
+
+        public Guid Radish2Id
+        {
+            get => _radish2Id;
+            set => SetWithNotify(value, ref _radish2Id);
+        }
+
+        public int Parsnip2Id
+        {
+            get => _parsnip2Id;
+            set => SetWithNotify(value, ref _parsnip2Id);
+        }
+    }
+
+    protected class Radish2 : NotifyingEntity
+    {
+        private Guid _id;
+        private ICollection<Parsnip2> _entities = new ObservableHashSet<Parsnip2>();
+
+        public Guid Id
+        {
+            get => _id;
+            set => SetWithNotify(value, ref _id);
+        }
+
+        public ICollection<Parsnip2> Entities
+        {
+            get => _entities;
+            set => SetWithNotify(value, ref _entities);
+        }
+    }
+
+    protected class Beetroot2 : Parsnip2
+    {
     }
 
     protected class NotifyingEntity : INotifyPropertyChanging, INotifyPropertyChanged

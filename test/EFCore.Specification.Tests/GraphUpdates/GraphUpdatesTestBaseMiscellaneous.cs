@@ -1983,4 +1983,19 @@ public abstract partial class GraphUpdatesTestBase<TFixture>
                                 : context.SaveChanges();
                         })).Message);
             });
+
+    [ConditionalTheory] // Issue #30764
+    [InlineData(false)]
+    [InlineData(true)]
+    public virtual Task Shadow_skip_navigation_in_base_class_is_handled(bool async)
+        => ExecuteWithStrategyInTransactionAsync(
+            async context =>
+            {
+                var entities = async
+                    ? await context.Set<Lettuce2>().ToListAsync()
+                    : context.Set<Lettuce2>().ToList();
+
+                Assert.Equal(1, entities.Count);
+                Assert.Equal(nameof(Lettuce2), context.Entry(entities[0]).Property<string>("Discriminator").CurrentValue);
+            });
 }
