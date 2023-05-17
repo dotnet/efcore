@@ -4041,7 +4041,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__dates_0) AS [d]
+    FROM OPENJSON(@__dates_0) AS [d]
     WHERE CAST([d].[value] AS datetime) = CONVERT(date, [o].[OrderDate]))
 """,
             //
@@ -4052,7 +4052,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__dates_0) AS [d]
+    FROM OPENJSON(@__dates_0) AS [d]
     WHERE CAST([d].[value] AS datetime) = CONVERT(date, [o].[OrderDate]))
 """);
     }
@@ -5087,7 +5087,7 @@ FROM [Customers] AS [c]
 ORDER BY CASE
     WHEN EXISTS (
         SELECT 1
-        FROM OpenJson(@__list_0) AS [l]
+        FROM OPENJSON(@__list_0) AS [l]
         WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -5107,7 +5107,7 @@ FROM [Customers] AS [c]
 ORDER BY CASE
     WHEN NOT (EXISTS (
         SELECT 1
-        FROM OpenJson(@__list_0) AS [l]
+        FROM OPENJSON(@__list_0) AS [l]
         WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -6276,7 +6276,7 @@ FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__orderIds_0) AS [o0]
+    FROM OPENJSON(@__orderIds_0) AS [o0]
     WHERE CAST([o0].[value] AS int) = [o].[OrderID])
 """);
     }

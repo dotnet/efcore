@@ -154,7 +154,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__p_0) AS [p0]
+    FROM OPENJSON(@__p_0) AS [p0]
     WHERE CAST([p0].[value] AS int) = [p].[Id])
 """);
     }
@@ -178,7 +178,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) > [p].[Id]) = 1
 """);
     }
@@ -195,7 +195,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ints_0) AS [i]
+    FROM OPENJSON(@__ints_0) AS [i]
     WHERE CAST([i].[value] AS int) = [p].[Int])
 """);
     }
@@ -212,7 +212,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__nullableInts_0) AS [n]
+    FROM OPENJSON(@__nullableInts_0) AS [n]
     WHERE CAST([n].[value] AS int) = [p].[NullableInt] OR ([n].[value] IS NULL AND [p].[NullableInt] IS NULL))
 """);
     }
@@ -229,7 +229,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__nullableInts_0) AS [n]
+    FROM OPENJSON(@__nullableInts_0) AS [n]
     WHERE CAST([n].[value] AS int) = [p].[NullableInt] OR ([n].[value] IS NULL AND [p].[NullableInt] IS NULL))
 """);
     }
@@ -246,7 +246,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__strings_0) AS [s]
+    FROM OPENJSON(@__strings_0) AS [s]
     WHERE [s].[value] = [p].[String] OR ([s].[value] IS NULL AND [p].[String] IS NULL))
 """);
     }
@@ -263,7 +263,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0) AS [d]
+    FROM OPENJSON(@__dateTimes_0) AS [d]
     WHERE CAST([d].[value] AS datetime) = [p].[DateTime])
 """);
     }
@@ -280,7 +280,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__bools_0) AS [b]
+    FROM OPENJSON(@__bools_0) AS [b]
     WHERE CAST([b].[value] AS bit) = [p].[Bool])
 """);
     }
@@ -297,7 +297,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__enums_0) AS [e]
+    FROM OPENJSON(@__enums_0) AS [e]
     WHERE CAST([e].[value] AS int) = [p].[Enum])
 """);
     }
@@ -312,7 +312,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(N'[]') AS [i]
+    FROM OPENJSON(N'[]') AS [i]
     WHERE CAST([i].[value] AS int) = [p].[Int])
 """);
     }
@@ -327,7 +327,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson([p].[Ints]) AS [i]
+    FROM OPENJSON([p].[Ints]) AS [i]
     WHERE CAST([i].[value] AS int) = 10)
 """);
     }
@@ -342,7 +342,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson([p].[NullableInts]) AS [n]
+    FROM OPENJSON([p].[NullableInts]) AS [n]
     WHERE CAST([n].[value] AS int) = 10)
 """);
     }
@@ -357,7 +357,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson([p].[NullableInts]) AS [n]
+    FROM OPENJSON([p].[NullableInts]) AS [n]
     WHERE [n].[value] IS NULL)
 """);
     }
@@ -372,7 +372,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson([p].[Bools]) AS [b]
+    FROM OPENJSON([p].[Bools]) AS [b]
     WHERE CAST([b].[value] AS bit) = CAST(1 AS bit))
 """);
     }
@@ -397,7 +397,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM OpenJson([p].[Ints]) AS [i]) = 2
+    FROM OPENJSON([p].[Ints]) AS [i]) = 2
 """);
     }
 
@@ -411,7 +411,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM OpenJson([p].[Ints]) AS [i]) = 2
+    FROM OPENJSON([p].[Ints]) AS [i]) = 2
 """);
     }
 
@@ -533,7 +533,7 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT CAST([i].[key] AS int) AS [c]
-        FROM OpenJson([p].[Ints]) AS [i]
+        FROM OPENJSON([p].[Ints]) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS
     ) AS [t]) = 2
@@ -552,7 +552,7 @@ WHERE EXISTS (
     SELECT 1
     FROM (
         SELECT TOP(2) CAST([i].[value] AS int) AS [c], CAST([i].[key] AS int) AS [c0]
-        FROM OpenJson([p].[Ints]) AS [i]
+        FROM OPENJSON([p].[Ints]) AS [i]
         ORDER BY CAST([i].[key] AS int)
     ) AS [t]
     WHERE [t].[c] = 11)
@@ -571,7 +571,7 @@ WHERE EXISTS (
     SELECT 1
     FROM (
         SELECT CAST([i].[value] AS int) AS [c], CAST([i].[key] AS int) AS [c0]
-        FROM OpenJson([p].[Ints]) AS [i]
+        FROM OPENJSON([p].[Ints]) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY
     ) AS [t]
@@ -589,7 +589,7 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson([p].[Ints]) AS [i])
+    FROM OPENJSON([p].[Ints]) AS [i])
 """);
     }
 
@@ -617,8 +617,8 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE (
     SELECT COUNT(*)
-    FROM OpenJson([p].[Ints]) AS [i]
-    INNER JOIN OpenJson(@__ints_0) AS [i0] ON CAST([i].[value] AS int) = [i0].[value]) = 2
+    FROM OPENJSON([p].[Ints]) AS [i]
+    INNER JOIN OPENJSON(@__ints_0) AS [i0] ON CAST([i].[value] AS int) = [i0].[value]) = 2
 """);
     }
 
@@ -636,10 +636,10 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT CAST([i].[value] AS int) AS [value]
-        FROM OpenJson(@__ints_0) AS [i]
+        FROM OPENJSON(@__ints_0) AS [i]
         UNION ALL
         SELECT CAST([i0].[value] AS int) AS [value]
-        FROM OpenJson([p].[Ints]) AS [i0]
+        FROM OPENJSON([p].[Ints]) AS [i0]
     ) AS [t]) = 2
 """);
     }
@@ -658,10 +658,10 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT CAST([i].[value] AS int) AS [c]
-        FROM OpenJson([p].[Ints]) AS [i]
+        FROM OPENJSON([p].[Ints]) AS [i]
         UNION
         SELECT CAST([i0].[value] AS int) AS [c]
-        FROM OpenJson(@__ints_0) AS [i0]
+        FROM OPENJSON(@__ints_0) AS [i0]
     ) AS [t]) = 2
 """);
     }
@@ -678,7 +678,7 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT CAST([i].[value] AS int) AS [c]
-        FROM OpenJson([p].[Ints]) AS [i]
+        FROM OPENJSON([p].[Ints]) AS [i]
         INTERSECT
         SELECT [v].[Value] AS [c]
         FROM (VALUES (CAST(11 AS int)), (111)) AS [v]([Value])
@@ -701,7 +701,7 @@ WHERE (
         FROM (VALUES (CAST(11 AS int)), (111)) AS [v]([Value])
         EXCEPT
         SELECT CAST([i].[value] AS int) AS [Value]
-        FROM OpenJson([p].[Ints]) AS [i]
+        FROM OPENJSON([p].[Ints]) AS [i]
     ) AS [t]
     WHERE [t].[Value] % 2 = 1) = 2
 """);
@@ -756,13 +756,13 @@ WHERE (
         SELECT [t].[value]
         FROM (
             SELECT CAST([i].[value] AS int) AS [value]
-            FROM OpenJson(@__ints) AS [i]
+            FROM OPENJSON(@__ints) AS [i]
             ORDER BY CAST([i].[key] AS int)
             OFFSET 1 ROWS
         ) AS [t]
         UNION
         SELECT CAST([i0].[value] AS int) AS [value]
-        FROM OpenJson([p].[Ints]) AS [i0]
+        FROM OPENJSON([p].[Ints]) AS [i0]
     ) AS [t0]) = 3
 """);
     }
@@ -789,7 +789,7 @@ WHERE (
     SELECT COUNT(*)
     FROM (
         SELECT CAST([i].[value] AS int) AS [value], CAST([i].[key] AS int) AS [c], CAST([i].[value] AS int) AS [value0]
-        FROM OpenJson(@__ints) AS [i]
+        FROM OPENJSON(@__ints) AS [i]
         ORDER BY CAST([i].[key] AS int)
         OFFSET 1 ROWS
     ) AS [t]
@@ -813,13 +813,13 @@ WHERE (
         SELECT [t].[c]
         FROM (
             SELECT CAST([i].[value] AS int) AS [c]
-            FROM OpenJson([p].[Ints]) AS [i]
+            FROM OPENJSON([p].[Ints]) AS [i]
             ORDER BY CAST([i].[key] AS int)
             OFFSET 1 ROWS
         ) AS [t]
         UNION
         SELECT CAST([i0].[value] AS int) AS [c]
-        FROM OpenJson(@__ints_0) AS [i0]
+        FROM OPENJSON(@__ints_0) AS [i0]
     ) AS [t0]) = 3
 """);
     }

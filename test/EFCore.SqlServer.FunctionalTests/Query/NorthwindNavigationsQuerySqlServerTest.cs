@@ -786,7 +786,7 @@ LEFT JOIN (
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE EXISTS (
             SELECT 1
-            FROM OpenJson(@__orderIds_0) AS [o0]
+            FROM OPENJSON(@__orderIds_0) AS [o0]
             WHERE CAST([o0].[value] AS int) = [o].[OrderID])
     ) AS [t]
     WHERE [t].[row] <= 1

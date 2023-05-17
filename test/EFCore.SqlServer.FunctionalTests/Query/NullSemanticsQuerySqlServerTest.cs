@@ -917,7 +917,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
 """);
     }
@@ -934,7 +934,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL)))
 """);
     }
@@ -951,7 +951,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL)))
 """);
     }
@@ -968,7 +968,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE [i].[value] = [e].[NullableStringA] OR ([i].[value] IS NULL AND [e].[NullableStringA] IS NULL))
 """);
     }
@@ -1249,7 +1249,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__list_0) AS [l]
+    FROM OPENJSON(@__list_0) AS [l]
     WHERE [l].[value] = [e].[StringA])
 """,
             //
@@ -1295,7 +1295,7 @@ SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) AS [n]
     WHERE [n].[value] = [e].[NullableStringA])
 """);
     }
@@ -1312,7 +1312,7 @@ SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) AS [n]
     WHERE [n].[value] = [e].[NullableStringA])
 """);
     }
@@ -1329,7 +1329,7 @@ SELECT [e].[NullableStringA]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) AS [n]
     WHERE [n].[value] = [e].[NullableStringA])
 """);
     }
@@ -1786,7 +1786,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
@@ -1797,7 +1797,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
@@ -1808,7 +1808,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids2_0) AS [i]
+    FROM OPENJSON(@__ids2_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
@@ -1819,7 +1819,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids2_0) AS [i]
+    FROM OPENJSON(@__ids2_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
@@ -1860,7 +1860,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
@@ -1871,7 +1871,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
@@ -1882,7 +1882,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids2_0) AS [i]
+    FROM OPENJSON(@__ids2_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL))
 """,
             //
@@ -1893,7 +1893,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids2_0) AS [i]
+    FROM OPENJSON(@__ids2_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[NullableIntA] OR ([i].[value] IS NULL AND [e].[NullableIntA] IS NULL)))
 """,
             //
@@ -1933,7 +1933,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
@@ -1944,7 +1944,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """,
             //
@@ -1955,7 +1955,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids2_0) AS [i]
+    FROM OPENJSON(@__ids2_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
@@ -1966,7 +1966,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids2_0) AS [i]
+    FROM OPENJSON(@__ids2_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """,
             //
@@ -1977,7 +1977,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids3_0) AS [i]
+    FROM OPENJSON(@__ids3_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
@@ -1988,7 +1988,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids3_0) AS [i]
+    FROM OPENJSON(@__ids3_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """,
             //
@@ -1999,7 +1999,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids4_0) AS [i]
+    FROM OPENJSON(@__ids4_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA])
 """,
             //
@@ -2010,7 +2010,7 @@ SELECT [e].[Id]
 FROM [Entities1] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids4_0) AS [i]
+    FROM OPENJSON(@__ids4_0) AS [i]
     WHERE CAST([i].[value] AS int) = [e].[IntA]))
 """);
     }

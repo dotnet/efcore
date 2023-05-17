@@ -2055,7 +2055,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
     WHEN EXISTS (
         SELECT 1
-        FROM OpenJson(@__list_0) AS [l]
+        FROM OPENJSON(@__list_0) AS [l]
         WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [c].[CustomerID]
@@ -2071,7 +2071,7 @@ FROM (
     SELECT [c].[CustomerID], CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
@@ -2080,7 +2080,7 @@ FROM (
     ORDER BY CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
@@ -2106,7 +2106,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
     WHEN NOT (EXISTS (
         SELECT 1
-        FROM OpenJson(@__list_0) AS [l]
+        FROM OPENJSON(@__list_0) AS [l]
         WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [c].[CustomerID]
@@ -2122,7 +2122,7 @@ FROM (
     SELECT [c].[CustomerID], CASE
         WHEN NOT (EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
@@ -2131,7 +2131,7 @@ FROM (
     ORDER BY CASE
         WHEN NOT (EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
@@ -2157,7 +2157,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
     WHEN EXISTS (
         SELECT 1
-        FROM OpenJson(@__list_0) AS [l]
+        FROM OPENJSON(@__list_0) AS [l]
         WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [c].[CustomerID]
@@ -2173,7 +2173,7 @@ FROM (
     SELECT [c].[CustomerID], CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
@@ -2182,7 +2182,7 @@ FROM (
     ORDER BY CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
@@ -2208,7 +2208,7 @@ WHERE [c].[CustomerID] LIKE N'A%'
 ORDER BY CASE
     WHEN NOT (EXISTS (
         SELECT 1
-        FROM OpenJson(@__list_0) AS [l]
+        FROM OPENJSON(@__list_0) AS [l]
         WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, [c].[CustomerID]
@@ -2224,7 +2224,7 @@ FROM (
     SELECT [c].[CustomerID], CASE
         WHEN NOT (EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
@@ -2233,7 +2233,7 @@ FROM (
     ORDER BY CASE
         WHEN NOT (EXISTS (
             SELECT 1
-            FROM OpenJson(@__list_0) AS [l]
+            FROM OPENJSON(@__list_0) AS [l]
             WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END

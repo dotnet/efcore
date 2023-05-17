@@ -2876,7 +2876,7 @@ LEFT JOIN (
 END = [t1].[OneToMany_Required_Inverse3Id]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__validIds_0) AS [v]
+    FROM OPENJSON(@__validIds_0) AS [v]
     WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
 ORDER BY [l].[Id], [t0].[Id], [t0].[Id0]
 """);
@@ -3022,7 +3022,7 @@ FROM (
     FROM [Level1] AS [l]
     WHERE EXISTS (
         SELECT 1
-        FROM OpenJson(@__validIds_0) AS [v]
+        FROM OPENJSON(@__validIds_0) AS [v]
         WHERE [v].[value] = [l].[Name] OR ([v].[value] IS NULL AND [l].[Name] IS NULL))
     GROUP BY [l].[Date]
 ) AS [t]
@@ -3031,7 +3031,7 @@ LEFT JOIN (
     FROM [Level1] AS [l0]
     WHERE EXISTS (
         SELECT 1
-        FROM OpenJson(@__validIds_0) AS [v0]
+        FROM OPENJSON(@__validIds_0) AS [v0]
         WHERE [v0].[value] = [l0].[Name] OR ([v0].[value] IS NULL AND [l0].[Name] IS NULL))
 ) AS [t0] ON [t].[Date] = [t0].[Date]
 ORDER BY [t].[Date]

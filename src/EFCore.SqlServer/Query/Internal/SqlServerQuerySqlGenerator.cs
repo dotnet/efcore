@@ -483,7 +483,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         // OPENJSON is a regular table-valued function with a special WITH clause at the end
         // Copy-paste from VisitTableValuedFunction, because that appends the 'AS <alias>' but we need to insert WITH before that
-        Sql.Append("OpenJson(");
+        Sql.Append("OPENJSON(");
 
         GenerateList(openJsonExpression.Arguments, e => Visit(e));
 
@@ -502,7 +502,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     Sql.Append(", ");
                 }
 
-                Check.DebugAssert(columnInfo.StoreType is not null, "Unset OpenJson column store type");
+                Check.DebugAssert(columnInfo.StoreType is not null, "Unset OPENJSON column store type");
 
                 Sql
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnInfo.Name))

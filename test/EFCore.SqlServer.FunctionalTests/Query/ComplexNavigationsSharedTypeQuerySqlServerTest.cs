@@ -5414,7 +5414,7 @@ LEFT JOIN (
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE NOT EXISTS (
     SELECT 1
-    FROM OpenJson(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) AS [n]
     WHERE ([t].[Level2_Name] = [n].[value] AND [t].[Level2_Name] IS NOT NULL AND [n].[value] IS NOT NULL) OR ([t].[Level2_Name] IS NULL AND [n].[value] IS NULL))
 """);
     }

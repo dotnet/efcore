@@ -188,37 +188,37 @@ SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTi
 FROM [Dates] AS [d]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0) AS [d0]
+    FROM OPENJSON(@__dateTimes_0) AS [d0]
     WHERE CAST([d0].[value] AS smalldatetime) = [d].[SmallDateTime]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_1) AS [d1]
+    FROM OPENJSON(@__dateTimes_0_1) AS [d1]
     WHERE CAST([d1].[value] AS datetime) = [d].[DateTime]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_2) AS [d2]
+    FROM OPENJSON(@__dateTimes_0_2) AS [d2]
     WHERE CAST([d2].[value] AS datetime2) = [d].[DateTime2]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_3) AS [d3]
+    FROM OPENJSON(@__dateTimes_0_3) AS [d3]
     WHERE CAST([d3].[value] AS datetime2(0)) = [d].[DateTime2_0]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_4) AS [d4]
+    FROM OPENJSON(@__dateTimes_0_4) AS [d4]
     WHERE CAST([d4].[value] AS datetime2(1)) = [d].[DateTime2_1]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_5) AS [d5]
+    FROM OPENJSON(@__dateTimes_0_5) AS [d5]
     WHERE CAST([d5].[value] AS datetime2(2)) = [d].[DateTime2_2]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_6) AS [d6]
+    FROM OPENJSON(@__dateTimes_0_6) AS [d6]
     WHERE CAST([d6].[value] AS datetime2(3)) = [d].[DateTime2_3]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_7) AS [d7]
+    FROM OPENJSON(@__dateTimes_0_7) AS [d7]
     WHERE CAST([d7].[value] AS datetime2(4)) = [d].[DateTime2_4]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_8) AS [d8]
+    FROM OPENJSON(@__dateTimes_0_8) AS [d8]
     WHERE CAST([d8].[value] AS datetime2(5)) = [d].[DateTime2_5]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_9) AS [d9]
+    FROM OPENJSON(@__dateTimes_0_9) AS [d9]
     WHERE CAST([d9].[value] AS datetime2(6)) = [d].[DateTime2_6]) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dateTimes_0_10) AS [d10]
+    FROM OPENJSON(@__dateTimes_0_10) AS [d10]
     WHERE CAST([d10].[value] AS datetime2(7)) = [d].[DateTime2_7])
 """);
     }
@@ -3924,7 +3924,7 @@ SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__testDateList_0) AS [t]
+    FROM OPENJSON(@__testDateList_0) AS [t]
     WHERE CAST([t].[value] AS smalldatetime) = [r].[MyTime])
 """);
         }
@@ -3988,7 +3988,7 @@ SELECT [t].[Id], [t].[Type]
 FROM [Todos] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__keys_0) AS [k]
+    FROM OPENJSON(@__keys_0) AS [k]
     WHERE CAST([k].[value] AS uniqueidentifier) = CASE
         WHEN [t].[Type] = 0 THEN @__key_2
         ELSE @__key_2
@@ -8896,7 +8896,7 @@ SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE NOT (EXISTS (
     SELECT 1
-    FROM OpenJson(@__ef_filter___ids_0) AS [e0]
+    FROM OPENJSON(@__ef_filter___ids_0) AS [e0]
     WHERE CAST([e0].[value] AS int) = [e].[Id]))
 """);
         }
