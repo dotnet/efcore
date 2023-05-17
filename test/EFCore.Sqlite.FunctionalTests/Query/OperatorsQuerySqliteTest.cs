@@ -119,4 +119,17 @@ FROM "OperatorEntityString" AS "o"
 WHERE "o"."Value" IS NOT NULL AND NOT ("o"."Value" LIKE 'A%')
 """);
     }
+
+    public override async Task Concat_and_json_scalar(bool async)
+    {
+        await base.Concat_and_json_scalar(async);
+
+        AssertSql(
+"""
+SELECT "o"."Id", "o"."Owned"
+FROM "Owner" AS "o"
+WHERE 'Foo' || ("o"."Owned" ->> 'SomeProperty') = 'FooBar'
+LIMIT 2
+""");
+    }
 }

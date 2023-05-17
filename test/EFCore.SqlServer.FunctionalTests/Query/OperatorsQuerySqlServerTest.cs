@@ -128,6 +128,18 @@ WHERE [o].[Value] IS NOT NULL AND NOT ([o].[Value] LIKE N'A%')
 """);
     }
 
+    public override async Task Concat_and_json_scalar(bool async)
+    {
+        await base.Concat_and_json_scalar(async);
+
+        AssertSql(
+"""
+SELECT TOP(2) [o].[Id], [o].[Owned]
+FROM [Owner] AS [o]
+WHERE N'Foo' + JSON_VALUE([o].[Owned], '$.SomeProperty') = N'FooBar'
+""");
+    }
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual async Task Where_AtTimeZone_datetimeoffset_constant(bool async)
