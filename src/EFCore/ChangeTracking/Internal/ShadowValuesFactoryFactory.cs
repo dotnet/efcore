@@ -13,6 +13,9 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<ValueBuffer>
 {
+    private static readonly bool UseOldBehavior30764
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30764", out var enabled) && enabled;
+
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
@@ -20,7 +23,7 @@ public class ShadowValuesFactoryFactory : SnapshotFactoryFactory<ValueBuffer>
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override int GetPropertyIndex(IPropertyBase propertyBase)
-        => propertyBase.GetShadowIndex();
+        => UseOldBehavior30764 ? ((propertyBase as IProperty)?.GetShadowIndex() ?? -1) : propertyBase.GetShadowIndex();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
