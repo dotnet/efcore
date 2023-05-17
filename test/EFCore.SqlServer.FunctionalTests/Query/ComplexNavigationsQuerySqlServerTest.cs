@@ -3083,7 +3083,7 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE NOT EXISTS (
     SELECT 1
-    FROM OpenJson(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) AS [n]
     WHERE ([l0].[Name] = [n].[value] AND [l0].[Name] IS NOT NULL AND [n].[value] IS NOT NULL) OR ([l0].[Name] IS NULL AND [n].[value] IS NULL))
 """);
     }

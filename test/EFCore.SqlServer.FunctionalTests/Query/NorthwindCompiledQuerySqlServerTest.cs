@@ -184,7 +184,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__args) AS [a]
+    FROM OPENJSON(@__args) AS [a]
     WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID])
 """,
             //
@@ -195,7 +195,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__args) AS [a]
+    FROM OPENJSON(@__args) AS [a]
     WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID])
 """);
     }

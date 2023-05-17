@@ -318,7 +318,7 @@ FROM (
 LEFT JOIN [Tags] AS [t0] ON [t].[Nickname] = [t0].[GearNickName] AND [t].[SquadId] = [t0].[GearSquadId]
 WHERE [t0].[Id] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__tags_0) AS [t1]
+    FROM OPENJSON(@__tags_0) AS [t1]
     WHERE CAST([t1].[value] AS uniqueidentifier) = [t0].[Id] OR ([t1].[value] IS NULL AND [t0].[Id] IS NULL))
 """);
     }
@@ -348,7 +348,7 @@ INNER JOIN [Cities] AS [c] ON [t].[CityOfBirthName] = [c].[Name]
 LEFT JOIN [Tags] AS [t0] ON [t].[Nickname] = [t0].[GearNickName] AND [t].[SquadId] = [t0].[GearSquadId]
 WHERE [c].[Location] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__tags_0) AS [t1]
+    FROM OPENJSON(@__tags_0) AS [t1]
     WHERE CAST([t1].[value] AS uniqueidentifier) = [t0].[Id] OR ([t1].[value] IS NULL AND [t0].[Id] IS NULL))
 """);
     }
@@ -377,7 +377,7 @@ FROM (
 LEFT JOIN [Tags] AS [t0] ON [t].[Nickname] = [t0].[GearNickName] AND [t].[SquadId] = [t0].[GearSquadId]
 WHERE [t0].[Id] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__tags_0) AS [t1]
+    FROM OPENJSON(@__tags_0) AS [t1]
     WHERE CAST([t1].[value] AS uniqueidentifier) = [t0].[Id] OR ([t1].[value] IS NULL AND [t0].[Id] IS NULL))
 """);
     }
@@ -2928,7 +2928,7 @@ SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__cities_0) AS [c0]
+    FROM OPENJSON(@__cities_0) AS [c0]
     WHERE CAST([c0].[value] AS varchar(100)) = [c].[Location] OR ([c0].[value] IS NULL AND [c].[Location] IS NULL))
 """);
     }
@@ -4150,7 +4150,7 @@ SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[No
 FROM [Tags] AS [t]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ids_0) AS [i]
+    FROM OPENJSON(@__ids_0) AS [i]
     WHERE CAST([i].[value] AS uniqueidentifier) = [t].[Id])
 """);
     }
@@ -4810,7 +4810,7 @@ FROM (
 LEFT JOIN [Cities] AS [c] ON [t].[AssignedCityName] = [c].[Name]
 WHERE [t].[SquadId] < 2 AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__cities_0) AS [c0]
+    FROM OPENJSON(@__cities_0) AS [c0]
     WHERE CAST([c0].[value] AS nvarchar(450)) = [c].[Name] OR ([c0].[value] IS NULL AND [c].[Name] IS NULL))
 """);
     }
@@ -8086,7 +8086,7 @@ LEFT JOIN [Weapons] AS [w] ON [t].[FullName] = [w].[OwnerFullName]
 ORDER BY CASE
     WHEN EXISTS (
         SELECT 1
-        FROM OpenJson(@__nicknames_0) AS [n]
+        FROM OPENJSON(@__nicknames_0) AS [n]
         WHERE CAST([n].[value] AS nvarchar(450)) = [t].[Nickname]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END DESC, [t].[Nickname], [t].[SquadId]
@@ -8965,7 +8965,7 @@ SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[
 FROM [Missions] AS [m]
 WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__dates_2) AS [d]
+    FROM OPENJSON(@__dates_2) AS [d]
     WHERE CAST([d].[value] AS datetimeoffset) = [m].[Timeline])
 """);
     }
@@ -9846,7 +9846,7 @@ FROM (
 ORDER BY CASE
     WHEN EXISTS (
         SELECT 1
-        FROM OpenJson(@__ids_0) AS [i]
+        FROM OPENJSON(@__ids_0) AS [i]
         WHERE CAST([i].[value] AS int) = [t].[SquadId]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -10864,7 +10864,7 @@ FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 WHERE [w0].[Id] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__types_0) AS [t]
+    FROM OPENJSON(@__types_0) AS [t]
     WHERE CAST([t].[value] AS int) = [w0].[AmmunitionType] OR ([t].[value] IS NULL AND [w0].[AmmunitionType] IS NULL))
 """);
     }
@@ -11977,7 +11977,7 @@ FROM (
 ) AS [t]
 WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__values_0) AS [v]
+    FROM OPENJSON(@__values_0) AS [v]
     WHERE CAST([v].[value] AS bit) = [t].[HasSoulPatch])
 """);
     }
@@ -12000,7 +12000,7 @@ FROM (
 ) AS [t]
 WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
     SELECT 1
-    FROM OpenJson(@__values_0) AS [v]
+    FROM OPENJSON(@__values_0) AS [v]
     WHERE CAST([v].[value] AS bit) = [t].[HasSoulPatch])
 """);
     }

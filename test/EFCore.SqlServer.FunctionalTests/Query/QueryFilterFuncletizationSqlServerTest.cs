@@ -98,7 +98,7 @@ SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(N'[]') AS [e]
+    FROM OPENJSON(N'[]') AS [e]
     WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """,
             //
@@ -109,7 +109,7 @@ SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ef_filter__TenantIds_0) AS [e]
+    FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
     WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """,
             //
@@ -120,7 +120,7 @@ SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ef_filter__TenantIds_0) AS [e]
+    FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
     WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """,
             //
@@ -131,7 +131,7 @@ SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__ef_filter__TenantIds_0) AS [e]
+    FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
     WHERE CAST([e].[value] AS int) = [l].[Tenant])
 """);
     }

@@ -544,7 +544,7 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
     [ConditionalFact]
     public virtual void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
-        // The array indexing is translated as a subquery over e.g. OpenJson with LIMIT/OFFSET.
+        // The array indexing is translated as a subquery over e.g. OPENJSON with LIMIT/OFFSET.
         // Since there's a CAST over that, the type mapping inference from the other side (p.String) doesn't propagate inside to the
         // subquery. In this case, the CAST operand gets the default CLR type mapping, but that's object in this case.
         // We should apply the default type mapping to the parameter, but need to figure out the exact rules when to do this.

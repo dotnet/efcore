@@ -59,7 +59,7 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
         SqlExpression jsonExpression,
         SqlExpression? path = null,
         IReadOnlyList<ColumnInfo>? columnInfos = null)
-        : base(alias, "OpenJson", schema: null, builtIn: true, path is null ? new[] { jsonExpression } : new[] { jsonExpression, path })
+        : base(alias, "OPENJSON", schema: null, builtIn: true, path is null ? new[] { jsonExpression } : new[] { jsonExpression, path })
     {
         ColumnInfos = columnInfos;
     }

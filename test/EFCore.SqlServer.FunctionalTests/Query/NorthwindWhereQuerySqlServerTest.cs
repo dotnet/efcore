@@ -2087,7 +2087,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__cities_0) AS [c0]
+    FROM OPENJSON(@__cities_0) AS [c0]
     WHERE CAST([c0].[value] AS nvarchar(15)) = [c].[City] OR ([c0].[value] IS NULL AND [c].[City] IS NULL))
 """);
     }
@@ -2452,7 +2452,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__orderIds_0) AS [o0]
+    FROM OPENJSON(@__orderIds_0) AS [o0]
     WHERE CAST([o0].[value] AS int) = [o].[OrderID])
 """);
     }
@@ -2469,7 +2469,7 @@ SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__orderIds_0) AS [o0]
+    FROM OPENJSON(@__orderIds_0) AS [o0]
     WHERE CAST([o0].[value] AS int) = [o].[OrderID])
 """);
     }
@@ -2576,7 +2576,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__p_0) AS [p]
+    FROM OPENJSON(@__p_0) AS [p]
     WHERE CAST([p].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = N'ANTON'
 """);
     }
@@ -2606,7 +2606,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__array_0) AS [a]
+    FROM OPENJSON(@__array_0) AS [a]
     WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = N'ANTON'
 """);
     }
@@ -2625,7 +2625,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] = @__prm1_0 OR EXISTS (
     SELECT 1
-    FROM OpenJson(@__array_1) AS [a]
+    FROM OPENJSON(@__array_1) AS [a]
     WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = @__prm2_2
 """);
     }
@@ -2934,7 +2934,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__customerIds_0) AS [c0]
+    FROM OPENJSON(@__customerIds_0) AS [c0]
     WHERE CAST([c0].[value] AS nchar(5)) = [c].[CustomerID]) AND [c].[City] = N'Seattle'
 """);
     }
@@ -2951,7 +2951,7 @@ SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[Cont
 FROM [Customers] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OpenJson(@__customerIds_0) AS [c0]
+    FROM OPENJSON(@__customerIds_0) AS [c0]
     WHERE CAST([c0].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[City] = N'Seattle'
 """);
     }
