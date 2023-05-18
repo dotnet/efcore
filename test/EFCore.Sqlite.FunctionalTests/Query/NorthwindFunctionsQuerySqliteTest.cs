@@ -120,8 +120,17 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Where_math_round2(bool async)
         => AssertTranslationFailed(() => base.Where_math_round2(async));
 
-    public override Task Where_math_sign(bool async)
-        => AssertTranslationFailed(() => base.Where_math_sign(async));
+    public override async Task Where_math_sign(bool async)
+    {
+        await base.Where_math_sign(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
+""");
+    }
 
     public override Task Where_math_sin(bool async)
         => AssertTranslationFailed(() => base.Where_math_sin(async));
@@ -174,8 +183,17 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
     public override Task Where_mathf_square(bool async)
         => AssertTranslationFailed(() => base.Where_mathf_square(async));
 
-    public override Task Where_mathf_sign(bool async)
-        => AssertTranslationFailed(() => base.Where_mathf_sign(async));
+    public override async Task Where_mathf_sign(bool async)
+    {
+        await base.Where_mathf_sign(async);
+
+        AssertSql(
+"""
+SELECT "o"."OrderID", "o"."ProductID", "o"."Discount", "o"."Quantity", "o"."UnitPrice"
+FROM "Order Details" AS "o"
+WHERE "o"."OrderID" = 11077 AND sign("o"."Discount") > 0
+""");
+    }
 
     public override Task Where_mathf_sin(bool async)
         => AssertTranslationFailed(() => base.Where_mathf_sin(async));

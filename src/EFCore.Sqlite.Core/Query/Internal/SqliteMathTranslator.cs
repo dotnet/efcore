@@ -42,11 +42,17 @@ public class SqliteMathTranslator : IMethodCallTranslator
         { typeof(Math).GetMethod(nameof(Math.Min), new[] { typeof(ushort), typeof(ushort) })!, "min" },
         { typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(double) })!, "round" },
         { typeof(Math).GetMethod(nameof(Math.Round), new[] { typeof(double), typeof(int) })!, "round" },
+        { typeof(Math).GetMethod(nameof(Math.Sign), new[] { typeof(double) })!, "sign" },
+        { typeof(Math).GetMethod(nameof(Math.Sign), new[] { typeof(float) })!, "sign" },
+        { typeof(Math).GetMethod(nameof(Math.Sign), new[] { typeof(long) })!, "sign" },
+        { typeof(Math).GetMethod(nameof(Math.Sign), new[] { typeof(sbyte) })!, "sign" },
+        { typeof(Math).GetMethod(nameof(Math.Sign), new[] { typeof(short) })!, "sign" },
         { typeof(MathF).GetMethod(nameof(MathF.Abs), new[] { typeof(float) })!, "abs" },
         { typeof(MathF).GetMethod(nameof(MathF.Max), new[] { typeof(float), typeof(float) })!, "max" },
         { typeof(MathF).GetMethod(nameof(MathF.Min), new[] { typeof(float), typeof(float) })!, "min" },
         { typeof(MathF).GetMethod(nameof(MathF.Round), new[] { typeof(float) })!, "round" },
-        { typeof(MathF).GetMethod(nameof(MathF.Round), new[] { typeof(float), typeof(int) })!, "round" }
+        { typeof(MathF).GetMethod(nameof(MathF.Round), new[] { typeof(float), typeof(int) })!, "round" },
+        { typeof(MathF).GetMethod(nameof(MathF.Sign), new[] { typeof(float) })!, "sign" }
     };
 
     private readonly ISqlExpressionFactory _sqlExpressionFactory;
@@ -78,7 +84,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
         {
             RelationalTypeMapping? typeMapping;
             List<SqlExpression>? newArguments = null;
-            if (sqlFunctionName == "max" || sqlFunctionName == "max")
+            if (sqlFunctionName == "max" || sqlFunctionName == "min")
             {
                 typeMapping = ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
                 newArguments = new List<SqlExpression>
