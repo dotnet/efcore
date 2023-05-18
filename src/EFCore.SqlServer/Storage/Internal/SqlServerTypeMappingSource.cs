@@ -437,16 +437,20 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
             return null;
         }
 
-        switch (mappingInfo.StoreTypeNameBase)
+        switch (mappingInfo.StoreTypeNameBase?.ToLowerInvariant())
         {
+            case "nvarchar":
+            case "varchar":
             case "char varying":
             case "char":
             case "character varying":
             case "character":
+            case "nchar":
             case "national char varying":
             case "national character varying":
             case "national character":
-            case "varchar":
+            case "text":
+            case "ntext":
             case null:
                 break;
             default:
