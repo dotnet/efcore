@@ -1163,6 +1163,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Enum2", enum2ColumnBase);
+            var flagsEnum1ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum1", flagsEnum1ColumnBase);
+            var flagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
             var idColumnBase0 = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Id", idColumnBase0);
             var pointColumnBase = new ColumnBase<ColumnMappingBase>("Point", "geometry", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase)
@@ -1178,6 +1182,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Id")!, principalBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Point")!, principalBase.FindProperty("Point")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
 
             var tableMappings1 = new List<TableMapping>();
@@ -1194,6 +1200,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Enum2", enum2Column);
+            var flagsEnum1Column = new Column("FlagsEnum1", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum1", flagsEnum1Column);
+            var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
             var owned_NumberColumn = new Column("Owned_Number", "int", principalBaseTable);
             principalBaseTable.Columns.Add("Owned_Number", owned_NumberColumn);
             var pointColumn = new Column("Point", "geometry", principalBaseTable)
@@ -1240,6 +1250,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Id")!, principalBase.FindProperty("Id")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Point")!, principalBase.FindProperty("Point")!, principalBaseTableMapping);
 
             var ownedType = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase.Owned#OwnedType")!;
@@ -1324,6 +1336,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Id")!, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Point")!, principalDerived.FindProperty("Point")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
 
             var defaultTableMappings4 = new List<TableMappingBase<ColumnMappingBase>>();
@@ -1352,6 +1366,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Id")!, principalDerived.FindProperty("Id")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBaseTableMapping1);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBaseTableMapping1);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Point")!, principalDerived.FindProperty("Point")!, principalBaseTableMapping1);
             var principalDerivedTable = new Table("PrincipalDerived", null, relationalModel);
             var derivedIdColumn = new Column("DerivedId", "bigint", principalDerivedTable);
@@ -1813,6 +1829,22 @@ namespace TestNamespace
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum1 = runtimeEntityType.AddProperty(
+                "FlagsEnum1",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+            flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum2 = runtimeEntityType.AddProperty(
+                "FlagsEnum2",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)6);
+            flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var point = runtimeEntityType.AddProperty(
                 "Point",
@@ -3090,6 +3122,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Enum2", enum2ColumnBase);
+            var flagsEnum1ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum1", flagsEnum1ColumnBase);
+            var flagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
             var idColumnBase0 = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Id", idColumnBase0);
             var pointColumnBase = new ColumnBase<ColumnMappingBase>("Point", "geometry", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase)
@@ -3106,6 +3142,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Discriminator")!, principalBase.FindProperty("Discriminator")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Point")!, principalBase.FindProperty("Point")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
 
             var tableMappings1 = new List<TableMapping>();
@@ -3124,6 +3162,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Enum2", enum2Column);
+            var flagsEnum1Column = new Column("FlagsEnum1", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum1", flagsEnum1Column);
+            var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
             var manyOwnedColumn = new JsonColumn("ManyOwned", "nvarchar(max)", principalBaseTable)
             {
                 IsNullable = true
@@ -3171,6 +3213,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Discriminator")!, principalBase.FindProperty("Discriminator")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Point")!, principalBase.FindProperty("Point")!, principalBaseTableMapping);
 
             var ownedType = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase.Owned#OwnedType")!;
@@ -3211,6 +3255,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Discriminator")!, principalDerived.FindProperty("Discriminator")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Point")!, principalDerived.FindProperty("Point")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
 
             var tableMappings3 = new List<TableMapping>();
@@ -3226,6 +3272,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Discriminator")!, principalDerived.FindProperty("Discriminator")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBaseTableMapping1);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBaseTableMapping1);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBaseTableMapping1);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Point")!, principalDerived.FindProperty("Point")!, principalBaseTableMapping1);
 
             var ownedType0 = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>>.ManyOwned#OwnedType")!;
@@ -3580,6 +3628,22 @@ namespace TestNamespace
                 fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum1 = runtimeEntityType.AddProperty(
+                "FlagsEnum1",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+            flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum2 = runtimeEntityType.AddProperty(
+                "FlagsEnum2",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)6);
+            flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var point = runtimeEntityType.AddProperty(
                 "Point",
@@ -4595,6 +4659,9 @@ namespace TestNamespace
                                 .Metadata.SetColumnName("DerivedId", StoreObjectIdentifier.Table("PrincipalDerived"));
                         }
 
+                        eb.Property(e => e.FlagsEnum2)
+                            .HasSentinel(AFlagsEnum.C | AFlagsEnum.B);
+
                         eb.Property(e => e.AlternateId)
                             .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction);
 
@@ -4891,6 +4958,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Enum2", enum2ColumnBase);
+            var flagsEnum1ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum1", flagsEnum1ColumnBase);
+            var flagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
             var idColumnBase0 = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Id", idColumnBase0);
             var principalBaseIdColumnBase = new ColumnBase<ColumnMappingBase>("PrincipalBaseId", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase)
@@ -4910,6 +4981,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Id")!, principalBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalBase.FindProperty("PrincipalDerivedId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
 
@@ -4925,6 +4998,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalBaseTable.Columns.Add("Enum2", enum2Column);
+            var flagsEnum1Column = new Column("FlagsEnum1", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum1", flagsEnum1Column);
+            var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
             var principalBaseIdColumn = new Column("PrincipalBaseId", "bigint", principalBaseTable)
             {
                 IsNullable = true
@@ -4966,6 +5043,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Id")!, principalBase.FindProperty("Id")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, principalBaseTableMapping);
             RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalBase.FindProperty("PrincipalDerivedId")!, principalBaseTableMapping);
 
@@ -4979,6 +5058,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalBaseViewView.Columns.Add("Enum2", enum2ViewColumn);
+            var flagsEnum1ViewColumn = new ViewColumn("FlagsEnum1", "int", principalBaseViewView);
+            principalBaseViewView.Columns.Add("FlagsEnum1", flagsEnum1ViewColumn);
+            var flagsEnum2ViewColumn = new ViewColumn("FlagsEnum2", "int", principalBaseViewView);
+            principalBaseViewView.Columns.Add("FlagsEnum2", flagsEnum2ViewColumn);
             var idViewColumn = new ViewColumn("Id", "bigint", principalBaseViewView);
             principalBaseViewView.Columns.Add("Id", idViewColumn);
             var principalBaseIdViewColumn = new ViewColumn("PrincipalBaseId", "bigint", principalBaseViewView)
@@ -4998,6 +5081,8 @@ namespace TestNamespace
             RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("Id")!, principalBase.FindProperty("Id")!, principalBaseViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, principalBaseViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, principalBaseViewViewMapping);
+            RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBaseViewViewMapping);
+            RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBaseViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, principalBaseViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalBaseViewView.FindColumn("PrincipalDerivedId")!, principalBase.FindProperty("PrincipalDerivedId")!, principalBaseViewViewMapping);
 
@@ -5036,7 +5121,11 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalBase_InsertStoreSproc.AddParameter(enum2Parameter);
-            var baseIdParameter = new StoreStoredProcedureParameter("BaseId", "bigint", 4, principalBase_InsertStoreSproc, System.Data.ParameterDirection.Output);
+            var flagsEnum1Parameter = new StoreStoredProcedureParameter("FlagsEnum1", "int", 4, principalBase_InsertStoreSproc, System.Data.ParameterDirection.Input);
+            principalBase_InsertStoreSproc.AddParameter(flagsEnum1Parameter);
+            var flagsEnum2Parameter = new StoreStoredProcedureParameter("FlagsEnum2", "int", 5, principalBase_InsertStoreSproc, System.Data.ParameterDirection.Input);
+            principalBase_InsertStoreSproc.AddParameter(flagsEnum2Parameter);
+            var baseIdParameter = new StoreStoredProcedureParameter("BaseId", "bigint", 6, principalBase_InsertStoreSproc, System.Data.ParameterDirection.Output);
             principalBase_InsertStoreSproc.AddParameter(baseIdParameter);
             principalBase_InsertStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetInsertStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Insert", "TPC"), principalBase_InsertStoreSproc);
@@ -5048,6 +5137,8 @@ namespace TestNamespace
             RelationalModel.CreateStoredProcedureParameterMapping(baseIdParameter, principalBase_InsertISproc.FindParameter("BaseId")!, principalBase.FindProperty("Id")!, principalBase_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter, principalBase_InsertISproc.FindParameter("Enum1")!, principalBase.FindProperty("Enum1")!, principalBase_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter, principalBase_InsertISproc.FindParameter("Enum2")!, principalBase.FindProperty("Enum2")!, principalBase_InsertSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter, principalBase_InsertISproc.FindParameter("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBase_InsertSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter, principalBase_InsertISproc.FindParameter("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBase_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter, principalBase_InsertISproc.FindParameter("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, principalBase_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalDerivedIdParameter, principalBase_InsertISproc.FindParameter("PrincipalDerivedId")!, principalBase.FindProperty("PrincipalDerivedId")!, principalBase_InsertSprocMapping);
 
@@ -5071,7 +5162,11 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalBase_UpdateStoreSproc.AddParameter(enum2Parameter0);
-            var id_OriginalParameter0 = new StoreStoredProcedureParameter("Id_Original", "bigint", 4, principalBase_UpdateStoreSproc, System.Data.ParameterDirection.Input);
+            var flagsEnum1Parameter0 = new StoreStoredProcedureParameter("FlagsEnum1", "int", 4, principalBase_UpdateStoreSproc, System.Data.ParameterDirection.Input);
+            principalBase_UpdateStoreSproc.AddParameter(flagsEnum1Parameter0);
+            var flagsEnum2Parameter0 = new StoreStoredProcedureParameter("FlagsEnum2", "int", 5, principalBase_UpdateStoreSproc, System.Data.ParameterDirection.Input);
+            principalBase_UpdateStoreSproc.AddParameter(flagsEnum2Parameter0);
+            var id_OriginalParameter0 = new StoreStoredProcedureParameter("Id_Original", "bigint", 6, principalBase_UpdateStoreSproc, System.Data.ParameterDirection.Input);
             principalBase_UpdateStoreSproc.AddParameter(id_OriginalParameter0);
             principalBase_UpdateStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalBase.GetUpdateStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("PrincipalBase_Update", "TPC"), principalBase_UpdateStoreSproc);
@@ -5083,6 +5178,8 @@ namespace TestNamespace
             RelationalModel.CreateStoredProcedureParameterMapping(id_OriginalParameter0, principalBase_UpdateUSproc.FindParameter("Id_Original")!, principalBase.FindProperty("Id")!, principalBase_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter0, principalBase_UpdateUSproc.FindParameter("Enum1")!, principalBase.FindProperty("Enum1")!, principalBase_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter0, principalBase_UpdateUSproc.FindParameter("Enum2")!, principalBase.FindProperty("Enum2")!, principalBase_UpdateSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter0, principalBase_UpdateUSproc.FindParameter("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBase_UpdateSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter0, principalBase_UpdateUSproc.FindParameter("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBase_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter0, principalBase_UpdateUSproc.FindParameter("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, principalBase_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalDerivedIdParameter0, principalBase_UpdateUSproc.FindParameter("PrincipalDerivedId")!, principalBase.FindProperty("PrincipalDerivedId")!, principalBase_UpdateSprocMapping);
 
@@ -5098,6 +5195,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.Columns.Add("Enum2", enum2ColumnBase0);
+            var flagsEnum1ColumnBase0 = new ColumnBase<ColumnMappingBase>("FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.Columns.Add("FlagsEnum1", flagsEnum1ColumnBase0);
+            var flagsEnum2ColumnBase0 = new ColumnBase<ColumnMappingBase>("FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase0);
             var idColumnBase1 = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase);
             microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.Columns.Add("Id", idColumnBase1);
             var principalBaseIdColumnBase0 = new ColumnBase<ColumnMappingBase>("PrincipalBaseId", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase)
@@ -5117,6 +5218,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("Id")!, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
             RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteTableBase.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalDerived.FindProperty("PrincipalDerivedId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalDerivedMicrosoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestDependentBasebyteMappingBase);
 
@@ -5132,6 +5235,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalDerivedTable.Columns.Add("Enum2", enum2Column0);
+            var flagsEnum1Column0 = new Column("FlagsEnum1", "int", principalDerivedTable);
+            principalDerivedTable.Columns.Add("FlagsEnum1", flagsEnum1Column0);
+            var flagsEnum2Column0 = new Column("FlagsEnum2", "int", principalDerivedTable);
+            principalDerivedTable.Columns.Add("FlagsEnum2", flagsEnum2Column0);
             var principalBaseIdColumn0 = new Column("PrincipalBaseId", "bigint", principalDerivedTable)
             {
                 IsNullable = true
@@ -5173,6 +5280,8 @@ namespace TestNamespace
             RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("Id")!, principalDerived.FindProperty("Id")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, principalDerivedTableMapping);
+            RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalDerivedTableMapping);
+            RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalDerivedTableMapping);
             RelationalModel.CreateColumnMapping(principalDerivedTable.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalDerived.FindProperty("PrincipalDerivedId")!, principalDerivedTableMapping);
 
@@ -5186,6 +5295,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             principalDerivedViewView.Columns.Add("Enum2", enum2ViewColumn0);
+            var flagsEnum1ViewColumn0 = new ViewColumn("FlagsEnum1", "int", principalDerivedViewView);
+            principalDerivedViewView.Columns.Add("FlagsEnum1", flagsEnum1ViewColumn0);
+            var flagsEnum2ViewColumn0 = new ViewColumn("FlagsEnum2", "int", principalDerivedViewView);
+            principalDerivedViewView.Columns.Add("FlagsEnum2", flagsEnum2ViewColumn0);
             var idViewColumn0 = new ViewColumn("Id", "bigint", principalDerivedViewView);
             principalDerivedViewView.Columns.Add("Id", idViewColumn0);
             var principalBaseIdViewColumn0 = new ViewColumn("PrincipalBaseId", "bigint", principalDerivedViewView)
@@ -5205,6 +5318,8 @@ namespace TestNamespace
             RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("Id")!, principalDerived.FindProperty("Id")!, principalDerivedViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, principalDerivedViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, principalDerivedViewViewMapping);
+            RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalDerivedViewViewMapping);
+            RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalDerivedViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalDerivedViewViewMapping);
             RelationalModel.CreateViewColumnMapping(principalDerivedViewView.FindColumn("PrincipalDerivedId")!, principalDerived.FindProperty("PrincipalDerivedId")!, principalDerivedViewViewMapping);
 
@@ -5242,6 +5357,10 @@ namespace TestNamespace
                 IsNullable = true
             };
             derived_InsertStoreSproc.AddParameter(enum2Parameter1);
+            var flagsEnum1Parameter1 = new StoreStoredProcedureParameter("FlagsEnum1", "int", 4, derived_InsertStoreSproc, System.Data.ParameterDirection.Input);
+            derived_InsertStoreSproc.AddParameter(flagsEnum1Parameter1);
+            var flagsEnum2Parameter1 = new StoreStoredProcedureParameter("FlagsEnum2", "int", 5, derived_InsertStoreSproc, System.Data.ParameterDirection.Input);
+            derived_InsertStoreSproc.AddParameter(flagsEnum2Parameter1);
             var derivedIdFunctionColumn = new StoreStoredProcedureResultColumn("DerivedId", "bigint", 0, derived_InsertStoreSproc);
             derived_InsertStoreSproc.AddResultColumn(derivedIdFunctionColumn);
             derived_InsertStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetInsertStoredProcedure()!);
@@ -5253,6 +5372,8 @@ namespace TestNamespace
             principalDerivedTableMapping.InsertStoredProcedureMapping = derived_InsertSprocMapping;
             RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter1, derived_InsertISproc.FindParameter("Enum1")!, principalDerived.FindProperty("Enum1")!, derived_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter1, derived_InsertISproc.FindParameter("Enum2")!, principalDerived.FindProperty("Enum2")!, derived_InsertSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter1, derived_InsertISproc.FindParameter("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, derived_InsertSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter1, derived_InsertISproc.FindParameter("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, derived_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter1, derived_InsertISproc.FindParameter("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, derived_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalDerivedIdParameter1, derived_InsertISproc.FindParameter("PrincipalDerivedId")!, principalDerived.FindProperty("PrincipalDerivedId")!, derived_InsertSprocMapping);
             RelationalModel.CreateStoredProcedureResultColumnMapping(derivedIdFunctionColumn, derived_InsertISproc.FindResultColumn("DerivedId")!, principalDerived.FindProperty("Id")!, derived_InsertSprocMapping);
@@ -5277,7 +5398,11 @@ namespace TestNamespace
                 IsNullable = true
             };
             derived_UpdateStoreSproc.AddParameter(enum2Parameter2);
-            var id_OriginalParameter2 = new StoreStoredProcedureParameter("Id_Original", "bigint", 4, derived_UpdateStoreSproc, System.Data.ParameterDirection.Input);
+            var flagsEnum1Parameter2 = new StoreStoredProcedureParameter("FlagsEnum1", "int", 4, derived_UpdateStoreSproc, System.Data.ParameterDirection.Input);
+            derived_UpdateStoreSproc.AddParameter(flagsEnum1Parameter2);
+            var flagsEnum2Parameter2 = new StoreStoredProcedureParameter("FlagsEnum2", "int", 5, derived_UpdateStoreSproc, System.Data.ParameterDirection.Input);
+            derived_UpdateStoreSproc.AddParameter(flagsEnum2Parameter2);
+            var id_OriginalParameter2 = new StoreStoredProcedureParameter("Id_Original", "bigint", 6, derived_UpdateStoreSproc, System.Data.ParameterDirection.Input);
             derived_UpdateStoreSproc.AddParameter(id_OriginalParameter2);
             derived_UpdateStoreSproc.AddStoredProcedure((IRuntimeStoredProcedure)principalDerived.GetUpdateStoredProcedure()!);
             relationalModel.StoredProcedures.Add(("Derived_Update", "Derived"), derived_UpdateStoreSproc);
@@ -5289,6 +5414,8 @@ namespace TestNamespace
             RelationalModel.CreateStoredProcedureParameterMapping(id_OriginalParameter2, derived_UpdateUSproc.FindParameter("Id_Original")!, principalDerived.FindProperty("Id")!, derived_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum1Parameter2, derived_UpdateUSproc.FindParameter("Enum1")!, principalDerived.FindProperty("Enum1")!, derived_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(enum2Parameter2, derived_UpdateUSproc.FindParameter("Enum2")!, principalDerived.FindProperty("Enum2")!, derived_UpdateSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum1Parameter2, derived_UpdateUSproc.FindParameter("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, derived_UpdateSprocMapping);
+            RelationalModel.CreateStoredProcedureParameterMapping(flagsEnum2Parameter2, derived_UpdateUSproc.FindParameter("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, derived_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalBaseIdParameter2, derived_UpdateUSproc.FindParameter("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, derived_UpdateSprocMapping);
             RelationalModel.CreateStoredProcedureParameterMapping(principalDerivedIdParameter2, derived_UpdateUSproc.FindParameter("PrincipalDerivedId")!, principalDerived.FindProperty("PrincipalDerivedId")!, derived_UpdateSprocMapping);
             var fK_DependentBasebyte_PrincipalDerived_PrincipalId = new ForeignKeyConstraint(
@@ -5494,6 +5621,22 @@ namespace TestNamespace
                 nullable: true);
             enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var flagsEnum1 = runtimeEntityType.AddProperty(
+                "FlagsEnum1",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+            flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum2 = runtimeEntityType.AddProperty(
+                "FlagsEnum2",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+            flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var principalBaseId = runtimeEntityType.AddProperty(
                 "PrincipalBaseId",
                 typeof(long?),
@@ -5570,6 +5713,10 @@ namespace TestNamespace
                 "Enum1", System.Data.ParameterDirection.Input, false, "Enum1", false);
             var enum2 = insertSproc.AddParameter(
                 "Enum2", System.Data.ParameterDirection.Input, false, "Enum2", false);
+            var flagsEnum1 = insertSproc.AddParameter(
+                "FlagsEnum1", System.Data.ParameterDirection.Input, false, "FlagsEnum1", false);
+            var flagsEnum2 = insertSproc.AddParameter(
+                "FlagsEnum2", System.Data.ParameterDirection.Input, false, "FlagsEnum2", false);
             var id = insertSproc.AddParameter(
                 "BaseId", System.Data.ParameterDirection.Output, false, "Id", false);
             id.AddAnnotation("foo", "bar");
@@ -5600,6 +5747,10 @@ namespace TestNamespace
                 "Enum1", System.Data.ParameterDirection.Input, false, "Enum1", false);
             var enum20 = updateSproc.AddParameter(
                 "Enum2", System.Data.ParameterDirection.Input, false, "Enum2", false);
+            var flagsEnum10 = updateSproc.AddParameter(
+                "FlagsEnum1", System.Data.ParameterDirection.Input, false, "FlagsEnum1", false);
+            var flagsEnum20 = updateSproc.AddParameter(
+                "FlagsEnum2", System.Data.ParameterDirection.Input, false, "FlagsEnum2", false);
             var id1 = updateSproc.AddParameter(
                 "Id_Original", System.Data.ParameterDirection.Input, false, "Id", true);
             runtimeEntityType.AddAnnotation("Relational:UpdateStoredProcedure", updateSproc);
@@ -5663,6 +5814,10 @@ namespace TestNamespace
                 "Enum1", System.Data.ParameterDirection.Input, false, "Enum1", false);
             var enum2 = insertSproc.AddParameter(
                 "Enum2", System.Data.ParameterDirection.Input, false, "Enum2", false);
+            var flagsEnum1 = insertSproc.AddParameter(
+                "FlagsEnum1", System.Data.ParameterDirection.Input, false, "FlagsEnum1", false);
+            var flagsEnum2 = insertSproc.AddParameter(
+                "FlagsEnum2", System.Data.ParameterDirection.Input, false, "FlagsEnum2", false);
             var derivedId = insertSproc.AddResultColumn(
                 "DerivedId", false, "Id");
             derivedId.AddAnnotation("foo", "bar3");
@@ -5692,6 +5847,10 @@ namespace TestNamespace
                 "Enum1", System.Data.ParameterDirection.Input, false, "Enum1", false);
             var enum20 = updateSproc.AddParameter(
                 "Enum2", System.Data.ParameterDirection.Input, false, "Enum2", false);
+            var flagsEnum10 = updateSproc.AddParameter(
+                "FlagsEnum1", System.Data.ParameterDirection.Input, false, "FlagsEnum1", false);
+            var flagsEnum20 = updateSproc.AddParameter(
+                "FlagsEnum2", System.Data.ParameterDirection.Input, false, "FlagsEnum2", false);
             var id0 = updateSproc.AddParameter(
                 "Id_Original", System.Data.ParameterDirection.Input, false, "Id", true);
             runtimeEntityType.AddAnnotation("Relational:UpdateStoredProcedure", updateSproc);
@@ -5775,7 +5934,7 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBase_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "Id" }, insertSproc.Parameters.Select(p => p.PropertyName));
+                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "Id" }, insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(insertSproc.ResultColumns);
                     Assert.False(insertSproc.IsRowsAffectedReturned);
                     Assert.Equal("bar1", insertSproc["foo"]);
@@ -5788,7 +5947,7 @@ namespace TestNamespace
                     Assert.Equal("PrincipalBase_Update", updateSproc.Name);
                     Assert.Equal("TPC", updateSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
+                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.False(updateSproc.IsRowsAffectedReturned);
                     Assert.Empty(updateSproc.GetAnnotations());
@@ -5828,7 +5987,7 @@ namespace TestNamespace
                     insertSproc = principalDerived.GetInsertStoredProcedure()!;
                     Assert.Equal("Derived_Insert", insertSproc.Name);
                     Assert.Equal("TPC", insertSproc.Schema);
-                    Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2" }, insertSproc.Parameters.Select(p => p.PropertyName));
+                    Assert.Equal(new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2" }, insertSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Equal(new[] { "Id" }, insertSproc.ResultColumns.Select(p => p.PropertyName));
                     Assert.Null(insertSproc["foo"]);
                     Assert.Same(principalDerived, insertSproc.EntityType);
@@ -5845,7 +6004,7 @@ namespace TestNamespace
                     Assert.Equal("Derived_Update", updateSproc.Name);
                     Assert.Equal("Derived", updateSproc.Schema);
                     Assert.Equal(
-                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
+                        new[] { "PrincipalBaseId", "PrincipalDerivedId", "Enum1", "Enum2", "FlagsEnum1", "FlagsEnum2", "Id" }, updateSproc.Parameters.Select(p => p.PropertyName));
                     Assert.Empty(updateSproc.ResultColumns);
                     Assert.Empty(updateSproc.GetAnnotations());
                     Assert.Same(principalDerived, updateSproc.EntityType);
@@ -5940,6 +6099,8 @@ namespace TestNamespace
                                 .HasParameter("PrincipalDerivedId")
                                 .HasParameter("Enum1")
                                 .HasParameter("Enum2")
+                                .HasParameter("FlagsEnum1")
+                                .HasParameter("FlagsEnum2")
                                 .HasParameter(p => p.Id, pb => pb.HasName("BaseId").IsOutput().HasAnnotation("foo", "bar"))
                                 .HasAnnotation("foo", "bar1"));
                         eb.UpdateUsingStoredProcedure(
@@ -5948,6 +6109,8 @@ namespace TestNamespace
                                 .HasParameter("PrincipalDerivedId")
                                 .HasParameter("Enum1")
                                 .HasParameter("Enum2")
+                                .HasParameter("FlagsEnum1")
+                                .HasParameter("FlagsEnum2")
                                 .HasOriginalValueParameter(p => p.Id));
                         eb.DeleteUsingStoredProcedure(
                             s => s
@@ -5982,6 +6145,8 @@ namespace TestNamespace
                                 .HasParameter("PrincipalDerivedId")
                                 .HasParameter("Enum1")
                                 .HasParameter("Enum2")
+                                .HasParameter("FlagsEnum1")
+                                .HasParameter("FlagsEnum2")
                                 .HasResultColumn(p => p.Id, pb => pb.HasName("DerivedId").HasAnnotation("foo", "bar3")));
                         eb.UpdateUsingStoredProcedure(
                             "Derived_Update", "Derived", s => s
@@ -5989,6 +6154,8 @@ namespace TestNamespace
                                 .HasParameter("PrincipalDerivedId")
                                 .HasParameter("Enum1")
                                 .HasParameter("Enum2")
+                                .HasParameter("FlagsEnum1")
+                                .HasParameter("FlagsEnum2")
                                 .HasOriginalValueParameter(p => p.Id));
                         eb.DeleteUsingStoredProcedure(
                             "Derived_Delete", s => s
@@ -6022,6 +6189,13 @@ namespace TestNamespace
             B,
         }
 
+        public enum AFlagsEnum
+        {
+            A = 1,
+            B = 2,
+            C = 4,
+        }
+
         public class PrincipalBase : AbstractBase
         {
             public new long? Id { get; set; }
@@ -6029,6 +6203,8 @@ namespace TestNamespace
 
             public AnEnum Enum1 { get; set; }
             public AnEnum? Enum2 { get; set; }
+            public AFlagsEnum FlagsEnum1 { get; set; }
+            public AFlagsEnum FlagsEnum2 { get; set; }
 
             private OwnedType _ownedField;
             public OwnedType Owned { get => _ownedField; set => _ownedField = value; }
