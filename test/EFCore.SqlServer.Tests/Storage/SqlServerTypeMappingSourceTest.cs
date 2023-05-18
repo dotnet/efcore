@@ -65,62 +65,82 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_non_key_SQL_Server_string_mapping(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_non_key_SQL_Server_string_mapping(Type type, bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), unicode: unicode, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, unicode: unicode, fixedLength: fixedLength);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(max)", typeMapping.StoreType);
         Assert.Null(typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_value_that_fits_max_length(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_value_that_fits_max_length(Type type, bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: unicode, fixedLength: fixedLength);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(3)", typeMapping.StoreType);
         Assert.Equal(3, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(3, typeMapping.CreateParameter(new TestCommand(), "Name", "Va").Size);
+        object value = type == typeof(string) ? "Va" : new List<int>();
+        Assert.Equal(3, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_max_length(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_max_length(Type type, bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: unicode, fixedLength: fixedLength);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(3)", typeMapping.StoreType);
         Assert.Equal(3, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_large_value(bool? unicode)
+    [InlineData(typeof(string), true)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), true)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_large_value(Type type, bool? unicode)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: true);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: unicode, fixedLength: true);
 
         Assert.Equal(DbType.StringFixedLength, typeMapping.DbType);
         Assert.Equal("nchar(3)", typeMapping.StoreType);
@@ -128,17 +148,21 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.True(typeMapping.IsUnicode);
         Assert.True(typeMapping.IsFixedLength);
 
-        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Value");
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.String, parameter.DbType);
         Assert.Equal(4000, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_small_value(bool? unicode)
+    [InlineData(typeof(string), true)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), true)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_small_value(Type type, bool? unicode)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: true);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: unicode, fixedLength: true);
 
         Assert.Equal(DbType.StringFixedLength, typeMapping.DbType);
         Assert.Equal("nchar(3)", typeMapping.StoreType);
@@ -146,17 +170,21 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.True(typeMapping.IsUnicode);
         Assert.True(typeMapping.IsFixedLength);
 
-        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Va");
+        object value = type == typeof(string) ? "Va" : new List<int>();
+        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.String, parameter.DbType);
         Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_exact_value(bool? unicode)
+    [InlineData(typeof(string), true)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), true)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_exact_value(Type type, bool? unicode)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: true);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: unicode, fixedLength: true);
 
         Assert.Equal(DbType.StringFixedLength, typeMapping.DbType);
         Assert.Equal("nchar(3)", typeMapping.StoreType);
@@ -164,70 +192,94 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.True(typeMapping.IsUnicode);
         Assert.True(typeMapping.IsFixedLength);
 
-        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Val");
+        object value = type == typeof(string) ? "Val" : new List<int> { 1 };
+        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.StringFixedLength, parameter.DbType);
         Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_long_string(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_long_string(Type type, bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), unicode: unicode, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, unicode: unicode, fixedLength: fixedLength);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(max)", typeMapping.StoreType);
         Assert.Null(typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
+        object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();;
+        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string(Type type, bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: unicode, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: unicode, fixedLength: fixedLength);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(3)", typeMapping.StoreType);
         Assert.Equal(3, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 4001)).Size);
+        object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();;
+        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_non_key_SQL_Server_required_string_mapping(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_non_key_SQL_Server_required_string_mapping(Type type, bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), nullable: false, unicode: unicode, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, nullable: false, unicode: unicode, fixedLength: fixedLength);
 
         Assert.Equal(DbType.String, typeMapping.DbType);
         Assert.Equal("nvarchar(max)", typeMapping.StoreType);
         Assert.Null(typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_key_SQL_Server_string_mapping(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_key_SQL_Server_string_mapping(Type type, bool? unicode, bool? fixedLength)
     {
-        var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(string));
+        var property = CreateEntityType<MyType>().AddProperty("MyProp", type);
         property.IsNullable = false;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
@@ -240,21 +292,27 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(450, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_foreign_key_SQL_Server_string_mapping(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_foreign_key_SQL_Server_string_mapping(Type type, bool? unicode, bool? fixedLength)
     {
-        var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(string));
+        var property = CreateEntityType<MyType>().AddProperty("MyProp", type);
         property.IsNullable = false;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
+        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
         var pk = property.DeclaringEntityType.SetPrimaryKey(property);
         property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
@@ -265,21 +323,27 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(450, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_required_foreign_key_SQL_Server_string_mapping(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_required_foreign_key_SQL_Server_string_mapping(Type type, bool? unicode, bool? fixedLength)
     {
-        var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(string));
+        var property = CreateEntityType<MyType>().AddProperty("MyProp", type);
         property.IsNullable = false;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
+        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
         var pk = property.DeclaringEntityType.SetPrimaryKey(property);
         property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
         fkProperty.IsNullable = false;
@@ -291,18 +355,24 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(450, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(true, false)]
-    [InlineData(null, false)]
-    [InlineData(true, null)]
-    [InlineData(null, null)]
-    public void Does_indexed_column_SQL_Server_string_mapping(bool? unicode, bool? fixedLength)
+    [InlineData(typeof(string), true, false)]
+    [InlineData(typeof(string), null, false)]
+    [InlineData(typeof(string), true, null)]
+    [InlineData(typeof(string), null, null)]
+    [InlineData(typeof(IEnumerable<int>), true, false)]
+    [InlineData(typeof(IEnumerable<int>), null, false)]
+    [InlineData(typeof(IEnumerable<int>), true, null)]
+    [InlineData(typeof(IEnumerable<int>), null, null)]
+    public void Does_indexed_column_SQL_Server_string_mapping(Type type, bool? unicode, bool? fixedLength)
     {
         var entityType = CreateEntityType<MyType>();
-        var property = entityType.AddProperty("MyProp", typeof(string));
+        var property = entityType.AddProperty("MyProp", type);
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
         entityType.AddIndex(property);
@@ -314,7 +384,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(450, typeMapping.Size);
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -341,54 +413,92 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_string_mapping_ansi(bool? fixedLength)
+    [InlineData(true, false)]
+    [InlineData(null, false)]
+    [InlineData(true, null)]
+    [InlineData(null, null)]
+    public void Does_IndexAttribute_column_SQL_Server_primitive_collection_mapping(bool? unicode, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), unicode: false, fixedLength: fixedLength);
+        var entityType = CreateEntityType<MyTypeWithIndexAttributeOnCollection>();
+        var property = entityType.FindProperty("Ints");
+        property.SetIsUnicode(unicode);
+        property.SetIsFixedLength(fixedLength);
+        entityType.Model.FinalizeModel();
+
+        var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
+
+        Assert.Equal(DbType.String, typeMapping.DbType);
+        Assert.Equal("nvarchar(450)", typeMapping.StoreType);
+        Assert.Equal(450, typeMapping.Size);
+        Assert.True(typeMapping.IsUnicode);
+        Assert.False(typeMapping.IsFixedLength);
+        Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Ints", new List<int> { 1, 2, 3 }).Size);
+        Assert.Equal(typeof(int), typeMapping.ElementTypeMapping?.ClrType);
+    }
+
+    [ConditionalTheory]
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_string_mapping_ansi(Type type, bool? fixedLength)
+    {
+        var typeMapping = GetTypeMapping(type, unicode: false, fixedLength: fixedLength);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(max)", typeMapping.StoreType);
         Assert.Null(typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_string_mapping_for_value_that_fits_with_max_length_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_string_mapping_for_value_that_fits_with_max_length_ansi(Type type, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: false, fixedLength: fixedLength);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(3)", typeMapping.StoreType);
         Assert.Equal(3, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(3, typeMapping.CreateParameter(new TestCommand(), "Name", "Val").Size);
+        object value = type == typeof(string) ? "Val" : new List<int> { 1 };
+        Assert.Equal(3, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_max_length_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_max_length_ansi(Type type, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: false, fixedLength: fixedLength);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(3)", typeMapping.StoreType);
         Assert.Equal(3, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
-    [ConditionalFact]
-    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_ansi_large_value()
+    [ConditionalTheory]
+    [InlineData(typeof(string))]
+    [InlineData(typeof(IEnumerable<int>))]
+    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_ansi_large_value(Type type)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: true);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: false, fixedLength: true);
 
         Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
         Assert.Equal("char(3)", typeMapping.StoreType);
@@ -396,94 +506,118 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsUnicode);
         Assert.True(typeMapping.IsFixedLength);
 
-        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Value");
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.AnsiString, parameter.DbType);
         Assert.Equal(8000, parameter.Size);
-    }
-
-    [ConditionalFact]
-    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_ansi_small_value()
-    {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: true);
-
-        Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
-        Assert.Equal("char(3)", typeMapping.StoreType);
-        Assert.Equal(3, typeMapping.Size);
-        Assert.False(typeMapping.IsUnicode);
-        Assert.True(typeMapping.IsFixedLength);
-
-        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Va");
-        Assert.Equal(DbType.AnsiString, parameter.DbType);
-        Assert.Equal(3, parameter.Size);
-    }
-
-    [ConditionalFact]
-    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_ansi_exact_value()
-    {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: true);
-
-        Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
-        Assert.Equal("char(3)", typeMapping.StoreType);
-        Assert.Equal(3, typeMapping.Size);
-        Assert.False(typeMapping.IsUnicode);
-        Assert.True(typeMapping.IsFixedLength);
-
-        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", "Val");
-        Assert.Equal(DbType.AnsiStringFixedLength, parameter.DbType);
-        Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_long_string_ansi(bool? fixedLength)
+    [InlineData(typeof(string))]
+    [InlineData(typeof(IEnumerable<int>))]
+    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_ansi_small_value(Type type)
     {
-        var typeMapping = GetTypeMapping(typeof(string), unicode: false, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: false, fixedLength: true);
+
+        Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
+        Assert.Equal("char(3)", typeMapping.StoreType);
+        Assert.Equal(3, typeMapping.Size);
+        Assert.False(typeMapping.IsUnicode);
+        Assert.True(typeMapping.IsFixedLength);
+
+        object value = type == typeof(string) ? "Va" : new List<int>();
+        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
+        Assert.Equal(DbType.AnsiString, parameter.DbType);
+        Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
+    }
+
+    [ConditionalTheory]
+    [InlineData(typeof(string))]
+    [InlineData(typeof(IEnumerable<int>))]
+    public void Does_non_key_SQL_Server_fixed_string_mapping_with_max_length_ansi_exact_value(Type type)
+    {
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: false, fixedLength: true);
+
+        Assert.Equal(DbType.AnsiStringFixedLength, typeMapping.DbType);
+        Assert.Equal("char(3)", typeMapping.StoreType);
+        Assert.Equal(3, typeMapping.Size);
+        Assert.False(typeMapping.IsUnicode);
+        Assert.True(typeMapping.IsFixedLength);
+
+        object value = type == typeof(string) ? "Val" : new List<int> { 1 };
+        var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
+        Assert.Equal(DbType.AnsiStringFixedLength, parameter.DbType);
+        Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
+    }
+
+    [ConditionalTheory]
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_long_string_ansi(Type type, bool? fixedLength)
+    {
+        var typeMapping = GetTypeMapping(type, unicode: false, fixedLength: fixedLength);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(max)", typeMapping.StoreType);
         Assert.Null(typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 8001)).Size);
+        object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();;
+        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_string_mapping_with_max_length_with_long_string_ansi(Type type, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), null, 3, unicode: false, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, null, 3, unicode: false, fixedLength: fixedLength);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(3)", typeMapping.StoreType);
         Assert.Equal(3, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", new string('X', 8001)).Size);
+        object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();;
+        Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_non_key_SQL_Server_required_string_mapping_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_non_key_SQL_Server_required_string_mapping_ansi(Type type, bool? fixedLength)
     {
-        var typeMapping = GetTypeMapping(typeof(string), nullable: false, unicode: false, fixedLength: fixedLength);
+        var typeMapping = GetTypeMapping(type, nullable: false, unicode: false, fixedLength: fixedLength);
 
         Assert.Equal(DbType.AnsiString, typeMapping.DbType);
         Assert.Equal("varchar(max)", typeMapping.StoreType);
         Assert.Null(typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_key_SQL_Server_string_mapping_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_key_SQL_Server_string_mapping_ansi(Type type, bool? fixedLength)
     {
-        var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(string));
+        var property = CreateEntityType<MyType>().AddProperty("MyProp", type);
         property.IsNullable = false;
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
@@ -496,19 +630,23 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(900, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_foreign_key_SQL_Server_string_mapping_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_foreign_key_SQL_Server_string_mapping_ansi(Type type, bool? fixedLength)
     {
-        var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(string));
+        var property = CreateEntityType<MyType>().AddProperty("MyProp", type);
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
         property.IsNullable = false;
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
+        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
         var pk = property.DeclaringEntityType.SetPrimaryKey(property);
         property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
 
@@ -519,19 +657,23 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(900, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_required_foreign_key_SQL_Server_string_mapping_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_required_foreign_key_SQL_Server_string_mapping_ansi(Type type, bool? fixedLength)
     {
-        var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(string));
+        var property = CreateEntityType<MyType>().AddProperty("MyProp", type);
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
         property.IsNullable = false;
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(string));
+        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
         var pk = property.DeclaringEntityType.SetPrimaryKey(property);
         property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
         fkProperty.IsNullable = false;
@@ -543,16 +685,20 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(900, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
-    [InlineData(false)]
-    [InlineData(null)]
-    public void Does_indexed_column_SQL_Server_string_mapping_ansi(bool? fixedLength)
+    [InlineData(typeof(string), false)]
+    [InlineData(typeof(string), null)]
+    [InlineData(typeof(IEnumerable<int>), false)]
+    [InlineData(typeof(IEnumerable<int>), null)]
+    public void Does_indexed_column_SQL_Server_string_mapping_ansi(Type type, bool? fixedLength)
     {
         var entityType = CreateEntityType<MyType>();
-        var property = entityType.AddProperty("MyProp", typeof(string));
+        var property = entityType.AddProperty("MyProp", type);
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
         entityType.AddIndex(property);
@@ -564,7 +710,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.Equal(900, typeMapping.Size);
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
-        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+        object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
+        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -586,6 +734,28 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
         Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", "Value").Size);
+    }
+
+    [ConditionalTheory]
+    [InlineData(false)]
+    [InlineData(null)]
+    public void Does_IndexAttribute_column_SQL_Server_primitive_collection_mapping_ansi(bool? fixedLength)
+    {
+        var entityType = CreateEntityType<MyTypeWithIndexAttributeOnCollection>();
+        var property = entityType.FindProperty("Ints");
+        property.SetIsUnicode(false);
+        property.SetIsFixedLength(fixedLength);
+        entityType.Model.FinalizeModel();
+
+        var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
+
+        Assert.Equal(DbType.AnsiString, typeMapping.DbType);
+        Assert.Equal("varchar(900)", typeMapping.StoreType);
+        Assert.Equal(900, typeMapping.Size);
+        Assert.False(typeMapping.IsUnicode);
+        Assert.False(typeMapping.IsFixedLength);
+        Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Ints", new List<int> { 1, 2, 3 }).Size);
+        Assert.Equal(typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -1030,6 +1200,38 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     }
 
     [ConditionalTheory]
+    [InlineData("char varying")]
+    [InlineData("char")]
+    [InlineData("character varying")]
+    [InlineData("character")]
+    [InlineData("national char varying")]
+    [InlineData("national character varying")]
+    [InlineData("national character")]
+    [InlineData("nchar")]
+    [InlineData("nvarchar")]
+    [InlineData("varchar")]
+    [InlineData("VarCHaR")]
+    [InlineData("VARCHAR")]
+    public void Can_map_collection_base_type_name_and_size(string typeName)
+    {
+        var builder = CreateModelBuilder();
+
+        var property = builder.Entity<StringCheese>()
+            .Property(e => e.CollectionWithSize)
+            .HasColumnType(typeName)
+            .HasMaxLength(2018)
+            .Metadata;
+
+        var mapping = CreateRelationalTypeMappingSource().FindMapping((IProperty)property);
+
+        Assert.Same(typeof(List<int>), mapping.ClrType);
+        Assert.Equal(2018, mapping.Size);
+        Assert.Equal(typeName.StartsWith("n", StringComparison.OrdinalIgnoreCase), mapping.IsUnicode);
+        Assert.Equal(typeName.Contains("var", StringComparison.OrdinalIgnoreCase), !mapping.IsFixedLength);
+        Assert.Equal(typeName + "(2018)", mapping.StoreType);
+    }
+
+    [ConditionalTheory]
     [InlineData("datetime2(0)", 0)]
     [InlineData("datetime2(1)", 1)]
     [InlineData("datetime2(2)", 2)]
@@ -1222,6 +1424,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
     {
         public int Id { get; set; }
         public string StringWithSize { get; set; }
+        public List<int> CollectionWithSize { get; set; }
         public byte[] BinaryWithSize { get; set; }
     }
 

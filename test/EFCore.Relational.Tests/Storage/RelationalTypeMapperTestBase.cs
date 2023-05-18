@@ -20,6 +20,7 @@ public abstract class RelationalTypeMapperTestBase
         builder.Entity<MyPrecisionType>().Property(e => e.PrecisionOnly).HasPrecision(16);
         builder.Entity<MyPrecisionType>().Property(e => e.PrecisionAndScale).HasPrecision(18, 7);
         builder.Entity<MyTypeWithIndexAttribute>();
+        builder.Entity<MyTypeWithIndexAttributeOnCollection>();
 
         return builder.Model.FindEntityType(typeof(TEntity));
     }
@@ -202,5 +203,12 @@ public abstract class RelationalTypeMapperTestBase
     {
         public int Id { get; set; }
         public string Name { get; set; }
+    }
+
+    [Index(nameof(Ints))]
+    protected class MyTypeWithIndexAttributeOnCollection
+    {
+        public int Id { get; set; }
+        public IEnumerable<int> Ints { get; set; }
     }
 }
