@@ -84,6 +84,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -106,6 +107,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Va" : new List<int>();
         Assert.Equal(3, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -128,6 +130,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -149,6 +152,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.String, parameter.DbType);
         Assert.Equal(4000, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -170,6 +174,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.String, parameter.DbType);
         Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -191,6 +196,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.StringFixedLength, parameter.DbType);
         Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -213,6 +219,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();;
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -235,6 +242,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? new string('X', 4001) : Enumerable.Range(1, 2000).ToList();;
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -257,6 +265,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(4000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -285,6 +294,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -315,6 +325,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -346,6 +357,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -374,6 +386,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -420,6 +433,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.True(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
         Assert.Equal(450, typeMapping.CreateParameter(new TestCommand(), "Ints", new List<int> { 1, 2, 3 }).Size);
+        Assert.Equal(typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -438,6 +452,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -456,6 +471,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Val" : new List<int> { 1 };
         Assert.Equal(3, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -474,6 +490,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -493,6 +510,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.AnsiString, parameter.DbType);
         Assert.Equal(8000, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -512,6 +530,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.AnsiString, parameter.DbType);
         Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -531,6 +550,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var parameter = typeMapping.CreateParameter(new TestCommand(), "Name", value);
         Assert.Equal(DbType.AnsiStringFixedLength, parameter.DbType);
         Assert.Equal(3, parameter.Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -549,6 +569,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();;
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -567,6 +588,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? new string('X', 8001) : Enumerable.Range(1, 6000).ToList();;
         Assert.Equal(-1, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -585,6 +607,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(8000, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -609,6 +632,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -635,6 +659,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -662,6 +687,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -686,6 +712,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsFixedLength);
         object value = type == typeof(string) ? "Value" : new List<int> { 1, 2, 3 };
         Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Name", value).Size);
+        Assert.Equal(type == typeof(string) ? null : typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
@@ -728,6 +755,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         Assert.False(typeMapping.IsUnicode);
         Assert.False(typeMapping.IsFixedLength);
         Assert.Equal(900, typeMapping.CreateParameter(new TestCommand(), "Ints", new List<int> { 1, 2, 3 }).Size);
+        Assert.Equal(typeof(int), typeMapping.ElementTypeMapping?.ClrType);
     }
 
     [ConditionalTheory]
