@@ -1,4 +1,4 @@
-Entity Framework (EF) Core s a .NET library that provides an object-relational mapping (ORM) framework for .NET developers to work with databases. It supports multiple database providers, including SQL Server, MySQL, PostgreSQL, SQLite, and others.
+Entity Framework Core (EF Core) is a modern object-database mapper that lets you build a clean, portable, and high-level data access layer with .NET (C#) across a variety of databases, including SQL Server (on-premises and Azure), SQLite, MySQL, PostgreSQL, MySQL, Oracle, and Azure Cosmos DB. It supports LINQ queries, change tracking, updates, and schema migrations.
 
 ## Getting started
 
@@ -8,7 +8,7 @@ Make sure to install the same version of all EF Core packages shipped by Microso
 
 ## Usage
 
-To use Microsoft.EntityFrameworkCore in your application, you will typically need to create a class that inherits from DbContext, which represents your database context. You can then define classes that represent your database entities, and use LINQ queries to interact with the database.
+To use Microsoft.EntityFrameworkCore in your application, you will typically need to create a class that inherits from [DbContext](https://learn.microsoft.com/dotnet/api/microsoft.entityframeworkcore.dbcontext), which represents your database session. You can then define classes that represent your database entities, and use LINQ queries to interact with the database.
 
 Here's an example of how you might define a database context and an entity:
 
@@ -41,7 +41,7 @@ using (var context = new MyDbContext())
 }
 ```
 
-Microsoft.EntityFrameworkCore supports multiple database providers, including SQL Server, MySQL, PostgreSQL, SQLite, and others. You will need to install the provider package for your chosen database. For example, to use SQL Server, you would install the [Microsoft.EntityFrameworkCore.SqlServer package](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer/7.0.3).
+Microsoft.EntityFrameworkCore supports multiple [database providers](https://learn.microsoft.com/ef/core/providers/), including SQL Server, MySQL, PostgreSQL, SQLite, and others. You will need to install the provider package for your chosen database. For example, to use SQL Server, you would install the [Microsoft.EntityFrameworkCore.SqlServer package](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer).
 
 You would then configure your database context to use the SQL Server provider:
 
@@ -50,10 +50,8 @@ using Microsoft.EntityFrameworkCore;
 
 public class MyDbContext : DbContext
 {
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MyDatabase;");
-    }
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+        => options.UseSqlServer(@"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=MyDatabase");
 
     public DbSet<Customer> Customers { get; set; }
 }
@@ -74,4 +72,4 @@ public class Customer
 
 ## Feedback
 
-If you have a specific question about using these projects, we encourage you to ask it on [Stack Overflow](https://stackoverflow.com/questions/tagged/entity-framework-core+or+entity-framework-core-2.1+or+entity-framework-core-3.1). If you encounter a bug or would like to request a feature, [submit an Github issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](https://github.com/dotnet/efcore/blob/main/.github/SUPPORT.md).
+If you have a specific question about using these projects, we encourage you to ask it on [Stack Overflow](https://stackoverflow.com/questions/tagged/entity-framework-core). If you encounter a bug or would like to request a feature, [submit an Github issue](https://github.com/dotnet/efcore/issues/new/choose). For more details, see [getting support](https://github.com/dotnet/efcore/blob/main/.github/SUPPORT.md).
