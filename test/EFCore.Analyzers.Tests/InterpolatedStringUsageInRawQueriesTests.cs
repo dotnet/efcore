@@ -65,7 +65,7 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
+        db.Users.FromSql($"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -114,7 +114,7 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        RelationalQueryableExtensions.FromSqlInterpolated(db.Users, $"SELECT * FROM [Users] WHERE [Id] = {id};");
+        RelationalQueryableExtensions.FromSql(db.Users, $"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -148,8 +148,8 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
-        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
+        db.Users.FromSql($"SELECT * FROM [Users] WHERE [Id] = {id};");
+        db.Users.FromSql($"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -197,7 +197,7 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSql($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -262,7 +262,7 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        RelationalDatabaseFacadeExtensions.ExecuteSqlInterpolated(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        RelationalDatabaseFacadeExtensions.ExecuteSql(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -296,8 +296,8 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
-        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSql($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSql($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -345,7 +345,7 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSqlAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -410,7 +410,7 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        RelationalDatabaseFacadeExtensions.ExecuteSqlInterpolatedAsync(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        RelationalDatabaseFacadeExtensions.ExecuteSqlAsync(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);
@@ -444,8 +444,8 @@ class C
 {
     void M(MyDbContext db, int id)
     {
-        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
-        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSqlAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+        db.Database.ExecuteSqlAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
 """);

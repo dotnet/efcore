@@ -75,9 +75,9 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var oldName = oldIdentifier.Identifier.ValueText;
         var replacementName = oldName switch
         {
-            "FromSqlRaw" => "FromSqlInterpolated",
-            "ExecuteSqlRaw" => "ExecuteSqlInterpolated",
-            "ExecuteSqlRawAsync" => "ExecuteSqlInterpolatedAsync",
+            "FromSqlRaw" => "FromSql",
+            "ExecuteSqlRaw" => "ExecuteSql",
+            "ExecuteSqlRawAsync" => "ExecuteSqlAsync",
             _ => oldName
         };
 
