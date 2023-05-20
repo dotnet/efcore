@@ -100,6 +100,18 @@ class C
 """);
 
     [Fact]
+    public Task FromSqlRaw_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        db.Users.FromSqlRaw($"SELECT [{nameof(MyDbContext)}] FROM [Users] WHERE [Id] = {1};");
+    }
+}
+""");
+
+    [Fact]
     public Task FromSqlRaw_direct_extension_class_usage_interpolated_string_report()
         => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
@@ -128,6 +140,18 @@ class C
     {
         const string id = "1";
         RelationalQueryableExtensions.FromSqlRaw(db.Users, $"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task FromSqlRaw_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        RelationalQueryableExtensions.FromSqlRaw(db.Users, $"SELECT [{nameof(MyDbContext)}] FROM [Users] WHERE [Id] = {1};");
     }
 }
 """);
@@ -248,6 +272,18 @@ class C
 """);
 
     [Fact]
+    public Task ExecuteSqlRaw_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        db.Database.ExecuteSqlRaw($"DELETE FROM FROM [Users] WHERE [{nameof(MyDbContext)}] = {1};");
+    }
+}
+""");
+
+    [Fact]
     public Task ExecuteSqlRaw_direct_extension_class_usage_interpolated_string_report()
         => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
@@ -276,6 +312,18 @@ class C
     {
         const string id = "1";
         RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSqlRaw_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        RelationalDatabaseFacadeExtensions.ExecuteSqlRaw(db.Database, $"DELETE FROM FROM [{nameof(MyDbContext)}] WHERE [Id] = {1};");
     }
 }
 """);
@@ -396,6 +444,19 @@ class C
 """);
 
     [Fact]
+    public Task ExecuteSqlRawAsync_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        const string id = "1";
+        db.Database.ExecuteSqlRawAsync($"DELETE FROM FROM [{nameof(MyDbContext)}] WHERE [Id] = {1};");
+    }
+}
+""");
+
+    [Fact]
     public Task ExecuteSqlRawAsync_direct_extension_class_usage_interpolated_string_report()
         => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
 class C
@@ -424,6 +485,18 @@ class C
     {
         const string id = "1";
         RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSqlRawAsync_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(db.Database, $"DELETE FROM FROM [{nameof(MyDbContext)}] WHERE [Id] = {1};");
     }
 }
 """);

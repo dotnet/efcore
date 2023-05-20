@@ -119,8 +119,14 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
             return false;
         }
 
-        // Finally check whether the second argument, that corresponds to `string sql` parameter is a non-constant interpolated string
-        return invocation.Arguments[1].Value is IInterpolatedStringOperation { ConstantValue.HasValue: false };
+        // The second argument, that corresponds to `string sql` parameter, must be an interpolated string
+        if (invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        {
+            return false;
+        }
+
+        // Report warning if interpolated string is not a constant and all its interpolations are not constants
+        return AnalyzeInterpolatedString(interpolatedString);
 
         static bool IsParamsObjectArray(IParameterSymbol parameter)
             => parameter.IsParams && parameter.Type is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Object, Rank: 1 };
@@ -182,7 +188,37 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         // At this point assume that the method is correct since both `ExecuteSqlRaw` and `ExecuteSqlRawAsync` have multiple overloads.
         // Checking for every possible one is too much work for almost no gain.
-        // Just check whether the second argument, that corresponds to `string sql` parameter is a non-constant interpolated string and be done with that
-        return invocation.Arguments[1].Value is IInterpolatedStringOperation { ConstantValue.HasValue: false };
+        // So check whether the second argument, that corresponds to `string sql` parameter, is an interpolated string...
+        if (invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        {
+            return false;
+        }
+
+        // ...and report warning if interpolated string is not a constant and all its interpolations are not constants
+        return AnalyzeInterpolatedString(interpolatedString);
+    }
+
+    private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
+    {
+        if (interpolatedString.ConstantValue.HasValue)
+        {
+            return false;
+        }
+
+        foreach (var part in interpolatedString.Parts)
+        {
+            if (part is not IInterpolationOperation interpolation)
+            {
+                continue;
+            }
+
+            if (!interpolation.Expression.ConstantValue.HasValue)
+            {
+                // Found non-constant interpolation. Report it
+                return true;
+            }
+        }
+
+        return false;
     }
 }
