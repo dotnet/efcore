@@ -146,9 +146,9 @@ public abstract class CoreTypeMapping
         Check.DebugAssert(
             parameters.Comparer == null
             || converter != null
-            || parameters.Comparer.Type == clrType,
+            || parameters.Comparer.Type.IsAssignableFrom(clrType),
             $"Expected {clrType}, got {parameters.Comparer?.Type}");
-        if (parameters.Comparer?.Type == clrType)
+        if (parameters.Comparer?.Type.IsAssignableFrom(clrType) == true)
         {
             _comparer = parameters.Comparer;
         }
@@ -156,18 +156,18 @@ public abstract class CoreTypeMapping
         Check.DebugAssert(
             parameters.KeyComparer == null
             || converter != null
-            || parameters.KeyComparer.Type == parameters.ClrType,
+            || parameters.KeyComparer.Type.IsAssignableFrom(parameters.ClrType),
             $"Expected {parameters.ClrType}, got {parameters.KeyComparer?.Type}");
-        if (parameters.KeyComparer?.Type == clrType)
+        if (parameters.KeyComparer?.Type.IsAssignableFrom(clrType) == true)
         {
             _keyComparer = parameters.KeyComparer;
         }
 
         Check.DebugAssert(
             parameters.ProviderValueComparer == null
-            || parameters.ProviderValueComparer.Type == (converter?.ProviderClrType ?? clrType),
+            || parameters.ProviderValueComparer.Type.IsAssignableFrom(converter?.ProviderClrType ?? clrType),
             $"Expected {converter?.ProviderClrType ?? clrType}, got {parameters.ProviderValueComparer?.Type}");
-        if (parameters.ProviderValueComparer?.Type == (converter?.ProviderClrType ?? clrType))
+        if (parameters.ProviderValueComparer?.Type.IsAssignableFrom(converter?.ProviderClrType ?? clrType) == true)
         {
             _providerValueComparer = parameters.ProviderValueComparer;
         }
