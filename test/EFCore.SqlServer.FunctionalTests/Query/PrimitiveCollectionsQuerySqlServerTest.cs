@@ -152,10 +152,10 @@ WHERE [p].[Id] IN (2, 999, 1000)
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[Id] IN (
+    SELECT CAST([p0].[value] AS int) AS [value]
     FROM OPENJSON(@__p_0) AS [p0]
-    WHERE CAST([p0].[value] AS int) = [p].[Id])
+)
 """);
     }
 
@@ -217,16 +217,16 @@ WHERE (
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[Int] IN (
+    SELECT CAST([i].[value] AS int) AS [value]
     FROM OPENJSON(@__ints_0) AS [i]
-    WHERE CAST([i].[value] AS int) = [p].[Int])
+)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
 
         AssertSql(
 """
@@ -234,16 +234,16 @@ WHERE EXISTS (
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[Int] IN (
+    SELECT CAST([n].[value] AS int) AS [value]
     FROM OPENJSON(@__nullableInts_0) AS [n]
-    WHERE CAST([n].[value] AS int) = [p].[NullableInt] OR ([n].[value] IS NULL AND [p].[NullableInt] IS NULL))
+)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains_null(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains_null(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(async);
 
         AssertSql(
 """
@@ -285,10 +285,10 @@ WHERE EXISTS (
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[DateTime] IN (
+    SELECT CAST([d].[value] AS datetime) AS [value]
     FROM OPENJSON(@__dateTimes_0) AS [d]
-    WHERE CAST([d].[value] AS datetime) = [p].[DateTime])
+)
 """);
     }
 
@@ -302,10 +302,10 @@ WHERE EXISTS (
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[Bool] IN (
+    SELECT CAST([b].[value] AS bit) AS [value]
     FROM OPENJSON(@__bools_0) AS [b]
-    WHERE CAST([b].[value] AS bit) = [p].[Bool])
+)
 """);
     }
 
@@ -319,10 +319,10 @@ WHERE EXISTS (
 
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[Enum] IN (
+    SELECT CAST([e].[value] AS int) AS [value]
     FROM OPENJSON(@__enums_0) AS [e]
-    WHERE CAST([e].[value] AS int) = [p].[Enum])
+)
 """);
     }
 
@@ -334,10 +334,10 @@ WHERE EXISTS (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE [p].[Int] IN (
+    SELECT CAST([i].[value] AS int) AS [value]
     FROM OPENJSON(N'[]') AS [i]
-    WHERE CAST([i].[value] AS int) = [p].[Int])
+)
 """);
     }
 
@@ -349,10 +349,10 @@ WHERE EXISTS (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE 10 IN (
+    SELECT CAST([i].[value] AS int)
     FROM OPENJSON([p].[Ints]) AS [i]
-    WHERE CAST([i].[value] AS int) = 10)
+)
 """);
     }
 
@@ -364,10 +364,10 @@ WHERE EXISTS (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE 10 IN (
+    SELECT CAST([n].[value] AS int)
     FROM OPENJSON([p].[NullableInts]) AS [n]
-    WHERE CAST([n].[value] AS int) = 10)
+)
 """);
     }
 
@@ -386,6 +386,21 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task Column_collection_of_strings_contains_null(bool async)
+    {
+        await base.Column_collection_of_strings_contains_null(async);
+
+        AssertSql(
+"""
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON([p].[Strings]) AS [s]
+    WHERE [s].[value] IS NULL)
+""");
+    }
+
     public override async Task Column_collection_of_bools_Contains(bool async)
     {
         await base.Column_collection_of_bools_Contains(async);
@@ -394,10 +409,10 @@ WHERE EXISTS (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE CAST(1 AS bit) IN (
+    SELECT CAST([b].[value] AS bit)
     FROM OPENJSON([p].[Bools]) AS [b]
-    WHERE CAST([b].[value] AS bit) = CAST(1 AS bit))
+)
 """);
     }
 
@@ -572,14 +587,11 @@ WHERE (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT TOP(2) CAST([i].[value] AS int) AS [c], CAST([i].[key] AS int) AS [c0]
-        FROM OPENJSON([p].[Ints]) AS [i]
-        ORDER BY CAST([i].[key] AS int)
-    ) AS [t]
-    WHERE [t].[c] = 11)
+WHERE 11 IN (
+    SELECT TOP(2) CAST([i].[value] AS int)
+    FROM OPENJSON([p].[Ints]) AS [i]
+    ORDER BY CAST([i].[key] AS int)
+)
 """);
     }
 
@@ -591,15 +603,12 @@ WHERE EXISTS (
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT CAST([i].[value] AS int) AS [c], CAST([i].[key] AS int) AS [c0]
-        FROM OPENJSON([p].[Ints]) AS [i]
-        ORDER BY CAST([i].[key] AS int)
-        OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY
-    ) AS [t]
-    WHERE [t].[c] = 11)
+WHERE 11 IN (
+    SELECT CAST([i].[value] AS int)
+    FROM OPENJSON([p].[Ints]) AS [i]
+    ORDER BY CAST([i].[key] AS int)
+    OFFSET 1 ROWS FETCH NEXT 2 ROWS ONLY
+)
 """);
     }
 

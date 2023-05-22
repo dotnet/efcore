@@ -144,12 +144,12 @@ WHERE [m].[ContactName] LIKE N'%z%'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Orders"
     ) AS [m]
-    WHERE [m].[CustomerID] = [c].[CustomerID])
+)
 """);
     }
 
@@ -161,12 +161,12 @@ WHERE EXISTS (
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = N'ALFKI' AND EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] = N'ALFKI' AND [c].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Orders"
     ) AS [m]
-    WHERE [m].[CustomerID] = [c].[CustomerID])
+)
 """);
     }
 
@@ -738,12 +738,12 @@ p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= @__max_0 AND EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] <= @__max_0 AND [o].[OrderID] IN (
+    SELECT [m].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
     ) AS [m]
-    WHERE [m].[OrderID] = [o].[OrderID])
+)
 """,
             //
 """
@@ -752,12 +752,12 @@ p0='10300'
 
 SELECT [o].[OrderID]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] <= @__max_0 AND EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] <= @__max_0 AND [o].[OrderID] IN (
+    SELECT [m].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
     ) AS [m]
-    WHERE [m].[OrderID] = [o].[OrderID])
+)
 """);
     }
 
@@ -870,12 +870,12 @@ ORDER BY [m].[CustomerID], [o].[OrderID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city
     ) AS [m]
-    WHERE [m].[CustomerID] = [o].[CustomerID])
+)
 """);
     }
 
@@ -889,12 +889,12 @@ p0='London' (Nullable = false) (Size = 6)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @p0
     ) AS [m]
-    WHERE [m].[CustomerID] = [o].[CustomerID])
+)
 """);
     }
 
@@ -908,12 +908,12 @@ WHERE EXISTS (
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city
     ) AS [m]
-    WHERE [m].[CustomerID] = [o].[CustomerID])
+)
 """);
     }
 
@@ -928,12 +928,12 @@ p0='London' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @title
     ) AS [m]
-    WHERE [m].[CustomerID] = [o].[CustomerID])
+)
 """,
             //
 """
@@ -942,12 +942,12 @@ p1='Sales Representative' (Size = 4000)
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[CustomerID] IN (
+    SELECT [m].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p1
     ) AS [m]
-    WHERE [m].[CustomerID] = [o].[CustomerID])
+)
 """);
     }
 

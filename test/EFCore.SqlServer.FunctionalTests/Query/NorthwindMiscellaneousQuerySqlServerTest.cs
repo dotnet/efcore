@@ -2724,10 +2724,10 @@ ORDER BY [t].[CustomerID], [t0].[OrderID], [t0].[CustomerID0]
 """
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE N'Chai' IN (
+    SELECT [p0].[ProductName]
     FROM [Products] AS [p0]
-    WHERE [p0].[ProductName] = N'Chai')
+)
 """);
     }
 
@@ -2739,10 +2739,11 @@ WHERE EXISTS (
 """
 SELECT [p].[ProductID], [p].[Discontinued], [p].[ProductName], [p].[SupplierID], [p].[UnitPrice], [p].[UnitsInStock]
 FROM [Products] AS [p]
-WHERE EXISTS (
-    SELECT 1
+WHERE CAST(5 AS smallint) IN (
+    SELECT [o].[Quantity]
     FROM [Order Details] AS [o]
-    WHERE [o].[ProductID] = [p].[ProductID] AND [o].[Quantity] = CAST(5 AS smallint))
+    WHERE [o].[ProductID] = [p].[ProductID]
+)
 """);
     }
 
@@ -4039,10 +4040,10 @@ LEFT JOIN [Employees] AS [e0] ON [e].[EmployeeID] = [e0].[ReportsTo]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE CONVERT(date, [o].[OrderDate]) IN (
+    SELECT CAST([d].[value] AS datetime) AS [value]
     FROM OPENJSON(@__dates_0) AS [d]
-    WHERE CAST([d].[value] AS datetime) = CONVERT(date, [o].[OrderDate]))
+)
 """,
             //
 """
@@ -4050,10 +4051,10 @@ WHERE EXISTS (
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE CONVERT(date, [o].[OrderDate]) IN (
+    SELECT CAST([d].[value] AS datetime) AS [value]
     FROM OPENJSON(@__dates_0) AS [d]
-    WHERE CAST([d].[value] AS datetime) = CONVERT(date, [o].[OrderDate]))
+)
 """);
     }
 
@@ -4065,11 +4066,12 @@ WHERE EXISTS (
 """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[OrderID] > 11000 AND EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] > 11000 AND [o].[OrderID] IN (
+    SELECT [o0].[OrderID]
     FROM [Order Details] AS [o0]
     INNER JOIN [Products] AS [p] ON [o0].[ProductID] = [p].[ProductID]
-    WHERE [p].[ProductName] = N'Chai' AND [o0].[OrderID] = [o].[OrderID])
+    WHERE [p].[ProductName] = N'Chai'
+)
 """);
     }
 
@@ -6274,10 +6276,10 @@ WHERE [c].[CustomerID] = N'ALFKI'
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] IN (
+    SELECT CAST([o0].[value] AS int) AS [value]
     FROM OPENJSON(@__orderIds_0) AS [o0]
-    WHERE CAST([o0].[value] AS int) = [o].[OrderID])
+)
 """);
     }
 

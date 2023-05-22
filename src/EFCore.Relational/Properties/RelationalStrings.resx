@@ -175,8 +175,8 @@
   <data name="ConflictingRowValuesSensitive" xml:space="preserve">
     <value>Instances of entity types '{firstEntityType}' and '{secondEntityType}' are mapped to the same row with the key value '{keyValue}', but have different property values '{firstConflictingValue}' and '{secondConflictingValue}' for the column '{column}'.</value>
   </data>
-  <data name="ConflictingTypeMappingsForPrimitiveCollection" xml:space="preserve">
-    <value>Store type '{storeType1}' was inferred for a primitive collection, but that primitive collection was previously inferred to have store type '{storeType2}'.</value>
+  <data name="ConflictingTypeMappingsInferredForColumn" xml:space="preserve">
+    <value>Conflicting type mappings were inferred for column '{column}'.</value>
   </data>
   <data name="ConflictingSeedValues" xml:space="preserve">
     <value>A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.</value>

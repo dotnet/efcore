@@ -132,10 +132,11 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         // apply a conversion from the values coming out of OPENJSON (always NVARCHAR(MAX)) to the required relational store type.
         var openJsonExpression = new TableValuedFunctionExpression(tableAlias, "OPENJSON", new[] { sqlExpression });
 
-        // TODO: When we have metadata to determine if the element is nullable, pass that here to SelectExpression
+        // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
+        var isColumnNullable = elementClrType.IsNullableType();
+
         var selectExpression = new SelectExpression(
-            openJsonExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping,
-            isColumnNullable: null);
+            openJsonExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping, isColumnNullable);
 
         if (elementTypeMapping is { StoreType: not "nvarchar(max)" })
         {
@@ -155,9 +156,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                                 "value",
                                 typeof(string),
                                 _typeMappingSource.FindMapping("nvarchar(max)"),
-                                // TODO: When we have metadata to determine if the element is nullable, pass that here to
-                                // SelectExpression
-                                columnNullable: null),
+                                isColumnNullable),
                             elementClrType,
                             elementTypeMapping)
                     }
@@ -402,7 +401,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
     /// </summary>
     protected override Expression ApplyInferredTypeMappings(
         Expression expression,
-        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> inferredTypeMappings)
+        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
         => new SqlServerInferredTypeMappingApplier(_typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
     /// <summary>
@@ -426,7 +425,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
         public SqlServerInferredTypeMappingApplier(
             IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> inferredTypeMappings)
+            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
             : base(inferredTypeMappings)
             => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
 
@@ -441,7 +440,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
             switch (expression)
             {
                 case TableValuedFunctionExpression { Name: "OPENJSON", Schema: null, IsBuiltIn: true } openJsonExpression
-                    when InferredTypeMappings.TryGetValue((openJsonExpression, "value"), out var typeMapping):
+                    when TryGetInferredTypeMapping(openJsonExpression, "value", out var typeMapping):
                     return ApplyTypeMappingsOnOpenJsonExpression(openJsonExpression, new[] { typeMapping });
 
                 // Above, we applied the type mapping the the parameter that OPENJSON accepts as an argument.
@@ -455,7 +454,7 @@ public class SqlServerQueryableMethodTranslatingExpressionVisitor : RelationalQu
                     foreach (var table in selectExpression.Tables)
                     {
                         if (table is TableValuedFunctionExpression { Name: "OPENJSON", Schema: null, IsBuiltIn: true } openJsonExpression
-                            && InferredTypeMappings.TryGetValue((openJsonExpression, "value"), out var inferredTypeMapping))
+                            && TryGetInferredTypeMapping(openJsonExpression, "value", out var inferredTypeMapping))
                         {
                             if (previousSelectInferredTypeMappings is null)
                             {

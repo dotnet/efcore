@@ -3058,11 +3058,11 @@ LEFT JOIN (
     SELECT [g].[Nickname], [g].[SquadId]
     FROM [Gears] AS [g]
 ) AS [t0] ON [t].[GearNickName] = [t0].[Nickname] AND [t].[GearSquadId] = [t0].[SquadId]
-WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND EXISTS (
-    SELECT 1
+WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND [t0].[SquadId] IN (
+    SELECT [g0].[SquadId]
     FROM [Gears] AS [g0]
     LEFT JOIN [Officers] AS [o0] ON [g0].[Nickname] = [o0].[Nickname] AND [g0].[SquadId] = [o0].[SquadId]
-    WHERE [g0].[SquadId] = [t0].[SquadId])
+)
 """);
     }
 
@@ -3569,10 +3569,10 @@ END
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
-WHERE EXISTS (
-    SELECT 1
+WHERE [t].[Id] IN (
+    SELECT CAST([i].[value] AS uniqueidentifier) AS [value]
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE CAST([i].[value] AS uniqueidentifier) = [t].[Id])
+)
 """);
     }
 
@@ -7626,10 +7626,10 @@ WHERE (
 
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND EXISTS (
-    SELECT 1
+WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] IN (
+    SELECT CAST([d].[value] AS datetimeoffset) AS [value]
     FROM OPENJSON(@__dates_2) AS [d]
-    WHERE CAST([d].[value] AS datetimeoffset) = [m].[Timeline])
+)
 """);
     }
 
@@ -8436,10 +8436,10 @@ END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
 ORDER BY CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN [g].[SquadId] IN (
+        SELECT CAST([i].[value] AS int) AS [value]
         FROM OPENJSON(@__ids_0) AS [i]
-        WHERE CAST([i].[value] AS int) = [g].[SquadId]) THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -9034,11 +9034,11 @@ SELECT [l].[Name], [l].[LocustHordeId], [l].[ThreatLevel], [l].[ThreatLevelByte]
 END AS [Discriminator]
 FROM [LocustLeaders] AS [l]
 LEFT JOIN [LocustCommanders] AS [l0] ON [l].[Name] = [l0].[Name]
-WHERE EXISTS (
-    SELECT 1
+WHERE [l].[ThreatLevelByte] IN (
+    SELECT [l1].[ThreatLevelByte]
     FROM [LocustLeaders] AS [l1]
     LEFT JOIN [LocustCommanders] AS [l2] ON [l1].[Name] = [l2].[Name]
-    WHERE [l1].[ThreatLevelByte] = [l].[ThreatLevelByte])
+)
 """);
     }
 
@@ -9133,11 +9133,11 @@ CROSS APPLY (
     END AS [Discriminator]
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE [l].[ThreatLevelByte] IN (
+        SELECT [l1].[ThreatLevelByte]
         FROM [LocustLeaders] AS [l1]
         LEFT JOIN [LocustCommanders] AS [l2] ON [l1].[Name] = [l2].[Name]
-        WHERE [l1].[ThreatLevelByte] = [l].[ThreatLevelByte])
+    )
 ) AS [t]
 """);
     }
@@ -9157,11 +9157,11 @@ CROSS APPLY (
     END AS [Discriminator]
     FROM [Gears] AS [g]
     LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-    WHERE NOT EXISTS (
-        SELECT 1
+    WHERE [l].[ThreatLevelByte] NOT IN (
+        SELECT [l1].[ThreatLevelByte]
         FROM [LocustLeaders] AS [l1]
         LEFT JOIN [LocustCommanders] AS [l2] ON [l1].[Name] = [l2].[Name]
-        WHERE [l1].[ThreatLevelByte] = [l].[ThreatLevelByte])
+    )
 ) AS [t]
 """);
     }
@@ -10264,10 +10264,10 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
-    SELECT 1
+WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
+    SELECT CAST([v].[value] AS bit) AS [value]
     FROM OPENJSON(@__values_0) AS [v]
-    WHERE CAST([v].[value] AS bit) = [g].[HasSoulPatch])
+)
 """);
     }
 
@@ -10284,10 +10284,10 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 END AS [Discriminator]
 FROM [Gears] AS [g]
 LEFT JOIN [Officers] AS [o] ON [g].[Nickname] = [o].[Nickname] AND [g].[SquadId] = [o].[SquadId]
-WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
-    SELECT 1
+WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
+    SELECT CAST([v].[value] AS bit) AS [value]
     FROM OPENJSON(@__values_0) AS [v]
-    WHERE CAST([v].[value] AS bit) = [g].[HasSoulPatch])
+)
 """);
     }
 
@@ -11436,8 +11436,8 @@ SELECT [s].[Name], (
     LEFT JOIN [Officers] AS [o2] ON [g2].[Nickname] = [o2].[Nickname] AND [g2].[SquadId] = [o2].[SquadId]
     INNER JOIN [Squads] AS [s0] ON [g2].[SquadId] = [s0].[Id]
     INNER JOIN [Cities] AS [c] ON [g2].[CityOfBirthName] = [c].[Name]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE N'Marcus' IN (
+        SELECT [t0].[Nickname]
         FROM (
             SELECT [g3].[Nickname], [g3].[SquadId], [g3].[AssignedCityName], [g3].[CityOfBirthName], [g3].[FullName], [g3].[HasSoulPatch], [g3].[LeaderNickname], [g3].[LeaderSquadId], [g3].[Rank], CASE
                 WHEN [o3].[Nickname] IS NOT NULL THEN N'Officer'
@@ -11451,11 +11451,11 @@ SELECT [s].[Name], (
             FROM [Gears] AS [g4]
             LEFT JOIN [Officers] AS [o4] ON [g4].[Nickname] = [o4].[Nickname] AND [g4].[SquadId] = [o4].[SquadId]
         ) AS [t0]
-        WHERE [t0].[Nickname] = N'Marcus') AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
+    ) AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
 FROM [Gears] AS [g]
 INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
-WHERE EXISTS (
-    SELECT 1
+WHERE N'Marcus' IN (
+    SELECT [t].[Nickname]
     FROM (
         SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], CASE
             WHEN [o0].[Nickname] IS NOT NULL THEN N'Officer'
@@ -11469,7 +11469,7 @@ WHERE EXISTS (
         FROM [Gears] AS [g1]
         LEFT JOIN [Officers] AS [o1] ON [g1].[Nickname] = [o1].[Nickname] AND [g1].[SquadId] = [o1].[SquadId]
     ) AS [t]
-    WHERE [t].[Nickname] = N'Marcus')
+)
 GROUP BY [s].[Name]
 """);
     }

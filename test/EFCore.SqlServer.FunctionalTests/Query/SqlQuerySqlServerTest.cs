@@ -141,17 +141,17 @@ WHERE [m].[ContactName] LIKE N'%z%'
         await base.SqlQueryRaw_composed_contains(async);
 
         AssertSql(
-            """
+"""
 SELECT [m].[Address], [m].[City], [m].[CompanyName], [m].[ContactName], [m].[ContactTitle], [m].[Country], [m].[CustomerID], [m].[Fax], [m].[Phone], [m].[Region], [m].[PostalCode]
 FROM (
     SELECT * FROM "Customers"
 ) AS [m]
-WHERE EXISTS (
-    SELECT 1
+WHERE [m].[CustomerID] IN (
+    SELECT [m0].[CustomerID]
     FROM (
         SELECT * FROM "Orders"
     ) AS [m0]
-    WHERE [m0].[CustomerID] = [m].[CustomerID])
+)
 """);
     }
 
@@ -553,7 +553,7 @@ SELECT * FROM "Customers" WHERE "CustomerID" = @somename
         await base.SqlQuery_parameterization_issue_12213(async);
 
         AssertSql(
-            """
+"""
 p0='10300'
 
 SELECT [m].[OrderID]
@@ -562,7 +562,7 @@ FROM (
 ) AS [m]
 """,
             //
-            """
+"""
 @__max_1='10400'
 p0='10300'
 
@@ -570,15 +570,15 @@ SELECT [m].[OrderID]
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE [m].[OrderID] <= @__max_1 AND EXISTS (
-    SELECT 1
+WHERE [m].[OrderID] <= @__max_1 AND [m].[OrderID] IN (
+    SELECT [m0].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
     ) AS [m0]
-    WHERE [m0].[OrderID] = [m].[OrderID])
+)
 """,
             //
-            """
+"""
 @__max_1='10400'
 p0='10300'
 
@@ -586,12 +586,12 @@ SELECT [m].[OrderID]
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE [m].[OrderID] <= @__max_1 AND EXISTS (
-    SELECT 1
+WHERE [m].[OrderID] <= @__max_1 AND [m].[OrderID] IN (
+    SELECT [m0].[OrderID]
     FROM (
         SELECT * FROM "Orders" WHERE "OrderID" >= @p0
     ) AS [m0]
-    WHERE [m0].[OrderID] = [m].[OrderID])
+)
 """);
     }
 
@@ -645,19 +645,19 @@ WHERE [m].[City] = N'Seattle'
         await base.SqlQueryRaw_in_subquery_with_dbParameter(async);
 
         AssertSql(
-            """
+"""
 @city='London' (Nullable = false) (Size = 6)
 
 SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE EXISTS (
-    SELECT 1
+WHERE [m].[CustomerID] IN (
+    SELECT [m0].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city
     ) AS [m0]
-    WHERE [m0].[CustomerID] = [m].[CustomerID])
+)
 """);
     }
 
@@ -666,19 +666,19 @@ WHERE EXISTS (
         await base.SqlQueryRaw_in_subquery_with_positional_dbParameter_without_name(async);
 
         AssertSql(
-            """
+"""
 p0='London' (Nullable = false) (Size = 6)
 
 SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE EXISTS (
-    SELECT 1
+WHERE [m].[CustomerID] IN (
+    SELECT [m0].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @p0
     ) AS [m0]
-    WHERE [m0].[CustomerID] = [m].[CustomerID])
+)
 """);
     }
 
@@ -687,19 +687,19 @@ WHERE EXISTS (
         await base.SqlQueryRaw_in_subquery_with_positional_dbParameter_with_name(async);
 
         AssertSql(
-            """
+"""
 @city='London' (Nullable = false) (Size = 6)
 
 SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[OrderID], [m].[RequiredDate], [m].[ShipAddress], [m].[ShipCity], [m].[ShipCountry], [m].[ShipName], [m].[ShipPostalCode], [m].[ShipRegion], [m].[ShipVia], [m].[ShippedDate]
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE EXISTS (
-    SELECT 1
+WHERE [m].[CustomerID] IN (
+    SELECT [m0].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city
     ) AS [m0]
-    WHERE [m0].[CustomerID] = [m].[CustomerID])
+)
 """);
     }
 
@@ -708,7 +708,7 @@ WHERE EXISTS (
         await base.SqlQueryRaw_with_dbParameter_mixed_in_subquery(async);
 
         AssertSql(
-            """
+"""
 p0='London' (Size = 4000)
 @title='Sales Representative' (Nullable = false) (Size = 20)
 
@@ -716,15 +716,15 @@ SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE EXISTS (
-    SELECT 1
+WHERE [m].[CustomerID] IN (
+    SELECT [m0].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @p0 AND "ContactTitle" = @title
     ) AS [m0]
-    WHERE [m0].[CustomerID] = [m].[CustomerID])
+)
 """,
             //
-            """
+"""
 @city='London' (Nullable = false) (Size = 6)
 p1='Sales Representative' (Size = 4000)
 
@@ -732,12 +732,12 @@ SELECT [m].[CustomerID], [m].[EmployeeID], [m].[Freight], [m].[OrderDate], [m].[
 FROM (
     SELECT * FROM "Orders"
 ) AS [m]
-WHERE EXISTS (
-    SELECT 1
+WHERE [m].[CustomerID] IN (
+    SELECT [m0].[CustomerID]
     FROM (
         SELECT * FROM "Customers" WHERE "City" = @city AND "ContactTitle" = @p1
     ) AS [m0]
-    WHERE [m0].[CustomerID] = [m].[CustomerID])
+)
 """);
     }
 

@@ -3573,16 +3573,13 @@ LEFT JOIN (
     SELECT [o].[Nickname], [o].[SquadId]
     FROM [Officers] AS [o]
 ) AS [t0] ON [t].[GearNickName] = [t0].[Nickname] AND [t].[GearSquadId] = [t0].[SquadId]
-WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND EXISTS (
-    SELECT 1
-    FROM (
-        SELECT [g0].[Nickname], [g0].[SquadId], [g0].[AssignedCityName], [g0].[CityOfBirthName], [g0].[FullName], [g0].[HasSoulPatch], [g0].[LeaderNickname], [g0].[LeaderSquadId], [g0].[Rank], N'Gear' AS [Discriminator]
-        FROM [Gears] AS [g0]
-        UNION ALL
-        SELECT [o0].[Nickname], [o0].[SquadId], [o0].[AssignedCityName], [o0].[CityOfBirthName], [o0].[FullName], [o0].[HasSoulPatch], [o0].[LeaderNickname], [o0].[LeaderSquadId], [o0].[Rank], N'Officer' AS [Discriminator]
-        FROM [Officers] AS [o0]
-    ) AS [t1]
-    WHERE [t1].[SquadId] = [t0].[SquadId])
+WHERE ([t].[Note] <> N'K.I.A.' OR [t].[Note] IS NULL) AND [t0].[SquadId] IN (
+    SELECT [g0].[SquadId]
+    FROM [Gears] AS [g0]
+    UNION ALL
+    SELECT [o0].[SquadId]
+    FROM [Officers] AS [o0]
+)
 """);
     }
 
@@ -4148,10 +4145,10 @@ END
 
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
-WHERE EXISTS (
-    SELECT 1
+WHERE [t].[Id] IN (
+    SELECT CAST([i].[value] AS uniqueidentifier) AS [value]
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE CAST([i].[value] AS uniqueidentifier) = [t].[Id])
+)
 """);
     }
 
@@ -8963,10 +8960,10 @@ WHERE (
 
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
-WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND EXISTS (
-    SELECT 1
+WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] IN (
+    SELECT CAST([d].[value] AS datetimeoffset) AS [value]
     FROM OPENJSON(@__dates_2) AS [d]
-    WHERE CAST([d].[value] AS datetimeoffset) = [m].[Timeline])
+)
 """);
     }
 
@@ -9844,10 +9841,10 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 ORDER BY CASE
-    WHEN EXISTS (
-        SELECT 1
+    WHEN [t].[SquadId] IN (
+        SELECT CAST([i].[value] AS int) AS [value]
         FROM OPENJSON(@__ids_0) AS [i]
-        WHERE CAST([i].[value] AS int) = [t].[SquadId]) THEN CAST(1 AS bit)
+    ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -10514,16 +10511,13 @@ FROM (
     SELECT [l0].[Name], [l0].[LocustHordeId], [l0].[ThreatLevel], [l0].[ThreatLevelByte], [l0].[ThreatLevelNullableByte], [l0].[DefeatedByNickname], [l0].[DefeatedBySquadId], [l0].[HighCommandId], N'LocustCommander' AS [Discriminator]
     FROM [LocustCommanders] AS [l0]
 ) AS [t]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
-        FROM [LocustLeaders] AS [l1]
-        UNION ALL
-        SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
-        FROM [LocustCommanders] AS [l2]
-    ) AS [t0]
-    WHERE [t0].[ThreatLevelByte] = [t].[ThreatLevelByte])
+WHERE [t].[ThreatLevelByte] IN (
+    SELECT [l1].[ThreatLevelByte]
+    FROM [LocustLeaders] AS [l1]
+    UNION ALL
+    SELECT [l2].[ThreatLevelByte]
+    FROM [LocustCommanders] AS [l2]
+)
 """);
     }
 
@@ -10544,10 +10538,10 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
+        SELECT [l1].[ThreatLevelNullableByte]
         FROM [LocustLeaders] AS [l1]
         UNION ALL
-        SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
+        SELECT [l2].[ThreatLevelNullableByte]
         FROM [LocustCommanders] AS [l2]
     ) AS [t0]
     WHERE [t0].[ThreatLevelNullableByte] = [t].[ThreatLevelNullableByte] OR ([t0].[ThreatLevelNullableByte] IS NULL AND [t].[ThreatLevelNullableByte] IS NULL))
@@ -10571,10 +10565,10 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
+        SELECT [l1].[ThreatLevelNullableByte]
         FROM [LocustLeaders] AS [l1]
         UNION ALL
-        SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
+        SELECT [l2].[ThreatLevelNullableByte]
         FROM [LocustCommanders] AS [l2]
     ) AS [t0]
     WHERE [t0].[ThreatLevelNullableByte] IS NULL)
@@ -10598,10 +10592,10 @@ FROM (
 WHERE EXISTS (
     SELECT 1
     FROM (
-        SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
+        SELECT [l1].[ThreatLevelNullableByte]
         FROM [LocustLeaders] AS [l1]
         UNION ALL
-        SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
+        SELECT [l2].[ThreatLevelNullableByte]
         FROM [LocustCommanders] AS [l2]
     ) AS [t0]
     WHERE [t0].[ThreatLevelNullableByte] IS NULL)
@@ -10651,16 +10645,13 @@ CROSS APPLY (
         SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
         FROM [Officers] AS [o]
     ) AS [t0]
-    WHERE EXISTS (
-        SELECT 1
-        FROM (
-            SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
-            FROM [LocustLeaders] AS [l1]
-            UNION ALL
-            SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
-            FROM [LocustCommanders] AS [l2]
-        ) AS [t2]
-        WHERE [t2].[ThreatLevelByte] = [t].[ThreatLevelByte])
+    WHERE [t].[ThreatLevelByte] IN (
+        SELECT [l1].[ThreatLevelByte]
+        FROM [LocustLeaders] AS [l1]
+        UNION ALL
+        SELECT [l2].[ThreatLevelByte]
+        FROM [LocustCommanders] AS [l2]
+    )
 ) AS [t1]
 """);
     }
@@ -10689,16 +10680,13 @@ CROSS APPLY (
         SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
         FROM [Officers] AS [o]
     ) AS [t0]
-    WHERE NOT EXISTS (
-        SELECT 1
-        FROM (
-            SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
-            FROM [LocustLeaders] AS [l1]
-            UNION ALL
-            SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
-            FROM [LocustCommanders] AS [l2]
-        ) AS [t2]
-        WHERE [t2].[ThreatLevelByte] = [t].[ThreatLevelByte])
+    WHERE [t].[ThreatLevelByte] NOT IN (
+        SELECT [l1].[ThreatLevelByte]
+        FROM [LocustLeaders] AS [l1]
+        UNION ALL
+        SELECT [l2].[ThreatLevelByte]
+        FROM [LocustCommanders] AS [l2]
+    )
 ) AS [t1]
 """);
     }
@@ -10729,10 +10717,10 @@ CROSS APPLY (
     WHERE EXISTS (
         SELECT 1
         FROM (
-            SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
+            SELECT [l1].[ThreatLevelNullableByte]
             FROM [LocustLeaders] AS [l1]
             UNION ALL
-            SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
+            SELECT [l2].[ThreatLevelNullableByte]
             FROM [LocustCommanders] AS [l2]
         ) AS [t2]
         WHERE [t2].[ThreatLevelNullableByte] = [t].[ThreatLevelNullableByte] OR ([t2].[ThreatLevelNullableByte] IS NULL AND [t].[ThreatLevelNullableByte] IS NULL))
@@ -10766,10 +10754,10 @@ CROSS APPLY (
     WHERE NOT EXISTS (
         SELECT 1
         FROM (
-            SELECT [l1].[Name], [l1].[LocustHordeId], [l1].[ThreatLevel], [l1].[ThreatLevelByte], [l1].[ThreatLevelNullableByte], NULL AS [DefeatedByNickname], NULL AS [DefeatedBySquadId], NULL AS [HighCommandId], N'LocustLeader' AS [Discriminator]
+            SELECT [l1].[ThreatLevelNullableByte]
             FROM [LocustLeaders] AS [l1]
             UNION ALL
-            SELECT [l2].[Name], [l2].[LocustHordeId], [l2].[ThreatLevel], [l2].[ThreatLevelByte], [l2].[ThreatLevelNullableByte], [l2].[DefeatedByNickname], [l2].[DefeatedBySquadId], [l2].[HighCommandId], N'LocustCommander' AS [Discriminator]
+            SELECT [l2].[ThreatLevelNullableByte]
             FROM [LocustCommanders] AS [l2]
         ) AS [t2]
         WHERE [t2].[ThreatLevelNullableByte] = [t].[ThreatLevelNullableByte] OR ([t2].[ThreatLevelNullableByte] IS NULL AND [t].[ThreatLevelNullableByte] IS NULL))
@@ -11975,10 +11963,10 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [t]
-WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
-    SELECT 1
+WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND [t].[HasSoulPatch] IN (
+    SELECT CAST([v].[value] AS bit) AS [value]
     FROM OPENJSON(@__values_0) AS [v]
-    WHERE CAST([v].[value] AS bit) = [t].[HasSoulPatch])
+)
 """);
     }
 
@@ -11998,10 +11986,10 @@ FROM (
     SELECT [o].[Nickname], [o].[SquadId], [o].[AssignedCityName], [o].[CityOfBirthName], [o].[FullName], [o].[HasSoulPatch], [o].[LeaderNickname], [o].[LeaderSquadId], [o].[Rank], N'Officer' AS [Discriminator]
     FROM [Officers] AS [o]
 ) AS [t]
-WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND EXISTS (
-    SELECT 1
+WHERE [t].[HasSoulPatch] = CAST(1 AS bit) AND [t].[HasSoulPatch] IN (
+    SELECT CAST([v].[value] AS bit) AS [value]
     FROM OPENJSON(@__values_0) AS [v]
-    WHERE CAST([v].[value] AS bit) = [t].[HasSoulPatch])
+)
 """);
     }
 
@@ -13285,8 +13273,8 @@ SELECT [s].[Name], (
     ) AS [t3]
     INNER JOIN [Squads] AS [s0] ON [t3].[SquadId] = [s0].[Id]
     INNER JOIN [Cities] AS [c] ON [t3].[CityOfBirthName] = [c].[Name]
-    WHERE EXISTS (
-        SELECT 1
+    WHERE N'Marcus' IN (
+        SELECT [t4].[Nickname]
         FROM (
             SELECT [g1].[Nickname], [g1].[SquadId], [g1].[AssignedCityName], [g1].[CityOfBirthName], [g1].[FullName], [g1].[HasSoulPatch], [g1].[LeaderNickname], [g1].[LeaderSquadId], [g1].[Rank], N'Gear' AS [Discriminator]
             FROM [Gears] AS [g1]
@@ -13300,7 +13288,7 @@ SELECT [s].[Name], (
             SELECT [o2].[Nickname], [o2].[SquadId], [o2].[AssignedCityName], [o2].[CityOfBirthName], [o2].[FullName], [o2].[HasSoulPatch], [o2].[LeaderNickname], [o2].[LeaderSquadId], [o2].[Rank], N'Officer' AS [Discriminator]
             FROM [Officers] AS [o2]
         ) AS [t4]
-        WHERE [t4].[Nickname] = N'Marcus') AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
+    ) AND ([s].[Name] = [s0].[Name] OR ([s].[Name] IS NULL AND [s0].[Name] IS NULL))) AS [SumOfLengths]
 FROM (
     SELECT [g].[SquadId]
     FROM [Gears] AS [g]
@@ -13309,8 +13297,8 @@ FROM (
     FROM [Officers] AS [o]
 ) AS [t]
 INNER JOIN [Squads] AS [s] ON [t].[SquadId] = [s].[Id]
-WHERE EXISTS (
-    SELECT 1
+WHERE N'Marcus' IN (
+    SELECT [t0].[Nickname]
     FROM (
         SELECT [g3].[Nickname], [g3].[SquadId], [g3].[AssignedCityName], [g3].[CityOfBirthName], [g3].[FullName], [g3].[HasSoulPatch], [g3].[LeaderNickname], [g3].[LeaderSquadId], [g3].[Rank], N'Gear' AS [Discriminator]
         FROM [Gears] AS [g3]
@@ -13324,7 +13312,7 @@ WHERE EXISTS (
         SELECT [o4].[Nickname], [o4].[SquadId], [o4].[AssignedCityName], [o4].[CityOfBirthName], [o4].[FullName], [o4].[HasSoulPatch], [o4].[LeaderNickname], [o4].[LeaderSquadId], [o4].[Rank], N'Officer' AS [Discriminator]
         FROM [Officers] AS [o4]
     ) AS [t0]
-    WHERE [t0].[Nickname] = N'Marcus')
+)
 GROUP BY [s].[Name]
 """);
     }

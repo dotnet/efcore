@@ -96,10 +96,10 @@ WHERE [m].[Tenant] = @__ef_filter__p_0
 """
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE EXISTS (
-    SELECT 1
+WHERE [l].[Tenant] IN (
+    SELECT CAST([e].[value] AS int) AS [value]
     FROM OPENJSON(N'[]') AS [e]
-    WHERE CAST([e].[value] AS int) = [l].[Tenant])
+)
 """,
             //
 """
@@ -107,10 +107,10 @@ WHERE EXISTS (
 
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE EXISTS (
-    SELECT 1
+WHERE [l].[Tenant] IN (
+    SELECT CAST([e].[value] AS int) AS [value]
     FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
-    WHERE CAST([e].[value] AS int) = [l].[Tenant])
+)
 """,
             //
 """
@@ -118,10 +118,10 @@ WHERE EXISTS (
 
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE EXISTS (
-    SELECT 1
+WHERE [l].[Tenant] IN (
+    SELECT CAST([e].[value] AS int) AS [value]
     FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
-    WHERE CAST([e].[value] AS int) = [l].[Tenant])
+)
 """,
             //
 """
@@ -129,10 +129,10 @@ WHERE EXISTS (
 
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
-WHERE EXISTS (
-    SELECT 1
+WHERE [l].[Tenant] IN (
+    SELECT CAST([e].[value] AS int) AS [value]
     FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
-    WHERE CAST([e].[value] AS int) = [l].[Tenant])
+)
 """);
     }
 

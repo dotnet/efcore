@@ -186,40 +186,40 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
 
 SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
-WHERE EXISTS (
-    SELECT 1
+WHERE [d].[SmallDateTime] IN (
+    SELECT CAST([d0].[value] AS smalldatetime) AS [value]
     FROM OPENJSON(@__dateTimes_0) AS [d0]
-    WHERE CAST([d0].[value] AS smalldatetime) = [d].[SmallDateTime]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime] IN (
+    SELECT CAST([d1].[value] AS datetime) AS [value]
     FROM OPENJSON(@__dateTimes_0_1) AS [d1]
-    WHERE CAST([d1].[value] AS datetime) = [d].[DateTime]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2] IN (
+    SELECT CAST([d2].[value] AS datetime2) AS [value]
     FROM OPENJSON(@__dateTimes_0_2) AS [d2]
-    WHERE CAST([d2].[value] AS datetime2) = [d].[DateTime2]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_0] IN (
+    SELECT CAST([d3].[value] AS datetime2(0)) AS [value]
     FROM OPENJSON(@__dateTimes_0_3) AS [d3]
-    WHERE CAST([d3].[value] AS datetime2(0)) = [d].[DateTime2_0]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_1] IN (
+    SELECT CAST([d4].[value] AS datetime2(1)) AS [value]
     FROM OPENJSON(@__dateTimes_0_4) AS [d4]
-    WHERE CAST([d4].[value] AS datetime2(1)) = [d].[DateTime2_1]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_2] IN (
+    SELECT CAST([d5].[value] AS datetime2(2)) AS [value]
     FROM OPENJSON(@__dateTimes_0_5) AS [d5]
-    WHERE CAST([d5].[value] AS datetime2(2)) = [d].[DateTime2_2]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_3] IN (
+    SELECT CAST([d6].[value] AS datetime2(3)) AS [value]
     FROM OPENJSON(@__dateTimes_0_6) AS [d6]
-    WHERE CAST([d6].[value] AS datetime2(3)) = [d].[DateTime2_3]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_4] IN (
+    SELECT CAST([d7].[value] AS datetime2(4)) AS [value]
     FROM OPENJSON(@__dateTimes_0_7) AS [d7]
-    WHERE CAST([d7].[value] AS datetime2(4)) = [d].[DateTime2_4]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_5] IN (
+    SELECT CAST([d8].[value] AS datetime2(5)) AS [value]
     FROM OPENJSON(@__dateTimes_0_8) AS [d8]
-    WHERE CAST([d8].[value] AS datetime2(5)) = [d].[DateTime2_5]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_6] IN (
+    SELECT CAST([d9].[value] AS datetime2(6)) AS [value]
     FROM OPENJSON(@__dateTimes_0_9) AS [d9]
-    WHERE CAST([d9].[value] AS datetime2(6)) = [d].[DateTime2_6]) AND EXISTS (
-    SELECT 1
+) AND [d].[DateTime2_7] IN (
+    SELECT CAST([d10].[value] AS datetime2(7)) AS [value]
     FROM OPENJSON(@__dateTimes_0_10) AS [d10]
-    WHERE CAST([d10].[value] AS datetime2(7)) = [d].[DateTime2_7])
+)
 """);
     }
 
@@ -2091,10 +2091,11 @@ WHERE [e].[Id] = @__id_0
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE EXISTS (
-    SELECT 1
+WHERE [e].[Id] IN (
+    SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE [e0].[Id] = @__id_0 AND [e0].[Id] = [e].[Id])
+    WHERE [e0].[Id] = @__id_0
+)
 """,
                 //
 """
@@ -2102,10 +2103,11 @@ WHERE EXISTS (
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE EXISTS (
-    SELECT 1
+WHERE [e].[Id] IN (
+    SELECT [e0].[Id]
     FROM [Entities] AS [e0]
-    WHERE [e0].[Id] = @__id_0 AND [e0].[Id] = [e].[Id])
+    WHERE [e0].[Id] = @__id_0
+)
 """);
         }
     }
@@ -3922,10 +3924,10 @@ FROM [Prices] AS [p]
 
 SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
-WHERE EXISTS (
-    SELECT 1
+WHERE [r].[MyTime] IN (
+    SELECT CAST([t].[value] AS smalldatetime) AS [value]
     FROM OPENJSON(@__testDateList_0) AS [t]
-    WHERE CAST([t].[value] AS smalldatetime) = [r].[MyTime])
+)
 """);
         }
     }
@@ -3973,6 +3975,8 @@ WHERE EXISTS (
             var keys = new List<Guid> { Guid.Parse("0a47bcb7-a1cb-4345-8944-c58f82d6aac7"), key };
             var todoTypes = new List<MyContext12732.TodoType> { MyContext12732.TodoType.foo0 };
 
+            // Note that in this query, the outer Contains really has no type mapping, neither for its source (collection parameter), nor
+            // for its item (the conditional expression returns key, which is also a parameter). The default type mapping must be applied.
             var query = context.Todos
                 .Where(x => keys.Contains(todoTypes.Contains(x.Type) ? key : key))
                 .ToList();
@@ -3981,18 +3985,18 @@ WHERE EXISTS (
 
             AssertSql(
 """
-@__keys_0='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 @__key_2='5f221fb9-66f4-442a-92c9-d97ed5989cc7'
+@__keys_0='["0a47bcb7-a1cb-4345-8944-c58f82d6aac7","5f221fb9-66f4-442a-92c9-d97ed5989cc7"]' (Size = 4000)
 
 SELECT [t].[Id], [t].[Type]
 FROM [Todos] AS [t]
-WHERE EXISTS (
-    SELECT 1
+WHERE CASE
+    WHEN [t].[Type] = 0 THEN @__key_2
+    ELSE @__key_2
+END IN (
+    SELECT CAST([k].[value] AS uniqueidentifier) AS [value]
     FROM OPENJSON(@__keys_0) AS [k]
-    WHERE CAST([k].[value] AS uniqueidentifier) = CASE
-        WHEN [t].[Type] = 0 THEN @__key_2
-        ELSE @__key_2
-    END)
+)
 """);
         }
     }
@@ -8894,10 +8898,10 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE NOT EXISTS (
-    SELECT 1
+WHERE [e].[Id] NOT IN (
+    SELECT CAST([e0].[value] AS int) AS [value]
     FROM OPENJSON(@__ef_filter___ids_0) AS [e0]
-    WHERE CAST([e0].[value] AS int) = [e].[Id])
+)
 """);
         }
     }

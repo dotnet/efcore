@@ -8,10 +8,108 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class NullSemanticsQuerySqliteTest : NullSemanticsQueryTestBase<NullSemanticsQuerySqliteFixture>
 {
-    public NullSemanticsQuerySqliteTest(NullSemanticsQuerySqliteFixture fixture)
+    // ReSharper disable once UnusedParameter.Local
+    public NullSemanticsQuerySqliteTest(NullSemanticsQuerySqliteFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
+        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+    }
+
+        public override async Task Null_semantics_contains_non_nullable_item_with_non_nullable_subquery(bool async)
+    {
+        await base.Null_semantics_contains_non_nullable_item_with_non_nullable_subquery(async);
+
+        AssertSql(
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."StringA" IN (
+    SELECT "e0"."StringA"
+    FROM "Entities2" AS "e0"
+)
+""",
+            //
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."StringA" NOT IN (
+    SELECT "e0"."StringA"
+    FROM "Entities2" AS "e0"
+)
+""");
+    }
+
+    public override async Task Null_semantics_contains_nullable_item_with_non_nullable_subquery(bool async)
+    {
+        await base.Null_semantics_contains_nullable_item_with_non_nullable_subquery(async);
+
+        AssertSql(
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableStringA" IN (
+    SELECT "e0"."StringA"
+    FROM "Entities2" AS "e0"
+)
+""",
+            //
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."NullableStringA" NOT IN (
+    SELECT "e0"."StringA"
+    FROM "Entities2" AS "e0"
+) OR "e"."NullableStringA" IS NULL
+""");
+    }
+
+    public override async Task Null_semantics_contains_non_nullable_item_with_nullable_subquery(bool async)
+    {
+        await base.Null_semantics_contains_non_nullable_item_with_nullable_subquery(async);
+
+        AssertSql(
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE "e"."StringA" IN (
+    SELECT "e0"."NullableStringA"
+    FROM "Entities2" AS "e0"
+)
+""",
+            //
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT (COALESCE("e"."StringA" IN (
+    SELECT "e0"."NullableStringA"
+    FROM "Entities2" AS "e0"
+), 0))
+""");
+    }
+
+    public override async Task Null_semantics_contains_nullable_item_with_nullable_subquery(bool async)
+    {
+        await base.Null_semantics_contains_nullable_item_with_nullable_subquery(async);
+
+        AssertSql(
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE EXISTS (
+    SELECT 1
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."NullableStringA" = "e"."NullableStringA" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringA" IS NULL))
+""",
+            //
+"""
+SELECT "e"."Id"
+FROM "Entities1" AS "e"
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM "Entities2" AS "e0"
+    WHERE "e0"."NullableStringA" = "e"."NullableStringA" OR ("e0"."NullableStringA" IS NULL AND "e"."NullableStringA" IS NULL))
+""");
     }
 
     public override async Task Bool_equal_nullable_bool_HasValue(bool async)

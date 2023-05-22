@@ -784,10 +784,10 @@ LEFT JOIN (
         SELECT [c0].[CustomerID], [c0].[Address], [c0].[City], [c0].[CompanyName], [c0].[ContactName], [c0].[ContactTitle], [c0].[Country], [c0].[Fax], [c0].[Phone], [c0].[PostalCode], [c0].[Region], [o].[CustomerID] AS [CustomerID0], ROW_NUMBER() OVER(PARTITION BY [o].[CustomerID] ORDER BY [o].[OrderID], [c0].[CustomerID]) AS [row]
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
-        WHERE EXISTS (
-            SELECT 1
+        WHERE [o].[OrderID] IN (
+            SELECT CAST([o0].[value] AS int) AS [value]
             FROM OPENJSON(@__orderIds_0) AS [o0]
-            WHERE CAST([o0].[value] AS int) = [o].[OrderID])
+        )
     ) AS [t]
     WHERE [t].[row] <= 1
 ) AS [t0] ON [c].[CustomerID] = [t0].[CustomerID0]

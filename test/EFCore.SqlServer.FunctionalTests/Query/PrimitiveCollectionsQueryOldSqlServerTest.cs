@@ -193,31 +193,31 @@ WHERE [p].[Id] NOT IN (2, 999)
 
     public override async Task Parameter_collection_of_ints_Contains(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
 
         AssertSql(
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] IN (10, 999)
+WHERE [p].[Int] IN (10, 999)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
 
         AssertSql(
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] IN (10, 999)
+WHERE [p].[Int] IN (10, 999)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains_null(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains_null(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(async);
 
         AssertSql(
 """
@@ -295,6 +295,9 @@ WHERE 0 = 1
 
     public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
         => AssertTranslationFailed(() => base.Column_collection_of_nullable_ints_Contains_null(async));
+
+    public override Task Column_collection_of_strings_contains_null(bool async)
+        => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null(async));
 
     public override Task Column_collection_of_bools_Contains(bool async)
         => AssertTranslationFailed(() => base.Column_collection_of_bools_Contains(async));
