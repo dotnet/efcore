@@ -44,6 +44,7 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         {
             "FromSqlRaw" => AnalyzeFromSqlRawInvocation(invocation),
             "ExecuteSqlRaw" or "ExecuteSqlRawAsync" => AnalyzeExecuteSqlRawInvocation(invocation),
+            "SqlQueryRaw" => AnalyzeSqlQueryRawInvocation(invocation),
             _ => false
         };
 
@@ -70,6 +71,13 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
                 targetNode = memberAccess.Name;
             }
 
+            // Generic name case, e.g. `db.Database.SqlQueryRaw<int>(...)`.
+            // At this point `targetNode` is `SqlQueryRaw<int>`, but we need location of the actual identifier
+            if (targetNode is GenericNameSyntax genericName)
+            {
+                return genericName.Identifier.GetLocation();
+            }
+
             // We should appear at name expression, representing method name token, e.g.:
             // db.Users.[|FromSqlRaw|](...) or db.Database.[|ExecuteSqlRaw|](...)
             return targetNode.GetLocation();
@@ -80,6 +88,12 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
     {
         var targetMethod = invocation.TargetMethod;
         Debug.Assert(targetMethod.Name == "FromSqlRaw");
+
+        // Correct `FromSqlRaw` is an extension method, therefore it must be static
+        if (!targetMethod.IsStatic)
+        {
+            return false;
+        }
 
         var compilation = invocation.SemanticModel!.Compilation;
 
@@ -127,15 +141,18 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         // Report warning if interpolated string is not a constant and all its interpolations are not constants
         return AnalyzeInterpolatedString(interpolatedString);
-
-        static bool IsParamsObjectArray(IParameterSymbol parameter)
-            => parameter.IsParams && parameter.Type is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Object, Rank: 1 };
     }
 
     private static bool AnalyzeExecuteSqlRawInvocation(IInvocationOperation invocation)
     {
         var targetMethod = invocation.TargetMethod;
         Debug.Assert(targetMethod.Name is "ExecuteSqlRaw" or "ExecuteSqlRawAsync");
+
+        // Both methods is an extension ones, therefore target method must be static
+        if (!targetMethod.IsStatic)
+        {
+            return false;
+        }
 
         var compilation = invocation.SemanticModel!.Compilation;
 
@@ -197,6 +214,68 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         // ...and report warning if interpolated string is not a constant and all its interpolations are not constants
         return AnalyzeInterpolatedString(interpolatedString);
     }
+
+    private static bool AnalyzeSqlQueryRawInvocation(IInvocationOperation invocation)
+    {
+        var targetMethod = invocation.TargetMethod;
+        Debug.Assert(targetMethod.Name == "SqlQueryRaw");
+
+        // Correct `SqlQueryRaw` is an extension method, therefore it must be static
+        if (!targetMethod.IsStatic)
+        {
+            return false;
+        }
+
+        var compilation = invocation.SemanticModel!.Compilation;
+
+        // Correct `SqlQueryRaw` method must return IQueryable<T> type
+        if (!targetMethod.ReturnType.OriginalDefinition.Equals(compilation.IQueryableOfTType(), SymbolEqualityComparer.Default))
+        {
+            return false;
+        }
+
+        var parameters = targetMethod.Parameters;
+
+        // Correct `SqlQueryRaw` method must have 3 parameters
+        if (parameters.Length != 3)
+        {
+            return false;
+        }
+
+        var firstParameter = parameters[0];
+        var secondParameter = parameters[1];
+        var thirdParameter = parameters[2];
+
+        // Correct first parameter is a DatabaseFacade type
+        if (!firstParameter.Type.OriginalDefinition.Equals(compilation.DatabaseFacadeType(), SymbolEqualityComparer.Default))
+        {
+            return false;
+        }
+
+        // Correct second parameter type is a string
+        if (secondParameter.Type.SpecialType != SpecialType.System_String)
+        {
+            return false;
+        }
+
+        // Correct third parameter is `params object[]`
+        if (!IsParamsObjectArray(thirdParameter))
+        {
+            return false;
+        }
+
+        // The second argument, that corresponds to `string sql` parameter, must be an interpolated string
+        if (invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        {
+            return false;
+        }
+
+        // Report warning if interpolated string is not a constant and all its interpolations are not constants
+        return AnalyzeInterpolatedString(interpolatedString);
+    }
+
+    private static bool IsParamsObjectArray(IParameterSymbol parameter)
+        => parameter.IsParams && parameter.Type is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Object, Rank: 1 };
 
     private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
     {

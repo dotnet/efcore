@@ -524,4 +524,160 @@ class C
 """);
 
     #endregion
+
+    #region SqlQueryRaw
+
+    [Fact]
+    public Task SqlQueryRaw_constant_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        db.Database.SqlQueryRaw<int>("SELECT [Age] FROM [Users] WHERE [Id] = 1;");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_constant_string_with_parameters_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.SqlQueryRaw<int>("SELECT [Age] FROM [Users] WHERE [Id] = {0};", id);
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_interpolated_string_report()
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.[|SqlQueryRaw|]<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.SqlQuery<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public async Task SqlQueryRaw_interpolated_string_with_other_parameters_report()
+    {
+        var source = MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.[|SqlQueryRaw|]<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};", id);
+    }
+}
+""";
+
+        await VerifyCS.VerifyCodeFixAsync(source, source);
+    }
+
+    [Fact]
+    public Task SqlQueryRaw_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        const string id = "1";
+        db.Database.SqlQueryRaw<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        db.Database.SqlQueryRaw<int>($"SELECT [{nameof(MyDbContext)}] FROM [Users] WHERE [Id] = {1};");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_direct_extension_class_usage_interpolated_string_report()
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        RelationalDatabaseFacadeExtensions.[|SqlQueryRaw|]<int>(db.Database, $"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        RelationalDatabaseFacadeExtensions.SqlQuery<int>(db.Database, $"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_direct_extension_class_usage_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        const string id = "1";
+        RelationalDatabaseFacadeExtensions.SqlQueryRaw<int>(db.Database, $"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db)
+    {
+        RelationalDatabaseFacadeExtensions.SqlQueryRaw<int>(db.Database, $"SELECT [{nameof(MyDbContext)}] FROM [Users] WHERE [Id] = {1};");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQueryRaw_FixAll()
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.[|SqlQueryRaw|]<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+        db.Database.[|SqlQueryRaw|]<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""", MyDbContext + """
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.SqlQuery<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+        db.Database.SqlQuery<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    #endregion
 }

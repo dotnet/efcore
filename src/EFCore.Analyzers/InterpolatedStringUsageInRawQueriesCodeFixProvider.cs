@@ -32,7 +32,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
         // Since we own the analyzer we can guarantee, that this will never fail
-        var node = (IdentifierNameSyntax)root!.FindNode(diagnostic.Location.SourceSpan);
+        var node = (SimpleNameSyntax)root!.FindNode(diagnostic.Location.SourceSpan);
 
         var invocationSyntax = node.FirstAncestorOrSelf<InvocationExpressionSyntax>();
 
@@ -65,22 +65,26 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         context.RegisterCodeFix(
             CodeAction.Create(
                 AnalyzerStrings.InterpolatedStringUsageInRawQueriesCodeActionTitle,
-                cancellationToken => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, GetReplacementIdentifier(node)))),
+                cancellationToken => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, GetReplacementName(node)))),
                 nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider)),
             diagnostic);
     }
 
-    private static IdentifierNameSyntax GetReplacementIdentifier(IdentifierNameSyntax oldIdentifier)
+    private static SimpleNameSyntax GetReplacementName(SimpleNameSyntax oldName)
     {
-        var oldName = oldIdentifier.Identifier.ValueText;
-        var replacementName = oldName switch
+        var oldNameToken = oldName.Identifier;
+        var oldMethodName = oldNameToken.ValueText;
+
+        var replacementMethodName = oldMethodName switch
         {
             "FromSqlRaw" => "FromSql",
             "ExecuteSqlRaw" => "ExecuteSql",
             "ExecuteSqlRawAsync" => "ExecuteSqlAsync",
-            _ => oldName
+            "SqlQueryRaw" => "SqlQuery",
+            _ => oldMethodName
         };
 
-        return SyntaxFactory.IdentifierName(replacementName);
+        var replacementToken = SyntaxFactory.Identifier(replacementMethodName).WithTriviaFrom(oldNameToken);
+        return oldName.WithIdentifier(replacementToken);
     }
 }
