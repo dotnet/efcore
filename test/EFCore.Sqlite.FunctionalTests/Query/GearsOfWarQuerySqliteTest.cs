@@ -1422,11 +1422,11 @@ WHERE length("s"."Banner5") = 5
 """
 SELECT "s"."Name"
 FROM "Squads" AS "s"
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM "Gears" AS "g"
     LEFT JOIN "Tags" AS "t" ON "g"."Nickname" = "t"."GearNickName" AND "g"."SquadId" = "t"."GearSquadId"
-    WHERE "s"."Id" = "g"."SquadId" AND "t"."Note" = 'Dom''s Tag'))
+    WHERE "s"."Id" = "g"."SquadId" AND "t"."Note" = 'Dom''s Tag')
 """);
     }
 
@@ -9298,10 +9298,10 @@ CROSS JOIN (
 """
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM "Gears" AS "g"
-    WHERE "s"."Id" = "g"."SquadId"))
+    WHERE "s"."Id" = "g"."SquadId")
 """);
     }
 
@@ -9313,10 +9313,10 @@ WHERE NOT (EXISTS (
 """
 SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "Gears" AS "g"
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName"))
+    WHERE "g"."FullName" = "w"."OwnerFullName")
 """);
     }
 
@@ -9412,12 +9412,12 @@ LIMIT 1 OFFSET @__p_0
 """
 SELECT "s"."Id", "s"."Banner", "s"."Banner5", "s"."InternalNumber", "s"."Name"
 FROM "Squads" AS "s"
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM "Gears" AS "g"
     WHERE "s"."Id" = "g"."SquadId"
     ORDER BY "g"."Nickname"
-    LIMIT -1 OFFSET 2))
+    LIMIT -1 OFFSET 2)
 """);
     }
 

@@ -1820,10 +1820,10 @@ WHERE EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID]))
+    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID])
 """);
     }
 
@@ -2232,10 +2232,10 @@ WHERE EXISTS (
 """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL))
+    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL)
 """);
     }
 
@@ -2413,7 +2413,7 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.' AND EXISTS (
     SELECT 1
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE [c].[CustomerID] = CAST([i].[value] AS nchar(5)))
+    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID])
 """);
     }
 
@@ -2430,7 +2430,7 @@ FROM [Customers] AS [c]
 WHERE NOT EXISTS (
     SELECT 1
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID] AND [i].[value] IS NOT NULL)
+    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID])
 """);
     }
 
@@ -2476,7 +2476,7 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.' AND NOT EXISTS (
     SELECT 1
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID] AND [i].[value] IS NOT NULL)
+    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID])
 """,
             //
 """
@@ -2487,7 +2487,7 @@ FROM [Customers] AS [c]
 WHERE [c].[City] = N'México D.F.' AND NOT EXISTS (
     SELECT 1
     FROM OPENJSON(@__ids_0) AS [i]
-    WHERE [c].[CustomerID] = CAST([i].[value] AS nchar(5)) AND [i].[value] IS NOT NULL)
+    WHERE CAST([i].[value] AS nchar(5)) = [c].[CustomerID])
 """);
     }
 

@@ -411,33 +411,28 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             return null;
         }
 
-        var selectExpression = (SelectExpression)source.QueryExpression;
+        var subquery = (SelectExpression)source.QueryExpression;
 
         // Negate the predicate, unless it's already negated, in which case remove that.
-        selectExpression.ApplyPredicate(
+        subquery.ApplyPredicate(
             translation is SqlUnaryExpression { OperatorType: ExpressionType.Not, Operand: var nestedOperand }
                 ? nestedOperand
                 : _sqlExpressionFactory.Not(translation));
 
-        if (TrySimplifyValuesToInExpression(source, isNegated: true, out var simplifiedQuery))
+        subquery.ReplaceProjection(new List<Expression>());
+        subquery.ApplyProjection();
+        if (subquery.Limit == null
+            && subquery.Offset == null)
         {
-            return simplifiedQuery;
+            subquery.ClearOrdering();
         }
 
-        selectExpression.ReplaceProjection(new List<Expression>());
-        selectExpression.ApplyProjection();
-        if (selectExpression.Limit == null
-            && selectExpression.Offset == null)
-        {
-            selectExpression.ClearOrdering();
-        }
-
-        translation = _sqlExpressionFactory.Exists(selectExpression, true);
-        selectExpression = _sqlExpressionFactory.Select(translation);
+        translation = _sqlExpressionFactory.Exists(subquery, true);
+        subquery = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
-            selectExpression,
-            Expression.Convert(new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+            subquery,
+            Expression.Convert(new ProjectionBindingExpression(subquery, new ProjectionMember(), typeof(bool?)), typeof(bool)));
     }
 
     /// <inheritdoc />
@@ -452,24 +447,19 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
 
             source = translatedSource;
-
-            if (TrySimplifyValuesToInExpression(source, isNegated: false, out var simplifiedQuery))
-            {
-                return simplifiedQuery;
-            }
         }
 
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        selectExpression.ReplaceProjection(new List<Expression>());
-        selectExpression.ApplyProjection();
-        if (selectExpression.Limit == null
-            && selectExpression.Offset == null)
+        var subquery = (SelectExpression)source.QueryExpression;
+        subquery.ReplaceProjection(new List<Expression>());
+        subquery.ApplyProjection();
+        if (subquery.Limit == null
+            && subquery.Offset == null)
         {
-            selectExpression.ClearOrdering();
+            subquery.ClearOrdering();
         }
 
-        var translation = _sqlExpressionFactory.Exists(selectExpression, false);
-        selectExpression = _sqlExpressionFactory.Select(translation);
+        var translation = _sqlExpressionFactory.Exists(subquery, false);
+        var selectExpression = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
             selectExpression,
@@ -501,47 +491,65 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
-        var selectExpression = (SelectExpression)source.QueryExpression;
-        var translation = TranslateExpression(item);
-        if (translation == null)
-        {
-            return null;
-        }
-
-        if (selectExpression.Limit == null
-            && selectExpression.Offset == null)
-        {
-            selectExpression.ClearOrdering();
-        }
-
-        var shaperExpression = source.ShaperExpression;
-        // No need to check ConvertChecked since this is convert node which we may have added during projection
-        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
-            && unaryExpression.Operand.Type.IsNullableType()
-            && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
-        {
-            shaperExpression = unaryExpression.Operand;
-        }
-
-        if (shaperExpression is ProjectionBindingExpression projectionBindingExpression)
-        {
-            var projection = selectExpression.GetProjection(projectionBindingExpression);
-            if (projection is SqlExpression sqlExpression)
+        // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
+        if (source.QueryExpression is SelectExpression
             {
-                selectExpression.ReplaceProjection(new List<Expression> { sqlExpression });
-                selectExpression.ApplyProjection();
+                Tables:
+                [
+                    ValuesExpression
+                    {
+                        RowValues: [{ Values.Count: 2 }, ..],
+                        ColumnNames: [ValuesOrderingColumnName, ValuesValueColumnName]
+                    } valuesExpression
+                ],
+                Predicate: null,
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null,
+                // Note that in the context of Contains we don't care about orderings
+            }
+            // Make sure that the source projects the column from the ValuesExpression directly, i.e. no projection out with some expression
+            && TryGetProjection(source, out var projection)
+            && projection is ColumnExpression projectedColumn
+            && projectedColumn.Table == valuesExpression)
+        {
+            if (TranslateExpression(item) is not SqlExpression translatedItem)
+            {
+                return null;
+            }
 
-                translation = _sqlExpressionFactory.In(translation, selectExpression, false);
-                selectExpression = _sqlExpressionFactory.Select(translation);
+            var values = new object?[valuesExpression.RowValues.Count];
+            for (var i = 0; i < values.Length; i++)
+            {
+                // Skip the first value (_ord), which is irrelevant for Contains
+                if (valuesExpression.RowValues[i].Values[1] is SqlConstantExpression { Value: var constantValue })
+                {
+                    values[i] = constantValue;
+                }
+                else
+                {
+                    // We only support constants for now
+                    values = null;
+                    break;
+                }
+            }
 
-                return source.Update(
-                    selectExpression,
-                    Expression.Convert(
-                        new ProjectionBindingExpression(selectExpression, new ProjectionMember(), typeof(bool?)), typeof(bool)));
+            if (values is not null)
+            {
+                var inExpression = _sqlExpressionFactory.In(translatedItem, _sqlExpressionFactory.Constant(values), negated: false);
+                return source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
             }
         }
 
-        return null;
+        // TODO: This generates an EXISTS subquery. Translate to IN instead: #30955
+        var anyLambdaParameter = Expression.Parameter(item.Type, "p");
+        var anyLambda = Expression.Lambda(
+            Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
+            anyLambdaParameter);
+
+        return TranslateAny(source, anyLambda);
     }
 
     /// <inheritdoc />
@@ -1812,89 +1820,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     protected virtual bool IsOrdered(SelectExpression selectExpression)
         => selectExpression.Orderings.Count > 0;
 
-    /// <summary>
-    ///     Attempts to pattern-match for Contains over <see cref="ValuesExpression" />, which corresponds to
-    ///     <c>Where(b => new[] { 1, 2, 3 }.Contains(b.Id))</c>. Simplifies this to the tighter <c>[b].[Id] IN (1, 2, 3)</c> instead of the
-    ///     full subquery with VALUES.
-    /// </summary>
-    private bool TrySimplifyValuesToInExpression(
-        ShapedQueryExpression source,
-        bool isNegated,
-        [NotNullWhen(true)] out ShapedQueryExpression? simplifiedQuery)
-    {
-        if (source.QueryExpression is SelectExpression
-            {
-                Tables: [ValuesExpression
-                {
-                    RowValues: [{ Values.Count: 2 }, ..],
-                    ColumnNames: [ ValuesOrderingColumnName, ValuesValueColumnName ]
-                } valuesExpression],
-                GroupBy: [],
-                Having: null,
-                IsDistinct: false,
-                Limit: null,
-                Offset: null,
-                // Note that we don't care about orderings, they get elided anyway by Any/All
-                Predicate: SqlBinaryExpression { OperatorType: ExpressionType.Equal, Left: var left, Right: var right },
-            } selectExpression)
-        {
-            // The table is a ValuesExpression, and the predicate is an equality - this is a possible simplifiable Contains.
-            // Get the projection column pointing to the ValuesExpression, and check that it's compared to on one side of the predicate
-            // equality.
-            var shaperExpression = source.ShaperExpression;
-            if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
-                && unaryExpression.Operand.Type.IsNullableType()
-                && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
-            {
-                shaperExpression = unaryExpression.Operand;
-            }
-
-            if (shaperExpression is ProjectionBindingExpression projectionBindingExpression
-                && selectExpression.GetProjection(projectionBindingExpression) is ColumnExpression projectionColumn)
-            {
-                SqlExpression item;
-
-                if (left is ColumnExpression leftColumn
-                    && (leftColumn.Table, leftColumn.Name) == (projectionColumn.Table, projectionColumn.Name))
-                {
-                    item = right;
-                }
-                else if (right is ColumnExpression rightColumn
-                         && (rightColumn.Table, rightColumn.Name) == (projectionColumn.Table, projectionColumn.Name))
-                {
-                    item = left;
-                }
-                else
-                {
-                    simplifiedQuery = null;
-                    return false;
-                }
-
-                var values = new object?[valuesExpression.RowValues.Count];
-                for (var i = 0; i < values.Length; i++)
-                {
-                    // Skip the first value (_ord), which is irrelevant for Contains
-                    if (valuesExpression.RowValues[i].Values[1] is SqlConstantExpression { Value: var constantValue })
-                    {
-                        values[i] = constantValue;
-                    }
-                    else
-                    {
-                        simplifiedQuery = null;
-                        return false;
-                    }
-                }
-
-                var inExpression = _sqlExpressionFactory.In(item, _sqlExpressionFactory.Constant(values), isNegated);
-                simplifiedQuery = source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
-                return true;
-            }
-        }
-
-        simplifiedQuery = null;
-        return false;
-    }
-
     private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
     {
         var lambdaBody = ReplacingExpressionVisitor.Replace(
@@ -2567,6 +2492,29 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         }
 
         return source.UpdateShaperExpression(shaper);
+    }
+
+    private bool TryGetProjection(ShapedQueryExpression shapedQueryExpression, [NotNullWhen(true)] out SqlExpression? projection)
+    {
+        var shaperExpression = shapedQueryExpression.ShaperExpression;
+        // No need to check ConvertChecked since this is convert node which we may have added during projection
+        if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression
+            && unaryExpression.Operand.Type.IsNullableType()
+            && unaryExpression.Operand.Type.UnwrapNullableType() == unaryExpression.Type)
+        {
+            shaperExpression = unaryExpression.Operand;
+        }
+
+        if (shapedQueryExpression.QueryExpression is SelectExpression selectExpression
+            && shaperExpression is ProjectionBindingExpression projectionBindingExpression
+            && selectExpression.GetProjection(projectionBindingExpression) is SqlExpression sqlExpression)
+        {
+            projection = sqlExpression;
+            return true;
+        }
+
+        projection = null;
+        return false;
     }
 
     /// <summary>

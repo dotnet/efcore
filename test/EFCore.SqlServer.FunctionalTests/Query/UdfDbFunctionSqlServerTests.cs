@@ -910,16 +910,16 @@ SELECT [c].[LastName], (
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c0] ON [o0].[CustomerId] = [c0].[Id]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
-    WHERE NOT (EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM [dbo].[GetTopTwoSellingProducts]() AS [g0]
-        WHERE [g0].[ProductId] = 25)) AND ([c].[LastName] = [c0].[LastName] OR ([c].[LastName] IS NULL AND [c0].[LastName] IS NULL))) AS [SumOfLengths]
+        WHERE [g0].[ProductId] = 25) AND ([c].[LastName] = [c0].[LastName] OR ([c].[LastName] IS NULL AND [c0].[LastName] IS NULL))) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c] ON [o].[CustomerId] = [c].[Id]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [dbo].[GetTopTwoSellingProducts]() AS [g]
-    WHERE [g].[ProductId] = 25))
+    WHERE [g].[ProductId] = 25)
 GROUP BY [c].[LastName]
 """);
     }
@@ -935,22 +935,22 @@ SELECT [c0].[LastName], (
     FROM [Orders] AS [o0]
     INNER JOIN [Customers] AS [c1] ON [o0].[CustomerId] = [c1].[Id]
     INNER JOIN [Customers] AS [c2] ON [o0].[CustomerId] = [c2].[Id]
-    WHERE NOT (EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM [dbo].[GetOrdersWithMultipleProducts]((
             SELECT TOP(1) [c3].[Id]
             FROM [Customers] AS [c3]
             ORDER BY [c3].[Id])) AS [g0]
-        WHERE [g0].[CustomerId] = 25)) AND ([c0].[LastName] = [c1].[LastName] OR ([c0].[LastName] IS NULL AND [c1].[LastName] IS NULL))) AS [SumOfLengths]
+        WHERE [g0].[CustomerId] = 25) AND ([c0].[LastName] = [c1].[LastName] OR ([c0].[LastName] IS NULL AND [c1].[LastName] IS NULL))) AS [SumOfLengths]
 FROM [Orders] AS [o]
 INNER JOIN [Customers] AS [c0] ON [o].[CustomerId] = [c0].[Id]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [dbo].[GetOrdersWithMultipleProducts]((
         SELECT TOP(1) [c].[Id]
         FROM [Customers] AS [c]
         ORDER BY [c].[Id])) AS [g]
-    WHERE [g].[CustomerId] = 25))
+    WHERE [g].[CustomerId] = 25)
 GROUP BY [c0].[LastName]
 """);
     }

@@ -548,11 +548,11 @@ LEFT JOIN (
 """
 SELECT [s].[Name]
 FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
     LEFT JOIN [Tags] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
-    WHERE [s].[Id] = [g].[SquadId] AND [t].[Note] = N'Dom''s Tag'))
+    WHERE [s].[Id] = [g].[SquadId] AND [t].[Note] = N'Dom''s Tag')
 """);
     }
 
@@ -2947,10 +2947,10 @@ FROM [LocustLeaders] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-    WHERE NOT (EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM [LocustLeaders] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte]))
+        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte])
 ) AS [t]
 """);
     }
@@ -4467,10 +4467,10 @@ FROM [LocustLeaders] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-    WHERE NOT (EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM [LocustLeaders] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [l0]
-        WHERE [l0].[ThreatLevelNullableByte] = [l].[ThreatLevelNullableByte] OR ([l0].[ThreatLevelNullableByte] IS NULL AND [l].[ThreatLevelNullableByte] IS NULL)))
+        WHERE [l0].[ThreatLevelNullableByte] = [l].[ThreatLevelNullableByte] OR ([l0].[ThreatLevelNullableByte] IS NULL AND [l].[ThreatLevelNullableByte] IS NULL))
 ) AS [t]
 """);
     }
@@ -9810,10 +9810,10 @@ CROSS JOIN (
 """
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart]
 FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-    WHERE [s].[Id] = [g].[SquadId]))
+    WHERE [s].[Id] = [g].[SquadId])
 """);
     }
 
@@ -9825,10 +9825,10 @@ WHERE NOT (EXISTS (
 """
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[PeriodEnd], [g].[PeriodStart], [g].[Rank]
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Weapons] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]))
+    WHERE [g].[FullName] = [w].[OwnerFullName])
 """);
     }
 
@@ -9913,12 +9913,12 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 """
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s].[PeriodEnd], [s].[PeriodStart]
 FROM [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
     WHERE [s].[Id] = [g].[SquadId]
     ORDER BY [g].[Nickname]
-    OFFSET 2 ROWS))
+    OFFSET 2 ROWS)
 """);
     }
 
@@ -9962,11 +9962,11 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 INNER JOIN [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [g].[SquadId] = [s].[Id]
 LEFT JOIN [SquadMissions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s1] ON [s].[Id] = [s1].[SquadId]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [SquadMissions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s0]
     INNER JOIN [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m] ON [s0].[MissionId] = [m].[Id]
-    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochMilliseconds_0 = DATEDIFF_BIG(millisecond, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline])))
+    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochMilliseconds_0 = DATEDIFF_BIG(millisecond, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
 ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
 """);
     }
@@ -9983,11 +9983,11 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [g]
 INNER JOIN [Squads] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s] ON [g].[SquadId] = [s].[Id]
 LEFT JOIN [SquadMissions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s1] ON [s].[Id] = [s1].[SquadId]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [SquadMissions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [s0]
     INNER JOIN [Missions] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [m] ON [s0].[MissionId] = [m].[Id]
-    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochSeconds_0 = DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline])))
+    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochSeconds_0 = DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
 ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
 """);
     }

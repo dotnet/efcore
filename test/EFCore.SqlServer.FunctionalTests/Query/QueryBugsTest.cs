@@ -8894,10 +8894,10 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
 
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM OPENJSON(@__ef_filter___ids_0) AS [e0]
-    WHERE CAST([e0].[value] AS int) = [e].[Id]))
+    WHERE CAST([e0].[value] AS int) = [e].[Id])
 """);
         }
     }

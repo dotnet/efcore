@@ -1459,13 +1459,13 @@ CROSS APPLY (
         AssertSql(
 """
 SELECT CASE
-    WHEN NOT (EXISTS (
+    WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID])) OR NOT (EXISTS (
+        WHERE [c].[CustomerID] = [o].[CustomerID]) OR NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID])) THEN CAST(1 AS bit)
+        WHERE [c].[CustomerID] = [o0].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Customers] AS [c]

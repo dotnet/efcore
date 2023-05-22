@@ -210,44 +210,38 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                     result);
         }
 
+        // Normalize x.Any(i => i == foo) to x.Contains(foo)
+        // And x.All(i => i != foo) to !x.Contains(foo)
         if (methodCallExpression.Method.IsGenericMethod
             && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo methodInfo
-            && (methodInfo.Equals(EnumerableMethods.AnyWithPredicate) || methodInfo.Equals(EnumerableMethods.All))
-            && methodCallExpression.Arguments[0].NodeType is ExpressionType nodeType
-            && (nodeType == ExpressionType.Parameter || nodeType == ExpressionType.Constant)
-            && methodCallExpression.Arguments[1] is LambdaExpression lambda
-            && TryExtractEqualityOperands(lambda.Body, out var left, out var right, out var negated)
-            && (left is ParameterExpression || right is ParameterExpression))
+            && (methodInfo == EnumerableMethods.AnyWithPredicate || methodInfo == EnumerableMethods.All || methodInfo == QueryableMethods.AnyWithPredicate || methodInfo == QueryableMethods.All)
+            && methodCallExpression.Arguments[1].UnwrapLambdaFromQuote() is var lambda
+            && TryExtractEqualityOperands(lambda.Body, out var left, out var right, out var negated))
         {
-            var nonParameterExpression = left is ParameterExpression ? right : left;
+            var itemExpression = left == lambda.Parameters[0]
+                ? right
+                : right == lambda.Parameters[0]
+                    ? left
+                    : null;
 
-            if (methodInfo.Equals(EnumerableMethods.AnyWithPredicate)
-                && !negated)
+            if (itemExpression is not null)
             {
-                var containsMethod = EnumerableMethods.Contains.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
-                return Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], nonParameterExpression);
+                var containsMethodDefinition = methodInfo.DeclaringType == typeof(Enumerable)
+                    ? EnumerableMethods.Contains
+                    : QueryableMethods.Contains;
+
+                if ((methodInfo == EnumerableMethods.AnyWithPredicate || methodInfo == QueryableMethods.AnyWithPredicate) && !negated)
+                {
+                    var containsMethod = containsMethodDefinition.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
+                    return Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression);
+                }
+
+                if ((methodInfo == EnumerableMethods.All || methodInfo == QueryableMethods.All) && negated)
+                {
+                    var containsMethod = containsMethodDefinition.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
+                    return Expression.Not(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], itemExpression));
+                }
             }
-
-            if (methodInfo.Equals(EnumerableMethods.All) && negated)
-            {
-                var containsMethod = EnumerableMethods.Contains.MakeGenericMethod(methodCallExpression.Method.GetGenericArguments()[0]);
-                return Expression.Not(Expression.Call(null, containsMethod, methodCallExpression.Arguments[0], nonParameterExpression));
-            }
-        }
-
-        if (methodCallExpression.Method.IsGenericMethod
-            && methodCallExpression.Method.GetGenericMethodDefinition() is MethodInfo containsMethodInfo
-            && containsMethodInfo.Equals(QueryableMethods.Contains))
-        {
-            var typeArgument = methodCallExpression.Method.GetGenericArguments()[0];
-            var anyMethod = QueryableMethods.AnyWithPredicate.MakeGenericMethod(typeArgument);
-
-            var anyLambdaParameter = Expression.Parameter(typeArgument, "p");
-            var anyLambda = Expression.Lambda(
-                ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, methodCallExpression.Arguments[1]),
-                anyLambdaParameter);
-
-            return Expression.Call(null, anyMethod, new[] { Visit(methodCallExpression.Arguments[0]), anyLambda });
         }
 
         var @object = default(Expression);
@@ -409,8 +403,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 (left, right) = (binaryExpression.Left, binaryExpression.Right);
                 return true;
 
-            case MethodCallExpression methodCallExpression
-                when methodCallExpression.Method.Name == nameof(object.Equals):
+            case MethodCallExpression { Method.Name: nameof(object.Equals) } methodCallExpression:
             {
                 negated = false;
                 if (methodCallExpression.Arguments.Count == 1
