@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.SqlServer.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
@@ -213,11 +215,11 @@ WHERE [p].[Id] NOT IN (2, 999)
     }
 
     public override Task Parameter_collection_Count(bool async)
-        => AssertTranslationFailed(() => base.Parameter_collection_Count(async));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Count(async));
 
     public override async Task Parameter_collection_of_ints_Contains(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
+        await base.Parameter_collection_of_ints_Contains(async);
 
         AssertSql(
 """
@@ -312,19 +314,19 @@ WHERE 0 = 1
     }
 
     public override Task Column_collection_of_ints_Contains(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_of_ints_Contains(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_ints_Contains(async));
 
     public override Task Column_collection_of_nullable_ints_Contains(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_of_nullable_ints_Contains(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains(async));
 
     public override Task Column_collection_of_nullable_ints_Contains_null(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_of_nullable_ints_Contains_null(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_nullable_ints_Contains_null(async));
 
     public override Task Column_collection_of_strings_contains_null(bool async)
         => AssertTranslationFailed(() => base.Column_collection_of_strings_contains_null(async));
 
     public override Task Column_collection_of_bools_Contains(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_of_bools_Contains(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_of_bools_Contains(async));
 
     [ConditionalFact]
     public virtual async Task Json_representation_of_bool_array()
@@ -337,22 +339,22 @@ WHERE 0 = 1
     }
 
     public override Task Column_collection_Count_method(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Count_method(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Count_method(async));
 
     public override Task Column_collection_Length(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Length(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Length(async));
 
     public override Task Column_collection_index_int(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_index_int(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_int(async));
 
     public override Task Column_collection_index_string(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_index_string(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_string(async));
 
     public override Task Column_collection_index_datetime(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_index_datetime(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_datetime(async));
 
     public override Task Column_collection_index_beyond_end(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_index_beyond_end(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_index_beyond_end(async));
 
     public override async Task Inline_collection_index_Column(bool async)
     {
@@ -371,28 +373,28 @@ WHERE (
     }
 
     public override Task Parameter_collection_index_Column_equal_Column(bool async)
-        => AssertTranslationFailed(() => base.Parameter_collection_index_Column_equal_Column(async));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_index_Column_equal_Column(async));
 
     public override Task Parameter_collection_index_Column_equal_constant(bool async)
-        => AssertTranslationFailed(() => base.Parameter_collection_index_Column_equal_constant(async));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_index_Column_equal_constant(async));
 
     public override Task Column_collection_ElementAt(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_ElementAt(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_ElementAt(async));
 
     public override Task Column_collection_Skip(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Skip(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip(async));
 
     public override Task Column_collection_Take(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Take(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Take(async));
 
     public override Task Column_collection_Skip_Take(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Skip_Take(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Skip_Take(async));
 
     public override Task Column_collection_OrderByDescending_ElementAt(bool async)
         => AssertTranslationFailed(() => base.Column_collection_OrderByDescending_ElementAt(async));
 
     public override Task Column_collection_Any(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Any(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any(async));
 
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
@@ -410,19 +412,19 @@ ORDER BY [p].[Id]
         => AssertTranslationFailed(() => base.Column_collection_Join_parameter_collection(async));
 
     public override Task Inline_collection_Join_ordered_column_collection(bool async)
-        => AssertTranslationFailed(() => base.Inline_collection_Join_ordered_column_collection(async));
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Join_ordered_column_collection(async));
 
     public override Task Parameter_collection_Concat_column_collection(bool async)
-        => AssertTranslationFailed(() => base.Parameter_collection_Concat_column_collection(async));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_Concat_column_collection(async));
 
     public override Task Column_collection_Union_parameter_collection(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Union_parameter_collection(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Union_parameter_collection(async));
 
     public override Task Column_collection_Intersect_inline_collection(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_Intersect_inline_collection(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_Intersect_inline_collection(async));
 
     public override Task Inline_collection_Except_column_collection(bool async)
-        => AssertTranslationFailed(() => base.Inline_collection_Except_column_collection(async));
+        => AssertCompatibilityLevelTooLow(() => base.Inline_collection_Except_column_collection(async));
 
     public override async Task Column_collection_equality_parameter_collection(bool async)
     {
@@ -465,7 +467,7 @@ WHERE [p].[Ints] = N'[1,10]'
     }
 
     public override Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)
-        => AssertTranslationFailed(() => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(async));
+        => AssertCompatibilityLevelTooLow(() => base.Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(async));
 
     public override void Parameter_collection_in_subquery_and_Convert_as_compiled_query()
     {
@@ -476,11 +478,14 @@ WHERE [p].[Ints] = N'[1,10]'
         => AssertTranslationFailed(() => base.Parameter_collection_in_subquery_Count_as_compiled_query(async));
 
     public override Task Column_collection_in_subquery_Union_parameter_collection(bool async)
-        => AssertTranslationFailed(() => base.Column_collection_in_subquery_Union_parameter_collection(async));
+        => AssertCompatibilityLevelTooLow(() => base.Column_collection_in_subquery_Union_parameter_collection(async));
 
     [ConditionalFact]
     public virtual void Check_all_tests_overridden()
         => TestHelpers.AssertAllMethodsOverridden(GetType());
+
+    private Task AssertCompatibilityLevelTooLow(Func<Task> query)
+        => AssertTranslationFailedWithDetails(query, SqlServerStrings.CompatibilityLevelTooLowForScalarCollections(120));
 
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);

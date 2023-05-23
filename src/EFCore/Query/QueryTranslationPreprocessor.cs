@@ -90,5 +90,5 @@ public class QueryTranslationPreprocessor
     /// <param name="expression">The query expression to process.</param>
     /// <returns>A query expression after query roots have been added.</returns>
     protected virtual Expression ProcessQueryRoots(Expression expression)
-        => expression;
+        => new QueryRootProcessor(Dependencies, QueryCompilationContext).Visit(expression);
 }

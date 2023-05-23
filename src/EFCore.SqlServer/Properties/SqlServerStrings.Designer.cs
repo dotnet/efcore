@@ -44,6 +44,14 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 operation);
 
         /// <summary>
+        ///     EF Core's SQL Server compatibility level is set to {compatibilityLevel}; compatibility level 130 (SQL Server 2016) is the minimum for most forms of querying of JSON arrays.
+        /// </summary>
+        public static string CompatibilityLevelTooLowForScalarCollections(object? compatibilityLevel)
+            => string.Format(
+                GetString("CompatibilityLevelTooLowForScalarCollections", nameof(compatibilityLevel)),
+                compatibilityLevel);
+
+        /// <summary>
         ///     '{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.
         /// </summary>
         public static string DuplicateColumnIdentityIncrementMismatch(object? entityType1, object? property1, object? entityType2, object? property2, object? columnName, object? table)

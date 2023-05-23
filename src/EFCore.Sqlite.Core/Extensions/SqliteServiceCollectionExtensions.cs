@@ -109,7 +109,6 @@ public static class SqliteServiceCollectionExtensions
             .TryAdd<IAggregateMethodCallTranslatorProvider, SqliteAggregateMethodCallTranslatorProvider>()
             .TryAdd<IMemberTranslatorProvider, SqliteMemberTranslatorProvider>()
             .TryAdd<IQuerySqlGeneratorFactory, SqliteQuerySqlGeneratorFactory>()
-            .TryAdd<IQueryTranslationPreprocessorFactory, SqliteQueryTranslationPreprocessorFactory>()
             .TryAdd<IQueryableMethodTranslatingExpressionVisitorFactory, SqliteQueryableMethodTranslatingExpressionVisitorFactory>()
             .TryAdd<IRelationalSqlTranslatingExpressionVisitorFactory, SqliteSqlTranslatingExpressionVisitorFactory>()
             .TryAdd<IQueryTranslationPostprocessorFactory, SqliteQueryTranslationPostprocessorFactory>()

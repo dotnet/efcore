@@ -126,6 +126,9 @@
   <data name="CannotProduceUnterminatedSQLWithComments" xml:space="preserve">
     <value>Can't produce unterminated SQL with comments when generating migrations SQL for {operation}.</value>
   </data>
+  <data name="CompatibilityLevelTooLowForScalarCollections" xml:space="preserve">
+    <value>EF Core's SQL Server compatibility level is set to {compatibilityLevel}; compatibility level 130 (SQL Server 2016) is the minimum for most forms of querying of JSON arrays.</value>
+  </data>
   <data name="DuplicateColumnIdentityIncrementMismatch" xml:space="preserve">
     <value>'{entityType1}.{property1}' and '{entityType2}.{property2}' are both mapped to column '{columnName}' in '{table}', but are configured with different identity increment values.</value>
   </data>

@@ -39,6 +39,9 @@ public class ContainsTranslator : IMethodCallTranslator
         IReadOnlyList<SqlExpression> arguments,
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
     {
+        // Note that almost all forms of Contains are queryable (e.g. over inline/parameter collections), and translated in
+        // RelationalQueryableMethodTranslatingExpressionVisitor.TranslateContains.
+        // This enumerable Contains translation is still needed for entity Contains (#30712)
         SqlExpression? itemExpression = null, valuesExpression = null;
 
         // Identify static Enumerable.Contains and instance List.Contains
