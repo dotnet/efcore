@@ -32,10 +32,13 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
 
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
 
-        // Since we own the analyzer we can guarantee, that this will never fail
-        var node = (SimpleNameSyntax)root!.FindNode(diagnostic.Location.SourceSpan);
+        if (root!.FindNode(diagnostic.Location.SourceSpan) is not SimpleNameSyntax simpleName)
+        {
+            Debug.Fail("Analyzer reported diagnostic not on a SimpleNameSyntax. This should never happen");
+            return;
+        }
 
-        var invocationSyntax = node.FirstAncestorOrSelf<InvocationExpressionSyntax>();
+        var invocationSyntax = simpleName.FirstAncestorOrSelf<InvocationExpressionSyntax>();
 
         if (invocationSyntax is null)
         {
@@ -66,7 +69,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         context.RegisterCodeFix(
             CodeAction.Create(
                 AnalyzerStrings.InterpolatedStringUsageInRawQueriesCodeActionTitle,
-                cancellationToken => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(node, GetReplacementName(node)))),
+                cancellationToken => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(simpleName, GetReplacementName(simpleName)))),
                 nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider)),
             diagnostic);
     }
