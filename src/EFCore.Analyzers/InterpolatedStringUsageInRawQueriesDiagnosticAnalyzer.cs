@@ -100,21 +100,14 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         Debug.Assert(targetMethod.Name == "FromSqlRaw");
 
         var compilation = invocation.SemanticModel!.Compilation;
-        var correctFromSqlRaw = compilation.FromSqlRawMethod();
+        var correctFromSqlRaw = FromSqlRawMethod(compilation);
 
-        if (correctFromSqlRaw is null)
-        {
-            Debug.Fail("Unable to find original `FromSqlRaw` method");
-            return false;
-        }
+        Debug.Assert(correctFromSqlRaw is not null, "Unable to find original `FromSqlRaw` method");
 
-        if (!targetMethod.ConstructedFrom.Equals(correctFromSqlRaw, SymbolEqualityComparer.Default))
-        {
-            return false;
-        }
-
-        // The second argument, that corresponds to `string sql` parameter, must be an interpolated string
-        if (invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is an interpolated string
+        if (correctFromSqlRaw is null ||
+            !targetMethod.ConstructedFrom.Equals(correctFromSqlRaw, SymbolEqualityComparer.Default) ||
+            invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
         {
             return false;
         }
@@ -132,13 +125,9 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         if (targetMethod.Name == "ExecuteSqlRaw")
         {
-            var correctMethods = compilation.ExecuteSqlRawMethods();
+            var correctMethods = ExecuteSqlRawMethods(compilation);
 
-            if (!correctMethods.Any())
-            {
-                Debug.Fail("Unable to find any `ExecuteSqlRaw` methods");
-                return false;
-            }
+            Debug.Assert(correctMethods.Any(), "Unable to find any `ExecuteSqlRaw` methods");
 
             if (!correctMethods.Contains(targetMethod.ConstructedFrom, SymbolEqualityComparer.Default))
             {
@@ -147,13 +136,9 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         }
         else
         {
-            var correctMethods = compilation.ExecuteSqlRawAsyncMethods();
+            var correctMethods = ExecuteSqlRawAsyncMethods(compilation);
 
-            if (!correctMethods.Any())
-            {
-                Debug.Fail("Unable to find any `ExecuteSqlRawAsync` methods");
-                return false;
-            }
+            Debug.Assert(correctMethods.Any(), "Unable to find any `ExecuteSqlRawAsync` methods");
 
             if (!correctMethods.Contains(targetMethod.ConstructedFrom, SymbolEqualityComparer.Default))
             {
@@ -180,21 +165,14 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
 
         var compilation = invocation.SemanticModel!.Compilation;
 
-        var correctSqlQueryRaw = compilation.SqlQueryRawMethod();
+        var correctSqlQueryRaw = SqlQueryRawMethod(compilation);
 
-        if (correctSqlQueryRaw is null)
-        {
-            Debug.Fail("Unable to find original `SqlQueryRaw` method");
-            return false;
-        }
+        Debug.Assert(correctSqlQueryRaw is not null, "Unable to find original `SqlQueryRaw` method");
 
-        if (!targetMethod.ConstructedFrom.Equals(correctSqlQueryRaw, SymbolEqualityComparer.Default))
-        {
-            return false;
-        }
-
-        // The second argument, that corresponds to `string sql` parameter, must be an interpolated string
-        if (invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
+        // Verify that the method is the one we analyze and its second argument, which corresponds to `string sql`, is an interpolated string
+        if (correctSqlQueryRaw is null ||
+            !targetMethod.ConstructedFrom.Equals(correctSqlQueryRaw, SymbolEqualityComparer.Default) ||
+            invocation.Arguments[1].Value is not IInterpolatedStringOperation interpolatedString)
         {
             return false;
         }
@@ -225,5 +203,29 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         }
 
         return false;
+    }
+
+    private static IMethodSymbol? FromSqlRawMethod(Compilation compilation)
+    {
+        var type = compilation.RelationalQueryableExtensionsType();
+        return (IMethodSymbol?)type?.GetMembers("FromSqlRaw").FirstOrDefault(s => s is IMethodSymbol);
+    }
+
+    private static IEnumerable<IMethodSymbol> ExecuteSqlRawMethods(Compilation compilation)
+    {
+        var type = compilation.RelationalDatabaseFacadeExtensionsType();
+        return type?.GetMembers("ExecuteSqlRaw").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
+    }
+
+    private static IEnumerable<IMethodSymbol> ExecuteSqlRawAsyncMethods(Compilation compilation)
+    {
+        var type = compilation.RelationalDatabaseFacadeExtensionsType();
+        return type?.GetMembers("ExecuteSqlRawAsync").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
+    }
+
+    private static IMethodSymbol? SqlQueryRawMethod(Compilation compilation)
+    {
+        var type = compilation.RelationalDatabaseFacadeExtensionsType();
+        return (IMethodSymbol?)type?.GetMembers("SqlQueryRaw").FirstOrDefault(s => s is IMethodSymbol);
     }
 }

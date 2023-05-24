@@ -18,28 +18,4 @@ internal static class CompilationExtensions
 
     public static INamedTypeSymbol? RelationalDatabaseFacadeExtensionsType(this Compilation compilation)
         => compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions");
-
-    public static IMethodSymbol? FromSqlRawMethod(this Compilation compilation)
-    {
-        var type = compilation.RelationalQueryableExtensionsType();
-        return (IMethodSymbol?)type?.GetMembers("FromSqlRaw").FirstOrDefault(s => s is IMethodSymbol);
-    }
-
-    public static IEnumerable<IMethodSymbol> ExecuteSqlRawMethods(this Compilation compilation)
-    {
-        var type = compilation.RelationalDatabaseFacadeExtensionsType();
-        return type?.GetMembers("ExecuteSqlRaw").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
-    }
-
-    public static IEnumerable<IMethodSymbol> ExecuteSqlRawAsyncMethods(this Compilation compilation)
-    {
-        var type = compilation.RelationalDatabaseFacadeExtensionsType();
-        return type?.GetMembers("ExecuteSqlRawAsync").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
-    }
-
-    public static IMethodSymbol? SqlQueryRawMethod(this Compilation compilation)
-    {
-        var type = compilation.RelationalDatabaseFacadeExtensionsType();
-        return (IMethodSymbol?)type?.GetMembers("SqlQueryRaw").FirstOrDefault(s => s is IMethodSymbol);
-    }
 }
