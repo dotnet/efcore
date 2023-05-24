@@ -53,7 +53,8 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
             context.ReportDiagnostic(Diagnostic.Create(
                 Descriptor,
                 GetTargetLocation(invocation.Syntax),
-                targetMethod.Name));
+                targetMethod.Name,
+                GetReplacementMethodName(targetMethod.Name)));
         }
 
         static Location GetTargetLocation(SyntaxNode syntax)
@@ -83,6 +84,15 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
             return targetNode.GetLocation();
         }
     }
+
+    internal static string GetReplacementMethodName(string oldName) => oldName switch
+    {
+        "FromSqlRaw" => "FromSql",
+        "ExecuteSqlRaw" => "ExecuteSql",
+        "ExecuteSqlRawAsync" => "ExecuteSqlAsync",
+        "SqlQueryRaw" => "SqlQuery",
+        _ => oldName
+    };
 
     private static bool AnalyzeFromSqlRawInvocation(IInvocationOperation invocation)
     {

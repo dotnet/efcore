@@ -79,15 +79,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         var oldNameToken = oldName.Identifier;
         var oldMethodName = oldNameToken.ValueText;
 
-        var replacementMethodName = oldMethodName switch
-        {
-            "FromSqlRaw" => "FromSql",
-            "ExecuteSqlRaw" => "ExecuteSql",
-            "ExecuteSqlRawAsync" => "ExecuteSqlAsync",
-            "SqlQueryRaw" => "SqlQuery",
-            _ => oldMethodName
-        };
-
+        var replacementMethodName = InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer.GetReplacementMethodName(oldMethodName);
         Debug.Assert(replacementMethodName != oldMethodName, "At this point we must find correct replacement name");
 
         var replacementToken = SyntaxFactory.Identifier(replacementMethodName).WithTriviaFrom(oldNameToken);

@@ -97,7 +97,7 @@ namespace Microsoft.EntityFrameworkCore {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Method &apos;{0}&apos; provides access to raw sql queries and must be correctly parameterized in order to be used securely. Usage of interpolated strings leads to direct string concatenation, making this call vulnerable to sql injection attacks..
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using &apos;{1}&apos; instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning..
         /// </summary>
         public static string InterpolatedStringUsageInRawQueriesMessageFormat {
             get {

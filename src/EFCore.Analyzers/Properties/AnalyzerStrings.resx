@@ -34,6 +34,6 @@
     <value>Use safe for interpolations method</value>
   </data>
   <data name="InterpolatedStringUsageInRawQueriesMessageFormat" xml:space="preserve">
-    <value>Method '{0}' provides access to raw sql queries and must be correctly parameterized in order to be used securely. Usage of interpolated strings leads to direct string concatenation, making this call vulnerable to sql injection attacks.</value>
+    <value>Method '{0}' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using '{1}' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning.</value>
   </data>
 </root>
