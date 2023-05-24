@@ -7,7 +7,8 @@ using VerifyCS = CSharpCodeFixVerifier<InterpolatedStringUsageInRawQueriesDiagno
 
 public class InterpolatedStringUsageInRawQueriesTests
 {
-    private const string MyDbContext = """
+    private const string MyDbContext =
+"""
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
@@ -28,7 +29,8 @@ class MyDbContext : DbContext
 
     [Fact]
     public Task FromSqlRaw_constant_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -40,7 +42,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_constant_string_with_parameters_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -52,7 +55,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -60,7 +64,8 @@ class C
         db.Users.[|FromSqlRaw|]($"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -73,7 +78,8 @@ class C
     [Fact]
     public async Task FromSqlRaw_interpolated_string_with_other_parameters_report()
     {
-        var source = MyDbContext + """
+        var source = MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -88,7 +94,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -101,7 +108,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -113,7 +121,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -121,7 +130,8 @@ class C
         RelationalQueryableExtensions.[|FromSqlRaw|](db.Users, $"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -133,7 +143,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_direct_extension_class_usage_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -146,7 +157,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -158,7 +170,8 @@ class C
 
     [Fact]
     public Task FromSqlRaw_FixAll()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -167,7 +180,8 @@ class C
         db.Users.[|FromSqlRaw|]($"SELECT * FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -184,7 +198,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_constant_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -196,7 +211,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_constant_string_with_parameters_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -208,7 +224,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -216,7 +233,8 @@ class C
         db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -229,7 +247,8 @@ class C
     [Fact]
     public async Task ExecuteSqlRaw_interpolated_string_with_other_parameters_report()
     {
-        var source = MyDbContext + """
+        var source = MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -245,7 +264,8 @@ class C
     [Fact]
     public async Task ExecuteSqlRaw_interpolated_string_with_other_parameters_IEnumerable_report()
     {
-        var source = MyDbContext + """
+        var source = MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -260,7 +280,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -273,7 +294,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -285,7 +307,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -293,7 +316,8 @@ class C
         RelationalDatabaseFacadeExtensions.[|ExecuteSqlRaw|](db.Database, $"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -305,7 +329,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_direct_extension_class_usage_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -318,7 +343,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -330,7 +356,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRaw_FixAll()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -339,7 +366,8 @@ class C
         db.Database.[|ExecuteSqlRaw|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -356,7 +384,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_constant_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -368,7 +397,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_constant_string_with_parameters_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -380,7 +410,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -388,7 +419,8 @@ class C
         db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -401,7 +433,8 @@ class C
     [Fact]
     public async Task ExecuteSqlRawAsync_interpolated_string_with_other_parameters_report()
     {
-        var source = MyDbContext + """
+        var source = MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -417,7 +450,8 @@ class C
     [Fact]
     public async Task ExecuteSqlRawAsync_interpolated_string_with_other_parameters_IEnumerable_report()
     {
-        var source = MyDbContext + """
+        var source = MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -432,7 +466,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -445,7 +480,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -458,7 +494,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -478,7 +515,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_direct_extension_class_usage_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -491,7 +529,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -503,7 +542,8 @@ class C
 
     [Fact]
     public Task ExecuteSqlRawAsync_FixAll()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -512,7 +552,8 @@ class C
         db.Database.[|ExecuteSqlRawAsync|]($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -529,7 +570,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_constant_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -541,7 +583,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_constant_string_with_parameters_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -553,7 +596,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -561,7 +605,8 @@ class C
         db.Database.[|SqlQueryRaw|]<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -574,7 +619,8 @@ class C
     [Fact]
     public async Task SqlQueryRaw_interpolated_string_with_other_parameters_report()
     {
-        var source = MyDbContext + """
+        var source = MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -589,7 +635,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -602,7 +649,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -614,7 +662,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_direct_extension_class_usage_interpolated_string_report()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -622,7 +671,8 @@ class C
         RelationalDatabaseFacadeExtensions.[|SqlQueryRaw|]<int>(db.Database, $"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -634,7 +684,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_direct_extension_class_usage_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -647,7 +698,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_direct_extension_class_usage_pseudo_constant_interpolated_string_do_not_report()
-        => VerifyCS.VerifyAnalyzerAsync(MyDbContext + """
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db)
@@ -659,7 +711,8 @@ class C
 
     [Fact]
     public Task SqlQueryRaw_FixAll()
-        => VerifyCS.VerifyCodeFixAsync(MyDbContext + """
+        => VerifyCS.VerifyCodeFixAsync(MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
@@ -668,7 +721,8 @@ class C
         db.Database.[|SqlQueryRaw|]<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
     }
 }
-""", MyDbContext + """
+""", MyDbContext +
+"""
 class C
 {
     void M(MyDbContext db, int id)
