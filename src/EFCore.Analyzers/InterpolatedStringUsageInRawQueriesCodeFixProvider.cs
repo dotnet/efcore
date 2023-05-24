@@ -18,7 +18,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
     public override ImmutableArray<string> FixableDiagnosticIds
         => ImmutableArray.Create(InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer.Id);
 
-    public override FixAllProvider? GetFixAllProvider()
+    public override FixAllProvider GetFixAllProvider()
         => WellKnownFixAllProviders.BatchFixer;
 
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
