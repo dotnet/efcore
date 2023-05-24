@@ -88,7 +88,7 @@ namespace Microsoft.EntityFrameworkCore {
         }
 
         /// <summary>
-        ///   Looks up a localized string similar to Use safe for interpolations method..
+        ///   Looks up a localized string similar to Use method which protects against SQL injection..
         /// </summary>
         public static string InterpolatedStringUsageInRawQueriesCodeActionTitle {
             get {
