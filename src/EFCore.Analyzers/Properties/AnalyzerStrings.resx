@@ -28,7 +28,7 @@
     <value>Internal EF Core API usage.</value>
   </data>
   <data name="InterpolatedStringUsageInRawQueriesAnalyzerTitle" xml:space="preserve">
-    <value>Do not use interpolated strings in methods that provide access to raw queries.</value>
+    <value>Risk of vulnerability to SQL injection.</value>
   </data>
   <data name="InterpolatedStringUsageInRawQueriesCodeActionTitle" xml:space="preserve">
     <value>Use safe for interpolations method</value>
