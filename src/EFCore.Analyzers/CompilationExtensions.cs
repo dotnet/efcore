@@ -13,15 +13,33 @@ internal static class CompilationExtensions
     public static INamedTypeSymbol? DbContextType(this Compilation compilation)
         => compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.DbContext");
 
-    public static INamedTypeSymbol? DatabaseFacadeType(this Compilation compilation)
-        => compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade");
+    public static INamedTypeSymbol? RelationalQueryableExtensionsType(this Compilation compilation)
+        => compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.RelationalQueryableExtensions");
 
-    public static INamedTypeSymbol? IEnumerableOfTType(this Compilation compilation)
-        => compilation.GetTypeByMetadataName(typeof(IEnumerable<>).FullName);
+    public static INamedTypeSymbol? RelationalDatabaseFacadeExtensionsType(this Compilation compilation)
+        => compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions");
 
-    public static INamedTypeSymbol? IQueryableOfTType(this Compilation compilation)
-        => compilation.GetTypeByMetadataName(typeof(IQueryable<>).FullName);
+    public static IMethodSymbol? FromSqlRawMethod(this Compilation compilation)
+    {
+        var type = compilation.RelationalQueryableExtensionsType();
+        return (IMethodSymbol?)type?.GetMembers("FromSqlRaw").FirstOrDefault(s => s is IMethodSymbol);
+    }
 
-    public static INamedTypeSymbol? TaskOfTType(this Compilation compilation)
-        => compilation.GetTypeByMetadataName(typeof(Task<>).FullName);
+    public static IEnumerable<IMethodSymbol> ExecuteSqlRawMethods(this Compilation compilation)
+    {
+        var type = compilation.RelationalDatabaseFacadeExtensionsType();
+        return type?.GetMembers("ExecuteSqlRaw").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
+    }
+
+    public static IEnumerable<IMethodSymbol> ExecuteSqlRawAsyncMethods(this Compilation compilation)
+    {
+        var type = compilation.RelationalDatabaseFacadeExtensionsType();
+        return type?.GetMembers("ExecuteSqlRawAsync").Where(s => s is IMethodSymbol).Cast<IMethodSymbol>() ?? Array.Empty<IMethodSymbol>();
+    }
+
+    public static IMethodSymbol? SqlQueryRawMethod(this Compilation compilation)
+    {
+        var type = compilation.RelationalDatabaseFacadeExtensionsType();
+        return (IMethodSymbol?)type?.GetMembers("SqlQueryRaw").FirstOrDefault(s => s is IMethodSymbol);
+    }
 }

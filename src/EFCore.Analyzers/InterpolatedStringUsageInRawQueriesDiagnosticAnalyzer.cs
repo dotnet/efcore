@@ -89,46 +89,16 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         var targetMethod = invocation.TargetMethod;
         Debug.Assert(targetMethod.Name == "FromSqlRaw");
 
-        // Correct `FromSqlRaw` is an extension method, therefore it must be static
-        if (!targetMethod.IsStatic)
-        {
-            return false;
-        }
-
         var compilation = invocation.SemanticModel!.Compilation;
+        var correctFromSqlRaw = compilation.FromSqlRawMethod();
 
-        // Correct `FromSqlRaw` method must return IQueryable<T> type
-        if (!targetMethod.ReturnType.OriginalDefinition.Equals(compilation.IQueryableOfTType(), SymbolEqualityComparer.Default))
+        if (correctFromSqlRaw is null)
         {
+            Debug.Fail("Unable to find original `FromSqlRaw` method");
             return false;
         }
 
-        var parameters = targetMethod.Parameters;
-
-        // Correct `FromSqlRaw` method must have 3 parameters
-        if (parameters.Length != 3)
-        {
-            return false;
-        }
-
-        var firstParameter = parameters[0];
-        var secondParameter = parameters[1];
-        var thirdParameter = parameters[2];
-
-        // Correct first parameter is a DbSet<T> type
-        if (!firstParameter.Type.OriginalDefinition.Equals(compilation.DbSetType(), SymbolEqualityComparer.Default))
-        {
-            return false;
-        }
-
-        // Correct second parameter type is a string
-        if (secondParameter.Type.SpecialType != SpecialType.System_String)
-        {
-            return false;
-        }
-
-        // Correct third parameter is `params object[]`
-        if (!IsParamsObjectArray(thirdParameter))
+        if (!targetMethod.ConstructedFrom.Equals(correctFromSqlRaw, SymbolEqualityComparer.Default))
         {
             return false;
         }
@@ -148,59 +118,37 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         var targetMethod = invocation.TargetMethod;
         Debug.Assert(targetMethod.Name is "ExecuteSqlRaw" or "ExecuteSqlRawAsync");
 
-        // Both methods is an extension ones, therefore target method must be static
-        if (!targetMethod.IsStatic)
-        {
-            return false;
-        }
-
         var compilation = invocation.SemanticModel!.Compilation;
 
-        // Both `ExecuteSqlRaw` and `ExecuteSqlRawAsync` must return named types
-        if (targetMethod.ReturnType is not INamedTypeSymbol returnType)
+        if (targetMethod.Name == "ExecuteSqlRaw")
         {
-            return false;
-        }
+            var correctMethods = compilation.ExecuteSqlRawMethods();
 
-        if (targetMethod.Name == "ExecuteSqlRawAsync")
-        {
-            // Correct `ExecuteSqlRawAsync` must return Task<int> type. We check for Task and unwrap it to check for int later
-            if (!returnType.OriginalDefinition.Equals(compilation.TaskOfTType(), SymbolEqualityComparer.Default) ||
-                returnType.TypeArguments[0] is not INamedTypeSymbol unWrappedType)
+            if (!correctMethods.Any())
             {
+                Debug.Fail("Unable to find any `ExecuteSqlRaw` methods");
                 return false;
             }
 
-            returnType = unWrappedType;
+            if (!correctMethods.Contains(targetMethod.ConstructedFrom, SymbolEqualityComparer.Default))
+            {
+                return false;
+            }
         }
-
-        // Now check for `int`. For `ExecuteSqlRaw` this is the actual check and for `ExecuteSqlRawAsync` this is a check of unwrapped type
-        if (returnType.SpecialType != SpecialType.System_Int32)
+        else
         {
-            return false;
-        }
+            var correctMethods = compilation.ExecuteSqlRawAsyncMethods();
 
-        var parameters = targetMethod.Parameters;
+            if (!correctMethods.Any())
+            {
+                Debug.Fail("Unable to find any `ExecuteSqlRawAsync` methods");
+                return false;
+            }
 
-        // Both methods must have 3 or more parameters
-        if (parameters.Length < 3)
-        {
-            return false;
-        }
-
-        var firstParameter = parameters[0];
-        var secondParameter = parameters[1];
-
-        // Correct first parameter is a DatabaseFacade type
-        if (!firstParameter.Type.OriginalDefinition.Equals(compilation.DatabaseFacadeType(), SymbolEqualityComparer.Default))
-        {
-            return false;
-        }
-
-        // Correct second parameter type is a string
-        if (secondParameter.Type.SpecialType != SpecialType.System_String)
-        {
-            return false;
+            if (!correctMethods.Contains(targetMethod.ConstructedFrom, SymbolEqualityComparer.Default))
+            {
+                return false;
+            }
         }
 
         // At this point assume that the method is correct since both `ExecuteSqlRaw` and `ExecuteSqlRawAsync` have multiple overloads.
@@ -220,46 +168,17 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         var targetMethod = invocation.TargetMethod;
         Debug.Assert(targetMethod.Name == "SqlQueryRaw");
 
-        // Correct `SqlQueryRaw` is an extension method, therefore it must be static
-        if (!targetMethod.IsStatic)
-        {
-            return false;
-        }
-
         var compilation = invocation.SemanticModel!.Compilation;
 
-        // Correct `SqlQueryRaw` method must return IQueryable<T> type
-        if (!targetMethod.ReturnType.OriginalDefinition.Equals(compilation.IQueryableOfTType(), SymbolEqualityComparer.Default))
+        var correctSqlQueryRaw = compilation.SqlQueryRawMethod();
+
+        if (correctSqlQueryRaw is null)
         {
+            Debug.Fail("Unable to find original `SqlQueryRaw` method");
             return false;
         }
 
-        var parameters = targetMethod.Parameters;
-
-        // Correct `SqlQueryRaw` method must have 3 parameters
-        if (parameters.Length != 3)
-        {
-            return false;
-        }
-
-        var firstParameter = parameters[0];
-        var secondParameter = parameters[1];
-        var thirdParameter = parameters[2];
-
-        // Correct first parameter is a DatabaseFacade type
-        if (!firstParameter.Type.OriginalDefinition.Equals(compilation.DatabaseFacadeType(), SymbolEqualityComparer.Default))
-        {
-            return false;
-        }
-
-        // Correct second parameter type is a string
-        if (secondParameter.Type.SpecialType != SpecialType.System_String)
-        {
-            return false;
-        }
-
-        // Correct third parameter is `params object[]`
-        if (!IsParamsObjectArray(thirdParameter))
+        if (!targetMethod.ConstructedFrom.Equals(correctSqlQueryRaw, SymbolEqualityComparer.Default))
         {
             return false;
         }
@@ -273,9 +192,6 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
         // Report warning if interpolated string is not a constant and all its interpolations are not constants
         return AnalyzeInterpolatedString(interpolatedString);
     }
-
-    private static bool IsParamsObjectArray(IParameterSymbol parameter)
-        => parameter.IsParams && parameter.Type is IArrayTypeSymbol { ElementType.SpecialType: SpecialType.System_Object, Rank: 1 };
 
     private static bool AnalyzeInterpolatedString(IInterpolatedStringOperation interpolatedString)
     {
