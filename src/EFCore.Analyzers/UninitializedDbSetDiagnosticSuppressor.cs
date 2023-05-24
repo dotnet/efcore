@@ -57,8 +57,8 @@ public sealed class UninitializedDbSetDiagnosticSuppressor : DiagnosticSuppresso
 
             if (dbSetTypeSymbol is null || dbContextTypeSymbol is null)
             {
-                dbSetTypeSymbol = context.Compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.DbSet`1");
-                dbContextTypeSymbol = context.Compilation.GetTypeByMetadataName("Microsoft.EntityFrameworkCore.DbContext");
+                dbSetTypeSymbol = context.Compilation.DbSetType();
+                dbContextTypeSymbol = context.Compilation.DbContextType();
 
                 if (dbSetTypeSymbol is null || dbContextTypeSymbol is null)
                 {

@@ -10,8 +10,8 @@
 
 namespace Microsoft.EntityFrameworkCore {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace Microsoft.EntityFrameworkCore {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class AnalyzerStrings {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal AnalyzerStrings() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace Microsoft.EntityFrameworkCore {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace Microsoft.EntityFrameworkCore {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to {0} is an internal API that supports the Entity Framework Core infrastructure and not subject to the same compatibility standards as public APIs. It may be changed or removed without notice in any release..
         /// </summary>
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore {
                 return ResourceManager.GetString("InternalUsageMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Internal EF Core API usage..
         /// </summary>
@@ -77,7 +77,34 @@ namespace Microsoft.EntityFrameworkCore {
                 return ResourceManager.GetString("InternalUsageTitle", resourceCulture);
             }
         }
-        
+
+        /// <summary>
+        ///   Looks up a localized string similar to Risk of vulnerability to SQL injection..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesAnalyzerTitle {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesAnalyzerTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Use method which protects against SQL injection..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesCodeActionTitle {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesCodeActionTitle", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to Method &apos;{0}&apos; inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using &apos;{1}&apos; instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning..
+        /// </summary>
+        public static string InterpolatedStringUsageInRawQueriesMessageFormat {
+            get {
+                return ResourceManager.GetString("InterpolatedStringUsageInRawQueriesMessageFormat", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to DbSet properties on DbContext subclasses are automatically populated by the DbContext constructor..
         /// </summary>

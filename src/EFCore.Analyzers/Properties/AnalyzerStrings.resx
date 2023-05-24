@@ -27,4 +27,13 @@
   <data name="InternalUsageTitle" xml:space="preserve">
     <value>Internal EF Core API usage.</value>
   </data>
+  <data name="InterpolatedStringUsageInRawQueriesAnalyzerTitle" xml:space="preserve">
+    <value>Risk of vulnerability to SQL injection.</value>
+  </data>
+  <data name="InterpolatedStringUsageInRawQueriesCodeActionTitle" xml:space="preserve">
+    <value>Use method which protects against SQL injection</value>
+  </data>
+  <data name="InterpolatedStringUsageInRawQueriesMessageFormat" xml:space="preserve">
+    <value>Method '{0}' inserts interpolated strings directly into the SQL, without any protection against SQL injection. Consider using '{1}' instead, which protects against SQL injection, or make sure that the value is sanitized and suppress the warning.</value>
+  </data>
 </root>
