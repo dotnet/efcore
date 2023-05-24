@@ -88,6 +88,8 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
             _ => oldMethodName
         };
 
+        Debug.Assert(replacementMethodName != oldMethodName, "At this point we must find correct replacement name");
+
         var replacementToken = SyntaxFactory.Identifier(replacementMethodName).WithTriviaFrom(oldNameToken);
         return oldName.WithIdentifier(replacementToken);
     }
