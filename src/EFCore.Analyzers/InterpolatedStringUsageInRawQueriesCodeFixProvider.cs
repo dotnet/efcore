@@ -69,7 +69,7 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
         context.RegisterCodeFix(
             CodeAction.Create(
                 AnalyzerStrings.InterpolatedStringUsageInRawQueriesCodeActionTitle,
-                cancellationToken => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(simpleName, GetReplacementName(simpleName)))),
+                _ => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(simpleName, GetReplacementName(simpleName)))),
                 nameof(InterpolatedStringUsageInRawQueriesCodeFixProvider)),
             diagnostic);
     }
