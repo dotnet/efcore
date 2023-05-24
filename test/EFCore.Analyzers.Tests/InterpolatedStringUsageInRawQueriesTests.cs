@@ -25,6 +25,97 @@ class MyDbContext : DbContext
 }
 """;
 
+    [Fact]
+    public Task FromSql_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Users.FromSql($"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task FromSqlInterpolated_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Users.FromSqlInterpolated($"SELECT * FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSql_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSql($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSqlInterpolated_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlInterpolated($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSqlAsync_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task ExecuteSqlInterpolatedAsync_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
+    [Fact]
+    public Task SqlQuery_do_not_report()
+        => VerifyCS.VerifyAnalyzerAsync(MyDbContext +
+"""
+class C
+{
+    void M(MyDbContext db, int id)
+    {
+        db.Database.SqlQuery<int>($"SELECT [Age] FROM [Users] WHERE [Id] = {id};");
+    }
+}
+""");
+
     #region FromSqlRaw
 
     [Fact]
