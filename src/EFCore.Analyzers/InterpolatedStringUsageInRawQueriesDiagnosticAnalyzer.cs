@@ -15,8 +15,7 @@ public sealed class InterpolatedStringUsageInRawQueriesDiagnosticAnalyzer : Diag
     public const string Id = "EF1002";
 
     private static readonly DiagnosticDescriptor Descriptor
-        // HACK: Work around dotnet/roslyn-analyzers#5890 by not using target-typed new
-        = new DiagnosticDescriptor(
+        = new(
             Id,
             title: AnalyzerStrings.InterpolatedStringUsageInRawQueriesAnalyzerTitle,
             messageFormat: AnalyzerStrings.InterpolatedStringUsageInRawQueriesMessageFormat,
