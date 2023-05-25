@@ -5,7 +5,7 @@ using System.IO;
 using System.Reflection;
 using Microsoft.DotNet.Cli.CommandLine;
 using Microsoft.EntityFrameworkCore.Tools.Properties;
-#if NET461
+#if NET462
 using System;
 using System.Configuration;
 #endif
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.Commands
         {
             try
             {
-#if NET461
+#if NET462
                 try
                 {
                     return new AppDomainOperationExecutor(

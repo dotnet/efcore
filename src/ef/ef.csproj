@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net462</TargetFrameworks>
     <Description>Entity Framework Core Command-line Tools</Description>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
@@ -22,7 +22,7 @@
     <Compile Include="..\EFCore.Relational\Internal\SemanticVersionComparer.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net461'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
   </ItemGroup>
@@ -64,7 +64,7 @@
     </Compile>
   </ItemGroup>
 
-  <Target Name="BuildOtherPlatforms" AfterTargets="Build" Condition=" '$(TargetFramework)' == 'net461' And '$(Platform)' == 'AnyCPU' ">
+  <Target Name="BuildOtherPlatforms" AfterTargets="Build" Condition=" '$(TargetFramework)' == 'net462' And '$(Platform)' == 'AnyCPU' ">
     <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=x86;Configuration=$(Configuration)" Targets="Build" />
     <MSBuild Projects="$(MSBuildProjectFullPath)" Properties="TargetFramework=$(TargetFramework);Platform=ARM64;Configuration=$(Configuration)" Targets="Build" />
   </Target>

@@ -106,7 +106,7 @@ internal class RootCommand : CommandBase
         {
             executable = Path.Combine(
                 toolsPath,
-                "net461",
+                "net462",
                 startupProject.PlatformTarget == "x86"
                     ? "win-x86"
                     : "any",
@@ -126,7 +126,7 @@ internal class RootCommand : CommandBase
             {
                 executable = Path.Combine(
                     toolsPath,
-                    "net461",
+                    "net462",
                     startupProject.PlatformTarget switch
                     {
                         "x86" => "win-x86",

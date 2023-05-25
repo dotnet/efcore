@@ -32,7 +32,7 @@ internal partial class MigrationsBundleCommand
         }
     }
 
-#if NET461
+#if NET462
     protected override int Execute(string[] args)
         => throw new CommandException(Resources.VersionRequired("6.0.0"));
 #else
