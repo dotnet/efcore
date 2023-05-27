@@ -116,6 +116,7 @@ public class ValuesExpression : TableExpressionBase, IClonableTableExpressionBas
     protected override TableExpressionBase CreateWithAnnotations(IEnumerable<IAnnotation> annotations)
         => new ValuesExpression(Alias, RowValues, ColumnNames, annotations);
 
+    // TODO: Deep clone, see #30982
     /// <inheritdoc />
     public virtual TableExpressionBase Clone()
         => CreateWithAnnotations(GetAnnotations());

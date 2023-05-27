@@ -785,8 +785,8 @@ LEFT JOIN (
         FROM [Orders] AS [o]
         LEFT JOIN [Customers] AS [c0] ON [o].[CustomerID] = [c0].[CustomerID]
         WHERE [o].[OrderID] IN (
-            SELECT CAST([o0].[value] AS int) AS [value]
-            FROM OPENJSON(@__orderIds_0) AS [o0]
+            SELECT [o0].[value]
+            FROM OPENJSON(@__orderIds_0) WITH ([value] int '$') AS [o0]
         )
     ) AS [t]
     WHERE [t].[row] <= 1

@@ -3084,7 +3084,7 @@ FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[Level1_Optional_Id]
 WHERE NOT EXISTS (
     SELECT 1
-    FROM OPENJSON(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) WITH ([value] nvarchar(max) '$') AS [n]
     WHERE [n].[value] = [l0].[Name] OR ([n].[value] IS NULL AND [l0].[Name] IS NULL))
 """);
     }

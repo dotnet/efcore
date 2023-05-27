@@ -907,7 +907,7 @@ INNER JOIN [Orders] AS [o] ON [c].[CustomerID] = [o].[CustomerID]
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@__p_0) AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN OPENJSON(@__p_0) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
 """,
             //
 """
@@ -915,7 +915,7 @@ INNER JOIN OPENJSON(@__p_0) AS [p] ON [e].[EmployeeID] = [p].[value]
 
 SELECT [e].[EmployeeID]
 FROM [Employees] AS [e]
-INNER JOIN OPENJSON(@__p_0) AS [p] ON [e].[EmployeeID] = [p].[value]
+INNER JOIN OPENJSON(@__p_0) WITH ([value] int '$') AS [p] ON [e].[EmployeeID] = [p].[value]
 """);
     }
 

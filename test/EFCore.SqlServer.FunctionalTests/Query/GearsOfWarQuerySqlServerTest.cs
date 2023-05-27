@@ -218,8 +218,8 @@ FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [t].[Id] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OPENJSON(@__tags_0) AS [t0]
-    WHERE CAST([t0].[value] AS uniqueidentifier) = [t].[Id] OR ([t0].[value] IS NULL AND [t].[Id] IS NULL))
+    FROM OPENJSON(@__tags_0) WITH ([value] uniqueidentifier '$') AS [t0]
+    WHERE [t0].[value] = [t].[Id] OR ([t0].[value] IS NULL AND [t].[Id] IS NULL))
 """);
     }
 
@@ -242,8 +242,8 @@ INNER JOIN [Cities] AS [c] ON [g].[CityOfBirthName] = [c].[Name]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [c].[Location] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OPENJSON(@__tags_0) AS [t0]
-    WHERE CAST([t0].[value] AS uniqueidentifier) = [t].[Id] OR ([t0].[value] IS NULL AND [t].[Id] IS NULL))
+    FROM OPENJSON(@__tags_0) WITH ([value] uniqueidentifier '$') AS [t0]
+    WHERE [t0].[value] = [t].[Id] OR ([t0].[value] IS NULL AND [t].[Id] IS NULL))
 """);
     }
 
@@ -265,8 +265,8 @@ FROM [Gears] AS [g]
 LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
 WHERE [t].[Id] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OPENJSON(@__tags_0) AS [t0]
-    WHERE CAST([t0].[value] AS uniqueidentifier) = [t].[Id] OR ([t0].[value] IS NULL AND [t].[Id] IS NULL))
+    FROM OPENJSON(@__tags_0) WITH ([value] uniqueidentifier '$') AS [t0]
+    WHERE [t0].[value] = [t].[Id] OR ([t0].[value] IS NULL AND [t].[Id] IS NULL))
 """);
     }
 
@@ -2106,8 +2106,8 @@ SELECT [c].[Name], [c].[Location], [c].[Nation]
 FROM [Cities] AS [c]
 WHERE EXISTS (
     SELECT 1
-    FROM OPENJSON(@__cities_0) AS [c0]
-    WHERE CAST([c0].[value] AS varchar(100)) = [c].[Location] OR ([c0].[value] IS NULL AND [c].[Location] IS NULL))
+    FROM OPENJSON(@__cities_0) WITH ([value] varchar(100) '$') AS [c0]
+    WHERE [c0].[value] = [c].[Location] OR ([c0].[value] IS NULL AND [c].[Location] IS NULL))
 """);
     }
 
@@ -3107,8 +3107,8 @@ END
 SELECT [t].[Id], [t].[GearNickName], [t].[GearSquadId], [t].[IssueDate], [t].[Note]
 FROM [Tags] AS [t]
 WHERE [t].[Id] IN (
-    SELECT CAST([i].[value] AS uniqueidentifier) AS [value]
-    FROM OPENJSON(@__ids_0) AS [i]
+    SELECT [i].[value]
+    FROM OPENJSON(@__ids_0) WITH ([value] uniqueidentifier '$') AS [i]
 )
 """);
     }
@@ -3632,8 +3632,8 @@ FROM [Gears] AS [g]
 LEFT JOIN [Cities] AS [c] ON [g].[AssignedCityName] = [c].[Name]
 WHERE [g].[SquadId] < 2 AND EXISTS (
     SELECT 1
-    FROM OPENJSON(@__cities_0) AS [c0]
-    WHERE CAST([c0].[value] AS nvarchar(450)) = [c].[Name] OR ([c0].[value] IS NULL AND [c].[Name] IS NULL))
+    FROM OPENJSON(@__cities_0) WITH ([value] nvarchar(450) '$') AS [c0]
+    WHERE [c0].[value] = [c].[Name] OR ([c0].[value] IS NULL AND [c].[Name] IS NULL))
 """);
     }
 
@@ -5924,8 +5924,8 @@ LEFT JOIN [Weapons] AS [w] ON [g].[FullName] = [w].[OwnerFullName]
 ORDER BY CASE
     WHEN EXISTS (
         SELECT 1
-        FROM OPENJSON(@__nicknames_0) AS [n]
-        WHERE CAST([n].[value] AS nvarchar(450)) = [g].[Nickname]) THEN CAST(1 AS bit)
+        FROM OPENJSON(@__nicknames_0) WITH ([value] nvarchar(450) '$') AS [n]
+        WHERE [n].[value] = [g].[Nickname]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END DESC, [g].[Nickname], [g].[SquadId]
 """);
@@ -6668,8 +6668,8 @@ WHERE (
 SELECT [m].[Id], [m].[BriefingDocument], [m].[BriefingDocumentFileExtension], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] IN (
-    SELECT CAST([d].[value] AS datetimeoffset) AS [value]
-    FROM OPENJSON(@__dates_2) AS [d]
+    SELECT [d].[value]
+    FROM OPENJSON(@__dates_2) WITH ([value] datetimeoffset '$') AS [d]
 )
 """);
     }
@@ -7383,8 +7383,8 @@ SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthNa
 FROM [Gears] AS [g]
 ORDER BY CASE
     WHEN [g].[SquadId] IN (
-        SELECT CAST([i].[value] AS int) AS [value]
-        FROM OPENJSON(@__ids_0) AS [i]
+        SELECT [i].[value]
+        FROM OPENJSON(@__ids_0) WITH ([value] int '$') AS [i]
     ) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
@@ -8145,8 +8145,8 @@ FROM [Weapons] AS [w]
 LEFT JOIN [Weapons] AS [w0] ON [w].[SynergyWithId] = [w0].[Id]
 WHERE [w0].[Id] IS NOT NULL AND EXISTS (
     SELECT 1
-    FROM OPENJSON(@__types_0) AS [t]
-    WHERE CAST([t].[value] AS int) = [w0].[AmmunitionType] OR ([t].[value] IS NULL AND [w0].[AmmunitionType] IS NULL))
+    FROM OPENJSON(@__types_0) WITH ([value] int '$') AS [t]
+    WHERE [t].[value] = [w0].[AmmunitionType] OR ([t].[value] IS NULL AND [w0].[AmmunitionType] IS NULL))
 """);
     }
 
@@ -9380,8 +9380,8 @@ ORDER BY [t0].[Nickname], [t0].[SquadId], [t0].[HasSoulPatch0]
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
-    SELECT CAST([v].[value] AS bit) AS [value]
-    FROM OPENJSON(@__values_0) AS [v]
+    SELECT [v].[value]
+    FROM OPENJSON(@__values_0) WITH ([value] bit '$') AS [v]
 )
 """);
     }
@@ -9397,8 +9397,8 @@ WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
 WHERE [g].[HasSoulPatch] = CAST(1 AS bit) AND [g].[HasSoulPatch] IN (
-    SELECT CAST([v].[value] AS bit) AS [value]
-    FROM OPENJSON(@__values_0) AS [v]
+    SELECT [v].[value]
+    FROM OPENJSON(@__values_0) WITH ([value] bit '$') AS [v]
 )
 """);
     }
