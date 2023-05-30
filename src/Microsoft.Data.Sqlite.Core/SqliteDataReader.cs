@@ -177,7 +177,7 @@ namespace Microsoft.Data.Sqlite
                     // It's a SELECT statement
                     if (sqlite3_column_count(stmt) != 0)
                     {
-                        _record = new SqliteDataRecord(stmt, rc != SQLITE_DONE, _command.Connection);
+                        _record = new SqliteDataRecord(stmt, rc != SQLITE_DONE, _command.Connection, AddChanges);
 
                         return true;
                     }
@@ -191,14 +191,7 @@ namespace Microsoft.Data.Sqlite
                     sqlite3_reset(stmt);
 
                     var changes = sqlite3_changes(_command.Connection.Handle);
-                    if (_recordsAffected == -1)
-                    {
-                        _recordsAffected = changes;
-                    }
-                    else
-                    {
-                        _recordsAffected += changes;
-                    }
+                    AddChanges(changes);
                 }
                 catch
                 {
@@ -218,6 +211,18 @@ namespace Microsoft.Data.Sqlite
             => rc == SQLITE_LOCKED
                 || rc == SQLITE_BUSY
                 || rc == SQLITE_LOCKED_SHAREDCACHE;
+
+        private void AddChanges(int changes)
+        {
+            if (_recordsAffected == -1)
+            {
+                _recordsAffected = changes;
+            }
+            else
+            {
+                _recordsAffected += changes;
+            }
+        }
 
         /// <summary>
         ///     Closes the data reader.
@@ -242,6 +247,7 @@ namespace Microsoft.Data.Sqlite
             _command.DataReader = null;
 
             _record?.Dispose();
+            _record = null;
 
             if (_stmtEnumerator != null)
             {
@@ -249,7 +255,6 @@ namespace Microsoft.Data.Sqlite
                 {
                     while (NextResult())
                     {
-                        _record!.Dispose();
                     }
                 }
                 catch
