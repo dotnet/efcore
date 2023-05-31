@@ -676,7 +676,11 @@ AND [v].[is_date_correlation_view] = 0
         }
 
         GetForeignKeys(connection, tables, tableFilterSql);
-        GetTriggers(connection, tables, tableFilterSql);
+
+        if (SupportsTriggers())
+        {
+            GetTriggers(connection, tables, tableFilterSql);
+        }
 
         foreach (var table in tables)
         {
@@ -1371,6 +1375,9 @@ ORDER BY [table_schema], [table_name], [tr].[name];
 
     private bool SupportsViews()
         => _engineEdition != 1000;
+
+    private bool SupportsTriggers()
+        => _engineEdition is not 6 and not 11 and not 1000;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
