@@ -3071,11 +3071,11 @@ WHERE [s].[Name] = N'Kilo'
 """
 SELECT [s].[Name]
 FROM [Squads] AS [s]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Gears] AS [g]
     LEFT JOIN [Tags] AS [t] ON [g].[Nickname] = [t].[GearNickName] AND [g].[SquadId] = [t].[GearSquadId]
-    WHERE [s].[Id] = [g].[SquadId] AND [t].[Note] = N'Dom''s Tag'))
+    WHERE [s].[Id] = [g].[SquadId] AND [t].[Note] = N'Dom''s Tag')
 """);
     }
 
@@ -8030,10 +8030,10 @@ FROM [LocustLeaders] AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE NOT (EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM [LocustLeaders] AS [l0]
-        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte]))
+        WHERE [l0].[ThreatLevelByte] = [l].[ThreatLevelByte])
 ) AS [t]
 """);
     }
@@ -8068,10 +8068,10 @@ FROM [LocustLeaders] AS [l]
 CROSS APPLY (
     SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
     FROM [Gears] AS [g]
-    WHERE NOT (EXISTS (
+    WHERE NOT EXISTS (
         SELECT 1
         FROM [LocustLeaders] AS [l0]
-        WHERE [l0].[ThreatLevelNullableByte] = [l].[ThreatLevelNullableByte] OR ([l0].[ThreatLevelNullableByte] IS NULL AND [l].[ThreatLevelNullableByte] IS NULL)))
+        WHERE [l0].[ThreatLevelNullableByte] = [l].[ThreatLevelNullableByte] OR ([l0].[ThreatLevelNullableByte] IS NULL AND [l].[ThreatLevelNullableByte] IS NULL))
 ) AS [t]
 """);
     }
@@ -9892,10 +9892,10 @@ CROSS JOIN (
 """
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Gears] AS [g]
-    WHERE [s].[Id] = [g].[SquadId]))
+    WHERE [s].[Id] = [g].[SquadId])
 """);
     }
 
@@ -9907,10 +9907,10 @@ WHERE NOT (EXISTS (
 """
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank]
 FROM [Gears] AS [g]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Weapons] AS [w]
-    WHERE [g].[FullName] = [w].[OwnerFullName]))
+    WHERE [g].[FullName] = [w].[OwnerFullName])
 """);
     }
 
@@ -10007,12 +10007,12 @@ OFFSET @__p_0 ROWS FETCH NEXT 1 ROWS ONLY
 """
 SELECT [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name]
 FROM [Squads] AS [s]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Gears] AS [g]
     WHERE [s].[Id] = [g].[SquadId]
     ORDER BY [g].[Nickname]
-    OFFSET 2 ROWS))
+    OFFSET 2 ROWS)
 """);
     }
 
@@ -10049,18 +10049,20 @@ FROM [Squads] AS [s]
         await base.DateTimeOffset_to_unix_time_milliseconds(async);
 
         AssertSql(
-            @"@__unixEpochMilliseconds_0='0'
+"""
+@__unixEpochMilliseconds_0='0'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s1].[SquadId], [s1].[MissionId]
 FROM [Gears] AS [g]
 INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
 LEFT JOIN [SquadMissions] AS [s1] ON [s].[Id] = [s1].[SquadId]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
-    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochMilliseconds_0 = DATEDIFF_BIG(millisecond, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline])))
-ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]");
+    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochMilliseconds_0 = DATEDIFF_BIG(millisecond, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
+ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
+""");
     }
 
     public override async Task DateTimeOffset_to_unix_time_seconds(bool async)
@@ -10068,18 +10070,20 @@ ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]");
         await base.DateTimeOffset_to_unix_time_seconds(async);
 
         AssertSql(
-            @"@__unixEpochSeconds_0='0'
+"""
+@__unixEpochSeconds_0='0'
 
 SELECT [g].[Nickname], [g].[SquadId], [g].[AssignedCityName], [g].[CityOfBirthName], [g].[Discriminator], [g].[FullName], [g].[HasSoulPatch], [g].[LeaderNickname], [g].[LeaderSquadId], [g].[Rank], [s].[Id], [s].[Banner], [s].[Banner5], [s].[InternalNumber], [s].[Name], [s1].[SquadId], [s1].[MissionId]
 FROM [Gears] AS [g]
 INNER JOIN [Squads] AS [s] ON [g].[SquadId] = [s].[Id]
 LEFT JOIN [SquadMissions] AS [s1] ON [s].[Id] = [s1].[SquadId]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [SquadMissions] AS [s0]
     INNER JOIN [Missions] AS [m] ON [s0].[MissionId] = [m].[Id]
-    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochSeconds_0 = DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline])))
-ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]");
+    WHERE [s].[Id] = [s0].[SquadId] AND @__unixEpochSeconds_0 = DATEDIFF_BIG(second, '1970-01-01T00:00:00.0000000+00:00', [m].[Timeline]))
+ORDER BY [g].[Nickname], [g].[SquadId], [s].[Id], [s1].[SquadId]
+""");
     }
 
     public override async Task Set_operator_with_navigation_in_projection_groupby_aggregate(bool async)

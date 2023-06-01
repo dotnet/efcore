@@ -51,6 +51,13 @@ public class ExistsExpression : SqlExpression
         => Update((SelectExpression)visitor.Visit(Subquery));
 
     /// <summary>
+    ///     Negates this expression by changing presence/absence state indicated by <see cref="IsNegated" />.
+    /// </summary>
+    /// <returns>An expression which is negated form of this expression.</returns>
+    public virtual ExistsExpression Negate()
+        => new(Subquery, !IsNegated, TypeMapping);
+
+    /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>

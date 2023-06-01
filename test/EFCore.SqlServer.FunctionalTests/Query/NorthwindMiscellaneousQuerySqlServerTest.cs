@@ -509,10 +509,10 @@ FROM (
     FROM [Employees] AS [e]
     ORDER BY [e].[EmployeeID]
 ) AS [t]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Employees] AS [e0]
-    WHERE [e0].[EmployeeID] = [t].[ReportsTo]))
+    WHERE [e0].[EmployeeID] = [t].[ReportsTo])
 ORDER BY [t].[EmployeeID]
 """);
     }
@@ -1502,10 +1502,10 @@ END
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'))
+    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')
 """);
     }
 
@@ -1517,10 +1517,10 @@ WHERE NOT (EXISTS (
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT (EXISTS (
+WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'))
+    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')
 """);
     }
 
@@ -1532,10 +1532,10 @@ WHERE ([c].[City] <> N'London' OR [c].[City] IS NULL) AND NOT (EXISTS (
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%')) AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
+    WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%') AND ([c].[City] <> N'London' OR [c].[City] IS NULL)
 """);
     }
 
@@ -5105,10 +5105,10 @@ END
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 ORDER BY CASE
-    WHEN NOT (EXISTS (
+    WHEN NOT EXISTS (
         SELECT 1
         FROM OPENJSON(@__list_0) AS [l]
-        WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID])) THEN CAST(1 AS bit)
+        WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -5196,10 +5196,10 @@ WHERE [c].[CustomerID] LIKE N'A%' AND ((
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))
+    WHERE [c].[CustomerID] = [o].[CustomerID])
 """);
     }
 
@@ -5861,13 +5861,13 @@ FROM [Customers] AS [c]
         AssertSql(
 """
 SELECT [c].[CustomerID], CASE
-    WHEN NOT (EXISTS (
+    WHEN NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o]
-        WHERE [c].[CustomerID] = [o].[CustomerID])) OR NOT (EXISTS (
+        WHERE [c].[CustomerID] = [o].[CustomerID]) OR NOT EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [c].[CustomerID] = [o0].[CustomerID])) THEN CAST(1 AS bit)
+        WHERE [c].[CustomerID] = [o0].[CustomerID]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END, (
     SELECT TOP(1) [o1].[OrderDate]
@@ -7215,10 +7215,10 @@ FROM [Orders] AS [o]
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
-    WHERE [c].[CustomerID] = [o].[CustomerID]))
+    WHERE [c].[CustomerID] = [o].[CustomerID])
 """);
     }
 
@@ -7230,12 +7230,12 @@ WHERE NOT (EXISTS (
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]
-    OFFSET 1 ROWS))
+    OFFSET 1 ROWS)
 """);
     }
 
@@ -7249,12 +7249,12 @@ WHERE NOT (EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE NOT (EXISTS (
+WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o]
     WHERE [c].[CustomerID] = [o].[CustomerID]
     ORDER BY [o].[OrderID]
-    OFFSET @__prm_0 ROWS))
+    OFFSET @__prm_0 ROWS)
 """);
     }
 

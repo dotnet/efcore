@@ -236,28 +236,12 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
     /// </summary>
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
-        var inMemoryQueryExpression = (InMemoryQueryExpression)source.QueryExpression;
-        var newItem = TranslateExpression(item, preserveType: true);
-        if (newItem == null)
-        {
-            return null;
-        }
+        var anyLambdaParameter = Expression.Parameter(item.Type, "p");
+        var anyLambda = Expression.Lambda(
+            ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
+            anyLambdaParameter);
 
-        item = newItem;
-
-        inMemoryQueryExpression.UpdateServerQueryExpression(
-            Expression.Call(
-                EnumerableMethods.Contains.MakeGenericMethod(item.Type),
-                Expression.Call(
-                    EnumerableMethods.Select.MakeGenericMethod(inMemoryQueryExpression.CurrentParameter.Type, item.Type),
-                    inMemoryQueryExpression.ServerQueryExpression,
-                    Expression.Lambda(
-                        inMemoryQueryExpression.GetProjection(
-                            new ProjectionBindingExpression(inMemoryQueryExpression, new ProjectionMember(), item.Type)),
-                        inMemoryQueryExpression.CurrentParameter)),
-                item));
-
-        return source.UpdateShaperExpression(Expression.Convert(inMemoryQueryExpression.GetSingleScalarProjection(), typeof(bool)));
+        return TranslateAny(source, anyLambda);
     }
 
     /// <summary>

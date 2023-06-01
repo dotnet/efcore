@@ -1133,9 +1133,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         var operand = Visit(unaryExpression.Operand);
 
         if (operand is EntityReferenceExpression entityReferenceExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked
-                || unaryExpression.NodeType == ExpressionType.TypeAs))
+            && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
             return entityReferenceExpression.Convert(unaryExpression.Type);
         }
@@ -1148,7 +1146,13 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         switch (unaryExpression.NodeType)
         {
             case ExpressionType.Not:
-                return _sqlExpressionFactory.Not(sqlOperand!);
+                return sqlOperand switch
+                {
+                    ExistsExpression e => e.Negate(),
+                    InExpression e => e.Negate(),
+
+                    _ => _sqlExpressionFactory.Not(sqlOperand!)
+                };
 
             case ExpressionType.Negate:
             case ExpressionType.NegateChecked:
