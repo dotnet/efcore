@@ -13,7 +13,7 @@ public class StoreValueGenerationSqliteTest : StoreValueGenerationTestBase<Store
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        // fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     // We don't currently batch in Sqlite (the perf impact is likely to be minimal, no networking)

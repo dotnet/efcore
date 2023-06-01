@@ -11,7 +11,7 @@ public class TPTInheritanceQuerySqlServerTest : TPTInheritanceQueryTestBase<TPTI
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

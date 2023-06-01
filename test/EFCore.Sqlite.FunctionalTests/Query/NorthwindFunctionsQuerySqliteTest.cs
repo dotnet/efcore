@@ -15,7 +15,7 @@ public class NorthwindFunctionsQuerySqliteTest : NorthwindFunctionsQueryRelation
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override Task Convert_ToBoolean(bool async)

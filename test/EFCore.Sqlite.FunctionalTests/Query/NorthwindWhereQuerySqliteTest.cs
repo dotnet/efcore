@@ -9,7 +9,7 @@ public class NorthwindWhereQuerySqliteTest : NorthwindWhereQueryRelationalTestBa
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override Task Where_datetimeoffset_now_component(bool async)

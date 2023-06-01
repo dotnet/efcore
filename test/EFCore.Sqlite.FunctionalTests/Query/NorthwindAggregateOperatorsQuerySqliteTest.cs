@@ -14,7 +14,7 @@ public class NorthwindAggregateOperatorsQuerySqliteTest : NorthwindAggregateOper
         : base(fixture)
     {
         ClearLog();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Sum_with_division_on_decimal(bool async)

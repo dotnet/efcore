@@ -13,7 +13,7 @@ public class NorthwindBulkUpdatesSqliteTest : NorthwindBulkUpdatesTestBase<North
         : base(fixture)
     {
         ClearLog();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

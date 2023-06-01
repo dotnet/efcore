@@ -11,7 +11,7 @@ public class UdfDbFunctionSqlServerTests : UdfDbFunctionTestBase<UdfDbFunctionSq
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     #region Scalar Tests

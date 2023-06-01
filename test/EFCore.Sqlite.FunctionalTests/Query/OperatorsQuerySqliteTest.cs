@@ -5,16 +5,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OperatorsQuerySqliteTest : OperatorsQueryTestBase
 {
-    public OperatorsQuerySqliteTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
-
-    protected TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);

@@ -7,11 +7,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class RawSqlServerTest : NonSharedModelTestBase
 {
-    public RawSqlServerTest(ITestOutputHelper testOutputHelper)
-    {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
     // Issue #13346, #24623
     [ConditionalFact]
     public virtual async Task ToQuery_can_use_FromSqlRaw()

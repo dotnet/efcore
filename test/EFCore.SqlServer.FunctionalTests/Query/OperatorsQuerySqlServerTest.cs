@@ -7,16 +7,8 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class OperatorsQuerySqlServerTest : OperatorsQueryTestBase
 {
-    public OperatorsQuerySqlServerTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqlServerTestStoreFactory.Instance;
-
-    protected TestSqlLoggerFactory TestSqlLoggerFactory
-        => (TestSqlLoggerFactory)ListLoggerFactory;
 
     protected void AssertSql(params string[] expected)
         => TestSqlLoggerFactory.AssertBaseline(expected);

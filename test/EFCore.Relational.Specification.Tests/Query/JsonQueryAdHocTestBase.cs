@@ -5,11 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
 {
-    protected JsonQueryAdHocTestBase(ITestOutputHelper testOutputHelper)
-    {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
-    }
-
     protected override string StoreName
         => "JsonQueryAdHocTest";
 
@@ -415,4 +410,7 @@ public abstract class JsonQueryAdHocTestBase : NonSharedModelTestBase
     }
 
     #endregion
+
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 }

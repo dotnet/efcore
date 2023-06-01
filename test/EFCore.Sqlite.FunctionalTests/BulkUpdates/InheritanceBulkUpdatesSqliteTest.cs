@@ -11,7 +11,7 @@ public class InheritanceBulkUpdatesSqliteTest : InheritanceBulkUpdatesTestBase<I
         : base(fixture)
     {
         ClearLog();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

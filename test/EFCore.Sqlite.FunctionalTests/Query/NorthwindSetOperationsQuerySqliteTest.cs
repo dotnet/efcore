@@ -12,7 +12,7 @@ public class NorthwindSetOperationsQuerySqliteTest : NorthwindSetOperationsQuery
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Client_eval_Union_FirstOrDefault(bool async)

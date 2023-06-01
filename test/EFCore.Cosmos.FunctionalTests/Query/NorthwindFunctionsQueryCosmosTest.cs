@@ -15,7 +15,7 @@ public class NorthwindFunctionsQueryCosmosTest : NorthwindFunctionsQueryTestBase
         : base(fixture)
     {
         ClearLog();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

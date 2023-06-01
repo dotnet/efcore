@@ -12,7 +12,7 @@ public class TPCGearsOfWarQuerySqliteTest : TPCGearsOfWarQueryRelationalTestBase
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override Task Where_datetimeoffset_date_component(bool async)

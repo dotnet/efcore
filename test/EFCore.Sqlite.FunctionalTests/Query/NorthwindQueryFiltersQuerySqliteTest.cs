@@ -12,7 +12,7 @@ public class NorthwindQueryFiltersQuerySqliteTest : NorthwindQueryFiltersQueryTe
         : base(fixture)
     {
         fixture.TestSqlLoggerFactory.Clear();
-        //fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Count_query(bool async)

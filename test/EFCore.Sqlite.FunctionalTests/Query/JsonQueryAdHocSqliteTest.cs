@@ -5,11 +5,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class JsonQueryAdHocSqliteTest : JsonQueryAdHocTestBase
 {
-    public JsonQueryAdHocSqliteTest(ITestOutputHelper testOutputHelper)
-        : base(testOutputHelper)
-    {
-    }
-
     protected override ITestStoreFactory TestStoreFactory
         => SqliteTestStoreFactory.Instance;
 

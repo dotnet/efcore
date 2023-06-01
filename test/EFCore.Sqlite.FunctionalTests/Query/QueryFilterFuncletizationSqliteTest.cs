@@ -12,7 +12,7 @@ public class QueryFilterFuncletizationSqliteTest : QueryFilterFuncletizationTest
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override void Using_multiple_entities_with_filters_reuses_parameters()

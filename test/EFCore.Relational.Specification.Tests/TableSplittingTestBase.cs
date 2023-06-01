@@ -11,7 +11,7 @@ public abstract class TableSplittingTestBase : NonSharedModelTestBase
 {
     protected TableSplittingTestBase(ITestOutputHelper testOutputHelper)
     {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

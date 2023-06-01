@@ -26,10 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 public class QueryBugsTest : NonSharedModelTestBase
 {
-    // ReSharper disable once UnusedParameter.Local
-#pragma warning disable IDE0060 // Remove unused parameter
     public QueryBugsTest(ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
     {
     }
 

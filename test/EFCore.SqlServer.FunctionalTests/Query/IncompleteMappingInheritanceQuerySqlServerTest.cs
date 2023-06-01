@@ -9,15 +9,13 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class IncompleteMappingInheritanceQuerySqlServerTest : InheritanceRelationalQueryTestBase<
     IncompleteMappingInheritanceQuerySqlServerFixture>
 {
-#pragma warning disable IDE0060 // Remove unused parameter
     public IncompleteMappingInheritanceQuerySqlServerTest(
         IncompleteMappingInheritanceQuerySqlServerFixture fixture,
         ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]
