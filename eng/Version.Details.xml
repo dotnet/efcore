@@ -21,10 +21,6 @@
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>7b2dc26555db2ef75c4ef822613a63b8c1d25e85</Sha>
     </Dependency>
-    <Dependency Name="Microsoft.Extensions.DependencyInjection" Version="8.0.0-preview.5.23276.2">
-      <Uri>https://github.com/dotnet/runtime</Uri>
-      <Sha>7b2dc26555db2ef75c4ef822613a63b8c1d25e85</Sha>
-    </Dependency>
     <Dependency Name="Microsoft.Extensions.DependencyModel" Version="8.0.0-preview.5.23276.2">
       <Uri>https://github.com/dotnet/runtime</Uri>
       <Sha>7b2dc26555db2ef75c4ef822613a63b8c1d25e85</Sha>
