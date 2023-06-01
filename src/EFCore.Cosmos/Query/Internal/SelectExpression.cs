@@ -331,7 +331,10 @@ public class SelectExpression : Expression
     {
         if (Limit != null)
         {
-            throw new InvalidOperationException("See issue#16156");
+            throw new InvalidOperationException(
+                CoreStrings.TranslationFailedWithDetails(
+                    sqlExpression.Print(),
+                    CosmosStrings.NoSubqueryPushdown));
         }
 
         Limit = sqlExpression;
@@ -348,7 +351,10 @@ public class SelectExpression : Expression
         if (Limit != null
             || Offset != null)
         {
-            throw new InvalidOperationException("See issue#16156");
+            throw new InvalidOperationException(
+                CoreStrings.TranslationFailedWithDetails(
+                    sqlExpression.Print(),
+                    CosmosStrings.NoSubqueryPushdown));
         }
 
         Offset = sqlExpression;
@@ -366,7 +372,10 @@ public class SelectExpression : Expression
             || Limit != null
             || Offset != null)
         {
-            throw new InvalidOperationException("See issue#16156");
+            throw new InvalidOperationException(
+                CoreStrings.TranslationFailedWithDetails(
+                    orderingExpression.Print(),
+                    CosmosStrings.NoSubqueryPushdown));
         }
 
         _orderings.Clear();

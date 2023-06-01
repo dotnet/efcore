@@ -588,9 +588,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task Take_Skip(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Take_Skip(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Take_Skip(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -598,9 +598,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task Take_Skip_Distinct(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Take_Skip_Distinct(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Take_Skip_Distinct(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -608,9 +608,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task Take_Skip_Distinct_Caching(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Take_Skip_Distinct_Caching(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Take_Skip_Distinct_Caching(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -772,9 +772,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Take_OrderBy_Count(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Take_OrderBy_Count(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Take_OrderBy_Count(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1168,9 +1168,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Take_with_single(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Take_with_single(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Take_with_single(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1186,9 +1186,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Distinct_Skip(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Distinct_Skip(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Distinct_Skip(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1196,9 +1196,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Distinct_Skip_Take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Distinct_Skip_Take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Distinct_Skip_Take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1389,9 +1389,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Distinct_Take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Distinct_Take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Distinct_Take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1723,9 +1723,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["CompanyName"] != null) ? c["C
     public override async Task Take_skip_null_coalesce_operator(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Take_skip_null_coalesce_operator(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Take_skip_null_coalesce_operator(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1751,9 +1751,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Select_take_skip_null_coalesce_operator(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_take_skip_null_coalesce_operator(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Select_take_skip_null_coalesce_operator(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1761,9 +1761,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Select_take_skip_null_coalesce_operator2(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_take_skip_null_coalesce_operator2(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Select_take_skip_null_coalesce_operator2(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -1771,9 +1771,9 @@ OFFSET 0 LIMIT @__p_0
     public override async Task Select_take_skip_null_coalesce_operator3(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Select_take_skip_null_coalesce_operator3(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Select_take_skip_null_coalesce_operator3(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2391,9 +2391,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task OrderBy_skip_skip_take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.OrderBy_skip_skip_take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.OrderBy_skip_skip_take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2401,9 +2401,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task OrderBy_skip_take_take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.OrderBy_skip_take_take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.OrderBy_skip_take_take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2411,9 +2411,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task OrderBy_skip_take_take_take_take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.OrderBy_skip_take_take_take_take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.OrderBy_skip_take_take_take_take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2421,9 +2421,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task OrderBy_skip_take_skip_take_skip(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.OrderBy_skip_take_skip_take_skip(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.OrderBy_skip_take_skip_take_skip(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2487,9 +2487,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task OrderBy_coalesce_skip_take_distinct_take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.OrderBy_coalesce_skip_take_distinct_take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.OrderBy_coalesce_skip_take_distinct_take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2497,9 +2497,9 @@ OFFSET @__p_0 LIMIT @__p_1
     public override async Task OrderBy_skip_take_distinct_orderby_take(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.OrderBy_skip_take_distinct_orderby_take(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.OrderBy_skip_take_distinct_orderby_take(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2589,9 +2589,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
     public override async Task Anonymous_member_distinct_orderby(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Anonymous_member_distinct_orderby(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Anonymous_member_distinct_orderby(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2619,9 +2619,9 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "
     public override async Task Anonymous_complex_distinct_orderby(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Anonymous_complex_distinct_orderby(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Anonymous_complex_distinct_orderby(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2671,9 +2671,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] = "ALFKI"))
     public override async Task DTO_member_distinct_orderby(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.DTO_member_distinct_orderby(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.DTO_member_distinct_orderby(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -2701,9 +2701,9 @@ WHERE ((c["Discriminator"] = "Customer") AND ((c["CustomerID"] || c["City"]) = "
     public override async Task DTO_complex_distinct_orderby(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.DTO_complex_distinct_orderby(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.DTO_complex_distinct_orderby(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
@@ -3803,9 +3803,9 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI") OR (c
     public override async Task Distinct_followed_by_ordering_on_condition(bool async)
     {
         // Subquery pushdown. Issue #16156.
-        Assert.Equal(
-            "See issue#16156",
-            (await Assert.ThrowsAsync<InvalidOperationException>(() => base.Distinct_followed_by_ordering_on_condition(async))).Message);
+        await AssertTranslationFailedWithDetails(
+            () => base.Distinct_followed_by_ordering_on_condition(async),
+            CosmosStrings.NoSubqueryPushdown);
 
         AssertSql();
     }
