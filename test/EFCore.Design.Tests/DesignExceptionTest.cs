@@ -25,31 +25,4 @@ public class DesignExceptionTest
         Assert.Equal("Foo", ex.Message);
         Assert.Same(inner, ex.InnerException);
     }
-
-    [ConditionalFact]
-    public void Deserialized_OperationException_can_be_serialized_and_deserialized_again()
-    {
-        var transportedException = SerializeAndDeserialize(
-            SerializeAndDeserialize(
-                new OperationException(
-                    "But somehow the vital connection is made",
-                    new Exception("Bang!"))));
-
-        Assert.Equal("But somehow the vital connection is made", transportedException.Message);
-        Assert.Equal("Bang!", transportedException.InnerException.Message);
-    }
-
-    private TException SerializeAndDeserialize<TException>(TException exception)
-        where TException : Exception
-    {
-        var stream = new MemoryStream();
-        var formatter = new BinaryFormatter();
-
-#pragma warning disable SYSLIB0011 // Issue https://github.com/dotnet/runtime/issues/39289 tracks finding an alternative to BinaryFormatter
-        formatter.Serialize(stream, exception);
-        stream.Seek(0, SeekOrigin.Begin);
-
-        return (TException)formatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011
-    }
 }
