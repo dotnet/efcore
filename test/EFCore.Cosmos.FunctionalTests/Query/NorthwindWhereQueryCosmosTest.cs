@@ -1667,7 +1667,7 @@ WHERE ((c["Discriminator"] = "Product") AND (c["UnitsInStock"] > 10))
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] != null) AND (("KI" != null) AND ENDSWITH(c["CustomerID"], "KI"))) = true))
+WHERE ((c["Discriminator"] = "Customer") AND (ENDSWITH(c["CustomerID"], "KI") = true))
 """);
     }
 

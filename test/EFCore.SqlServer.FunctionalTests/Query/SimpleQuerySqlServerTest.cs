@@ -497,7 +497,7 @@ ORDER BY [t].[ParcelNumber]
 """
 SELECT [a].[Id], [a].[Discriminator], [a].[Species], [a].[Name], [a].[EdcuationLevel], [a].[FavoriteToy]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND [a].[Species] IS NOT NULL AND [a].[Species] LIKE N'F%'
+WHERE [a].[Discriminator] IN (N'Cat', N'Dog') AND [a].[Species] LIKE N'F%'
 """);
     }
 
@@ -515,7 +515,7 @@ FROM [Animals] AS [a]
 LEFT JOIN [Pets] AS [p] ON [a].[Id] = [p].[Id]
 LEFT JOIN [Cats] AS [c] ON [a].[Id] = [c].[Id]
 LEFT JOIN [Dogs] AS [d] ON [a].[Id] = [d].[Id]
-WHERE ([d].[Id] IS NOT NULL OR [c].[Id] IS NOT NULL) AND [a].[Species] IS NOT NULL AND [a].[Species] LIKE N'F%'
+WHERE ([d].[Id] IS NOT NULL OR [c].[Id] IS NOT NULL) AND [a].[Species] LIKE N'F%'
 """);
     }
 
@@ -533,7 +533,7 @@ FROM (
     SELECT [d].[Id], [d].[Species], [d].[Name], NULL AS [EdcuationLevel], [d].[FavoriteToy], N'Dog' AS [Discriminator]
     FROM [Dogs] AS [d]
 ) AS [t]
-WHERE [t].[Species] IS NOT NULL AND [t].[Species] LIKE N'F%'
+WHERE [t].[Species] LIKE N'F%'
 """);
     }
 

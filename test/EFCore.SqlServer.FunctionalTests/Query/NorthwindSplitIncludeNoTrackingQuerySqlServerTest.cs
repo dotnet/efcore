@@ -473,7 +473,7 @@ WHERE [o].[OrderID] % 23 = 13
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID]
 """,
             //
@@ -482,7 +482,7 @@ SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID]
 """);
     }
@@ -1186,7 +1186,7 @@ ORDER BY [t].[CustomerID]
 """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID]
 """,
             //
@@ -1194,7 +1194,7 @@ ORDER BY [o].[OrderID]
 SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].[UnitPrice], [o].[OrderID]
 FROM [Orders] AS [o]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID]
 """);
     }
@@ -1923,7 +1923,7 @@ ORDER BY [t].[c], [t].[c0], [t].[OrderID], [t].[CustomerID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 """);
     }
 
@@ -2010,7 +2010,7 @@ WHERE [o].[CustomerID] = N'ALFKI'
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 """);
     }
 
@@ -2725,7 +2725,7 @@ ORDER BY [t].[OrderID], [t0].[OrderID], [t0].[OrderID0], [t0].[ProductID]
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate], [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID]
 """,
             //
@@ -2734,7 +2734,7 @@ SELECT [o0].[OrderID], [o0].[ProductID], [o0].[Discount], [o0].[Quantity], [o0].
 FROM [Orders] AS [o]
 LEFT JOIN [Customers] AS [c] ON [o].[CustomerID] = [c].[CustomerID]
 INNER JOIN [Order Details] AS [o0] ON [o].[OrderID] = [o0].[OrderID]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'F%'
+WHERE [o].[CustomerID] LIKE N'F%'
 ORDER BY [o].[OrderID], [c].[CustomerID]
 """);
     }

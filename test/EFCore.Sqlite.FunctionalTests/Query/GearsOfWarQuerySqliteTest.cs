@@ -1095,7 +1095,7 @@ SELECT COALESCE((
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Lancer' = '' OR instr("w"."Name", 'Lancer') > 0)
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
     ) AS "t"
     LIMIT 1), 0)
 FROM "Gears" AS "g"
@@ -2259,7 +2259,7 @@ FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch" AND COALESCE((
     SELECT DISTINCT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Lancer' = '' OR instr("w"."Name", 'Lancer') > 0)
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
 ORDER BY "g"."Nickname"
 """);
@@ -2527,7 +2527,7 @@ SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", 
 FROM "LocustLeaders" AS "l"
 LEFT JOIN "Gears" AS "g" ON "l"."DefeatedByNickname" = "g"."Nickname" AND "l"."DefeatedBySquadId" = "g"."SquadId"
 LEFT JOIN "Weapons" AS "w" ON "g"."FullName" = "w"."OwnerFullName"
-WHERE 'Queen' = '' OR instr("l"."Name", 'Queen') > 0
+WHERE instr("l"."Name", 'Queen') > 0
 ORDER BY "l"."Name", "g"."Nickname", "g"."SquadId"
 """);
     }
@@ -2966,7 +2966,7 @@ WHERE "g"."HasSoulPatch" AND (
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Lancer' = '' OR instr("w"."Name", 'Lancer') > 0)
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
     ) AS "t"
     LIMIT 1)
 ORDER BY "g"."Nickname"
@@ -3169,7 +3169,7 @@ WHERE "g"."HasSoulPatch" AND COALESCE((
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Lancer' = '' OR instr("w"."Name", 'Lancer') > 0)
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
     ) AS "t"
     LIMIT 1), 0)
 ORDER BY "g"."Nickname"
@@ -3283,7 +3283,7 @@ SELECT "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthNa
 FROM "Gears" AS "g"
 WHERE CASE
     WHEN "g"."LeaderNickname" IS NULL THEN NULL
-    ELSE "g"."LeaderNickname" IS NOT NULL AND "g"."LeaderNickname" LIKE '%us'
+    ELSE "g"."LeaderNickname" LIKE '%us' AND "g"."LeaderNickname" IS NOT NULL
 END = 1
 """);
     }
@@ -3697,7 +3697,7 @@ FROM "Weapons" AS "w"
 SELECT "w0"."Id", "w0"."AmmunitionType", "w0"."IsAutomatic", "w0"."Name", "w0"."OwnerFullName", "w0"."SynergyWithId"
 FROM "Weapons" AS "w"
 LEFT JOIN "Weapons" AS "w0" ON "w"."SynergyWithId" = "w0"."Id"
-ORDER BY "w0"."Name" LIKE '%Lancer'
+ORDER BY "w0"."Name" LIKE '%Lancer' AND "w0"."Name" IS NOT NULL
 """);
     }
 
@@ -3781,7 +3781,7 @@ LIMIT 1
 SELECT "l"."Name", "l"."Discriminator", "l"."LocustHordeId", "l"."ThreatLevel", "l"."ThreatLevelByte", "l"."ThreatLevelNullableByte", "l"."DefeatedByNickname", "l"."DefeatedBySquadId", "l"."HighCommandId", "g"."Nickname", "g"."SquadId", "g"."AssignedCityName", "g"."CityOfBirthName", "g"."Discriminator", "g"."FullName", "g"."HasSoulPatch", "g"."LeaderNickname", "g"."LeaderSquadId", "g"."Rank"
 FROM "LocustLeaders" AS "l"
 LEFT JOIN "Gears" AS "g" ON "l"."DefeatedByNickname" = "g"."Nickname" AND "l"."DefeatedBySquadId" = "g"."SquadId"
-WHERE 'Queen' = '' OR instr("l"."Name", 'Queen') > 0
+WHERE instr("l"."Name", 'Queen') > 0
 LIMIT 1
 """);
     }
@@ -3823,7 +3823,7 @@ INNER JOIN "Cities" AS "c" ON "t0"."CityOfBirthName" = "c"."Name"
 """
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
-WHERE 'Jacinto' = '' OR instr("c"."Location", 'Jacinto') > 0
+WHERE "c"."Location" IS NOT NULL AND instr("c"."Location", 'Jacinto') > 0
 """);
     }
 
@@ -4738,7 +4738,7 @@ END IS NOT NULL
 SELECT COALESCE((
     SELECT DISTINCT "w"."IsAutomatic"
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Lancer' = '' OR instr("w"."Name", 'Lancer') > 0)
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
     LIMIT 1), 0)
 FROM "Gears" AS "g"
 WHERE "g"."HasSoulPatch"
@@ -4964,7 +4964,7 @@ WHERE "g"."Rank" & @__parameter_0 = @__parameter_0
 
         AssertSql(
 """
-SELECT "g"."HasSoulPatch" AND ('Cole' = '' OR instr("t"."Note", 'Cole') > 0)
+SELECT "g"."HasSoulPatch" AND "t"."Note" IS NOT NULL AND instr("t"."Note", 'Cole') > 0
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
 """);
@@ -6389,7 +6389,7 @@ ORDER BY "g"."Nickname", "g"."SquadId"
 """
 SELECT "c"."Name", "c"."Location", "c"."Nation"
 FROM "Cities" AS "c"
-WHERE 'Add' = '' OR instr(COALESCE("c"."Location", '') || 'Added', 'Add') > 0
+WHERE instr(COALESCE("c"."Location", '') || 'Added', 'Add') > 0
 """);
     }
 
@@ -7152,7 +7152,7 @@ WHERE "g"."Discriminator" = 'Officer'
 SELECT "t"."Id", "t"."GearNickName", "t"."GearSquadId", "t"."IssueDate", "t"."Note"
 FROM "Tags" AS "t"
 LEFT JOIN "Gears" AS "g" ON "t"."GearNickName" = "g"."Nickname" AND "t"."GearSquadId" = "g"."SquadId"
-WHERE "g"."HasSoulPatch" OR 'Cole' = '' OR instr("t"."Note", 'Cole') > 0
+WHERE "g"."HasSoulPatch" OR ("t"."Note" IS NOT NULL AND instr("t"."Note", 'Cole') > 0)
 """);
     }
 
@@ -7248,7 +7248,7 @@ SELECT (
     FROM (
         SELECT DISTINCT "w"."Id", "w"."AmmunitionType", "w"."IsAutomatic", "w"."Name", "w"."OwnerFullName", "w"."SynergyWithId"
         FROM "Weapons" AS "w"
-        WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Lancer' = '' OR instr("w"."Name", 'Lancer') > 0)
+        WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Lancer') > 0
     ) AS "t"
     LIMIT 1)
 FROM "Gears" AS "g"
@@ -8617,7 +8617,7 @@ LEFT JOIN "Weapons" AS "w0" ON "g"."FullName" = "w0"."OwnerFullName"
 ORDER BY (
     SELECT "w"."Name"
     FROM "Weapons" AS "w"
-    WHERE "g"."FullName" = "w"."OwnerFullName" AND ('Gnasher' = '' OR instr("w"."Name", 'Gnasher') > 0)
+    WHERE "g"."FullName" = "w"."OwnerFullName" AND "w"."Name" IS NOT NULL AND instr("w"."Name", 'Gnasher') > 0
     LIMIT 1), "g"."Nickname", "g"."SquadId"
 """);
     }

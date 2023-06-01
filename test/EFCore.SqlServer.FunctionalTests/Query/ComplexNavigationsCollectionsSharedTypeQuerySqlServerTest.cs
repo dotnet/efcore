@@ -479,7 +479,7 @@ LEFT JOIN (
     WHERE [l0].[OneToOne_Required_PK_Date] IS NOT NULL AND [l0].[Level1_Required_Id] IS NOT NULL AND [l0].[OneToMany_Required_Inverse2Id] IS NOT NULL
 ) AS [t] ON [l].[Id] = [t].[OneToMany_Optional_Inverse2Id]
 ORDER BY CASE
-    WHEN [l].[Name] IS NOT NULL AND [l].[Name] LIKE N'%03' THEN 1
+    WHEN [l].[Name] LIKE N'%03' THEN 1
     ELSE 2
 END, [l].[Id]
 """);

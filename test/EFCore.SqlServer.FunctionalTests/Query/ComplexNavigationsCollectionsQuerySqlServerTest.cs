@@ -153,7 +153,7 @@ SELECT [l].[Id], [l].[Date], [l].[Name], [l].[OneToMany_Optional_Self_Inverse1Id
 FROM [LevelOne] AS [l]
 LEFT JOIN [LevelTwo] AS [l0] ON [l].[Id] = [l0].[OneToMany_Optional_Inverse2Id]
 ORDER BY CASE
-    WHEN [l].[Name] IS NOT NULL AND [l].[Name] LIKE N'%03' THEN 1
+    WHEN [l].[Name] LIKE N'%03' THEN 1
     ELSE 2
 END, [l].[Id]
 """);

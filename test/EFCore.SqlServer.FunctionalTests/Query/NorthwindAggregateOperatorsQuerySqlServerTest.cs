@@ -1973,7 +1973,7 @@ ORDER BY [o].[OrderID]
 """
 SELECT AVG(CAST(CAST([o].[OrderID] AS bigint) AS float))
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 """);
     }
 
@@ -1985,7 +1985,7 @@ WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 """
 SELECT MAX(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 """);
     }
 
@@ -1997,7 +1997,7 @@ WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
 """
 SELECT MIN(CAST([o].[OrderID] AS bigint))
 FROM [Orders] AS [o]
-WHERE [o].[CustomerID] IS NOT NULL AND [o].[CustomerID] LIKE N'A%'
+WHERE [o].[CustomerID] LIKE N'A%'
 """);
     }
 

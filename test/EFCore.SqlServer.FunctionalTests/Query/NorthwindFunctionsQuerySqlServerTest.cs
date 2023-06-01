@@ -86,7 +86,21 @@ WHERE [o].[OrderDate] <= @__myDatetime_0
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'M%'
+WHERE [c].[ContactName] LIKE N'M%'
+""");
+    }
+
+    public override async Task String_StartsWith_Parameter(bool async)
+    {
+        await base.String_StartsWith_Parameter(async);
+
+        AssertSql(
+"""
+@__pattern_0_rewritten='M%' (Size = 30)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
 """);
     }
 
@@ -98,7 +112,7 @@ WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'M%'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]
 """);
     }
 
@@ -110,7 +124,7 @@ WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[Co
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] IS NOT NULL AND LEFT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]
 """);
     }
 
@@ -122,7 +136,7 @@ WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND LEFT([c].[Co
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'M%'
+WHERE [c].[ContactName] LIKE N'M%'
 """);
     }
 
@@ -134,7 +148,21 @@ WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'M%'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'%b'
+WHERE [c].[ContactName] LIKE N'%b'
+""");
+    }
+
+    public override async Task String_EndsWith_Parameter(bool async)
+    {
+        await base.String_EndsWith_Parameter(async);
+
+        AssertSql(
+"""
+@__pattern_0_rewritten='%b' (Size = 30)
+
+SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
+FROM [Customers] AS [c]
+WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
 """);
     }
 
@@ -146,7 +174,7 @@ WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'%b'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]
 """);
     }
 
@@ -158,7 +186,7 @@ WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[C
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName])
+WHERE [c].[ContactName] IS NOT NULL AND RIGHT([c].[ContactName], LEN([c].[ContactName])) = [c].[ContactName]
 """);
     }
 
@@ -170,7 +198,7 @@ WHERE [c].[ContactName] = N'' OR ([c].[ContactName] IS NOT NULL AND RIGHT([c].[C
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] IS NOT NULL AND [c].[ContactName] LIKE N'%m'
+WHERE [c].[ContactName] LIKE N'%m'
 """);
     }
 
@@ -198,7 +226,7 @@ WHERE [c].[ContactName] LIKE N'%M%'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'' OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0
+WHERE [c].[ContactName] IS NOT NULL AND (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0 OR [c].[ContactName] LIKE N'')
 """);
     }
 
@@ -210,7 +238,7 @@ WHERE [c].[ContactName] LIKE N'' OR CHARINDEX([c].[ContactName], [c].[ContactNam
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[ContactName] LIKE N'' OR CHARINDEX([c].[ContactName], [c].[ContactName]) > 0
+WHERE [c].[ContactName] IS NOT NULL AND (CHARINDEX([c].[ContactName], [c].[ContactName]) > 0 OR [c].[ContactName] LIKE N'')
 """);
     }
 
@@ -232,11 +260,11 @@ WHERE [c].[ContactName] LIKE N'%     %'
 
         AssertSql(
 """
-@__pattern_0='     ' (Size = 30)
+@__pattern_0_rewritten='%     %' (Size = 30)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE @__pattern_0 LIKE N'' OR CHARINDEX(@__pattern_0, [c].[ContactName]) > 0
+WHERE [c].[ContactName] LIKE @__pattern_0_rewritten ESCAPE N'\'
 """);
     }
 
