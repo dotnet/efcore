@@ -346,6 +346,21 @@ SELECT [HoldingEnum] FROM [HolderClass]
 """);
     }
 
+    public override void Infer_type_mapping_from_in_subquery_to_item()
+    {
+        base.Infer_type_mapping_from_in_subquery_to_item();
+
+        AssertSql(
+"""
+SELECT [b].[Id], [b].[Enum16], [b].[Enum32], [b].[Enum64], [b].[Enum8], [b].[EnumS8], [b].[EnumU16], [b].[EnumU32], [b].[EnumU64], [b].[PartitionId], [b].[TestBoolean], [b].[TestByte], [b].[TestCharacter], [b].[TestDateOnly], [b].[TestDateTime], [b].[TestDateTimeOffset], [b].[TestDecimal], [b].[TestDouble], [b].[TestInt16], [b].[TestInt32], [b].[TestInt64], [b].[TestSignedByte], [b].[TestSingle], [b].[TestTimeOnly], [b].[TestTimeSpan], [b].[TestUnsignedInt16], [b].[TestUnsignedInt32], [b].[TestUnsignedInt64]
+FROM [BuiltInDataTypes] AS [b]
+WHERE N'Yeps' IN (
+    SELECT [b0].[TestBoolean]
+    FROM [BuiltInDataTypes] AS [b0]
+) AND [b].[Id] = 13
+""");
+    }
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
