@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -32,7 +33,7 @@ public class SqlServerTimeOnlyTypeMapping : TimeOnlyTypeMapping
     internal SqlServerTimeOnlyTypeMapping(string storeType, StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(TimeOnly)),
+                new CoreTypeMappingParameters(typeof(TimeOnly), jsonValueReaderWriter: JsonTimeOnlyReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 System.Data.DbType.Time))

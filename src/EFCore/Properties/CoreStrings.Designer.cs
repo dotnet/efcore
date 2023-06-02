@@ -179,6 +179,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 filter, entityType);
 
         /// <summary>
+        ///     The type '{givenType}' cannot be used as a 'JsonValueReaderWriter' because it does not inherit from the generic 'JsonValueReaderWriter&lt;TValue&gt;'. Make sure to inherit json reader/writers from 'JsonValueReaderWriter&lt;TValue&gt;'.
+        /// </summary>
+        public static string BadJsonValueReaderWriterType(object? givenType)
+            => string.Format(
+                GetString("BadJsonValueReaderWriterType", nameof(givenType)),
+                givenType);
+
+        /// <summary>
         ///     The type '{givenType}' cannot be used as a value comparer because it does not inherit from '{expectedType}'. Make sure to inherit value comparers from '{expectedType}'.
         /// </summary>
         public static string BadValueComparerType(object? givenType, object? expectedType)
@@ -231,6 +239,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string CannotConvertQueryableToEnumerableMethod
             => GetString("CannotConvertQueryableToEnumerableMethod");
+
+        /// <summary>
+        ///     Cannot create an instance of reade/writer type '{readerWriterType}'. Ensure that the type can be instantiated and has a public parameterless constructor, or has a public static 'Instance' field returning the singleton instance to use.
+        /// </summary>
+        public static string CannotCreateJsonValueReaderWriter(object? readerWriterType)
+            => string.Format(
+                GetString("CannotCreateJsonValueReaderWriter", nameof(readerWriterType)),
+                readerWriterType);
 
         /// <summary>
         ///     Cannot create an instance of value comparer type '{generatorType}'. Ensure that the type can be instantiated and has a parameterless constructor, or use the overload of '{method}' that accepts a delegate.

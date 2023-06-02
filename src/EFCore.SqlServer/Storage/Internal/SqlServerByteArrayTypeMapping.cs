@@ -5,6 +5,7 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -35,7 +36,7 @@ public class SqlServerByteArrayTypeMapping : ByteArrayTypeMapping
         StoreTypePostfix? storeTypePostfix = null)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(byte[]), null, comparer),
+                new CoreTypeMappingParameters(typeof(byte[]), null, comparer, jsonValueReaderWriter: JsonByteArrayReaderWriter.Instance),
                 storeType ?? (fixedLength ? "binary" : "varbinary"),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 System.Data.DbType.Binary,

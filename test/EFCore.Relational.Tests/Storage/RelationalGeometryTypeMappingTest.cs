@@ -20,7 +20,7 @@ public class RelationalGeometryTypeMappingTest
     private class FakeRelationalGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMapping<TGeometry, TGeometry>
     {
         public FakeRelationalGeometryTypeMapping()
-            : base(new NullValueConverter(), "geometry")
+            : base(new NullValueConverter(), null, "geometry")
         {
         }
 

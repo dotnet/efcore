@@ -3,6 +3,7 @@
 
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -31,7 +32,7 @@ public class SqlServerDecimalTypeMapping : DecimalTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.PrecisionAndScale)
         : this(
             new RelationalTypeMappingParameters(
-                    new CoreTypeMappingParameters(typeof(decimal)),
+                    new CoreTypeMappingParameters(typeof(decimal), jsonValueReaderWriter: JsonDecimalReaderWriter.Instance),
                     storeType,
                     storeTypePostfix,
                     dbType)

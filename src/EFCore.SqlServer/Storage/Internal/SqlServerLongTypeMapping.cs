@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -27,7 +28,8 @@ public class SqlServerLongTypeMapping : LongTypeMapping
         DbType? dbType = System.Data.DbType.Int64)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(long), converter, comparer, providerValueComparer),
+                new CoreTypeMappingParameters(
+                    typeof(long), converter, comparer, providerValueComparer, jsonValueReaderWriter: JsonInt64ReaderWriter.Instance),
                 storeType,
                 dbType: dbType))
     {

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,7 +29,7 @@ public class ShortTypeMapping : RelationalTypeMapping
     public ShortTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Int16)
-        : base(storeType, typeof(short), dbType)
+        : base(storeType, typeof(short), dbType, jsonValueReaderWriter: JsonInt16ReaderWriter.Instance)
     {
     }
 

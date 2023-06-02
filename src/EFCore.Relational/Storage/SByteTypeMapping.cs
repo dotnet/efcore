@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,7 +29,7 @@ public class SByteTypeMapping : RelationalTypeMapping
     public SByteTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.SByte)
-        : base(storeType, typeof(sbyte), dbType)
+        : base(storeType, typeof(sbyte), dbType, jsonValueReaderWriter: JsonSByteReaderWriter.Instance)
     {
     }
 

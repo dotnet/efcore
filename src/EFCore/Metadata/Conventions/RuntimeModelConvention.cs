@@ -356,6 +356,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
             property.GetValueComparer(),
             property.GetKeyValueComparer(),
             property.GetProviderValueComparer(),
+            property.GetJsonValueReaderWriter(),
             property.GetTypeMapping());
 
     /// <summary>

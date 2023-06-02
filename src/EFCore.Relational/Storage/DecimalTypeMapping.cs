@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -34,7 +35,8 @@ public class DecimalTypeMapping : RelationalTypeMapping
         DbType? dbType = System.Data.DbType.Decimal,
         int? precision = null,
         int? scale = null)
-        : base(storeType, typeof(decimal), dbType, precision: precision, scale: scale)
+        : base(
+            storeType, typeof(decimal), dbType, precision: precision, scale: scale, jsonValueReaderWriter: JsonDecimalReaderWriter.Instance)
     {
     }
 

@@ -1,10 +1,11 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -27,6 +28,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
     private ValueComparer? _valueComparer;
     private ValueComparer? _keyValueComparer;
     private readonly ValueComparer? _providerValueComparer;
+    private readonly JsonValueReaderWriter? _jsonValueReaderWriter;
     private CoreTypeMapping? _typeMapping;
 
     /// <summary>
@@ -59,6 +61,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         ValueComparer? valueComparer,
         ValueComparer? keyValueComparer,
         ValueComparer? providerValueComparer,
+        JsonValueReaderWriter? jsonValueReaderWriter,
         CoreTypeMapping? typeMapping)
         : base(name, propertyInfo, fieldInfo, propertyAccessMode)
     {
@@ -102,6 +105,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         _valueComparer = valueComparer;
         _keyValueComparer = keyValueComparer ?? valueComparer;
         _providerValueComparer = providerValueComparer;
+        _jsonValueReaderWriter = jsonValueReaderWriter;
     }
 
     /// <summary>
@@ -209,7 +213,7 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
 
     private ValueComparer? GetKeyValueComparer(HashSet<IReadOnlyProperty>? checkedProperties)
     {
-        if ( _keyValueComparer != null)
+        if (_keyValueComparer != null)
         {
             return _keyValueComparer;
         }
@@ -232,6 +236,13 @@ public class RuntimeProperty : RuntimePropertyBase, IProperty
         checkedProperties.Add(this);
         return principal.GetKeyValueComparer(checkedProperties);
     }
+
+    /// <summary>
+    ///     Gets the <see cref="JsonValueReaderWriter" /> for this property, or <see langword="null" /> if none is set.
+    /// </summary>
+    /// <returns>The reader/writer, or <see langword="null" /> if none has been set.</returns>
+    public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
+        => _jsonValueReaderWriter;
 
     /// <inheritdoc />
     public override object? Sentinel

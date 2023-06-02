@@ -3,6 +3,7 @@
 
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -47,7 +48,7 @@ public class SqlServerDateTimeTypeMapping : DateTimeTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(DateTime)),
+                new CoreTypeMappingParameters(typeof(DateTime), jsonValueReaderWriter: JsonDateTimeReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType),

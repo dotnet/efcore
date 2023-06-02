@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq.Expressions;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Json;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -20,10 +21,10 @@ public class SqlServerHierarchyIdTypeMapping : RelationalTypeMapping
 {
     private const string HierarchyIdFormatConst = "hierarchyid::Parse('{0}')";
 
-    private static readonly ConstructorInfo _hierarchyIdConstructor
+    private static readonly ConstructorInfo HierarchyIdConstructor
         = typeof(HierarchyId).GetConstructor(new[] { typeof(string) })!;
 
-    private static readonly SqlServerHierarchyIdValueConverter _valueConverter = new();
+    private static readonly SqlServerHierarchyIdValueConverter ValueConverter = new();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -33,11 +34,12 @@ public class SqlServerHierarchyIdTypeMapping : RelationalTypeMapping
     /// </summary>
     public SqlServerHierarchyIdTypeMapping(string storeType)
         : this(
-              new RelationalTypeMappingParameters(
-                  new CoreTypeMappingParameters(
-                      typeof(HierarchyId),
-                      _valueConverter),
-                  storeType))
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(
+                    typeof(HierarchyId),
+                    ValueConverter,
+                    jsonValueReaderWriter: SqlServerJsonHierarchyIdReaderWriter.Instance),
+                storeType))
     {
     }
 
@@ -83,7 +85,7 @@ public class SqlServerHierarchyIdTypeMapping : RelationalTypeMapping
     /// </summary>
     public override Expression GenerateCodeLiteral(object value)
         => Expression.New(
-            _hierarchyIdConstructor,
+            HierarchyIdConstructor,
             Expression.Constant(((HierarchyId)value).ToString()));
 
     /// <summary>

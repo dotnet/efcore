@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,7 +29,7 @@ public class ULongTypeMapping : RelationalTypeMapping
     public ULongTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.UInt64)
-        : base(storeType, typeof(ulong), dbType)
+        : base(storeType, typeof(ulong), dbType, jsonValueReaderWriter: JsonUInt64ReaderWriter.Instance)
     {
     }
 

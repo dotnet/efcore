@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 
 /// <summary>
@@ -20,13 +22,15 @@ public class CosmosTypeMapping : CoreTypeMapping
     public CosmosTypeMapping(
         Type clrType,
         ValueComparer? comparer = null,
-        ValueComparer? keyComparer = null)
+        ValueComparer? keyComparer = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null)
         : base(
             new CoreTypeMappingParameters(
                 clrType,
                 converter: null,
                 comparer,
-                keyComparer))
+                keyComparer,
+                jsonValueReaderWriter: jsonValueReaderWriter))
     {
     }
 

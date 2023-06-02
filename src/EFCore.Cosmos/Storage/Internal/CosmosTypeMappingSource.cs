@@ -26,7 +26,13 @@ public class CosmosTypeMappingSource : TypeMappingSource
         : base(dependencies)
     {
         _clrTypeMappings
-            = new Dictionary<Type, CosmosTypeMapping> { { typeof(JObject), new CosmosTypeMapping(typeof(JObject)) } };
+            = new Dictionary<Type, CosmosTypeMapping>
+            {
+                {
+                    typeof(JObject), new CosmosTypeMapping(
+                        typeof(JObject), jsonValueReaderWriter: dependencies.JsonValueReaderWriterSource.FindReaderWriter(typeof(JObject)))
+                }
+            };
     }
 
     /// <summary>
@@ -47,7 +53,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 ?? base.FindMapping(mappingInfo));
     }
 
-    private static CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
+    private CoreTypeMapping? FindPrimitiveMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
         if ((clrType.IsValueType
@@ -55,13 +61,14 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 && !clrType.IsEnum)
             || clrType == typeof(string))
         {
-            return new CosmosTypeMapping(clrType);
+            return new CosmosTypeMapping(
+                clrType, jsonValueReaderWriter: Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType));
         }
 
         return null;
     }
 
-    private static CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
+    private CoreTypeMapping? FindCollectionMapping(in TypeMappingInfo mappingInfo)
     {
         var clrType = mappingInfo.ClrType!;
         var elementType = clrType.TryGetSequenceType();
@@ -70,6 +77,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
             return null;
         }
 
+        var jsonValueReaderWriter = Dependencies.JsonValueReaderWriterSource.FindReaderWriter(clrType);
+
         if (clrType.IsArray)
         {
             var elementMappingInfo = new TypeMappingInfo(elementType);
@@ -77,7 +86,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
                 ?? FindCollectionMapping(elementMappingInfo);
             return elementMapping == null
                 ? null
-                : new CosmosTypeMapping(clrType, CreateArrayComparer(elementMapping, elementType));
+                : new CosmosTypeMapping(
+                    clrType, CreateArrayComparer(elementMapping, elementType), jsonValueReaderWriter: jsonValueReaderWriter);
         }
 
         if (clrType.IsGenericType
@@ -93,7 +103,8 @@ public class CosmosTypeMappingSource : TypeMappingSource
                     ?? FindCollectionMapping(elementMappingInfo);
                 return elementMapping == null
                     ? null
-                    : new CosmosTypeMapping(clrType, CreateListComparer(elementMapping, elementType, clrType));
+                    : new CosmosTypeMapping(
+                        clrType, CreateListComparer(elementMapping, elementType, clrType), jsonValueReaderWriter: jsonValueReaderWriter);
             }
 
             if (genericTypeDefinition == typeof(Dictionary<,>)
@@ -112,7 +123,9 @@ public class CosmosTypeMappingSource : TypeMappingSource
                     ?? FindCollectionMapping(elementMappingInfo);
                 return elementMapping == null
                     ? null
-                    : new CosmosTypeMapping(clrType, CreateStringDictionaryComparer(elementMapping, elementType, clrType));
+                    : new CosmosTypeMapping(
+                        clrType, CreateStringDictionaryComparer(elementMapping, elementType, clrType),
+                        jsonValueReaderWriter: jsonValueReaderWriter);
             }
         }
 

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -22,7 +23,11 @@ public class SqliteTimeOnlyTypeMapping : TimeOnlyTypeMapping
     public SqliteTimeOnlyTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Time)
-        : base(storeType, dbType)
+        : base(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(typeof(TimeOnly), jsonValueReaderWriter: JsonTimeOnlyReaderWriter.Instance),
+                storeType,
+                dbType: dbType))
     {
     }
 

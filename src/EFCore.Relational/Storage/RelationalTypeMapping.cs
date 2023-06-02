@@ -4,6 +4,7 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -270,7 +271,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     private sealed class NullTypeMapping : RelationalTypeMapping
     {
         public NullTypeMapping(string storeType)
-            : base(storeType, typeof(object))
+            : base(storeType, typeof(object), jsonValueReaderWriter: JsonNullReaderWriter.Instance)
         {
         }
 
@@ -316,6 +317,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
     /// <param name="fixedLength">A value indicating whether the type has fixed length data or not.</param>
     /// <param name="precision">The precision of data the property is configured to store, or null if no precision is configured.</param>
     /// <param name="scale">The scale of data the property is configured to store, or null if no scale is configured.</param>
+    /// <param name="jsonValueReaderWriter">Handles reading and writing JSON values for instances of the mapped type.</param>
     protected RelationalTypeMapping(
         string storeType,
         Type clrType,
@@ -324,10 +326,12 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         int? size = null,
         bool fixedLength = false,
         int? precision = null,
-        int? scale = null)
+        int? scale = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null)
         : this(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(clrType), storeType, StoreTypePostfix.None, dbType, unicode, size, fixedLength, precision,
+                new CoreTypeMappingParameters(clrType, jsonValueReaderWriter: jsonValueReaderWriter), storeType, StoreTypePostfix.None,
+                dbType, unicode, size, fixedLength, precision,
                 scale))
     {
     }

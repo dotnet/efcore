@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
@@ -26,7 +27,11 @@ public class SqliteStringTypeMapping : StringTypeMapping
         DbType? dbType = null,
         bool unicode = false,
         int? size = null)
-        : base(storeType, dbType, unicode, size)
+        : base(
+            new RelationalTypeMappingParameters(
+                new CoreTypeMappingParameters(
+                    typeof(string), jsonValueReaderWriter: JsonStringReaderWriter.Instance), storeType, StoreTypePostfix.None, dbType,
+                unicode, size))
     {
     }
 

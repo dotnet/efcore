@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,7 +29,7 @@ public class TimeSpanTypeMapping : RelationalTypeMapping
     public TimeSpanTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Time)
-        : base(storeType, typeof(TimeSpan), dbType)
+        : base(storeType, typeof(TimeSpan), dbType, jsonValueReaderWriter: JsonTimeSpanReaderWriter.Instance)
     {
     }
 

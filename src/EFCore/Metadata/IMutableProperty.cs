@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -202,7 +203,8 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     ///     clear any previously set factory.
     /// </param>
     void SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory);
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory);
 
     /// <summary>
     ///     Sets the custom <see cref="ValueConverter" /> for this property.
@@ -256,5 +258,15 @@ public interface IMutableProperty : IReadOnlyProperty, IMutablePropertyBase
     /// <param name="comparerType">
     ///     A type that derives from <see cref="ValueComparer" />, or <see langword="null" /> to remove any previously set comparer.
     /// </param>
-    void SetProviderValueComparer([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType);
+    void SetProviderValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType);
+
+    /// <summary>
+    ///     Sets the type of <see cref="JsonValueReaderWriter{TValue}" /> to use for this property for this property.
+    /// </summary>
+    /// <param name="readerWriterType">
+    ///     A type that derives from <see cref="JsonValueReaderWriter{TValue}" />, or <see langword="null" /> to use the reader/writer
+    ///     from the type mapping.
+    /// </param>
+    void SetJsonValueReaderWriterType(Type? readerWriterType);
 }

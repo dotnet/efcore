@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -333,7 +334,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     Type? SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -359,7 +361,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
     /// <returns>The configured value.</returns>
     Type? SetValueConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -400,7 +403,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <returns>The configured value.</returns>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? SetValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -427,7 +431,8 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// <returns>The configured value.</returns>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation = false);
 
     /// <summary>
@@ -435,4 +440,21 @@ public interface IConventionProperty : IReadOnlyProperty, IConventionPropertyBas
     /// </summary>
     /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetProviderValueComparer" />.</returns>
     ConfigurationSource? GetProviderValueComparerConfigurationSource();
+
+    /// <summary>
+    ///     Sets the type of <see cref="JsonValueReaderWriter{TValue}" /> to use for this property.
+    /// </summary>
+    /// <param name="readerWriterType">
+    ///     A type that inherits from <see cref="JsonValueReaderWriter{TValue}" />, or <see langword="null" /> to use the reader/writer
+    ///     from the type mapping.
+    /// </param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>The configured value.</returns>
+    Type? SetJsonValueReaderWriterType(Type? readerWriterType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns the configuration source for <see cref="IReadOnlyProperty.GetJsonValueReaderWriter" />.
+    /// </summary>
+    /// <returns>The configuration source for <see cref="IReadOnlyProperty.GetJsonValueReaderWriter" />.</returns>
+    ConfigurationSource? GetJsonValueReaderWriterTypeConfigurationSource();
 }

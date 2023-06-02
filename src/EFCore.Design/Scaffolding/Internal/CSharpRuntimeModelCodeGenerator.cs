@@ -834,6 +834,31 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
                 .Append("()");
         }
 
+        var jsonValueReaderWriterType = (Type?)property[CoreAnnotationNames.JsonValueReaderWriterType];
+        if (jsonValueReaderWriterType != null)
+        {
+            AddNamespace(jsonValueReaderWriterType, parameters.Namespaces);
+
+            var instanceProperty = jsonValueReaderWriterType.GetAnyProperty("Instance");
+            if (instanceProperty != null
+                && instanceProperty.IsStatic()
+                && instanceProperty.GetMethod?.IsPublic == true
+                && jsonValueReaderWriterType.IsAssignableFrom(instanceProperty.PropertyType))
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("jsonValueReaderWriter: ")
+                    .Append(_code.Reference(jsonValueReaderWriterType))
+                    .Append(".Instance");
+            }
+            else
+            {
+                mainBuilder.AppendLine(",")
+                    .Append("jsonValueReaderWriter: new ")
+                    .Append(_code.Reference(jsonValueReaderWriterType))
+                    .Append("()");
+            }
+        }
+
         var sentinel = property.Sentinel;
         if (sentinel != null)
         {
@@ -900,8 +925,9 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
-                property.DeclaringEntityType.DisplayName(), property.Name, "ValueConverterType"))
+            ? throw new InvalidOperationException(
+                CoreStrings.RelationshipCycle(
+                    property.DeclaringEntityType.DisplayName(), property.Name, "ValueConverterType"))
             : null;
     }
 
@@ -1474,18 +1500,13 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
     {
         process(
             annotatable,
-            parameters with
-            {
-                Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value),
-                IsRuntime = false
-            });
+            parameters with { Annotations = annotatable.GetAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = false });
 
         process(
             annotatable,
             parameters with
             {
-                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value),
-                IsRuntime = true
+                Annotations = annotatable.GetRuntimeAnnotations().ToDictionary(a => a.Name, a => a.Value), IsRuntime = true
             });
     }
 

@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -38,6 +39,7 @@ public abstract class CoreTypeMapping
         /// <param name="elementTypeMapping">
         ///     If this type mapping represents a primitive collection, this holds the element's type mapping.
         /// </param>
+        /// <param name="jsonValueReaderWriter">Handles reading and writing JSON values for instances of the mapped type.</param>
         public CoreTypeMappingParameters(
             [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type clrType,
             ValueConverter? converter = null,
@@ -45,7 +47,8 @@ public abstract class CoreTypeMapping
             ValueComparer? keyComparer = null,
             ValueComparer? providerValueComparer = null,
             Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
-            CoreTypeMapping? elementTypeMapping = null)
+            CoreTypeMapping? elementTypeMapping = null,
+            JsonValueReaderWriter? jsonValueReaderWriter = null)
         {
             ClrType = clrType;
             Converter = converter;
@@ -54,6 +57,7 @@ public abstract class CoreTypeMapping
             ProviderValueComparer = providerValueComparer;
             ValueGeneratorFactory = valueGeneratorFactory;
             ElementTypeMapping = elementTypeMapping;
+            JsonValueReaderWriter = jsonValueReaderWriter;
         }
 
         /// <summary>
@@ -91,7 +95,12 @@ public abstract class CoreTypeMapping
         /// <summary>
         ///     If this type mapping represents a primitive collection, this holds the element's type mapping.
         /// </summary>
-        public CoreTypeMapping? ElementTypeMapping { get; }
+        public CoreTypeMapping? ElementTypeMapping { get; init; }
+
+        /// <summary>
+        ///     Handles reading and writing JSON values for instances of the mapped type.
+        /// </summary>
+        public JsonValueReaderWriter? JsonValueReaderWriter { get; init; }
 
         /// <summary>
         ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
@@ -107,7 +116,8 @@ public abstract class CoreTypeMapping
                 KeyComparer,
                 ProviderValueComparer,
                 ValueGeneratorFactory,
-                ElementTypeMapping);
+                ElementTypeMapping,
+                JsonValueReaderWriter);
 
         /// <summary>
         ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given
@@ -123,7 +133,24 @@ public abstract class CoreTypeMapping
                 KeyComparer,
                 ProviderValueComparer,
                 ValueGeneratorFactory,
-                elementTypeMapping);
+                elementTypeMapping,
+                JsonValueReaderWriter);
+
+        /// <summary>
+        ///     Creates a new <see cref="CoreTypeMappingParameters" /> parameter object with the given JSON reader/writer.
+        /// </summary>
+        /// <param name="jsonValueReaderWriter">The element type mapping.</param>
+        /// <returns>The new parameter object.</returns>
+        public CoreTypeMappingParameters WithJsonValueReaderWriter(JsonValueReaderWriter jsonValueReaderWriter)
+            => new(
+                ClrType,
+                Converter,
+                Comparer,
+                KeyComparer,
+                ProviderValueComparer,
+                ValueGeneratorFactory,
+                ElementTypeMapping,
+                jsonValueReaderWriter);
     }
 
     private ValueComparer? _comparer;
@@ -184,7 +211,8 @@ public abstract class CoreTypeMapping
     /// <summary>
     ///     Gets the .NET type used in the EF model.
     /// </summary>
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods
+    [DynamicallyAccessedMembers(
+        DynamicallyAccessedMemberTypes.PublicMethods
         | DynamicallyAccessedMemberTypes.NonPublicMethods
         | DynamicallyAccessedMemberTypes.PublicProperties)]
     public virtual Type ClrType { get; }
@@ -257,4 +285,10 @@ public abstract class CoreTypeMapping
     /// </summary>
     public virtual CoreTypeMapping? ElementTypeMapping
         => Parameters.ElementTypeMapping;
+
+    /// <summary>
+    ///     Handles reading and writing JSON values for instances of the mapped type.
+    /// </summary>
+    public virtual JsonValueReaderWriter? JsonValueReaderWriter
+        => Parameters.JsonValueReaderWriter;
 }
