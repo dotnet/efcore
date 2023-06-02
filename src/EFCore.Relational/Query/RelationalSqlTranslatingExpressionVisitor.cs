@@ -119,7 +119,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     /// </summary>
     /// <param name="expression">An expression to translate.</param>
     /// <param name="applyDefaultTypeMapping">
-    ///     Whether to apply the default type mapping on the top-most element if it has none. Defaults to <see langword="false" />.
+    ///     Whether to apply the default type mapping on the top-most element if it has none. Defaults to <see langword="true" />.
     /// </param>
     /// <returns>A SQL translation of the given expression.</returns>
     public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)

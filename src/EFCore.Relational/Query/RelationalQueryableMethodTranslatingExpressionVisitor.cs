@@ -1793,7 +1793,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </summary>
     /// <param name="expression">An expression to translate.</param>
     /// <param name="applyDefaultTypeMapping">
-    ///     Whether to apply the default type mapping on the top-most element if it has none. Defaults to <see langword="false" />.
+    ///     Whether to apply the default type mapping on the top-most element if it has none. Defaults to <see langword="true" />.
     /// </param>
     /// <returns>A <see cref="SqlExpression" /> which is translation of given expression or <see langword="null" />.</returns>
     protected virtual SqlExpression? TranslateExpression(Expression expression, bool applyDefaultTypeMapping = true)
