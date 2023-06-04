@@ -328,13 +328,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 return null;
             }
 
-            // We currently support only constants and parameters in VALUES, see #30734
-            if (translatedValue is not SqlConstantExpression and not SqlParameterExpression)
-            {
-                AddTranslationErrorDetails(RelationalStrings.NonConstantOrParameterAsInExpressionValue(translatedValue.GetType().Name));
-                return null;
-            }
-
             // TODO: Poor man's null semantics - we currently only support constants and parameters in SqlNullabilityProcessor, where we
             // can see if there's actually a null value or not. When we allow arbitrary expressions (#30734), the ValuesExpression projects
             // out a non-nullable column if we see only non-null constants or nullable columns.

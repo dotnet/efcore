@@ -125,17 +125,16 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
             entryCount: 1);
     }
 
-    [ConditionalTheory] // #30734
+    [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Inline_collection_Contains_with_parameter_and_column_based_expression(bool async)
+    public virtual async Task Inline_collection_Contains_with_mixed_value_types(bool async)
     {
-        var i = 2;
+        var i = 11;
 
-        await AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i, c.Int }.Contains(c.Id)),
-                entryCount: 1));
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 999, i, c.Id, c.Id + c.Int }.Contains(c.Int)),
+            entryCount: 1);
     }
 
     [ConditionalTheory]

@@ -10,7 +10,7 @@ public class PrimitiveCollectionsQuerySqlServerTest : PrimitiveCollectionsQueryT
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Inline_collection_of_ints_Contains(bool async)
@@ -169,11 +169,18 @@ WHERE [p].[Id] IN (2, @__j_0)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_parameter_and_column_based_expression(bool async)
+    public override async Task Inline_collection_Contains_with_mixed_value_types(bool async)
     {
-        await base.Inline_collection_Contains_with_parameter_and_column_based_expression(async);
+        await base.Inline_collection_Contains_with_mixed_value_types(async);
 
-        AssertSql();
+        AssertSql(
+"""
+@__i_0='11'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (999, @__i_0, [p].[Id], [p].[Id] + [p].[Int])
+""");
     }
 
     public override async Task Inline_collection_Contains_as_Any_with_predicate(bool async)

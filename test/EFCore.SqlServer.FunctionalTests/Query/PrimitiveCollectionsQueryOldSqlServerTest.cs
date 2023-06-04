@@ -174,9 +174,9 @@ WHERE [p].[Id] IN (2, @__j_0)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_parameter_and_column_based_expression(bool async)
+    public override async Task Inline_collection_Contains_with_mixed_value_types(bool async)
     {
-        await base.Inline_collection_Contains_with_parameter_and_column_based_expression(async);
+        await base.Inline_collection_Contains_with_mixed_value_types(async);
 
         AssertSql();
     }
