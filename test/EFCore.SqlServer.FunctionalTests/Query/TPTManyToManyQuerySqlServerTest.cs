@@ -31,7 +31,7 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM [JoinOneToTwo] AS [j]
     INNER JOIN [EntityTwos] AS [e0] ON [j].[TwoId] = [e0].[Id]
-    WHERE [e].[Id] = [j].[OneId] AND NOT ([e0].[Name] LIKE N'%B%'))
+    WHERE [e].[Id] = [j].[OneId] AND [e0].[Name] NOT LIKE N'%B%')
 """);
     }
 
@@ -2087,7 +2087,7 @@ WHERE NOT EXISTS (
     SELECT 1
     FROM [UnidirectionalJoinOneToTwo] AS [u0]
     INNER JOIN [UnidirectionalEntityTwos] AS [u1] ON [u0].[TwoId] = [u1].[Id]
-    WHERE [u].[Id] = [u0].[OneId] AND NOT ([u1].[Name] LIKE N'%B%'))
+    WHERE [u].[Id] = [u0].[OneId] AND [u1].[Name] NOT LIKE N'%B%')
 """);
     }
 

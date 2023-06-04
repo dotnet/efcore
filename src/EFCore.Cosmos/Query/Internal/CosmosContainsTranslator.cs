@@ -40,7 +40,7 @@ public class CosmosContainsTranslator : IMethodCallTranslator
             && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
             && ValidateValues(arguments[0]))
         {
-            return _sqlExpressionFactory.In(arguments[1], arguments[0], false);
+            return _sqlExpressionFactory.In(arguments[1], arguments[0]);
         }
 
         if (arguments.Count == 1
@@ -48,7 +48,7 @@ public class CosmosContainsTranslator : IMethodCallTranslator
             && instance != null
             && ValidateValues(instance))
         {
-            return _sqlExpressionFactory.In(arguments[0], instance, false);
+            return _sqlExpressionFactory.In(arguments[0], instance);
         }
 
         return null;

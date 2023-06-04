@@ -387,6 +387,13 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         if (sqlUnaryExpression.OperatorType == ExpressionType.Not
             && sqlUnaryExpression.Operand.Type == typeof(bool))
         {
+            if (sqlUnaryExpression.Operand is InExpression inExpression)
+            {
+                GenerateIn(inExpression, negated: true);
+
+                return sqlUnaryExpression;
+            }
+
             op = "NOT";
         }
 
@@ -506,18 +513,29 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override Expression VisitIn(InExpression inExpression)
+    protected sealed override Expression VisitIn(InExpression inExpression)
+    {
+        GenerateIn(inExpression, negated: false);
+
+        return inExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected virtual void GenerateIn(InExpression inExpression, bool negated)
     {
         Visit(inExpression.Item);
-        _sqlBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
+        _sqlBuilder.Append(negated ? " NOT IN " : " IN ");
         _sqlBuilder.Append('(');
         var valuesConstant = (SqlConstantExpression)inExpression.Values;
         var valuesList = ((IEnumerable<object>)valuesConstant.Value)
             .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
         GenerateList(valuesList, e => Visit(e));
         _sqlBuilder.Append(')');
-
-        return inExpression;
     }
 
     /// <summary>

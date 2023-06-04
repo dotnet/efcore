@@ -42,7 +42,7 @@ public class ContainsTranslator : IMethodCallTranslator
             && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains)
             && ValidateValues(arguments[0]))
         {
-            return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[1]), arguments[0], negated: false);
+            return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[1]), arguments[0]);
         }
 
         if (arguments.Count == 1
@@ -50,7 +50,7 @@ public class ContainsTranslator : IMethodCallTranslator
             && instance != null
             && ValidateValues(instance))
         {
-            return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[0]), instance, negated: false);
+            return _sqlExpressionFactory.In(RemoveObjectConvert(arguments[0]), instance);
         }
 
         return null;

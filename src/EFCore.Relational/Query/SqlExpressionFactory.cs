@@ -254,12 +254,12 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             var values = ApplyTypeMapping(inExpression.Values, itemTypeMapping);
 
             return item != inExpression.Item || values != inExpression.Values || inExpression.TypeMapping != _boolTypeMapping
-                ? new InExpression(item, values, inExpression.IsNegated, _boolTypeMapping)
+                ? new InExpression(item, values, _boolTypeMapping)
                 : inExpression;
         }
 
         return item != inExpression.Item || inExpression.TypeMapping != _boolTypeMapping
-            ? new InExpression(item, inExpression.Subquery!, inExpression.IsNegated, _boolTypeMapping)
+            ? new InExpression(item, inExpression.Subquery!, _boolTypeMapping)
             : inExpression;
     }
 
@@ -582,22 +582,22 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ApplyDefaultTypeMapping(instance), name, nullable, instancePropagatesNullability, returnType, typeMapping);
 
     /// <inheritdoc />
-    public virtual ExistsExpression Exists(SelectExpression subquery, bool negated)
-        => new(subquery, negated, _boolTypeMapping);
+    public virtual ExistsExpression Exists(SelectExpression subquery)
+        => new(subquery, _boolTypeMapping);
 
     /// <inheritdoc />
-    public virtual InExpression In(SqlExpression item, SqlExpression values, bool negated)
+    public virtual InExpression In(SqlExpression item, SqlExpression values)
     {
         var typeMapping = item.TypeMapping ?? _typeMappingSource.FindMapping(item.Type, Dependencies.Model);
 
         item = ApplyTypeMapping(item, typeMapping);
         values = ApplyTypeMapping(values, typeMapping);
 
-        return new InExpression(item, values, negated, _boolTypeMapping);
+        return new InExpression(item, values, _boolTypeMapping);
     }
 
     /// <inheritdoc />
-    public virtual InExpression In(SqlExpression item, SelectExpression subquery, bool negated)
+    public virtual InExpression In(SqlExpression item, SelectExpression subquery)
     {
         var sqlExpression = subquery.Projection.Single().Expression;
         var subqueryTypeMapping = sqlExpression.TypeMapping;
@@ -607,7 +607,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             item = subqueryTypeMapping is null ? ApplyDefaultTypeMapping(item) : ApplyTypeMapping(item, subqueryTypeMapping);
         }
 
-        return new InExpression(item, subquery, negated, _boolTypeMapping);
+        return new InExpression(item, subquery, _boolTypeMapping);
     }
 
     /// <inheritdoc />
@@ -671,7 +671,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             var concreteEntityTypes = entityType.GetConcreteDerivedTypesInclusive().ToList();
             var predicate = concreteEntityTypes.Count == 1
                 ? (SqlExpression)Equal(discriminatorColumn, Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
-                : In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()), negated: false);
+                : In(discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()));
 
             selectExpression.ApplyPredicate(predicate);
 
