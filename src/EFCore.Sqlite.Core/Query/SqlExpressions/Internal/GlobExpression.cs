@@ -19,12 +19,11 @@ public class GlobExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public GlobExpression(SqlExpression match, SqlExpression pattern, bool negated, RelationalTypeMapping typeMapping)
+    public GlobExpression(SqlExpression match, SqlExpression pattern, RelationalTypeMapping typeMapping)
         : base(typeof(bool), typeMapping)
     {
         Match = match;
         Pattern = pattern;
-        IsNegated = negated;
     }
 
     /// <summary>
@@ -58,14 +57,6 @@ public class GlobExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsNegated { get; }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     protected override Expression VisitChildren(ExpressionVisitor visitor)
     {
         var match = (SqlExpression)visitor.Visit(Match);
@@ -80,18 +71,9 @@ public class GlobExpression : SqlExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual GlobExpression Negate()
-        => new GlobExpression(Match, Pattern, !IsNegated, TypeMapping);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual GlobExpression Update(SqlExpression match, SqlExpression pattern)
         => match != Match || pattern != Pattern
-            ? new GlobExpression(match, pattern, IsNegated, TypeMapping)
+            ? new GlobExpression(match, pattern, TypeMapping)
             : this;
 
     /// <summary>
@@ -103,12 +85,6 @@ public class GlobExpression : SqlExpression
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Visit(Match);
-
-        if (IsNegated)
-        {
-            expressionPrinter.Append(" NOT");
-        }
-
         expressionPrinter.Append(" GLOB ");
         expressionPrinter.Visit(Pattern);
     }
@@ -128,8 +104,7 @@ public class GlobExpression : SqlExpression
     private bool Equals(GlobExpression globExpression)
         => base.Equals(globExpression)
             && Match.Equals(globExpression.Match)
-            && Pattern.Equals(globExpression.Pattern)
-            && IsNegated.Equals(globExpression.IsNegated);
+            && Pattern.Equals(globExpression.Pattern);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -138,5 +113,5 @@ public class GlobExpression : SqlExpression
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Match, Pattern, IsNegated);
+        => HashCode.Combine(base.GetHashCode(), Match, Pattern);
 }

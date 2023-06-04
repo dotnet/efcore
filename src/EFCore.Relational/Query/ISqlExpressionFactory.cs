@@ -399,27 +399,24 @@ public interface ISqlExpressionFactory
     ///     Creates a new <see cref="ExistsExpression" /> which represents an EXISTS operation in a SQL tree.
     /// </summary>
     /// <param name="subquery">A subquery to check existence of.</param>
-    /// <param name="negated">A value indicating if the existence check is negated.</param>
     /// <returns>An expression representing an EXISTS operation in a SQL tree.</returns>
-    ExistsExpression Exists(SelectExpression subquery, bool negated);
+    ExistsExpression Exists(SelectExpression subquery);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
     /// </summary>
     /// <param name="item">An item to look into values.</param>
     /// <param name="values">A list of values in which item is searched.</param>
-    /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, SqlExpression values, bool negated);
+    InExpression In(SqlExpression item, SqlExpression values);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents an IN operation in a SQL tree.
     /// </summary>
     /// <param name="item">An item to look into values.</param>
     /// <param name="subquery">A subquery in which item is searched.</param>
-    /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
     /// <returns>An expression representing an IN operation in a SQL tree.</returns>
-    InExpression In(SqlExpression item, SelectExpression subquery, bool negated);
+    InExpression In(SqlExpression item, SelectExpression subquery);
 
     /// <summary>
     ///     Creates a new <see cref="InExpression" /> which represents a LIKE in a SQL tree.

@@ -634,9 +634,9 @@ public class SqlNullabilityProcessor
         nullable = false;
 
         // if subquery has predicate which evaluates to false, we can simply return false
-        // if the exisits is negated we need to return true instead
+        // if the exists is negated we need to return true instead
         return TryGetBoolConstantValue(subquery.Predicate) == false
-            ? _sqlExpressionFactory.Constant(existsExpression.IsNegated, existsExpression.TypeMapping)
+            ? _sqlExpressionFactory.Constant(false, existsExpression.TypeMapping)
             : existsExpression.Update(subquery);
     }
 
@@ -651,9 +651,6 @@ public class SqlNullabilityProcessor
     {
         var item = Visit(inExpression.Item, out var itemNullable);
 
-        // If the InExpression is negated, it's as if we have an enclosing NOT, which prohibits optimized expansion.
-        allowOptimizedExpansion &= !inExpression.IsNegated;
-
         if (inExpression.Subquery != null)
         {
             var subquery = Visit(inExpression.Subquery);
@@ -663,7 +660,7 @@ public class SqlNullabilityProcessor
             {
                 nullable = false;
 
-                return _sqlExpressionFactory.Constant(inExpression.IsNegated, inExpression.TypeMapping);
+                return _sqlExpressionFactory.Constant(false, inExpression.TypeMapping);
             }
 
             // Check whether the subquery projects out a nullable value; note that we unwrap any casts to get to the underlying
@@ -718,9 +715,7 @@ public class SqlNullabilityProcessor
                     // WHERE Nullable NOT IN (SELECT NonNullable FROM foo) -> WHERE Nullable NOT IN (SELECT NonNullable FROM foo) OR Nullable IS NULL
                     return allowOptimizedExpansion
                         ? inExpression
-                        : inExpression.IsNegated
-                            ? _sqlExpressionFactory.OrElse(inExpression, _sqlExpressionFactory.IsNull(item))
-                            : _sqlExpressionFactory.AndAlso(inExpression, _sqlExpressionFactory.IsNotNull(item));
+                        : _sqlExpressionFactory.AndAlso(inExpression, _sqlExpressionFactory.IsNotNull(item));
                 }
 
                 case (false, true):
@@ -741,10 +736,7 @@ public class SqlNullabilityProcessor
                         goto TransformToExists;
                     }
 
-                    return inExpression.IsNegated
-                        ? _sqlExpressionFactory.Not(
-                            _sqlExpressionFactory.Coalesce(inExpression.Negate(), _sqlExpressionFactory.Constant(false)))
-                        : _sqlExpressionFactory.Coalesce(inExpression, _sqlExpressionFactory.Constant(false));
+                    return _sqlExpressionFactory.Coalesce(inExpression, _sqlExpressionFactory.Constant(false));
                 }
 
                 case (true, true):
@@ -772,7 +764,7 @@ public class SqlNullabilityProcessor
                     subquery.ApplyPredicate(predicate);
                     subquery.ClearOrdering();
 
-                    return _sqlExpressionFactory.Exists(subquery, inExpression.IsNegated);
+                    return _sqlExpressionFactory.Exists(subquery);
             }
         }
 
@@ -808,12 +800,8 @@ public class SqlNullabilityProcessor
             // nullable IN (NULL) -> nullable IS NULL
             // nullable NOT IN (NULL) -> nullable IS NOT NULL
             return !hasNullValue || !itemNullable
-                ? _sqlExpressionFactory.Constant(
-                    inExpression.IsNegated,
-                    inExpression.TypeMapping)
-                : inExpression.IsNegated
-                    ? _sqlExpressionFactory.IsNotNull(item)
-                    : _sqlExpressionFactory.IsNull(item);
+                ? _sqlExpressionFactory.Constant(false, inExpression.TypeMapping)
+                : _sqlExpressionFactory.IsNull(item);
         }
 
         var simplifiedInExpression = SimplifyInExpression(
@@ -822,7 +810,7 @@ public class SqlNullabilityProcessor
             inValuesList);
 
         if (!itemNullable
-            || (allowOptimizedExpansion && !inExpression.IsNegated && !hasNullValue))
+            || (allowOptimizedExpansion && !hasNullValue))
         {
             nullable = false;
 
@@ -840,13 +828,9 @@ public class SqlNullabilityProcessor
         // nullable IN (1, 2, NULL) -> nullable IN (1, 2) OR nullable IS NULL (full)
         // nullable NOT IN (1, 2) -> nullable NOT IN (1, 2) OR nullable IS NULL (full)
         // nullable NOT IN (1, 2, NULL) -> nullable NOT IN (1, 2) AND nullable IS NOT NULL (full)
-        return inExpression.IsNegated == hasNullValue
-            ? _sqlExpressionFactory.AndAlso(
-                simplifiedInExpression,
-                _sqlExpressionFactory.IsNotNull(item))
-            : _sqlExpressionFactory.OrElse(
-                simplifiedInExpression,
-                _sqlExpressionFactory.IsNull(item));
+        return hasNullValue
+            ? _sqlExpressionFactory.OrElse(simplifiedInExpression, _sqlExpressionFactory.IsNull(item))
+            : _sqlExpressionFactory.AndAlso(simplifiedInExpression, _sqlExpressionFactory.IsNotNull(item));
 
         (SqlConstantExpression ProcessedValuesExpression, List<object?> ProcessedValuesList, bool HasNullValue)
             ProcessInExpressionValues(SqlExpression valuesExpression, bool extractNullValues)
@@ -895,13 +879,9 @@ public class SqlNullabilityProcessor
             SqlConstantExpression inValuesExpression,
             List<object?> inValuesList)
             => inValuesList.Count == 1
-                ? inExpression.IsNegated
-                    ? (SqlExpression)_sqlExpressionFactory.NotEqual(
-                        inExpression.Item,
-                        _sqlExpressionFactory.Constant(inValuesList[0], inValuesExpression.TypeMapping))
-                    : _sqlExpressionFactory.Equal(
-                        inExpression.Item,
-                        _sqlExpressionFactory.Constant(inValuesList[0], inExpression.Values!.TypeMapping))
+                ? _sqlExpressionFactory.Equal(
+                    inExpression.Item,
+                    _sqlExpressionFactory.Constant(inValuesList[0], inExpression.Values!.TypeMapping))
                 : inExpression;
     }
 
@@ -1722,14 +1702,10 @@ public class SqlNullabilityProcessor
         {
             // !(true) -> false
             // !(false) -> true
-            case SqlConstantExpression constantOperand
-                when constantOperand.Value is bool value:
+            case SqlConstantExpression { Value: bool value }:
             {
                 return _sqlExpressionFactory.Constant(!value, sqlUnaryExpression.TypeMapping);
             }
-
-            case InExpression inOperand:
-                return inOperand.Negate();
 
             case SqlUnaryExpression sqlUnaryOperand:
             {

@@ -427,7 +427,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             subquery.ClearOrdering();
         }
 
-        translation = _sqlExpressionFactory.Exists(subquery, true);
+        translation = _sqlExpressionFactory.Not(_sqlExpressionFactory.Exists(subquery));
         subquery = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
@@ -458,7 +458,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             subquery.ClearOrdering();
         }
 
-        var translation = _sqlExpressionFactory.Exists(subquery, false);
+        var translation = _sqlExpressionFactory.Exists(subquery);
         var selectExpression = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
@@ -547,7 +547,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             if (values is not null)
             {
-                var inExpression = _sqlExpressionFactory.In(translatedItem, _sqlExpressionFactory.Constant(values), negated: false);
+                var inExpression = _sqlExpressionFactory.In(translatedItem, _sqlExpressionFactory.Constant(values));
                 return source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
             }
         }
@@ -564,7 +564,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         subquery.ReplaceProjection(new List<Expression> { projection });
         subquery.ApplyProjection();
 
-        var translation = _sqlExpressionFactory.In(translatedItem, subquery, false);
+        var translation = _sqlExpressionFactory.In(translatedItem, subquery);
         subquery = _sqlExpressionFactory.Select(translation);
 
         return source.Update(

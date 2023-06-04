@@ -1868,8 +1868,7 @@ public sealed partial class SelectExpression : TableExpressionBase
             sqlExpression = PushdownIntoSubqueryInternal().Remap(sqlExpression);
         }
 
-        if ((sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.Equal }
-                || sqlExpression is InExpression { Subquery: null, IsNegated: false })
+        if (sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.Equal } or InExpression { Subquery: null }
             && _groupBy.Count == 0)
         {
             // If the intersection is empty then we don't remove predicate so that the filter empty out all results.

@@ -256,7 +256,7 @@ public interface ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    InExpression In(SqlExpression item, SqlExpression values, bool negated);
+    InExpression In(SqlExpression item, SqlExpression values);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

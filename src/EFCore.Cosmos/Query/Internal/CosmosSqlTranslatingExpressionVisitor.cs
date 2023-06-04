@@ -704,8 +704,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                         _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
                     : _sqlExpressionFactory.In(
                         discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                        negated: false);
+                        _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()));
             }
         }
 

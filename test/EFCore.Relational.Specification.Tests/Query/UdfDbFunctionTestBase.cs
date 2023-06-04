@@ -297,7 +297,6 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                     args => new InExpression(
                         args.First(),
                         new SqlConstantExpression(Expression.Constant(abc), typeMapping: null), // args.First().TypeMapping),
-                        negated: false,
                         typeMapping: null));
 
             var trueFalse = new[] { true, false };
@@ -307,10 +306,8 @@ public abstract class UdfDbFunctionTestBase<TFixture> : IClassFixture<TFixture>
                         new InExpression(
                             args.First(),
                             new SqlConstantExpression(Expression.Constant(abc), args.First().TypeMapping),
-                            negated: false,
                             typeMapping: null),
                         new SqlConstantExpression(Expression.Constant(trueFalse), typeMapping: null),
-                        negated: false,
                         typeMapping: null));
 
             modelBuilder.HasDbFunction(typeof(UDFSqlContext).GetMethod(nameof(NullableValueReturnType), Array.Empty<Type>()))

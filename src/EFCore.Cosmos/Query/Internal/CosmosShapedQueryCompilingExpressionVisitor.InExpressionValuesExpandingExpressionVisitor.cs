@@ -70,8 +70,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 var updatedInExpression = inValues.Count > 0
                     ? _sqlExpressionFactory.In(
                         (SqlExpression)Visit(inExpression.Item),
-                        _sqlExpressionFactory.Constant(inValues, typeMapping),
-                        inExpression.IsNegated)
+                        _sqlExpressionFactory.Constant(inValues, typeMapping))
                     : null;
 
                 var nullCheckExpression = hasNullValue

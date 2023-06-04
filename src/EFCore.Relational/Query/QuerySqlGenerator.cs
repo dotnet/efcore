@@ -716,9 +716,24 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitLike(LikeExpression likeExpression)
+    protected sealed override Expression VisitLike(LikeExpression likeExpression)
+        => GenerateLike(likeExpression, negated: false);
+
+    /// <summary>
+    ///     Generates SQL for the LIKE expression.
+    /// </summary>
+    /// <param name="likeExpression">The expression to visit.</param>
+    /// <param name="negated">Whether the given <paramref name="likeExpression" /> is negated.</param>
+    /// <returns>The original expression.</returns>
+    protected virtual Expression GenerateLike(LikeExpression likeExpression, bool negated)
     {
         Visit(likeExpression.Match);
+
+        if (negated)
+        {
+            _relationalCommandBuilder.Append(" NOT");
+        }
+
         _relationalCommandBuilder.Append(" LIKE ");
         Visit(likeExpression.Pattern);
 
@@ -821,9 +836,27 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             case ExpressionType.Not
                 when sqlUnaryExpression.Type == typeof(bool):
             {
-                _relationalCommandBuilder.Append("NOT (");
-                Visit(sqlUnaryExpression.Operand);
-                _relationalCommandBuilder.Append(")");
+                switch (sqlUnaryExpression.Operand)
+                {
+                    case InExpression inExpression:
+                        GenerateIn(inExpression, negated: true);
+                        break;
+
+                    case ExistsExpression existsExpression:
+                        GenerateExists(existsExpression, negated: true);
+                        break;
+
+                    case LikeExpression likeExpression:
+                        GenerateLike(likeExpression, negated: true);
+                        break;
+
+                    default:
+                        _relationalCommandBuilder.Append("NOT (");
+                        Visit(sqlUnaryExpression.Operand);
+                        _relationalCommandBuilder.Append(")");
+                        break;
+                }
+
                 break;
             }
 
@@ -905,9 +938,21 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     /// <inheritdoc />
-    protected override Expression VisitExists(ExistsExpression existsExpression)
+    protected sealed override Expression VisitExists(ExistsExpression existsExpression)
     {
-        if (existsExpression.IsNegated)
+        GenerateExists(existsExpression, negated: false);
+
+        return existsExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for the EXISTS expression.
+    /// </summary>
+    /// <param name="existsExpression">The expression to visit.</param>
+    /// <param name="negated">Whether the given <paramref name="existsExpression" /> is negated.</param>
+    protected virtual void GenerateExists(ExistsExpression existsExpression, bool negated)
+    {
+        if (negated)
         {
             _relationalCommandBuilder.Append("NOT ");
         }
@@ -920,17 +965,27 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         }
 
         _relationalCommandBuilder.Append(")");
-
-        return existsExpression;
     }
 
     /// <inheritdoc />
-    protected override Expression VisitIn(InExpression inExpression)
+    protected sealed override Expression VisitIn(InExpression inExpression)
+    {
+        GenerateIn(inExpression, negated: false);
+
+        return inExpression;
+    }
+
+    /// <summary>
+    ///     Generates SQL for the IN expression.
+    /// </summary>
+    /// <param name="inExpression">The expression to visit.</param>
+    /// <param name="negated">Whether the given <paramref name="inExpression" /> is negated.</param>
+    protected virtual void GenerateIn(InExpression inExpression, bool negated)
     {
         if (inExpression.Values != null)
         {
             Visit(inExpression.Item);
-            _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
+            _relationalCommandBuilder.Append(negated ? " NOT IN " : " IN ");
             _relationalCommandBuilder.Append("(");
             var valuesConstant = (SqlConstantExpression)inExpression.Values;
             var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
@@ -941,7 +996,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
         else
         {
             Visit(inExpression.Item);
-            _relationalCommandBuilder.Append(inExpression.IsNegated ? " NOT IN " : " IN ");
+            _relationalCommandBuilder.Append(negated ? " NOT IN " : " IN ");
             _relationalCommandBuilder.AppendLine("(");
 
             using (_relationalCommandBuilder.Indent())
@@ -951,8 +1006,6 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
             _relationalCommandBuilder.AppendLine().Append(")");
         }
-
-        return inExpression;
     }
 
     /// <inheritdoc />

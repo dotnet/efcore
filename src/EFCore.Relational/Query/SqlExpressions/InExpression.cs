@@ -21,14 +21,12 @@ public class InExpression : SqlExpression
     /// </summary>
     /// <param name="item">An item to look into values.</param>
     /// <param name="subquery">A subquery in which item is searched.</param>
-    /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public InExpression(
         SqlExpression item,
         SelectExpression subquery,
-        bool negated,
         RelationalTypeMapping typeMapping)
-        : this(item, null, subquery, negated, typeMapping)
+        : this(item, null, subquery, typeMapping)
     {
     }
 
@@ -37,14 +35,12 @@ public class InExpression : SqlExpression
     /// </summary>
     /// <param name="item">An item to look into values.</param>
     /// <param name="values">A list of values in which item is searched.</param>
-    /// <param name="negated">A value indicating if the item should be present in the values or absent.</param>
     /// <param name="typeMapping">The <see cref="RelationalTypeMapping" /> associated with the expression.</param>
     public InExpression(
         SqlExpression item,
         SqlExpression values,
-        bool negated,
         RelationalTypeMapping typeMapping)
-        : this(item, values, null, negated, typeMapping)
+        : this(item, values, null, typeMapping)
     {
     }
 
@@ -52,7 +48,6 @@ public class InExpression : SqlExpression
         SqlExpression item,
         SqlExpression? values,
         SelectExpression? subquery,
-        bool negated,
         RelationalTypeMapping? typeMapping)
         : base(typeof(bool), typeMapping)
     {
@@ -65,18 +60,12 @@ public class InExpression : SqlExpression
         Item = item;
         Subquery = subquery;
         Values = values;
-        IsNegated = negated;
     }
 
     /// <summary>
     ///     The item to look into values.
     /// </summary>
     public virtual SqlExpression Item { get; }
-
-    /// <summary>
-    ///     The value indicating if item should be present in the values or absent.
-    /// </summary>
-    public virtual bool IsNegated { get; }
 
     /// <summary>
     ///     The list of values to search item in.
@@ -99,13 +88,6 @@ public class InExpression : SqlExpression
     }
 
     /// <summary>
-    ///     Negates this expression by changing presence/absence state indicated by <see cref="IsNegated" />.
-    /// </summary>
-    /// <returns>An expression which is negated form of this expression.</returns>
-    public virtual InExpression Negate()
-        => new(Item, Values, Subquery, !IsNegated, TypeMapping);
-
-    /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
     ///     return this expression.
     /// </summary>
@@ -125,7 +107,7 @@ public class InExpression : SqlExpression
         }
 
         return item != Item || subquery != Subquery || values != Values
-            ? new InExpression(item, values, subquery, IsNegated, TypeMapping)
+            ? new InExpression(item, values, subquery, TypeMapping)
             : this;
     }
 
@@ -133,7 +115,7 @@ public class InExpression : SqlExpression
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Visit(Item);
-        expressionPrinter.Append(IsNegated ? " NOT IN " : " IN ");
+        expressionPrinter.Append(" IN ");
         expressionPrinter.Append("(");
 
         if (Subquery != null)
@@ -176,11 +158,10 @@ public class InExpression : SqlExpression
     private bool Equals(InExpression inExpression)
         => base.Equals(inExpression)
             && Item.Equals(inExpression.Item)
-            && IsNegated.Equals(inExpression.IsNegated)
             && (Values?.Equals(inExpression.Values) ?? inExpression.Values == null)
             && (Subquery?.Equals(inExpression.Subquery) ?? inExpression.Subquery == null);
 
     /// <inheritdoc />
     public override int GetHashCode()
-        => HashCode.Combine(base.GetHashCode(), Item, IsNegated, Values, Subquery);
+        => HashCode.Combine(base.GetHashCode(), Item, Values, Subquery);
 }
