@@ -5,6 +5,7 @@
 
 namespace Microsoft.EntityFrameworkCore;
 
+[SpatialiteRequired]
 public class JsonTypesSqliteTest : JsonTypesTestBase<JsonTypesSqliteTest.JsonTypesSqliteFixture>
 {
     public JsonTypesSqliteTest(JsonTypesSqliteFixture fixture, ITestOutputHelper testOutputHelper)
