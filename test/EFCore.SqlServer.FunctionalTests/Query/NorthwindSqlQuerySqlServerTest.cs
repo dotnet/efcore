@@ -35,12 +35,12 @@ SELECT "ProductID" FROM "Products"
 """
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] IN (
+    SELECT [t].[Value]
     FROM (
         SELECT "ProductID" AS "Value" FROM "Products"
     ) AS [t]
-    WHERE CAST([t].[Value] AS int) = [o].[OrderID])
+)
 """);
     }
 

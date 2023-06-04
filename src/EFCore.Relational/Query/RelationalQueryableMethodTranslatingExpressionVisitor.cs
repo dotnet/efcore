@@ -491,6 +491,21 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateContains(ShapedQueryExpression source, Expression item)
     {
+        // Note that we don't apply the default type mapping to the item in order to allow it to be inferred from e.g. the subquery
+        // projection on the other side.
+        if (TranslateExpression(item, applyDefaultTypeMapping: false) is not SqlExpression translatedItem
+            || !TryGetProjection(source, out var projection))
+        {
+            // If the item can't be translated, we can't translate to an IN expression.
+            // However, attempt to translate as Any since that passes through Where predicate translation, which e.g. does entity equality.
+            var anyLambdaParameter = Expression.Parameter(item.Type, "p");
+            var anyLambda = Expression.Lambda(
+                Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
+                anyLambdaParameter);
+
+            return TranslateAny(source, anyLambda);
+        }
+
         // Pattern-match Contains over ValuesExpression, translating to simplified 'item IN (1, 2, 3)' with constant elements
         if (source.QueryExpression is SelectExpression
             {
@@ -511,15 +526,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 // Note that in the context of Contains we don't care about orderings
             }
             // Make sure that the source projects the column from the ValuesExpression directly, i.e. no projection out with some expression
-            && TryGetProjection(source, out var projection)
             && projection is ColumnExpression projectedColumn
             && projectedColumn.Table == valuesExpression)
         {
-            if (TranslateExpression(item) is not SqlExpression translatedItem)
-            {
-                return null;
-            }
-
             var values = new object?[valuesExpression.RowValues.Count];
             for (var i = 0; i < values.Length; i++)
             {
@@ -543,13 +552,25 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
         }
 
-        // TODO: This generates an EXISTS subquery. Translate to IN instead: #30955
-        var anyLambdaParameter = Expression.Parameter(item.Type, "p");
-        var anyLambda = Expression.Lambda(
-            Infrastructure.ExpressionExtensions.CreateEqualsExpression(anyLambdaParameter, item),
-            anyLambdaParameter);
+        // Translate to IN with a subquery.
+        // Note that because of null semantics, this may get transformed to an EXISTS subquery in SqlNullabilityProcessor.
+        var subquery = (SelectExpression)source.QueryExpression;
+        if (subquery.Limit == null
+            && subquery.Offset == null)
+        {
+            subquery.ClearOrdering();
+        }
 
-        return TranslateAny(source, anyLambda);
+        subquery.ReplaceProjection(new List<Expression> { projection });
+        subquery.ApplyProjection();
+
+        var translation = _sqlExpressionFactory.In(translatedItem, subquery, false);
+        subquery = _sqlExpressionFactory.Select(translation);
+
+        return source.Update(
+            subquery,
+            Expression.Convert(
+                new ProjectionBindingExpression(subquery, new ProjectionMember(), typeof(bool?)), typeof(bool)));
     }
 
     /// <inheritdoc />
@@ -1771,10 +1792,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     ///     Translates the given expression into equivalent SQL representation.
     /// </summary>
     /// <param name="expression">An expression to translate.</param>
+    /// <param name="applyDefaultTypeMapping">
+    ///     Whether to apply the default type mapping on the top-most element if it has none. Defaults to <see langword="true" />.
+    /// </param>
     /// <returns>A <see cref="SqlExpression" /> which is translation of given expression or <see langword="null" />.</returns>
-    protected virtual SqlExpression? TranslateExpression(Expression expression)
+    protected virtual SqlExpression? TranslateExpression(Expression expression, bool applyDefaultTypeMapping = true)
     {
-        var translation = _sqlTranslator.Translate(expression);
+        var translation = _sqlTranslator.Translate(expression, applyDefaultTypeMapping);
 
         if (translation is null)
         {
@@ -1809,7 +1833,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </param>
     protected virtual Expression ApplyInferredTypeMappings(
         Expression expression,
-        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> inferredTypeMappings)
+        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
         => new RelationalInferredTypeMappingApplier(inferredTypeMappings).Visit(expression);
 
     /// <summary>
@@ -2541,12 +2565,12 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </remarks>
     private sealed class ColumnTypeMappingScanner : ExpressionVisitor
     {
-        private readonly Dictionary<(TableExpressionBase, string), RelationalTypeMapping> _inferredColumns = new();
+        private readonly Dictionary<(TableExpressionBase, string), RelationalTypeMapping?> _inferredColumns = new();
 
         private SelectExpression? _currentSelectExpression;
         private ProjectionExpression? _currentProjectionExpression;
 
-        public IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> Scan(Expression expression)
+        public IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> Scan(Expression expression)
         {
             _inferredColumns.Clear();
 
@@ -2574,6 +2598,19 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 case ScalarSubqueryExpression
                     {
                         TypeMapping: { } typeMapping,
+                        Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
+                    }
+                    when WasMaybeOriginallyUntyped(columnExpression):
+                {
+                    RegisterInferredTypeMapping(columnExpression, typeMapping);
+
+                    return base.VisitExtension(node);
+                }
+
+                // InExpression over a subquery: apply the item's type mapping on the subquery
+                case InExpression
+                    {
+                        Item.TypeMapping: { } typeMapping,
                         Subquery.Projection: [{ Expression: ColumnExpression columnExpression }]
                     }
                     when WasMaybeOriginallyUntyped(columnExpression):
@@ -2646,7 +2683,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     return base.VisitExtension(node);
             }
 
-            bool WasMaybeOriginallyUntyped(ColumnExpression columnExpression)
+            static bool WasMaybeOriginallyUntyped(ColumnExpression columnExpression)
             {
                 var underlyingTable = columnExpression.Table is JoinExpressionBase joinExpression
                     ? joinExpression.Table
@@ -2654,7 +2691,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 return underlyingTable switch
                 {
+                    // TableExpressions are always fully-typed, with type mappings coming from the model
                     TableExpression
+                        => false,
+
+                    // FromSqlExpressions always receive the default type mapping for the projected element type - we never need to infer
+                    // them.
+                    FromSqlExpression
                         => false,
 
                     SelectExpression subquery
@@ -2675,7 +2718,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     : expression;
         }
 
-        private void RegisterInferredTypeMapping(ColumnExpression columnExpression, RelationalTypeMapping inferredTypeMapping)
+        private void RegisterInferredTypeMapping(ColumnExpression columnExpression, RelationalTypeMapping? inferredTypeMapping)
         {
             var underlyingTable = columnExpression.Table is JoinExpressionBase joinExpression
                 ? joinExpression.Table
@@ -2684,9 +2727,12 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             if (_inferredColumns.TryGetValue((underlyingTable, columnExpression.Name), out var knownTypeMapping)
                 && inferredTypeMapping != knownTypeMapping)
             {
-                throw new InvalidOperationException(
-                    RelationalStrings.ConflictingTypeMappingsForPrimitiveCollection(
-                        inferredTypeMapping.StoreType, knownTypeMapping.StoreType));
+                // A different type mapping was already inferred for this column - we have a conflict.
+                // Null out the value for the inferred type mapping as an indication of the conflict. If it turns out that we need the
+                // inferred mapping later, during the application phase, we'll throw an exception at that point (not all the inferred type
+                // mappings here will actually be needed, so we don't want to needlessly throw here).
+                _inferredColumns[(underlyingTable, columnExpression.Name)] = null;
+                return;
             }
 
             _inferredColumns[(underlyingTable, columnExpression.Name)] = inferredTypeMapping;
@@ -2704,15 +2750,44 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         /// <summary>
         ///     The inferred type mappings to be applied back on their query roots.
         /// </summary>
-        protected IReadOnlyDictionary<(TableExpressionBase Table, string ColumnName), RelationalTypeMapping> InferredTypeMappings { get; }
+        private IReadOnlyDictionary<(TableExpressionBase Table, string ColumnName), RelationalTypeMapping?> _inferredTypeMappings;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalInferredTypeMappingApplier" /> class.
         /// </summary>
         /// <param name="inferredTypeMappings">The inferred type mappings to be applied back on their query roots.</param>
         public RelationalInferredTypeMappingApplier(
-            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> inferredTypeMappings)
-            => InferredTypeMappings = inferredTypeMappings;
+            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
+            => _inferredTypeMappings = inferredTypeMappings;
+
+        /// <summary>
+        ///     Attempts to find an inferred type mapping for the given table column.
+        /// </summary>
+        /// <param name="table">The table containing the column for which to find the inferred type mapping.</param>
+        /// <param name="columnName">The name of the column for which to find the inferred type mapping.</param>
+        /// <param name="inferredTypeMapping">The inferred type mapping, or <see langword="null" /> if none could be found.</param>
+        /// <returns>Whether an inferred type mapping could be found.</returns>
+        protected virtual bool TryGetInferredTypeMapping(
+            TableExpressionBase table,
+             string columnName,
+            [NotNullWhen(true)] out RelationalTypeMapping? inferredTypeMapping)
+        {
+            if (_inferredTypeMappings.TryGetValue((table, columnName), out inferredTypeMapping))
+            {
+                // The inferred type mapping scanner records a null when two conflicting type mappings were inferred for the same
+                // column.
+                if (inferredTypeMapping is null)
+                {
+                    throw new InvalidOperationException(
+                        RelationalStrings.ConflictingTypeMappingsInferredForColumn(columnName));
+                }
+
+                return true;
+            }
+
+            inferredTypeMapping = null;
+            return false;
+        }
 
         /// <inheritdoc />
         protected override Expression VisitExtension(Expression expression)
@@ -2720,7 +2795,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             switch (expression)
             {
                 case ColumnExpression { TypeMapping: null } columnExpression
-                    when InferredTypeMappings.TryGetValue((columnExpression.Table, columnExpression.Name), out var typeMapping):
+                    when TryGetInferredTypeMapping(columnExpression.Table, columnExpression.Name, out var typeMapping):
                     return columnExpression.ApplyTypeMapping(typeMapping);
 
                 case SelectExpression selectExpression:
@@ -2762,7 +2837,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         /// <param name="stripOrdering">Whether to strip the <c>_ord</c> column.</param>
         protected virtual ValuesExpression ApplyTypeMappingsOnValuesExpression(ValuesExpression valuesExpression, bool stripOrdering)
         {
-            var inferredTypeMappings = InferredTypeMappings.TryGetValue((valuesExpression, ValuesValueColumnName), out var typeMapping)
+            var inferredTypeMappings = TryGetInferredTypeMapping(valuesExpression, ValuesValueColumnName, out var typeMapping)
                 ? new[] { null, typeMapping }
                 : new RelationalTypeMapping?[] { null, null };
 

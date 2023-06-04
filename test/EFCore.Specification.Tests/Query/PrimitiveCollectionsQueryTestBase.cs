@@ -168,19 +168,19 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_nullable_ints_Contains(bool async)
+    public virtual Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
     {
         var nullableInts = new int?[] { 10, 999 };
 
         return AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.NullableInt)),
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => nullableInts.Contains(c.Int)),
             entryCount: 1);
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Parameter_collection_of_nullable_ints_Contains_null(bool async)
+    public virtual Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
     {
         var nullableInts = new int?[] { null, 999 };
 
@@ -277,6 +277,14 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
             async,
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.NullableInts.Contains(null)),
             entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_of_strings_contains_null(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Strings.Contains(null)),
+            entryCount: 0);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

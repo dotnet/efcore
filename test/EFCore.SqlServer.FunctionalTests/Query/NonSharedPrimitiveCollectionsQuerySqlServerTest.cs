@@ -303,13 +303,13 @@ WHERE JSON_VALUE(JSON_VALUE([t].[Owned], '$.Strings'), '$[1]') = N'bar'
 
 SELECT [t].[Id], [t].[DateTime], [t].[DateTime2], [t].[Ints]
 FROM [TestEntity] AS [t]
-WHERE EXISTS (
-    SELECT 1
+WHERE [t].[DateTime] IN (
+    SELECT CAST([d].[value] AS datetime) AS [value]
     FROM OPENJSON(@__dateTimes_0) AS [d]
-    WHERE CAST([d].[value] AS datetime) = [t].[DateTime]) AND EXISTS (
-    SELECT 1
+) AND [t].[DateTime2] IN (
+    SELECT CAST([d0].[value] AS datetime2) AS [value]
     FROM OPENJSON(@__dateTimes_0_1) AS [d0]
-    WHERE CAST([d0].[value] AS datetime2) = [t].[DateTime2])
+)
 """);
     }
 
@@ -334,7 +334,7 @@ WHERE EXISTS (
                     m => dateTimes
                         .Any(d => d == EF.Property<DateTime>(m, "DateTime") && d == EF.Property<DateTime>(m, "DateTime2")))
                 .ToArrayAsync());
-        Assert.Equal(RelationalStrings.ConflictingTypeMappingsForPrimitiveCollection("datetime2", "datetime"), exception.Message);
+        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
     }
 
     #endregion Type mapping inference

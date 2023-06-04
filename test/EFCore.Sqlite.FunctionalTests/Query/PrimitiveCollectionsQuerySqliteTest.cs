@@ -154,10 +154,10 @@ WHERE "p"."Id" IN (2, 999, 1000)
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."Id" IN (
+    SELECT "p0"."value"
     FROM json_each(@__p_0) AS "p0"
-    WHERE "p0"."value" = "p"."Id")
+)
 """);
     }
 
@@ -219,16 +219,16 @@ WHERE (
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."Int" IN (
+    SELECT "i"."value"
     FROM json_each(@__ints_0) AS "i"
-    WHERE "i"."value" = "p"."Int")
+)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_int(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_int(async);
 
         AssertSql(
 """
@@ -236,16 +236,16 @@ WHERE EXISTS (
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."Int" IN (
+    SELECT "n"."value"
     FROM json_each(@__nullableInts_0) AS "n"
-    WHERE "n"."value" = "p"."NullableInt" OR ("n"."value" IS NULL AND "p"."NullableInt" IS NULL))
+)
 """);
     }
 
-    public override async Task Parameter_collection_of_nullable_ints_Contains_null(bool async)
+    public override async Task Parameter_collection_of_nullable_ints_Contains_nullable_int(bool async)
     {
-        await base.Parameter_collection_of_nullable_ints_Contains_null(async);
+        await base.Parameter_collection_of_nullable_ints_Contains_nullable_int(async);
 
         AssertSql(
 """
@@ -287,10 +287,10 @@ WHERE EXISTS (
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."DateTime" IN (
+    SELECT datetime("d"."value") AS "value"
     FROM json_each(@__dateTimes_0) AS "d"
-    WHERE datetime("d"."value") = "p"."DateTime")
+)
 """);
     }
 
@@ -304,10 +304,10 @@ WHERE EXISTS (
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."Bool" IN (
+    SELECT "b"."value"
     FROM json_each(@__bools_0) AS "b"
-    WHERE "b"."value" = "p"."Bool")
+)
 """);
     }
 
@@ -321,10 +321,10 @@ WHERE EXISTS (
 
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."Enum" IN (
+    SELECT "e"."value"
     FROM json_each(@__enums_0) AS "e"
-    WHERE "e"."value" = "p"."Enum")
+)
 """);
     }
 
@@ -336,10 +336,10 @@ WHERE EXISTS (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE "p"."Int" IN (
+    SELECT "i"."value"
     FROM json_each('[]') AS "i"
-    WHERE "i"."value" = "p"."Int")
+)
 """);
     }
 
@@ -351,10 +351,10 @@ WHERE EXISTS (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE 10 IN (
+    SELECT "i"."value"
     FROM json_each("p"."Ints") AS "i"
-    WHERE "i"."value" = 10)
+)
 """);
     }
 
@@ -366,10 +366,10 @@ WHERE EXISTS (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE 10 IN (
+    SELECT "n"."value"
     FROM json_each("p"."NullableInts") AS "n"
-    WHERE "n"."value" = 10)
+)
 """);
     }
 
@@ -388,6 +388,21 @@ WHERE EXISTS (
 """);
     }
 
+    public override async Task Column_collection_of_strings_contains_null(bool async)
+    {
+        await base.Column_collection_of_strings_contains_null(async);
+
+        AssertSql(
+"""
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE EXISTS (
+    SELECT 1
+    FROM json_each("p"."Strings") AS "s"
+    WHERE "s"."value" IS NULL)
+""");
+    }
+
     public override async Task Column_collection_of_bools_Contains(bool async)
     {
         await base.Column_collection_of_bools_Contains(async);
@@ -396,10 +411,10 @@ WHERE EXISTS (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
+WHERE 1 IN (
+    SELECT "b"."value"
     FROM json_each("p"."Bools") AS "b"
-    WHERE "b"."value")
+)
 """);
     }
 
@@ -559,15 +574,12 @@ WHERE (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT "i"."value", "i"."key"
-        FROM json_each("p"."Ints") AS "i"
-        ORDER BY "i"."key"
-        LIMIT 2
-    ) AS "t"
-    WHERE "t"."value" = 11)
+WHERE 11 IN (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."key"
+    LIMIT 2
+)
 """);
     }
 
@@ -579,15 +591,12 @@ WHERE EXISTS (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT "i"."value", "i"."key"
-        FROM json_each("p"."Ints") AS "i"
-        ORDER BY "i"."key"
-        LIMIT 2 OFFSET 1
-    ) AS "t"
-    WHERE "t"."value" = 11)
+WHERE 11 IN (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."key"
+    LIMIT 2 OFFSET 1
+)
 """);
     }
 

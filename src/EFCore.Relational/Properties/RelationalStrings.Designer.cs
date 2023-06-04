@@ -168,12 +168,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 firstEntityType, secondEntityType, keyValue, firstConflictingValue, secondConflictingValue, column);
 
         /// <summary>
-        ///     Store type '{storeType1}' was inferred for a primitive collection, but that primitive collection was previously inferred to have store type '{storeType2}'.
+        ///     Conflicting type mappings were inferred for column '{column}'.
         /// </summary>
-        public static string ConflictingTypeMappingsForPrimitiveCollection(object? storeType1, object? storeType2)
+        public static string ConflictingTypeMappingsInferredForColumn(object? column)
             => string.Format(
-                GetString("ConflictingTypeMappingsForPrimitiveCollection", nameof(storeType1), nameof(storeType2)),
-                storeType1, storeType2);
+                GetString("ConflictingTypeMappingsInferredForColumn", nameof(column)),
+                column);
 
         /// <summary>
         ///     A seed entity for entity type '{entityType}' has the same key value as another seed entity mapped to the same table '{table}', but have different values for the column '{column}'. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the conflicting values.

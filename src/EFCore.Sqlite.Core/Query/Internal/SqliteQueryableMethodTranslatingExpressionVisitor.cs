@@ -167,10 +167,11 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         var jsonEachExpression = new TableValuedFunctionExpression(tableAlias, "json_each", new[] { sqlExpression });
 
-        // TODO: When we have metadata to determine if the element is nullable, pass that here to SelectExpression
+        // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
+        var isColumnNullable = elementClrType.IsNullableType();
+
         var selectExpression = new SelectExpression(
-            jsonEachExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping,
-            isColumnNullable: null);
+            jsonEachExpression, columnName: "value", columnType: elementClrType, columnTypeMapping: elementTypeMapping, isColumnNullable);
 
         // TODO: SQLite does have REAL and BLOB types, which JSON does not. Need to possibly cast to that.
         if (elementTypeMapping is not null)
@@ -187,7 +188,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     "key",
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
-                    columnNullable: false),
+                    isColumnNullable),
                 ascending: true));
 
         Expression shaperExpression = new ProjectionBindingExpression(
@@ -284,7 +285,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     /// </summary>
     protected override Expression ApplyInferredTypeMappings(
         Expression expression,
-        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> inferredTypeMappings)
+        IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
         => new SqliteInferredTypeMappingApplier(_typeMappingSource, _sqlExpressionFactory, inferredTypeMappings).Visit(expression);
 
     /// <summary>
@@ -308,7 +309,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         public SqliteInferredTypeMappingApplier(
             IRelationalTypeMappingSource typeMappingSource,
             ISqlExpressionFactory sqlExpressionFactory,
-            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping> inferredTypeMappings)
+            IReadOnlyDictionary<(TableExpressionBase, string), RelationalTypeMapping?> inferredTypeMappings)
             : base(inferredTypeMappings)
             => (_typeMappingSource, _sqlExpressionFactory) = (typeMappingSource, sqlExpressionFactory);
 
@@ -323,7 +324,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
             switch (expression)
             {
                 case TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true } jsonEachExpression
-                    when InferredTypeMappings.TryGetValue((jsonEachExpression, "value"), out var typeMapping):
+                    when TryGetInferredTypeMapping(jsonEachExpression, "value", out var typeMapping):
                     return ApplyTypeMappingsOnJsonEachExpression(jsonEachExpression, typeMapping);
 
                 // Above, we applied the type mapping the the parameter that json_each accepts as an argument.
@@ -337,7 +338,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     foreach (var table in selectExpression.Tables)
                     {
                         if (table is TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true } jsonEachExpression
-                            && InferredTypeMappings.TryGetValue((jsonEachExpression, "value"), out var inferredTypeMapping))
+                            && TryGetInferredTypeMapping(jsonEachExpression, "value", out var inferredTypeMapping))
                         {
                             if (previousSelectInferredTypeMappings is null)
                             {

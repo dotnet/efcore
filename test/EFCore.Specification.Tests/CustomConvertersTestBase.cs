@@ -841,6 +841,16 @@ public abstract class CustomConvertersTestBase<TFixture> : BuiltInDataTypesTestB
         No
     }
 
+    [ConditionalFact]
+    public virtual void Infer_type_mapping_from_in_subquery_to_item()
+    {
+        using var context = CreateContext();
+        var results = context.Set<BuiltInDataTypes>().Where(b =>
+            context.Set<BuiltInDataTypes>().Select(bb => bb.TestBoolean).Contains(true) && b.Id == 13).ToList();
+
+        Assert.Equal(1, results.Count);
+    }
+
     public abstract class CustomConvertersFixtureBase : BuiltInDataTypesFixtureBase
     {
         protected override string StoreName

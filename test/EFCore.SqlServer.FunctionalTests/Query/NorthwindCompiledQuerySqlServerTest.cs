@@ -182,10 +182,10 @@ WHERE [c].[CustomerID] = @__customerID
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__args) AS [a]
-    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID])
+)
 """,
             //
 """
@@ -193,10 +193,10 @@ WHERE EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__args) AS [a]
-    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID])
+)
 """);
     }
 

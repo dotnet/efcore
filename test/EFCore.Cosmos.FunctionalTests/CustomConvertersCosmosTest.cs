@@ -133,6 +133,9 @@ WHERE (c["Discriminator"] IN ("Blog", "RssBlog") AND NOT((c["IndexerVisible"] = 
             Assert.Throws<InvalidOperationException>(() => base.GroupBy_converted_enum()).Message);
     }
 
+    public override void Infer_type_mapping_from_in_subquery_to_item()
+        => Assert.Throws<InvalidOperationException>(() => base.Infer_type_mapping_from_in_subquery_to_item());
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 

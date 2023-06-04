@@ -1897,21 +1897,15 @@ WHERE [c].[CustomerID] = @__p_0
 """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT TOP(1) [p].[ProductID]
-        FROM [Products] AS [p]
-        ORDER BY [p].[ProductID]
-    ) AS [t]
-    WHERE [t].[ProductID] = [o].[ProductID]) OR EXISTS (
-    SELECT 1
-    FROM (
-        SELECT TOP(1) [o0].[OrderID]
-        FROM [Orders] AS [o0]
-        ORDER BY [o0].[OrderID]
-    ) AS [t0]
-    WHERE [t0].[OrderID] = [o].[OrderID])
+WHERE [o].[ProductID] IN (
+    SELECT TOP(1) [p].[ProductID]
+    FROM [Products] AS [p]
+    ORDER BY [p].[ProductID]
+) OR [o].[OrderID] IN (
+    SELECT TOP(1) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    ORDER BY [o0].[OrderID]
+)
 """);
     }
 
@@ -1923,21 +1917,15 @@ WHERE EXISTS (
 """
 SELECT [o].[OrderID], [o].[ProductID], [o].[Discount], [o].[Quantity], [o].[UnitPrice]
 FROM [Order Details] AS [o]
-WHERE EXISTS (
-    SELECT 1
-    FROM (
-        SELECT TOP(20) [p].[ProductID]
-        FROM [Products] AS [p]
-        ORDER BY [p].[ProductID]
-    ) AS [t]
-    WHERE [t].[ProductID] = [o].[ProductID]) AND EXISTS (
-    SELECT 1
-    FROM (
-        SELECT TOP(10) [o0].[OrderID]
-        FROM [Orders] AS [o0]
-        ORDER BY [o0].[OrderID]
-    ) AS [t0]
-    WHERE [t0].[OrderID] = [o].[OrderID])
+WHERE [o].[ProductID] IN (
+    SELECT TOP(20) [p].[ProductID]
+    FROM [Products] AS [p]
+    ORDER BY [p].[ProductID]
+) AND [o].[OrderID] IN (
+    SELECT TOP(10) [o0].[OrderID]
+    FROM [Orders] AS [o0]
+    ORDER BY [o0].[OrderID]
+)
 """);
     }
 
@@ -2171,10 +2159,11 @@ ORDER BY [c].[CustomerID]
 SELECT [c].[CustomerID], [o0].[CustomerID], [o0].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE EXISTS (
-    SELECT 1
+WHERE N'ALFKI' IN (
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = [c].[CustomerID] AND [o].[CustomerID] = N'ALFKI')
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+)
 ORDER BY [c].[CustomerID]
 """);
     }
@@ -2205,10 +2194,11 @@ ORDER BY [c].[CustomerID]
 SELECT [c].[CustomerID], [o0].[CustomerID], [o0].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE EXISTS (
-    SELECT 1
+WHERE N'ALFKI' IN (
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = [c].[CustomerID] AND [o].[CustomerID] = N'ALFKI')
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+)
 ORDER BY [c].[CustomerID]
 """);
     }
@@ -2239,10 +2229,11 @@ ORDER BY [c].[CustomerID]
 SELECT [c].[CustomerID], [o0].[CustomerID], [o0].[OrderID]
 FROM [Customers] AS [c]
 LEFT JOIN [Orders] AS [o0] ON [c].[CustomerID] = [o0].[CustomerID]
-WHERE EXISTS (
-    SELECT 1
+WHERE N'ALFKI' IN (
+    SELECT [o].[CustomerID]
     FROM [Orders] AS [o]
-    WHERE [o].[CustomerID] = [c].[CustomerID] AND [o].[CustomerID] = N'ALFKI')
+    WHERE [o].[CustomerID] = [c].[CustomerID]
+)
 ORDER BY [c].[CustomerID]
 """);
     }
@@ -2450,10 +2441,10 @@ ORDER BY [o].[OrderID], [o1].[OrderID]
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] IN (
+    SELECT CAST([o0].[value] AS int) AS [value]
     FROM OPENJSON(@__orderIds_0) AS [o0]
-    WHERE CAST([o0].[value] AS int) = [o].[OrderID])
+)
 """);
     }
 
@@ -2467,10 +2458,10 @@ WHERE EXISTS (
 
 SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
 FROM [Orders] AS [o]
-WHERE EXISTS (
-    SELECT 1
+WHERE [o].[OrderID] IN (
+    SELECT CAST([o0].[value] AS int) AS [value]
     FROM OPENJSON(@__orderIds_0) AS [o0]
-    WHERE CAST([o0].[value] AS int) = [o].[OrderID])
+)
 """);
     }
 
@@ -2574,10 +2565,10 @@ WHERE [c].[CustomerID] <> @__prm1_0 AND [c].[CustomerID] <> @__prm2_1 AND [c].[C
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT CAST([p].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__p_0) AS [p]
-    WHERE CAST([p].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = N'ANTON'
+) OR [c].[CustomerID] = N'ANTON'
 """);
     }
 
@@ -2604,10 +2595,10 @@ WHERE [c].[Region] IN (N'WA', N'OR') OR [c].[Region] IS NULL OR [c].[Region] = N
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__array_0) AS [a]
-    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = N'ANTON'
+) OR [c].[CustomerID] = N'ANTON'
 """);
     }
 
@@ -2623,10 +2614,10 @@ WHERE EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] = @__prm1_0 OR EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] = @__prm1_0 OR [c].[CustomerID] IN (
+    SELECT CAST([a].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__array_1) AS [a]
-    WHERE CAST([a].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[CustomerID] = @__prm2_2
+) OR [c].[CustomerID] = @__prm2_2
 """);
     }
 
@@ -2932,10 +2923,10 @@ WHERE EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT CAST([c0].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__customerIds_0) AS [c0]
-    WHERE CAST([c0].[value] AS nchar(5)) = [c].[CustomerID]) AND [c].[City] = N'Seattle'
+) AND [c].[City] = N'Seattle'
 """);
     }
 
@@ -2949,10 +2940,10 @@ WHERE EXISTS (
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE EXISTS (
-    SELECT 1
+WHERE [c].[CustomerID] IN (
+    SELECT CAST([c0].[value] AS nchar(5)) AS [value]
     FROM OPENJSON(@__customerIds_0) AS [c0]
-    WHERE CAST([c0].[value] AS nchar(5)) = [c].[CustomerID]) OR [c].[City] = N'Seattle'
+) OR [c].[City] = N'Seattle'
 """);
     }
 

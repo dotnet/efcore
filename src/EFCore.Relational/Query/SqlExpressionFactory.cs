@@ -600,9 +600,13 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     public virtual InExpression In(SqlExpression item, SelectExpression subquery, bool negated)
     {
         var sqlExpression = subquery.Projection.Single().Expression;
-        var typeMapping = sqlExpression.TypeMapping;
+        var subqueryTypeMapping = sqlExpression.TypeMapping;
 
-        item = ApplyTypeMapping(item, typeMapping);
+        if (item.TypeMapping is null)
+        {
+            item = subqueryTypeMapping is null ? ApplyDefaultTypeMapping(item) : ApplyTypeMapping(item, subqueryTypeMapping);
+        }
+
         return new InExpression(item, subquery, negated, _boolTypeMapping);
     }
 

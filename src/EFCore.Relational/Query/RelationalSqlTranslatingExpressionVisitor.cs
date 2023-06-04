@@ -118,33 +118,38 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     ///     Translates an expression to an equivalent SQL representation.
     /// </summary>
     /// <param name="expression">An expression to translate.</param>
+    /// <param name="applyDefaultTypeMapping">
+    ///     Whether to apply the default type mapping on the top-most element if it has none. Defaults to <see langword="true" />.
+    /// </param>
     /// <returns>A SQL translation of the given expression.</returns>
-    public virtual SqlExpression? Translate(Expression expression)
+    public virtual SqlExpression? Translate(Expression expression, bool applyDefaultTypeMapping = true)
     {
         TranslationErrorDetails = null;
 
-        return TranslateInternal(expression);
+        return TranslateInternal(expression, applyDefaultTypeMapping);
     }
 
-    private SqlExpression? TranslateInternal(Expression expression)
+    private SqlExpression? TranslateInternal(Expression expression, bool applyDefaultTypeMapping = true)
     {
         var result = Visit(expression);
 
         if (result is SqlExpression translation)
         {
-            if (translation is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+            if (translation is SqlUnaryExpression { OperatorType: ExpressionType.Convert } sqlUnaryExpression
                 && sqlUnaryExpression.Type == typeof(object))
             {
                 translation = sqlUnaryExpression.Operand;
             }
 
-            translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
-
-            if (translation.TypeMapping == null)
+            if (applyDefaultTypeMapping)
             {
-                // The return type is not-mappable hence return null
-                return null;
+                translation = _sqlExpressionFactory.ApplyDefaultTypeMapping(translation);
+
+                if (translation.TypeMapping == null)
+                {
+                    // The return type is not-mappable hence return null
+                    return null;
+                }
             }
 
             return translation;

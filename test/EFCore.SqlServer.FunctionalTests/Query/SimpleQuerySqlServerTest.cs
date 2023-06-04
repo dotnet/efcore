@@ -135,10 +135,11 @@ SELECT CASE
         SELECT 1
         FROM [Memberships] AS [m]
         INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
-        WHERE EXISTS (
-            SELECT 1
+        WHERE [m].[GroupId] IN (
+            SELECT [m0].[GroupId]
             FROM [Memberships] AS [m0]
-            WHERE [m0].[UserId] = @__currentUserId_0 AND [m0].[GroupId] = [m].[GroupId]) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
+            WHERE [m0].[UserId] = @__currentUserId_0
+        ) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
 FROM [Users] AS [u]
@@ -183,10 +184,11 @@ SELECT CASE
         SELECT 1
         FROM [Memberships] AS [m]
         INNER JOIN [Users] AS [u0] ON [m].[UserId] = [u0].[Id]
-        WHERE EXISTS (
-            SELECT 1
+        WHERE [m].[GroupId] IN (
+            SELECT [m0].[GroupId]
             FROM [Memberships] AS [m0]
-            WHERE [m0].[UserId] = @__currentUserId_0 AND [m0].[GroupId] = [m].[GroupId]) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
+            WHERE [m0].[UserId] = @__currentUserId_0
+        ) AND [u0].[Id] = [u].[Id]) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [HasAccess]
 FROM [Users] AS [u]
@@ -562,12 +564,12 @@ p0='1'
 
 SELECT [d].[Id] AS [Key], COUNT(*) AS [Aggregate]
 FROM [DemoEntities] AS [d]
-WHERE EXISTS (
-    SELECT 1
+WHERE [d].[Id] IN (
+    SELECT [m].[Id]
     FROM (
         SELECT * FROM DemoEntities WHERE Id = @p0
     ) AS [m]
-    WHERE [m].[Id] = [d].[Id])
+)
 GROUP BY [d].[Id]
 """);
     }
