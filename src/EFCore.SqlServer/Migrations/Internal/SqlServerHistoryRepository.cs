@@ -114,12 +114,12 @@ public class SqlServerHistoryRepository : HistoryRepository
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
         return new StringBuilder()
-            .Append("IF NOT EXISTS(SELECT * FROM ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-            .Append(" WHERE ")
+            .AppendLine("IF NOT EXISTS (")
+            .Append("    SELECT * FROM ")
+            .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
+            .Append("    WHERE ")
             .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
-            .Append(" = ")
-            .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
+            .Append(" = ").AppendLine(stringTypeMapping.GenerateSqlLiteral(migrationId))
             .AppendLine(")")
             .Append("BEGIN")
             .ToString();
@@ -136,12 +136,13 @@ public class SqlServerHistoryRepository : HistoryRepository
         var stringTypeMapping = Dependencies.TypeMappingSource.GetMapping(typeof(string));
 
         return new StringBuilder()
-            .Append("IF EXISTS(SELECT * FROM ")
-            .Append(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
-            .Append(" WHERE ")
+            .AppendLine("IF EXISTS (")
+            .Append("    SELECT * FROM ")
+            .AppendLine(SqlGenerationHelper.DelimitIdentifier(TableName, TableSchema))
+            .Append("    WHERE ")
             .Append(SqlGenerationHelper.DelimitIdentifier(MigrationIdColumnName))
             .Append(" = ")
-            .Append(stringTypeMapping.GenerateSqlLiteral(migrationId))
+            .AppendLine(stringTypeMapping.GenerateSqlLiteral(migrationId))
             .AppendLine(")")
             .Append("BEGIN")
             .ToString();
