@@ -1609,7 +1609,7 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE [c].[ContactName] IS NULL OR NOT ([c].[ContactName] LIKE N'A%')) THEN CAST(1 AS bit)
+        WHERE [c].[ContactName] IS NULL OR [c].[ContactName] NOT LIKE N'A%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -1641,13 +1641,13 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE NOT (EXISTS (
+        WHERE NOT EXISTS (
             SELECT 1
             FROM [Customers] AS [c0]
             WHERE EXISTS (
                 SELECT 1
                 FROM [Customers] AS [c1]
-                WHERE [c].[CustomerID] = [c1].[CustomerID])))) THEN CAST(1 AS bit)
+                WHERE [c].[CustomerID] = [c1].[CustomerID]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -1663,13 +1663,13 @@ SELECT CASE
     WHEN NOT EXISTS (
         SELECT 1
         FROM [Customers] AS [c]
-        WHERE NOT (EXISTS (
+        WHERE NOT EXISTS (
             SELECT 1
             FROM [Customers] AS [c0]
             WHERE EXISTS (
                 SELECT 1
                 FROM [Customers] AS [c1]
-                WHERE [c].[CustomerID] = [c1].[CustomerID])))) THEN CAST(1 AS bit)
+                WHERE [c].[CustomerID] = [c1].[CustomerID]))) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2244,7 +2244,7 @@ SELECT CASE
             ORDER BY [c].[CustomerID]
             OFFSET @__p_0 ROWS FETCH NEXT @__p_1 ROWS ONLY
         ) AS [t]
-        WHERE NOT ([t].[CustomerID] LIKE N'B%')) THEN CAST(1 AS bit)
+        WHERE [t].[CustomerID] NOT LIKE N'B%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2266,7 +2266,7 @@ SELECT CASE
             FROM [Customers] AS [c]
             ORDER BY [c].[CustomerID]
         ) AS [t]
-        WHERE NOT ([t].[CustomerID] LIKE N'A%')) THEN CAST(1 AS bit)
+        WHERE [t].[CustomerID] NOT LIKE N'A%') THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);

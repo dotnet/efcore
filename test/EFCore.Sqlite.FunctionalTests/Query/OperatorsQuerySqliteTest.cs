@@ -116,7 +116,7 @@ WHERE -"o"."Value" = -("o"."Id" + "o0"."Value")
 """
 SELECT "o"."Id"
 FROM "OperatorEntityString" AS "o"
-WHERE "o"."Value" IS NOT NULL AND NOT ("o"."Value" LIKE 'A%')
+WHERE "o"."Value" IS NOT NULL AND "o"."Value" NOT LIKE 'A%'
 """);
     }
 

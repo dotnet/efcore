@@ -473,14 +473,14 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InExpression In(SqlExpression item, SqlExpression values, bool negated)
+    public virtual InExpression In(SqlExpression item, SqlExpression values)
     {
         var typeMapping = item.TypeMapping ?? _typeMappingSource.FindMapping(item.Type, _model);
 
         item = ApplyTypeMapping(item, typeMapping);
         values = ApplyTypeMapping(values, typeMapping);
 
-        return new InExpression(item, negated, values, _boolTypeMapping);
+        return new InExpression(item, values, _boolTypeMapping);
     }
 
     /// <summary>
@@ -539,8 +539,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
             selectExpression.ApplyPredicate(
                 In(
-                    (SqlExpression)discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                    negated: false));
+                    (SqlExpression)discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList())));
         }
     }
 }

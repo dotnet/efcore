@@ -485,7 +485,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         subSelectExpression.ClearOrdering();
                     }
 
-                    return _sqlExpressionFactory.Exists(subSelectExpression, false);
+                    return _sqlExpressionFactory.Exists(subSelectExpression);
                 }
 
                 if (entityReferenceExpression.ParameterEntity != null)
@@ -1064,7 +1064,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                     subSelectExpression.ClearOrdering();
                 }
 
-                return _sqlExpressionFactory.Exists(subSelectExpression, false);
+                return _sqlExpressionFactory.Exists(subSelectExpression);
             }
 
             if (entityReferenceExpression.ParameterEntity != null)
@@ -1095,8 +1095,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         _sqlExpressionFactory.Constant(discriminatorValues[0]))
                     : _sqlExpressionFactory.In(
                         entityProjectionExpression.DiscriminatorExpression!,
-                        _sqlExpressionFactory.Constant(discriminatorValues),
-                        negated: false);
+                        _sqlExpressionFactory.Constant(discriminatorValues));
             }
         }
         else
@@ -1116,8 +1115,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         : _sqlExpressionFactory.In(
                             discriminatorColumn,
                             _sqlExpressionFactory.Constant(
-                                concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()),
-                            negated: false);
+                                concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()));
                 }
             }
             else
@@ -1151,13 +1149,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         switch (unaryExpression.NodeType)
         {
             case ExpressionType.Not:
-                return sqlOperand switch
-                {
-                    ExistsExpression e => e.Negate(),
-                    InExpression e => e.Negate(),
-
-                    _ => _sqlExpressionFactory.Not(sqlOperand!)
-                };
+                return _sqlExpressionFactory.Not(sqlOperand!);
 
             case ExpressionType.Negate:
             case ExpressionType.NegateChecked:

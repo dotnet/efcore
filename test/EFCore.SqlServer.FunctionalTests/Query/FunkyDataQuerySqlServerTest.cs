@@ -56,7 +56,7 @@ WHERE [f].[FirstName] LIKE N'%\_Ba\_%' ESCAPE N'\'
 """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT ([f].[FirstName] LIKE N'%\%B\%a\%r%' ESCAPE N'\')
+WHERE [f].[FirstName] NOT LIKE N'%\%B\%a\%r%' ESCAPE N'\'
 """,
             //
 """
@@ -68,7 +68,7 @@ WHERE 0 = 1
 """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE NOT ([f].[FirstName] LIKE NULL)
+WHERE [f].[FirstName] NOT LIKE NULL
 """);
     }
 
@@ -201,7 +201,7 @@ WHERE [f].[FirstName] IS NOT NULL AND [f].[FirstName] LIKE N'\_Ba\_%' ESCAPE N'\
 """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND NOT ([f].[FirstName] LIKE N'\%B\%a\%r%' ESCAPE N'\')
+WHERE [f].[FirstName] IS NOT NULL AND [f].[FirstName] NOT LIKE N'\%B\%a\%r%' ESCAPE N'\'
 """,
             //
 """
@@ -400,7 +400,7 @@ WHERE [f].[FirstName] IS NOT NULL AND [f].[FirstName] LIKE N'%\_Ba\_' ESCAPE N'\
 """
 SELECT [f].[FirstName]
 FROM [FunkyCustomers] AS [f]
-WHERE [f].[FirstName] IS NOT NULL AND NOT ([f].[FirstName] LIKE N'%\%B\%a\%r' ESCAPE N'\')
+WHERE [f].[FirstName] IS NOT NULL AND [f].[FirstName] NOT LIKE N'%\%B\%a\%r' ESCAPE N'\'
 """,
             //
 """
