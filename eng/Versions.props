@@ -20,7 +20,6 @@
     <MicrosoftExtensionsConfigurationAbstractionsVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsConfigurationAbstractionsVersion>
     <MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsConfigurationEnvironmentVariablesVersion>
     <MicrosoftExtensionsConfigurationJsonVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsConfigurationJsonVersion>
-    <MicrosoftExtensionsDependencyInjectionVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsDependencyInjectionVersion>
     <MicrosoftExtensionsDependencyModelVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsDependencyModelVersion>
     <MicrosoftExtensionsHostFactoryResolverSourcesVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsHostFactoryResolverSourcesVersion>
     <MicrosoftExtensionsLoggingVersion>8.0.0-preview.5.23276.2</MicrosoftExtensionsLoggingVersion>
