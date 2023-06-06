@@ -648,7 +648,11 @@ WHERE "
         GetColumns(connection, tables, filter, viewFilter, typeAliases, databaseCollation);
         GetIndexes(connection, tables, filter);
         GetForeignKeys(connection, tables, filter);
-        GetTriggers(connection, tables, filter);
+
+        if (SupportsTriggers())
+        {
+            GetTriggers(connection, tables, filter);
+        }
 
         foreach (var table in tables)
         {
@@ -1342,6 +1346,9 @@ ORDER BY [table_schema], [table_name], [tr].[name]";
 
     private bool SupportsSequences()
         => _compatibilityLevel >= 110 && _engineEdition != 6;
+
+    private bool SupportsTriggers()
+        => _engineEdition != 6;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
