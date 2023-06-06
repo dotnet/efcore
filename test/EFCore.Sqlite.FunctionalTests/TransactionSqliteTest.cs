@@ -26,7 +26,7 @@ public class TransactionSqliteTest : TransactionTestBase<TransactionSqliteTest.T
     public class TransactionSqliteFixture : TransactionFixtureBase
     {
         protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
+            => SharedCacheSqliteTestStoreFactory.Instance;
 
         public override void Reseed()
         {
