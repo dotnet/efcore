@@ -216,5 +216,20 @@ namespace Microsoft.EntityFrameworkCore.Benchmarks.Query
                 query.ToList();
             }
         }
+
+        [Benchmark]
+        public virtual async Task WhereToArrayAsync()
+        {
+            if (Async is false)
+            {
+                return;
+            }
+
+            var query = _context.Products
+                .ApplyTracking(Tracking)
+                .Where(p => p.ActualStockLevel < 5);
+
+            await query.ToArrayAsync();
+        }
     }
 }

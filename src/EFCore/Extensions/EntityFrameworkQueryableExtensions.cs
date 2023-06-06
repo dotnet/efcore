@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.Internal;
@@ -2333,7 +2334,15 @@ public static class EntityFrameworkQueryableExtensions
     public static async Task<TSource[]> ToArrayAsync<TSource>(
         this IQueryable<TSource> source,
         CancellationToken cancellationToken = default)
-        => (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
+    {
+        var arrayBuilder = ImmutableArray.CreateBuilder<TSource>();
+        await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
+        {
+            arrayBuilder.Add(element);
+        }
+
+        return arrayBuilder.ToArray();
+    }
 
     #endregion
 
