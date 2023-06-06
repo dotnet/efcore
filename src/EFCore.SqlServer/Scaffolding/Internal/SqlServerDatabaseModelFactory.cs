@@ -42,6 +42,13 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             "nvarchar"
         };
 
+    private enum EngineEdition
+    {
+        SqlDataWarehouse = 6,
+        SqlOnDemand = 11,
+        DynamicsTdsEndpoint = 1000,
+    }
+
     private const string NamePartRegex
         = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
@@ -1362,22 +1369,25 @@ ORDER BY [table_schema], [table_name], [tr].[name];
     }
 
     private bool SupportsTemporalTable()
-        => _compatibilityLevel >= 130 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 130 && IsFullFeaturedEngineEdition();
 
     private bool SupportsMemoryOptimizedTable()
-        => _compatibilityLevel >= 120 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 120 && IsFullFeaturedEngineEdition();
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
 
     private bool SupportsIndexes()
-        => _engineEdition != 1000;
+        => _engineEdition != (int)EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsViews()
-        => _engineEdition != 1000;
+        => _engineEdition != (int)EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsTriggers()
-        => _engineEdition is not 6 and not 11 and not 1000;
+        => IsFullFeaturedEngineEdition();
+
+    private bool IsFullFeaturedEngineEdition()
+        => _engineEdition is not (int)EngineEdition.SqlDataWarehouse and not (int)EngineEdition.SqlOnDemand and not (int)EngineEdition.DynamicsTdsEndpoint;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
