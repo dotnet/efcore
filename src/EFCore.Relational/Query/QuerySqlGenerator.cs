@@ -697,8 +697,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <inheritdoc />
     protected override Expression VisitOrdering(OrderingExpression orderingExpression)
     {
-        if (orderingExpression.Expression is SqlConstantExpression
-            || orderingExpression.Expression is SqlParameterExpression)
+        if (orderingExpression.Expression is SqlConstantExpression or SqlParameterExpression)
         {
             _relationalCommandBuilder.Append("(SELECT 1)");
         }

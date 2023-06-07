@@ -183,8 +183,8 @@ WHERE [c].[CustomerID] = @__customerID
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (
-    SELECT CAST([a].[value] AS nchar(5)) AS [value]
-    FROM OPENJSON(@__args) AS [a]
+    SELECT [a].[value]
+    FROM OPENJSON(@__args) WITH ([value] nchar(5) '$') AS [a]
 )
 """,
             //
@@ -194,8 +194,8 @@ WHERE [c].[CustomerID] IN (
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
 WHERE [c].[CustomerID] IN (
-    SELECT CAST([a].[value] AS nchar(5)) AS [value]
-    FROM OPENJSON(@__args) AS [a]
+    SELECT [a].[value]
+    FROM OPENJSON(@__args) WITH ([value] nchar(5) '$') AS [a]
 )
 """);
     }

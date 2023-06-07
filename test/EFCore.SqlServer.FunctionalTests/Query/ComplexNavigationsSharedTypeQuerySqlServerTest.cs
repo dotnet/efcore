@@ -5419,7 +5419,7 @@ LEFT JOIN (
 ) AS [t] ON [l].[Id] = [t].[Level1_Optional_Id]
 WHERE NOT EXISTS (
     SELECT 1
-    FROM OPENJSON(@__names_0) AS [n]
+    FROM OPENJSON(@__names_0) WITH ([value] nvarchar(max) '$') AS [n]
     WHERE [n].[value] = [t].[Level2_Name] OR ([n].[value] IS NULL AND [t].[Level2_Name] IS NULL))
 """);
     }

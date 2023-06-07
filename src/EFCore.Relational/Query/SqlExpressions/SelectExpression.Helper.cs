@@ -1014,6 +1014,9 @@ public sealed partial class SelectExpression
                     return newTpcTable;
                 }
 
+                case IClonableTableExpressionBase cloneable:
+                    return cloneable.Clone();
+
                 case TableValuedFunctionExpression tableValuedFunctionExpression:
                 {
                     var newArguments = new SqlExpression[tableValuedFunctionExpression.Arguments.Count];
@@ -1035,9 +1038,6 @@ public sealed partial class SelectExpression
 
                     return newTableValuedFunctionExpression;
                 }
-
-                case IClonableTableExpressionBase cloneable:
-                    return cloneable.Clone();
 
                 // join and set operations are fine, because they contain other TableExpressionBases inside, that will get cloned
                 // and therefore set expression's Update function will generate a new instance.

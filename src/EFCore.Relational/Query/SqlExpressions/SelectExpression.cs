@@ -3919,14 +3919,14 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <summary>
     ///     Prepares the <see cref="SelectExpression" /> to apply aggregate operation over it.
     /// </summary>
-    public void PrepareForAggregate()
+    public void PrepareForAggregate(bool liftOrderings = true)
     {
         if (IsDistinct
             || Limit != null
             || Offset != null
             || _groupBy.Count > 0)
         {
-            PushdownIntoSubquery();
+            PushdownIntoSubqueryInternal(liftOrderings);
         }
     }
 
@@ -4663,10 +4663,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             expressionPrinter.AppendLine().Append("ORDER BY ");
             expressionPrinter.VisitCollection(Orderings);
-        }
-        else if (Offset != null)
-        {
-            expressionPrinter.AppendLine().Append("ORDER BY (SELECT 1)");
         }
 
         if (Offset != null)

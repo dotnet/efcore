@@ -20,7 +20,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 ///         doing so can result in application failures when updating to a new Entity Framework Core release.
 ///     </para>
 /// </remarks>
-public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
+public class SqlServerOpenJsonExpression : TableValuedFunctionExpression, IClonableTableExpressionBase
 {
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -79,6 +79,26 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
         && (columnInfos is null ? ColumnInfos is null : ColumnInfos is not null && columnInfos.SequenceEqual(ColumnInfos))
             ? this
             : new SqlServerOpenJsonExpression(Alias, jsonExpression, path, columnInfos);
+
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    // TODO: Deep clone, see #30982
+    public virtual TableExpressionBase Clone()
+    {
+        var clone = new SqlServerOpenJsonExpression(Alias, JsonExpression, Path, ColumnInfos);
+
+        foreach (var annotation in GetAnnotations())
+        {
+            clone.AddAnnotation(annotation.Name, annotation.Value);
+        }
+
+        return clone;
+    }
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
@@ -145,5 +165,5 @@ public class SqlServerOpenJsonExpression : TableValuedFunctionExpression
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public readonly record struct ColumnInfo(string Name, string? StoreType, string? Path = null, bool AsJson = false);
+    public readonly record struct ColumnInfo(string Name, string StoreType, string? Path = null, bool AsJson = false);
 }

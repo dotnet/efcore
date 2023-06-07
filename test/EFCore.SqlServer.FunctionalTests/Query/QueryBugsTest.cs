@@ -187,38 +187,38 @@ WHERE [d].[SmallDateTime] = '1970-09-03T12:00:00' AND [d].[DateTime] = '1971-09-
 SELECT [d].[Id], [d].[DateTime], [d].[DateTime2], [d].[DateTime2_0], [d].[DateTime2_1], [d].[DateTime2_2], [d].[DateTime2_3], [d].[DateTime2_4], [d].[DateTime2_5], [d].[DateTime2_6], [d].[DateTime2_7], [d].[SmallDateTime]
 FROM [Dates] AS [d]
 WHERE [d].[SmallDateTime] IN (
-    SELECT CAST([d0].[value] AS smalldatetime) AS [value]
-    FROM OPENJSON(@__dateTimes_0) AS [d0]
+    SELECT [d0].[value]
+    FROM OPENJSON(@__dateTimes_0) WITH ([value] smalldatetime '$') AS [d0]
 ) AND [d].[DateTime] IN (
-    SELECT CAST([d1].[value] AS datetime) AS [value]
-    FROM OPENJSON(@__dateTimes_0_1) AS [d1]
+    SELECT [d1].[value]
+    FROM OPENJSON(@__dateTimes_0_1) WITH ([value] datetime '$') AS [d1]
 ) AND [d].[DateTime2] IN (
-    SELECT CAST([d2].[value] AS datetime2) AS [value]
-    FROM OPENJSON(@__dateTimes_0_2) AS [d2]
+    SELECT [d2].[value]
+    FROM OPENJSON(@__dateTimes_0_2) WITH ([value] datetime2 '$') AS [d2]
 ) AND [d].[DateTime2_0] IN (
-    SELECT CAST([d3].[value] AS datetime2(0)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_3) AS [d3]
+    SELECT [d3].[value]
+    FROM OPENJSON(@__dateTimes_0_3) WITH ([value] datetime2(0) '$') AS [d3]
 ) AND [d].[DateTime2_1] IN (
-    SELECT CAST([d4].[value] AS datetime2(1)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_4) AS [d4]
+    SELECT [d4].[value]
+    FROM OPENJSON(@__dateTimes_0_4) WITH ([value] datetime2(1) '$') AS [d4]
 ) AND [d].[DateTime2_2] IN (
-    SELECT CAST([d5].[value] AS datetime2(2)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_5) AS [d5]
+    SELECT [d5].[value]
+    FROM OPENJSON(@__dateTimes_0_5) WITH ([value] datetime2(2) '$') AS [d5]
 ) AND [d].[DateTime2_3] IN (
-    SELECT CAST([d6].[value] AS datetime2(3)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_6) AS [d6]
+    SELECT [d6].[value]
+    FROM OPENJSON(@__dateTimes_0_6) WITH ([value] datetime2(3) '$') AS [d6]
 ) AND [d].[DateTime2_4] IN (
-    SELECT CAST([d7].[value] AS datetime2(4)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_7) AS [d7]
+    SELECT [d7].[value]
+    FROM OPENJSON(@__dateTimes_0_7) WITH ([value] datetime2(4) '$') AS [d7]
 ) AND [d].[DateTime2_5] IN (
-    SELECT CAST([d8].[value] AS datetime2(5)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_8) AS [d8]
+    SELECT [d8].[value]
+    FROM OPENJSON(@__dateTimes_0_8) WITH ([value] datetime2(5) '$') AS [d8]
 ) AND [d].[DateTime2_6] IN (
-    SELECT CAST([d9].[value] AS datetime2(6)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_9) AS [d9]
+    SELECT [d9].[value]
+    FROM OPENJSON(@__dateTimes_0_9) WITH ([value] datetime2(6) '$') AS [d9]
 ) AND [d].[DateTime2_7] IN (
-    SELECT CAST([d10].[value] AS datetime2(7)) AS [value]
-    FROM OPENJSON(@__dateTimes_0_10) AS [d10]
+    SELECT [d10].[value]
+    FROM OPENJSON(@__dateTimes_0_10) WITH ([value] datetime2(7) '$') AS [d10]
 )
 """);
     }
@@ -3925,8 +3925,8 @@ FROM [Prices] AS [p]
 SELECT [r].[Id], [r].[MyTime]
 FROM [ReproEntity] AS [r]
 WHERE [r].[MyTime] IN (
-    SELECT CAST([t].[value] AS smalldatetime) AS [value]
-    FROM OPENJSON(@__testDateList_0) AS [t]
+    SELECT [t].[value]
+    FROM OPENJSON(@__testDateList_0) WITH ([value] smalldatetime '$') AS [t]
 )
 """);
         }
@@ -3994,8 +3994,8 @@ WHERE CASE
     WHEN [t].[Type] = 0 THEN @__key_2
     ELSE @__key_2
 END IN (
-    SELECT CAST([k].[value] AS uniqueidentifier) AS [value]
-    FROM OPENJSON(@__keys_0) AS [k]
+    SELECT [k].[value]
+    FROM OPENJSON(@__keys_0) WITH ([value] uniqueidentifier '$') AS [k]
 )
 """);
         }
@@ -8899,8 +8899,8 @@ ORDER BY [t].[Id], [t].[SecondOwner23211Id]
 SELECT [e].[Id], [e].[Name]
 FROM [Entities] AS [e]
 WHERE [e].[Id] NOT IN (
-    SELECT CAST([e0].[value] AS int) AS [value]
-    FROM OPENJSON(@__ef_filter___ids_0) AS [e0]
+    SELECT [e0].[value]
+    FROM OPENJSON(@__ef_filter___ids_0) WITH ([value] int '$') AS [e0]
 )
 """);
         }

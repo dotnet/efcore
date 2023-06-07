@@ -624,8 +624,8 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
@@ -633,8 +633,8 @@ FROM (
     ORDER BY CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -972,8 +972,8 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
@@ -981,8 +981,8 @@ FROM (
     ORDER BY CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -1368,8 +1368,8 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
@@ -1377,8 +1377,8 @@ FROM (
     ORDER BY CASE
         WHEN EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS
@@ -1847,8 +1847,8 @@ FROM (
     SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region], CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END AS [c]
     FROM [Customers] AS [c]
@@ -1856,8 +1856,8 @@ FROM (
     ORDER BY CASE
         WHEN NOT EXISTS (
             SELECT 1
-            FROM OPENJSON(@__list_0) AS [l]
-            WHERE CAST([l].[value] AS nchar(5)) = [c].[CustomerID]) THEN CAST(1 AS bit)
+            FROM OPENJSON(@__list_0) WITH ([value] nchar(5) '$') AS [l]
+            WHERE [l].[value] = [c].[CustomerID]) THEN CAST(1 AS bit)
         ELSE CAST(0 AS bit)
     END
     OFFSET @__p_1 ROWS

@@ -257,7 +257,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT "c"."CustomerID", "c"."Country"
+    SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
     LIMIT -1 OFFSET @__p_0
@@ -275,7 +275,7 @@ FROM (
 
 SELECT COUNT(*)
 FROM (
-    SELECT "c"."CustomerID", "c"."Country"
+    SELECT "c"."CustomerID"
     FROM "Customers" AS "c"
     ORDER BY "c"."Country"
     LIMIT @__p_0
