@@ -74,7 +74,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
         };
 
     private byte? _compatibilityLevel;
-    private int? _engineEdition;
+    private EngineEdition? _engineEdition;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -179,11 +179,12 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             }
         }
 
-        static int GetEngineEdition(DbConnection connection)
+        static EngineEdition GetEngineEdition(DbConnection connection)
         {
             using var command = connection.CreateCommand();
             command.CommandText = "SELECT SERVERPROPERTY('EngineEdition');";
-            return (int)command.ExecuteScalar()!;
+            var result = command.ExecuteScalar();
+            return result != null ? (EngineEdition)Convert.ToInt32(result) : 0;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
@@ -1378,16 +1379,16 @@ ORDER BY [table_schema], [table_name], [tr].[name];
         => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
 
     private bool SupportsIndexes()
-        => _engineEdition != (int)EngineEdition.DynamicsTdsEndpoint;
+        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsViews()
-        => _engineEdition != (int)EngineEdition.DynamicsTdsEndpoint;
+        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsTriggers()
         => IsFullFeaturedEngineEdition();
 
     private bool IsFullFeaturedEngineEdition()
-        => _engineEdition is not (int)EngineEdition.SqlDataWarehouse and not (int)EngineEdition.SqlOnDemand and not (int)EngineEdition.DynamicsTdsEndpoint;
+        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
