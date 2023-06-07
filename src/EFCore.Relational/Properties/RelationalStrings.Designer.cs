@@ -1042,6 +1042,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 column, table);
 
         /// <summary>
+        ///     JSON entity or collection can't be projected directly in a tracked query. Either disable tracking by using '{asNoTracking}' method or project the owner entity instead.
+        /// </summary>
+        public static string JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery(object? asNoTracking)
+            => string.Format(
+                GetString("JsonEntityOrCollectionProjectedAtRootLevelInTrackingQuery", nameof(asNoTracking)),
+                asNoTracking);
+
+        /// <summary>
         ///     Owned entity type '{nonJsonType}' is mapped to table '{table}' and contains JSON columns. This is currently not supported. All owned types containing a JSON column must be mapped to a JSON column themselves.
         /// </summary>
         public static string JsonEntityOwnedByNonJsonOwnedType(object? nonJsonType, object? table)
