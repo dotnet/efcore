@@ -32,6 +32,9 @@ namespace Microsoft.EntityFrameworkCore.Query;
 /// </remarks>
 public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 {
+    private static readonly bool UseOldBehavior30764
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30764", out var enabled) && enabled;
+
     private static readonly PropertyInfo CancellationTokenMemberInfo
         = typeof(QueryContext).GetTypeInfo().GetProperty(nameof(QueryContext.CancellationToken))!;
 
@@ -586,7 +589,15 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
             {
                 var valueBufferExpression = Expression.Call(
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);
-                var shadowProperties = concreteEntityType.GetProperties().Where(p => p.IsShadowProperty());
+
+                var shadowProperties = UseOldBehavior30764
+                    ? (IEnumerable<IPropertyBase>)concreteEntityType.GetProperties()
+                        .Where(p => p.IsShadowProperty())
+                    : concreteEntityType.GetProperties()
+                        .Concat<IPropertyBase>(concreteEntityType.GetNavigations())
+                        .Concat(concreteEntityType.GetSkipNavigations())
+                        .Where(n => n.IsShadowProperty())
+                        .OrderBy(e => e.GetShadowIndex());
 
                 blockExpressions.Add(
                     Expression.Assign(

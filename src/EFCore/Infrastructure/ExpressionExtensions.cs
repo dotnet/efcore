@@ -22,6 +22,9 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// </remarks>
 public static class ExpressionExtensions
 {
+    private static readonly bool UseOldBehavior30764
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30764", out var enabled) && enabled;
+
     /// <summary>
     ///     Creates a printable string representation of the given expression.
     /// </summary>
@@ -288,11 +291,13 @@ public static class ExpressionExtensions
         Type type,
         int index,
         IPropertyBase? property)
-        => Expression.Call(
-            MakeValueBufferTryReadValueMethod(type),
-            valueBuffer,
-            Expression.Constant(index),
-            Expression.Constant(property, typeof(IPropertyBase)));
+        => (property is INavigationBase && !UseOldBehavior30764)
+            ? Expression.Constant(null, typeof(object))
+            : Expression.Call(
+                MakeValueBufferTryReadValueMethod(type),
+                valueBuffer,
+                Expression.Constant(index),
+                Expression.Constant(property, typeof(IPropertyBase)));
 
     /// <summary>
     ///     <para>
