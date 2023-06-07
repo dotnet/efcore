@@ -42,6 +42,13 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             "nvarchar"
         };
 
+    private enum EngineEdition
+    {
+        SqlDataWarehouse = 6,
+        SqlOnDemand = 11,
+        DynamicsTdsEndpoint = 1000,
+    }
+
     private const string NamePartRegex
         = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
 
@@ -67,7 +74,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
         };
 
     private byte? _compatibilityLevel;
-    private int? _engineEdition;
+    private EngineEdition? _engineEdition;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -172,11 +179,12 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             }
         }
 
-        static int GetEngineEdition(DbConnection connection)
+        static EngineEdition GetEngineEdition(DbConnection connection)
         {
             using var command = connection.CreateCommand();
             command.CommandText = "SELECT SERVERPROPERTY('EngineEdition');";
-            return (int)command.ExecuteScalar()!;
+            var result = command.ExecuteScalar();
+            return result != null ? (EngineEdition)Convert.ToInt32(result) : 0;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
@@ -1362,22 +1370,25 @@ ORDER BY [table_schema], [table_name], [tr].[name];
     }
 
     private bool SupportsTemporalTable()
-        => _compatibilityLevel >= 130 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 130 && IsFullFeaturedEngineEdition();
 
     private bool SupportsMemoryOptimizedTable()
-        => _compatibilityLevel >= 120 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 120 && IsFullFeaturedEngineEdition();
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
 
     private bool SupportsIndexes()
-        => _engineEdition != 1000;
+        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsViews()
-        => _engineEdition != 1000;
+        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsTriggers()
-        => _engineEdition is not 6 and not 11 and not 1000;
+        => IsFullFeaturedEngineEdition();
+
+    private bool IsFullFeaturedEngineEdition()
+        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;
