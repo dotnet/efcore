@@ -741,28 +741,28 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_basic(bool async)
+    public virtual Task Json_collection_index_in_projection_basic(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[1]).AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_ElementAt(bool async)
+    public virtual Task Json_collection_ElementAt_in_projection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot.AsQueryable().ElementAt(1)).AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_ElementAtOrDefault(bool async)
+    public virtual Task Json_collection_ElementAtOrDefault_in_projection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot.AsQueryable().ElementAtOrDefault(1)).AsNoTracking());
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_project_collection(bool async)
+    public virtual Task Json_collection_index_in_projection_project_collection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[1].OwnedCollectionBranch).AsNoTracking(),
@@ -770,7 +770,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_ElementAt_project_collection(bool async)
+    public virtual Task Json_collection_ElementAt_project_collection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
@@ -780,7 +780,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_ElementAtOrDefault_project_collection(bool async)
+    public virtual Task Json_collection_ElementAtOrDefault_project_collection(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>()
@@ -790,7 +790,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_parameter(bool async)
+    public virtual Task Json_collection_index_in_projection_using_parameter(bool async)
     {
         var prm = 0;
 
@@ -801,7 +801,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_column(bool async)
+    public virtual Task Json_collection_index_in_projection_using_column(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[x.Id]).AsNoTracking());
@@ -811,7 +811,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_in_projection_using_untranslatable_client_method(bool async)
+    public virtual async Task Json_collection_index_in_projection_using_untranslatable_client_method(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => AssertQuery(
@@ -825,7 +825,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_in_projection_using_untranslatable_client_method2(bool async)
+    public virtual async Task Json_collection_index_in_projection_using_untranslatable_client_method2(bool async)
     {
         var message = (await Assert.ThrowsAsync<InvalidOperationException>(
             () => AssertQuery(
@@ -839,7 +839,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_outside_bounds(bool async)
+    public virtual Task Json_collection_index_outside_bounds(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[25]).AsNoTracking(),
@@ -855,7 +855,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_outside_bounds_with_property_access(bool async)
+    public virtual Task Json_collection_index_outside_bounds_with_property_access(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<JsonEntityBasic>().OrderBy(x => x.Id).Select(x => (int?)x.OwnedCollectionRoot[25].Number),
@@ -863,7 +863,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_nested(bool async)
+    public virtual Task Json_collection_index_in_projection_nested(bool async)
     {
         var prm = 1;
 
@@ -874,7 +874,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_nested_project_scalar(bool async)
+    public virtual Task Json_collection_index_in_projection_nested_project_scalar(bool async)
     {
         var prm = 1;
 
@@ -885,7 +885,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_nested_project_reference(bool async)
+    public virtual Task Json_collection_index_in_projection_nested_project_reference(bool async)
     {
         var prm = 1;
 
@@ -896,7 +896,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_nested_project_collection(bool async)
+    public virtual Task Json_collection_index_in_projection_nested_project_collection(bool async)
     {
         var prm = 1;
 
@@ -912,7 +912,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_nested_project_collection_anonymous_projection(bool async)
+    public virtual Task Json_collection_index_in_projection_nested_project_collection_anonymous_projection(bool async)
     {
         var prm = 1;
 
@@ -931,14 +931,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_using_constant(bool async)
+    public virtual Task Json_collection_index_in_predicate_using_constant(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[0].Name != "Foo").Select(x => x.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_using_variable(bool async)
+    public virtual Task Json_collection_index_in_predicate_using_variable(bool async)
     {
         var prm = 1;
 
@@ -949,7 +949,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_using_column(bool async)
+    public virtual Task Json_collection_index_in_predicate_using_column(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[x.Id].Name == "e1_c2").Select(x => new { x.Id, x }),
@@ -963,7 +963,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_using_complex_expression1(bool async)
+    public virtual Task Json_collection_index_in_predicate_using_complex_expression1(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[x.Id == 1 ? 0 : 1].Name == "e1_c1").Select(x => new { x.Id, x }),
@@ -977,7 +977,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_using_complex_expression2(bool async)
+    public virtual Task Json_collection_index_in_predicate_using_complex_expression2(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot[ss.Set<JsonEntityBasic>().Max(x => x.Id)].Name == "e1_c2").Select(x => new { x.Id, x }),
@@ -991,14 +991,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_using_ElementAt(bool async)
+    public virtual Task Json_collection_ElementAt_in_predicate(bool async)
         => AssertQueryScalar(
             async,
             ss => ss.Set<JsonEntityBasic>().Where(x => x.OwnedCollectionRoot.AsQueryable().ElementAt(1).Name != "Foo").Select(x => x.Id));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_predicate_nested_mix(bool async)
+    public virtual Task Json_collection_index_in_predicate_nested_mix(bool async)
     {
         var prm = 0;
 
@@ -1010,7 +1010,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_manual_Element_at_and_pushdown(bool async)
+    public virtual Task Json_collection_ElementAt_and_pushdown(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
@@ -1021,101 +1021,143 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_manual_Element_at_and_pushdown_negative(bool async)
+    public virtual Task Json_collection_Any_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch.Any(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_c2_c1_c1")));
+    // TODO: Need entries
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_Where_ElementAt(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Where(j =>
+                j.OwnedReferenceRoot.OwnedCollectionBranch
+                    .Where(o => o.Enum == JsonEnum.Three)
+                    .ElementAt(0).OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r"),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_Skip(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch
+                    .Skip(1)
+                    .ElementAt(0).OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r"),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_OrderByDescending_Skip_ElementAt(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch
+                        .OrderByDescending(b => b.Date)
+                        .Skip(1)
+                        .ElementAt(0).OwnedReferenceLeaf.SomethingSomething == "e1_r_c1_r"),
+            entryCount: 40);
+
+    // If this test is failing because of DistinctAfterOrderByWithoutRowLimitingOperatorWarning, this is because EF warns/errors by
+    // default for Distinct after OrderBy (without Skip/Take); but you likely have a naturally-ordered JSON collection, where the
+    // ordering has been added by the provider as part of the collection translation.
+    // Consider overriding RelationalQueryableMethodTranslatingExpressionVisitor.IsNaturallyOrdered() to identify such naturally-ordered
+    // collections, exempting them from the warning.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_Distinct_Count_with_predicate(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .Where(j => j.OwnedReferenceRoot.OwnedCollectionBranch
+                    .Distinct()
+                    .Count(b => b.OwnedReferenceLeaf.SomethingSomething == "e1_r_c2_r") == 1),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_within_collection_Count(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .Where(j => j.OwnedCollectionRoot.Any(c => c.OwnedCollectionBranch.Count == 2)),
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Json_collection_index_with_parameter_Select_ElementAt(bool async)
     {
         var prm = 0;
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new
-                {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot[prm].OwnedCollectionBranch.Select(xx => "Foo").ElementAt(0)
-                })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> [__prm_0].OwnedCollectionBranch"), message);
+        await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => new { x.Id, CollectionElement = x.OwnedCollectionRoot[prm].OwnedCollectionBranch.Select(xx => "Foo").ElementAt(0) }));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_manual_Element_at_and_pushdown_negative2(bool async)
+    public virtual async Task Json_collection_index_with_expression_Select_ElementAt(bool async)
     {
         var prm = 0;
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new
-                {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot[prm + x.Id].OwnedCollectionBranch.Select(xx => x.Id).ElementAt(0)
-                })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> [(...)].OwnedCollectionBranch"), message);
+        await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                j => j.OwnedCollectionRoot[prm + j.Id].OwnedCollectionBranch
+                    .Select(b => b.OwnedReferenceLeaf.SomethingSomething)
+                    .ElementAt(0)),
+            ss => ss.Set<JsonEntityBasic>().Select(
+                j => j.OwnedCollectionRoot.Count > prm + j.Id
+                    ? j.OwnedCollectionRoot[prm + j.Id].OwnedCollectionBranch
+                        .Select(b => b.OwnedReferenceLeaf.SomethingSomething)
+                        .ElementAt(0)
+                    : null));
     }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_manual_Element_at_and_pushdown_negative3(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new
+    public virtual async Task Json_collection_Select_entity_collection_ElementAt(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .AsNoTracking()
+                .Select(x => x.OwnedCollectionRoot.Select(xx => xx.OwnedCollectionBranch).ElementAt(0)),
+            elementAsserter: (e, a) =>
+            {
+                Assert.Equal(e.Count, a.Count);
+                for (var i = 0; i < e.Count; i++)
                 {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot.Select(xx => x.OwnedReferenceRoot).ElementAt(0)
-                })))).Message;
-
-        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
-    }
+                    JsonQueryFixtureBase.AssertOwnedBranch(e[i], a[i]);
+                }
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_manual_Element_at_and_pushdown_negative4(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new
-                {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot.Select(xx => x.OwnedCollectionRoot).ElementAt(0)
-                })))).Message;
-
-        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
-    }
+    public virtual async Task Json_collection_Select_entity_ElementAt(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().AsNoTracking().Select(x =>
+                x.OwnedCollectionRoot.Select(xx => xx.OwnedReferenceBranch).ElementAt(0)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_manual_Element_at_and_pushdown_negative5(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new
-                {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)
-                })))).Message;
-
-        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
-    }
+    public virtual async Task Json_collection_Select_entity_in_anonymous_object_ElementAt(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().AsNoTracking().Select(x =>
+                x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Json_collection_element_access_manual_Element_at_and_pushdown_negative6(bool async)
-    {
-        var message = (await Assert.ThrowsAsync<InvalidOperationException>(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<JsonEntityBasic>().Select(x => new
-                {
-                    x.Id,
-                    CollectionElement = x.OwnedCollectionRoot.Select(xx => new JsonEntityBasic { Id = x.Id }).ElementAt(0)
-                })))).Message;
-
-        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
-    }
+    public virtual async Task Json_collection_Select_entity_with_initializer_ElementAt(bool async)
+        => await AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(
+                x => x.OwnedCollectionRoot.Select(xx => new JsonEntityBasic { Id = x.Id }).ElementAt(0)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1192,7 +1234,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_constant_when_owner_is_present(bool async)
+    public virtual Task Json_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
@@ -1210,7 +1252,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_using_parameter_when_owner_is_present(bool async)
+    public virtual Task Json_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
         var prm = 1;
 
@@ -1232,7 +1274,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_after_collection_element_access_in_projection_using_constant_when_owner_is_present(bool async)
+    public virtual Task Json_collection_after_collection_index_in_projection_using_constant_when_owner_is_present(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
@@ -1250,7 +1292,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_after_collection_element_access_in_projection_using_parameter_when_owner_is_present(bool async)
+    public virtual Task Json_collection_after_collection_index_in_projection_using_parameter_when_owner_is_present(bool async)
     {
         var prm = 1;
 
@@ -1272,7 +1314,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_when_owner_is_present_misc1(bool async)
+    public virtual Task Json_collection_index_in_projection_when_owner_is_present_misc1(bool async)
     {
         var prm = 1;
 
@@ -1294,7 +1336,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_when_owner_is_present_misc2(bool async)
+    public virtual Task Json_collection_index_in_projection_when_owner_is_present_misc2(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => new
@@ -1312,7 +1354,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Json_collection_element_access_in_projection_when_owner_is_present_multiple(bool async)
+    public virtual Task Json_collection_index_in_projection_when_owner_is_present_multiple(bool async)
     {
         var prm = 1;
 

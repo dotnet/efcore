@@ -550,6 +550,9 @@
   <data name="JsonReaderInvalidTokenType" xml:space="preserve">
     <value>Invalid token type: '{tokenType}'.</value>
   </data>
+  <data name="JsonQueryLinqOperatorsNotSupported" xml:space="preserve">
+    <value>Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.</value>
+  </data>
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
     <value>Entity {entity} is required but the JSON element containing it is null.</value>
   </data>
@@ -985,6 +988,9 @@
   </data>
   <data name="RelationalNotInUse" xml:space="preserve">
     <value>Relational-specific methods can only be used when the context is using a relational database provider.</value>
+  </data>
+  <data name="SelectCanOnlyBeBuiltOnCollectionJsonQuery" xml:space="preserve">
+    <value>SelectExpression can only be built over a JsonQueryExpression that represents a collection within the JSON document.</value>
   </data>
   <data name="SelectExpressionNonTphWithCustomTable" xml:space="preserve">
     <value>Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.</value>

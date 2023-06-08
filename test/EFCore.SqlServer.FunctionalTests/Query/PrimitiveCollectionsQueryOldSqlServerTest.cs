@@ -396,6 +396,9 @@ WHERE (
     public override Task Column_collection_Any(bool async)
         => AssertCompatibilityLevelTooLow(() => base.Column_collection_Any(async));
 
+    public override Task Column_collection_Distinct(bool async)
+        => AssertTranslationFailed(() => base.Column_collection_Distinct(async));
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);

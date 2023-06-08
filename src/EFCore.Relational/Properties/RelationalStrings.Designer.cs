@@ -1148,6 +1148,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 tokenType);
 
         /// <summary>
+        ///     Composing LINQ operators over collections inside JSON documents isn't supported or hasn't been implemented by your EF provider.
+        /// </summary>
+        public static string JsonQueryLinqOperatorsNotSupported
+            => GetString("JsonQueryLinqOperatorsNotSupported");
+
+        /// <summary>
         ///     Entity {entity} is required but the JSON element containing it is null.
         /// </summary>
         public static string JsonRequiredEntityWithNullJson(object? entity)
@@ -1494,6 +1500,12 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
         /// </summary>
         public static string RelationalNotInUse
             => GetString("RelationalNotInUse");
+
+        /// <summary>
+        ///     SelectExpression can only be built over a JsonQueryExpression that represents a collection within the JSON document.
+        /// </summary>
+        public static string SelectCanOnlyBeBuiltOnCollectionJsonQuery
+            => GetString("SelectCanOnlyBeBuiltOnCollectionJsonQuery");
 
         /// <summary>
         ///     Cannot create a 'SelectExpression' with a custom 'TableExpressionBase' since the result type '{entityType}' is part of a hierarchy and does not contain a discriminator property.
