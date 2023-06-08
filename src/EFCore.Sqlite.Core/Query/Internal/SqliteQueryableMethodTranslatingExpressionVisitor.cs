@@ -4,6 +4,7 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Query.SqlExpressions.Internal;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Sqlite.Query.Internal;
@@ -60,6 +61,15 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
+        => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
     {
         // Simplify x.Array.Any() => json_array_length(x.Array) > 0 instead of WHERE EXISTS (SELECT 1 FROM json_each(x.Array))
@@ -89,15 +99,6 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
         return base.TranslateAny(source, predicate);
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
-        => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -215,7 +216,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         }
 
         var elementClrType = sqlExpression.Type.GetSequenceType();
-        var jsonEachExpression = new TableValuedFunctionExpression(tableAlias, "json_each", new[] { sqlExpression });
+        var jsonEachExpression = new JsonEachExpression(tableAlias, sqlExpression);
 
         // TODO: This is a temporary CLR type-based check; when we have proper metadata to determine if the element is nullable, use it here
         var isColumnNullable = elementClrType.IsNullableType();
@@ -250,7 +251,7 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
                     "key",
                     typeof(int),
                     typeMapping: _typeMappingSource.FindMapping(typeof(int)),
-                    isColumnNullable),
+                    columnNullable: false),
                 ascending: true));
 
         Expression shaperExpression = new ProjectionBindingExpression(
@@ -266,6 +267,146 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         }
 
         return new ShapedQueryExpression(selectExpression, shaperExpression);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override ShapedQueryExpression TransformJsonQueryToTable(JsonQueryExpression jsonQueryExpression)
+    {
+        var entityType = jsonQueryExpression.EntityType;
+        var textTypeMapping = _typeMappingSource.FindMapping(typeof(string));
+
+        // TODO: Refactor this out
+        // Calculate the table alias for the json_each expression based on the last named path segment
+        // (or the JSON column name if there are none)
+        var lastNamedPathSegment = jsonQueryExpression.Path.LastOrDefault(ps => ps.PropertyName is not null);
+        var tableAlias = char.ToLowerInvariant((lastNamedPathSegment.PropertyName ?? jsonQueryExpression.JsonColumn.Name)[0]).ToString();
+
+        // Handling a non-primitive JSON array is complicated on SQLite; unlike SQL Server OPENJSON and PostgreSQL jsonb_to_recordset,
+        // SQLite's json_each can only project elements of the array, and not properties within those elements. For example:
+        // SELECT value FROM json_each('[{"a":1,"b":"foo"}, {"a":2,"b":"bar"}]')
+        // This will return two rows, each with a string column representing an array element (i.e. {"a":1,"b":"foo"}). To decompose that
+        // into a and b columns, a further extraction is needed:
+        // SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each('[{"a":1,"b":"foo"}, {"a":2,"b":"bar"}]')
+
+        // We therefore generate a minimal subquery projecting out all the properties and navigations, wrapped by a SelectExpression
+        // containing that:
+        // SELECT ...
+        // FROM (SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each(<JSON column>, <path>)) AS j
+        // WHERE j.a = 8;
+
+        // Unfortunately, while the subquery projects the entity, our EntityProjectionExpression currently supports only bare
+        // ColumnExpression (the above requires JsonScalarExpression). So we hack as if the subquery projects an anonymous type instead,
+        // with a member for each JSON property that needs to be projected. We then wrap it with a SelectExpression the projects a proper
+        // EntityProjectionExpression.
+
+        var jsonEachExpression = new JsonEachExpression(tableAlias, jsonQueryExpression.JsonColumn, jsonQueryExpression.Path);
+
+        var selectExpression = new SelectExpression(jsonQueryExpression, jsonEachExpression);
+
+        selectExpression.AppendOrdering(
+            new OrderingExpression(
+                selectExpression.CreateColumnExpression(
+                    jsonEachExpression,
+                    "key",
+                    typeof(int),
+                    typeMapping: _typeMappingSource.FindMapping(typeof(int)),
+                    columnNullable: false),
+                ascending: true));
+
+        var propertyJsonScalarExpression = new Dictionary<ProjectionMember, Expression>();
+
+        var jsonColumn = selectExpression.CreateColumnExpression(
+            jsonEachExpression, "value", typeof(string), _typeMappingSource.FindMapping(typeof(string))); // TODO: nullable?
+
+        var containerColumnName = entityType.GetContainerColumnName();
+        Check.DebugAssert(containerColumnName is not null, "JsonQueryExpression to entity type without a container column name");
+
+        // First step: build a SelectExpression that will execute json_each and project all properties and navigations out, e.g.
+        // (SELECT value ->> 'a' AS a, value ->> 'b' AS b FROM json_each(c."JsonColumn", '$.Something.SomeCollection')
+
+        // We're only interested in properties which actually exist in the JSON, filter out uninteresting shadow keys
+        foreach (var property in GetAllPropertiesInHierarchy(entityType))
+        {
+            if (property.GetJsonPropertyName() is string jsonPropertyName)
+            {
+                // HACK: currently the only way to project multiple values from a SelectExpression is to simulate a Select out to an anonymous
+                // type; this requires the MethodInfos of the anonymous type properties, from which the projection alias gets taken.
+                // So we create fake members to hold the JSON property name for the alias.
+                var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonPropertyName));
+
+                propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
+                    jsonColumn,
+                    new[] { new PathSegment(property.GetJsonPropertyName()!) },
+                    property.ClrType.UnwrapNullableType(),
+                    property.GetRelationalTypeMapping(),
+                    property.IsNullable);
+            }
+        }
+
+        foreach (var navigation in GetAllNavigationsInHierarchy(jsonQueryExpression.EntityType)
+                     .Where(
+                         n => n.ForeignKey.IsOwnership
+                             && n.TargetEntityType.IsMappedToJson()
+                             && n.ForeignKey.PrincipalToDependent == n))
+        {
+            var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
+            Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
+
+            var projectionMember = new ProjectionMember().Append(new FakeMemberInfo(jsonNavigationName));
+
+            propertyJsonScalarExpression[projectionMember] = new JsonScalarExpression(
+                jsonColumn,
+                new[] { new PathSegment(jsonNavigationName) },
+                typeof(string),
+                textTypeMapping,
+                !navigation.ForeignKey.IsRequiredDependent);
+        }
+
+        selectExpression.ReplaceProjection(propertyJsonScalarExpression);
+
+        // Second step: push the above SelectExpression down to a subquery, and project an entity projection from the outer
+        // SelectExpression, i.e.
+        // SELECT "t"."a", "t"."b"
+        // FROM (SELECT value ->> 'a' ... FROM json_each(...))
+
+        selectExpression.PushdownIntoSubquery();
+        var subquery = selectExpression.Tables[0];
+
+        var newOuterSelectExpression = new SelectExpression(jsonQueryExpression, subquery);
+
+        newOuterSelectExpression.AppendOrdering(
+            new OrderingExpression(
+                selectExpression.CreateColumnExpression(
+                    subquery,
+                    "key",
+                    typeof(int),
+                    typeMapping: _typeMappingSource.FindMapping(typeof(int)),
+                    columnNullable: false),
+                ascending: true));
+
+        return new ShapedQueryExpression(
+            newOuterSelectExpression,
+            new RelationalEntityShaperExpression(
+                jsonQueryExpression.EntityType,
+                new ProjectionBindingExpression(
+                    newOuterSelectExpression,
+                    new ProjectionMember(),
+                    typeof(ValueBuffer)),
+                false));
+
+        // TODO: Move these to IEntityType?
+        static IEnumerable<IProperty> GetAllPropertiesInHierarchy(IEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                .SelectMany(t => t.GetDeclaredProperties());
+
+        static IEnumerable<INavigation> GetAllNavigationsInHierarchy(IEntityType entityType)
+            => entityType.GetAllBaseTypes().Concat(entityType.GetDerivedTypesInclusive())
+                .SelectMany(t => t.GetDeclaredNavigations());
     }
 
     /// <summary>
@@ -333,6 +474,35 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
         }
 
         return base.TranslateElementAtOrDefault(source, index, returnDefault);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override bool IsNaturallyOrdered(SelectExpression selectExpression)
+    {
+        return selectExpression is
+            {
+                Tables: [var mainTable, ..],
+                Orderings:
+                [
+                    {
+                        Expression: ColumnExpression { Name: "key", Table: var orderingTable } orderingColumn,
+                        IsAscending: true
+                    }
+                ]
+            }
+            && orderingTable == mainTable
+            && IsJsonEachKeyColumn(orderingColumn);
+
+        bool IsJsonEachKeyColumn(ColumnExpression orderingColumn)
+            => orderingColumn.Table is JsonEachExpression
+                || (orderingColumn.Table is SelectExpression subquery
+                    && subquery.Projection.FirstOrDefault(p => p.Alias == "key")?.Expression is ColumnExpression projectedColumn
+                    && IsJsonEachKeyColumn(projectedColumn));
     }
 
     private static Type GetProviderType(SqlExpression expression)
@@ -531,4 +701,22 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
 
             _ => expression
         };
+
+    private class FakeMemberInfo : MemberInfo
+    {
+        public FakeMemberInfo(string name)
+            => Name = name;
+
+        public override string Name { get; }
+
+        public override object[] GetCustomAttributes(bool inherit)
+            => throw new NotSupportedException();
+        public override object[] GetCustomAttributes(Type attributeType, bool inherit)
+            => throw new NotSupportedException();
+        public override bool IsDefined(Type attributeType, bool inherit)
+            => throw new NotSupportedException();
+        public override Type? DeclaringType => throw new NotSupportedException();
+        public override MemberTypes MemberType => throw new NotSupportedException();
+        public override Type? ReflectedType => throw new NotSupportedException();
+    }
 }

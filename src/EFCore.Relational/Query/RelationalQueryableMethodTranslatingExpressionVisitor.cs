@@ -223,6 +223,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         char.ToLowerInvariant(sqlParameterExpression.Name.First(c => c != '_')).ToString())
                     ?? base.VisitExtension(extensionExpression);
 
+            case JsonQueryExpression jsonQueryExpression:
+                return TransformJsonQueryToTable(jsonQueryExpression) ?? base.VisitExtension(extensionExpression);
+
             default:
                 return base.VisitExtension(extensionExpression);
         }
@@ -325,6 +328,19 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         RelationalTypeMapping? elementTypeMapping,
         string tableAlias)
         => null;
+
+    /// <summary>
+    ///     Invoked when LINQ operators are composed over a collection within a JSON document.
+    ///     Transforms the provided <see cref="JsonQueryExpression" /> - representing access to the collection - into a provider-specific
+    ///     means to expand the JSON array into a relational table/rowset (e.g. SQL Server OPENJSON).
+    /// </summary>
+    /// <param name="jsonQueryExpression">The <see cref="JsonQueryExpression" /> referencing the JSON array.</param>
+    /// <returns>A <see cref="ShapedQueryExpression" /> if the translation was successful, otherwise <see langword="null" />.</returns>
+    protected virtual ShapedQueryExpression? TransformJsonQueryToTable(JsonQueryExpression jsonQueryExpression)
+    {
+        AddTranslationErrorDetails(RelationalStrings.JsonQueryLinqOperatorsNotSupported);
+        return null;
+    }
 
     /// <summary>
     ///     Translates an inline collection into a queryable SQL VALUES expression.
@@ -606,9 +622,9 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
-        if (selectExpression.Orderings.Count > 0
-            && selectExpression.Limit == null
-            && selectExpression.Offset == null)
+
+        if (selectExpression is { Orderings.Count: > 0, Limit: null, Offset: null }
+            && !IsNaturallyOrdered(selectExpression))
         {
             _queryCompilationContext.Logger.DistinctAfterOrderByWithoutRowLimitingOperatorWarning();
         }
@@ -1861,6 +1877,16 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// <returns>Whether <paramref name="selectExpression" /> is ordered.</returns>
     protected virtual bool IsOrdered(SelectExpression selectExpression)
         => selectExpression.Orderings.Count > 0;
+
+    /// <summary>
+    ///     Determines whether the given <see cref="SelectExpression" /> is naturally ordered, meaning that any ordering has been added
+    ///     automatically by EF to preserve e.g. the natural ordering of a JSON array, and not because the original LINQ query contained
+    ///     an explicit ordering.
+    /// </summary>
+    /// <param name="selectExpression">The <see cref="SelectExpression" /> to check for ordering.</param>
+    /// <returns>Whether <paramref name="selectExpression"/> is ordered.</returns>
+    protected virtual bool IsNaturallyOrdered(SelectExpression selectExpression)
+        => false;
 
     private Expression RemapLambdaBody(ShapedQueryExpression shapedQueryExpression, LambdaExpression lambdaExpression)
     {

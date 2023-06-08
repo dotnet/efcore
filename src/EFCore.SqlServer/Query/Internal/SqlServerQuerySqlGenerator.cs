@@ -418,8 +418,25 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 
         Visit(jsonScalarExpression.Json);
 
-        Sql.Append(", '$");
-        foreach (var pathSegment in jsonScalarExpression.Path)
+        Sql.Append(", ");
+        GenerateJsonPath(jsonScalarExpression.Path);
+        Sql.Append(")");
+
+        if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
+        {
+            Sql.Append(" AS ");
+            Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
+            Sql.Append(")");
+        }
+
+        return jsonScalarExpression;
+    }
+
+    private void GenerateJsonPath(IReadOnlyList<PathSegment> path)
+    {
+        Sql.Append("'$");
+
+        foreach (var pathSegment in path)
         {
             switch (pathSegment)
             {
@@ -434,7 +451,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     // above; before that, arguments must be constant strings.
                     if (arrayIndex is SqlConstantExpression)
                     {
-                        Visit(pathSegment.ArrayIndex);
+                        Visit(arrayIndex);
                     }
                     else if (_sqlServerCompatibilityLevel >= 140)
                     {
@@ -458,16 +475,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
             }
         }
 
-        Sql.Append("')");
-
-        if (jsonScalarExpression.TypeMapping is not SqlServerJsonTypeMapping and not StringTypeMapping)
-        {
-            Sql.Append(" AS ");
-            Sql.Append(jsonScalarExpression.TypeMapping!.StoreType);
-            Sql.Append(")");
-        }
-
-        return jsonScalarExpression;
+        Sql.Append("'");
     }
 
     /// <summary>
@@ -480,11 +488,18 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         // OPENJSON docs: https://learn.microsoft.com/sql/t-sql/functions/openjson-transact-sql
 
-        // OPENJSON is a regular table-valued function with a special WITH clause at the end
-        // Copy-paste from VisitTableValuedFunction, because that appends the 'AS <alias>' but we need to insert WITH before that
+        // OPENJSON is a regular table-valued function with an optional special WITH clause at the end.
+        // The second argument is the JSON path, which can either be a regular SqlExpression, or a list of PathSegments, from which we
+        // generate a constant JSONPATH from.
         Sql.Append("OPENJSON(");
 
-        GenerateList(openJsonExpression.Arguments, e => Visit(e));
+        Visit(openJsonExpression.JsonExpression);
+
+        if (openJsonExpression.Path is not null)
+        {
+            Sql.Append(", ");
+            GenerateJsonPath(openJsonExpression.Path);
+        }
 
         Sql.Append(")");
 
@@ -492,27 +507,43 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
         {
             Sql.Append(" WITH (");
 
-            for (var i = 0; i < openJsonExpression.ColumnInfos.Count; i++)
+            if (openJsonExpression.ColumnInfos is [var singleColumnInfo])
             {
-                var columnInfo = openJsonExpression.ColumnInfos[i];
+                GenerateColumnInfo(singleColumnInfo);
+            }
+            else
+            {
+                Sql.AppendLine();
+                using var _ = Sql.Indent();
 
-                if (i > 0)
+                for (var i = 0; i < openJsonExpression.ColumnInfos.Count; i++)
                 {
-                    Sql.Append(", ");
+                    var columnInfo = openJsonExpression.ColumnInfos[i];
+
+                    if (i > 0)
+                    {
+                        Sql.AppendLine(",");
+                    }
+
+                    GenerateColumnInfo(columnInfo);
                 }
 
-                Check.DebugAssert(columnInfo.StoreType is not null, "Unset OPENJSON column store type");
+                Sql.AppendLine();
+            }
 
+            Sql.Append(")");
+
+            void GenerateColumnInfo(SqlServerOpenJsonExpression.ColumnInfo columnInfo)
+            {
                 Sql
                     .Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(columnInfo.Name))
                     .Append(" ")
-                    .Append(columnInfo.StoreType);
+                    .Append(columnInfo.TypeMapping.StoreType);
 
                 if (columnInfo.Path is not null)
                 {
-                    Sql
-                        .Append(" ")
-                        .Append(_typeMappingSource.GetMapping("varchar(max)").GenerateSqlLiteral(columnInfo.Path));
+                    Sql.Append(" ");
+                    GenerateJsonPath(columnInfo.Path);
                 }
 
                 if (columnInfo.AsJson)
@@ -520,8 +551,6 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     Sql.Append(" AS JSON");
                 }
             }
-
-            Sql.Append(")");
         }
 
         Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(openJsonExpression.Alias));

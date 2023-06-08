@@ -494,13 +494,13 @@ public sealed partial class SelectExpression : TableExpressionBase
             throw new InvalidOperationException(RelationalStrings.SelectExpressionNonTphWithCustomTable(entityType.DisplayName()));
         }
 
-        var table = (tableExpressionBase as ITableBasedExpression)?.Table;
-        Check.DebugAssert(table is not null, "SelectExpression with unexpected missing table");
-
         var tableReferenceExpression = new TableReferenceExpression(this, tableExpressionBase.Alias!);
         AddTable(tableExpressionBase, tableReferenceExpression);
 
         var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+        var table = (tableExpressionBase as ITableBasedExpression)?.Table;
+        Check.DebugAssert(table is not null, "SelectExpression with unexpected missing table");
+
         foreach (var property in GetAllPropertiesInHierarchy(entityType))
         {
             propertyExpressions[property] = CreateColumnExpression(property, table, tableReferenceExpression, nullable: false);
@@ -520,6 +520,95 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
     }
 
+    /// <summary>
+    ///     Constructs a <see cref="SelectExpression" /> over a collection within a JSON document.
+    /// </summary>
+    /// <param name="jsonQueryExpression">
+    ///     The collection within a JSON document which the <see cref="SelectExpression" /> will represent.
+    /// </param>
+    /// <param name="tableExpressionBase">
+    ///     The table for the <see cref="SelectExpression" />; typically a provider-specific table-valued function that converts a JSON
+    ///     array to a relational table/rowset (e.g. SQL Server OPENJSON)
+    /// </param>
+    public SelectExpression(JsonQueryExpression jsonQueryExpression, TableExpressionBase tableExpressionBase)
+        : base(null)
+    {
+        if (!jsonQueryExpression.IsCollection)
+        {
+            throw new ArgumentException(RelationalStrings.SelectCanOnlyBeBuiltOnCollectionJsonQuery, nameof(jsonQueryExpression));
+        }
+
+        var entityType = jsonQueryExpression.EntityType;
+
+        Check.DebugAssert(
+            entityType.BaseType is null && !entityType.GetDirectlyDerivedTypes().Any(),
+            "Inheritance encountered inside a JSON document");
+
+        var tableReferenceExpression = new TableReferenceExpression(this, tableExpressionBase.Alias!);
+        AddTable(tableExpressionBase, tableReferenceExpression);
+
+        // Create a dictionary mapping all properties to their ColumnExpressions, for the SelectExpression's projection.
+        var propertyExpressions = new Dictionary<IProperty, ColumnExpression>();
+
+        foreach (var property in GetAllPropertiesInHierarchy(entityType))
+        {
+            // Skip also properties with no JSON name (i.e. shadow keys containing the index in the collection, which don't actually exist
+            // in the JSON document and can't be bound to)
+            if (property.GetJsonPropertyName() is string jsonPropertyName)
+            {
+                propertyExpressions[property] = CreateColumnExpression(
+                    tableExpressionBase, jsonPropertyName, property.ClrType, property.GetRelationalTypeMapping(), property.IsNullable);
+            }
+        }
+
+        var entityProjection = new EntityProjectionExpression(entityType, propertyExpressions);
+
+        var containerColumnName = jsonQueryExpression.EntityType.GetContainerColumnName()!;
+        var jsonColumnTypeMapping = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+                ?? entityType.GetDefaultMappings().Single().Table)
+            .FindColumn(containerColumnName)!.StoreTypeMapping;
+
+        foreach (var navigation in GetAllNavigationsInHierarchy(entityType)
+                     .Where(
+                         n => n.ForeignKey.IsOwnership
+                             && n.TargetEntityType.IsMappedToJson()
+                             && n.ForeignKey.PrincipalToDependent == n))
+        {
+            var targetEntityType = navigation.TargetEntityType;
+
+            var jsonNavigationName = navigation.TargetEntityType.GetJsonPropertyName();
+            Check.DebugAssert(jsonNavigationName is not null, "Invalid navigation found on JSON-mapped entity");
+
+            // The TableExpressionBase represents a relational expansion of the JSON collection. We now need a ColumnExpression to represent
+            // the specific JSON property (projected as a relational column) which holds the JSON subtree for the target entity.
+            var jsonColumn = new ConcreteColumnExpression(
+                jsonNavigationName,
+                tableReferenceExpression,
+                jsonColumnTypeMapping.ClrType,
+                jsonColumnTypeMapping,
+                nullable: !navigation.ForeignKey.IsRequiredDependent || navigation.IsCollection);
+
+            var entityShaperExpression = new RelationalEntityShaperExpression(
+                targetEntityType,
+                new JsonQueryExpression(
+                    targetEntityType,
+                    jsonColumn,
+                    jsonQueryExpression.KeyPropertyMap,
+                    navigation.ClrType,
+                    navigation.IsCollection),
+                !navigation.ForeignKey.IsRequiredDependent);
+
+            entityProjection.AddNavigationBinding(navigation, entityShaperExpression);
+        }
+
+        _projectionMapping[new ProjectionMember()] = entityProjection;
+
+        foreach (var (property, column) in jsonQueryExpression.KeyPropertyMap)
+        {
+            _identifier.Add((column, property.GetKeyValueComparer()));
+        }
+    }
+
     private void AddJsonNavigationBindings(
         IEntityType entityType,
         EntityProjectionExpression entityProjection,
@@ -534,16 +623,20 @@ public sealed partial class SelectExpression : TableExpressionBase
         {
             var targetEntityType = ownedJsonNavigation.TargetEntityType;
             var jsonColumnName = targetEntityType.GetContainerColumnName()!;
-            var jsonColumnTypeMapping = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
+            var jsonColumn = (entityType.GetViewOrTableMappings().SingleOrDefault()?.Table
                     ?? entityType.GetDefaultMappings().Single().Table)
-                .FindColumn(jsonColumnName)!.StoreTypeMapping;
+                .FindColumn(jsonColumnName)!;
+            var jsonColumnTypeMapping = jsonColumn.StoreTypeMapping;
+            var isNullable = jsonColumn.IsNullable
+                || !ownedJsonNavigation.ForeignKey.IsRequiredDependent
+                || ownedJsonNavigation.IsCollection;
 
-            var jsonColumn = new ConcreteColumnExpression(
+            var jsonColumnExpression = new ConcreteColumnExpression(
                 jsonColumnName,
                 tableReferenceExpression,
                 jsonColumnTypeMapping.ClrType,
                 jsonColumnTypeMapping,
-                nullable: !ownedJsonNavigation.ForeignKey.IsRequiredDependent || ownedJsonNavigation.IsCollection);
+                isNullable);
 
             // for json collections we need to skip ordinal key (which is always the last one)
             // simple copy from parent is safe here, because we only do it at top level
@@ -564,11 +657,11 @@ public sealed partial class SelectExpression : TableExpressionBase
                 targetEntityType,
                 new JsonQueryExpression(
                     targetEntityType,
-                    jsonColumn,
+                    jsonColumnExpression,
                     keyPropertiesMap,
                     ownedJsonNavigation.ClrType,
                     ownedJsonNavigation.IsCollection),
-                !ownedJsonNavigation.ForeignKey.IsRequiredDependent);
+                isNullable);
 
             entityProjection.AddNavigationBinding(ownedJsonNavigation, entityShaperExpression);
         }

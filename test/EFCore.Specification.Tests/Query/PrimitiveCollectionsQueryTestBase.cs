@@ -455,6 +455,19 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Any()),
             entryCount: 4);
 
+    // If this test is failing because of DistinctAfterOrderByWithoutRowLimitingOperatorWarning, this is because EF warns/errors by
+    // default for Distinct after OrderBy (without Skip/Take); but you likely have a naturally-ordered JSON collection, where the
+    // ordering has been added by the provider as part of the collection translation.
+    // Consider overriding RelationalQueryableMethodTranslatingExpressionVisitor.IsNaturallyOrdered() to identify such naturally-ordered
+    // collections, exempting them from the warning.
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_Distinct(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Distinct().Count() == 3),
+            entryCount: 1);
+
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
     public virtual Task Column_collection_projection_from_top_level(bool async)
@@ -809,9 +822,6 @@ public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBas
 
         public Func<DbContext> GetContextCreator()
             => () => CreateContext();
-
-        public override DbContextOptionsBuilder AddOptions(DbContextOptionsBuilder builder)
-            => base.AddOptions(builder).ConfigureWarnings(c => c.Log(CoreEventId.DistinctAfterOrderByWithoutRowLimitingOperatorWarning));
 
         protected override void OnModelCreating(ModelBuilder modelBuilder, DbContext context)
             => modelBuilder.Entity<PrimitiveCollectionsEntity>().Property(p => p.Id).ValueGeneratedNever();

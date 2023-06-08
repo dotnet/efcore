@@ -646,6 +646,23 @@ WHERE json_array_length("p"."Ints") > 0
 """);
     }
 
+    public override async Task Column_collection_Distinct(bool async)
+    {
+        await base.Column_collection_Distinct(async);
+
+        AssertSql(
+"""
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (
+        SELECT DISTINCT "i"."value"
+        FROM json_each("p"."Ints") AS "i"
+    ) AS "t") = 3
+""");
+    }
+
     public override async Task Column_collection_projection_from_top_level(bool async)
     {
         await base.Column_collection_projection_from_top_level(async);

@@ -128,19 +128,9 @@ public class TableValuedFunctionExpression : TableExpressionBase, ITableBasedExp
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        var changed = false;
-        var arguments = new SqlExpression[Arguments.Count];
-        for (var i = 0; i < arguments.Length; i++)
-        {
-            arguments[i] = (SqlExpression)visitor.Visit(Arguments[i]);
-            changed |= arguments[i] != Arguments[i];
-        }
-
-        return changed
-            ? new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, arguments, GetAnnotations())
-            : this;
-    }
+        => visitor.VisitAndConvert(Arguments) is var visitedArguments && visitedArguments == Arguments
+            ? this
+            : new TableValuedFunctionExpression(Alias, Name, Schema, IsBuiltIn, visitedArguments, GetAnnotations());
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will

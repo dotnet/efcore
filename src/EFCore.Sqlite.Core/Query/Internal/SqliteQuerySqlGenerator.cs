@@ -43,6 +43,10 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
                 GenerateRegexp(regexpExpression);
                 return extensionExpression;
 
+            case JsonEachExpression jsonEachExpression:
+                GenerateJsonEach(jsonEachExpression);
+                return extensionExpression;
+
             default:
                 return base.VisitExtension(extensionExpression);
         }
@@ -129,17 +133,86 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected virtual void GenerateJsonEach(JsonEachExpression jsonEachExpression)
+    {
+        // json_each docs: https://www.sqlite.org/json1.html#jeach
+
+        // json_each is a regular table-valued function; however, since it accepts an (optional) JSONPATH argument - which we represent
+        // as IReadOnlyList<PathSegment>, and that can only be rendered as a string here in the QuerySqlGenerator, we have a special
+        // expression type for it.
+        Sql.Append("json_each(");
+
+        Visit(jsonEachExpression.JsonExpression);
+
+        var path = jsonEachExpression.Path;
+
+        if (path is not null)
+        {
+            Sql.Append(", ");
+
+            // Note the difference with the JSONPATH rendering in VisitJsonScalar below, where we take advantage of SQLite's ->> operator
+            // (we can't do that here).
+            Sql.Append("'$");
+
+            var inJsonpathString = true;
+
+            for (var i = 0; i < path.Count; i++)
+            {
+                switch (path[i])
+                {
+                    case { PropertyName: string propertyName }:
+                        Sql.Append(".").Append(propertyName);
+                        break;
+
+                    case { ArrayIndex: SqlExpression arrayIndex }:
+                        Sql.Append("[");
+
+                        if (arrayIndex is SqlConstantExpression)
+                        {
+                            Visit(arrayIndex);
+                        }
+                        else
+                        {
+                            Sql.Append("' || ");
+                            Visit(arrayIndex);
+                            Sql.Append(" || '");
+                        }
+
+                        Sql.Append("]");
+                        break;
+
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            if (inJsonpathString)
+            {
+                Sql.Append("'");
+            }
+        }
+
+        Sql.Append(")");
+
+        Sql.Append(AliasSeparator).Append(Dependencies.SqlGenerationHelper.DelimitIdentifier(jsonEachExpression.Alias));
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override Expression VisitJsonScalar(JsonScalarExpression jsonScalarExpression)
     {
+        Visit(jsonScalarExpression.Json);
+
         // TODO: Stop producing empty JsonScalarExpressions, #30768
         var path = jsonScalarExpression.Path;
         if (path.Count == 0)
         {
-            Visit(jsonScalarExpression.Json);
             return jsonScalarExpression;
         }
-
-        Visit(jsonScalarExpression.Json);
 
         var inJsonpathString = false;
 
