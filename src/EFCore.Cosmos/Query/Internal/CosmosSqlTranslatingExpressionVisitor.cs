@@ -510,45 +510,12 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         else if (method.IsGenericMethod
                  && method.GetGenericMethodDefinition().Equals(EnumerableMethods.Contains))
         {
-            var enumerable = Visit(methodCallExpression.Arguments[0]);
-            var item = Visit(methodCallExpression.Arguments[1]);
-
-            if (TryRewriteContainsEntity(enumerable, item ?? methodCallExpression.Arguments[1], out var result))
-            {
-                return result;
-            }
-
-            if (enumerable is SqlExpression sqlEnumerable
-                && item is SqlExpression sqlItem)
-            {
-                arguments = new[] { sqlEnumerable, sqlItem };
-            }
-            else
-            {
-                return null;
-            }
+            return TranslateContains(methodCallExpression.Arguments[1], methodCallExpression.Arguments[0]);
         }
         else if (methodCallExpression.Arguments.Count == 1
                  && method.IsContainsMethod())
         {
-            var enumerable = Visit(methodCallExpression.Object);
-            var item = Visit(methodCallExpression.Arguments[0]);
-
-            if (TryRewriteContainsEntity(enumerable, item ?? methodCallExpression.Arguments[0], out var result))
-            {
-                return result;
-            }
-
-            if (enumerable is SqlExpression sqlEnumerable
-                && item is SqlExpression sqlItem)
-            {
-                sqlObject = sqlEnumerable;
-                arguments = new[] { sqlItem };
-            }
-            else
-            {
-                return null;
-            }
+            return TranslateContains(methodCallExpression.Arguments[0], methodCallExpression.Object);
         }
         else
         {
@@ -590,6 +557,64 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         return translation;
+
+        Expression TranslateContains(Expression untranslatedItem, Expression untranslatedCollection)
+        {
+            var collection = Visit(untranslatedCollection);
+            var itemUnchecked = Visit(untranslatedItem);
+
+            if (TryRewriteContainsEntity(collection, itemUnchecked ?? untranslatedItem, out var result))
+            {
+                return result;
+            }
+
+            if (itemUnchecked is not SqlExpression translatedItem)
+            {
+                return null;
+            }
+
+            switch (collection)
+            {
+                // If the collection was an inline NewArrayExpression with constants only, we get a single constant for that array.
+                case SqlConstantExpression { Value: IEnumerable values, TypeMapping: var typeMapping }:
+                {
+                    var translatedValues = values is IList iList
+                        ? new List<SqlExpression>(iList.Count)
+                        : new List<SqlExpression>();
+                    foreach (var value in values)
+                    {
+                        translatedValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));
+                    }
+                    return _sqlExpressionFactory.In(translatedItem, translatedValues);
+                }
+
+                // If the collection was an inline NewArrayExpression with at least one non-constant, the NewArrayExpression makes it
+                // as-is to translation, where it (currently) cannot be translated. Identify this case and translate the elements.
+                case not SqlExpression when untranslatedCollection is NewArrayExpression { Expressions: var values }:
+                {
+                    var translatedValues = new SqlExpression[values.Count];
+                    for (var i = 0; i < values.Count; i++)
+                    {
+                        if (Visit(values[i]) is not SqlExpression value)
+                        {
+                            return null;
+                        }
+
+                        translatedValues[i] = value;
+                    }
+
+                    return _sqlExpressionFactory.In(translatedItem, translatedValues);
+                }
+
+                // If the collection was a captured variable (parameter), construct an InExpression over that;
+                // InExpressionValuesExpandingExpressionVisitor will expand the values as constants later.
+                case SqlParameterExpression sqlParameterExpression:
+                    return _sqlExpressionFactory.In(translatedItem, sqlParameterExpression);
+
+                default:
+                    return null;
+            }
+        }
 
         static Expression RemoveObjectConvert(Expression expression)
             => expression is UnaryExpression unaryExpression
@@ -717,7 +742,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
                         _sqlExpressionFactory.Constant(concreteEntityTypes[0].GetDiscriminatorValue()))
                     : _sqlExpressionFactory.In(
                         discriminatorColumn,
-                        _sqlExpressionFactory.Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList()));
+                        concreteEntityTypes.Select(et => _sqlExpressionFactory.Constant(et.GetDiscriminatorValue())).ToArray());
             }
         }
 

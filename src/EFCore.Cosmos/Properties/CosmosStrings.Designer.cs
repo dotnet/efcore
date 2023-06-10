@@ -234,6 +234,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("OffsetRequiresLimit");
 
         /// <summary>
+        ///     Exactly one of '{param1}' or '{param2}' must be set.
+        /// </summary>
+        public static string OneOfTwoValuesMustBeSet(object? param1, object? param2)
+            => string.Format(
+                GetString("OneOfTwoValuesMustBeSet", nameof(param1), nameof(param2)),
+                param1, param2);
+
+        /// <summary>
+        ///     Only constants or parameters are currently allowed in Contains.
+        /// </summary>
+        public static string OnlyConstantsAndParametersAllowedInContains
+            => GetString("OnlyConstantsAndParametersAllowedInContains");
+
+        /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.
         /// </summary>
         public static string OrphanedNestedDocument(object? entityType, object? missingEntityType)

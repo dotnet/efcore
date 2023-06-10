@@ -887,7 +887,7 @@ public class SqlNullabilityProcessor
 
                 foreach (var value in values)
                 {
-                    if (value == null && removeNulls)
+                    if (value is null && removeNulls)
                     {
                         hasNull = true;
                         continue;
