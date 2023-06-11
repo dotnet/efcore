@@ -47,31 +47,10 @@ public class InlineQueryRootExpression : QueryRootExpression
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        Expression[]? newValues = null;
-
-        for (var i = 0; i < Values.Count; i++)
-        {
-            var value = Values[i];
-            var newValue = visitor.Visit(value);
-
-            if (newValue != value && newValues is null)
-            {
-                newValues = new Expression[Values.Count];
-                for (var j = 0; j < i; j++)
-                {
-                    newValues[j] = Values[j];
-                }
-            }
-
-            if (newValues is not null)
-            {
-                newValues[i] = newValue;
-            }
-        }
-
-        return newValues is null ? this : new InlineQueryRootExpression(newValues, Type);
-    }
+        => visitor.Visit(Values) is var visitedValues
+            && ReferenceEquals(visitedValues, Values)
+                ? this
+                : new InlineQueryRootExpression(visitedValues, Type);
 
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)

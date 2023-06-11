@@ -93,21 +93,19 @@ public class QueryRootProcessor : ExpressionVisitor
 
             visitedArgument ??= Visit(argument);
 
-            if (visitedArgument != argument)
-            {
-                if (newArguments is null)
-                {
-                    newArguments = new Expression[methodCallExpression.Arguments.Count];
-
-                    for (var j = 0; j < i; j++)
-                    {
-                        newArguments[j] = methodCallExpression.Arguments[j];
-                    }
-                }
-            }
-
             if (newArguments is not null)
             {
+                newArguments[i] = visitedArgument;
+            }
+            else if (!ReferenceEquals(visitedArgument, argument))
+            {
+                newArguments = new Expression[methodCallExpression.Arguments.Count];
+
+                for (var j = 0; j < i; j++)
+                {
+                    newArguments[j] = methodCallExpression.Arguments[j];
+                }
+
                 newArguments[i] = visitedArgument;
             }
         }

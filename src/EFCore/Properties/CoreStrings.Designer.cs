@@ -1606,6 +1606,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 storeNames);
 
         /// <summary>
+        ///     When called from '{0}', rewriting a node of type '{1}' must return a non-null value of the same type. Alternatively, override '{0}' and change it to not visit children of this type.
+        /// </summary>
+        public static string MustRewriteToSameNode(object? caller, object? type)
+            => string.Format(
+                GetString("MustRewriteToSameNode", nameof(caller), nameof(type)),
+                caller, type);
+
+        /// <summary>
         ///     The property '{keyProperty}' cannot be configured as 'ValueGeneratedOnUpdate' or 'ValueGeneratedOnAddOrUpdate' because it's part of a key and its value cannot be changed after the entity has been added to the store.
         /// </summary>
         public static string MutableKeyProperty(object? keyProperty)
