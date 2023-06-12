@@ -46,7 +46,7 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
                 {
                     ProviderValueComparer = parameters.CoreParameters.ProviderValueComparer
                     ?? CreateProviderValueComparer(
-                        parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType),
+                        parameters.CoreParameters.Converter?.ProviderClrType ?? parameters.CoreParameters.ClrType)
                 }))
     {
         SpatialConverter = converter;
