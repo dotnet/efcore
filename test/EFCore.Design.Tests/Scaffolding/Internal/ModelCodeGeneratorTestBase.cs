@@ -2,8 +2,8 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore.Design.Internal;
+using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 
@@ -19,7 +19,7 @@ public abstract class ModelCodeGeneratorTestBase
         _output = output;
     }
 
-    protected async Task TestAsync(
+    protected Task TestAsync(
         Action<ModelBuilder> buildModel,
         ModelCodeGenerationOptions options,
         Action<ScaffoldedModel> assertScaffold,
@@ -37,8 +37,37 @@ public abstract class ModelCodeGeneratorTestBase
         var services = CreateServices();
         AddScaffoldingServices(services);
 
-        var generators = services.BuildServiceProvider(validateScopes: true)
-            .GetServices<IModelCodeGenerator>();
+        var serviceProvider = services.BuildServiceProvider(validateScopes: true);
+
+        return TestAsync(serviceProvider, model, options, assertScaffold, assertModel, skipBuild);
+    }
+
+    protected Task TestAsync(
+        Func<IServiceProvider, IModel> buildModel,
+        ModelCodeGenerationOptions options,
+        Action<ScaffoldedModel> assertScaffold,
+        Action<IModel> assertModel,
+        bool skipBuild = false)
+    {
+        var designServices = new ServiceCollection();
+        AddModelServices(designServices);
+        var services = CreateServices();
+        AddScaffoldingServices(services);
+        var serviceProvider = services.BuildServiceProvider(validateScopes: true);
+        var model = buildModel(serviceProvider);
+
+        return TestAsync(serviceProvider, model, options, assertScaffold, assertModel, skipBuild);
+    }
+
+    protected async Task TestAsync(
+        IServiceProvider serviceProvider,
+        IModel model,
+        ModelCodeGenerationOptions options,
+        Action<ScaffoldedModel> assertScaffold,
+        Action<IModel> assertModel,
+        bool skipBuild = false)
+    {
+        var generators = serviceProvider.GetServices<IModelCodeGenerator>();
         var generator = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
             || RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
             || Random.Shared.Next() % 12 != 0
@@ -85,6 +114,37 @@ public abstract class ModelCodeGeneratorTestBase
                 assertModel(compiledModel);
             }
         }
+    }
+
+    protected static DatabaseModel BuildModelWithColumn(string storeType, string sql, object expected)
+    {
+        var dbModel = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Database = new DatabaseModel(),
+                    Name = "Table",
+                    Columns =
+                    {
+                        new DatabaseColumn
+                        {
+                            Name = "Column",
+                            StoreType = storeType,
+                            DefaultValueSql = sql,
+                            DefaultValue = expected
+                        }
+                    }
+                }
+            }
+        };
+
+        var table = dbModel.Tables.Single();
+        table.Database = dbModel;
+        table.Columns.Single().Table = table;
+
+        return dbModel;
     }
 
     protected IServiceCollection CreateServices()

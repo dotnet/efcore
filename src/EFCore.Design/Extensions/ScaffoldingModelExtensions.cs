@@ -818,6 +818,23 @@ public static class ScaffoldingModelExtensions
     {
         FluentApiCodeFragment? root = null;
 
+        if (annotatable is IProperty property
+            && annotations.TryGetValue(RelationalAnnotationNames.DefaultValueSql, out _)
+            && annotations.TryGetValue(RelationalAnnotationNames.DefaultValue, out var parsedAnnotation))
+        {
+            if (Equals(property.ClrType.GetDefaultValue(), parsedAnnotation.Value))
+            {
+                // Default value is CLR default for property, so exclude it from scaffolded model
+                annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
+                annotations.Remove(RelationalAnnotationNames.DefaultValue);
+            }
+            else
+            {
+                // SQL was parsed, so use parsed value and exclude raw value
+                annotations.Remove(RelationalAnnotationNames.DefaultValueSql);
+            }
+        }
+
         foreach (var methodCall in annotationCodeGenerator.GenerateFluentApiCalls(annotatable, annotations))
         {
             var fluentApiCall = FluentApiCodeFragment.From(methodCall);
