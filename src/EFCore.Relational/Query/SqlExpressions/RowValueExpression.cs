@@ -36,32 +36,10 @@ public class RowValueExpression : SqlExpression
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        Check.NotNull(visitor, nameof(visitor));
-
-        SqlExpression[]? newValues = null;
-
-        for (var i = 0; i < Values.Count; i++)
-        {
-            var value = Values[i];
-            var visited = (SqlExpression)visitor.Visit(value);
-            if (visited != value && newValues is null)
-            {
-                newValues = new SqlExpression[Values.Count];
-                for (var j = 0; j < i; j++)
-                {
-                    newValues[j] = Values[j];
-                }
-            }
-
-            if (newValues is not null)
-            {
-                newValues[i] = visited;
-            }
-        }
-
-        return newValues is null ? this : new RowValueExpression(newValues);
-    }
+        => visitor.VisitAndConvert(Values) is var newValues
+            && ReferenceEquals(newValues, Values)
+                ? this
+                : new RowValueExpression(newValues);
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will

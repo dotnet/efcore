@@ -76,32 +76,10 @@ public class ValuesExpression : TableExpressionBase, IClonableTableExpressionBas
 
     /// <inheritdoc />
     protected override Expression VisitChildren(ExpressionVisitor visitor)
-    {
-        Check.NotNull(visitor, nameof(visitor));
-
-        RowValueExpression[]? newRowValues = null;
-
-        for (var i = 0; i < RowValues.Count; i++)
-        {
-            var rowValue = RowValues[i];
-            var visited = (RowValueExpression)visitor.Visit(rowValue);
-            if (visited != rowValue && newRowValues is null)
-            {
-                newRowValues = new RowValueExpression[RowValues.Count];
-                for (var j = 0; j < i; j++)
-                {
-                    newRowValues[j] = RowValues[j];
-                }
-            }
-
-            if (newRowValues is not null)
-            {
-                newRowValues[i] = visited;
-            }
-        }
-
-        return newRowValues is null ? this : new ValuesExpression(Alias, newRowValues, ColumnNames);
-    }
+        => visitor.VisitAndConvert(RowValues) is var newRowValues
+            && ReferenceEquals(newRowValues, RowValues)
+                ? this
+                : new ValuesExpression(Alias, newRowValues, ColumnNames);
 
     /// <summary>
     ///     Creates a new expression that is like this one, but using the supplied children. If all of the children are the same, it will
