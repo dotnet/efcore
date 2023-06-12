@@ -624,9 +624,7 @@ WHERE (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
-    FROM json_each("p"."Ints") AS "i")
+WHERE json_array_length("p"."Ints") > 0
 """);
     }
 
