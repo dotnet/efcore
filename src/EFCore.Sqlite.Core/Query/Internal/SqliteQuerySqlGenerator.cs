@@ -32,12 +32,21 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected override Expression VisitExtension(Expression extensionExpression)
-        => extensionExpression switch
+    {
+        switch (extensionExpression)
         {
-            GlobExpression globExpression => VisitGlob(globExpression),
-            RegexpExpression regexpExpression => VisitRegexp(regexpExpression),
-            _ => base.VisitExtension(extensionExpression)
-        };
+            case GlobExpression globExpression:
+                GenerateGlob(globExpression);
+                return extensionExpression;
+
+            case RegexpExpression regexpExpression:
+                GenerateRegexp(regexpExpression);
+                return extensionExpression;
+
+            default:
+                return base.VisitExtension(extensionExpression);
+        }
+    }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -88,34 +97,30 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         // Sqlite doesn't support parentheses around set operation operands
         => Visit(operand);
 
-    private Expression VisitGlob(GlobExpression globExpression)
+    private void GenerateGlob(GlobExpression globExpression, bool negated = false)
     {
         Visit(globExpression.Match);
 
-        if (globExpression.IsNegated)
+        if (negated)
         {
             Sql.Append(" NOT");
         }
 
         Sql.Append(" GLOB ");
         Visit(globExpression.Pattern);
-
-        return globExpression;
     }
 
-    private Expression VisitRegexp(RegexpExpression regexpExpression)
+    private void GenerateRegexp(RegexpExpression regexpExpression, bool negated = false)
     {
         Visit(regexpExpression.Match);
 
-        if (regexpExpression.IsNegated)
+        if (negated)
         {
             Sql.Append(" NOT");
         }
 
         Sql.Append(" REGEXP ");
         Visit(regexpExpression.Pattern);
-
-        return regexpExpression;
     }
 
     /// <summary>
@@ -223,6 +228,34 @@ public class SqliteQuerySqlGenerator : QuerySqlGenerator
         }
 
         return jsonScalarExpression;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    protected override Expression VisitSqlUnary(SqlUnaryExpression sqlUnaryExpression)
+    {
+        switch (sqlUnaryExpression.OperatorType)
+        {
+            case ExpressionType.Not when sqlUnaryExpression.Type == typeof(bool):
+                switch (sqlUnaryExpression.Operand)
+                {
+                    case GlobExpression globExpression:
+                        GenerateGlob(globExpression, negated: true);
+                        return sqlUnaryExpression;
+
+                    case RegexpExpression regexpExpression:
+                        GenerateRegexp(regexpExpression, negated: true);
+                        return sqlUnaryExpression;
+                }
+                goto default;
+
+            default:
+                return base.VisitSqlUnary(sqlUnaryExpression);
+        }
     }
 
     /// <summary>

@@ -55,6 +55,41 @@ public class SqliteQueryableMethodTranslatingExpressionVisitor : RelationalQuery
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected override ShapedQueryExpression? TranslateAny(ShapedQueryExpression source, LambdaExpression? predicate)
+    {
+        // Simplify x.Array.Any() => json_array_length(x.Array) > 0 instead of WHERE EXISTS (SELECT 1 FROM json_each(x.Array))
+        if (predicate is null && source.QueryExpression is SelectExpression
+            {
+                Tables: [TableValuedFunctionExpression { Name: "json_each", Schema: null, IsBuiltIn: true, Arguments: [var array] }],
+                GroupBy: [],
+                Having: null,
+                IsDistinct: false,
+                Limit: null,
+                Offset: null
+            })
+        {
+            var translation =
+                _sqlExpressionFactory.GreaterThan(
+                    _sqlExpressionFactory.Function(
+                        "json_array_length",
+                        new[] { array },
+                        nullable: true,
+                        argumentsPropagateNullability: new[] { true },
+                        typeof(int)),
+                    _sqlExpressionFactory.Constant(0));
+
+            return source.UpdateQueryExpression(_sqlExpressionFactory.Select(translation));
+        }
+
+        return base.TranslateAny(source, predicate);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     protected override QueryableMethodTranslatingExpressionVisitor CreateSubqueryVisitor()
         => new SqliteQueryableMethodTranslatingExpressionVisitor(this);
 

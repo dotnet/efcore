@@ -23,6 +23,7 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 public class SqlServerDatabaseModelFactory : DatabaseModelFactory
 {
     private readonly IDiagnosticsLogger<DbLoggerCategory.Scaffolding> _logger;
+    private readonly IRelationalTypeMappingSource _typeMappingSource;
 
     private static readonly ISet<string> DateTimePrecisionTypes = new HashSet<string>
     {
@@ -41,6 +42,13 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             "nchar",
             "nvarchar"
         };
+
+    private enum EngineEdition
+    {
+        SqlDataWarehouse = 6,
+        SqlOnDemand = 11,
+        DynamicsTdsEndpoint = 1000,
+    }
 
     private const string NamePartRegex
         = @"(?:(?:\[(?<part{0}>(?:(?:\]\])|[^\]])+)\])|(?<part{0}>[^\.\[\]]+))";
@@ -67,7 +75,7 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
         };
 
     private byte? _compatibilityLevel;
-    private int? _engineEdition;
+    private EngineEdition? _engineEdition;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -75,9 +83,12 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public SqlServerDatabaseModelFactory(IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger)
+    public SqlServerDatabaseModelFactory(
+        IDiagnosticsLogger<DbLoggerCategory.Scaffolding> logger,
+        IRelationalTypeMappingSource typeMappingSource)
     {
         _logger = logger;
+        _typeMappingSource = typeMappingSource;
     }
 
     /// <summary>
@@ -172,11 +183,12 @@ public class SqlServerDatabaseModelFactory : DatabaseModelFactory
             }
         }
 
-        static int GetEngineEdition(DbConnection connection)
+        static EngineEdition GetEngineEdition(DbConnection connection)
         {
             using var command = connection.CreateCommand();
             command.CommandText = "SELECT SERVERPROPERTY('EngineEdition');";
-            return (int)command.ExecuteScalar()!;
+            var result = command.ExecuteScalar();
+            return result != null ? (EngineEdition)Convert.ToInt32(result) : 0;
         }
 
         static byte GetCompatibilityLevel(DbConnection connection)
@@ -780,7 +792,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                 var scale = dataRecord.GetValueOrDefault<int>("scale");
                 var nullable = dataRecord.GetValueOrDefault<bool>("is_nullable");
                 var isIdentity = dataRecord.GetValueOrDefault<bool>("is_identity");
-                var defaultValue = dataRecord.GetValueOrDefault<string>("default_sql");
+                var defaultValueSql = dataRecord.GetValueOrDefault<string>("default_sql");
                 var computedValue = dataRecord.GetValueOrDefault<string>("computed_sql");
                 var computedIsPersisted = dataRecord.GetValueOrDefault<bool>("computed_is_persisted");
                 var comment = dataRecord.GetValueOrDefault<string>("comment");
@@ -803,7 +815,7 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                     scale,
                     nullable,
                     isIdentity,
-                    defaultValue,
+                    defaultValueSql,
                     computedValue,
                     computedIsPersisted);
 
@@ -822,15 +834,14 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
                     systemTypeName = dataTypeName;
                 }
 
-                defaultValue = FilterClrDefaults(systemTypeName, nullable, defaultValue);
-
                 var column = new DatabaseColumn
                 {
                     Table = table,
                     Name = columnName,
                     StoreType = storeType,
                     IsNullable = nullable,
-                    DefaultValueSql = defaultValue,
+                    DefaultValue = TryParseClrDefault(systemTypeName, defaultValueSql),
+                    DefaultValueSql = defaultValueSql,
                     ComputedColumnSql = computedValue,
                     IsStored = computedIsPersisted,
                     Comment = comment,
@@ -860,48 +871,110 @@ LEFT JOIN [sys].[default_constraints] AS [dc] ON [c].[object_id] = [dc].[parent_
         }
     }
 
-    private static string? FilterClrDefaults(string dataTypeName, bool nullable, string? defaultValue)
+    private object? TryParseClrDefault(string dataTypeName, string? defaultValueSql)
     {
-        if (defaultValue == null
-            || defaultValue == "(NULL)")
+        defaultValueSql = defaultValueSql?.Trim();
+        if (string.IsNullOrEmpty(defaultValueSql))
         {
             return null;
         }
 
-        if (nullable)
-        {
-            return defaultValue;
-        }
-
-        if (defaultValue == "((0))" || defaultValue == "(0)")
-        {
-            if (dataTypeName is "bigint" or "bit" or "decimal" or "float" or "int" or "money" or "numeric" or "real" or "smallint"
-                or "smallmoney" or "tinyint")
-            {
-                return null;
-            }
-        }
-        else if (defaultValue == "((0.0))" || defaultValue == "(0.0)")
-        {
-            if (dataTypeName is "decimal" or "float" or "money" or "numeric" or "real" or "smallmoney")
-            {
-                return null;
-            }
-        }
-        else if ((defaultValue == "(CONVERT([real],(0)))" && dataTypeName == "real")
-                 || (defaultValue == "((0.0000000000000000e+000))" && dataTypeName == "float")
-                 || (defaultValue == "(0.0000000000000000e+000)" && dataTypeName == "float")
-                 || (defaultValue == "('0001-01-01')" && dataTypeName == "date")
-                 || (defaultValue == "('1900-01-01T00:00:00.000')" && (dataTypeName == "datetime" || dataTypeName == "smalldatetime"))
-                 || (defaultValue == "('0001-01-01T00:00:00.000')" && dataTypeName == "datetime2")
-                 || (defaultValue == "('0001-01-01T00:00:00.000+00:00')" && dataTypeName == "datetimeoffset")
-                 || (defaultValue == "('00:00:00')" && dataTypeName == "time")
-                 || (defaultValue == "('00000000-0000-0000-0000-000000000000')" && dataTypeName == "uniqueidentifier"))
+        var mapping = _typeMappingSource.FindMapping(dataTypeName);
+        if (mapping == null)
         {
             return null;
         }
 
-        return defaultValue;
+        Unwrap();
+        if (defaultValueSql.StartsWith("CONVERT", StringComparison.OrdinalIgnoreCase))
+        {
+            defaultValueSql = defaultValueSql.Substring(defaultValueSql.IndexOf(',') + 1);
+            defaultValueSql = defaultValueSql.Substring(0, defaultValueSql.LastIndexOf(')'));
+            Unwrap();
+        }
+
+        if (defaultValueSql.Equals("NULL", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var type = mapping.ClrType;
+        if (type == typeof(bool)
+            && int.TryParse(defaultValueSql, out var intValue))
+        {
+            return intValue != 0;
+        }
+
+        if (type.IsNumeric())
+        {
+            try
+            {
+                return Convert.ChangeType(defaultValueSql, type);
+            }
+            catch
+            {
+                // Ignored
+                return null;
+            }
+        }
+
+        if ((defaultValueSql.StartsWith('\'') || defaultValueSql.StartsWith("N'", StringComparison.OrdinalIgnoreCase))
+            && defaultValueSql.EndsWith('\''))
+        {
+            var startIndex = defaultValueSql.IndexOf('\'');
+            defaultValueSql = defaultValueSql.Substring(startIndex + 1, defaultValueSql.Length - (startIndex + 2));
+
+            if (type == typeof(string))
+            {
+                return defaultValueSql;
+            }
+
+            if (type == typeof(bool)
+                && bool.TryParse(defaultValueSql, out var boolValue))
+            {
+                return boolValue;
+            }
+
+            if (type == typeof(Guid)
+                && Guid.TryParse(defaultValueSql, out var guid))
+            {
+                return guid;
+            }
+
+            if (type == typeof(DateTime)
+                && DateTime.TryParse(defaultValueSql, out var dateTime))
+            {
+                return dateTime;
+            }
+
+            if (type == typeof(DateOnly)
+                && DateOnly.TryParse(defaultValueSql, out var dateOnly))
+            {
+                return dateOnly;
+            }
+
+            if (type == typeof(TimeOnly)
+                && TimeOnly.TryParse(defaultValueSql, out var timeOnly))
+            {
+                return timeOnly;
+            }
+
+            if (type == typeof(DateTimeOffset)
+                && DateTimeOffset.TryParse(defaultValueSql, out var dateTimeOffset))
+            {
+                return dateTimeOffset;
+            }
+        }
+
+        return null;
+
+        void Unwrap()
+        {
+            while (defaultValueSql.StartsWith('(') && defaultValueSql.EndsWith(')'))
+            {
+                defaultValueSql = (defaultValueSql.Substring(1, defaultValueSql.Length - 2)).Trim();
+            }
+        }
     }
 
     private static string GetStoreType(string dataTypeName, int maxLength, int precision, int scale)
@@ -1182,11 +1255,11 @@ SELECT
     [t].[name] AS [table_name],
     [f].[name],
 	SCHEMA_NAME(tab2.[schema_id]) AS [principal_table_schema],
-	[tab2].name AS [principal_table_name],	
+	[tab2].name AS [principal_table_name],
 	[f].[delete_referential_action_desc],
     [col1].[name] AS [column_name],
     [col2].[name] AS [referenced_column_name]
-FROM [sys].[foreign_keys] AS [f] 
+FROM [sys].[foreign_keys] AS [f]
 JOIN [sys].[foreign_key_columns] AS fc ON [fc].[constraint_object_id] = [f].[object_id]
 JOIN [sys].[tables] AS [t] ON [t].[object_id] = [fc].[parent_object_id]
 JOIN [sys].[columns] AS [col1] ON [col1].[column_id] = [fc].[parent_column_id] AND [col1].[object_id] = [t].[object_id]
@@ -1362,22 +1435,25 @@ ORDER BY [table_schema], [table_name], [tr].[name];
     }
 
     private bool SupportsTemporalTable()
-        => _compatibilityLevel >= 130 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 130 && IsFullFeaturedEngineEdition();
 
     private bool SupportsMemoryOptimizedTable()
-        => _compatibilityLevel >= 120 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 120 && IsFullFeaturedEngineEdition();
 
     private bool SupportsSequences()
-        => _compatibilityLevel >= 110 && (_engineEdition is not 6 and not 11 and not 1000);
+        => _compatibilityLevel >= 110 && IsFullFeaturedEngineEdition();
 
     private bool SupportsIndexes()
-        => _engineEdition != 1000;
+        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsViews()
-        => _engineEdition != 1000;
+        => _engineEdition != EngineEdition.DynamicsTdsEndpoint;
 
     private bool SupportsTriggers()
-        => _engineEdition is not 6 and not 11 and not 1000;
+        => IsFullFeaturedEngineEdition();
+
+    private bool IsFullFeaturedEngineEdition()
+        => _engineEdition is not EngineEdition.SqlDataWarehouse and not EngineEdition.SqlOnDemand and not EngineEdition.DynamicsTdsEndpoint;
 
     private static string DisplayName(string? schema, string name)
         => (!string.IsNullOrEmpty(schema) ? schema + "." : "") + name;

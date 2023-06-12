@@ -1,24 +1,25 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.EntityFrameworkCore.SqlServer.Diagnostics.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
 using Microsoft.EntityFrameworkCore.SqlServer.Metadata.Internal;
-using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 
 namespace Microsoft.EntityFrameworkCore.TestUtilities;
 
 public class SqlServerDatabaseCleaner : RelationalDatabaseCleaner
 {
     protected override IDatabaseModelFactory CreateDatabaseModelFactory(ILoggerFactory loggerFactory)
-        => new SqlServerDatabaseModelFactory(
-            new DiagnosticsLogger<DbLoggerCategory.Scaffolding>(
-                loggerFactory,
-                new LoggingOptions(),
-                new DiagnosticListener("Fake"),
-                new SqlServerLoggingDefinitions(),
-                new NullDbContextLogger()));
+    {
+        var services = new ServiceCollection();
+        services.AddEntityFrameworkSqlServer();
+
+        new SqlServerDesignTimeServices().ConfigureDesignTimeServices(services);
+
+        return services
+            .BuildServiceProvider() // No scope validation; cleaner violates scopes, but only resolve services once.
+            .GetRequiredService<IDatabaseModelFactory>();
+    }
 
     protected override bool AcceptTable(DatabaseTable table)
         => !(table is DatabaseView);

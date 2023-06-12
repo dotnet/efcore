@@ -1028,6 +1028,9 @@
   <data name="MultipleProvidersConfigured" xml:space="preserve">
     <value>Services for database providers {storeNames} have been registered in the service provider. Only a single database provider can be registered in a service provider. If possible, ensure that Entity Framework is managing its service provider by removing the call to 'UseInternalServiceProvider'. Otherwise, consider conditionally registering the database provider, or maintaining one service provider per database provider.</value>
   </data>
+  <data name="MustRewriteToSameNode" xml:space="preserve">
+    <value>When called from '{0}', rewriting a node of type '{1}' must return a non-null value of the same type. Alternatively, override '{0}' and change it to not visit children of this type.</value>
+  </data>
   <data name="MutableKeyProperty" xml:space="preserve">
     <value>The property '{keyProperty}' cannot be configured as 'ValueGeneratedOnUpdate' or 'ValueGeneratedOnAddOrUpdate' because it's part of a key and its value cannot be changed after the entity has been added to the store.</value>
   </data>

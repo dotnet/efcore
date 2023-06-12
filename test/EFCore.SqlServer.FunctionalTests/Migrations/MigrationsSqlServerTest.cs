@@ -17,9 +17,6 @@ namespace Microsoft.EntityFrameworkCore.Migrations;
 
 public class MigrationsSqlServerTest : MigrationsTestBase<MigrationsSqlServerTest.MigrationsSqlServerFixture>
 {
-    protected static string EOL
-        => Environment.NewLine;
-
     public MigrationsSqlServerTest(MigrationsSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {

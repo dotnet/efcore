@@ -9,7 +9,7 @@ public class SqliteTestStore : RelationalTestStore
 {
     public const int CommandTimeout = 30;
 
-    public static SqliteTestStore GetOrCreate(string name, bool sharedCache = true)
+    public static SqliteTestStore GetOrCreate(string name, bool sharedCache = false)
         => new(name, sharedCache: sharedCache);
 
     public static SqliteTestStore GetOrCreateInitialized(string name)
@@ -21,12 +21,12 @@ public class SqliteTestStore : RelationalTestStore
     public static SqliteTestStore GetExisting(string name)
         => new(name, seed: false);
 
-    public static SqliteTestStore Create(string name, bool sharedCache = true)
-        => new(name, sharedCache: sharedCache, shared: false);
+    public static SqliteTestStore Create(string name)
+        => new(name, shared: false);
 
     private readonly bool _seed;
 
-    private SqliteTestStore(string name, bool seed = true, bool sharedCache = true, bool shared = true)
+    private SqliteTestStore(string name, bool seed = true, bool sharedCache = false, bool shared = true)
         : base(name, shared)
     {
         _seed = seed;

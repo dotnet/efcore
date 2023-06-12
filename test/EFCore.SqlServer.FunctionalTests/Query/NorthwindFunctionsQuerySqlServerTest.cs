@@ -2353,7 +2353,7 @@ FROM [Customers] AS [c]
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')
+WHERE [c].[Region] IS NOT NULL AND [c].[Region] NOT LIKE N''
 """);
     }
 
@@ -2364,7 +2364,7 @@ WHERE [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'')
         AssertSql(
 """
 SELECT [c].[CustomerID] AS [Id], CASE
-    WHEN [c].[Region] IS NOT NULL AND NOT ([c].[Region] LIKE N'') THEN CAST(1 AS bit)
+    WHEN [c].[Region] IS NOT NULL AND [c].[Region] NOT LIKE N'' THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END AS [Value]
 FROM [Customers] AS [c]

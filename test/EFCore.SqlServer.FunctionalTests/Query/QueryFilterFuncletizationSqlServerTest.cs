@@ -97,7 +97,7 @@ WHERE [m].[Tenant] = @__ef_filter__p_0
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE [l].[Tenant] IN (
-    SELECT CAST([e].[value] AS int) AS [value]
+    SELECT [e].[value]
     FROM OPENJSON(N'[]') AS [e]
 )
 """,
@@ -108,8 +108,8 @@ WHERE [l].[Tenant] IN (
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE [l].[Tenant] IN (
-    SELECT CAST([e].[value] AS int) AS [value]
-    FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
+    SELECT [e].[value]
+    FROM OPENJSON(@__ef_filter__TenantIds_0) WITH ([value] int '$') AS [e]
 )
 """,
             //
@@ -119,8 +119,8 @@ WHERE [l].[Tenant] IN (
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE [l].[Tenant] IN (
-    SELECT CAST([e].[value] AS int) AS [value]
-    FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
+    SELECT [e].[value]
+    FROM OPENJSON(@__ef_filter__TenantIds_0) WITH ([value] int '$') AS [e]
 )
 """,
             //
@@ -130,8 +130,8 @@ WHERE [l].[Tenant] IN (
 SELECT [l].[Id], [l].[Tenant]
 FROM [ListFilter] AS [l]
 WHERE [l].[Tenant] IN (
-    SELECT CAST([e].[value] AS int) AS [value]
-    FROM OPENJSON(@__ef_filter__TenantIds_0) AS [e]
+    SELECT [e].[value]
+    FROM OPENJSON(@__ef_filter__TenantIds_0) WITH ([value] int '$') AS [e]
 )
 """);
     }

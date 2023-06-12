@@ -460,6 +460,62 @@ optionsBuilder
                 });
 
         [ConditionalFact]
+        public Task Column_with_default_value_only_uses_default_value()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithColumn("nvarchar(max)", null, "Hot"), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains($".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
+                model =>
+                {
+                    var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
+                    Assert.Equal("Hot", property.GetDefaultValue());
+                    Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValueSql));
+                });
+
+        [ConditionalFact]
+        public Task Column_with_default_value_sql_only_uses_default_value_sql()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithColumn("nvarchar(max)", "('Hot')", null), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains($".HasDefaultValueSql(\"('Hot')\")", code.ContextFile.Code),
+                model =>
+                {
+                    var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
+                    Assert.Equal("('Hot')", property.GetDefaultValueSql());
+                    Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                });
+
+        [ConditionalFact]
+        public Task Column_with_default_value_sql_and_default_value_uses_default_value()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithColumn("nvarchar(max)", "('Hot')", "Hot"), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code => Assert.Contains($".HasDefaultValue(\"Hot\")", code.ContextFile.Code),
+                model =>
+                {
+                    var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
+                    Assert.Equal("Hot", property.GetDefaultValue());
+                    Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValueSql));
+                });
+
+        [ConditionalFact]
+        public Task Column_with_default_value_sql_and_default_value_where_value_is_CLR_default_uses_neither()
+            => TestAsync(
+                serviceProvider => serviceProvider.GetService<IScaffoldingModelFactory>().Create(
+                    BuildModelWithColumn("int", "((0))", 0), new ModelReverseEngineerOptions()),
+                new ModelCodeGenerationOptions(),
+                code => Assert.DoesNotContain("HasDefaultValue", code.ContextFile.Code),
+                model =>
+                {
+                    var property = model.FindEntityType("TestNamespace.Table")!.GetProperty("Column");
+                    Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValue));
+                    Assert.Null(property.FindAnnotation(RelationalAnnotationNames.DefaultValueSql));
+                });
+
+        [ConditionalFact]
         public Task IsUnicode_works()
             => TestAsync(
                 modelBuilder =>

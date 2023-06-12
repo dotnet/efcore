@@ -875,7 +875,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                from method in type.GetMethods(AnyInstance)
                where method.DeclaringType == type
                    && !Fixture.NonVirtualMethods.Contains(method)
-                   && (!method.IsVirtual || method.IsFinal)
+                   && !method.IsVirtual
                    && !method.Name.StartsWith("add_", StringComparison.Ordinal)
                    && !method.Name.StartsWith("remove_", StringComparison.Ordinal)
                    && !method.Name.Equals("get_NodeType", StringComparison.Ordinal)

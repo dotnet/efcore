@@ -2090,8 +2090,8 @@ OUTER APPLY (
     SELECT [t].[CustomerID], [o0].[OrderID], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE [t].[CustomerID] IS NOT NULL AND [t].[CustomerID] = [o0].[CustomerID] AND [o0].[OrderID] IN (
-        SELECT CAST([f].[value] AS int) AS [value]
-        FROM OPENJSON(@__filteredOrderIds_0) AS [f]
+        SELECT [f].[value]
+        FROM OPENJSON(@__filteredOrderIds_0) WITH ([value] int '$') AS [f]
     )
 ) AS [t0]
 ORDER BY [t].[CustomerID], [t0].[OrderID]
@@ -2115,8 +2115,8 @@ OUTER APPLY (
     SELECT [t].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] = [t].[OrderID] AND [o0].[OrderID] IN (
-        SELECT CAST([f].[value] AS int) AS [value]
-        FROM OPENJSON(@__filteredOrderIds_0) AS [f]
+        SELECT [f].[value]
+        FROM OPENJSON(@__filteredOrderIds_0) WITH ([value] int '$') AS [f]
     )
 ) AS [t0]
 ORDER BY [t].[OrderID]
@@ -2140,8 +2140,8 @@ OUTER APPLY (
     SELECT [t].[OrderDate] AS [Outer1], [t].[CustomerID] AS [Outer2], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE ([o0].[CustomerID] = [t].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [t].[CustomerID] IS NULL)) AND [o0].[OrderID] IN (
-        SELECT CAST([f].[value] AS int) AS [value]
-        FROM OPENJSON(@__filteredOrderIds_0) AS [f]
+        SELECT [f].[value]
+        FROM OPENJSON(@__filteredOrderIds_0) WITH ([value] int '$') AS [f]
     )
 ) AS [t0]
 ORDER BY [t].[OrderDate], [t].[CustomerID]
@@ -2181,8 +2181,8 @@ OUTER APPLY (
     SELECT [t0].[OrderID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE [o0].[OrderID] = [t0].[OrderID] AND [o0].[OrderID] IN (
-        SELECT CAST([f].[value] AS int) AS [value]
-        FROM OPENJSON(@__filteredOrderIds_0) AS [f]
+        SELECT [f].[value]
+        FROM OPENJSON(@__filteredOrderIds_0) WITH ([value] int '$') AS [f]
     )
 ) AS [t1]
 ORDER BY [t0].[OrderID]
@@ -2621,8 +2621,8 @@ OUTER APPLY (
     SELECT [t0].[CustomerID] AS [Outer], [o0].[OrderID] AS [Inner], [o0].[OrderDate]
     FROM [Orders] AS [o0]
     WHERE ([o0].[CustomerID] = [t0].[CustomerID] OR ([o0].[CustomerID] IS NULL AND [t0].[CustomerID] IS NULL)) AND [o0].[OrderID] IN (
-        SELECT CAST([f].[value] AS int) AS [value]
-        FROM OPENJSON(@__filteredOrderIds_0) AS [f]
+        SELECT [f].[value]
+        FROM OPENJSON(@__filteredOrderIds_0) WITH ([value] int '$') AS [f]
     )
 ) AS [t1]
 ORDER BY [t0].[CustomerID], [t0].[Complex]

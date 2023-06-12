@@ -19,8 +19,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS int) = 1) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] int '$') AS [s]
+    WHERE [s].[value] = 1) = 2
 """);
     }
 
@@ -34,8 +34,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS bigint) = CAST(1 AS bigint)) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] bigint '$') AS [s]
+    WHERE [s].[value] = CAST(1 AS bigint)) = 2
 """);
     }
 
@@ -49,8 +49,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS smallint) = CAST(1 AS smallint)) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] smallint '$') AS [s]
+    WHERE [s].[value] = CAST(1 AS smallint)) = 2
 """);
     }
 
@@ -64,8 +64,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS float) = 1.0E0) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] float '$') AS [s]
+    WHERE [s].[value] = 1.0E0) = 2
 """);
     }
 
@@ -79,8 +79,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS real) = CAST(1 AS real)) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] real '$') AS [s]
+    WHERE [s].[value] = CAST(1 AS real)) = 2
 """);
     }
 
@@ -94,8 +94,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS decimal(18,2)) = 1.0) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] decimal(18,2) '$') AS [s]
+    WHERE [s].[value] = 1.0) = 2
 """);
     }
 
@@ -109,8 +109,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS datetime2) = '2023-01-01T12:30:00.0000000') = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] datetime2 '$') AS [s]
+    WHERE [s].[value] = '2023-01-01T12:30:00.0000000') = 2
 """);
     }
 
@@ -124,8 +124,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS date) = '2023-01-01') = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] date '$') AS [s]
+    WHERE [s].[value] = '2023-01-01') = 2
 """);
     }
 
@@ -139,8 +139,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS time) = '12:30:00') = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] time '$') AS [s]
+    WHERE [s].[value] = '12:30:00') = 2
 """);
     }
 
@@ -154,8 +154,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS datetimeoffset) = '2023-01-01T12:30:00.0000000+02:00') = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] datetimeoffset '$') AS [s]
+    WHERE [s].[value] = '2023-01-01T12:30:00.0000000+02:00') = 2
 """);
     }
 
@@ -169,8 +169,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS bit) = CAST(1 AS bit)) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] bit '$') AS [s]
+    WHERE [s].[value] = CAST(1 AS bit)) = 2
 """);
     }
 
@@ -184,8 +184,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS uniqueidentifier) = 'dc8c903d-d655-4144-a0fd-358099d40ae1') = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] uniqueidentifier '$') AS [s]
+    WHERE [s].[value] = 'dc8c903d-d655-4144-a0fd-358099d40ae1') = 2
 """);
     }
 
@@ -203,8 +203,8 @@ SELECT TOP(2) [t].[Id], [t].[Ints], [t].[SomeArray]
 FROM [TestEntity] AS [t]
 WHERE (
     SELECT COUNT(*)
-    FROM OPENJSON([t].[SomeArray]) AS [s]
-    WHERE CAST([s].[value] AS int) = 0) = 2
+    FROM OPENJSON([t].[SomeArray]) WITH ([value] int '$') AS [s]
+    WHERE [s].[value] = 0) = 2
 """);
     }
 
@@ -304,11 +304,11 @@ WHERE JSON_VALUE(JSON_VALUE([t].[Owned], '$.Strings'), '$[1]') = N'bar'
 SELECT [t].[Id], [t].[DateTime], [t].[DateTime2], [t].[Ints]
 FROM [TestEntity] AS [t]
 WHERE [t].[DateTime] IN (
-    SELECT CAST([d].[value] AS datetime) AS [value]
-    FROM OPENJSON(@__dateTimes_0) AS [d]
+    SELECT [d].[value]
+    FROM OPENJSON(@__dateTimes_0) WITH ([value] datetime '$') AS [d]
 ) AND [t].[DateTime2] IN (
-    SELECT CAST([d0].[value] AS datetime2) AS [value]
-    FROM OPENJSON(@__dateTimes_0_1) AS [d0]
+    SELECT [d0].[value]
+    FROM OPENJSON(@__dateTimes_0_1) WITH ([value] datetime2 '$') AS [d0]
 )
 """);
     }

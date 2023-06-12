@@ -307,10 +307,16 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                             break;
                     }
 
-                    return _sqlExpressionFactory.In(
+                    var inExpression = _sqlExpressionFactory.In(
                         leftCandidateInfo.ColumnExpression,
-                        _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping),
-                        leftCandidateInfo.OperationType == ExpressionType.NotEqual);
+                        _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping));
+
+                    return leftCandidateInfo.OperationType switch
+                    {
+                        ExpressionType.Equal => inExpression,
+                        ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
+                        _ => throw new InvalidOperationException("IMPOSSIBLE")
+                    };
                 }
 
                 if (leftConstantIsEnumerable && rightConstantIsEnumerable)
@@ -321,10 +327,16 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
                         (IEnumerable)leftCandidateInfo.ConstantValue,
                         (IEnumerable)rightCandidateInfo.ConstantValue);
 
-                    return _sqlExpressionFactory.In(
+                    var inExpression = _sqlExpressionFactory.In(
                         leftCandidateInfo.ColumnExpression,
-                        _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping),
-                        leftCandidateInfo.OperationType == ExpressionType.NotEqual);
+                        _sqlExpressionFactory.Constant(resultArray, leftCandidateInfo.TypeMapping));
+
+                    return leftCandidateInfo.OperationType switch
+                    {
+                        ExpressionType.Equal => inExpression,
+                        ExpressionType.NotEqual => _sqlExpressionFactory.Not(inExpression),
+                        _ => throw new InvalidOperationException("IMPOSSIBLE")
+                    };
                 }
             }
         }
@@ -424,10 +436,9 @@ public class SqlExpressionSimplifyingExpressionVisitor : ExpressionVisitor
         else if (sqlExpression is InExpression
                  {
                      Item: ColumnExpression column, Subquery: null, Values: SqlConstantExpression valuesConstant
-                 } inExpression)
+                 })
         {
-            candidateInfo = (column, valuesConstant.Value!, valuesConstant.TypeMapping!,
-                inExpression.IsNegated ? ExpressionType.NotEqual : ExpressionType.Equal);
+            candidateInfo = (column, valuesConstant.Value!, valuesConstant.TypeMapping!, ExpressionType.Equal);
 
             return true;
         }

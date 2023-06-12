@@ -2723,7 +2723,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "ANAT
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (NOT(c["CustomerID"] IN ("ALFKI", "ANATR")) AND NOT(c["CustomerID"] IN ("ALFKI", "ANTON"))))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] NOT IN ("ALFKI", "ANATR") AND c["CustomerID"] NOT IN ("ALFKI", "ANTON")))
 """);
     }
 

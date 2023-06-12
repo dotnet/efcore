@@ -423,6 +423,17 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_OrderByDescending_ElementAt(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => c.Ints.OrderByDescending(i => i).ElementAt(0) == 111),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => c.Ints.Length > 0 && c.Ints.OrderByDescending(i => i).ElementAt(0) == 111),
+            entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Column_collection_Any(bool async)
         => AssertQuery(
             async,
@@ -440,15 +451,25 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Column_collection_and_parameter_collection_Join(bool async)
+    public virtual Task Column_collection_Join_parameter_collection(bool async)
     {
         var ints = new[] { 11, 111 };
 
         return AssertQuery(
             async,
-            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.Join(ints, i => i, j => j, (i, j) => new { I = i, J = j }).Count() == 2),
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => c.Ints.Join(ints, i => i, j => j, (i, j) => new { I = i, J = j }).Count() == 2),
             entryCount: 1);
     }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Inline_collection_Join_ordered_column_collection(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>()
+                .Where(c => new[] { 11, 111 }.Join(c.Ints, i => i, j => j, (i, j) => new { I = i, J = j }).Count() == 2),
+            entryCount: 1);
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

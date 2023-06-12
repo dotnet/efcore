@@ -558,7 +558,7 @@ FROM "PrimitiveCollectionsEntity" AS "p"
 WHERE (
     SELECT COUNT(*)
     FROM (
-        SELECT "i"."key"
+        SELECT 1
         FROM json_each("p"."Ints") AS "i"
         ORDER BY "i"."key"
         LIMIT -1 OFFSET 1
@@ -600,6 +600,22 @@ WHERE 11 IN (
 """);
     }
 
+    public override async Task Column_collection_OrderByDescending_ElementAt(bool async)
+    {
+        await base.Column_collection_OrderByDescending_ElementAt(async);
+
+        AssertSql(
+"""
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT "i"."value"
+    FROM json_each("p"."Ints") AS "i"
+    ORDER BY "i"."value" DESC
+    LIMIT 1 OFFSET 0) = 111
+""");
+    }
+
     public override async Task Column_collection_Any(bool async)
     {
         await base.Column_collection_Any(async);
@@ -608,9 +624,7 @@ WHERE 11 IN (
 """
 SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
 FROM "PrimitiveCollectionsEntity" AS "p"
-WHERE EXISTS (
-    SELECT 1
-    FROM json_each("p"."Ints") AS "i")
+WHERE json_array_length("p"."Ints") > 0
 """);
     }
 
@@ -626,9 +640,9 @@ ORDER BY "p"."Id"
 """);
     }
 
-    public override async Task Column_collection_and_parameter_collection_Join(bool async)
+    public override async Task Column_collection_Join_parameter_collection(bool async)
     {
-        await base.Column_collection_and_parameter_collection_Join(async);
+        await base.Column_collection_Join_parameter_collection(async);
 
         AssertSql(
 """
@@ -640,6 +654,21 @@ WHERE (
     SELECT COUNT(*)
     FROM json_each("p"."Ints") AS "i"
     INNER JOIN json_each(@__ints_0) AS "i0" ON "i"."value" = "i0"."value") = 2
+""");
+    }
+
+    public override async Task Inline_collection_Join_ordered_column_collection(bool async)
+    {
+        await base.Inline_collection_Join_ordered_column_collection(async);
+
+        AssertSql(
+"""
+SELECT "p"."Id", "p"."Bool", "p"."Bools", "p"."DateTime", "p"."DateTimes", "p"."Enum", "p"."Enums", "p"."Int", "p"."Ints", "p"."NullableInt", "p"."NullableInts", "p"."String", "p"."Strings"
+FROM "PrimitiveCollectionsEntity" AS "p"
+WHERE (
+    SELECT COUNT(*)
+    FROM (SELECT CAST(11 AS INTEGER) AS "Value" UNION ALL VALUES (111)) AS "v"
+    INNER JOIN json_each("p"."Ints") AS "i" ON "v"."Value" = "i"."value") = 2
 """);
     }
 

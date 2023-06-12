@@ -16,7 +16,7 @@ public abstract class TransactionInterceptionSqliteTestBase : TransactionInterce
             => "TransactionInterception";
 
         protected override ITestStoreFactory TestStoreFactory
-            => SqliteTestStoreFactory.Instance;
+            => SharedCacheSqliteTestStoreFactory.Instance;
 
         protected override IServiceCollection InjectInterceptors(
             IServiceCollection serviceCollection,

@@ -1395,7 +1395,7 @@ WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] IN ("ABCDE", "ANATR
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "ALFKI")))
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI"))
 """);
     }
 
@@ -1431,7 +1431,7 @@ WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ABCDE", "ALFK
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") OR (c["CustomerID"] = "ABCDE")) OR NOT(c["CustomerID"] IN ("ABCDE", "ALFKI"))))
+WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] = "ALFKI") OR (c["CustomerID"] = "ABCDE")) OR c["CustomerID"] NOT IN ("ABCDE", "ALFKI")))
 """);
     }
 
@@ -1790,7 +1790,7 @@ WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND 
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR")))
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
     }
 
@@ -1802,7 +1802,7 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "A
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR")))
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
     }
 
@@ -1814,7 +1814,7 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "A
 """
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR")))
+WHERE ((c["Discriminator"] = "Customer") AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
     }
 
@@ -1826,13 +1826,13 @@ WHERE ((c["Discriminator"] = "Customer") AND NOT(c["CustomerID"] IN ("ABCDE", "A
 """
 SELECT c
 FROM root c
-WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND NOT(c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR")))
+WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """,
                 //
 """
 SELECT c
 FROM root c
-WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND NOT(c["CustomerID"] IN ("ABCDE", "ALFKI", "ANATR")))
+WHERE (((c["Discriminator"] = "Customer") AND (c["City"] = "México D.F.")) AND c["CustomerID"] NOT IN ("ABCDE", "ALFKI", "ANATR"))
 """);
     }
 

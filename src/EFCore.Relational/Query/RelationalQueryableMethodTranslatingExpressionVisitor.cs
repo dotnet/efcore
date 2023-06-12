@@ -427,7 +427,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             subquery.ClearOrdering();
         }
 
-        translation = _sqlExpressionFactory.Exists(subquery, true);
+        translation = _sqlExpressionFactory.Not(_sqlExpressionFactory.Exists(subquery));
         subquery = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
@@ -458,7 +458,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             subquery.ClearOrdering();
         }
 
-        var translation = _sqlExpressionFactory.Exists(subquery, false);
+        var translation = _sqlExpressionFactory.Exists(subquery);
         var selectExpression = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
@@ -547,7 +547,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             if (values is not null)
             {
-                var inExpression = _sqlExpressionFactory.In(translatedItem, _sqlExpressionFactory.Constant(values), negated: false);
+                var inExpression = _sqlExpressionFactory.In(translatedItem, _sqlExpressionFactory.Constant(values));
                 return source.Update(_sqlExpressionFactory.Select(inExpression), source.ShaperExpression);
             }
         }
@@ -564,7 +564,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         subquery.ReplaceProjection(new List<Expression> { projection });
         subquery.ApplyProjection();
 
-        var translation = _sqlExpressionFactory.In(translatedItem, subquery, false);
+        var translation = _sqlExpressionFactory.In(translatedItem, subquery);
         subquery = _sqlExpressionFactory.Select(translation);
 
         return source.Update(
@@ -575,7 +575,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateCount(ShapedQueryExpression source, LambdaExpression? predicate)
-        => TranslateAggregateWithPredicate(source, predicate, QueryableMethods.CountWithoutPredicate);
+        => TranslateAggregateWithPredicate(source, predicate, QueryableMethods.CountWithoutPredicate, liftOrderings: false);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateDefaultIfEmpty(ShapedQueryExpression source, Expression? defaultValue)
@@ -914,7 +914,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateLongCount(ShapedQueryExpression source, LambdaExpression? predicate)
-        => TranslateAggregateWithPredicate(source, predicate, QueryableMethods.LongCountWithoutPredicate);
+        => TranslateAggregateWithPredicate(source, predicate, QueryableMethods.LongCountWithoutPredicate, liftOrderings: false);
 
     /// <inheritdoc />
     protected override ShapedQueryExpression? TranslateMax(ShapedQueryExpression source, LambdaExpression? selector, Type resultType)
@@ -2377,7 +2377,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     private ShapedQueryExpression? TranslateAggregateWithPredicate(
         ShapedQueryExpression source,
         LambdaExpression? predicate,
-        MethodInfo predicateLessMethodInfo)
+        MethodInfo predicateLessMethodInfo,
+        bool liftOrderings)
     {
         if (predicate != null)
         {
@@ -2396,7 +2397,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             selectExpression.ReplaceProjection(new List<Expression>());
         }
 
-        selectExpression.PrepareForAggregate();
+        selectExpression.PrepareForAggregate(liftOrderings);
         var selector = _sqlExpressionFactory.Fragment("*");
         var methodCall = Expression.Call(
             predicateLessMethodInfo.MakeGenericMethod(selector.Type),
