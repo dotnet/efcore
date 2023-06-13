@@ -1396,7 +1396,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(
-                o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
+                o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.EmployeeID).Contains(null)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -1404,7 +1404,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(
-                o => !ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)),
+                o => !ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.EmployeeID).Contains(null)),
             entryCount: 830);
 
     [ConditionalTheory]
@@ -1413,9 +1413,9 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertQuery(
             async,
             ss => ss.Set<Order>().Where(
-                o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID)
+                o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.EmployeeID)
                         .Contains(null)
-                    == ss.Set<Order>().Where(o => o.CustomerID != "VINET").Select(o => o.CustomerID)
+                    == ss.Set<Order>().Where(o => o.CustomerID != "VINET").Select(o => o.EmployeeID)
                         .Contains(null)),
             entryCount: 830);
 
@@ -1425,7 +1425,7 @@ public abstract class NorthwindAggregateOperatorsQueryTestBase<TFixture> : Query
         => AssertQueryScalar(
             async,
             ss => ss.Set<Order>().Select(
-                o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.CustomerID).Contains(null)));
+                o => ss.Set<Order>().Where(o => o.CustomerID == "VINET").Select(o => o.EmployeeID).Contains(null)));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

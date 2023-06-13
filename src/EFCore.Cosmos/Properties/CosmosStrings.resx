@@ -123,6 +123,9 @@
   <data name="CanConnectNotSupported" xml:space="preserve">
     <value>The Cosmos database does not support 'CanConnect' or 'CanConnectAsync'.</value>
   </data>
+  <data name="CannotTranslateNonConstantNewArrayExpression" xml:space="preserve">
+    <value>The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.</value>
+  </data>
   <data name="ConnectionStringConflictingConfiguration" xml:space="preserve">
     <value>Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.</value>
   </data>
@@ -225,6 +228,12 @@
   </data>
   <data name="OffsetRequiresLimit" xml:space="preserve">
     <value>Cosmos SQL does not allow Offset without Limit. Consider specifying a 'Take' operation on the query.</value>
+  </data>
+  <data name="OneOfTwoValuesMustBeSet" xml:space="preserve">
+    <value>Exactly one of '{param1}' or '{param2}' must be set.</value>
+  </data>
+  <data name="OnlyConstantsAndParametersAllowedInContains" xml:space="preserve">
+    <value>Only constants or parameters are currently allowed in Contains.</value>
   </data>
   <data name="OrphanedNestedDocument" xml:space="preserve">
     <value>The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.</value>

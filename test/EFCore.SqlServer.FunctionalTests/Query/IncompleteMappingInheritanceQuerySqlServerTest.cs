@@ -128,7 +128,7 @@ ORDER BY [a].[Species]
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'
+WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
@@ -233,7 +233,7 @@ ORDER BY [a].[Species]
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'
+WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
@@ -245,7 +245,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiw
 """
 SELECT [p].[Species], [p].[CountryId], [p].[Genus], [p].[Name], [p].[HasThorns]
 FROM [Plants] AS [p]
-WHERE [p].[Genus] IN (1, 0) AND [p].[Genus] = 0
+WHERE [p].[Genus] = 0
 """);
     }
 
@@ -385,7 +385,7 @@ ORDER BY [c].[Name], [c].[Id]
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(0 AS tinyint)
+WHERE [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(0 AS tinyint)
 """);
     }
 
@@ -397,7 +397,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiw
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(1 AS tinyint)
+WHERE [a].[Discriminator] = N'Kiwi' AND [a].[FoundOn] = CAST(1 AS tinyint)
 """);
     }
 
@@ -433,7 +433,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi')
 """
 SELECT [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'
+WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
@@ -641,7 +641,7 @@ WHERE [a].[Discriminator] = N'Kiwi'
 """
 SELECT [a].[Name] AS [Predator]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND N'Kiwi' = [a].[Discriminator]
+WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
@@ -681,7 +681,7 @@ VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6);
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'
+WHERE 0 = 1
 """);
     }
 
@@ -693,7 +693,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiw
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi' AND [a].[Discriminator] = N'Eagle'
+WHERE 0 = 1
 """);
     }
 
@@ -736,7 +736,7 @@ WHERE 0 = 1
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Eagle'
+WHERE [a].[Discriminator] = N'Eagle'
 """);
     }
 
@@ -748,7 +748,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Eag
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'
+WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 
@@ -760,7 +760,7 @@ WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiw
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] AS [a]
-WHERE [a].[Discriminator] IN (N'Eagle', N'Kiwi') AND [a].[Discriminator] = N'Kiwi'
+WHERE [a].[Discriminator] = N'Kiwi'
 """);
     }
 

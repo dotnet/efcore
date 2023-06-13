@@ -515,7 +515,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
             var parentEvaluatable = _evaluatable;
             var parentContainsClosure = _containsClosure;
 
-            _evaluatable = IsEvaluatableNodeType(expression)
+            _evaluatable = IsEvaluatableNodeType(expression, out var preferNoEvaluation)
                 // Extension point to disable funcletization
                 && _evaluatableExpressionFilter.IsEvaluatableExpression(expression, _model)
                 // Don't evaluate QueryableMethods if in compiled query
@@ -524,7 +524,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
 
             base.Visit(expression);
 
-            if (_evaluatable)
+            if (_evaluatable && !preferNoEvaluation)
             {
                 // Force parameterization when not in lambda
                 _evaluatableExpressions[expression] = _containsClosure || !_inLambda;
@@ -643,10 +643,23 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
             return base.VisitConstant(constantExpression);
         }
 
-        private static bool IsEvaluatableNodeType(Expression expression)
-            => expression.NodeType != ExpressionType.Extension
-                || expression.CanReduce
-                && IsEvaluatableNodeType(expression.ReduceAndCheck());
+        private static bool IsEvaluatableNodeType(Expression expression, out bool preferNoEvaluation)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.NewArrayInit:
+                    preferNoEvaluation = true;
+                    return true;
+
+                case ExpressionType.Extension:
+                    preferNoEvaluation = false;
+                    return expression.CanReduce && IsEvaluatableNodeType(expression.ReduceAndCheck(), out preferNoEvaluation);
+
+                default:
+                    preferNoEvaluation = false;
+                    return true;
+            }
+        }
 
         private static bool IsQueryableMethod(Expression expression)
             => expression is MethodCallExpression methodCallExpression

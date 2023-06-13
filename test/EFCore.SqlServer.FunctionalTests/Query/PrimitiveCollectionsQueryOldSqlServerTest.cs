@@ -50,7 +50,7 @@ WHERE [p].[NullableInt] IN (10, 999)
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] = 999 OR [p].[NullableInt] IS NULL
+WHERE [p].[NullableInt] IS NULL OR [p].[NullableInt] = 999
 """);
     }
 
@@ -151,17 +151,41 @@ WHERE [p].[Id] IN (2, 999, 1000)
 
         AssertSql(
 """
+@__i_0='2'
+@__j_1='999'
+
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[Id] IN (2, 999)
+WHERE [p].[Id] IN (@__i_0, @__j_1)
 """);
     }
 
-    public override async Task Inline_collection_Contains_with_parameter_and_column_based_expression(bool async)
+    public override async Task Inline_collection_Contains_with_constant_and_parameter(bool async)
     {
-        await base.Inline_collection_Contains_with_parameter_and_column_based_expression(async);
+        await base.Inline_collection_Contains_with_constant_and_parameter(async);
 
-        AssertSql();
+        AssertSql(
+"""
+@__j_0='999'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Id] IN (2, @__j_0)
+""");
+    }
+
+    public override async Task Inline_collection_Contains_with_mixed_value_types(bool async)
+    {
+        await base.Inline_collection_Contains_with_mixed_value_types(async);
+
+        AssertSql(
+"""
+@__i_0='11'
+
+SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
+FROM [PrimitiveCollectionsEntity] AS [p]
+WHERE [p].[Int] IN (999, @__i_0, [p].[Id], [p].[Id] + [p].[Int])
+""");
     }
 
     public override async Task Inline_collection_Contains_as_Any_with_predicate(bool async)
@@ -223,7 +247,7 @@ WHERE [p].[Int] IN (10, 999)
 """
 SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[Enum], [p].[Enums], [p].[Int], [p].[Ints], [p].[NullableInt], [p].[NullableInts], [p].[String], [p].[Strings]
 FROM [PrimitiveCollectionsEntity] AS [p]
-WHERE [p].[NullableInt] = 999 OR [p].[NullableInt] IS NULL
+WHERE [p].[NullableInt] IS NULL OR [p].[NullableInt] = 999
 """);
     }
 
@@ -431,6 +455,13 @@ SELECT [p].[Id], [p].[Bool], [p].[Bools], [p].[DateTime], [p].[DateTimes], [p].[
 FROM [PrimitiveCollectionsEntity] AS [p]
 WHERE [p].[Ints] = N'[1,10]'
 """);
+    }
+
+    public override async Task Column_collection_equality_inline_collection_with_parameters(bool async)
+    {
+        await base.Column_collection_equality_inline_collection_with_parameters(async);
+
+        AssertSql();
     }
 
     public override Task Parameter_collection_in_subquery_Union_column_collection_as_compiled_query(bool async)

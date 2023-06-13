@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
+using Microsoft.EntityFrameworkCore.Cosmos.Storage.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -205,6 +206,72 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             ApplyTypeMapping(right, inferredTypeMapping),
             resultType,
             resultTypeMapping);
+    }
+
+        private InExpression ApplyTypeMappingOnIn(InExpression inExpression)
+    {
+        var missingTypeMappingInValues = false;
+
+        CoreTypeMapping? valuesTypeMapping = null;
+        switch (inExpression)
+        {
+            case { ValuesParameter: SqlParameterExpression parameter }:
+                valuesTypeMapping = parameter.TypeMapping;
+                break;
+
+            case { Values: IReadOnlyList<SqlExpression> values }:
+                // Note: there could be conflicting type mappings inside the values; we take the first.
+                foreach (var value in values)
+                {
+                    if (value.TypeMapping is null)
+                    {
+                        missingTypeMappingInValues = true;
+                    }
+                    else
+                    {
+                        valuesTypeMapping = value.TypeMapping;
+                    }
+                }
+
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        var item = ApplyTypeMapping(
+            inExpression.Item,
+            valuesTypeMapping ?? _typeMappingSource.FindMapping(inExpression.Item.Type, _model));
+
+        switch (inExpression)
+        {
+            case { ValuesParameter: SqlParameterExpression parameter }:
+                inExpression = inExpression.Update(item, (SqlParameterExpression)ApplyTypeMapping(parameter, item.TypeMapping));
+                break;
+
+            case { Values: IReadOnlyList<SqlExpression> values }:
+                SqlExpression[]? newValues = null;
+
+                if (missingTypeMappingInValues)
+                {
+                    newValues = new SqlExpression[values.Count];
+
+                    for (var i = 0; i < newValues.Length; i++)
+                    {
+                        newValues[i] = ApplyTypeMapping(values[i], item.TypeMapping);
+                    }
+                }
+
+                inExpression = inExpression.Update(item, newValues ?? values);
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+
+        return inExpression.TypeMapping == _boolTypeMapping
+            ? inExpression
+            : inExpression.ApplyTypeMapping(_boolTypeMapping);
     }
 
     /// <summary>
@@ -473,15 +540,17 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InExpression In(SqlExpression item, SqlExpression values)
-    {
-        var typeMapping = item.TypeMapping ?? _typeMappingSource.FindMapping(item.Type, _model);
+    public virtual InExpression In(SqlExpression item, IReadOnlyList<SqlExpression> values)
+        => ApplyTypeMappingOnIn(new InExpression(item, values, _boolTypeMapping));
 
-        item = ApplyTypeMapping(item, typeMapping);
-        values = ApplyTypeMapping(values, typeMapping);
-
-        return new InExpression(item, values, _boolTypeMapping);
-    }
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual InExpression In(SqlExpression item, SqlParameterExpression valuesParameter)
+        => ApplyTypeMappingOnIn(new InExpression(item, valuesParameter, _boolTypeMapping));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -538,8 +607,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
                 .BindProperty(concreteEntityTypes[0].FindDiscriminatorProperty(), clientEval: false);
 
             selectExpression.ApplyPredicate(
-                In(
-                    (SqlExpression)discriminatorColumn, Constant(concreteEntityTypes.Select(et => et.GetDiscriminatorValue()).ToList())));
+                In((SqlExpression)discriminatorColumn, concreteEntityTypes.Select(et => Constant(et.GetDiscriminatorValue())).ToArray()));
         }
     }
 }

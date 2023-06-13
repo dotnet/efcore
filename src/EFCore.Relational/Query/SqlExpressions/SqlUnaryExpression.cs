@@ -79,21 +79,32 @@ public class SqlUnaryExpression : SqlExpression
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
-        if (OperatorType == ExpressionType.Convert
-            && TypeMapping != null)
+        switch (this)
         {
-            expressionPrinter.Append("CAST(");
-            expressionPrinter.Visit(Operand);
-            expressionPrinter.Append(" AS ");
-            expressionPrinter.Append(TypeMapping.StoreType);
-            expressionPrinter.Append(")");
-        }
-        else
-        {
-            expressionPrinter.Append(OperatorType.ToString());
-            expressionPrinter.Append("(");
-            expressionPrinter.Visit(Operand);
-            expressionPrinter.Append(")");
+            case { OperatorType: ExpressionType.Convert, TypeMapping: not null }:
+                expressionPrinter.Append("CAST(");
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.Append(" AS ");
+                expressionPrinter.Append(TypeMapping.StoreType);
+                expressionPrinter.Append(")");
+                break;
+
+            case { OperatorType: ExpressionType.Equal }:
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.Append(" IS NULL");
+                break;
+
+            case { OperatorType: ExpressionType.NotEqual }:
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.Append(" IS NOT NULL");
+                break;
+
+            default:
+                expressionPrinter.Append(OperatorType.ToString());
+                expressionPrinter.Append("(");
+                expressionPrinter.Visit(Operand);
+                expressionPrinter.Append(")");
+                break;
         }
     }
 

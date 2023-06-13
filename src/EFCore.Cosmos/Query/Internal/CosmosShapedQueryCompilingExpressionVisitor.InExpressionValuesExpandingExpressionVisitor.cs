@@ -4,6 +4,7 @@
 #nullable disable
 
 using System.Collections;
+using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
 
@@ -26,19 +27,39 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
         {
             if (expression is InExpression inExpression)
             {
-                var inValues = new List<object>();
+                var inValues = new List<SqlExpression>();
                 var hasNullValue = false;
-                CoreTypeMapping typeMapping = null;
 
-                switch (inExpression.Values)
+                switch (inExpression)
                 {
-                    case SqlConstantExpression sqlConstant:
+                    case { ValuesParameter: SqlParameterExpression valuesParameter }:
                     {
-                        typeMapping = sqlConstant.TypeMapping;
-                        var values = (IEnumerable)sqlConstant.Value;
+                        var typeMapping = valuesParameter.TypeMapping;
+
+                        foreach (var value in (IEnumerable)_parametersValues[valuesParameter.Name])
+                        {
+                            if (value is null)
+                            {
+                                hasNullValue = true;
+                                continue;
+                            }
+
+                            inValues.Add(_sqlExpressionFactory.Constant(value, typeMapping));
+                        }
+
+                        break;
+                    }
+
+                    case { Values: IReadOnlyList<SqlExpression> values }:
+                    {
                         foreach (var value in values)
                         {
-                            if (value == null)
+                            if (value is not (SqlConstantExpression or SqlParameterExpression))
+                            {
+                                throw new InvalidOperationException(CosmosStrings.OnlyConstantsAndParametersAllowedInContains);
+                            }
+
+                            if (IsNull(value))
                             {
                                 hasNullValue = true;
                                 continue;
@@ -46,31 +67,16 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
                             inValues.Add(value);
                         }
-                    }
-                        break;
 
-                    case SqlParameterExpression sqlParameter:
-                    {
-                        typeMapping = sqlParameter.TypeMapping;
-                        var values = (IEnumerable)_parametersValues[sqlParameter.Name];
-                        foreach (var value in values)
-                        {
-                            if (value == null)
-                            {
-                                hasNullValue = true;
-                                continue;
-                            }
-
-                            inValues.Add(value);
-                        }
-                    }
                         break;
+                    }
+
+                    default:
+                        throw new InvalidOperationException("IMPOSSIBLE");
                 }
 
                 var updatedInExpression = inValues.Count > 0
-                    ? _sqlExpressionFactory.In(
-                        (SqlExpression)Visit(inExpression.Item),
-                        _sqlExpressionFactory.Constant(inValues, typeMapping))
+                    ? _sqlExpressionFactory.In((SqlExpression)Visit(inExpression.Item), inValues)
                     : null;
 
                 var nullCheckExpression = hasNullValue
@@ -94,5 +100,9 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             return base.Visit(expression);
         }
+
+        private bool IsNull(SqlExpression expression)
+            => expression is SqlConstantExpression { Value: null }
+                || expression is SqlParameterExpression { Name: string parameterName } && _parametersValues[parameterName] is null;
     }
 }

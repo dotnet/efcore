@@ -115,15 +115,28 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual async Task Inline_collection_Contains_with_parameter_and_column_based_expression(bool async)
+    public virtual Task Inline_collection_Contains_with_constant_and_parameter(bool async)
     {
-        var i = 2;
+        var j = 999;
 
-        await AssertTranslationFailed(
-            () => AssertQuery(
-                async,
-                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { i, c.Int }.Contains(c.Id)),
-                entryCount: 1));
+        return AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 2, j }.Contains(c.Id)),
+            entryCount: 1);
+    }
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual async Task Inline_collection_Contains_with_mixed_value_types(bool async)
+    {
+        // Note: see many nullability-related variations on this in NullSemanticsQueryTestBase
+
+        var i = 11;
+
+        await AssertQuery(
+            async,
+            ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => new[] { 999, i, c.Id, c.Id + c.Int }.Contains(c.Int)),
+            entryCount: 1);
     }
 
     [ConditionalTheory]
@@ -547,6 +560,19 @@ public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixtur
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { 1, 10 }),
             ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints.SequenceEqual(new[] { 1, 10 })),
             entryCount: 1);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Column_collection_equality_inline_collection_with_parameters(bool async)
+    {
+        var (i, j) = (1, 10);
+
+        return AssertTranslationFailed(
+            () => AssertQuery(
+                async,
+                ss => ss.Set<PrimitiveCollectionsEntity>().Where(c => c.Ints == new[] { i, j }),
+                entryCount: 1));
+    }
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

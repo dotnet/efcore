@@ -38,6 +38,14 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
             => GetString("CanConnectNotSupported");
 
         /// <summary>
+        ///     The query contained a new array expression containing non-constant elements, which could not be translated: '{newArrayExpression}'.
+        /// </summary>
+        public static string CannotTranslateNonConstantNewArrayExpression(object? newArrayExpression)
+            => string.Format(
+                GetString("CannotTranslateNonConstantNewArrayExpression", nameof(newArrayExpression)),
+                newArrayExpression);
+
+        /// <summary>
         ///     Both the connection string and CredentialToken, account key or account endpoint were specified. Specify only one set of connection details.
         /// </summary>
         public static string ConnectionStringConflictingConfiguration
@@ -224,6 +232,20 @@ namespace Microsoft.EntityFrameworkCore.Cosmos.Internal
         /// </summary>
         public static string OffsetRequiresLimit
             => GetString("OffsetRequiresLimit");
+
+        /// <summary>
+        ///     Exactly one of '{param1}' or '{param2}' must be set.
+        /// </summary>
+        public static string OneOfTwoValuesMustBeSet(object? param1, object? param2)
+            => string.Format(
+                GetString("OneOfTwoValuesMustBeSet", nameof(param1), nameof(param2)),
+                param1, param2);
+
+        /// <summary>
+        ///     Only constants or parameters are currently allowed in Contains.
+        /// </summary>
+        public static string OnlyConstantsAndParametersAllowedInContains
+            => GetString("OnlyConstantsAndParametersAllowedInContains");
 
         /// <summary>
         ///     The entity of type '{entityType}' is mapped as a part of the document mapped to '{missingEntityType}', but there is no tracked entity of this type with the corresponding key value. Consider using 'DbContextOptionsBuilder.EnableSensitiveDataLogging' to see the key values.

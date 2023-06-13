@@ -2749,9 +2749,12 @@ WHERE ((c["Discriminator"] = "Customer") AND (((c["CustomerID"] != @__prm1_0) AN
 
         AssertSql(
 """
+@__prm1_0='ALFKI'
+@__prm2_1='ANATR'
+
 SELECT c
 FROM root c
-WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN ("ALFKI", "ANATR") OR (c["CustomerID"] = "ANTON")))
+WHERE ((c["Discriminator"] = "Customer") AND (c["CustomerID"] IN (@__prm1_0, @__prm2_1) OR (c["CustomerID"] = "ANTON")))
 """);
     }
 

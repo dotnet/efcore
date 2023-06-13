@@ -124,7 +124,7 @@ FROM (
     SELECT [k].[Id], [k].[CountryId], [k].[Name], [k].[Species], [k].[EagleId], [k].[IsFlightless], NULL AS [Group], [k].[FoundOn], N'Kiwi' AS [Discriminator]
     FROM [Kiwi] AS [k]
 ) AS [t]
-WHERE [t].[CountryId] = 1 AND [t].[CountryId] = 1
+WHERE [t].[CountryId] = 1
 ORDER BY [t].[Species]
 """);
     }

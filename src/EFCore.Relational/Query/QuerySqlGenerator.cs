@@ -982,30 +982,30 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// <param name="negated">Whether the given <paramref name="inExpression" /> is negated.</param>
     protected virtual void GenerateIn(InExpression inExpression, bool negated)
     {
-        if (inExpression.Values != null)
+        Check.DebugAssert(
+            inExpression.ValuesParameter is null,
+            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (i.e. in SqlNullabilityProcessor)");
+
+        Visit(inExpression.Item);
+        _relationalCommandBuilder.Append(negated ? " NOT IN (" : " IN (");
+
+        if (inExpression.Values is not null)
         {
-            Visit(inExpression.Item);
-            _relationalCommandBuilder.Append(negated ? " NOT IN " : " IN ");
-            _relationalCommandBuilder.Append("(");
-            var valuesConstant = (SqlConstantExpression)inExpression.Values;
-            var valuesList = ((IEnumerable<object?>)valuesConstant.Value!)
-                .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
-            GenerateList(valuesList, e => Visit(e));
-            _relationalCommandBuilder.Append(")");
+            GenerateList(inExpression.Values, e => Visit(e));
         }
         else
         {
-            Visit(inExpression.Item);
-            _relationalCommandBuilder.Append(negated ? " NOT IN " : " IN ");
-            _relationalCommandBuilder.AppendLine("(");
+            _relationalCommandBuilder.AppendLine();
 
             using (_relationalCommandBuilder.Indent())
             {
                 Visit(inExpression.Subquery);
             }
 
-            _relationalCommandBuilder.AppendLine().Append(")");
+            _relationalCommandBuilder.AppendLine();
         }
+
+        _relationalCommandBuilder.Append(")");
     }
 
     /// <inheritdoc />

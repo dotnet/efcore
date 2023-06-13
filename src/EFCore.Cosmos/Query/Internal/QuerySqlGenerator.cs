@@ -528,13 +528,15 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     protected virtual void GenerateIn(InExpression inExpression, bool negated)
     {
+        Check.DebugAssert(
+            inExpression.ValuesParameter is null,
+            "InExpression.ValuesParameter must have been expanded to constants before SQL generation (in " +
+            "InExpressionValuesExpandingExpressionVisitor)");
+        Check.DebugAssert(inExpression.Values is not null, "Missing Values on InExpression");
+
         Visit(inExpression.Item);
-        _sqlBuilder.Append(negated ? " NOT IN " : " IN ");
-        _sqlBuilder.Append('(');
-        var valuesConstant = (SqlConstantExpression)inExpression.Values;
-        var valuesList = ((IEnumerable<object>)valuesConstant.Value)
-            .Select(v => new SqlConstantExpression(Expression.Constant(v), valuesConstant.TypeMapping)).ToList();
-        GenerateList(valuesList, e => Visit(e));
+        _sqlBuilder.Append(negated ? " NOT IN (" : " IN (");
+        GenerateList(inExpression.Values, e => Visit(e));
         _sqlBuilder.Append(')');
     }
 

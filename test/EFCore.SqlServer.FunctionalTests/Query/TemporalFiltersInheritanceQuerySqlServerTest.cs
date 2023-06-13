@@ -112,7 +112,7 @@ ORDER BY [a].[Species]
 """
 SELECT [a].[Id], [a].[CountryId], [a].[Discriminator], [a].[Name], [a].[PeriodEnd], [a].[PeriodStart], [a].[Species], [a].[EagleId], [a].[IsFlightless], [a].[Group], [a].[FoundOn]
 FROM [Animals] FOR SYSTEM_TIME AS OF '2010-01-01T00:00:00.0000000' AS [a]
-WHERE [a].[CountryId] = 1 AND [a].[CountryId] = 1
+WHERE [a].[CountryId] = 1
 ORDER BY [a].[Species]
 """);
     }

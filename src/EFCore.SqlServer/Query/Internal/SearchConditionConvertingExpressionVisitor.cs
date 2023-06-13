@@ -223,10 +223,36 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         _isSearchCondition = false;
         var item = (SqlExpression)Visit(inExpression.Item);
         var subquery = (SelectExpression?)Visit(inExpression.Subquery);
-        var values = (SqlExpression?)Visit(inExpression.Values);
+
+        var values = inExpression.Values;
+        SqlExpression[]? newValues = null;
+        if (values is not null)
+        {
+            for (var i = 0; i < values.Count; i++)
+            {
+                var value = values[i];
+                var newValue = (SqlExpression)Visit(value);
+
+                if (newValue != value && newValues is null)
+                {
+                    newValues = new SqlExpression[values.Count];
+                    for (var j = 0; j < i; j++)
+                    {
+                        newValues[j] = values[j];
+                    }
+                }
+
+                if (newValues is not null)
+                {
+                    newValues[i] = newValue;
+                }
+            }
+        }
+
+        var valuesParameter = (SqlParameterExpression?)Visit(inExpression.ValuesParameter);
         _isSearchCondition = parentSearchCondition;
 
-        return ApplyConversion(inExpression.Update(item, values, subquery), condition: true);
+        return ApplyConversion(inExpression.Update(item, subquery, newValues ?? values, valuesParameter), condition: true);
     }
 
     /// <summary>

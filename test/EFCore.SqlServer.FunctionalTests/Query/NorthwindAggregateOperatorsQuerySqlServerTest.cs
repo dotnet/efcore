@@ -2220,7 +2220,7 @@ FROM [Orders] AS [o]
 WHERE EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL)
+    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[EmployeeID] IS NULL)
 """);
     }
 
@@ -2235,7 +2235,7 @@ FROM [Orders] AS [o]
 WHERE NOT EXISTS (
     SELECT 1
     FROM [Orders] AS [o0]
-    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL)
+    WHERE [o0].[CustomerID] = N'VINET' AND [o0].[EmployeeID] IS NULL)
 """);
     }
 
@@ -2251,13 +2251,13 @@ WHERE CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE [o0].[CustomerID] = N'VINET' AND [o0].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END = CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o1]
-        WHERE ([o1].[CustomerID] <> N'VINET' OR [o1].[CustomerID] IS NULL) AND [o1].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE ([o1].[CustomerID] <> N'VINET' OR [o1].[CustomerID] IS NULL) AND [o1].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 """);
@@ -2273,7 +2273,7 @@ SELECT CASE
     WHEN EXISTS (
         SELECT 1
         FROM [Orders] AS [o0]
-        WHERE [o0].[CustomerID] = N'VINET' AND [o0].[CustomerID] IS NULL) THEN CAST(1 AS bit)
+        WHERE [o0].[CustomerID] = N'VINET' AND [o0].[EmployeeID] IS NULL) THEN CAST(1 AS bit)
     ELSE CAST(0 AS bit)
 END
 FROM [Orders] AS [o]

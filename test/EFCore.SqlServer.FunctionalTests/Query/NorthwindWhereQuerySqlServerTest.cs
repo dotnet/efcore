@@ -2509,7 +2509,7 @@ WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (N'ALFKI', N'ANATR', N'ANTON')
+WHERE [c].[CustomerID] IN (N'ANTON', N'ALFKI', N'ANATR')
 """);
     }
 
@@ -2561,14 +2561,12 @@ WHERE [c].[CustomerID] <> @__prm1_0 AND [c].[CustomerID] <> @__prm2_1 AND [c].[C
         // issue #21462
         AssertSql(
 """
-@__p_0='["ALFKI","ANATR"]' (Size = 4000)
+@__prm1_0='ALFKI' (Size = 5) (DbType = StringFixedLength)
+@__prm2_1='ANATR' (Size = 5) (DbType = StringFixedLength)
 
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[CustomerID] IN (
-    SELECT [p].[value]
-    FROM OPENJSON(@__p_0) WITH ([value] nchar(5) '$') AS [p]
-) OR [c].[CustomerID] = N'ANTON'
+WHERE [c].[CustomerID] IN (@__prm1_0, @__prm2_1, N'ANTON')
 """);
     }
 
@@ -2641,7 +2639,7 @@ WHERE [c].[CustomerID] = N'ANATR'
 """
 SELECT [c].[CustomerID], [c].[Address], [c].[City], [c].[CompanyName], [c].[ContactName], [c].[ContactTitle], [c].[Country], [c].[Fax], [c].[Phone], [c].[PostalCode], [c].[Region]
 FROM [Customers] AS [c]
-WHERE [c].[Region] <> N'WA' AND [c].[Region] IS NOT NULL
+WHERE [c].[Region] IS NOT NULL AND [c].[Region] <> N'WA'
 """);
     }
 
