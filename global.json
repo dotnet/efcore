@@ -1,6 +1,6 @@
 {
   "tools": {
-    "dotnet": "6.0.116",
+    "dotnet": "6.0.118",
     "runtimes": {
       "dotnet": [
         "3.1.32",
