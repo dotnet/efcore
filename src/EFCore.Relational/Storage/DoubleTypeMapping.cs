@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -29,7 +30,7 @@ public class DoubleTypeMapping : RelationalTypeMapping
     public DoubleTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Double)
-        : base(storeType, typeof(double), dbType)
+        : base(storeType, typeof(double), dbType, jsonValueReaderWriter: JsonDoubleReaderWriter.Instance)
     {
     }
 

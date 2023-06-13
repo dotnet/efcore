@@ -4,6 +4,7 @@
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Sqlite.Internal;
+using Microsoft.EntityFrameworkCore.Sqlite.Storage.Json;
 using Microsoft.EntityFrameworkCore.Sqlite.Storage.ValueConversion.Internal;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -31,7 +32,9 @@ public class SqliteGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMappin
     /// </summary>
     [UsedImplicitly]
     public SqliteGeometryTypeMapping(NtsGeometryServices geometryServices, string storeType)
-        : base(new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter(storeType)), storeType)
+        : base(
+            new GeometryValueConverter<TGeometry>(CreateReader(geometryServices), CreateWriter(storeType)),
+            SqliteJsonGeometryWktReaderWriter.Instance, storeType)
     {
     }
 

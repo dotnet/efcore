@@ -3,6 +3,7 @@
 
 using System.Data;
 using System.Globalization;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -29,7 +30,7 @@ public class FloatTypeMapping : RelationalTypeMapping
     public FloatTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Single)
-        : base(storeType, typeof(float), dbType)
+        : base(storeType, typeof(float), dbType, jsonValueReaderWriter: JsonFloatReaderWriter.Instance)
     {
     }
 

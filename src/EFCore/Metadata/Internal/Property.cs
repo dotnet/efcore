@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -585,7 +586,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Type? SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? factoryType,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? factoryType,
         ConfigurationSource configurationSource)
     {
         if (factoryType != null)
@@ -667,7 +669,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual Type? SetValueConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         ConfigurationSource configurationSource)
     {
         ValueConverter? converter = null;
@@ -749,8 +752,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         }
 
         return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
-                DeclaringEntityType.DisplayName(), Name, "ValueConverter"))
+            ? throw new InvalidOperationException(
+                CoreStrings.RelationshipCycle(
+                    DeclaringEntityType.DisplayName(), Name, "ValueConverter"))
             : null;
     }
 
@@ -840,8 +844,9 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
         }
 
         return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
-                DeclaringEntityType.DisplayName(), Name, "ProviderClrType"))
+            ? throw new InvalidOperationException(
+                CoreStrings.RelationshipCycle(
+                    DeclaringEntityType.DisplayName(), Name, "ProviderClrType"))
             : null;
     }
 
@@ -927,7 +932,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public virtual Type? SetValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         ConfigurationSource configurationSource)
     {
         ValueComparer? comparer = null;
@@ -1029,7 +1035,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public virtual Type? SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         ConfigurationSource configurationSource)
     {
         ValueComparer? comparer = null;
@@ -1121,6 +1128,74 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
                     Name,
                     ClrType.ShortDisplayName())
                 : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual JsonValueReaderWriter? GetJsonValueReaderWriter()
+    {
+        return TryCreateReader((Type?)this[CoreAnnotationNames.JsonValueReaderWriterType])
+            ?? TypeMapping?.JsonValueReaderWriter;
+
+        static JsonValueReaderWriter? TryCreateReader(Type? readerWriterType)
+        {
+            if (readerWriterType != null)
+            {
+                var instanceProperty = readerWriterType.GetAnyProperty("Instance");
+                try
+                {
+                    return instanceProperty != null
+                        && instanceProperty.IsStatic()
+                        && instanceProperty.GetMethod?.IsPublic == true
+                        && readerWriterType.IsAssignableFrom(instanceProperty.PropertyType)
+                            ? (JsonValueReaderWriter?)instanceProperty.GetValue(null)
+                            : (JsonValueReaderWriter?)Activator.CreateInstance(readerWriterType);
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.CannotCreateJsonValueReaderWriter(
+                            readerWriterType.ShortDisplayName()), e);
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Type? SetJsonValueReaderWriterType(
+        Type? readerWriterType,
+        ConfigurationSource configurationSource)
+    {
+        if (readerWriterType != null)
+        {
+            var genericType = readerWriterType.GetGenericTypeImplementations(typeof(JsonValueReaderWriter<>)).FirstOrDefault();
+            if (genericType == null)
+            {
+                throw new InvalidOperationException(CoreStrings.BadJsonValueReaderWriterType(readerWriterType.ShortDisplayName()));
+            }
+        }
+
+        return (Type?)SetOrRemoveAnnotation(CoreAnnotationNames.JsonValueReaderWriterType, readerWriterType, configurationSource)?.Value;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetJsonValueReaderWriterTypeConfigurationSource()
+        => FindAnnotation(CoreAnnotationNames.JsonValueReaderWriterType)?.GetConfigurationSource();
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1707,7 +1782,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     [DebuggerStepThrough]
     void IMutableProperty.SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory)
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory)
         => SetValueGeneratorFactory(valueGeneratorFactory, ConfigurationSource.Explicit);
 
     /// <summary>
@@ -1718,7 +1794,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     [DebuggerStepThrough]
     Type? IConventionProperty.SetValueGeneratorFactory(
-        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)] Type? valueGeneratorFactory,
+        [DynamicallyAccessedMembers(ValueGeneratorFactory.DynamicallyAccessedMemberTypes)]
+        Type? valueGeneratorFactory,
         bool fromDataAnnotation)
         => SetValueGeneratorFactory(
             valueGeneratorFactory,
@@ -1753,7 +1830,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableProperty.SetValueConverter([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType)
+    void IMutableProperty.SetValueConverter(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType)
         => SetValueConverter(converterType, ConfigurationSource.Explicit);
 
     /// <summary>
@@ -1764,7 +1842,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     [DebuggerStepThrough]
     Type? IConventionProperty.SetValueConverter(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? converterType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? converterType,
         bool fromDataAnnotation)
         => SetValueConverter(
             converterType,
@@ -1821,7 +1900,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
-    void IMutableProperty.SetValueComparer([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType)
+    void IMutableProperty.SetValueComparer(
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType)
         => SetValueComparer(comparerType, ConfigurationSource.Explicit);
 
     /// <summary>
@@ -1833,7 +1913,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     [DebuggerStepThrough]
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? IConventionProperty.SetValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation)
         => SetValueComparer(
             comparerType,
@@ -1888,7 +1969,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     [DebuggerStepThrough]
     void IMutableProperty.SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType)
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType)
         => SetProviderValueComparer(comparerType, ConfigurationSource.Explicit);
 
     /// <summary>
@@ -1900,7 +1982,8 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     [DebuggerStepThrough]
     [return: DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     Type? IConventionProperty.SetProviderValueComparer(
-        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type? comparerType,
+        [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
+        Type? comparerType,
         bool fromDataAnnotation)
         => SetProviderValueComparer(
             comparerType,
@@ -1915,6 +1998,40 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     [DebuggerStepThrough]
     ValueComparer IProperty.GetProviderValueComparer()
         => GetProviderValueComparer()!;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    void IMutableProperty.SetJsonValueReaderWriterType(Type? readerWriterType)
+        => SetJsonValueReaderWriterType(readerWriterType, ConfigurationSource.Explicit);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    Type? IConventionProperty.SetJsonValueReaderWriterType(
+        Type? readerWriterType,
+        bool fromDataAnnotation)
+        => SetJsonValueReaderWriterType(
+            readerWriterType,
+            fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    JsonValueReaderWriter? IReadOnlyProperty.GetJsonValueReaderWriter()
+        => GetJsonValueReaderWriter();
 
     /// <summary>
     ///     Gets the sentinel value that indicates that this property is not set.

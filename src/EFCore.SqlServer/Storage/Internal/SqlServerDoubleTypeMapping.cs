@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -28,7 +29,7 @@ public class SqlServerDoubleTypeMapping : DoubleTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(double)),
+                new CoreTypeMappingParameters(typeof(double), jsonValueReaderWriter: JsonDoubleReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType))

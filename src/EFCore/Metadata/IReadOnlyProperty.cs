@@ -3,6 +3,7 @@
 
 using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -68,8 +69,8 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     then this is the maximum number of characters.
     /// </summary>
     /// <returns>
-    /// The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
-    /// set.
+    ///     The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
+    ///     set.
     /// </returns>
     int? GetMaxLength();
 
@@ -163,6 +164,12 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     /// </summary>
     /// <returns>The comparer, or <see langword="null" /> if none has been set.</returns>
     ValueComparer? GetProviderValueComparer();
+
+    /// <summary>
+    ///     Gets the <see cref="JsonValueReaderWriter" /> for this property, or <see langword="null" /> if none is set.
+    /// </summary>
+    /// <returns>The reader/writer, or <see langword="null" /> if none has been set.</returns>
+    JsonValueReaderWriter? GetJsonValueReaderWriter();
 
     /// <summary>
     ///     Finds the first principal property that the given property is constrained by

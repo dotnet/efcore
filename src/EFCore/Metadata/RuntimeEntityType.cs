@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
@@ -605,6 +606,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <param name="valueComparer">The <see cref="ValueComparer" /> for this property.</param>
     /// <param name="keyValueComparer">The <see cref="ValueComparer" /> to use with keys for this property.</param>
     /// <param name="providerValueComparer">The <see cref="ValueComparer" /> to use for the provider values for this property.</param>
+    /// <param name="jsonValueReaderWriter">The <see cref="JsonValueReaderWriter" /> for this property.</param>
     /// <param name="typeMapping">The <see cref="CoreTypeMapping" /> for this property.</param>
     /// <returns>The newly created property.</returns>
     public virtual RuntimeProperty AddProperty(
@@ -629,6 +631,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
         ValueComparer? valueComparer = null,
         ValueComparer? keyValueComparer = null,
         ValueComparer? providerValueComparer = null,
+        JsonValueReaderWriter? jsonValueReaderWriter = null,
         CoreTypeMapping? typeMapping = null)
     {
         var property = new RuntimeProperty(
@@ -654,6 +657,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
             valueComparer,
             keyValueComparer,
             providerValueComparer,
+            jsonValueReaderWriter,
             typeMapping);
 
         _properties.Add(property.Name, property);
@@ -727,7 +731,7 @@ public class RuntimeEntityType : AnnotatableBase, IRuntimeEntityType
     /// <param name="name">The name of the property to add.</param>
     /// <param name="propertyInfo">The corresponding CLR property or <see langword="null" /> for a shadow property.</param>
     /// <param name="fieldInfo">The corresponding CLR field or <see langword="null" /> for a shadow property.</param>
-    /// <param name="serviceType">The type of the service, or <see langword="null"/> to use the type of the member.</param>
+    /// <param name="serviceType">The type of the service, or <see langword="null" /> to use the type of the member.</param>
     /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> used for this property.</param>
     /// <returns>The newly created service property.</returns>
     public virtual RuntimeServiceProperty AddServiceProperty(

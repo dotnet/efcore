@@ -4,6 +4,7 @@
 using System.Data;
 using System.Text;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -44,7 +45,8 @@ public class SqlServerStringTypeMapping : StringTypeMapping
                 new CoreTypeMappingParameters(
                     typeof(string),
                     comparer: useKeyComparison ? CaseInsensitiveValueComparer : null,
-                    keyComparer: useKeyComparison ? CaseInsensitiveValueComparer : null),
+                    keyComparer: useKeyComparison ? CaseInsensitiveValueComparer : null,
+                    jsonValueReaderWriter: JsonStringReaderWriter.Instance),
                 storeType ?? GetDefaultStoreName(unicode, fixedLength),
                 storeTypePostfix ?? StoreTypePostfix.Size,
                 GetDbType(unicode, fixedLength),

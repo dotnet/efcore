@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 
@@ -25,7 +26,7 @@ public class SqlServerFloatTypeMapping : FloatTypeMapping
         StoreTypePostfix storeTypePostfix = StoreTypePostfix.Precision)
         : base(
             new RelationalTypeMappingParameters(
-                new CoreTypeMappingParameters(typeof(float)),
+                new CoreTypeMappingParameters(typeof(float), jsonValueReaderWriter: JsonFloatReaderWriter.Instance),
                 storeType,
                 storeTypePostfix,
                 dbType))

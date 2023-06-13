@@ -4,6 +4,7 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Diagnostics.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
@@ -82,7 +83,10 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(DiagnosticsLogger<>).GetMethod("NeedsEventData", AnyInstance),
             typeof(ChangeDetector).GetMethod("DetectValueChange"),
             typeof(ChangeDetector).GetMethod("DetectNavigationChange"),
-            typeof(StateManager).GetMethod("get_ChangeDetector")
+            typeof(StateManager).GetMethod("get_ChangeDetector"),
+            typeof(JsonValueReaderWriter<>).GetMethod(nameof(JsonValueReaderWriter.FromJson)),
+            typeof(JsonValueReaderWriter<>).GetMethod(nameof(JsonValueReaderWriter.ToJson)),
+            typeof(JsonValueReaderWriter<>).GetMethod("get_ValueType")
         };
 
         public override HashSet<MethodInfo> NotAnnotatedMethods { get; } = new()

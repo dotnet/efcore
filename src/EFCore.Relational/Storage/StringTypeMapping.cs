@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -35,7 +36,8 @@ public class StringTypeMapping : RelationalTypeMapping
         : base(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
-                    typeof(string)), storeType, StoreTypePostfix.None, dbType, unicode, size))
+                    typeof(string), jsonValueReaderWriter: JsonStringReaderWriter.Instance), storeType, StoreTypePostfix.None, dbType,
+                unicode, size))
     {
     }
 

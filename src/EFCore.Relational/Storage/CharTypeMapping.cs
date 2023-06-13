@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,7 +29,7 @@ public class CharTypeMapping : RelationalTypeMapping
     public CharTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.String)
-        : base(storeType, typeof(char), dbType)
+        : base(storeType, typeof(char), dbType, jsonValueReaderWriter: JsonCharReaderWriter.Instance)
     {
     }
 

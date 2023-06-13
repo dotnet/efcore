@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -20,11 +21,13 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
     ///     Creates a new instance of the <see cref="RelationalGeometryTypeMapping{TGeometry,TProvider}" /> class.
     /// </summary>
     /// <param name="converter">The converter to use when converting to and from database types.</param>
+    /// <param name="jsonValueReaderWriter">Handles reading and writing JSON values for instances of the mapped type.</param>
     /// <param name="storeType">The store type name.</param>
     protected RelationalGeometryTypeMapping(
         ValueConverter<TGeometry, TProvider>? converter,
+        JsonValueReaderWriter? jsonValueReaderWriter,
         string storeType)
-        : base(CreateRelationalTypeMappingParameters(storeType))
+        : base(CreateRelationalTypeMappingParameters(storeType, jsonValueReaderWriter))
     {
         SpatialConverter = converter;
     }
@@ -54,7 +57,9 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
             ? (ValueComparer)Activator.CreateInstance(typeof(GeometryValueComparer<>).MakeGenericType(providerType))!
             : null;
 
-    private static RelationalTypeMappingParameters CreateRelationalTypeMappingParameters(string storeType)
+    private static RelationalTypeMappingParameters CreateRelationalTypeMappingParameters(
+        string storeType,
+        JsonValueReaderWriter? jsonValueReaderWriter)
     {
         var comparer = new GeometryValueComparer<TGeometry>();
 
@@ -64,7 +69,8 @@ public abstract class RelationalGeometryTypeMapping<TGeometry, TProvider> : Rela
                 null,
                 comparer,
                 comparer,
-                CreateProviderValueComparer(typeof(TGeometry))),
+                CreateProviderValueComparer(typeof(TGeometry)),
+                jsonValueReaderWriter: jsonValueReaderWriter),
             storeType);
     }
 

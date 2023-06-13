@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Storage;
 
 /// <summary>
@@ -47,9 +49,11 @@ public sealed record TypeMappingSourceDependencies
     [EntityFrameworkInternal]
     public TypeMappingSourceDependencies(
         IValueConverterSelector valueConverterSelector,
+        IJsonValueReaderWriterSource jsonValueReaderWriterSource,
         IEnumerable<ITypeMappingSourcePlugin> plugins)
     {
         ValueConverterSelector = valueConverterSelector;
+        JsonValueReaderWriterSource = jsonValueReaderWriterSource;
         Plugins = plugins;
     }
 
@@ -57,6 +61,11 @@ public sealed record TypeMappingSourceDependencies
     ///     The registry of known <see cref="ValueConverter" />s.
     /// </summary>
     public IValueConverterSelector ValueConverterSelector { get; init; }
+
+    /// <summary>
+    ///     Used to find the <see cref="JsonValueReaderWriter{TValue}" /> for a type.
+    /// </summary>
+    public IJsonValueReaderWriterSource JsonValueReaderWriterSource { get; }
 
     /// <summary>
     ///     Gets the plugins.

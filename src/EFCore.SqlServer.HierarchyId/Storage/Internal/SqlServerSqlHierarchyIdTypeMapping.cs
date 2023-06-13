@@ -3,6 +3,7 @@
 
 using System.Data.SqlTypes;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Json;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.SqlServer.Types;
 
@@ -18,7 +19,7 @@ public class SqlServerSqlHierarchyIdTypeMapping : RelationalTypeMapping
 {
     private const string SqlHierarchyIdFormatConst = "hierarchyid::Parse('{0}')";
 
-    private static readonly MethodInfo _sqlHierarchyIdParseMethod
+    private static readonly MethodInfo SqlHierarchyIdParseMethod
         = typeof(SqlHierarchyId).GetRuntimeMethod(nameof(SqlHierarchyId.Parse), new[] { typeof(SqlString) })!;
 
     /// <summary>
@@ -28,7 +29,7 @@ public class SqlServerSqlHierarchyIdTypeMapping : RelationalTypeMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public SqlServerSqlHierarchyIdTypeMapping(string storeType)
-        : base(storeType, typeof(SqlHierarchyId))
+        : base(storeType, typeof(SqlHierarchyId), jsonValueReaderWriter: SqlServerJsonSqlHierarchyIdReaderWriter.Instance)
     {
     }
 
@@ -69,6 +70,6 @@ public class SqlServerSqlHierarchyIdTypeMapping : RelationalTypeMapping
     /// </summary>
     public override Expression GenerateCodeLiteral(object value)
         => Expression.Call(
-            _sqlHierarchyIdParseMethod,
+            SqlHierarchyIdParseMethod,
             Expression.Convert(Expression.Constant(((SqlHierarchyId)value).ToString()), typeof(SqlString)));
 }

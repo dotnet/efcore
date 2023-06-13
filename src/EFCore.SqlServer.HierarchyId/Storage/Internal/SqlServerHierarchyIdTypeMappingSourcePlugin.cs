@@ -35,18 +35,21 @@ public class SqlServerHierarchyIdTypeMappingSourcePlugin : IRelationalTypeMappin
             {
                 return _hierarchyId;
             }
-            else if (clrType == typeof(SqlHierarchyId))
+
+            if (clrType == typeof(SqlHierarchyId))
             {
                 return _sqlHierarchyId;
             }
 
             return null;
         }
-        else if (clrType == typeof(HierarchyId))
+
+        if (clrType == typeof(HierarchyId))
         {
             return _hierarchyId;
         }
-        else if (clrType == typeof(SqlHierarchyId))
+
+        if (clrType == typeof(SqlHierarchyId))
         {
             return _sqlHierarchyId;
         }

@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -28,7 +29,7 @@ public class GuidTypeMapping : RelationalTypeMapping
     public GuidTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.Guid)
-        : base(storeType, typeof(Guid), dbType)
+        : base(storeType, typeof(Guid), dbType, jsonValueReaderWriter: JsonGuidReaderWriter.Instance)
     {
     }
 

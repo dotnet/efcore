@@ -4,6 +4,7 @@
 using System.Data;
 using System.Globalization;
 using System.Text;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -35,7 +36,8 @@ public class ByteArrayTypeMapping : RelationalTypeMapping
         : base(
             new RelationalTypeMappingParameters(
                 new CoreTypeMappingParameters(
-                    typeof(byte[])), storeType, StoreTypePostfix.None, dbType, unicode: false, size))
+                    typeof(byte[]), jsonValueReaderWriter: JsonByteArrayReaderWriter.Instance), storeType, StoreTypePostfix.None, dbType,
+                unicode: false, size))
     {
     }
 

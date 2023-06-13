@@ -3,6 +3,8 @@
 
 // ReSharper disable InconsistentNaming
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertyGetterFactoryTest
@@ -75,6 +77,9 @@ public class ClrPropertyGetterFactoryTest
             => throw new NotImplementedException();
 
         public ValueComparer GetProviderValueComparer()
+            => throw new NotImplementedException();
+
+        public JsonValueReaderWriter GetJsonValueReaderWriter()
             => throw new NotImplementedException();
 
         public bool IsForeignKey()

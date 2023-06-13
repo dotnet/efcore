@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Data;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Storage;
 
@@ -30,7 +31,7 @@ public class DateTimeOffsetTypeMapping : RelationalTypeMapping
     public DateTimeOffsetTypeMapping(
         string storeType,
         DbType? dbType = System.Data.DbType.DateTimeOffset)
-        : base(storeType, typeof(DateTimeOffset), dbType)
+        : base(storeType, typeof(DateTimeOffset), dbType, jsonValueReaderWriter: JsonDateTimeOffsetReaderWriter.Instance)
     {
     }
 

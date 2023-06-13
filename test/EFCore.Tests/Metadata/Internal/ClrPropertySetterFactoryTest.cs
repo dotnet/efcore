@@ -5,6 +5,8 @@
 // ReSharper disable UnassignedGetOnlyAutoProperty
 // ReSharper disable InconsistentNaming
 
+using Microsoft.EntityFrameworkCore.Storage.Json;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 public class ClrPropertySetterFactoryTest
@@ -94,6 +96,9 @@ public class ClrPropertySetterFactoryTest
             => throw new NotImplementedException();
 
         public ValueComparer GetProviderValueComparer()
+            => throw new NotImplementedException();
+
+        public JsonValueReaderWriter GetJsonValueReaderWriter()
             => throw new NotImplementedException();
 
         public bool IsForeignKey()

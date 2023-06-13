@@ -6,6 +6,7 @@ using System.Data.SqlTypes;
 using System.Text;
 using JetBrains.Annotations;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Json;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.ValueConversion.Internal;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
@@ -41,6 +42,7 @@ public class SqlServerGeometryTypeMapping<TGeometry> : RelationalGeometryTypeMap
             new GeometryValueConverter<TGeometry>(
                 CreateReader(geometryServices, IsGeography(storeType)),
                 CreateWriter(IsGeography(storeType))),
+            SqlServerJsonGeometryWktReaderWriter.Instance,
             storeType)
     {
         _isGeography = IsGeography(storeType);
