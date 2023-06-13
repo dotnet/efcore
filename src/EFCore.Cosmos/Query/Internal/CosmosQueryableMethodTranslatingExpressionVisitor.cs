@@ -78,8 +78,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
     /// </summary>
     public override Expression Visit(Expression expression)
     {
-        if (expression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.IsGenericMethod
+        if (expression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && methodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.FirstOrDefaultWithoutPredicate)
         {
             if (methodCallExpression.Arguments[0] is MethodCallExpression queryRootMethodCallExpression
@@ -90,8 +89,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
                 {
                     var entityType = entityQueryRootExpression.EntityType;
 
-                    if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression unaryExpression
-                        && unaryExpression.Operand is LambdaExpression lambdaExpression)
+                    if (queryRootMethodCallExpression.Arguments[1] is UnaryExpression { Operand: LambdaExpression lambdaExpression })
                     {
                         var queryProperties = new List<IProperty>();
                         var parameterNames = new List<string>();
@@ -636,9 +634,7 @@ public class CosmosQueryableMethodTranslatingExpressionVisitor : QueryableMethod
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (!(translation is SqlConstantExpression sqlConstantExpression
-                    && sqlConstantExpression.Value is bool constantValue
-                    && constantValue))
+            if (translation is not SqlConstantExpression { Value: true })
             {
                 selectExpression.ApplyPredicate(translation);
             }

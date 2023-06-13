@@ -1211,7 +1211,7 @@ ORDER BY [table_schema], [table_name], [index_name], [ic].[key_ordinal];";
                     index[SqlServerAnnotationNames.Clustered] = true;
                 }
 
-                if (indexGroup.Key.FillFactor > 0 && indexGroup.Key.FillFactor <= 100)
+                if (indexGroup.Key.FillFactor is > 0 and <= 100)
                 {
                     index[SqlServerAnnotationNames.FillFactor] = (int)indexGroup.Key.FillFactor;
                 }

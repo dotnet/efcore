@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -839,8 +838,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         var outerKey = RemapLambdaBody(outer, outerKeySelector);
         var innerKey = RemapLambdaBody(inner, innerKeySelector);
 
-        if (outerKey is NewExpression outerNew
-            && outerNew.Arguments.Count > 0)
+        if (outerKey is NewExpression { Arguments.Count: > 0 } outerNew)
         {
             var innerNew = (NewExpression)innerKey;
 
@@ -937,9 +935,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             }
 
             var selectExpression = (SelectExpression)source.QueryExpression;
-            if (!(translation is SqlConstantExpression sqlConstantExpression
-                    && sqlConstantExpression.Value is bool constantValue
-                    && constantValue))
+            if (translation is not SqlConstantExpression { Value: true })
             {
                 selectExpression.ApplyPredicate(translation);
             }
@@ -1075,7 +1071,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         public (LambdaExpression, bool, bool) IsCorrelated(LambdaExpression lambdaExpression)
         {
             Check.DebugAssert(
-                lambdaExpression.Parameters.Count == 1, "Multiparameter lambda passed to CorrelationFindingExpressionVisitor");
+                lambdaExpression.Parameters.Count == 1, "Multi-parameter lambda passed to CorrelationFindingExpressionVisitor");
 
             _correlated = false;
             _defaultIfEmpty = false;
@@ -1330,9 +1326,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
         var clrType = entityType.ClrType;
         var entityParameter = Expression.Parameter(clrType);
-        Expression predicateBody;
         var innerParameter = Expression.Parameter(clrType);
-        predicateBody = Expression.Call(
+        var predicateBody = Expression.Call(
             QueryableMethods.AnyWithPredicate.MakeGenericMethod(clrType),
             source,
             Expression.Quote(
@@ -1690,15 +1685,17 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         EntityShaperExpression entityShaperExpression,
         [NotNullWhen(true)] out TableExpression? tableExpression)
     {
-        if (selectExpression.Offset == null
-            && selectExpression.Limit == null
+        if (selectExpression is
+            {
+                Tables: [TableExpression expression],
+                Orderings: [],
+                Offset: null,
+                Limit: null,
+                GroupBy: [],
+                Having: null
+            }
             // If entity type has primary key then Distinct is no-op
-            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null)
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] is TableExpression expression)
+            && (!selectExpression.IsDistinct || entityShaperExpression.EntityType.FindPrimaryKey() != null))
         {
             tableExpression = expression;
 
@@ -1714,7 +1711,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     /// </summary>
     /// <remarks>
     ///     <para>
-    ///         By default, only muli-table select expressions are supported, and optionally with a predicate.
+    ///         By default, only multi-table select expressions are supported, and optionally with a predicate.
     ///     </para>
     ///     <para>
     ///         Providers can override this to allow more select expression features to be supported without pushing down into a subquery.
@@ -2183,7 +2180,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                                         return Expression.NotEqual(left, Expression.Constant(null, left.Type));
                                     })
-                                .Aggregate((l, r) => Expression.AndAlso(l, r))
+                                .Aggregate(Expression.AndAlso)
                             : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
                         keyComparison)
                     : keyComparison;
@@ -2214,8 +2211,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 if (table is SelectExpression selectExpression)
                 {
-                    var matchingProjection =
-                        (ColumnExpression)selectExpression.Projection.Where(p => p.Alias == column.Name).Single().Expression;
+                    var matchingProjection = (ColumnExpression)selectExpression.Projection.Single(p => p.Alias == column.Name).Expression;
 
                     return FindRootTableExpressionForColumn(matchingProjection);
                 }
@@ -2426,8 +2422,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             || selectorLambda.Body == selectorLambda.Parameters[0])
         {
             var shaperExpression = source.ShaperExpression;
-            if (shaperExpression is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert)
+            if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
             {
                 shaperExpression = unaryExpression.Operand;
             }
@@ -2742,7 +2737,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         /// <summary>
         ///     The inferred type mappings to be applied back on their query roots.
         /// </summary>
-        private IReadOnlyDictionary<(TableExpressionBase Table, string ColumnName), RelationalTypeMapping?> _inferredTypeMappings;
+        private readonly IReadOnlyDictionary<(TableExpressionBase Table, string ColumnName), RelationalTypeMapping?> _inferredTypeMappings;
 
         /// <summary>
         ///     Creates a new instance of the <see cref="RelationalInferredTypeMappingApplier" /> class.

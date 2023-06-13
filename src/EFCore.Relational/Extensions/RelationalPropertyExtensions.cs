@@ -167,8 +167,7 @@ public static class RelationalPropertyExtensions
         {
             var foreignKey = property.GetContainingForeignKeys().First();
             var principalEntityType = foreignKey.PrincipalEntityType;
-            if (!principalEntityType.HasSharedClrType
-                && principalEntityType.ClrType.IsConstructedGenericType
+            if (principalEntityType is { HasSharedClrType: false, ClrType.IsConstructedGenericType: true }
                 && foreignKey.DependentToPrincipal == null)
             {
                 var principalProperty = property.FindFirstPrincipal()!;

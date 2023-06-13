@@ -99,9 +99,7 @@ public class ManyToManyJoinEntityTypeConvention :
         var inverseSkipNavigation = skipNavigation.Inverse;
         return skipNavigation.ForeignKey == null
             && skipNavigation.IsCollection
-            && inverseSkipNavigation != null
-            && inverseSkipNavigation.ForeignKey == null
-            && inverseSkipNavigation.IsCollection;
+            && inverseSkipNavigation is { ForeignKey: null, IsCollection: true };
     }
 
     /// <summary>

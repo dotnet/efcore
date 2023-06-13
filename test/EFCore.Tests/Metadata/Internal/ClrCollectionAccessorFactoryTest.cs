@@ -506,7 +506,7 @@ public class ClrCollectionAccessorFactoryTest
         public int Id { get; set; }
 
         public override bool Equals(object obj)
-            => obj != null && obj is MyEntityWithCustomComparer other && Id == other.Id;
+            => obj is MyEntityWithCustomComparer other && Id == other.Id;
 
         public override int GetHashCode()
             => Id.GetHashCode();

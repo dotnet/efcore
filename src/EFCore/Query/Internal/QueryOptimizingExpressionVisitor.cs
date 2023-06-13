@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
-using ExpressionExtensions = Microsoft.EntityFrameworkCore.Infrastructure.ExpressionExtensions;
 
 namespace Microsoft.EntityFrameworkCore.Query.Internal;
 
@@ -184,9 +183,7 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         if (Equals(StartsWithMethodInfo, methodCallExpression.Method)
             || Equals(EndsWithMethodInfo, methodCallExpression.Method))
         {
-            if (methodCallExpression.Arguments[0] is ConstantExpression constantArgument
-                && constantArgument.Value is string stringValue
-                && stringValue == string.Empty)
+            if (methodCallExpression.Arguments[0] is ConstantExpression { Value: "" })
             {
                 // every string starts/ends with empty string.
                 return Expression.Constant(true);
@@ -267,20 +264,18 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
                 || visited.Method.DeclaringType?.Name == "EmbeddedOperators")
             && visited.Method.DeclaringType?.Namespace == "Microsoft.VisualBasic.CompilerServices"
             && visited.Object == null
-            && visited.Arguments.Count == 3
-            && visited.Arguments[2] is ConstantExpression textCompareConstantExpression)
+            && visited.Arguments is [_, _, ConstantExpression textCompareConstantExpression])
         {
-            return textCompareConstantExpression.Value is bool boolValue
-                && boolValue
-                    ? Expression.Call(
-                        StringCompareWithComparisonMethod,
-                        visited.Arguments[0],
-                        visited.Arguments[1],
-                        Expression.Constant(StringComparison.OrdinalIgnoreCase))
-                    : Expression.Call(
-                        StringCompareWithoutComparisonMethod,
-                        visited.Arguments[0],
-                        visited.Arguments[1]);
+            return textCompareConstantExpression.Value is true
+                ? Expression.Call(
+                    StringCompareWithComparisonMethod,
+                    visited.Arguments[0],
+                    visited.Arguments[1],
+                    Expression.Constant(StringComparison.OrdinalIgnoreCase))
+                : Expression.Call(
+                    StringCompareWithoutComparisonMethod,
+                    visited.Arguments[0],
+                    visited.Arguments[1]);
         }
 
         return visited;
@@ -337,14 +332,11 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     /// </summary>
     protected override Expression VisitUnary(UnaryExpression unaryExpression)
     {
-        if (unaryExpression.NodeType == ExpressionType.Not
-            && unaryExpression.Operand is MethodCallExpression innerMethodCall
+        if (unaryExpression is { NodeType: ExpressionType.Not, Operand: MethodCallExpression innerMethodCall }
             && (Equals(StartsWithMethodInfo, innerMethodCall.Method)
                 || Equals(EndsWithMethodInfo, innerMethodCall.Method)))
         {
-            if (innerMethodCall.Arguments[0] is ConstantExpression constantArgument
-                && constantArgument.Value is string stringValue
-                && stringValue == string.Empty)
+            if (innerMethodCall.Arguments[0] is ConstantExpression { Value: "" })
             {
                 // every string starts/ends with empty string.
                 return Expression.Constant(false);
@@ -442,15 +434,16 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
         // Simplify (a != null ? new { Member = b, ... } : null).Member
         // to a != null ? b : null
         // Later null check removal will simplify it further
-        if (expression is MemberExpression visitedMemberExpression
-            && visitedMemberExpression.Expression is ConditionalExpression conditionalExpression
-            && conditionalExpression.Test is BinaryExpression binaryTest
-            && (binaryTest.NodeType == ExpressionType.Equal
-                || binaryTest.NodeType == ExpressionType.NotEqual)
+        if (expression is MemberExpression
+            {
+                Expression: ConditionalExpression
+                {
+                    Test: BinaryExpression { NodeType: ExpressionType.Equal or ExpressionType.NotEqual } binaryTest
+                } conditionalExpression
+            } visitedMemberExpression
             // Exclude HasValue/Value over Nullable<> as they return non-null type and we don't have equivalent for it for null part
             && !(conditionalExpression.Type.IsNullableValueType()
-                && (visitedMemberExpression.Member.Name == nameof(Nullable<int>.HasValue)
-                    || visitedMemberExpression.Member.Name == nameof(Nullable<int>.Value))))
+                && visitedMemberExpression.Member.Name is nameof(Nullable<int>.HasValue) or nameof(Nullable<int>.Value)))
         {
             var isLeftNullConstant = IsNullConstant(binaryTest.Left);
             var isRightNullConstant = IsNullConstant(binaryTest.Right);
@@ -488,6 +481,5 @@ public class QueryOptimizingExpressionVisitor : ExpressionVisitor
     }
 
     private static bool IsNullConstant(Expression expression)
-        => expression is ConstantExpression constantExpression
-            && constantExpression.Value == null;
+        => expression is ConstantExpression { Value: null } constantExpression;
 }

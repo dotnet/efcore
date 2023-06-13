@@ -342,7 +342,7 @@ ORDER BY "cid"
             string? collation = null;
             var autoIncrement = 0;
             if (connection is SqliteConnection sqliteConnection
-                && !(table is DatabaseView))
+                && table is not DatabaseView)
             {
                 var db = sqliteConnection.Handle;
                 var rc = sqlite3_table_column_metadata(

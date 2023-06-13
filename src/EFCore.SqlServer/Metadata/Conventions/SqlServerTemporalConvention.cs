@@ -70,8 +70,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
                     if (skipLevelNavigation.DeclaringEntityType.IsTemporal()
                         && skipLevelNavigation.Inverse is IConventionSkipNavigation inverse
                         && inverse.DeclaringEntityType.IsTemporal()
-                        && skipLevelNavigation.JoinEntityType is IConventionEntityType joinEntityType
-                        && joinEntityType.HasSharedClrType
+                        && skipLevelNavigation.JoinEntityType is IConventionEntityType { HasSharedClrType: true } joinEntityType
                         && !joinEntityType.IsTemporal()
                         && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention)
                     {
@@ -128,8 +127,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
         IConventionForeignKey? oldForeignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (skipNavigationBuilder.Metadata.JoinEntityType is IConventionEntityType joinEntityType
-            && joinEntityType.HasSharedClrType
+        if (skipNavigationBuilder.Metadata.JoinEntityType is { HasSharedClrType: true } joinEntityType
             && !joinEntityType.IsTemporal()
             && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention
             && skipNavigationBuilder.Metadata.DeclaringEntityType.IsTemporal()

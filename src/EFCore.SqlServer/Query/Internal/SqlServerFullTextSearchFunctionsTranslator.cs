@@ -72,7 +72,7 @@ public class SqlServerFullTextSearchFunctionsTranslator : IMethodCallTranslator
         if (FunctionMapping.TryGetValue(method, out var functionName))
         {
             var propertyReference = arguments[1];
-            if (!(propertyReference is ColumnExpression))
+            if (propertyReference is not ColumnExpression)
             {
                 throw new InvalidOperationException(SqlServerStrings.InvalidColumnNameForFreeText);
             }

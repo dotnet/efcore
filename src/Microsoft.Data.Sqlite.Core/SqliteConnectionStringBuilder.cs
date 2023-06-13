@@ -313,7 +313,7 @@ namespace Microsoft.Data.Sqlite
         private static bool? ConvertToNullableBoolean(object value)
         {
             if (value == null
-                || (value is string stringValue && stringValue.Length == 0))
+                || value is string { Length: 0 })
             {
                 return null;
             }

@@ -22,7 +22,7 @@ public class SqlServerDatabaseCleaner : RelationalDatabaseCleaner
     }
 
     protected override bool AcceptTable(DatabaseTable table)
-        => !(table is DatabaseView);
+        => table is not DatabaseView;
 
     protected override bool AcceptIndex(DatabaseIndex index)
         => false;

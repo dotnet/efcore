@@ -505,8 +505,7 @@ public class ForeignKeyAttributeConvention :
         IConventionForeignKey? oldForeignKey,
         IConventionContext<IConventionForeignKey> context)
     {
-        if (foreignKey != null
-            && foreignKey.IsInModel)
+        if (foreignKey is { IsInModel: true })
         {
             var fkPropertiesToSet = FindCandidateDependentPropertiesThroughNavigation(skipNavigationBuilder.Metadata);
             if (fkPropertiesToSet != null)

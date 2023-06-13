@@ -29,8 +29,7 @@ public class CollateTranslator : IMethodCallTranslator
         IDiagnosticsLogger<DbLoggerCategory.Query> logger)
         => method.IsGenericMethod
             && Equals(method.GetGenericMethodDefinition(), MethodInfo)
-            && arguments[2] is SqlConstantExpression constantExpression
-            && constantExpression.Value is string collation
+            && arguments[2] is SqlConstantExpression { Value: string collation }
                 ? new CollateExpression(arguments[1], collation)
                 : null;
 }

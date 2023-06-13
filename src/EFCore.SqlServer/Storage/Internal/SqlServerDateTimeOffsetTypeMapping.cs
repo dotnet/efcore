@@ -79,8 +79,7 @@ public class SqlServerDateTimeOffsetTypeMapping : DateTimeOffsetTypeMapping
             if (Precision.HasValue)
             {
                 var precision = Precision.Value;
-                if (precision <= 7
-                    && precision >= 0)
+                if (precision is <= 7 and >= 0)
                 {
                     return _dateTimeOffsetFormats[precision];
                 }

@@ -849,7 +849,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
                 return newExpression.Update(arguments);
 
             case MemberInitExpression memberInitExpression:
-                if (memberInitExpression.Bindings.Any(mb => !(mb is MemberAssignment)))
+                if (memberInitExpression.Bindings.Any(mb => mb is not MemberAssignment))
                 {
                     goto default;
                 }
@@ -869,8 +869,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
 
                 return memberInitExpression.Update(updatedNewExpression, memberBindings);
 
-            case EntityShaperExpression entityShaperExpression
-                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+            case EntityShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } entityShaperExpression:
                 var entityProjectionExpression =
                     (EntityProjectionExpression)((InMemoryQueryExpression)projectionBindingExpression.QueryExpression)
                     .GetProjection(projectionBindingExpression);
@@ -1162,8 +1161,7 @@ public partial class InMemoryQueryExpression : Expression, IPrintableExpression
             .SelectMany(t => t.GetDeclaredProperties());
 
     private static IPropertyBase? InferPropertyFromInner(Expression expression)
-        => expression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.IsGenericMethod
+        => expression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && methodCallExpression.Method.GetGenericMethodDefinition() == ExpressionExtensions.ValueBufferTryReadValueMethod
                 ? methodCallExpression.Arguments[2].GetConstantValue<IPropertyBase>()
                 : null;

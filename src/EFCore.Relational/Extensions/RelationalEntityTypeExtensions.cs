@@ -375,8 +375,7 @@ public static class RelationalEntityTypeExtensions
     public static string? GetDefaultViewSchema(this IReadOnlyEntityType entityType)
     {
         var ownership = entityType.FindOwnership();
-        if (ownership != null
-            && ownership.IsUnique)
+        if (ownership is { IsUnique: true })
         {
             return ownership.PrincipalEntityType.GetViewSchema();
         }

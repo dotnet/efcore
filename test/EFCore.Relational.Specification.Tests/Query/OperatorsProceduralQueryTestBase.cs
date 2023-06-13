@@ -297,7 +297,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
             var possibleBinariesForResultType = possibleBinaries.Where(x => x.ResultType == currentResultType).ToList();
             var possibleUnariesForResultType = possibleUnaries.Where(x => x.ResultType == currentResultType).ToList();
 
-            // if we can't go any deeper (no matching operations) then simply return source 
+            // if we can't go any deeper (no matching operations) then simply return source
             if (possibleBinariesForResultType.Count == 0 && possibleUnariesForResultType.Count == 0)
             {
                 return AddRootPropertyAccess(random, currentResultType, rootPropertyExpressions);
@@ -678,8 +678,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            if (newExpression.Constructor is ConstructorInfo ctorInfo
-                && ctorInfo.DeclaringType is Type { IsGenericType: true } declaringType)
+            if (newExpression.Constructor is ConstructorInfo { DeclaringType: Type { IsGenericType: true } declaringType })
             {
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto1<,>))
                 {

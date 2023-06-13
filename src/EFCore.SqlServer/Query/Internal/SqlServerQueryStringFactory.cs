@@ -139,8 +139,7 @@ internal static class TypeNameBuilder
 
     private static StringBuilder AppendPrecisionAndScale(this StringBuilder builder, DbParameter parameter)
     {
-        if (parameter.Precision > 0
-            && parameter.Scale > 0)
+        if (parameter is { Precision: > 0, Scale: > 0 })
         {
             return builder
                 .Append('(')

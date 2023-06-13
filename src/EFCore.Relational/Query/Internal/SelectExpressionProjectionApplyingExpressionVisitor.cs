@@ -35,12 +35,13 @@ public class SelectExpressionProjectionApplyingExpressionVisitor : ExpressionVis
     protected override Expression VisitExtension(Expression extensionExpression)
         => extensionExpression switch
         {
-            ShapedQueryExpression shapedQueryExpression
-                when shapedQueryExpression.QueryExpression is SelectExpression selectExpression
+            ShapedQueryExpression { QueryExpression: SelectExpression selectExpression } shapedQueryExpression
                 => shapedQueryExpression.UpdateShaperExpression(
                     selectExpression.ApplyProjection(
                         shapedQueryExpression.ShaperExpression, shapedQueryExpression.ResultCardinality, _querySplittingBehavior)),
+
             NonQueryExpression nonQueryExpression => nonQueryExpression,
+
             _ => base.VisitExtension(extensionExpression),
         };
 }

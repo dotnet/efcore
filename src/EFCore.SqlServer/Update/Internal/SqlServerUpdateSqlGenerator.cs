@@ -305,7 +305,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
         {
             requiresTransaction = modificationCommands.Count > 1;
 
-            if (!writableOperations.Any(o => o.IsRead && o.IsKey))
+            if (!writableOperations.Any(o => o is { IsRead: true, IsKey: true }))
             {
                 foreach (var modification in modificationCommands)
                 {

@@ -13,7 +13,7 @@ public class EntityQueryProvider : IAsyncQueryProvider
 {
     private static readonly MethodInfo GenericCreateQueryMethod
         = typeof(EntityQueryProvider).GetRuntimeMethods()
-            .Single(m => (m.Name == "CreateQuery") && m.IsGenericMethod);
+            .Single(m => m is { Name: "CreateQuery", IsGenericMethod: true });
 
     private readonly MethodInfo _genericExecuteMethod;
 
@@ -30,7 +30,7 @@ public class EntityQueryProvider : IAsyncQueryProvider
         _queryCompiler = queryCompiler;
         _genericExecuteMethod = queryCompiler.GetType()
             .GetRuntimeMethods()
-            .Single(m => (m.Name == "Execute") && m.IsGenericMethod);
+            .Single(m => m is { Name: "Execute", IsGenericMethod: true });
     }
 
     /// <summary>

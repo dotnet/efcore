@@ -1028,7 +1028,7 @@ public class CSharpHelper : ICSharpHelper
         }
 
         var valueType = value.GetType();
-        if (valueType.IsGenericType && !valueType.IsGenericTypeDefinition)
+        if (valueType is { IsGenericType: true, IsGenericTypeDefinition: false })
         {
             var genericArguments = valueType.GetGenericArguments();
             switch (value)
@@ -1519,8 +1519,7 @@ public class CSharpHelper : ICSharpHelper
         if (ch < 'a')
         {
             return (ch < 'A'
-                ? ch >= '0'
-                && ch <= '9'
+                ? ch is >= '0' and <= '9'
                 : ch <= 'Z')
                 || ch == '_';
         }

@@ -72,7 +72,7 @@ public sealed record RelationalSqlTranslatingExpressionVisitorDependencies
     public IModel Model { get; init; }
 
     /// <summary>
-    ///     The relational type mapping souce.
+    ///     The relational type mapping source.
     /// </summary>
     public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 

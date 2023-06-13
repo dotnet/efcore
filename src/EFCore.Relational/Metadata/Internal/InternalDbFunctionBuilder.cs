@@ -218,7 +218,7 @@ public class InternalDbFunctionBuilder : AnnotatableBuilder<DbFunction, IConvent
     public virtual bool CanSetTranslation(
         Func<IReadOnlyList<SqlExpression>, SqlExpression>? translation,
         ConfigurationSource configurationSource)
-        => (Metadata.IsScalar && !Metadata.IsAggregate || configurationSource == ConfigurationSource.Explicit)
+        => (Metadata is { IsScalar: true, IsAggregate: false } || configurationSource == ConfigurationSource.Explicit)
             && (configurationSource.Overrides(Metadata.GetTranslationConfigurationSource())
                 || Metadata.Translation == translation);
 

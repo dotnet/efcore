@@ -90,8 +90,7 @@ public class CosmosTypeMappingSource : TypeMappingSource
                     clrType, CreateArrayComparer(elementMapping, elementType), jsonValueReaderWriter: jsonValueReaderWriter);
         }
 
-        if (clrType.IsGenericType
-            && !clrType.IsGenericTypeDefinition)
+        if (clrType is { IsGenericType: true, IsGenericTypeDefinition: false })
         {
             var genericTypeDefinition = clrType.GetGenericTypeDefinition();
             if (genericTypeDefinition == typeof(List<>)

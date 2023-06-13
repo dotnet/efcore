@@ -63,7 +63,7 @@ public sealed record RelationalParameterBasedSqlProcessorDependencies
     public ISqlExpressionFactory SqlExpressionFactory { get; init; }
 
     /// <summary>
-    ///     Relational type mapping souce.
+    ///     Relational type mapping source.
     /// </summary>
     public IRelationalTypeMappingSource TypeMappingSource { get; init; }
 

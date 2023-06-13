@@ -3,9 +3,6 @@
 
 #nullable enable
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace Microsoft.EntityFrameworkCore.Utilities;
 
 internal abstract class Graph<TVertex>

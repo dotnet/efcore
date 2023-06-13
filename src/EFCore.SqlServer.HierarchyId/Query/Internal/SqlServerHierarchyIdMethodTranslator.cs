@@ -79,8 +79,7 @@ public class SqlServerHierarchyIdMethodTranslator : IMethodCallTranslator
 
                 if (argument.Type == typeof(HierarchyId))
                 {
-                    if (argument is SqlConstantExpression constant
-                        && constant.Value is HierarchyId hierarchyId)
+                    if (argument is SqlConstantExpression { Value: HierarchyId hierarchyId })
                     {
                         argument = _sqlExpressionFactory.Fragment($"'{hierarchyId}'");
                     }

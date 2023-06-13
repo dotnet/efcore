@@ -225,8 +225,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     /// </summary>
     protected override void GenerateTop(SelectExpression selectExpression)
     {
-        if (selectExpression.Limit != null
-            && selectExpression.Offset == null)
+        if (selectExpression is { Limit: not null, Offset: null })
         {
             Sql.Append("TOP(");
 

@@ -38,9 +38,7 @@ public class DiscriminatorConvention : IEntityTypeBaseTypeChangedConvention, IEn
         IConventionEntityType? oldBaseType,
         IConventionContext<IConventionEntityType> context)
     {
-        if (oldBaseType != null
-            && oldBaseType.IsInModel
-            && oldBaseType.BaseType == null
+        if (oldBaseType is { IsInModel: true, BaseType: null }
             && !oldBaseType.GetDirectlyDerivedTypes().Any())
         {
             oldBaseType.Builder.HasNoDiscriminator();

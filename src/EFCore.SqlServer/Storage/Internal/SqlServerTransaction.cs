@@ -35,7 +35,7 @@ public class SqlServerTransaction : RelationalTransaction
     {
         get
         {
-            if (Connection is ISqlServerConnection sqlServerConnection && sqlServerConnection.IsMultipleActiveResultSetsEnabled)
+            if (Connection is ISqlServerConnection { IsMultipleActiveResultSetsEnabled: true })
             {
                 Logger.SavepointsDisabledBecauseOfMARS();
 

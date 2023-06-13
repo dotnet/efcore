@@ -201,7 +201,7 @@ public class GroupBySingleQueryingEnumerable<TKey, TElement>
         public IGrouping<TKey, TElement> Current { get; private set; }
 
         object IEnumerator.Current
-            => Current!;
+            => Current;
 
         public bool MoveNext()
         {

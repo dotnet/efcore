@@ -86,8 +86,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                             projectionExpression = projection.Expression;
                             storeName = projection.Alias;
                         }
-                        else if (projectionExpression is UnaryExpression convertExpression
-                                 && convertExpression.NodeType == ExpressionType.Convert)
+                        else if (projectionExpression is UnaryExpression { NodeType: ExpressionType.Convert } convertExpression)
                         {
                             // Unwrap EntityProjectionExpression when the root entity is not projected
                             projectionExpression = ((UnaryExpression)convertExpression.Operand).Operand;
@@ -155,9 +154,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                     }
                 }
 
-                if (binaryExpression.Left is MemberExpression memberExpression
-                    && memberExpression.Member is FieldInfo fieldInfo
-                    && fieldInfo.IsInitOnly)
+                if (binaryExpression.Left is MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression)
                 {
                     return memberExpression.Assign(Visit(binaryExpression.Right));
                 }
@@ -418,8 +415,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                 if (relatedEntity != null)
                 {
                     fixup(includingEntity, relatedEntity);
-                    if (inverseNavigation != null
-                        && !inverseNavigation.IsCollection)
+                    if (inverseNavigation is { IsCollection: false })
                     {
                         inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                     }

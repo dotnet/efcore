@@ -190,8 +190,7 @@ public class SqlServerGeometryMethodTranslator : IMethodCallTranslator
     {
         foreach (var argument in arguments)
         {
-            if (argument is SqlConstantExpression constant
-                && constant.Value is Geometry geometry
+            if (argument is SqlConstantExpression { Value: Geometry geometry }
                 && geometry.SRID == (isGeography ? 4326 : 0))
             {
                 yield return _sqlExpressionFactory.Fragment("'" + geometry.AsText() + "'");

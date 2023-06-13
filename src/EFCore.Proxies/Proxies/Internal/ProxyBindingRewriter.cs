@@ -101,8 +101,7 @@ public class ProxyBindingRewriter : IModelFinalizingConvention
                                 || !navigationBase.PropertyInfo.GetMethod!.IsReallyVirtual())
                             {
                                 if (!_options.IgnoreNonVirtualNavigations
-                                    && !(navigationBase is INavigation navigation
-                                        && navigation.ForeignKey.IsOwnership))
+                                    && navigationBase is not INavigation { ForeignKey.IsOwnership: true })
                                 {
                                     if (navigationBase.PropertyInfo == null)
                                     {

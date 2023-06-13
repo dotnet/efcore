@@ -210,8 +210,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         private bool ValidConstant(ConstantExpression constantExpression)
             => constantExpression.Value == null
                 || _typeMappingSource.FindMapping(constantExpression.Type) != null
-                || constantExpression.Value is Array array
-                && array.Length == 0;
+                || constantExpression.Value is Array { Length: 0 };
 
         protected override Expression VisitConstant(ConstantExpression constantExpression)
         {
@@ -436,7 +435,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                         p => Expression.NotEqual(
                                             valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
                                             Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.AndAlso(a, b)),
+                                    .Aggregate(Expression.AndAlso),
                                 MaterializeEntity(
                                     entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable,
                                     instanceVariable,
@@ -451,7 +450,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                                         p => Expression.NotEqual(
                                             valueBufferExpression.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
                                             Expression.Constant(null)))
-                                    .Aggregate((a, b) => Expression.AndAlso(a, b)),
+                                    .Aggregate(Expression.AndAlso),
                                 MaterializeEntity(
                                     entityShaperExpression, materializationContextVariable, concreteEntityTypeVariable,
                                     instanceVariable,

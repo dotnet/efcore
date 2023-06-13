@@ -266,7 +266,7 @@ public class ValueComparerTest
             => A == other.A;
 
         public override bool Equals(object obj)
-            => !(obj is null)
+            => obj is not null
                 && (ReferenceEquals(this, obj)
                     || obj is JustAClassWithEquality o
                     && Equals(o));

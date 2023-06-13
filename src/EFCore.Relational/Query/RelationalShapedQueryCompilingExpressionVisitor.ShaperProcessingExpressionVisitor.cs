@@ -2,10 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
-using System.Text.Json.Nodes;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
@@ -128,13 +125,13 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         ///     Cache for the JsonElement values we have generated - storing variables that the JsonElements are assigned to
         /// </summary>
         private readonly Dictionary<(int JsonColumnIndex, (string? JsonPropertyName, int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath), ParameterExpression> _existingJsonElementMap
-            = new(new ExisitingJsonElementMapKeyComparer());
+            = new(new ExistingJsonElementMapKeyComparer());
 
         /// <summary>
         ///     Cache for the key values we have generated - storing variables that the keys are assigned to
         /// </summary>
         private readonly Dictionary<(int JsonColumnIndex, (int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath), ParameterExpression> _existingKeyValuesMap
-            = new(new ExisitingJsonKeyValuesMapKeyComparer());
+            = new(new ExistingJsonKeyValuesMapKeyComparer());
 
         /// <summary>
         ///     Map between index of the non-constant json array element access
@@ -408,8 +405,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Assign
-                && binaryExpression.Left is ParameterExpression parameterExpression
+            if (binaryExpression is { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
                 && parameterExpression.Type == typeof(MaterializationContext))
             {
                 var newExpression = (NewExpression)binaryExpression.Right;
@@ -444,10 +440,11 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            if (binaryExpression.NodeType == ExpressionType.Assign
-                && binaryExpression.Left is MemberExpression memberExpression
-                && memberExpression.Member is FieldInfo fieldInfo
-                && fieldInfo.IsInitOnly)
+            if (binaryExpression is
+                {
+                    NodeType: ExpressionType.Assign,
+                    Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression
+                })
             {
                 return memberExpression.Assign(Visit(binaryExpression.Right));
             }
@@ -547,9 +544,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return entityMaterializationExpression;
                 }
 
-                case CollectionResultExpression collectionResultExpression
-                    when collectionResultExpression.Navigation is INavigation navigation
-                    && GetProjectionIndex(collectionResultExpression.ProjectionBindingExpression)
+                case CollectionResultExpression { Navigation: INavigation navigation } collectionResultExpression
+                    when GetProjectionIndex(collectionResultExpression.ProjectionBindingExpression)
                         is JsonProjectionInfo jsonProjectionInfo:
                 {
                     // json entity collection at the root
@@ -1429,7 +1425,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     // create JsonElement for the additional path segment
                     var currentPath = jsonProjectionInfo.AdditionalPath[index - 1];
 
-                    Expression jsonElementAccessExpressionFragment;
                     if (currentPath.JsonPropertyName is string stringPath)
                     {
                         // JsonElement? jsonElement = (...) <- this is the previous one
@@ -1475,7 +1470,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 ExtractAndCacheNonConstantJsonArrayElementAccessValue(currentPath.NonConstantArrayIndex!.Value),
                                 typeof(int));
 
-                        jsonElementAccessExpressionFragment = Expression.Call(
+                        Expression jsonElementAccessExpressionFragment = Expression.Call(
                             Expression.MakeMemberAccess(
                                 currentJsonElementVariable!,
                                 NullableJsonElementValuePropertyInfo),
@@ -1893,7 +1888,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             }
         }
 
-        private sealed class ExisitingJsonElementMapKeyComparer
+        private sealed class ExistingJsonElementMapKeyComparer
             : IEqualityComparer<(int JsonColumnIndex, (string? JsonPropertyName, int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath)>
         {
             public bool Equals(
@@ -1907,7 +1902,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 => HashCode.Combine(obj.JsonColumnIndex, obj.AdditionalPath?.Length);
         }
 
-        private sealed class ExisitingJsonKeyValuesMapKeyComparer
+        private sealed class ExistingJsonKeyValuesMapKeyComparer
             : IEqualityComparer<(int JsonColumnIndex, (int? ConstantArrayIndex, int? NonConstantArrayIndex)[] AdditionalPath)>
         {
             public bool Equals(

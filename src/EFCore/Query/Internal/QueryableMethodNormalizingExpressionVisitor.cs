@@ -111,8 +111,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
             visitedExpression = TryConvertEnumerableToQueryable(methodCallExpression);
         }
 
-        if (method.DeclaringType != null
-            && method.DeclaringType.IsGenericType
+        if (method.DeclaringType is { IsGenericType: true }
             && (method.DeclaringType.GetGenericTypeDefinition() == typeof(ICollection<>)
                 || method.DeclaringType.GetGenericTypeDefinition() == typeof(List<>))
             && method.Name == nameof(List<int>.Contains))
@@ -376,8 +375,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                     // If innerArgument has ToList applied to it then unwrap it.
                     // Also preserve generic argument of ToList is applied to different type
                     if (arguments[i].Type.TryGetElementType(typeof(List<>)) != null
-                        && arguments[i] is MethodCallExpression toListMethodCallExpression
-                        && toListMethodCallExpression.Method.IsGenericMethod
+                        && arguments[i] is MethodCallExpression { Method.IsGenericMethod: true } toListMethodCallExpression
                         && toListMethodCallExpression.Method.GetGenericMethodDefinition() == EnumerableMethods.ToList)
                     {
                         genericType = toListMethodCallExpression.Method.GetGenericArguments()[0];
@@ -474,8 +472,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         {
             // SelectMany
             var selectManySource = methodCallExpression.Arguments[0];
-            if (selectManySource is MethodCallExpression groupJoinMethod
-                && groupJoinMethod.Method.IsGenericMethod
+            if (selectManySource is MethodCallExpression { Method.IsGenericMethod: true } groupJoinMethod
                 && groupJoinMethod.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
             {
                 // GroupJoin
@@ -491,8 +488,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 var collectionSelectorBody = selectManyCollectionSelector.Body;
                 var defaultIfEmpty = false;
 
-                if (collectionSelectorBody is MethodCallExpression collectionEndingMethod
-                    && collectionEndingMethod.Method.IsGenericMethod
+                if (collectionSelectorBody is MethodCallExpression { Method.IsGenericMethod: true } collectionEndingMethod
                     && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                 {
                     defaultIfEmpty = true;
@@ -514,8 +510,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                         ReplacingExpressionVisitor.Replace(
                             groupJoinResultSelector.Parameters[1], inner, collectionSelectorBody));
 
-                    if (inner is MethodCallExpression innerMethodCall
-                        && innerMethodCall.Method.IsGenericMethod
+                    if (inner is MethodCallExpression { Method.IsGenericMethod: true } innerMethodCall
                         && innerMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable
                         && innerMethodCall.Type == innerMethodCall.Arguments[0].Type)
                     {
@@ -578,8 +573,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         {
             // SelectMany
             var selectManySource = methodCallExpression.Arguments[0];
-            if (selectManySource is MethodCallExpression groupJoinMethod
-                && groupJoinMethod.Method.IsGenericMethod
+            if (selectManySource is MethodCallExpression { Method.IsGenericMethod: true } groupJoinMethod
                 && groupJoinMethod.Method.GetGenericMethodDefinition() == QueryableMethods.GroupJoin)
             {
                 // GroupJoin
@@ -594,8 +588,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
                 var groupJoinResultSelectorBody = groupJoinResultSelector.Body;
                 var defaultIfEmpty = false;
 
-                if (groupJoinResultSelectorBody is MethodCallExpression collectionEndingMethod
-                    && collectionEndingMethod.Method.IsGenericMethod
+                if (groupJoinResultSelectorBody is MethodCallExpression { Method.IsGenericMethod: true } collectionEndingMethod
                     && collectionEndingMethod.Method.GetGenericMethodDefinition() == QueryableMethods.DefaultIfEmptyWithoutArgument)
                 {
                     defaultIfEmpty = true;

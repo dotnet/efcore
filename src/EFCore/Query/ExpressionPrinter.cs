@@ -453,8 +453,7 @@ public class ExpressionPrinter : ExpressionVisitor
 
         void PrintValue(object? value)
         {
-            if (value is IEnumerable enumerable
-                && !(value is string))
+            if (value is IEnumerable enumerable and not string)
             {
                 _stringBuilder.Append(value.GetType().ShortDisplayName() + " { ");
 
@@ -526,10 +525,7 @@ public class ExpressionPrinter : ExpressionVisitor
         {
             var parameterName = parameter.Name;
 
-            if (!_parametersInScope.ContainsKey(parameter))
-            {
-                _parametersInScope.Add(parameter, parameterName);
-            }
+            _parametersInScope.TryAdd(parameter, parameterName);
 
             Visit(parameter);
 

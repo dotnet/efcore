@@ -142,10 +142,8 @@ public class CosmosManyToManyJoinEntityTypeConvention :
     private void ProcessJoinPartitionKey(IConventionSkipNavigation skipNavigation)
     {
         var inverseSkipNavigation = skipNavigation.Inverse;
-        if (skipNavigation.JoinEntityType != null
-            && skipNavigation.IsCollection
-            && inverseSkipNavigation != null
-            && inverseSkipNavigation.IsCollection
+        if (skipNavigation is { JoinEntityType: not null, IsCollection: true }
+            && inverseSkipNavigation is { IsCollection: true }
             && inverseSkipNavigation.JoinEntityType == skipNavigation.JoinEntityType)
         {
             var joinEntityType = skipNavigation.JoinEntityType;

@@ -484,8 +484,7 @@ public class CosmosClientWrapper : ICosmosClientWrapper
         }
 
         var jObjectProperty = entry.EntityType.FindProperty(StoreKeyConvention.JObjectPropertyName);
-        if (jObjectProperty != null
-            && jObjectProperty.ValueGenerated == ValueGenerated.OnAddOrUpdate
+        if (jObjectProperty is { ValueGenerated: ValueGenerated.OnAddOrUpdate }
             && response.Content != null)
         {
             using var responseStream = response.Content;

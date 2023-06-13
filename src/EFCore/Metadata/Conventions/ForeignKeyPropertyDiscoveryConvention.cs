@@ -173,9 +173,8 @@ public class ForeignKeyPropertyDiscoveryConvention :
             invertible = false;
         }
         else if (ConfigurationSource.Convention.Overrides(foreignKey.GetPrincipalEndConfigurationSource())
-                 && (foreignKey.PrincipalEntityType.FindOwnership() != null
-                     && foreignKey.PrincipalToDependent != null
-                     && foreignKey.DependentToPrincipal == null))
+                 && foreignKey.PrincipalEntityType.FindOwnership() != null
+                 && foreignKey is { PrincipalToDependent: not null, DependentToPrincipal: null })
         {
             var invertedRelationshipBuilder = relationshipBuilder.HasEntityTypes(
                 foreignKey.DeclaringEntityType, foreignKey.PrincipalEntityType);
@@ -761,8 +760,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
             .SelectMany(t => t.GetDeclaredForeignKeys()).ToList();
         foreach (var foreignKey in foreignKeys)
         {
-            if ((foreignKey.IsUnique
-                    && foreignKey.DeclaringEntityType.BaseType == null)
+            if (foreignKey is { IsUnique: true, DeclaringEntityType.BaseType: null }
                 || !foreignKey.IsInModel)
             {
                 continue;
@@ -785,7 +783,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
         IConventionKey? previousPrimaryKey,
         IConventionContext<IConventionKey> context)
     {
-        if (newPrimaryKey != null && !newPrimaryKey.IsInModel)
+        if (newPrimaryKey is { IsInModel: false })
         {
             return;
         }

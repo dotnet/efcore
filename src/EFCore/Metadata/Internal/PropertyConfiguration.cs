@@ -172,7 +172,7 @@ public class PropertyConfiguration : AnnotatableBase, ITypeMappingConfiguration
     /// </summary>
     public virtual void SetPrecision(int? precision)
     {
-        if (precision != null && precision < 0)
+        if (precision is < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(precision));
         }

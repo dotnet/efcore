@@ -59,8 +59,7 @@ public class ReferenceEntry : NavigationEntry
 
     private void LocalDetectChanges()
     {
-        if (!(Metadata is INavigation navigation
-                && navigation.IsOnDependent))
+        if (Metadata is not INavigation { IsOnDependent: true })
         {
             var target = GetTargetEntry();
             if (target != null)

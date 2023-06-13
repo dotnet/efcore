@@ -55,7 +55,6 @@ public class QueryCompilationContext
     private readonly IQueryableMethodTranslatingExpressionVisitorFactory _queryableMethodTranslatingExpressionVisitorFactory;
     private readonly IQueryTranslationPostprocessorFactory _queryTranslationPostprocessorFactory;
     private readonly IShapedQueryCompilingExpressionVisitorFactory _shapedQueryCompilingExpressionVisitorFactory;
-    private readonly IQueryExpressionInterceptor? _queryExpressionInterceptor;
 
     private readonly ExpressionPrinter _expressionPrinter;
 
@@ -85,7 +84,6 @@ public class QueryCompilationContext
         _shapedQueryCompilingExpressionVisitorFactory = dependencies.ShapedQueryCompilingExpressionVisitorFactory;
 
         _expressionPrinter = new ExpressionPrinter();
-        _queryExpressionInterceptor = dependencies.Interceptors.Aggregate<IQueryExpressionInterceptor>();
     }
 
     /// <summary>

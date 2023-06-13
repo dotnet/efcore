@@ -721,7 +721,7 @@ public abstract class NorthwindMiscellaneousQueryTestBase<TFixture> : QueryTestB
     public virtual Task Ternary_should_not_evaluate_both_sides(bool async)
     {
         Customer customer = null;
-        var hasData = !(customer is null);
+        var hasData = customer is not null;
 
         return AssertQuery(
             async,

@@ -64,9 +64,7 @@ public class LazyLoadingInterceptor : IInterceptor
                 var navigationBase = _entityType.FindNavigation(navigationName)
                     ?? (INavigationBase?)_entityType.FindSkipNavigation(navigationName);
 
-                if (navigationBase != null
-                    && (!(navigationBase is INavigation navigation
-                        && navigation.ForeignKey.IsOwnership)))
+                if (navigationBase is not (null or INavigation { ForeignKey.IsOwnership: true }))
                 {
                     _loader.Load(invocation.Proxy, navigationName);
                 }

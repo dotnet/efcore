@@ -253,8 +253,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     [DebuggerStepThrough]
     bool IModel.IsIndexerMethod(MethodInfo methodInfo)
         => !methodInfo.IsStatic
-            && methodInfo.IsSpecialName
-            && methodInfo.DeclaringType != null
+            && methodInfo is { IsSpecialName: true, DeclaringType: not null }
             && FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
             && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 

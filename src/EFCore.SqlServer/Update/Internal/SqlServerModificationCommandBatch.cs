@@ -156,7 +156,7 @@ public class SqlServerModificationCommandBatch : AffectedCountModificationComman
     {
         // TryAddCommand above already applied any pending commands if the new command is incompatible with them.
         // So if the new command is an insert, just append it to pending, otherwise do the regular add logic.
-        if (modificationCommand.EntityState == EntityState.Added && modificationCommand.StoreStoredProcedure is null)
+        if (modificationCommand is { EntityState: EntityState.Added, StoreStoredProcedure: null })
         {
             _pendingBulkInsertCommands.Add(modificationCommand);
             AddParameters(modificationCommand);

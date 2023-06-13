@@ -51,24 +51,24 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
             : sqlExpression;
 
     private SqlExpression BuildCompareToExpression(SqlExpression sqlExpression)
-        => sqlExpression is SqlConstantExpression sqlConstantExpression
-            && sqlConstantExpression.Value is bool boolValue
-                ? _sqlExpressionFactory.Equal(
-                    boolValue
-                        ? _sqlExpressionFactory.Constant(1)
-                        : _sqlExpressionFactory.Constant(0),
-                    _sqlExpressionFactory.Constant(1))
-                : _sqlExpressionFactory.Equal(
-                    sqlExpression,
-                    _sqlExpressionFactory.Constant(true));
+        => sqlExpression is SqlConstantExpression { Value: bool boolValue }
+            ? _sqlExpressionFactory.Equal(
+                boolValue
+                    ? _sqlExpressionFactory.Constant(1)
+                    : _sqlExpressionFactory.Constant(0),
+                _sqlExpressionFactory.Constant(1))
+            : _sqlExpressionFactory.Equal(
+                sqlExpression,
+                _sqlExpressionFactory.Constant(true));
 
     private SqlExpression SimplifyNegatedBinary(SqlExpression sqlExpression)
     {
-        if (sqlExpression is SqlUnaryExpression sqlUnaryExpression
-            && sqlUnaryExpression.OperatorType == ExpressionType.Not
+        if (sqlExpression is SqlUnaryExpression { OperatorType: ExpressionType.Not } sqlUnaryExpression
             && sqlUnaryExpression.Type == typeof(bool)
-            && sqlUnaryExpression.Operand is SqlBinaryExpression sqlBinaryOperand
-            && (sqlBinaryOperand.OperatorType == ExpressionType.Equal || sqlBinaryOperand.OperatorType == ExpressionType.NotEqual))
+            && sqlUnaryExpression.Operand is SqlBinaryExpression
+            {
+                OperatorType: ExpressionType.Equal or ExpressionType.NotEqual
+            } sqlBinaryOperand)
         {
             if (sqlBinaryOperand.Left.Type == typeof(bool)
                 && sqlBinaryOperand.Right.Type == typeof(bool)

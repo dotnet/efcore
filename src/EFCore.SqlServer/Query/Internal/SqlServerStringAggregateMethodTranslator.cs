@@ -61,7 +61,7 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
         var resultTypeMapping = sqlExpression.TypeMapping;
         if (resultTypeMapping?.Size != null)
         {
-            if (resultTypeMapping.IsUnicode && resultTypeMapping.Size < 4000)
+            if (resultTypeMapping is { IsUnicode: true, Size: < 4000 })
             {
                 resultTypeMapping = _typeMappingSource.FindMapping(
                     typeof(string),
@@ -69,7 +69,7 @@ public class SqlServerStringAggregateMethodTranslator : IAggregateMethodCallTran
                     unicode: true,
                     size: 4000);
             }
-            else if (!resultTypeMapping.IsUnicode && resultTypeMapping.Size < 8000)
+            else if (resultTypeMapping is { IsUnicode: false, Size: < 8000 })
             {
                 resultTypeMapping = _typeMappingSource.FindMapping(
                     typeof(string),

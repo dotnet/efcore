@@ -32,15 +32,13 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     [return: NotNullIfNotNull("sqlExpression")]
     public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
-        => sqlExpression == null
-            || sqlExpression.TypeMapping != null
-                ? sqlExpression
-                : sqlExpression is SqlUnaryExpression sqlUnaryExpression
-                && sqlUnaryExpression.OperatorType == ExpressionType.Convert
-                && sqlUnaryExpression.Type == typeof(object)
-                    ? sqlUnaryExpression.Operand
-                    : ApplyTypeMapping(
-                        sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
+        => sqlExpression is not { TypeMapping: null }
+            ? sqlExpression
+            : sqlExpression is SqlUnaryExpression { OperatorType: ExpressionType.Convert } sqlUnaryExpression
+            && sqlUnaryExpression.Type == typeof(object)
+                ? sqlUnaryExpression.Operand
+                : ApplyTypeMapping(
+                    sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, Dependencies.Model));
 
     /// <inheritdoc />
     [return: NotNullIfNotNull("sqlExpression")]
@@ -740,7 +738,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             if (requiredNonPkProperties.Count > 0)
             {
                 predicate = requiredNonPkProperties.Select(e => IsNotNull(e, entityProjectionExpression))
-                    .Aggregate((l, r) => AndAlso(l, r));
+                    .Aggregate(AndAlso);
             }
 
             var allNonSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
@@ -750,7 +748,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
             {
                 var atLeastOneNonNullValueInNullablePropertyCondition = allNonSharedNonPkProperties
                     .Select(e => IsNotNull(e, entityProjectionExpression))
-                    .Aggregate((a, b) => OrElse(a, b));
+                    .Aggregate(OrElse);
 
                 predicate = predicate == null
                     ? atLeastOneNonNullValueInNullablePropertyCondition

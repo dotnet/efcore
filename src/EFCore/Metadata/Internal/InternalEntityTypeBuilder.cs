@@ -3419,8 +3419,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         InternalForeignKeyBuilder? relationship;
         var existingNavigation = Metadata.FindNavigation(navigation.Name!);
-        if (existingNavigation != null
-            && !existingNavigation.IsOnDependent)
+        if (existingNavigation is { IsOnDependent: false })
         {
             var existingTargetType = existingNavigation.TargetEntityType;
             if ((targetEntityType.Type == null
@@ -3468,8 +3467,9 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
             var principalBuilder = Metadata.IsInModel
                 ? Metadata.Builder
                 : ownership?.PrincipalEntityType.FindNavigation(ownership.PrincipalToDependent!.Name)?.TargetEntityType is EntityType
-                    target
-                && target.IsInModel
+                {
+                    IsInModel: true
+                } target
                     ? target.Builder
                     : null;
 
@@ -3503,8 +3503,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
 
         if (relationship is null || !relationship.Metadata.IsInModel)
         {
-            if (ownedEntityTypeBuilder.Metadata.IsInModel
-                && ownedEntityTypeBuilder.Metadata.HasSharedClrType)
+            if (ownedEntityTypeBuilder.Metadata is { IsInModel: true, HasSharedClrType: true })
             {
                 ModelBuilder.HasNoEntityType(ownedEntityTypeBuilder.Metadata, configurationSource);
             }
@@ -3523,8 +3522,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
     {
         InternalForeignKeyBuilder? relationship;
         var existingNavigation = Metadata.FindNavigation(navigation.Name!);
-        if (existingNavigation != null
-            && !existingNavigation.IsOnDependent)
+        if (existingNavigation is { IsOnDependent: false })
         {
             var existingTargetType = existingNavigation.TargetEntityType;
             if (existingTargetType == targetEntityType)
@@ -3725,8 +3723,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
         var incompatibleRelationships = Metadata.GetDerivedTypesInclusive()
             .SelectMany(t => t.GetDeclaredForeignKeys())
             .Where(
-                fk => !fk.IsOwnership
-                    && fk.PrincipalToDependent != null
+                fk => fk is { IsOwnership: false, PrincipalToDependent: not null }
                     && !Contains(ownership, fk))
             .Concat(
                 Metadata.GetDerivedTypesInclusive()
@@ -3945,8 +3942,7 @@ public class InternalEntityTypeBuilder : AnnotatableBuilder<EntityType, Internal
                     return null;
                 }
 
-                if (targetEntityType.IsNamed
-                    && targetEntityType.Type != null)
+                if (targetEntityType is { IsNamed: true, Type: not null })
                 {
                     if (configurationSource == ConfigurationSource.Explicit)
                     {

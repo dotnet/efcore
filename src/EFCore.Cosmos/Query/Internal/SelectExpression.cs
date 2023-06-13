@@ -304,9 +304,7 @@ public class SelectExpression : Expression
     /// </summary>
     public virtual void ApplyPredicate(SqlExpression expression)
     {
-        if (expression is SqlConstantExpression sqlConstant
-            && sqlConstant.Value is bool boolValue
-            && boolValue)
+        if (expression is SqlConstantExpression { Value: true })
         {
             return;
         }

@@ -176,8 +176,7 @@ public class EntityGraphAttacher : IEntityGraphAttacher
         EntityEntryGraphNode<(EntityState TargetState, EntityState StoreGenTargetState, bool Force)> node)
     {
         var inboundNavigation = node.InboundNavigation;
-        if (inboundNavigation != null
-            && !inboundNavigation.IsCollection)
+        if (inboundNavigation is { IsCollection: false })
         {
             node.SourceEntry!.GetInfrastructure().SetIsLoaded(inboundNavigation);
         }

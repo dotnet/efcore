@@ -412,7 +412,7 @@ public class Property : PropertyBase, IMutableProperty, IConventionProperty, IPr
     /// </summary>
     public virtual int? SetPrecision(int? precision, ConfigurationSource configurationSource)
     {
-        if (precision != null && precision < 0)
+        if (precision is < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(precision));
         }
