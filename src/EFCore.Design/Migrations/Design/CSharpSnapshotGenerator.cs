@@ -91,7 +91,7 @@ public class CSharpSnapshotGenerator : ICSharpSnapshotGenerator
         }
 
         foreach (var entityType in nonOwnedTypes.Where(
-                     e => e.GetDeclaredNavigations().Any(n => !n.IsOnDependent && !n.ForeignKey.IsOwnership)))
+                     e => e.GetDeclaredNavigations().Any(n => n is { IsOnDependent: false, ForeignKey.IsOwnership: false })))
         {
             stringBuilder.AppendLine();
 

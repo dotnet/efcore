@@ -3,12 +3,8 @@
 
 #nullable enable
 
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 
@@ -48,8 +44,7 @@ internal static class SharedTypeExtensions
         => !type.IsValueType || type.IsNullableValueType();
 
     public static bool IsValidEntityType(this Type type)
-        => type.IsClass
-            && !type.IsArray;
+        => type is { IsClass: true, IsArray: false };
 
     public static bool IsPropertyBagType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {
@@ -122,8 +117,7 @@ internal static class SharedTypeExtensions
     }
 
     public static bool IsInstantiable(this Type type)
-        => !type.IsAbstract
-            && !type.IsInterface
+        => type is { IsAbstract: false, IsInterface: false }
             && (!type.IsGenericType || !type.IsGenericTypeDefinition);
 
     public static Type UnwrapEnumType(this Type type)
@@ -256,8 +250,7 @@ internal static class SharedTypeExtensions
                 typesToProcess.Enqueue(type.GetGenericTypeDefinition());
             }
 
-            if (!type.IsGenericTypeDefinition
-                && !type.IsInterface)
+            if (type is { IsGenericTypeDefinition: false, IsInterface: false })
             {
                 if (type.BaseType != null)
                 {
@@ -412,8 +405,7 @@ internal static class SharedTypeExtensions
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetConstructibleTypes(this Assembly assembly)
         => assembly.GetLoadableDefinedTypes().Where(
-            t => !t.IsAbstract
-                && !t.IsGenericTypeDefinition);
+            t => t is { IsAbstract: false, IsGenericTypeDefinition: false });
 
     [RequiresUnreferencedCode("Gets all types from the given assembly - unsafe for trimming")]
     public static IEnumerable<TypeInfo> GetLoadableDefinedTypes(this Assembly assembly)

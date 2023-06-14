@@ -201,8 +201,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Assign
-                && binaryExpression.Left is ParameterExpression parameterExpression
+            if (binaryExpression is { NodeType: ExpressionType.Assign, Left: ParameterExpression parameterExpression }
                 && parameterExpression.Type == typeof(MaterializationContext))
             {
                 var newExpression = (NewExpression)binaryExpression.Right;
@@ -220,10 +219,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                 return Expression.MakeBinary(ExpressionType.Assign, binaryExpression.Left, updatedExpression);
             }
 
-            if (binaryExpression.NodeType == ExpressionType.Assign
-                && binaryExpression.Left is MemberExpression memberExpression
-                && memberExpression.Member is FieldInfo fieldInfo
-                && fieldInfo.IsInitOnly)
+            if (binaryExpression is { NodeType: ExpressionType.Assign, Left: MemberExpression { Member: FieldInfo { IsInitOnly: true } } memberExpression })
             {
                 return memberExpression.Assign(Visit(binaryExpression.Right));
             }
@@ -282,8 +278,7 @@ public partial class InMemoryShapedQueryCompilingExpressionVisitor
                     if (relatedEntity != null)
                     {
                         fixup(includingEntity, relatedEntity);
-                        if (inverseNavigation != null
-                            && !inverseNavigation.IsCollection)
+                        if (inverseNavigation is { IsCollection: false })
                         {
                             inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                         }

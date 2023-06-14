@@ -69,7 +69,7 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     public virtual IEntityType EntityType { get; }
 
     /// <summary>
-    ///     The column containg JSON value.
+    ///     The column containing JSON value.
     /// </summary>
     public virtual ColumnExpression JsonColumn { get; }
 

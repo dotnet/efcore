@@ -3,8 +3,6 @@
 
 #nullable enable
 
-using System.Linq;
-
 namespace System.Reflection;
 
 internal static class EntityFrameworkMemberInfoExtensions
@@ -49,5 +47,5 @@ internal static class EntityFrameworkMemberInfoExtensions
     }
 
     public static bool IsReallyVirtual(this MethodInfo method)
-        => method.IsVirtual && !method.IsFinal;
+        => method is { IsVirtual: true, IsFinal: false };
 }

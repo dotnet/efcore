@@ -276,8 +276,7 @@ public abstract class RelationalConnection : IRelationalConnection, ITransaction
         get => _commandTimeout;
         set
         {
-            if (value.HasValue
-                && value < 0)
+            if (value is < 0)
             {
                 throw new ArgumentException(RelationalStrings.InvalidCommandTimeout(value));
             }

@@ -1024,7 +1024,7 @@ public abstract class TrackGraphTestBase
                     TrackGraph(
                         changeTracker.Context,
                         category,
-                        node => node.Entry.State = node.Entry.Entity is Product product && product.Id == 0
+                        node => node.Entry.State = node.Entry.Entity is Product { Id: 0 }
                             ? EntityState.Added
                             : EntityState.Unchanged));
             });

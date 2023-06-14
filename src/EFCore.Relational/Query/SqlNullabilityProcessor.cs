@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Microsoft.EntityFrameworkCore.Query;
@@ -1168,8 +1167,7 @@ public class SqlNullabilityProcessor
                 rightNullable,
                 out nullable);
 
-            if (optimized is SqlUnaryExpression optimizedUnary
-                && optimizedUnary.Operand is ColumnExpression optimizedUnaryColumnOperand)
+            if (optimized is SqlUnaryExpression { Operand: ColumnExpression optimizedUnaryColumnOperand } optimizedUnary)
             {
                 if (optimizedUnary.OperatorType == ExpressionType.NotEqual)
                 {
@@ -1270,8 +1268,7 @@ public class SqlNullabilityProcessor
         bool allowOptimizedExpansion,
         out bool nullable)
     {
-        if (sqlFunctionExpression.IsBuiltIn
-            && sqlFunctionExpression.Arguments != null
+        if (sqlFunctionExpression is { IsBuiltIn: true, Arguments: not null }
             && string.Equals(sqlFunctionExpression.Name, "COALESCE", StringComparison.OrdinalIgnoreCase))
         {
             var coalesceArguments = new List<SqlExpression>();
@@ -1357,8 +1354,7 @@ public class SqlNullabilityProcessor
             // result of IsNull/IsNotNull can never be null
             nullable = false;
 
-            if (result is SqlUnaryExpression resultUnary
-                && resultUnary.Operand is ColumnExpression resultColumnOperand)
+            if (result is SqlUnaryExpression { Operand: ColumnExpression resultColumnOperand } resultUnary)
             {
                 if (resultUnary.OperatorType == ExpressionType.NotEqual)
                 {
@@ -1703,10 +1699,11 @@ public class SqlNullabilityProcessor
 
     private SqlExpression SimplifyLogicalSqlBinaryExpression(SqlBinaryExpression sqlBinaryExpression)
     {
-        if (sqlBinaryExpression.Left is SqlUnaryExpression leftUnary
-            && sqlBinaryExpression.Right is SqlUnaryExpression rightUnary
-            && (leftUnary.OperatorType == ExpressionType.Equal || leftUnary.OperatorType == ExpressionType.NotEqual)
-            && (rightUnary.OperatorType == ExpressionType.Equal || rightUnary.OperatorType == ExpressionType.NotEqual)
+        if (sqlBinaryExpression is
+            {
+                Left: SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } leftUnary,
+                Right: SqlUnaryExpression { OperatorType: ExpressionType.Equal or ExpressionType.NotEqual } rightUnary
+            }
             && leftUnary.Operand.Equals(rightUnary.Operand))
         {
             // a is null || a is null -> a is null
@@ -1725,8 +1722,7 @@ public class SqlNullabilityProcessor
         // true || a -> true
         // false && a -> false
         // false || a -> a
-        if (sqlBinaryExpression.Left is SqlConstantExpression newLeftConstant
-            && newLeftConstant.Value is bool leftBoolValue)
+        if (sqlBinaryExpression.Left is SqlConstantExpression { Value: bool leftBoolValue } newLeftConstant)
         {
             return sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
                 ? leftBoolValue
@@ -1737,8 +1733,7 @@ public class SqlNullabilityProcessor
                     : sqlBinaryExpression.Right;
         }
 
-        if (sqlBinaryExpression.Right is SqlConstantExpression newRightConstant
-            && newRightConstant.Value is bool rightBoolValue)
+        if (sqlBinaryExpression.Right is SqlConstantExpression { Value: bool rightBoolValue } newRightConstant)
         {
             // a && true -> a
             // a || true -> true
@@ -2033,8 +2028,7 @@ public class SqlNullabilityProcessor
                 // see if we can derive function nullability from it's instance and/or arguments
                 // rather than evaluating nullability of the entire function
                 var nullabilityPropagationElements = new List<SqlExpression>();
-                if (sqlFunctionExpression.Instance != null
-                    && sqlFunctionExpression.InstancePropagatesNullability == true)
+                if (sqlFunctionExpression is { Instance: not null, InstancePropagatesNullability: true })
                 {
                     nullabilityPropagationElements.Add(sqlFunctionExpression.Instance);
                 }
@@ -2079,9 +2073,7 @@ public class SqlNullabilityProcessor
     }
 
     private static bool IsLogicalNot(SqlUnaryExpression? sqlUnaryExpression)
-        => sqlUnaryExpression != null
-            && sqlUnaryExpression.OperatorType == ExpressionType.Not
-            && sqlUnaryExpression.Type == typeof(bool);
+        => sqlUnaryExpression is { OperatorType: ExpressionType.Not } && sqlUnaryExpression.Type == typeof(bool);
 
     private bool IsNull(SqlExpression expression)
         => expression is SqlConstantExpression { Value: null }

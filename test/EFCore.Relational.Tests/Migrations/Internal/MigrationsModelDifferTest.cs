@@ -11735,7 +11735,7 @@ public class MigrationsModelDifferTest : MigrationsModelDifferTestBase
             operations =>
             {
                 var dependentTableCreation
-                    = (CreateTableOperation)operations.Single(o => o is CreateTableOperation ct && ct.Name == "Dependent");
+                    = (CreateTableOperation)operations.Single(o => o is CreateTableOperation { Name: "Dependent" });
 
                 Assert.Collection(
                     dependentTableCreation.Columns,

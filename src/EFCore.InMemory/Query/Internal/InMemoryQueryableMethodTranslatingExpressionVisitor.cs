@@ -441,8 +441,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
 
                 return memberInitExpression.Update(updatedNewExpression, newBindings);
 
-            case EntityShaperExpression entityShaperExpression
-                when entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+            case EntityShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } entityShaperExpression:
                 return entityShaperExpression;
 
             default:
@@ -583,9 +582,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
             }
         }
 
-        if (joinCondition is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.Name == nameof(object.Equals)
-            && methodCallExpression.Arguments.Count == 2
+        if (joinCondition is MethodCallExpression { Method.Name: nameof(object.Equals), Arguments.Count: 2 } methodCallExpression
             && ((methodCallExpression.Method.IsStatic
                     && methodCallExpression.Method.DeclaringType == typeof(object))
                 || typeof(ValueComparer).IsAssignableFrom(methodCallExpression.Method.DeclaringType)))

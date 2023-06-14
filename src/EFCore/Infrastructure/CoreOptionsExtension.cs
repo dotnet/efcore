@@ -562,7 +562,7 @@ public class CoreOptionsExtension : IDbContextOptionsExtension
     /// <param name="options">The options being validated.</param>
     public virtual void Validate(IDbContextOptions options)
     {
-        if (MaxPoolSize.HasValue && MaxPoolSize <= 0)
+        if (MaxPoolSize is <= 0)
         {
             throw new ArgumentOutOfRangeException(nameof(MaxPoolSize), CoreStrings.InvalidPoolSize);
         }

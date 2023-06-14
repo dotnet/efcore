@@ -121,7 +121,8 @@ public class EntityProjectionExpression : Expression
             if (shaper.EntityType.IsMappedToJson())
             {
                 // even if shaper is nullable, we need to make sure key property map contains nullable keys,
-                // if json entity itself is optional, the shaper would be null, but the PK of the owner entity would be non-nullable intially
+                // if json entity itself is optional, the shaper would be null, but the PK of the owner entity would be non-nullable
+                // initially
                 var jsonQueryExpression = (JsonQueryExpression)shaper.ValueBufferExpression;
                 var newJsonQueryExpression = jsonQueryExpression.MakeNullable();
                 var newShaper = shaper.Update(newJsonQueryExpression).MakeNullable();

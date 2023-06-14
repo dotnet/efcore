@@ -427,7 +427,7 @@ public partial class NavigationExpandingExpressionVisitor
 
                                     return Expression.NotEqual(left, Expression.Constant(null, left.Type));
                                 })
-                            .Aggregate((l, r) => Expression.AndAlso(l, r))
+                            .Aggregate(Expression.AndAlso)
                         : Expression.NotEqual(outerKey, Expression.Constant(null, outerKey.Type)),
                     ExpressionExtensions.CreateEqualsExpression(outerKey, innerKey));
 
@@ -773,8 +773,7 @@ public partial class NavigationExpandingExpressionVisitor
                     if (!_ignoreAutoIncludes
                         && navigationBase is INavigation
                         && navigationBase.Inverse is INavigation inverseNavigation
-                        && subquery is MethodCallExpression subqueryMethodCallExpression
-                        && subqueryMethodCallExpression.Method.IsGenericMethod)
+                        && subquery is MethodCallExpression { Method.IsGenericMethod: true } subqueryMethodCallExpression)
                     {
                         EntityReference? innerEntityReference = null;
                         if (subqueryMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Where
@@ -804,15 +803,16 @@ public partial class NavigationExpandingExpressionVisitor
                     var filterExpression = entityReference.IncludePaths[navigationBase].FilterExpression;
                     if (_queryStateManager
                         && navigationBase is ISkipNavigation skipNavigation
-                        && subquery is MethodCallExpression joinMethodCallExpression
-                        && joinMethodCallExpression.Method.IsGenericMethod
+                        && subquery is MethodCallExpression { Method.IsGenericMethod: true } joinMethodCallExpression
                         && joinMethodCallExpression.Method.GetGenericMethodDefinition()
                         == (skipNavigation.Inverse.ForeignKey.IsRequired
                             ? QueryableMethods.Join
                             : QueryableExtensions.LeftJoinMethodInfo)
-                        && joinMethodCallExpression.Arguments[4] is UnaryExpression unaryExpression
-                        && unaryExpression.NodeType == ExpressionType.Quote
-                        && unaryExpression.Operand is LambdaExpression resultSelectorLambda
+                        && joinMethodCallExpression.Arguments[4] is UnaryExpression
+                        {
+                            NodeType: ExpressionType.Quote,
+                            Operand: LambdaExpression resultSelectorLambda
+                        }
                         && resultSelectorLambda.Body == resultSelectorLambda.Parameters[1])
                     {
                         var joinParameter = resultSelectorLambda.Parameters[0];
@@ -1236,8 +1236,7 @@ public partial class NavigationExpandingExpressionVisitor
         {
             var method = methodCallExpression.Method;
             if (method.Name == nameof(object.Equals)
-                && methodCallExpression.Object != null
-                && methodCallExpression.Arguments.Count == 1
+                && methodCallExpression is { Object: not null, Arguments.Count: 1 }
                 && TryRemoveNavigationComparison(
                     ExpressionType.Equal, methodCallExpression.Object, methodCallExpression.Arguments[0], out var result))
             {
@@ -1317,11 +1316,9 @@ public partial class NavigationExpandingExpressionVisitor
         {
             switch (expression)
             {
-                case MemberExpression memberExpression
-                    when memberExpression.Expression != null:
+                case MemberExpression { Expression: not null } memberExpression:
                     var innerExpression = ProcessNavigationPath(memberExpression.Expression);
-                    if (innerExpression is NavigationDataExpression navigationDataExpression
-                        && navigationDataExpression.EntityType != null)
+                    if (innerExpression is NavigationDataExpression { EntityType: not null } navigationDataExpression)
                     {
                         var navigation = navigationDataExpression.EntityType.FindNavigation(memberExpression.Member);
                         if (navigation != null)

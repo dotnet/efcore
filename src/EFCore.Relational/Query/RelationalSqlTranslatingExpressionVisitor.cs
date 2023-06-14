@@ -3,7 +3,6 @@
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -294,8 +293,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     protected override Expression VisitBinary(BinaryExpression binaryExpression)
     {
         if (binaryExpression.Left.Type == typeof(object[])
-            && binaryExpression.Left is NewArrayExpression
-            && binaryExpression.NodeType == ExpressionType.Equal)
+            && binaryExpression is { Left: NewArrayExpression, NodeType: ExpressionType.Equal })
         {
             return Visit(ConvertObjectArrayEqualityComparison(binaryExpression.Left, binaryExpression.Right));
         }
@@ -642,8 +640,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                 var innerExpression = shaperExpression;
                 Type? convertedType = null;
-                if (shaperExpression is UnaryExpression unaryExpression
-                    && unaryExpression.NodeType == ExpressionType.Convert)
+                if (shaperExpression is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression)
                 {
                     convertedType = unaryExpression.Type;
                     innerExpression = unaryExpression.Operand;
@@ -664,11 +661,10 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                 }
 
                 if (mappedProjectionBindingExpression == null
-                    && shaperExpression is BlockExpression blockExpression
-                    && blockExpression.Expressions.Count == 2
-                    && blockExpression.Expressions[0] is BinaryExpression binaryExpression
-                    && binaryExpression.NodeType == ExpressionType.Assign
-                    && binaryExpression.Right is ProjectionBindingExpression pbe2)
+                    && shaperExpression is BlockExpression
+                    {
+                        Expressions: [BinaryExpression { NodeType: ExpressionType.Assign, Right: ProjectionBindingExpression pbe2 }, _]
+                    })
                 {
                     mappedProjectionBindingExpression = pbe2;
                 }
@@ -1407,9 +1403,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             return true;
         }
 
-        if (expression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.IsStatic
-            && methodCallExpression.Arguments.Count > 0
+        if (expression is MethodCallExpression { Method.IsStatic: true, Arguments.Count: > 0 } methodCallExpression
             && methodCallExpression.Method.DeclaringType == typeof(Queryable))
         {
             var genericMethod = methodCallExpression.Method.IsGenericMethod
@@ -1577,7 +1571,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         return leftExpressions.Zip(
                 rightExpressions,
                 (l, r) => Infrastructure.ExpressionExtensions.CreateEqualsExpression(l, r))
-            .Aggregate((a, b) => Expression.AndAlso(a, b));
+            .Aggregate(Expression.AndAlso);
     }
 
     private static bool TryEvaluateToConstant(Expression expression, [NotNullWhen(true)] out SqlConstantExpression? sqlConstantExpression)
@@ -1891,7 +1885,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         };
 
     private static bool IsNullSqlConstantExpression(Expression expression)
-        => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
+        => expression is SqlConstantExpression { Value: null } sqlConstant;
 
     [DebuggerStepThrough]
     private static bool TranslationFailed(Expression? original, Expression? translation, out SqlExpression? castTranslation)

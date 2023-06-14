@@ -305,7 +305,7 @@ public class ModelValidator : IModelValidator
         IModel model,
         IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
     {
-        if (!(model is IConventionModel conventionModel))
+        if (model is not IConventionModel conventionModel)
         {
             return;
         }
@@ -521,8 +521,7 @@ public class ModelValidator : IModelValidator
             return;
         }
 
-        if (entityType.HasSharedClrType
-            && entityType.BaseType != null)
+        if (entityType is { HasSharedClrType: true, BaseType: not null })
         {
             throw new InvalidOperationException(CoreStrings.SharedTypeDerivedType(entityType.DisplayName()));
         }
@@ -702,8 +701,7 @@ public class ModelValidator : IModelValidator
                 }
 
                 foreach (var fk in entityType.GetDeclaredForeignKeys().Where(
-                             fk => !fk.IsOwnership
-                                 && fk.PrincipalToDependent != null
+                             fk => fk is { IsOwnership: false, PrincipalToDependent: not null }
                                  && !Contains(fk.DeclaringEntityType.FindOwnership(), fk)))
                 {
                     throw new InvalidOperationException(
@@ -944,9 +942,7 @@ public class ModelValidator : IModelValidator
                 var requiredNavigationWithQueryFilter = entityType
                     .GetNavigations()
                     .FirstOrDefault(
-                        n => !n.IsCollection
-                            && n.ForeignKey.IsRequired
-                            && n.IsOnDependent
+                        n => n is { IsCollection: false, ForeignKey.IsRequired: true, IsOnDependent: true }
                             && n.ForeignKey.PrincipalEntityType.GetRootType().GetQueryFilter() != null
                             && n.ForeignKey.DeclaringEntityType.GetRootType().GetQueryFilter() == null);
 

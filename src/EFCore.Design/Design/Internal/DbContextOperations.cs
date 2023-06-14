@@ -161,7 +161,7 @@ public class DbContextOperations
         _reporter.WriteInformation(DesignStrings.CompiledModelGenerated($"options.UseModel({fullName}.Instance)"));
 
         var cacheKeyFactory = context.GetService<IModelCacheKeyFactory>();
-        if (!(cacheKeyFactory is ModelCacheKeyFactory))
+        if (cacheKeyFactory is not ModelCacheKeyFactory)
         {
             _reporter.WriteWarning(DesignStrings.CompiledModelCustomCacheKeyFactory(cacheKeyFactory.GetType().ShortDisplayName()));
         }

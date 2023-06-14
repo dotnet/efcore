@@ -44,14 +44,11 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
         modifiers ??= Enumerable.Empty<SqlExpression>();
 
         // If the inner call is another strftime then shortcut a double call
-        if (timestring is SqlFunctionExpression rtrimFunction
-            && rtrimFunction.Name == "rtrim"
+        if (timestring is SqlFunctionExpression { Name: "rtrim" } rtrimFunction
             && rtrimFunction.Arguments!.Count == 2
-            && rtrimFunction.Arguments[0] is SqlFunctionExpression rtrimFunction2
-            && rtrimFunction2.Name == "rtrim"
+            && rtrimFunction.Arguments[0] is SqlFunctionExpression { Name: "rtrim" } rtrimFunction2
             && rtrimFunction2.Arguments!.Count == 2
-            && rtrimFunction2.Arguments[0] is SqlFunctionExpression strftimeFunction
-            && strftimeFunction.Name == "strftime"
+            && rtrimFunction2.Arguments[0] is SqlFunctionExpression { Name: "strftime" } strftimeFunction
             && strftimeFunction.Arguments!.Count > 1)
         {
             // Use its timestring parameter directly in place of ours
@@ -61,8 +58,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
             modifiers = strftimeFunction.Arguments.Skip(2).Concat(modifiers);
         }
 
-        if (timestring is SqlFunctionExpression dateFunction
-            && dateFunction.Name == "date")
+        if (timestring is SqlFunctionExpression { Name: "date" } dateFunction)
         {
             timestring = dateFunction.Arguments![0];
             modifiers = dateFunction.Arguments.Skip(1).Concat(modifiers);
@@ -93,8 +89,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     {
         modifiers ??= Enumerable.Empty<SqlExpression>();
 
-        if (timestring is SqlFunctionExpression dateFunction
-            && dateFunction.Name == "date")
+        if (timestring is SqlFunctionExpression { Name: "date" } dateFunction)
         {
             timestring = dateFunction.Arguments![0];
             modifiers = dateFunction.Arguments.Skip(1).Concat(modifiers);

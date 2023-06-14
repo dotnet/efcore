@@ -694,7 +694,7 @@ public class StateManager : IStateManager
                     {
                         disposable.Dispose();
                     }
-                    else if (!(service is IInjectableService detachable)
+                    else if (service is not IInjectableService detachable
                              || detachable.Detaching(Context, entry.Entity))
                     {
                         entry[serviceProperty] = null;

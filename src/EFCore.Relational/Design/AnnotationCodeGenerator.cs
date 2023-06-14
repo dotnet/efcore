@@ -217,8 +217,7 @@ public class AnnotationCodeGenerator : IAnnotationCodeGenerator
         }
 
         if (annotations.TryGetValue(RelationalAnnotationNames.ContainerColumnName, out var containerColumnNameAnnotation)
-            && containerColumnNameAnnotation != null
-            && containerColumnNameAnnotation.Value is string containerColumnName
+            && containerColumnNameAnnotation is { Value: string containerColumnName }
             && entityType.IsOwned())
         {
             methodCallCodeFragments.Add(

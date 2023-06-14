@@ -100,7 +100,7 @@ public readonly record struct TypeMappingInfo
         IsKeyOrIndex = property.IsKey() || property.IsForeignKey() || property.IsIndex();
         Size = fallbackSize ?? mappingHints?.Size;
         IsUnicode = fallbackUnicode ?? mappingHints?.IsUnicode;
-        IsRowVersion = property.IsConcurrencyToken && property.ValueGenerated == ValueGenerated.OnAddOrUpdate;
+        IsRowVersion = property is { IsConcurrencyToken: true, ValueGenerated: ValueGenerated.OnAddOrUpdate };
         ClrType = (customConverter?.ProviderClrType ?? property.ClrType).UnwrapNullableType();
         Scale = fallbackScale ?? mappingHints?.Scale;
         Precision = fallbackPrecision ?? mappingHints?.Precision;

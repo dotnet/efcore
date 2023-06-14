@@ -161,7 +161,7 @@ public class EntityShaperExpression : Expression, IPrintableExpression
                         p => NotEqual(
                             valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
                             Constant(null)))
-                    .Aggregate((a, b) => OrElse(a, b)),
+                    .Aggregate(OrElse),
                 body,
                 Default(typeof(IEntityType)));
         }

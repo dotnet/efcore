@@ -8,7 +8,7 @@ namespace Microsoft.EntityFrameworkCore.Query;
 
 /// <summary>
 ///     <para>
-///         A class that processes the query expression after parementer values are known.
+///         A class that processes the query expression after parameter values are known.
 ///     </para>
 ///     <para>
 ///         This type is typically used by database providers (and other extensions). It is generally
@@ -53,8 +53,8 @@ public class RelationalParameterBasedSqlProcessor
         out bool canCache)
     {
         canCache = true;
-        queryExpression = ProcessSqlNullability(queryExpression, parametersValues, out var sqlNullablityCanCache);
-        canCache &= sqlNullablityCanCache;
+        queryExpression = ProcessSqlNullability(queryExpression, parametersValues, out var sqlNullabilityCanCache);
+        canCache &= sqlNullabilityCanCache;
 
         queryExpression = ExpandFromSqlParameter(queryExpression, parametersValues, out var fromSqlParameterCanCache);
         canCache &= fromSqlParameterCanCache;

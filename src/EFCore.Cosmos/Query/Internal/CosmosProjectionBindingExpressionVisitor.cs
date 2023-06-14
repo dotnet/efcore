@@ -316,7 +316,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
         var navigationProjection = innerEntityProjection.BindMember(
             memberExpression.Member, innerExpression.Type, clientEval: true, out var propertyBase);
 
-        if (!(propertyBase is INavigation navigation)
+        if (propertyBase is not INavigation navigation
             || !navigation.IsEmbedded())
         {
             return NullSafeUpdate(innerExpression);
@@ -509,7 +509,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
                 navigationProjection = innerEntityProjection.BindMember(
                     memberName, visitedSource.Type, clientEval: true, out var propertyBase);
 
-                if (!(propertyBase is INavigation projectedNavigation)
+                if (propertyBase is not INavigation projectedNavigation
                     || !projectedNavigation.IsEmbedded())
                 {
                     return null;
@@ -567,7 +567,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
 
                     case nameof(Queryable.Select)
                         when genericMethod == QueryableMethods.Select:
-                        if (!(visitedSource is CollectionShaperExpression shaper))
+                        if (visitedSource is not CollectionShaperExpression shaper)
                         {
                             return null;
                         }

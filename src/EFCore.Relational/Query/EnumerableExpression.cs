@@ -81,9 +81,7 @@ public class EnumerableExpression : Expression, IPrintableExpression
     /// <returns>The new expression with specified component updated.</returns>
     public virtual EnumerableExpression ApplyPredicate(SqlExpression sqlExpression)
     {
-        if (sqlExpression is SqlConstantExpression sqlConstant
-            && sqlConstant.Value is bool boolValue
-            && boolValue)
+        if (sqlExpression is SqlConstantExpression { Value: true })
         {
             return this;
         }

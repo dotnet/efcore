@@ -1635,10 +1635,7 @@ public abstract class TransactionTestBase<TFixture> : IClassFixture<TFixture>
         public string Name { get; set; }
 
         public override bool Equals(object obj)
-            => !(obj is TransactionCustomer otherCustomer)
-                ? false
-                : Id == otherCustomer.Id
-                && Name == otherCustomer.Name;
+            => obj is TransactionCustomer otherCustomer && (Id == otherCustomer.Id && Name == otherCustomer.Name);
 
         public override string ToString()
             => "Id = " + Id + ", Name = " + Name;

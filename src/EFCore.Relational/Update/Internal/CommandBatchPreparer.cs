@@ -209,8 +209,7 @@ public class CommandBatchPreparer : ICommandBatchPreparer
         Dictionary<(string Name, string? Schema), SharedTableEntryMap<IModificationCommand>>? sharedTablesCommandsMap = null;
         foreach (var entry in entries)
         {
-            if (entry.SharedIdentityEntry != null
-                && entry.EntityState == EntityState.Deleted)
+            if (entry is { SharedIdentityEntry: not null, EntityState: EntityState.Deleted })
             {
                 continue;
             }

@@ -1,7 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 
@@ -169,15 +168,17 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     }
 
     private static bool IsNonComposedSetOperation(SelectExpression selectExpression)
-        => selectExpression.Offset == null
-            && selectExpression.Limit == null
-            && !selectExpression.IsDistinct
-            && selectExpression.Predicate == null
-            && selectExpression.Having == null
-            && selectExpression.Orderings.Count == 0
-            && selectExpression.GroupBy.Count == 0
-            && selectExpression.Tables.Count == 1
-            && selectExpression.Tables[0] is SetOperationBase setOperation
+        => selectExpression is
+            {
+                Tables: [SetOperationBase setOperation],
+                Predicate: null,
+                Orderings: [],
+                Offset: null,
+                Limit: null,
+                IsDistinct: false,
+                Having: null,
+                GroupBy: []
+            }
             && selectExpression.Projection.Count == setOperation.Source1.Projection.Count
             && selectExpression.Projection.Select(
                     (pe, index) => pe.Expression is ColumnExpression column
@@ -344,9 +345,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
     /// </summary>
     /// <param name="selectExpression">SelectExpression for which the empty projection will be generated.</param>
     protected virtual void GenerateEmptyProjection(SelectExpression selectExpression)
-    {
-        _relationalCommandBuilder.Append("1");
-    }
+        => _relationalCommandBuilder.Append("1");
 
     /// <inheritdoc />
     protected override Expression VisitProjection(ProjectionExpression projectionExpression)
@@ -1554,7 +1553,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
 
                         // If both operators have the same precedence, add parentheses unless they're the same operator, and
                         // that operator is associative (e.g. a + b + c)
-                        0 => outerExpression is not SqlBinaryExpression outerBinary
+                        _ => outerExpression is not SqlBinaryExpression outerBinary
                             || outerBinary.OperatorType != innerBinaryExpression.OperatorType
                             || !isOuterAssociative
                             // Arithmetic operators on floating points aren't associative, because of rounding errors.

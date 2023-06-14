@@ -140,7 +140,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                         if (materializeCollectionNavigationExpression.Navigation.TargetEntityType.IsMappedToJson())
                         {
                             var subquery = materializeCollectionNavigationExpression.Subquery;
-                            if (subquery is MethodCallExpression methodCallSubquery && methodCallSubquery.Method.IsGenericMethod)
+                            if (subquery is MethodCallExpression { Method.IsGenericMethod: true } methodCallSubquery)
                             {
                                 // strip .Select(x => x) and .AsQueryable() from the JsonCollectionResultExpression
                                 if (methodCallSubquery.Method.GetGenericMethodDefinition() == QueryableMethods.Select
@@ -507,9 +507,7 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
             }
 
             newBindings[i] = VisitMemberBinding(memberInitExpression.Bindings[i]);
-            if (newBindings[i] is MemberAssignment memberAssignment
-                && memberAssignment.Expression is UnaryExpression unaryExpression
-                && unaryExpression.NodeType == ExpressionType.Convert
+            if (newBindings[i] is MemberAssignment { Expression: UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression }
                 && unaryExpression.Operand == QueryCompilationContext.NotTranslatedExpression)
             {
                 return QueryCompilationContext.NotTranslatedExpression;

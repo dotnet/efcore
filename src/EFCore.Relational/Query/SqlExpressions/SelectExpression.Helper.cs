@@ -2,7 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
@@ -407,7 +406,7 @@ public sealed partial class SelectExpression
                         // SELECT * FROM EntityOne as e
                         // OUTER APPLY (
                         //    SELECT * FROM EntityTwo as e1
-                        //    LEFT JOIN EntityThree as e ON (...) -- reuse alias e, since we use e1 after uniqification
+                        //    LEFT JOIN EntityThree as e ON (...) -- reuse alias e, since we use e1 after uniquification
                         //    WHERE e.Foo == e1.Bar -- ambiguity! e could refer to EntityOne or EntityThree
                         // ) as t
                         innerSelectExpression._usedAliases.Add(newAlias);
@@ -917,7 +916,7 @@ public sealed partial class SelectExpression
             return base.Visit(expression);
         }
 
-        public static void Verify(Expression expression, IEnumerable<TableReferenceExpression> tableReferencesInScope)
+        private static void Verify(Expression expression, IEnumerable<TableReferenceExpression> tableReferencesInScope)
             => new SelectExpressionVerifyingExpressionVisitor(tableReferencesInScope)
                 .Visit(expression);
     }
@@ -950,12 +949,12 @@ public sealed partial class SelectExpression
                     var newTableReferences = selectExpression._tableReferences
                         .Select(e => new TableReferenceExpression(selectExpression, e.Alias)).ToList();
                     Check.DebugAssert(
-                        newTables.Select(e => GetAliasFromTableExpressionBase(e)).SequenceEqual(newTableReferences.Select(e => e.Alias)),
+                        newTables.Select(GetAliasFromTableExpressionBase).SequenceEqual(newTableReferences.Select(e => e.Alias)),
                         "Alias of updated tables must match the old tables.");
 
                     var predicate = (SqlExpression?)Visit(selectExpression.Predicate);
                     var newGroupBy = selectExpression._groupBy.Select(Visit)
-                        .Where(e => !(e is SqlConstantExpression || e is SqlParameterExpression))
+                        .Where(e => e is not (SqlConstantExpression or SqlParameterExpression))
                         .ToList<SqlExpression>();
                     var havingExpression = (SqlExpression?)Visit(selectExpression.Having);
                     var newOrderings = selectExpression._orderings.Select(Visit).ToList<OrderingExpression>();
@@ -974,8 +973,8 @@ public sealed partial class SelectExpression
                         Tags = selectExpression.Tags,
                         _usedAliases = selectExpression._usedAliases.ToHashSet(),
                         _projectionMapping = newProjectionMappings,
+                        _mutable = selectExpression._mutable
                     };
-                    newSelectExpression._mutable = selectExpression._mutable;
 
                     newSelectExpression._removableJoinTables.AddRange(selectExpression._removableJoinTables);
 
@@ -1098,20 +1097,22 @@ public sealed partial class SelectExpression
         [return: NotNullIfNotNull("expression")]
         public override Expression? Visit(Expression? expression)
         {
-            if (expression is SelectExpression selectExpression
-                && selectExpression._tpcDiscriminatorValues.Count > 0)
+            if (expression is SelectExpression { _tpcDiscriminatorValues.Count: > 0 } selectExpression)
             {
                 // If selectExpression doesn't have any other component and only TPC tables then we can lift it
                 // We ignore projection here because if this selectExpression has projection from inner TPC
                 // Then TPC will have superset of projection
-                var identitySelect = selectExpression.Offset == null
-                    && selectExpression.Limit == null
-                    && !selectExpression.IsDistinct
-                    && selectExpression.Predicate == null
-                    && selectExpression.Having == null
-                    && selectExpression.Orderings.Count == 0
-                    && selectExpression.GroupBy.Count == 0
-                    && selectExpression.Tables.Count == 1
+                var identitySelect = selectExpression is
+                    {
+                        Tables.Count: 1,
+                        Predicate: null,
+                        Orderings: [],
+                        Limit: null,
+                        Offset: null,
+                        IsDistinct: false,
+                        GroupBy: [],
+                        Having: null
+                    }
                     // Any non-column projection means some composition which cannot be removed
                     && selectExpression.Projection.All(e => e.Expression is ColumnExpression);
 
@@ -1119,7 +1120,7 @@ public sealed partial class SelectExpression
                 {
                     var tpcTablesExpression = kvp.Key;
                     var subSelectExpressions = tpcTablesExpression.Prune(kvp.Value.Item2).SelectExpressions
-                        .Select(e => AssignUniqueAliasToTable(e)).ToList();
+                        .Select(AssignUniqueAliasToTable).ToList();
                     var firstSelectExpression = subSelectExpressions[0]; // There will be at least one.
 
                     int[]? reindexingMap = null;

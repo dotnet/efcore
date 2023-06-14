@@ -119,8 +119,7 @@ public class SqliteSqlTranslatingExpressionVisitor : RelationalSqlTranslatingExp
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        if (visitedExpression is SqlUnaryExpression sqlUnary
-            && sqlUnary.OperatorType == ExpressionType.Negate)
+        if (visitedExpression is SqlUnaryExpression { OperatorType: ExpressionType.Negate } sqlUnary)
         {
             var operandType = GetProviderType(sqlUnary.Operand);
             if (operandType == typeof(decimal))

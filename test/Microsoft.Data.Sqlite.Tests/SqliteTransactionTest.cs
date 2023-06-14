@@ -3,7 +3,6 @@
 
 using System;
 using System.Data;
-using System.IO;
 using Microsoft.Data.Sqlite.Properties;
 using Xunit;
 using static SQLitePCL.raw;
@@ -15,28 +14,24 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void Ctor_sets_read_uncommitted()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:;Cache=Shared");
+            connection.Open();
 
-                using (connection.BeginTransaction(IsolationLevel.ReadUncommitted))
-                {
-                    Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted;"));
-                }
+            using (connection.BeginTransaction(IsolationLevel.ReadUncommitted))
+            {
+                Assert.Equal(1L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted;"));
             }
         }
 
         [Fact]
         public void Ctor_unsets_read_uncommitted_when_serializable()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                using (connection.BeginTransaction(IsolationLevel.Serializable))
-                {
-                    Assert.Equal(0L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted;"));
-                }
+            using (connection.BeginTransaction(IsolationLevel.Serializable))
+            {
+                Assert.Equal(0L, connection.ExecuteScalar<long>("PRAGMA read_uncommitted;"));
             }
         }
 
@@ -45,14 +40,12 @@ namespace Microsoft.Data.Sqlite
         [InlineData(IsolationLevel.Snapshot)]
         public void Ctor_throws_when_invalid_isolation_level(IsolationLevel isolationLevel)
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(isolationLevel));
+            var ex = Assert.Throws<ArgumentException>(() => connection.BeginTransaction(isolationLevel));
 
-                Assert.Equal(Resources.InvalidIsolationLevel(isolationLevel), ex.Message);
-            }
+            Assert.Equal(Resources.InvalidIsolationLevel(isolationLevel), ex.Message);
         }
 
         [Fact]
@@ -60,33 +53,31 @@ namespace Microsoft.Data.Sqlite
         {
             const string connectionString = "Data Source=read-uncommitted;Mode=Memory;Cache=Shared";
 
-            using (var connection1 = new SqliteConnection(connectionString))
-            using (var connection2 = new SqliteConnection(connectionString))
+            using var connection1 = new SqliteConnection(connectionString);
+            using var connection2 = new SqliteConnection(connectionString);
+            connection1.Open();
+            connection2.Open();
+
+            connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+            using (connection1.BeginTransaction())
             {
-                connection1.Open();
-                connection2.Open();
-
-                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
-
-                using (connection1.BeginTransaction())
+                using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
                 {
-                    using (connection2.BeginTransaction(IsolationLevel.ReadUncommitted))
-                    {
-                        connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
+                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                        var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                    var value = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
 
-                        Assert.Equal(1, value);
-                    }
-
-                    connection2.DefaultTimeout = 1;
-
-                    var ex = Assert.Throws<SqliteException>(
-                        () => connection2.ExecuteScalar<long>("SELECT * FROM Data;"));
-
-                    Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
-                    Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
+                    Assert.Equal(1, value);
                 }
+
+                connection2.DefaultTimeout = 1;
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => connection2.ExecuteScalar<long>("SELECT * FROM Data;"));
+
+                Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
             }
         }
 
@@ -95,32 +86,30 @@ namespace Microsoft.Data.Sqlite
         {
             const string connectionString = "Data Source=serialized;Mode=Memory;Cache=Shared";
 
-            using (var connection1 = new SqliteConnection(connectionString))
-            using (var connection2 = new SqliteConnection(connectionString))
+            using var connection1 = new SqliteConnection(connectionString);
+            using var connection2 = new SqliteConnection(connectionString);
+            connection1.Open();
+            connection2.Open();
+
+            connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+            using (connection1.BeginTransaction())
             {
-                connection1.Open();
-                connection2.Open();
+                connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
 
-                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+                connection2.DefaultTimeout = 1;
 
-                using (connection1.BeginTransaction())
-                {
-                    connection1.ExecuteNonQuery("UPDATE Data SET Value = 1;");
-
-                    connection2.DefaultTimeout = 1;
-
-                    var ex = Assert.Throws<SqliteException>(
-                        () =>
+                var ex = Assert.Throws<SqliteException>(
+                    () =>
+                    {
+                        using (connection2.BeginTransaction(IsolationLevel.Serializable))
                         {
-                            using (connection2.BeginTransaction(IsolationLevel.Serializable))
-                            {
-                                connection2.ExecuteScalar<long>("SELECT * FROM Data;");
-                            }
-                        });
+                            connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                        }
+                    });
 
-                    Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
-                    Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
-                }
+                Assert.Equal(SQLITE_LOCKED, ex.SqliteErrorCode);
+                Assert.Equal(SQLITE_LOCKED_SHAREDCACHE, ex.SqliteExtendedErrorCode);
             }
         }
 
@@ -129,24 +118,22 @@ namespace Microsoft.Data.Sqlite
         {
             const string connectionString = "Data Source=deferred;Mode=Memory;Cache=Shared";
 
-            using (var connection1 = new SqliteConnection(connectionString))
-            using (var connection2 = new SqliteConnection(connectionString))
+            using var connection1 = new SqliteConnection(connectionString);
+            using var connection2 = new SqliteConnection(connectionString);
+            connection1.Open();
+            connection2.Open();
+
+            connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (42);");
+
+            using (connection1.BeginTransaction(deferred: true))
             {
-                connection1.Open();
-                connection2.Open();
+                var value1 = connection1.ExecuteScalar<long>("SELECT * FROM Data;");
+                Assert.Equal(42L, value1);
 
-                connection1.ExecuteNonQuery("CREATE TABLE Data (Value); INSERT INTO Data VALUES (42);");
-
-                using (connection1.BeginTransaction(deferred: true))
+                using (connection2.BeginTransaction(deferred: true))
                 {
-                    var value1 = connection1.ExecuteScalar<long>("SELECT * FROM Data;");
-                    Assert.Equal(42L, value1);
-
-                    using (connection2.BeginTransaction(deferred: true))
-                    {
-                        var value2 = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
-                        Assert.Equal(42L, value2);
-                    }
+                    var value2 = connection2.ExecuteScalar<long>("SELECT * FROM Data;");
+                    Assert.Equal(42L, value2);
                 }
             }
         }
@@ -154,15 +141,11 @@ namespace Microsoft.Data.Sqlite
         [Fact]
         public void IsolationLevel_is_serializable_when_unspecified()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
-                }
-            }
+            using var transaction = connection.BeginTransaction();
+            Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
         }
 
         [Theory]
@@ -171,182 +154,154 @@ namespace Microsoft.Data.Sqlite
         [InlineData(IsolationLevel.RepeatableRead)]
         public void IsolationLevel_is_increased_when_unsupported(IsolationLevel isolationLevel)
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                using (var transaction = connection.BeginTransaction(isolationLevel))
-                {
-                    Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
-                }
-            }
+            using var transaction = connection.BeginTransaction(isolationLevel);
+            Assert.Equal(IsolationLevel.Serializable, transaction.IsolationLevel);
         }
 
         [Fact]
         public void Commit_throws_when_completed()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                var transaction = connection.BeginTransaction();
-                transaction.Dispose();
+            var transaction = connection.BeginTransaction();
+            transaction.Dispose();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+            var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
 
-                Assert.Equal(Resources.TransactionCompleted, ex.Message);
-            }
+            Assert.Equal(Resources.TransactionCompleted, ex.Message);
         }
 
         [Fact]
         public void Commit_throws_when_completed_externally()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.ExecuteNonQuery("ROLLBACK;");
+            using var transaction = connection.BeginTransaction();
+            connection.ExecuteNonQuery("ROLLBACK;");
 
-                    var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+            var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
 
-                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
-                }
-            }
+            Assert.Equal(Resources.TransactionCompleted, ex.Message);
         }
 
         [Fact]
         public void Commit_throws_when_connection_closed()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.Close();
+            using var transaction = connection.BeginTransaction();
+            connection.Close();
 
-                    var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
+            var ex = Assert.Throws<InvalidOperationException>(() => transaction.Commit());
 
-                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
-                }
-            }
+            Assert.Equal(Resources.TransactionCompleted, ex.Message);
         }
 
         [Fact]
         public void Commit_works()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            CreateTestTable(connection);
+
+            using (var transaction = connection.BeginTransaction())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
+                transaction.Commit();
 
-                    transaction.Commit();
-
-                    Assert.Null(connection.Transaction);
-                    Assert.Null(transaction.Connection);
-                }
-
-                Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+                Assert.Null(connection.Transaction);
+                Assert.Null(transaction.Connection);
             }
+
+            Assert.Equal(1L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
         }
 
         [Fact]
         public void Rollback_noops_once_when_completed_externally()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.ExecuteNonQuery("ROLLBACK;");
+            using var transaction = connection.BeginTransaction();
+            connection.ExecuteNonQuery("ROLLBACK;");
 
-                    transaction.Rollback();
-                    var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+            transaction.Rollback();
+            var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
 
-                    Assert.Equal(Resources.TransactionCompleted, ex.Message);
-                }
-            }
+            Assert.Equal(Resources.TransactionCompleted, ex.Message);
         }
 
         [Fact]
         public void Rollback_throws_when_completed()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                var transaction = connection.BeginTransaction();
-                transaction.Dispose();
+            var transaction = connection.BeginTransaction();
+            transaction.Dispose();
 
-                var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
+            var ex = Assert.Throws<InvalidOperationException>(() => transaction.Rollback());
 
-                Assert.Equal(Resources.TransactionCompleted, ex.Message);
-            }
+            Assert.Equal(Resources.TransactionCompleted, ex.Message);
         }
 
         [Fact]
         public void Rollback_works()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            CreateTestTable(connection);
+
+            using (var transaction = connection.BeginTransaction())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
+                transaction.Rollback();
 
-                    transaction.Rollback();
-
-                    Assert.Null(connection.Transaction);
-                    Assert.Null(transaction.Connection);
-                }
-
-                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+                Assert.Null(connection.Transaction);
+                Assert.Null(transaction.Connection);
             }
+
+            Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
         }
 
         [Fact]
         public void Dispose_works()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
+            CreateTestTable(connection);
+
+            using (var transaction = connection.BeginTransaction())
             {
-                connection.Open();
-                CreateTestTable(connection);
+                connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
 
-                using (var transaction = connection.BeginTransaction())
-                {
-                    connection.ExecuteNonQuery("INSERT INTO TestTable VALUES (1);");
+                transaction.Dispose();
 
-                    transaction.Dispose();
-
-                    Assert.Null(connection.Transaction);
-                    Assert.Null(transaction.Connection);
-                }
-
-                Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
+                Assert.Null(connection.Transaction);
+                Assert.Null(transaction.Connection);
             }
+
+            Assert.Equal(0L, connection.ExecuteScalar<long>("SELECT COUNT(*) FROM TestTable;"));
         }
 
         [Fact]
         public void Dispose_can_be_called_more_than_once()
         {
-            using (var connection = new SqliteConnection("Data Source=:memory:"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=:memory:");
+            connection.Open();
 
-                var transaction = connection.BeginTransaction();
+            var transaction = connection.BeginTransaction();
 
-                transaction.Dispose();
-                transaction.Dispose();
-            }
+            transaction.Dispose();
+            transaction.Dispose();
         }
 
         [Fact]
@@ -370,12 +325,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static void CreateTestTable(SqliteConnection connection)
-        {
-            connection.ExecuteNonQuery(
-                @"
-                CREATE TABLE TestTable (
-                    TestColumn INTEGER
-                )");
-        }
+            => connection.ExecuteNonQuery("CREATE TABLE TestTable (TestColumn INTEGER)");
     }
 }

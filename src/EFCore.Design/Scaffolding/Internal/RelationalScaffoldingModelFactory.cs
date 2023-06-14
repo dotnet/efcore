@@ -523,9 +523,7 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
 
         var keyBuilder = builder.HasKey(primaryKey.Columns.Select(GetPropertyName).ToArray());
 
-        if (primaryKey.Columns.Count == 1
-            && primaryKey.Columns[0].ValueGenerated == null
-            && primaryKey.Columns[0].DefaultValueSql == null)
+        if (primaryKey.Columns is [{ ValueGenerated: null, DefaultValueSql: null }])
         {
             var property = builder.Metadata.FindProperty(GetPropertyName(primaryKey.Columns[0]));
             if (property != null)

@@ -27,8 +27,7 @@ public static class ScaffoldingModelExtensions
             var primaryKey = entityType.FindPrimaryKey();
             var properties = entityType.GetProperties().ToList();
             var foreignKeys = entityType.GetForeignKeys().ToList();
-            if (primaryKey != null
-                && primaryKey.Properties.Count > 1
+            if (primaryKey is { Properties.Count: > 1 }
                 && foreignKeys.Count == 2
                 && primaryKey.Properties.Count == properties.Count
                 && foreignKeys[0].Properties.Count + foreignKeys[1].Properties.Count == properties.Count

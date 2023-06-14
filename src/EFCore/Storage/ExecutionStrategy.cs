@@ -493,10 +493,9 @@ public abstract class ExecutionStrategy : IExecutionStrategy
     {
         while (true)
         {
-            if (exception is DbUpdateException dbUpdateException
-                && dbUpdateException.InnerException != null)
+            if (exception is DbUpdateException { InnerException: Exception innerException })
             {
-                exception = dbUpdateException.InnerException;
+                exception = innerException;
                 continue;
             }
 

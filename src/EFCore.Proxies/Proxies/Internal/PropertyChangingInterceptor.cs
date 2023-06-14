@@ -4,7 +4,6 @@
 using System.Collections;
 using System.ComponentModel;
 using Castle.DynamicProxy;
-using Microsoft.EntityFrameworkCore.Internal;
 using IInterceptor = Castle.DynamicProxy.IInterceptor;
 
 namespace Microsoft.EntityFrameworkCore.Proxies.Internal;

@@ -322,7 +322,7 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
 
             private bool ShapeResult()
             {
-                var hasNext = !(_item is null);
+                var hasNext = _item is not null;
 
                 _cosmosQueryContext.InitializeStateManager(_standAloneStateManager);
 

@@ -312,7 +312,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
                     model);
             narrowed = columnType != oldType
                 || operation.Collation != operation.OldColumn.Collation
-                || !operation.IsNullable && operation.OldColumn.IsNullable;
+                || operation is { IsNullable: false, OldColumn.IsNullable: true };
         }
 
         if (narrowed)
@@ -347,8 +347,7 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
 
         // The column is being made non-nullable. Generate an update statement before doing that, to convert any existing null values to
         // the default value (otherwise SQL Server fails).
-        if (!operation.IsNullable
-            && operation.OldColumn.IsNullable
+        if (operation is { IsNullable: false, OldColumn.IsNullable: true }
             && (operation.DefaultValueSql is not null || operation.DefaultValue is not null))
         {
             string defaultValueSql;

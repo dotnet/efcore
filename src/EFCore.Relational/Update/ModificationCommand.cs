@@ -253,7 +253,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
         var jsonEntry = false;
 
         if (_entries.Count > 1
-            || (_entries.Count == 1 && _entries[0].SharedIdentityEntry != null))
+            || _entries is [{ SharedIdentityEntry: not null }])
         {
             Check.DebugAssert(StoreStoredProcedure is null, "Multiple entries/shared identity not supported with stored procedures");
 

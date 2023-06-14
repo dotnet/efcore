@@ -241,8 +241,7 @@ public class CSharpUtilities : ICSharpUtilities
         if (ch < 'a')
         {
             return ch < 'A'
-                ? ch >= '0'
-                && ch <= '9'
+                ? ch is >= '0' and <= '9'
                 : ch <= 'Z'
                 || ch == '_';
         }

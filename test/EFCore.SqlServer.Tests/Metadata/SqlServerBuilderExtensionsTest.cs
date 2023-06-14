@@ -3,8 +3,6 @@
 
 // ReSharper disable InconsistentNaming
 
-using Microsoft.EntityFrameworkCore.SqlServer.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 public class SqlServerBuilderExtensionsTest

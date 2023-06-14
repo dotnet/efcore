@@ -246,13 +246,10 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
                 .AppendJoin(
                     operations, (sb, v) =>
                     {
-                        if (v.IsKey)
+                        if (v is { IsKey: true, IsRead: false })
                         {
-                            if (!v.IsRead)
-                            {
-                                AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
-                                return true;
-                            }
+                            AppendWhereCondition(sb, v, v.UseOriginalValueParameter);
+                            return true;
                         }
 
                         if (IsIdentityOperation(v))
@@ -272,7 +269,7 @@ public abstract class UpdateAndSelectSqlGenerator : UpdateSqlGenerator
     /// <param name="modification">The column modification.</param>
     /// <returns><see langword="true" /> if the given modification represents an auto-incrementing column.</returns>
     protected virtual bool IsIdentityOperation(IColumnModification modification)
-        => modification.IsKey && modification.IsRead;
+        => modification is { IsKey: true, IsRead: true };
 
     /// <summary>
     ///     Appends a <c>WHERE</c> condition checking rows affected.

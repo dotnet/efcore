@@ -90,8 +90,7 @@ public class InjectThenByPropertyExpressionMutator : ExpressionMutator
             }
 
             if (!_insideThenInclude
-                && expression != null
-                && !(expression is ConstantExpression)
+                && expression is not (null or ConstantExpression)
                 && IsOrderedQueryableResult(expression)
                 && !FoundExpressions.ContainsKey(expression))
             {

@@ -70,9 +70,7 @@ public class SqlConstantExpression : SqlExpression
         object? value,
         ExpressionPrinter expressionPrinter)
     {
-        if (value is IEnumerable enumerable
-            && !(value is string)
-            && !(value is byte[]))
+        if (value is IEnumerable enumerable and not (string or byte[]))
         {
             var first = true;
             foreach (var item in enumerable)

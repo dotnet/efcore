@@ -12,8 +12,7 @@ namespace System.Linq.Expressions;
 internal static class ExpressionExtensions
 {
     public static bool IsNullConstantExpression(this Expression expression)
-        => RemoveConvert(expression) is ConstantExpression constantExpression
-            && constantExpression.Value == null;
+        => RemoveConvert(expression) is ConstantExpression { Value: null };
 
     public static LambdaExpression UnwrapLambdaFromQuote(this Expression expression)
         => (LambdaExpression)(expression is UnaryExpression unary && expression.NodeType == ExpressionType.Quote

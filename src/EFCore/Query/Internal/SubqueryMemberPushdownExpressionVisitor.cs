@@ -61,8 +61,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
     protected override Expression VisitMember(MemberExpression memberExpression)
     {
         var innerExpression = Visit(memberExpression.Expression);
-        if (innerExpression is MethodCallExpression methodCallExpression
-            && methodCallExpression.Method.IsGenericMethod
+        if (innerExpression is MethodCallExpression { Method.IsGenericMethod: true } methodCallExpression
             && SupportedMethods.Contains(methodCallExpression.Method.GetGenericMethodDefinition()))
         {
             return PushdownMember(
@@ -73,7 +72,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 
                     return nullable && !memberAccessExpression.Type.IsNullableType()
                         ? Expression.Convert(memberAccessExpression, memberAccessExpression.Type.MakeNullable())
-                        : (Expression)memberAccessExpression;
+                        : memberAccessExpression;
                 },
                 memberExpression.Type);
         }
@@ -93,8 +92,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         {
             source = Visit(source);
 
-            if (source is MethodCallExpression innerMethodCall
-                && innerMethodCall.Method.IsGenericMethod
+            if (source is MethodCallExpression { Method.IsGenericMethod: true } innerMethodCall
                 && SupportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
             {
                 return PushdownMember(
@@ -120,8 +118,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
         {
             source = Visit(source);
 
-            if (source is MethodCallExpression innerMethodCall
-                && innerMethodCall.Method.IsGenericMethod
+            if (source is MethodCallExpression { Method.IsGenericMethod: true } innerMethodCall
                 && SupportedMethods.Contains(innerMethodCall.Method.GetGenericMethodDefinition()))
             {
                 return PushdownMember(
@@ -134,7 +131,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
 
                         return nullable && !indexerExpression.Type.IsNullableType()
                             ? Expression.Convert(indexerExpression, indexerExpression.Type.MakeNullable())
-                            : (Expression)indexerExpression;
+                            : indexerExpression;
                     },
                     methodCallExpression.Type);
             }
@@ -180,8 +177,7 @@ public class SubqueryMemberPushdownExpressionVisitor : ExpressionVisitor
             genericMethod = PredicateLessMethodInfo[genericMethod];
         }
 
-        if (source is MethodCallExpression sourceMethodCallExpression
-            && sourceMethodCallExpression.Method.IsGenericMethod
+        if (source is MethodCallExpression { Method.IsGenericMethod: true } sourceMethodCallExpression
             && sourceMethodCallExpression.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
         {
             var selector = sourceMethodCallExpression.Arguments[1].UnwrapLambdaFromQuote();

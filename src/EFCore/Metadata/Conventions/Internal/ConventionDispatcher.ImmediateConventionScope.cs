@@ -1,11 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Reflection.Emit;
-using System.Xml.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 
 public partial class ConventionDispatcher
@@ -319,7 +314,7 @@ public partial class ConventionDispatcher
                 }
             }
 
-            return newPrimaryKey != null && !newPrimaryKey.IsInModel ? null : newPrimaryKey;
+            return newPrimaryKey is { IsInModel: false } ? null : newPrimaryKey;
         }
 
         public override IConventionAnnotation? OnEntityTypeAnnotationChanged(
@@ -1340,8 +1335,7 @@ public partial class ConventionDispatcher
                         return _annotationConventionContext.Result;
                     }
 #if DEBUG
-                    Check.DebugAssert(propertyBuilder.Metadata.IsInModel
-                        && propertyBuilder.Metadata.DeclaringEntityType.IsInModel
+                    Check.DebugAssert(propertyBuilder.Metadata is { IsInModel: true, DeclaringEntityType.IsInModel: true }
                         && initialValue == propertyBuilder.Metadata[name],
                         $"Convention {propertyConvention.GetType().Name} changed value without terminating");
 #endif

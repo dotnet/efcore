@@ -72,8 +72,7 @@ public class CosmosValueGenerationConvention :
         if (propertyType == typeof(int))
         {
             var ownership = entityType.FindOwnership();
-            if (ownership != null
-                && !ownership.IsUnique
+            if (ownership is { IsUnique: false }
                 && !entityType.IsDocumentRoot())
             {
                 var pk = property.FindContainingPrimaryKey();

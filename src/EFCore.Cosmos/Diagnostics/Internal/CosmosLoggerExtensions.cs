@@ -68,7 +68,7 @@ public static class CosmosLoggerExtensions
         return d.GenerateMessage(
             p.ContainerId,
             p.LogSensitiveData ? p.PartitionKey : "?",
-            FormatParameters(p.Parameters, p.LogSensitiveData && p.Parameters.Count > 0),
+            FormatParameters(p.Parameters, p is { LogSensitiveData: true, Parameters.Count: > 0 }),
             Environment.NewLine,
             p.QuerySql);
     }
@@ -183,7 +183,7 @@ public static class CosmosLoggerExtensions
                 p.ActivityId,
                 p.ContainerId,
                 p.LogSensitiveData ? p.PartitionKey : "?",
-                FormatParameters(p.Parameters, p.LogSensitiveData && p.Parameters.Count > 0),
+                FormatParameters(p.Parameters, p is { LogSensitiveData: true, Parameters.Count: > 0 }),
                 Environment.NewLine,
                 p.QuerySql));
     }

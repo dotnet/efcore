@@ -159,8 +159,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (relatedEntity != null)
                     {
                         fixup(includingEntity, relatedEntity);
-                        if (inverseNavigation != null
-                            && !inverseNavigation.IsCollection)
+                        if (inverseNavigation is { IsCollection: false })
                         {
                             inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                         }
@@ -306,8 +305,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     if (!trackingQuery)
                     {
                         fixup(entity, relatedEntity);
-                        if (inverseNavigation != null
-                            && !inverseNavigation.IsCollection)
+                        if (inverseNavigation is { IsCollection: false })
                         {
                             inverseNavigation.SetIsLoadedWhenNoTracking(relatedEntity);
                         }

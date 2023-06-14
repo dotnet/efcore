@@ -52,7 +52,7 @@ public class DbContextPool<TContext> : IDbContextPool<TContext>, IDisposable, IA
     private static Func<DbContext> CreateActivator(DbContextOptions<TContext> options, IServiceProvider? serviceProvider)
     {
         var constructors = typeof(TContext).GetTypeInfo().DeclaredConstructors
-            .Where(c => !c.IsStatic && c.IsPublic && c.GetParameters().Length > 0).ToArray();
+            .Where(c => c is { IsStatic: false, IsPublic: true } && c.GetParameters().Length > 0).ToArray();
 
         if (constructors.Length == 1
             && constructors[0].GetParameters() is { } parameters

@@ -1035,7 +1035,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public object? GetCurrentValue(IPropertyBase propertyBase)
-        => !(propertyBase is IProperty property) || !IsConceptualNull(property)
+        => propertyBase is not IProperty property || !IsConceptualNull(property)
             ? this[propertyBase]
             : null;
 
@@ -1046,7 +1046,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public object? GetPreStoreGeneratedCurrentValue(IPropertyBase propertyBase)
-        => !(propertyBase is IProperty property) || !IsConceptualNull(property)
+        => propertyBase is not IProperty property || !IsConceptualNull(property)
             ? ReadPropertyValue(propertyBase)
             : null;
 
@@ -1401,12 +1401,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                     }
                 }
 
-                if (propertyBase is INavigationBase navigation)
+                if (propertyBase is INavigationBase { IsCollection: false } navigation)
                 {
-                    if (!navigation.IsCollection)
-                    {
-                        SetIsLoaded(navigation, value != null);
-                    }
+                    SetIsLoaded(navigation, value != null);
                 }
 
                 StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified);
@@ -1822,8 +1819,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         {
             StateManager.InternalEntityEntryNotifier.PropertyChanging(this, propertyBase);
 
-            if (propertyBase is INavigationBase navigation
-                && navigation.IsCollection
+            if (propertyBase is INavigationBase { IsCollection: true } navigation
                 && GetCurrentValue(propertyBase) != null)
             {
                 StateManager.Dependencies.InternalEntityEntrySubscriber.UnsubscribeCollectionChanged(this, navigation);
@@ -1845,8 +1841,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         {
             StateManager.InternalEntityEntryNotifier.PropertyChanged(this, propertyBase, setModified: true);
 
-            if (propertyBase is INavigationBase navigation
-                && navigation.IsCollection
+            if (propertyBase is INavigationBase { IsCollection: true } navigation
                 && GetCurrentValue(propertyBase) != null)
             {
                 StateManager.Dependencies.InternalEntityEntrySubscriber.SubscribeCollectionChanged(this, navigation);

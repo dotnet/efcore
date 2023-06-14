@@ -130,5 +130,5 @@ internal class CommandOption
         => HasValue() ? Values[0] : null;
 
     private static bool IsEnglishLetter(char c)
-        => (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+        => c is >= 'a' and <= 'z' or >= 'A' and <= 'Z';
 }

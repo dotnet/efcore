@@ -31,8 +31,7 @@ namespace Microsoft.Data.Sqlite
         public SqliteConnectionInternal GetConnection(SqliteConnection outerConnection)
         {
             var poolGroup = outerConnection.PoolGroup;
-            if (poolGroup.IsDisabled
-                && !poolGroup.IsNonPooled)
+            if (poolGroup is { IsDisabled: true, IsNonPooled: false })
             {
                 poolGroup = GetPoolGroup(poolGroup.ConnectionString);
                 outerConnection.PoolGroup = poolGroup;

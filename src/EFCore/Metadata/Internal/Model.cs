@@ -976,8 +976,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     /// <param name="methodInfo">The MethodInfo to check for.</param>
     public virtual bool IsIndexerMethod(MethodInfo methodInfo)
         => !methodInfo.IsStatic
-            && methodInfo.IsSpecialName
-            && methodInfo.DeclaringType != null
+            && methodInfo is { IsSpecialName: true, DeclaringType: not null }
             && FindIndexerPropertyInfo(methodInfo.DeclaringType) is PropertyInfo indexerProperty
             && (methodInfo == indexerProperty.GetMethod || methodInfo == indexerProperty.SetMethod);
 

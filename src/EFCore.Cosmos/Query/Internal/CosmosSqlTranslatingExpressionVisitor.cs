@@ -4,7 +4,6 @@
 #nullable disable
 
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Cosmos.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Cosmos.Query.Internal;
@@ -354,8 +353,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 
                 if (result.NodeType == ExpressionType.Convert
                     && result.Type == typeof(ValueBuffer)
-                    && result is UnaryExpression outerUnary
-                    && outerUnary.Operand.NodeType == ExpressionType.Convert
+                    && result is UnaryExpression { Operand.NodeType: ExpressionType.Convert } outerUnary
                     && outerUnary.Operand.Type == typeof(object))
                 {
                     result = ((UnaryExpression)outerUnary.Operand).Operand;
@@ -751,7 +749,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     private Expression TryBindMember(Expression source, MemberIdentity member)
     {
-        if (!(source is EntityReferenceExpression entityReferenceExpression))
+        if (source is not EntityReferenceExpression entityReferenceExpression)
         {
             return null;
         }
@@ -814,7 +812,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         result = null;
 
-        if (!(item is EntityReferenceExpression itemEntityReference))
+        if (item is not EntityReferenceExpression itemEntityReference)
         {
             return false;
         }
@@ -1026,7 +1024,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     private static bool IsNullSqlConstantExpression(Expression expression)
-        => expression is SqlConstantExpression sqlConstant && sqlConstant.Value == null;
+        => expression is SqlConstantExpression { Value: null };
 
     private static bool TryEvaluateToConstant(Expression expression, out SqlConstantExpression sqlConstantExpression)
     {
@@ -1061,7 +1059,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     private static bool TranslationFailed(Expression original, Expression translation, out SqlExpression castTranslation)
     {
         if (original != null
-            && !(translation is SqlExpression))
+            && translation is not SqlExpression)
         {
             castTranslation = null;
             return true;
@@ -1106,8 +1104,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
     {
         protected override Expression VisitExtension(Expression extensionExpression)
         {
-            if (extensionExpression is SqlExpression sqlExpression
-                && sqlExpression.TypeMapping == null)
+            if (extensionExpression is SqlExpression { TypeMapping: null } sqlExpression)
             {
                 throw new InvalidOperationException(CosmosStrings.NullTypeMappingInSqlTree(sqlExpression.Print()));
             }

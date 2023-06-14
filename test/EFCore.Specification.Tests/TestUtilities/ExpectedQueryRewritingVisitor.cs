@@ -310,8 +310,7 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
         if ((unaryExpression.NodeType == ExpressionType.Convert
                 || unaryExpression.NodeType == ExpressionType.ConvertChecked
                 || unaryExpression.NodeType == ExpressionType.TypeAs)
-            && unaryExpression.Operand is MemberExpression memberOperand
-            && memberOperand.Type.IsValueType
+            && unaryExpression.Operand is MemberExpression { Type.IsValueType: true } memberOperand
             && !memberOperand.Type.IsNullableValueType()
             && memberOperand.Expression != null
             && unaryExpression.Type.IsNullableValueType()

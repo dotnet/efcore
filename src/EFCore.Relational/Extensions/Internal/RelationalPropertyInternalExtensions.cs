@@ -18,8 +18,7 @@ public static class RelationalPropertyInternalExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsOrdinalKeyProperty(this IReadOnlyProperty property)
-        => property.FindContainingPrimaryKey() is IReadOnlyKey key
-            && key.Properties.Count > 1
+        => property.FindContainingPrimaryKey() is IReadOnlyKey { Properties.Count: > 1 }
             && !property.IsForeignKey()
             && property.ClrType == typeof(int)
             && property.GetJsonPropertyName() == null;

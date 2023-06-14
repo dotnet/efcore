@@ -83,8 +83,7 @@ public class ContainsTranslator : IMethodCallTranslator
         => values is SqlConstantExpression or SqlParameterExpression;
 
     private static SqlExpression RemoveObjectConvert(SqlExpression expression)
-        => expression is SqlUnaryExpression sqlUnaryExpression
-            && sqlUnaryExpression.OperatorType == ExpressionType.Convert
+        => expression is SqlUnaryExpression { OperatorType: ExpressionType.Convert } sqlUnaryExpression
             && sqlUnaryExpression.Type == typeof(object)
                 ? sqlUnaryExpression.Operand
                 : expression;

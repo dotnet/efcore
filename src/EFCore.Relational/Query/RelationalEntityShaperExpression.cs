@@ -111,7 +111,7 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
                         p => NotEqual(
                             valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
                             Constant(null)))
-                    .Aggregate((a, b) => AndAlso(a, b));
+                    .Aggregate(AndAlso);
             }
 
             var allNonPrincipalSharedNonPkProperties = entityType.GetNonPrincipalSharedNonPkProperties(table);
@@ -124,7 +124,7 @@ public class RelationalEntityShaperExpression : EntityShaperExpression
                         p => NotEqual(
                             valueBufferParameter.CreateValueBufferReadValueExpression(typeof(object), p.GetIndex(), p),
                             Constant(null)))
-                    .Aggregate((a, b) => OrElse(a, b));
+                    .Aggregate(OrElse);
 
                 condition = condition == null
                     ? atLeastOneNonNullValueInNullablePropertyCondition
