@@ -362,9 +362,9 @@ public class RelationalModelValidator : ModelValidator
         var storeGeneratedProperties = storeObjectIdentifier.StoreObjectType switch
         {
             StoreObjectType.InsertStoredProcedure
-                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnAdd)).ToDictionary(p => p.Key, p => p.Value),
+                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnAdd)).ToDictionary(),
             StoreObjectType.UpdateStoredProcedure
-                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnUpdate)).ToDictionary(p => p.Key, p => p.Value),
+                => properties.Where(p => p.Value.ValueGenerated.HasFlag(ValueGenerated.OnUpdate)).ToDictionary(),
             _ => new Dictionary<string, IProperty>()
         };
 

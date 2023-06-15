@@ -182,6 +182,11 @@ public class TextTemplatingEngineHost : ITextTemplatingSessionHost, ITextTemplat
     /// </summary>
     public virtual string ResolveAssemblyReference(string assemblyReference)
     {
+        if (Path.IsPathRooted(assemblyReference))
+        {
+            return assemblyReference;
+        }
+
         var path = DependencyContext.Default?.CompileLibraries
             .FirstOrDefault(l => l.Assemblies.Any(a => Path.GetFileNameWithoutExtension(a) == assemblyReference))
             ?.ResolveReferencePaths()

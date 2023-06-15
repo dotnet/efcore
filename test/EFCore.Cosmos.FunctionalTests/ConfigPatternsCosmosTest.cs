@@ -88,7 +88,7 @@ public class ConfigPatternsCosmosTest : IClassFixture<ConfigPatternsCosmosTest.C
             exception.Message);
     }
 
-    [ConditionalFact]
+    [ConditionalFact(Skip = "Issue Azure/azure-cosmos-dotnet-v3#3990")]
     public async Task Should_not_throw_if_specified_connection_mode_is_right()
     {
         var connectionMode = ConnectionMode.Direct;

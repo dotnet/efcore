@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net461</TargetFrameworks>
+    <TargetFrameworks>net8.0;net462</TargetFrameworks>
     <DefineConstants>$(DefineConstants);E_SQLCIPHER</DefineConstants>
     <Nullable>enable</Nullable>
   </PropertyGroup>

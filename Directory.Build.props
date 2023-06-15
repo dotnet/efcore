@@ -1,4 +1,4 @@
-<Project>  
+<Project>
   <!-- Define project type conventions. -->
   <PropertyGroup>
     <IsTrimmingTestProject Condition="$(MSBuildProjectName.EndsWith('.TrimmingTests'))">true</IsTrimmingTestProject>
@@ -11,7 +11,7 @@
           $(MSBuildProjectName.EndsWith('.FunctionalTests'))) ">true</IsUnitTestProject>
     <IsUnitTestProject Condition=" '$(IsUnitTestProject)' == '' ">false</IsUnitTestProject>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <TargetOsName Condition=" '$(TargetOsName)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">win</TargetOsName>
     <TargetOsName Condition=" '$(TargetOsName)' == '' AND $([MSBuild]::IsOSPlatform('OSX'))">osx</TargetOsName>
@@ -20,7 +20,7 @@
     <TargetArchitecture Condition="'$(TargetArchitecture)' == ''">x64</TargetArchitecture>
     <TargetRuntimeIdentifier Condition="'$(TargetRuntimeIdentifier)' == ''">$(TargetOsName)-$(TargetArchitecture)</TargetRuntimeIdentifier>
   </PropertyGroup>
-  
+
   <Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />
 
   <Import
@@ -42,6 +42,11 @@
     <PackageProjectUrl>https://docs.microsoft.com/ef/core/</PackageProjectUrl>
   </PropertyGroup>
 
+  <!-- HACK: Work around ericsink/SQLitePCL.raw#543 -->
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.Runtime.Loader.UseRidGraph" Value="true" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(DeveloperBuild)' == 'true'">
     <WarningsNotAsErrors>$(WarningsNotAsErrors);CS1591;SA1636</WarningsNotAsErrors>
   </PropertyGroup>
@@ -57,7 +62,7 @@
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)stylecop.json" />
   </ItemGroup>
-  
+
   <Import Project="eng\testing\linker\trimmingTests.props" Condition="'$(IsPublishedAppTestProject)' == 'true'" />
 
 </Project>
