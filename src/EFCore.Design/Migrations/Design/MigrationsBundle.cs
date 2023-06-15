@@ -46,8 +46,7 @@ public static class MigrationsBundle
         }
         catch (Exception ex)
         {
-            if (ex is CommandParsingException
-                || ex is OperationException)
+            if (ex is CommandParsingException or OperationException)
             {
                 Reporter.WriteVerbose(ex.ToString());
             }

@@ -1501,9 +1501,7 @@ public class CSharpHelper : ICSharpHelper
     {
         if (ch < 'a')
         {
-            return ch >= 'A'
-                && (ch <= 'Z'
-                    || ch == '_');
+            return ch is >= 'A' and (<= 'Z' or '_');
         }
 
         if (ch <= 'z')

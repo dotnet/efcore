@@ -61,9 +61,7 @@ namespace Microsoft.Data.Sqlite
         /// </remarks>
         public static void ThrowExceptionForRC(int rc, sqlite3? db)
         {
-            if (rc == SQLITE_OK
-                || rc == SQLITE_ROW
-                || rc == SQLITE_DONE)
+            if (rc is SQLITE_OK or SQLITE_ROW or SQLITE_DONE)
             {
                 return;
             }

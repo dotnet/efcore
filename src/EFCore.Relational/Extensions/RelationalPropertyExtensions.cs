@@ -1737,8 +1737,7 @@ public static class RelationalPropertyExtensions
             yield return declaringStoreObject.Value;
         }
 
-        if (storeObjectType == StoreObjectType.Function
-            || storeObjectType == StoreObjectType.SqlQuery)
+        if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
         {
             yield break;
         }

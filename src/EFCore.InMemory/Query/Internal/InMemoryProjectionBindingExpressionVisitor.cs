@@ -499,8 +499,7 @@ public class InMemoryProjectionBindingExpressionVisitor : ExpressionVisitor
     {
         var operand = Visit(unaryExpression.Operand);
 
-        return (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+        return unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked
             && unaryExpression.Type == operand.Type
                 ? operand
                 : unaryExpression.Update(MatchTypes(operand, unaryExpression.Operand.Type));

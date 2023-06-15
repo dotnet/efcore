@@ -90,7 +90,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
-            Assert.True(actual == "Value1" || actual == "Value2");
+            Assert.True(actual is "Value1" or "Value2");
         }
 
         [ConditionalFact]
@@ -113,7 +113,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Internal
             Assert.Equal(2, model.GetAnnotations().Count());
 
             var actual = (string)model["Relational:DefaultSchema"];
-            Assert.True(actual == "Value1" || actual == "Value2");
+            Assert.True(actual is "Value1" or "Value2");
         }
 
         [ConditionalFact]

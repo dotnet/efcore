@@ -162,7 +162,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return Visit(ConvertObjectArrayEqualityComparison(binaryExpression.Left, binaryExpression.Right));
         }
 
-        if ((binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             && (binaryExpression.Left.IsNullConstantExpression() || binaryExpression.Right.IsNullConstantExpression()))
         {
             var nonNullExpression = binaryExpression.Left.IsNullConstantExpression() ? binaryExpression.Right : binaryExpression.Left;
@@ -232,8 +232,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             return QueryCompilationContext.NotTranslatedExpression;
         }
 
-        if ((binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             // Visited expression could be null, We need to pass MemberInitExpression
             && TryRewriteEntityEquality(
                 binaryExpression.NodeType,
@@ -252,8 +251,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
             newRight = ConvertToNullable(newRight);
         }
 
-        if ((binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             && TryUseComparer(newLeft, newRight, out var updatedExpression))
         {
             if (binaryExpression.NodeType == ExpressionType.NotEqual)
@@ -578,7 +576,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         static bool ShouldApplyNullProtectionForMemberAccess(Type callerType, string memberName)
             => !(callerType.IsGenericType
                 && callerType.GetGenericTypeDefinition() == typeof(Nullable<>)
-                && (memberName == nameof(Nullable<int>.Value) || memberName == nameof(Nullable<int>.HasValue)));
+                && memberName is nameof(Nullable<int>.Value) or nameof(Nullable<int>.HasValue));
     }
 
     /// <summary>
@@ -1061,9 +1059,7 @@ public class InMemoryExpressionTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         if (newOperand is EntityReferenceExpression entityReferenceExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked
-                || unaryExpression.NodeType == ExpressionType.TypeAs))
+            && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
             return entityReferenceExpression.Convert(unaryExpression.Type);
         }

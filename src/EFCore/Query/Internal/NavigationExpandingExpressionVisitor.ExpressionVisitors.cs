@@ -514,17 +514,14 @@ public partial class NavigationExpandingExpressionVisitor
             : base(navigationExpandingExpressionVisitor, source, extensibilityHelper)
         {
             _logger = navigationExpandingExpressionVisitor._queryCompilationContext.Logger;
-            _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior
-                == QueryTrackingBehavior.TrackAll
-                || navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior
-                == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+            _queryStateManager = navigationExpandingExpressionVisitor._queryCompilationContext.QueryTrackingBehavior is
+                QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
             _ignoreAutoIncludes = navigationExpandingExpressionVisitor._queryCompilationContext.IgnoreAutoIncludes;
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
         {
-            if (binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+            if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual)
             {
                 // This could be entity equality. We don't want to expand include nodes over them
                 // as either they translate or throw.
@@ -1225,8 +1222,7 @@ public partial class NavigationExpandingExpressionVisitor
         }
 
         protected override Expression VisitBinary(BinaryExpression binaryExpression)
-            => (binaryExpression.NodeType == ExpressionType.Equal
-                    || binaryExpression.NodeType == ExpressionType.NotEqual)
+            => binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
                 && TryRemoveNavigationComparison(
                     binaryExpression.NodeType, binaryExpression.Left, binaryExpression.Right, out var result)
                     ? result

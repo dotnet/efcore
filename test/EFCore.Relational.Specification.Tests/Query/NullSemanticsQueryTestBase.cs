@@ -678,7 +678,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
             .Where(e => names.Contains(e.NullableStringA))
             .Select(e => e.NullableStringA).ToList();
 
-        Assert.True(result.All(r => r == "Foo" || r == "Bar"));
+        Assert.True(result.All(r => r is "Foo" or "Bar"));
     }
 
     [ConditionalFact]
@@ -1825,7 +1825,7 @@ public abstract class NullSemanticsQueryTestBase<TFixture> : QueryTestBase<TFixt
     {
         var ctx = CreateContext(useRelationalNulls: true);
 
-        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA == 1 || e.NullableIntA == null).ToList();
+        var expected = ctx.Entities1.AsEnumerable().Where(e => e.NullableIntA is 1 or null).ToList();
         ClearLog();
         var query = ctx.Entities1.Where(e => e.NullableIntA == 1 || e.NullableIntA == null);
 

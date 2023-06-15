@@ -2813,13 +2813,13 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             }
 
             return unmatched.All(
-                a => a.Name == SqlServerAnnotationNames.IsTemporal
-                    || a.Name == SqlServerAnnotationNames.TemporalHistoryTableName
-                    || a.Name == SqlServerAnnotationNames.TemporalHistoryTableSchema
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodStartColumnName
-                    || a.Name == SqlServerAnnotationNames.TemporalPeriodEndColumnName);
+                a => a.Name is SqlServerAnnotationNames.IsTemporal
+                    or SqlServerAnnotationNames.TemporalHistoryTableName
+                    or SqlServerAnnotationNames.TemporalHistoryTableSchema
+                    or SqlServerAnnotationNames.TemporalPeriodStartPropertyName
+                    or SqlServerAnnotationNames.TemporalPeriodEndPropertyName
+                    or SqlServerAnnotationNames.TemporalPeriodStartColumnName
+                    or SqlServerAnnotationNames.TemporalPeriodEndColumnName);
         }
 
         static TOperation CopyColumnOperation<TOperation>(ColumnOperation source)

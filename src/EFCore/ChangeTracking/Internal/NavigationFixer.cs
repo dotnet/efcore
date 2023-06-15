@@ -505,9 +505,7 @@ public class NavigationFixer : INavigationFixer
                 }
 
                 if (newValue == null
-                    && foreignKey.IsRequired
-                    && (foreignKey.DeleteBehavior == DeleteBehavior.Cascade
-                        || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade))
+                    && foreignKey is { IsRequired: true, DeleteBehavior: DeleteBehavior.Cascade or DeleteBehavior.ClientCascade })
                 {
                     entry.HandleNullForeignKey(property);
                 }
@@ -610,8 +608,7 @@ public class NavigationFixer : INavigationFixer
             {
                 InitialFixup(entry, null, fromQuery);
             }
-            else if ((oldState == EntityState.Deleted
-                         || oldState == EntityState.Added)
+            else if (oldState is EntityState.Deleted or EntityState.Added
                      && entry.EntityState == EntityState.Detached)
             {
                 DeleteFixup(entry);
@@ -993,8 +990,7 @@ public class NavigationFixer : INavigationFixer
     }
 
     private static bool IsAmbiguous(InternalEntityEntry dependentEntry)
-        => (dependentEntry.EntityState == EntityState.Detached
-                || dependentEntry.EntityState == EntityState.Deleted)
+        => dependentEntry.EntityState is EntityState.Detached or EntityState.Deleted
             && (dependentEntry.SharedIdentityEntry != null
                 || dependentEntry.EntityType.HasSharedClrType
                 && dependentEntry.StateManager.TryGetEntry(dependentEntry.Entity, throwOnNonUniqueness: false) != dependentEntry);
@@ -1356,8 +1352,7 @@ public class NavigationFixer : INavigationFixer
         InternalEntityEntry principalEntry)
     {
         if (dependentEntry.EntityState == EntityState.Deleted
-            && (principalEntry.EntityState == EntityState.Unchanged
-                || principalEntry.EntityState == EntityState.Modified))
+            && principalEntry.EntityState is EntityState.Unchanged or EntityState.Modified)
         {
             dependentEntry.SetEntityState(EntityState.Modified);
         }

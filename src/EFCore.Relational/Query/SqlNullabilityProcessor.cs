@@ -1081,8 +1081,7 @@ public class SqlNullabilityProcessor
         var optimize = allowOptimizedExpansion;
 
         allowOptimizedExpansion = allowOptimizedExpansion
-            && (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                || sqlBinaryExpression.OperatorType == ExpressionType.OrElse);
+            && sqlBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse;
 
         var currentNonNullableColumnsCount = _nonNullableColumns.Count;
         var currentNullValueColumnsCount = _nullValueColumns.Count;
@@ -1154,8 +1153,7 @@ public class SqlNullabilityProcessor
             return sqlBinaryExpression.Update(left, right);
         }
 
-        if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
-            || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual)
+        if (sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
         {
             var updated = sqlBinaryExpression.Update(left, right);
 
@@ -1211,13 +1209,12 @@ public class SqlNullabilityProcessor
         var result = sqlBinaryExpression.Update(left, right);
 
         return result is SqlBinaryExpression sqlBinaryResult
-            && (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                || sqlBinaryExpression.OperatorType == ExpressionType.OrElse)
+            && sqlBinaryExpression.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse
                 ? SimplifyLogicalSqlBinaryExpression(sqlBinaryResult)
                 : result;
 
         SqlExpression AddNullConcatenationProtection(SqlExpression argument, RelationalTypeMapping typeMapping)
-            => argument is SqlConstantExpression || argument is SqlParameterExpression
+            => argument is SqlConstantExpression or SqlParameterExpression
                 ? _sqlExpressionFactory.Constant(string.Empty, typeMapping)
                 : _sqlExpressionFactory.Coalesce(argument, _sqlExpressionFactory.Constant(string.Empty, typeMapping));
     }
@@ -1346,8 +1343,7 @@ public class SqlNullabilityProcessor
         var operand = Visit(sqlUnaryExpression.Operand, out var operandNullable);
         var updated = sqlUnaryExpression.Update(operand);
 
-        if (sqlUnaryExpression.OperatorType == ExpressionType.Equal
-            || sqlUnaryExpression.OperatorType == ExpressionType.NotEqual)
+        if (sqlUnaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
         {
             var result = ProcessNullNotNull(updated, operandNullable);
 
@@ -1438,12 +1434,12 @@ public class SqlNullabilityProcessor
                 return result;
             }
 
-            if (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
-                || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
-                || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
-                || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)
+            if (sqlBinaryExpression.OperatorType is ExpressionType.AndAlso
+                or ExpressionType.NotEqual
+                or ExpressionType.GreaterThan
+                or ExpressionType.GreaterThanOrEqual
+                or ExpressionType.LessThan
+                or ExpressionType.LessThanOrEqual)
             {
                 return Visit(sqlBinaryExpression, allowOptimizedExpansion: true, out _);
             }
@@ -1461,8 +1457,8 @@ public class SqlNullabilityProcessor
         bool rightNullable,
         out bool nullable)
     {
-        var leftNullValue = leftNullable && (left is SqlConstantExpression || left is SqlParameterExpression);
-        var rightNullValue = rightNullable && (right is SqlConstantExpression || right is SqlParameterExpression);
+        var leftNullValue = leftNullable && left is SqlConstantExpression or SqlParameterExpression;
+        var rightNullValue = rightNullable && right is SqlConstantExpression or SqlParameterExpression;
 
         // a == null -> a IS NULL
         // a != null -> a IS NOT NULL
@@ -1537,8 +1533,7 @@ public class SqlNullabilityProcessor
 
         if (!leftNullable
             && !rightNullable
-            && (sqlBinaryExpression.OperatorType == ExpressionType.Equal
-                || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual))
+            && sqlBinaryExpression.OperatorType is ExpressionType.Equal or ExpressionType.NotEqual)
         {
             var leftUnary = left as SqlUnaryExpression;
             var rightUnary = right as SqlUnaryExpression;
@@ -1796,8 +1791,7 @@ public class SqlNullabilityProcessor
             {
                 // optimizations below are only correct in 2-value logic
                 // De Morgan's
-                if (sqlBinaryOperand.OperatorType == ExpressionType.AndAlso
-                    || sqlBinaryOperand.OperatorType == ExpressionType.OrElse)
+                if (sqlBinaryOperand.OperatorType is ExpressionType.AndAlso or ExpressionType.OrElse)
                 {
                     // since entire AndAlso/OrElse expression is non-nullable, both sides of it (left and right) must also be non-nullable
                     // so it's safe to perform recursive optimization here

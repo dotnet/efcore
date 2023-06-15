@@ -1223,8 +1223,7 @@ public class StateManager : IStateManager
                     && (dependent.EntityState == EntityState.Added
                         || KeysEqual(entry, fk, dependent)))
                 {
-                    if ((fk.DeleteBehavior == DeleteBehavior.Cascade
-                            || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
+                    if (fk.DeleteBehavior is DeleteBehavior.Cascade or DeleteBehavior.ClientCascade
                         && doCascadeDelete)
                     {
                         var cascadeState = principalIsDetached

@@ -233,8 +233,6 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static bool IsBusy(int rc)
-            => rc == SQLITE_LOCKED
-                || rc == SQLITE_BUSY
-                || rc == SQLITE_LOCKED_SHAREDCACHE;
+            => rc is SQLITE_LOCKED or SQLITE_BUSY or SQLITE_LOCKED_SHAREDCACHE;
     }
 }

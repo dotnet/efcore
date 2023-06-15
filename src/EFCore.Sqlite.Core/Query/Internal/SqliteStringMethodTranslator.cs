@@ -389,7 +389,7 @@ public class SqliteStringMethodTranslator : IMethodCallTranslator
 
     // See https://www.sqlite.org/lang_expr.html
     private static bool IsLikeWildChar(char c)
-        => c == '%' || c == '_';
+        => c is '%' or '_';
 
     private static string EscapeLikePattern(string pattern)
     {

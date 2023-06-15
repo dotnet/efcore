@@ -335,7 +335,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
             right = rightOperand!;
         }
 
-        if ((binaryExpression.NodeType == ExpressionType.Equal || binaryExpression.NodeType == ExpressionType.NotEqual)
+        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             && (left.IsNullConstantExpression() || right.IsNullConstantExpression()))
         {
             var nonNullExpression = left.IsNullConstantExpression() ? right : left;
@@ -398,8 +398,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         var visitedLeft = Visit(left);
         var visitedRight = Visit(right);
 
-        if ((binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             // Visited expression could be null, We need to pass MemberInitExpression
             && TryRewriteEntityEquality(
                 binaryExpression.NodeType,
@@ -577,9 +576,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
         static bool TryUnwrapConvertToObject(Expression expression, out Expression? operand)
         {
-            if (expression is UnaryExpression convertExpression
-                && (convertExpression.NodeType == ExpressionType.Convert
-                    || convertExpression.NodeType == ExpressionType.ConvertChecked)
+            if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } convertExpression
                 && expression.Type == typeof(object))
             {
                 operand = convertExpression.Operand;
@@ -1529,9 +1526,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression)
         {
             var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
             if (innerType.IsEnum)
@@ -1557,8 +1552,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
     }
 
     private static Expression RemoveObjectConvert(Expression expression)
-        => expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
             && unaryExpression.Type == typeof(object)
                 ? unaryExpression.Operand
                 : expression;
@@ -1885,7 +1879,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         };
 
     private static bool IsNullSqlConstantExpression(Expression expression)
-        => expression is SqlConstantExpression { Value: null } sqlConstant;
+        => expression is SqlConstantExpression { Value: null };
 
     [DebuggerStepThrough]
     private static bool TranslationFailed(Expression? original, Expression? translation, out SqlExpression? castTranslation)

@@ -2002,7 +2002,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 if (expression is MemberExpression
                     {
                         Expression: RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
-                    } memberExpression
+                    }
                     && JsonQueryExpressionIsRootedIn(memberJqe, baselineJsonQuery))
                 {
                     return true;

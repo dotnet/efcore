@@ -185,9 +185,7 @@ namespace Microsoft.Data.Sqlite
                     return "TEXT";
 
                 default:
-                    Debug.Assert(
-                        sqliteType == SQLITE_BLOB || sqliteType == SQLITE_NULL,
-                        "Unexpected column type: " + sqliteType);
+                    Debug.Assert(sqliteType is SQLITE_BLOB or SQLITE_NULL, "Unexpected column type: " + sqliteType);
                     return "BLOB";
             }
         }
@@ -228,9 +226,7 @@ namespace Microsoft.Data.Sqlite
                     return typeof(string);
 
                 default:
-                    Debug.Assert(
-                        sqliteType == SQLITE_BLOB || sqliteType == SQLITE_NULL,
-                        "Unexpected column type: " + sqliteType);
+                    Debug.Assert(sqliteType is SQLITE_BLOB or SQLITE_NULL, "Unexpected column type: " + sqliteType);
                     return typeof(byte[]);
             }
         }
@@ -252,7 +248,7 @@ namespace Microsoft.Data.Sqlite
                     return typeof(string);
 
                 default:
-                    Debug.Assert(type == "blob" || type == null, "Unexpected column type: " + type);
+                    Debug.Assert(type is "blob" or null, "Unexpected column type: " + type);
                     return typeof(byte[]);
             }
         }

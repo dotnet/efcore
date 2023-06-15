@@ -24,7 +24,6 @@ public sealed class InterpolatedStringUsageInRawQueriesCodeFixProvider : CodeFix
     public override async Task RegisterCodeFixesAsync(CodeFixContext context)
     {
         var document = context.Document;
-        var span = context.Span;
         var cancellationToken = context.CancellationToken;
 
         // We report only 1 diagnostic per span, so this is ok

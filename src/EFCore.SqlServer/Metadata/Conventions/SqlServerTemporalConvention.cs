@@ -85,8 +85,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
             }
         }
 
-        if (name == SqlServerAnnotationNames.TemporalPeriodStartPropertyName
-            || name == SqlServerAnnotationNames.TemporalPeriodEndPropertyName)
+        if (name is SqlServerAnnotationNames.TemporalPeriodStartPropertyName or SqlServerAnnotationNames.TemporalPeriodEndPropertyName)
         {
             if (oldAnnotation?.Value is string oldPeriodPropertyName)
             {

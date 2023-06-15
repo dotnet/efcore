@@ -178,8 +178,7 @@ public static class EntityTypeExtensions
     {
         var changeTrackingStrategy = entityType.GetChangeTrackingStrategy();
 
-        return changeTrackingStrategy == ChangeTrackingStrategy.Snapshot
-            || changeTrackingStrategy == ChangeTrackingStrategy.ChangedNotifications;
+        return changeTrackingStrategy is ChangeTrackingStrategy.Snapshot or ChangeTrackingStrategy.ChangedNotifications;
     }
 
     /// <summary>

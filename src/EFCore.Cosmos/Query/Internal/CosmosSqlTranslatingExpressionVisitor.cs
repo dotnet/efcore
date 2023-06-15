@@ -187,8 +187,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         var visitedLeft = Visit(left);
         var visitedRight = Visit(right);
 
-        if ((binaryExpression.NodeType == ExpressionType.Equal
-                || binaryExpression.NodeType == ExpressionType.NotEqual)
+        if (binaryExpression.NodeType is ExpressionType.Equal or ExpressionType.NotEqual
             // Visited expression could be null, We need to pass MemberInitExpression
             && TryRewriteEntityEquality(
                 binaryExpression.NodeType, visitedLeft ?? left, visitedRight ?? right, equalsMethod: false, out var result))
@@ -279,21 +278,23 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         static bool IsTypeConstant(Expression expression, out Type type)
         {
             type = null;
-            if (expression is not UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
-                || unaryExpression.Operand is not ConstantExpression constantExpression)
+
+            if (expression is UnaryExpression
+                {
+                    NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked,
+                    Operand: ConstantExpression { Value: Type t }
+                })
             {
-                return false;
+                type = t;
+                return type != null;
             }
 
-            type = constantExpression.Value as Type;
-            return type != null;
+            return false;
         }
 
         static bool TryUnwrapConvertToObject(Expression expression, out Expression operand)
         {
-            if (expression is UnaryExpression convertExpression
-                && (convertExpression.NodeType == ExpressionType.Convert
-                    || convertExpression.NodeType == ExpressionType.ConvertChecked)
+            if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } convertExpression
                 && expression.Type == typeof(object))
             {
                 operand = convertExpression.Operand;
@@ -615,8 +616,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         }
 
         static Expression RemoveObjectConvert(Expression expression)
-            => expression is UnaryExpression unaryExpression
-                && (unaryExpression.NodeType == ExpressionType.Convert || unaryExpression.NodeType == ExpressionType.ConvertChecked)
+            => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
                 && unaryExpression.Type == typeof(object)
                     ? unaryExpression.Operand
                     : expression;
@@ -672,9 +672,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
         var operand = Visit(unaryExpression.Operand);
 
         if (operand is EntityReferenceExpression entityReferenceExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked
-                || unaryExpression.NodeType == ExpressionType.TypeAs))
+            && unaryExpression.NodeType is ExpressionType.Convert or ExpressionType.ConvertChecked or ExpressionType.TypeAs)
         {
             return entityReferenceExpression.Convert(unaryExpression.Type);
         }
@@ -779,9 +777,7 @@ public class CosmosSqlTranslatingExpressionVisitor : ExpressionVisitor
 
     private static Expression TryRemoveImplicitConvert(Expression expression)
     {
-        if (expression is UnaryExpression unaryExpression
-            && (unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked))
+        if (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression)
         {
             var innerType = unaryExpression.Operand.Type.UnwrapNullableType();
             if (innerType.IsEnum)

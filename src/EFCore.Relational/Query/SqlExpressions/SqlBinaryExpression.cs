@@ -139,7 +139,7 @@ public class SqlBinaryExpression : SqlExpression
         }
 
         static bool RequiresBrackets(SqlExpression expression)
-            => expression is SqlBinaryExpression || expression is LikeExpression;
+            => expression is SqlBinaryExpression or LikeExpression;
     }
 
     /// <inheritdoc />

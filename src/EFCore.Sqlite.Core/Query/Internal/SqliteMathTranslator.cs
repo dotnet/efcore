@@ -84,7 +84,7 @@ public class SqliteMathTranslator : IMethodCallTranslator
         {
             RelationalTypeMapping? typeMapping;
             List<SqlExpression>? newArguments = null;
-            if (sqlFunctionName == "max" || sqlFunctionName == "min")
+            if (sqlFunctionName is "max" or "min")
             {
                 typeMapping = ExpressionExtensions.InferTypeMapping(arguments[0], arguments[1]);
                 newArguments = new List<SqlExpression>

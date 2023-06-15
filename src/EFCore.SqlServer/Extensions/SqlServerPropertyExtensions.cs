@@ -811,8 +811,7 @@ public static class SqlServerPropertyExtensions
     {
         var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
 
-        if ((modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-                || modelStrategy == SqlServerValueGenerationStrategy.Sequence)
+        if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property))
         {
             return modelStrategy.Value;
@@ -831,8 +830,7 @@ public static class SqlServerPropertyExtensions
     {
         var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
 
-        if ((modelStrategy == SqlServerValueGenerationStrategy.SequenceHiLo
-                || modelStrategy == SqlServerValueGenerationStrategy.Sequence)
+        if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
         {
             return modelStrategy.Value;
@@ -950,8 +948,7 @@ public static class SqlServerPropertyExtensions
                     property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
         }
 
-        if ((value == SqlServerValueGenerationStrategy.SequenceHiLo
-                || value == SqlServerValueGenerationStrategy.Sequence)
+        if (value is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && !IsCompatibleWithValueGeneration(property))
         {
             throw new ArgumentException(

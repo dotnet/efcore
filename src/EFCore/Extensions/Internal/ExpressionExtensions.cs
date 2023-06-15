@@ -171,8 +171,7 @@ public static class ExpressionExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsLogicalOperation(this Expression expression)
-        => expression.NodeType == ExpressionType.AndAlso
-            || expression.NodeType == ExpressionType.OrElse;
+        => expression.NodeType is ExpressionType.AndAlso or ExpressionType.OrElse;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -200,16 +199,9 @@ public static class ExpressionExtensions
 
     [return: NotNullIfNotNull("expression")]
     private static Expression? RemoveConvert(Expression? expression)
-    {
-        if (expression is UnaryExpression unaryExpression
-            && (expression.NodeType == ExpressionType.Convert
-                || expression.NodeType == ExpressionType.ConvertChecked))
-        {
-            return RemoveConvert(unaryExpression.Operand);
-        }
-
-        return expression;
-    }
+        => expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
+            ? RemoveConvert(unaryExpression.Operand)
+            : expression;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

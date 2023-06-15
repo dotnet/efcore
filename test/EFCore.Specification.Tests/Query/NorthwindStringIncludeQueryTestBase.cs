@@ -223,26 +223,15 @@ public abstract class NorthwindStringIncludeQueryTestBase<TFixture> : NorthwindI
         }
 
         private static string GetPath(Expression expression)
-        {
-            switch (expression)
+            => expression switch
             {
-                case MemberExpression memberExpression:
-                    if (memberExpression.Expression is ParameterExpression)
-                    {
-                        return memberExpression.Member.Name;
-                    }
-
-                    return $"{GetPath(memberExpression.Expression)}.{memberExpression.Member.Name}";
-
-                case UnaryExpression unaryExpression
-                    when unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.Convert
-                    || unaryExpression.NodeType == ExpressionType.TypeAs:
-                    return GetPath(unaryExpression.Operand);
-
-                default:
-                    throw new NotImplementedException("Unhandled expression tree in Include lambda");
-            }
-        }
+                MemberExpression { Expression: ParameterExpression } memberExpression
+                    => memberExpression.Member.Name,
+                MemberExpression memberExpression
+                    => $"{GetPath(memberExpression.Expression)}.{memberExpression.Member.Name}",
+                UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.Convert or ExpressionType.TypeAs } unaryExpression
+                    => GetPath(unaryExpression.Operand),
+                _ => throw new NotImplementedException("Unhandled expression tree in Include lambda")
+            };
     }
 }

@@ -92,9 +92,7 @@ public class CosmosProjectionBindingExpressionVisitor : ExpressionVisitor
             return null;
         }
 
-        if (expression is NewExpression
-            || expression is MemberInitExpression
-            || expression is EntityShaperExpression)
+        if (expression is NewExpression or MemberInitExpression or EntityShaperExpression)
         {
             return base.Visit(expression);
         }

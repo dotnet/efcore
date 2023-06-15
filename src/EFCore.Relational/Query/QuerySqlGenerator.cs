@@ -1072,7 +1072,7 @@ public class QuerySqlGenerator : SqlExpressionVisitor
             if (selectExpression.Limit == null
                 && selectExpression.Offset == null)
             {
-                orderings.RemoveAll(oe => oe.Expression is SqlConstantExpression || oe.Expression is SqlParameterExpression);
+                orderings.RemoveAll(oe => oe.Expression is SqlConstantExpression or SqlParameterExpression);
             }
 
             if (orderings.Count > 0)

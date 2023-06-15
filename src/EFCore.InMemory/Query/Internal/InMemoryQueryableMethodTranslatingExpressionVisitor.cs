@@ -441,7 +441,7 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
 
                 return memberInitExpression.Update(updatedNewExpression, newBindings);
 
-            case EntityShaperExpression { ValueBufferExpression: ProjectionBindingExpression projectionBindingExpression } entityShaperExpression:
+            case EntityShaperExpression { ValueBufferExpression: ProjectionBindingExpression } entityShaperExpression:
                 return entityShaperExpression;
 
             default:
@@ -1174,11 +1174,9 @@ public class InMemoryQueryableMethodTranslatingExpressionVisitor : QueryableMeth
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression
-                || extensionExpression is ShapedQueryExpression
-                || extensionExpression is GroupByShaperExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+            => extensionExpression is EntityShaperExpression or ShapedQueryExpression or GroupByShaperExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
 
         private Expression? TryExpand(Expression? source, MemberIdentity member)
         {

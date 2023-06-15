@@ -235,9 +235,10 @@ public class CosmosStringMethodTranslator : IMethodCallTranslator
         {
             var comparisonTypeArgument = arguments[^1];
 
-            if (comparisonTypeArgument is SqlConstantExpression { Value: StringComparison comparisonTypeArgumentValue }
-                && (comparisonTypeArgumentValue == StringComparison.OrdinalIgnoreCase
-                    || comparisonTypeArgumentValue == StringComparison.Ordinal))
+            if (comparisonTypeArgument is SqlConstantExpression
+                {
+                    Value: StringComparison comparisonTypeArgumentValue and (StringComparison.OrdinalIgnoreCase or StringComparison.Ordinal)
+                })
             {
                 return StringComparisonWithComparisonTypeArgumentInstance.Equals(method)
                     ? comparisonTypeArgumentValue == StringComparison.OrdinalIgnoreCase

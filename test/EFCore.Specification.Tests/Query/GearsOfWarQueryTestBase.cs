@@ -2614,7 +2614,7 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
         => weapons.OrderBy(w => w.Id).FirstOrDefault();
 
     private static IEnumerable<Gear> Veterans(IEnumerable<Gear> gears)
-        => gears.Where(g => g.Nickname == "Marcus" || g.Nickname == "Dom" || g.Nickname == "Cole Train" || g.Nickname == "Baird");
+        => gears.Where(g => g.Nickname is "Marcus" or "Dom" or "Cole Train" or "Baird");
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

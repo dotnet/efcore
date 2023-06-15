@@ -306,8 +306,7 @@ public class QueryableMethodNormalizingExpressionVisitor : ExpressionVisitor
         var enumerableMethod = methodCallExpression.Method;
         var enumerableParameters = enumerableMethod.GetParameters();
         var genericTypeArguments = Array.Empty<Type>();
-        if (enumerableMethod.Name == nameof(Enumerable.Min)
-            || enumerableMethod.Name == nameof(Enumerable.Max))
+        if (enumerableMethod.Name is nameof(Enumerable.Min) or nameof(Enumerable.Max))
         {
             genericTypeArguments = new Type[methodCallExpression.Arguments.Count];
 
