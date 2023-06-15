@@ -10,7 +10,7 @@ public class SqlQuerySqlServerTest : SqlQueryTestBase<NorthwindQuerySqlServerFix
     public SqlQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task SqlQueryRaw_queryable_simple(bool async)

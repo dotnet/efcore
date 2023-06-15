@@ -9,7 +9,7 @@ public class FunkyDataQuerySqlServerTest : FunkyDataQueryTestBase<FunkyDataQuery
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected virtual bool CanExecuteQueryString

@@ -13,7 +13,6 @@ namespace Microsoft.EntityFrameworkCore.Query
                 new[] { typeof(DbFunctions), typeof(DateTimeOffset), typeof(string) })!;
 
         public OperatorsProceduralSqlServerTest(ITestOutputHelper testOutputHelper)
-            : base(testOutputHelper)
         {
             Binaries.AddRange(new List<((Type Left, Type Right) InputTypes, Type ResultType, Func<Expression, Expression, Expression> OperatorCreator)>
             {

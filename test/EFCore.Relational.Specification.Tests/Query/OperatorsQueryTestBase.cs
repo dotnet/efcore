@@ -9,9 +9,8 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
 {
     protected OperatorsData ExpectedData { get; init; }
 
-    protected OperatorsQueryTestBase(ITestOutputHelper testOutputHelper)
+    protected OperatorsQueryTestBase()
     {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         ExpectedData = OperatorsData.Instance;
     }
 
@@ -301,4 +300,7 @@ public abstract class OperatorsQueryTestBase : NonSharedModelTestBase
     {
         public string SomeProperty { get; set; } = "";
     }
+
+    protected TestSqlLoggerFactory TestSqlLoggerFactory
+        => (TestSqlLoggerFactory)ListLoggerFactory;
 }

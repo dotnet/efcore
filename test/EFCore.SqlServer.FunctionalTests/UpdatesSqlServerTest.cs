@@ -7,7 +7,6 @@ namespace Microsoft.EntityFrameworkCore;
 
 public class UpdatesSqlServerTest : UpdatesSqlServerTestBase<UpdatesSqlServerTest.UpdatesSqlServerFixture>
 {
-    // ReSharper disable once UnusedParameter.Local
     public UpdatesSqlServerTest(UpdatesSqlServerFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture, testOutputHelper)
     {

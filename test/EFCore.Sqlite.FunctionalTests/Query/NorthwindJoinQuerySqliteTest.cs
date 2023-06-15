@@ -11,7 +11,7 @@ public class NorthwindJoinQuerySqliteTest : NorthwindJoinQueryRelationalTestBase
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task SelectMany_with_client_eval(bool async)

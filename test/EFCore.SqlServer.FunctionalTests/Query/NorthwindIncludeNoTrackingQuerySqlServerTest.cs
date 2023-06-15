@@ -6,7 +6,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class NorthwindIncludeNoTrackingQuerySqlServerTest : NorthwindIncludeNoTrackingQueryTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
-    // ReSharper disable once UnusedParameter.Local
     public NorthwindIncludeNoTrackingQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         : base(fixture)
     {

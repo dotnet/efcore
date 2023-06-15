@@ -10,11 +10,10 @@ namespace Microsoft.EntityFrameworkCore;
 public abstract class UpdatesSqlServerTestBase<TFixture> : UpdatesRelationalTestBase<TFixture>
     where TFixture : UpdatesSqlServerTestBase<TFixture>.UpdatesSqlServerFixtureBase
 {
-    // ReSharper disable once UnusedParameter.Local
     public UpdatesSqlServerTestBase(TFixture fixture, ITestOutputHelper testOutputHelper)
         : base(fixture)
     {
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         Fixture.TestSqlLoggerFactory.Clear();
     }
 

@@ -10,7 +10,7 @@ public class SpatialQuerySqliteTest : SpatialQueryRelationalTestBase<SpatialQuer
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task SimpleSelect(bool async)

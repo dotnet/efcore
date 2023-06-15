@@ -12,7 +12,7 @@ public class NorthwindSelectQuerySqliteTest : NorthwindSelectQueryRelationalTest
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override async Task Select_datetime_year_component(bool async)

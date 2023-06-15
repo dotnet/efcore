@@ -17,7 +17,7 @@ public class EmbeddedDocumentsTest : IClassFixture<EmbeddedDocumentsTest.CosmosF
     public EmbeddedDocumentsTest(CosmosFixture fixture, ITestOutputHelper testOutputHelper)
     {
         Fixture = fixture;
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact(Skip = "Issue #17670")]

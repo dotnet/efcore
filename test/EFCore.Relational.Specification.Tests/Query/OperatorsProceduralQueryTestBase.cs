@@ -23,9 +23,8 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
     protected ExpectedQueryRewritingVisitor ExpectedQueryRewriter { get; init; }
 
-    protected OperatorsProceduralQueryTestBase(ITestOutputHelper testOutputHelper)
+    protected OperatorsProceduralQueryTestBase()
     {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
         Binaries = new()
         {
             ((typeof(string), typeof(string)), typeof(bool), Expression.Equal),

@@ -9,14 +9,12 @@ public class NorthwindFunctionsQuerySqlServerTest : NorthwindFunctionsQueryRelat
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
     public NorthwindFunctionsQuerySqlServerTest(
-#pragma warning disable IDE0060 // Remove unused parameter
         NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture,
         ITestOutputHelper testOutputHelper)
-#pragma warning restore IDE0060 // Remove unused parameter
         : base(fixture)
     {
         ClearLog();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override bool CanExecuteQueryString

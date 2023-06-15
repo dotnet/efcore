@@ -9,7 +9,7 @@ public abstract class EntitySplittingTestBase : NonSharedModelTestBase
 {
     protected EntitySplittingTestBase(ITestOutputHelper testOutputHelper)
     {
-        //TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        // TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

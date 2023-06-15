@@ -14,7 +14,7 @@ public class StoreValueGenerationIdentitySqlServerTest : StoreValueGenerationTes
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     protected override bool ShouldCreateImplicitTransaction(

@@ -11,7 +11,7 @@ public class NorthwindBulkUpdatesSqlServerTest : NorthwindBulkUpdatesTestBase<No
         : base(fixture)
     {
         ClearLog();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

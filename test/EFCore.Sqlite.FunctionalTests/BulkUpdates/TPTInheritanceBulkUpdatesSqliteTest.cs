@@ -11,7 +11,7 @@ public class TPTInheritanceBulkUpdatesSqliteTest : TPTInheritanceBulkUpdatesTest
         : base(fixture)
     {
         ClearLog();
-        // Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     [ConditionalFact]

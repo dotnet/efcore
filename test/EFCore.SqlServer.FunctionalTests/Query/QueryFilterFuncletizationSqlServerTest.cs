@@ -12,7 +12,7 @@ public class QueryFilterFuncletizationSqlServerTest
         : base(fixture)
     {
         Fixture.TestSqlLoggerFactory.Clear();
-        //Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
+        Fixture.TestSqlLoggerFactory.SetTestOutputHelper(testOutputHelper);
     }
 
     public override void DbContext_property_parameter_does_not_clash_with_closure_parameter_name()

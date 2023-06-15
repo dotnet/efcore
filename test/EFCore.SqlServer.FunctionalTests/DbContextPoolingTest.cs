@@ -2177,11 +2177,10 @@ public class DbContextPoolingTest : IClassFixture<NorthwindQuerySqlServerFixture
         }
     }
 
-    private readonly ITestOutputHelper _testOutputHelper = null;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    // ReSharper disable once UnusedParameter.Local
     public DbContextPoolingTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture, ITestOutputHelper testOutputHelper)
     {
-        //_testOutputHelper = testOutputHelper;
+        _testOutputHelper = testOutputHelper;
     }
 }

@@ -6,7 +6,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 public class NorthwindEFPropertyIncludeQuerySqlServerTest : NorthwindEFPropertyIncludeQueryTestBase<
     NorthwindQuerySqlServerFixture<NoopModelCustomizer>>
 {
-    // ReSharper disable once UnusedParameter.Local
     public NorthwindEFPropertyIncludeQuerySqlServerTest(NorthwindQuerySqlServerFixture<NoopModelCustomizer> fixture)
         : base(fixture)
     {
