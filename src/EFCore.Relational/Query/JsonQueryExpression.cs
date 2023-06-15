@@ -212,9 +212,10 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.Append("JsonQueryExpression(");
         expressionPrinter.Visit(JsonColumn);
-        expressionPrinter.Append($""", "{string.Join(".", Path.Select(e => e.ToString()))}")""");
+        expressionPrinter
+            .Append(" Q-> ")
+            .Append(string.Join(".", Path.Select(e => e.ToString())));
     }
 
     /// <inheritdoc />

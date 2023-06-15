@@ -166,16 +166,22 @@ public class ExpressionPrinter : ExpressionVisitor
 
         Visit(expression);
 
-        var queryPlan = PostProcess(_stringBuilder.ToString());
+        return ToString();
+    }
 
-        if (characterLimit is > 0)
+    /// <inheritdoc />
+    public override string ToString()
+    {
+        var printed = PostProcess(_stringBuilder.ToString());
+
+        if (CharacterLimit is > 0)
         {
-            queryPlan = queryPlan.Length > characterLimit
-                ? queryPlan[..characterLimit.Value] + "..."
-                : queryPlan;
+            printed = printed.Length > CharacterLimit
+                ? printed[..CharacterLimit.Value] + "..."
+                : printed;
         }
 
-        return queryPlan;
+        return printed;
     }
 
     /// <summary>
