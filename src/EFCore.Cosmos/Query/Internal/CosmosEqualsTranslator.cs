@@ -58,8 +58,8 @@ public class CosmosEqualsTranslator : IMethodCallTranslator
             && right != null)
         {
             return left.Type.UnwrapNullableType() == right.Type.UnwrapNullableType()
-                || (right.Type == typeof(object) && right is SqlParameterExpression or SqlConstantExpression)
-                || (left.Type == typeof(object) && left is SqlParameterExpression or SqlConstantExpression)
+                || (right.Type == typeof(object) && (right is SqlParameterExpression or SqlConstantExpression))
+                || (left.Type == typeof(object) && (left is SqlParameterExpression or SqlConstantExpression))
                     ? _sqlExpressionFactory.Equal(left, right)
                     : _sqlExpressionFactory.Constant(false);
         }
