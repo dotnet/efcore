@@ -421,34 +421,6 @@ public class EntityEntryTest
     }
 
     [ConditionalFact]
-    public void Throws_when_accessing_navigation_as_property()
-    {
-        using var context = new FreezerContext();
-        var entity = context.Add(new Chunky()).Entity;
-
-        Assert.Equal(
-            CoreStrings.PropertyIsNavigation(
-                "Garcia", entity.GetType().Name,
-                nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property("Garcia").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.PropertyIsNavigation(
-                "Garcia", entity.GetType().Name,
-                nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry((object)entity).Property("Garcia").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.PropertyIsNavigation(
-                "Garcia", entity.GetType().Name,
-                nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property<Cherry>("Garcia").Metadata.Name).Message);
-        Assert.Equal(
-            CoreStrings.PropertyIsNavigation(
-                "Garcia", entity.GetType().Name,
-                nameof(EntityEntry.Property), nameof(EntityEntry.Reference), nameof(EntityEntry.Collection)),
-            Assert.Throws<InvalidOperationException>(() => context.Entry(entity).Property(e => e.Garcia).Metadata.Name).Message);
-    }
-
-    [ConditionalFact]
     public void Can_get_reference_entry_by_name()
     {
         using var context = new FreezerContext();

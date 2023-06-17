@@ -41,7 +41,7 @@ public static class SqlServerPropertyBuilderExtensions
 
         name ??= SqlServerModelExtensions.DefaultHiLoSequenceName;
 
-        var model = property.DeclaringEntityType.Model;
+        var model = property.DeclaringType.Model;
 
         if (model.FindSequence(name, schema) == null)
         {
@@ -107,7 +107,7 @@ public static class SqlServerPropertyBuilderExtensions
 
         return name == null
             ? null
-            : propertyBuilder.Metadata.DeclaringEntityType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
+            : propertyBuilder.Metadata.DeclaringType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
     }
 
     /// <summary>
@@ -220,7 +220,7 @@ public static class SqlServerPropertyBuilderExtensions
 
         return name == null
             ? null
-            : propertyBuilder.Metadata.DeclaringEntityType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
+            : propertyBuilder.Metadata.DeclaringType.Model.Builder.HasSequence(name, schema, fromDataAnnotation);
     }
 
     /// <summary>
@@ -696,7 +696,7 @@ public static class SqlServerPropertyBuilderExtensions
         SqlServerValueGenerationStrategy? valueGenerationStrategy,
         bool fromDataAnnotation = false)
         => (valueGenerationStrategy == null
-                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
+                || SqlServerPrimitivePropertyBaseExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
             && propertyBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
 
@@ -719,7 +719,7 @@ public static class SqlServerPropertyBuilderExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
         => (valueGenerationStrategy == null
-                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
+                || SqlServerPrimitivePropertyBaseExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
             && (propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
                     .CanSetAnnotation(
                         SqlServerAnnotationNames.ValueGenerationStrategy,

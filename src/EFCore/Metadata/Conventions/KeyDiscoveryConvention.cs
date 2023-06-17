@@ -231,7 +231,12 @@ public class KeyDiscoveryConvention :
         IConventionPropertyBuilder propertyBuilder,
         IConventionContext<IConventionPropertyBuilder> context)
     {
-        TryConfigurePrimaryKey(propertyBuilder.Metadata.DeclaringEntityType.Builder);
+        if (propertyBuilder.Metadata.DeclaringType is not IConventionEntityType entityType)
+        {
+            return;
+        }
+
+        TryConfigurePrimaryKey(entityType.Builder);
         if (!propertyBuilder.Metadata.IsInModel)
         {
             context.StopProcessing();

@@ -25,6 +25,45 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     new IConventionModel Metadata { get; }
 
     /// <summary>
+    ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
+    ///     annotation with the specified name already exists with same or lower <see cref="ConfigurationSource" />.
+    /// </summary>
+    /// <param name="name">The name of the annotation to be set.</param>
+    /// <param name="value">The value to be stored in the annotation.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An <see cref="IConventionModelBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    /// </returns>
+    new IConventionModelBuilder? HasAnnotation(string name, object? value, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Sets the annotation stored under the given name. Overwrites the existing annotation if an
+    ///     annotation with the specified name already exists with same or lower <see cref="ConfigurationSource" />.
+    ///     Removes the annotation if <see langword="null" /> value is specified.
+    /// </summary>
+    /// <param name="name">The name of the annotation to be set.</param>
+    /// <param name="value">The value to be stored in the annotation. <see langword="null" /> to remove the annotations.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An <see cref="IConventionModelBuilder" /> to continue configuration if the annotation was set or removed,
+    ///     <see langword="null" /> otherwise.
+    /// </returns>
+    new IConventionModelBuilder? HasNonNullAnnotation(
+        string name,
+        object? value,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Removes the annotation with the given name from this object.
+    /// </summary>
+    /// <param name="name">The name of the annotation to remove.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns>
+    ///     An <see cref="IConventionModelBuilder" /> to continue configuration if the annotation was set, <see langword="null" /> otherwise.
+    /// </returns>
+    new IConventionModelBuilder? HasNoAnnotation(string name, bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Returns an object that can be used to configure a given entity type in the model.
     ///     If an entity type with the provided name is not already part of the model,
     ///     a new shadow entity type will be added to the model.
@@ -183,6 +222,38 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     IConventionModelBuilder? Ignore(string typeName, bool fromDataAnnotation = false);
 
     /// <summary>
+    ///     Returns a value indicating whether the given entity type can be added to the model.
+    /// </summary>
+    /// <param name="name">The name of the entity type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the entity type can be added.</returns>
+    bool CanHaveEntity(
+        string name,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given entity type can be added to the model.
+    /// </summary>
+    /// <param name="type">The type of the entity type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the entity type can be added.</returns>
+    bool CanHaveEntity(
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given entity type can be added to the model.
+    /// </summary>
+    /// <param name="name">The name of the entity type.</param>
+    /// <param name="type">The type of the entity type.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the entity type can be added.</returns>
+    bool CanHaveSharedTypeEntity(
+        string name,
+        [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type? type,
+        bool fromDataAnnotation = false);
+
+    /// <summary>
     ///     Removes the given entity type from the model.
     /// </summary>
     /// <param name="entityType">The entity type to be removed from the model.</param>
@@ -193,7 +264,15 @@ public interface IConventionModelBuilder : IConventionAnnotatableBuilder
     IConventionModelBuilder? HasNoEntityType(IConventionEntityType entityType, bool fromDataAnnotation = false);
 
     /// <summary>
-    ///     Returns a value indicating whether the given entity type can be ignored from the current configuration source
+    ///     Returns a value indicating whether the entity type can be removed from the model.
+    /// </summary>
+    /// <param name="entityType">The entity type to be removed.</param>
+    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
+    /// <returns><see langword="true" /> if the navigation can be removed from this entity type.</returns>
+    bool CanRemoveEntity(IConventionEntityType entityType, bool fromDataAnnotation = false);
+
+    /// <summary>
+    ///     Returns a value indicating whether the given entity type can be ignored from the current configuration source.
     /// </summary>
     /// <param name="type">The entity type to be removed from the model.</param>
     /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>

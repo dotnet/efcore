@@ -243,7 +243,7 @@ public class InternalPropertyBuilderTest
     [ConditionalFact]
     public void Can_only_override_existing_CustomValueGenerator_factory_explicitly()
     {
-        ValueGenerator factory(IReadOnlyProperty p, IReadOnlyEntityType e)
+        ValueGenerator factory(IReadOnlyProperty p, ITypeBase t)
             => new CustomValueGenerator1();
 
         var metadata = CreateProperty();
@@ -275,7 +275,7 @@ public class InternalPropertyBuilderTest
 
         Assert.Null(
             builder.HasValueGenerator(
-                (Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Convention));
+                (Func<IReadOnlyProperty, ITypeBase, ValueGenerator>)null, ConfigurationSource.Convention));
 
         Assert.IsType<CustomValueGenerator1>(metadata.GetValueGeneratorFactory()(null, null));
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
@@ -283,7 +283,7 @@ public class InternalPropertyBuilderTest
 
         Assert.NotNull(
             builder.HasValueGenerator(
-                (Func<IReadOnlyProperty, IReadOnlyEntityType, ValueGenerator>)null, ConfigurationSource.Explicit));
+                (Func<IReadOnlyProperty, ITypeBase, ValueGenerator>)null, ConfigurationSource.Explicit));
 
         Assert.Null(metadata.GetValueGeneratorFactory());
         Assert.Equal(ValueGenerated.Never, metadata.ValueGenerated);
@@ -352,7 +352,7 @@ public class InternalPropertyBuilderTest
 
     private class CustomValueGeneratorFactory : ValueGeneratorFactory
     {
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => new CustomValueGenerator1();
     }
 

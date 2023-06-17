@@ -21,7 +21,7 @@ public class EntityTypeExtensionsTest
 
         Assert.Equal(
             new IReadOnlyPropertyBase[] { pk.Properties.Single(), fkProp, principalToDependent, dependentToPrincipal },
-            ((IEntityType)entityType).GetPropertiesAndNavigations().ToArray());
+            ((IRuntimeEntityType)entityType).GetSnapshottableMembers().ToArray());
     }
 
     [ConditionalFact]

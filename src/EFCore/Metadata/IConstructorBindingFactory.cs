@@ -59,6 +59,18 @@ public interface IConstructorBindingFactory
         out InstantiationBinding? serviceOnlyBinding);
 
     /// <summary>
+    ///     Create a <see cref="InstantiationBinding" /> for the constructor with most parameters and
+    ///     the constructor with only service property parameters.
+    /// </summary>
+    /// <param name="complexType">The complex type.</param>
+    /// <param name="constructorBinding">The binding for the constructor with most parameters.</param>
+    /// <param name="serviceOnlyBinding">The binding for the constructor with only service property parameters.</param>
+    void GetBindings(
+        IReadOnlyComplexType complexType,
+        out InstantiationBinding constructorBinding,
+        out InstantiationBinding? serviceOnlyBinding);
+
+    /// <summary>
     ///     Attempts to create a <see cref="InstantiationBinding" /> for the given entity type and
     ///     <see cref="ConstructorInfo" />
     /// </summary>

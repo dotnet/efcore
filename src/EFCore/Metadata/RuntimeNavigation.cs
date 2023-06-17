@@ -63,11 +63,15 @@ public class RuntimeNavigation : RuntimePropertyBase, INavigation
     /// <summary>
     ///     Gets the entity type that this navigation property belongs to.
     /// </summary>
-    public override RuntimeEntityType DeclaringEntityType
+    public virtual RuntimeEntityType DeclaringEntityType
     {
         [DebuggerStepThrough]
         get => ((IReadOnlyNavigation)this).IsOnDependent ? ForeignKey.DeclaringEntityType : ForeignKey.PrincipalEntityType;
     }
+
+    /// <inheritdoc />
+    public override RuntimeTypeBase DeclaringType
+        => DeclaringEntityType;
 
     /// <inheritdoc />
     public override object? Sentinel

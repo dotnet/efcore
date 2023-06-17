@@ -433,7 +433,7 @@ public abstract class TestHelpers
             ConventionSet.EntityTypeAddedConventions.Clear();
             ConventionSet.EntityTypeAnnotationChangedConventions.Clear();
             ConventionSet.EntityTypeBaseTypeChangedConventions.Clear();
-            ConventionSet.EntityTypeIgnoredConventions.Clear();
+            ConventionSet.TypeIgnoredConventions.Clear();
             ConventionSet.EntityTypeMemberIgnoredConventions.Clear();
             ConventionSet.EntityTypePrimaryKeyChangedConventions.Clear();
             ConventionSet.EntityTypeRemovedConventions.Clear();

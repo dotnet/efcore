@@ -164,6 +164,7 @@ public class ModelValidator : IModelValidator
 
             clrProperties.ExceptWith(
                 ((IEnumerable<IConventionPropertyBase>)entityType.GetProperties())
+                .Concat(entityType.GetComplexProperties())
                 .Concat(entityType.GetNavigations())
                 .Concat(entityType.GetSkipNavigations())
                 .Concat(entityType.GetServiceProperties()).Select(p => p.Name));
@@ -322,11 +323,11 @@ public class ModelValidator : IModelValidator
                 var property = entityType.FindProperty(ignoredMember);
                 if (property != null)
                 {
-                    if (property.DeclaringEntityType != entityType)
+                    if (property.DeclaringType != entityType)
                     {
                         throw new InvalidOperationException(
                             CoreStrings.InheritedPropertyCannotBeIgnored(
-                                ignoredMember, entityType.DisplayName(), property.DeclaringEntityType.DisplayName()));
+                                ignoredMember, entityType.DisplayName(), property.DeclaringType.DisplayName()));
                     }
 
                     Check.DebugFail("Should never get here...");
@@ -476,7 +477,7 @@ public class ModelValidator : IModelValidator
     }
 
     /// <summary>
-    ///     Validates the mapping/configuration of primary key nullability in the model.
+    ///     Validates that all trackable entity types have a primary key.
     /// </summary>
     /// <param name="model">The model to validate.</param>
     /// <param name="logger">The logger to use.</param>
@@ -898,7 +899,7 @@ public class ModelValidator : IModelValidator
                     throw new InvalidOperationException(
                         CoreStrings.ComparerPropertyMismatch(
                             providerComparer.Type.ShortDisplayName(),
-                            property.DeclaringEntityType.DisplayName(),
+                            property.DeclaringType.DisplayName(),
                             property.Name,
                             actualProviderClrType.ShortDisplayName()));
                 }

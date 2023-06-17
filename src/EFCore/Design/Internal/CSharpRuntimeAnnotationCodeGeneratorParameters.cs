@@ -82,8 +82,8 @@ public sealed record CSharpRuntimeAnnotationCodeGeneratorParameters
     public bool IsRuntime { get; init; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whther nullable reference types are enabled.
+    ///     Gets or sets a value indicating whether nullable reference types are enabled.
     /// </summary>
-    /// <value>A value indicating whther nullable reference types are enabled.</value>
+    /// <value>A value indicating whether nullable reference types are enabled.</value>
     public bool UseNullableReferenceTypes { get; init; }
 }

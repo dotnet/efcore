@@ -30,11 +30,12 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
     private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
     private Dictionary<string, ConfigurationSource>? _ownedTypes;
+    private Dictionary<string, ConfigurationSource>? _complexTypes;
 
     private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
         new()
         {
-            { DefaultPropertyBagType, (ConfigurationSource.Explicit, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)) }
+            { DefaultPropertyBagType, (ConfigurationSource.Explicit, new SortedSet<EntityType>(TypeBaseNameComparer.Instance)) }
         };
 
     private ConventionDispatcher? _conventionDispatcher;
@@ -221,7 +222,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
             }
             else
             {
-                var types = new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance) { entityType };
+                var types = new SortedSet<EntityType>(TypeBaseNameComparer.Instance) { entityType };
                 _sharedTypes.Add(entityType.ClrType, (entityType.GetConfigurationSource(), types));
             }
         }
@@ -329,7 +330,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         var removed = _entityTypes.Remove(entityType.Name);
         Check.DebugAssert(removed, "removed is false");
 
-        entityType.OnTypeRemoved();
+        entityType.SetRemovedFromModel();
 
         return entityType;
     }
@@ -497,16 +498,6 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsShared([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type)
-        => FindIsSharedConfigurationSource(type) != null
-            || Configuration?.GetConfigurationType(type) == TypeConfigurationType.SharedTypeEntityType;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
     public virtual string? AddIgnored(
         Type type,
         ConfigurationSource configurationSource)
@@ -551,7 +542,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
                 ? existingEntityType.ClrType
                 : null;
 
-        return ConventionDispatcher.OnEntityTypeIgnored(Builder, name, type);
+        return ConventionDispatcher.OnTypeIgnored(Builder, name, type);
     }
 
     /// <summary>
@@ -744,6 +735,94 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual ConfigurationSource? FindIsComplexConfigurationSource(Type type)
+    {
+        if (_complexTypes == null)
+        {
+            return null;
+        }
+
+        var currentType = type;
+        while (currentType != null)
+        {
+            if (_complexTypes.TryGetValue(GetDisplayName(currentType), out var configurationSource))
+            {
+                return configurationSource;
+            }
+
+            currentType = currentType.BaseType;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddComplex(Type type, ConfigurationSource configurationSource)
+    {
+        EnsureMutable();
+        var name = GetDisplayName(type);
+        _complexTypes ??= new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+
+        if (_complexTypes.TryGetValue(name, out var oldConfigurationSource))
+        {
+            _complexTypes[name] = configurationSource.Max(oldConfigurationSource);
+            return;
+        }
+
+        _complexTypes.Add(name, configurationSource);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? RemoveComplex(Type type)
+    {
+        EnsureMutable();
+
+        if (_complexTypes == null)
+        {
+            return null;
+        }
+
+        var currentType = type;
+        while (currentType != null)
+        {
+            var name = GetDisplayName(type);
+            if (_complexTypes.Remove(name))
+            {
+                return name;
+            }
+
+            currentType = currentType.BaseType;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool IsShared([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type type)
+        => FindIsSharedConfigurationSource(type) != null
+            || Configuration?.GetConfigurationType(type) == TypeConfigurationType.SharedTypeEntityType;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual ConfigurationSource? FindIsSharedConfigurationSource(Type type)
         => _sharedTypes.TryGetValue(type, out var existingTypes) ? existingTypes.ConfigurationSource : null;
 
@@ -768,7 +847,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         }
         else
         {
-            _sharedTypes.Add(type, (configurationSource, new SortedSet<EntityType>(EntityTypeFullNameComparer.Instance)));
+            _sharedTypes.Add(type, (configurationSource, new SortedSet<EntityType>(TypeBaseNameComparer.Instance)));
         }
     }
 

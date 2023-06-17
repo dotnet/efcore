@@ -44,7 +44,14 @@ internal static class SharedTypeExtensions
         => !type.IsValueType || type.IsNullableValueType();
 
     public static bool IsValidEntityType(this Type type)
-        => type is { IsClass: true, IsArray: false };
+        => type is { IsClass: true, IsArray: false }
+            && type != typeof(string);
+
+    public static bool IsValidComplexType(this Type type)
+        => !type.IsArray
+            && !type.IsInterface
+            && type != typeof(string)
+            && !CommonTypeDictionary.ContainsKey(type);
 
     public static bool IsPropertyBagType([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] this Type type)
     {

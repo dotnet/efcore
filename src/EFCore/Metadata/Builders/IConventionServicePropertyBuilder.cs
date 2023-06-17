@@ -15,47 +15,12 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public interface IConventionServicePropertyBuilder : IConventionPropertyBaseBuilder
+public interface IConventionServicePropertyBuilder : IConventionPropertyBaseBuilder<IConventionServicePropertyBuilder>
 {
     /// <summary>
     ///     Gets the service property being configured.
     /// </summary>
     new IConventionServiceProperty Metadata { get; }
-
-    /// <summary>
-    ///     Sets the backing field to use for this property.
-    /// </summary>
-    /// <param name="fieldName">The field name.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    new IConventionServicePropertyBuilder? HasField(string? fieldName, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Sets the backing field to use for this property.
-    /// </summary>
-    /// <param name="fieldInfo">The field.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    new IConventionServicePropertyBuilder? HasField(FieldInfo? fieldInfo, bool fromDataAnnotation = false);
-
-    /// <summary>
-    ///     Sets the <see cref="PropertyAccessMode" /> to use for this property.
-    /// </summary>
-    /// <param name="propertyAccessMode">The <see cref="PropertyAccessMode" /> to use for this property.</param>
-    /// <param name="fromDataAnnotation">Indicates whether the configuration was specified using a data annotation.</param>
-    /// <returns>
-    ///     The same builder instance if the configuration was applied,
-    ///     <see langword="null" /> otherwise.
-    /// </returns>
-    new IConventionServicePropertyBuilder? UsePropertyAccessMode(
-        PropertyAccessMode? propertyAccessMode,
-        bool fromDataAnnotation = false);
 
     /// <summary>
     ///     Sets the <see cref="ServiceParameterBinding" /> for this property.

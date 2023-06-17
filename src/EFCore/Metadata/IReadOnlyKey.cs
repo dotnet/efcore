@@ -66,7 +66,7 @@ public interface IReadOnlyKey : IReadOnlyAnnotatable
         builder.AppendJoin(
             ", ", Properties.Select(
                 p => singleLine
-                    ? p.DeclaringEntityType.DisplayName(omitSharedType: true) + "." + p.Name
+                    ? p.DeclaringType.DisplayName(omitSharedType: true) + "." + p.Name
                     : p.Name));
 
         if (IsPrimaryKey())

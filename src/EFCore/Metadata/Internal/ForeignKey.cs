@@ -1025,7 +1025,7 @@ public class ForeignKey : ConventionAnnotatable, IMutableForeignKey, IConvention
             }
 
             var actualProperty = declaringEntityType.FindProperty(property.Name);
-            if (actualProperty?.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType) != true
+            if (actualProperty?.DeclaringType.IsAssignableFrom(property.DeclaringType) != true
                 || !property.IsInModel)
             {
                 throw new InvalidOperationException(

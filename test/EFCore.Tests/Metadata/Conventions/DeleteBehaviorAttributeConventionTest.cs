@@ -89,7 +89,8 @@ public class DeleteBehaviorAttributeConventionTest
         var modelBuilder = CreateModelBuilder();
 
         Assert.Equal(
-            CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty,
+            CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty(
+                nameof(Post_On_FK_Property), nameof(Post_On_FK_Property.Blog_On_FK_PropertyId)),
             Assert.Throws<InvalidOperationException>(
                 () => modelBuilder.Entity<Post_On_FK_Property>()
                     .Property(e => e.Blog_On_FK_PropertyId)).Message
@@ -102,7 +103,8 @@ public class DeleteBehaviorAttributeConventionTest
         var modelBuilder = CreateModelBuilder();
 
         Assert.Equal(
-            CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty,
+            CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty(
+                nameof(Post_On_Property), nameof(Post_On_Property.Id)),
             Assert.Throws<InvalidOperationException>(
                 () => modelBuilder.Entity<Post_On_Property>()
                     .Property(e => e.Blog_On_PropertyId)).Message
@@ -118,8 +120,9 @@ public class DeleteBehaviorAttributeConventionTest
             .Property(e => e.Blog_On_PrincipalId);
 
         Assert.Equal(
-            CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message
+            CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty(
+                nameof(Blog_On_Principal), nameof(Blog_On_Principal.Posts)),
+            Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message
         );
     }
 
@@ -132,8 +135,9 @@ public class DeleteBehaviorAttributeConventionTest
             .Property(e => e.Blog_On_PrincipalId);
 
         Assert.Equal(
-            CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty,
-            Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message
+            CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty(
+                nameof(Blog_On_Principal_OneToOne), nameof(Blog_On_Principal_OneToOne.Post_On_Principal_OneToOne)),
+            Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message
         );
     }
 

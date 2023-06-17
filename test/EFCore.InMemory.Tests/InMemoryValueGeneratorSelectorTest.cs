@@ -69,7 +69,7 @@ public class InMemoryValueGeneratorSelectorTest
 
         var selector = InMemoryTestHelpers.Instance.CreateContextServices(model).GetRequiredService<IValueGeneratorSelector>();
 
-        return selector.Select(property, property.DeclaringEntityType).Next(null);
+        return selector.Select(property, property.DeclaringType).Next(null);
     }
 
     [ConditionalFact]

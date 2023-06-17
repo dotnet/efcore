@@ -45,24 +45,24 @@ public class ValueGeneratorCache : IValueGeneratorCache
 
     private readonly struct CacheKey : IEquatable<CacheKey>
     {
-        public CacheKey(IProperty property, IEntityType entityType)
+        public CacheKey(IProperty property, ITypeBase typeBase)
         {
             Property = property;
-            EntityType = entityType;
+            TypeBase = typeBase;
         }
 
         public IProperty Property { get; }
 
-        public IEntityType EntityType { get; }
+        public ITypeBase TypeBase { get; }
 
         public bool Equals(CacheKey other)
-            => Property.Equals(other.Property) && EntityType.Equals(other.EntityType);
+            => Property.Equals(other.Property) && TypeBase.Equals(other.TypeBase);
 
         public override bool Equals(object? obj)
             => obj is CacheKey cacheKey && Equals(cacheKey);
 
         public override int GetHashCode()
-            => HashCode.Combine(Property, EntityType);
+            => HashCode.Combine(Property, TypeBase);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class ValueGeneratorCache : IValueGeneratorCache
     ///     the cache.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
+    /// <param name="typeBase">
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
@@ -78,7 +78,7 @@ public class ValueGeneratorCache : IValueGeneratorCache
     /// <returns>The existing or newly created value generator.</returns>
     public virtual ValueGenerator GetOrAdd(
         IProperty property,
-        IEntityType entityType,
-        Func<IProperty, IEntityType, ValueGenerator> factory)
-        => _cache.GetOrAdd(new CacheKey(property, entityType), static (ck, f) => f(ck.Property, ck.EntityType), factory);
+        ITypeBase typeBase,
+        Func<IProperty, ITypeBase, ValueGenerator> factory)
+        => _cache.GetOrAdd(new CacheKey(property, typeBase), static (ck, f) => f(ck.Property, ck.TypeBase), factory);
 }

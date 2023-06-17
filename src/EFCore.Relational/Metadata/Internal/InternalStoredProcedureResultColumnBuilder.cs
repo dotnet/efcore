@@ -67,6 +67,24 @@ public class InternalStoredProcedureResultColumnBuilder :
 
     /// <inheritdoc />
     [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionStoredProcedureResultColumnBuilder?)base.HasAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionStoredProcedureResultColumnBuilder?)base.HasNonNullAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
+        => (IConventionStoredProcedureResultColumnBuilder?)base.HasNoAnnotation(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
     IConventionStoredProcedureResultColumnBuilder? IConventionStoredProcedureResultColumnBuilder.HasName(
         string name,
         bool fromDataAnnotation)

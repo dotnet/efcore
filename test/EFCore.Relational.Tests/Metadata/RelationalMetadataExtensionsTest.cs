@@ -291,7 +291,7 @@ public class RelationalMetadataExtensionsTest
 
         Assert.Equal(
             RelationalStrings.IncorrectDefaultValueType(
-                guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()),
+                guid, typeof(Guid), property.Name, property.ClrType, property.DeclaringType.DisplayName()),
             Assert.Throws<InvalidOperationException>(() => property.SetDefaultValue(guid)).Message);
     }
 

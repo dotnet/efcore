@@ -185,7 +185,7 @@ public class Navigation : PropertyBase, IMutableNavigation, IConventionNavigatio
     /// </summary>
     public override PropertyAccessMode GetPropertyAccessMode()
         => (PropertyAccessMode)(this[CoreAnnotationNames.PropertyAccessMode]
-            ?? ((IReadOnlyTypeBase)DeclaringType).GetNavigationAccessMode());
+            ?? DeclaringEntityType.GetNavigationAccessMode());
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

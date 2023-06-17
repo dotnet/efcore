@@ -23,8 +23,10 @@ public class CoreEventIdTest : EventIdTestBase
         var foreignKey = new ForeignKey(new[] { property }, otherKey, entityType, otherEntityType, ConfigurationSource.Convention);
         var navigation = new Navigation("N", propertyInfo, null, foreignKey);
         var skipNavigation = new SkipNavigation(
-            "SN", propertyInfo, null, entityType, otherEntityType, true, false, ConfigurationSource.Convention);
+            "SN", null, propertyInfo, null, entityType, otherEntityType, true, false, ConfigurationSource.Convention);
         var navigationBase = new FakeNavigationBase("FNB", ConfigurationSource.Convention, entityType);
+        var complexProperty = entityType.AddComplexProperty(
+            "C", typeof(object), typeof(object), false, ConfigurationSource.Convention);
 
         entityType.Model.FinalizeModel();
         var options = new DbContextOptionsBuilder()
@@ -44,11 +46,13 @@ public class CoreEventIdTest : EventIdTestBase
             { typeof(IConventionEntityType), () => entityType },
             { typeof(IKey), () => new Key(new[] { property }, ConfigurationSource.Convention) },
             { typeof(IPropertyBase), () => property },
+            { typeof(IProperty), () => property },
             { typeof(IReadOnlyProperty), () => property },
+            { typeof(IComplexProperty), () => complexProperty },
             { typeof(IServiceProvider), () => new FakeServiceProvider() },
             { typeof(ICollection<IServiceProvider>), () => new List<IServiceProvider>() },
             { typeof(IReadOnlyList<IPropertyBase>), () => new[] { property } },
-            { typeof(IReadOnlyList<IUpdateEntry>), () => Array.Empty<IUpdateEntry>() },
+            { typeof(IReadOnlyList<IUpdateEntry>), Array.Empty<IUpdateEntry> },
             {
                 typeof(Func<DbContext, DbUpdateConcurrencyException, IReadOnlyList<IUpdateEntry>, EventDefinition<Exception>,
                     ConcurrencyExceptionEventData>),
@@ -58,7 +62,6 @@ public class CoreEventIdTest : EventIdTestBase
             { typeof(IEnumerable<Tuple<MemberInfo, Type>>), () => new[] { new Tuple<MemberInfo, Type>(propertyInfo, typeof(object)) } },
             { typeof(MemberInfo), () => propertyInfo },
             { typeof(IReadOnlyList<Exception>), () => new[] { new Exception() } },
-            { typeof(IProperty), () => property },
             { typeof(INavigation), () => navigation },
             { typeof(IReadOnlyNavigation), () => navigation },
             { typeof(ISkipNavigation), () => skipNavigation },

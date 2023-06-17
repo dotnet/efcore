@@ -1760,10 +1760,25 @@ OFFSET 0 LIMIT 1
         using var context = new NonStringDiscriminatorContext(Fixture.CreateOptions());
         context.Database.EnsureCreated();
 
-        await context.AddAsync(new NonStringDiscriminator { Id = 1 });
+        var entry = await context.AddAsync(new NonStringDiscriminator { Id = 1 });
         await context.SaveChangesAsync();
 
-        Assert.NotNull(await context.Set<NonStringDiscriminator>().OrderBy(e => e.Id).FirstOrDefaultAsync());
+        var document = entry.Property<JObject>("__jObject").CurrentValue;
+        Assert.NotNull(document);
+        Assert.Equal("0", document["Discriminator"]);
+
+        Assert.NotNull(await context.Set<NonStringDiscriminator>()
+            .Where(e => e.Discriminator == EntityType.Base).OrderBy(e => e.Id).FirstOrDefaultAsync());
+
+        AssertSql(
+            context,
+"""
+SELECT c
+FROM root c
+WHERE (c["Discriminator"] = 0)
+ORDER BY c["Id"]
+OFFSET 0 LIMIT 1
+""");
     }
 
     private class NonStringDiscriminator

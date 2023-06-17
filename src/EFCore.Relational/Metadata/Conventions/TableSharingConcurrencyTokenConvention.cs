@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
@@ -216,22 +218,24 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
         var propertyMissing = true;
         foreach (var mappedProperty in propertiesMappedToConcurrencyColumn)
         {
-            var declaringEntityType = mappedProperty.DeclaringEntityType;
-            if (declaringEntityType.IsAssignableFrom(entityType)
-                || entityType.IsAssignableFrom(declaringEntityType)
-                || declaringEntityType.IsInOwnershipPath(entityType)
-                || entityType.IsInOwnershipPath(declaringEntityType))
+            var declaringType = mappedProperty.DeclaringType;
+            var declaringEntityType = declaringType as IEntityType;
+            if (declaringType.IsAssignableFrom(entityType)
+                || entityType.IsAssignableFrom(declaringType)
+                || declaringEntityType != null
+                    && (declaringEntityType.IsInOwnershipPath(entityType)
+                        || entityType.IsInOwnershipPath(declaringEntityType)))
             {
                 // The concurrency token is on the base type, derived type or in the same aggregate
                 propertyMissing = false;
                 continue;
             }
 
-            var linkingFks = declaringEntityType.FindForeignKeys(declaringEntityType.FindPrimaryKey()!.Properties)
-                .Where(
-                    fk => fk.PrincipalKey.IsPrimaryKey()
+            var linkingFks = declaringEntityType?.FindForeignKeys(declaringEntityType.FindPrimaryKey()!.Properties)
+                .Where(fk => fk.PrincipalKey.IsPrimaryKey()
                         && mappedTypes.Contains(fk.PrincipalEntityType)).ToList();
-            if (linkingFks.Count > 0
+            if (linkingFks != null
+                && linkingFks.Count > 0
                 && linkingFks.All(fk => fk.PrincipalEntityType != entityType)
                 && linkingFks.Any(
                     fk => fk.PrincipalEntityType.IsAssignableFrom(entityType)
@@ -266,7 +270,7 @@ public class TableSharingConcurrencyTokenConvention : IModelFinalizingConvention
             }
 
             if (!removed
-                && entityType.IsAssignableFrom(property.DeclaringEntityType))
+                && entityType.IsAssignableFrom(property.DeclaringType))
             {
                 entityTypeDictionary.Remove(entityType);
             }

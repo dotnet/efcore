@@ -15,8 +15,8 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
 public class RelationshipDiscoveryConvention :
+    ITypeIgnoredConvention,
     IEntityTypeAddedConvention,
-    IEntityTypeIgnoredConvention,
     IEntityTypeBaseTypeChangedConvention,
     IEntityTypeMemberIgnoredConvention,
     INavigationRemovedConvention,
@@ -1134,12 +1134,13 @@ public class RelationshipDiscoveryConvention :
         => sourceEntityType.Builder.IsIgnored(navigationName) == false
             && sourceEntityType.FindProperty(navigationName) == null
             && sourceEntityType.FindServiceProperty(navigationName) == null
+            && sourceEntityType.FindComplexProperty(navigationName) == null
             && (memberInfo is not PropertyInfo propertyInfo || propertyInfo.GetIndexParameters().Length == 0)
             && (!sourceEntityType.IsKeyless
                 || (memberInfo as PropertyInfo)?.PropertyType.TryGetSequenceType() == null);
 
     /// <inheritdoc />
-    public virtual void ProcessEntityTypeIgnored(
+    public virtual void ProcessTypeIgnored(
         IConventionModelBuilder modelBuilder,
         string name,
         Type? type,

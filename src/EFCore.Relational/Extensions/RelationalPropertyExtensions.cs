@@ -63,13 +63,13 @@ public static class RelationalPropertyExtensions
             if (property.IsPrimaryKey())
             {
                 var tableFound = false;
-                if (property.DeclaringEntityType.FindMappingFragment(storeObject) != null)
+                if (property.DeclaringType.FindMappingFragment(storeObject) != null)
                 {
                     tableFound = true;
                 }
-                else
+                else if(property.DeclaringType is IReadOnlyEntityType declaringEntityType)
                 {
-                    foreach (var containingType in property.DeclaringEntityType.GetDerivedTypesInclusive())
+                    foreach (var containingType in declaringEntityType.GetDerivedTypesInclusive())
                     {
                         if (StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType) == storeObject)
                         {
@@ -84,53 +84,57 @@ public static class RelationalPropertyExtensions
                     return null;
                 }
             }
-            else if (property.DeclaringEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
+            else 
             {
-                var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType);
-                if (declaringStoreObject == null)
+                var declaringEntityType = property.DeclaringType.FundamentalEntityType;
+                if (declaringEntityType.GetMappingStrategy() != RelationalAnnotationNames.TpcMappingStrategy)
                 {
-                    var tableFound = false;
-                    var queue = new Queue<IReadOnlyEntityType>();
-                    queue.Enqueue(property.DeclaringEntityType);
-                    while (queue.Count > 0 && !tableFound)
+                    var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringType, storeObject.StoreObjectType);
+                    if (declaringStoreObject == null)
                     {
-                        foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
+                        var tableFound = false;
+                        var queue = new Queue<IReadOnlyEntityType>();
+                        queue.Enqueue(declaringEntityType);
+                        while (queue.Count > 0 && !tableFound)
                         {
-                            declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
-                            if (declaringStoreObject == null)
+                            foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())
                             {
-                                queue.Enqueue(containingType);
-                                continue;
-                            }
+                                declaringStoreObject = StoreObjectIdentifier.Create(containingType, storeObject.StoreObjectType);
+                                if (declaringStoreObject == null)
+                                {
+                                    queue.Enqueue(containingType);
+                                    continue;
+                                }
 
-                            if (declaringStoreObject == storeObject)
-                            {
-                                tableFound = true;
-                                break;
+                                if (declaringStoreObject == storeObject)
+                                {
+                                    tableFound = true;
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (!tableFound)
-                    {
-                        return null;
-                    }
-                }
-                else
-                {
-                    var fragments = property.DeclaringEntityType.GetMappingFragments(storeObject.StoreObjectType).ToList();
-                    if (fragments.Count > 0)
-                    {
-                        if (overrides == null
-                            && (declaringStoreObject != storeObject
-                                || fragments.Any(f => property.FindOverrides(f.StoreObject) != null)))
+                        if (!tableFound)
                         {
                             return null;
                         }
                     }
-                    else if (declaringStoreObject != storeObject)
+                    else
                     {
-                        return null;
+                        var fragments = property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType).ToList();
+                        if (fragments.Count > 0)
+                        {
+                            if (overrides == null
+                                && (declaringStoreObject != storeObject
+                                    || fragments.Any(f => property.FindOverrides(f.StoreObject) != null)))
+                            {
+                                return null;
+                            }
+                        }
+                        else if (declaringStoreObject != storeObject)
+                        {
+                            return null;
+                        }
                     }
                 }
             }
@@ -181,7 +185,7 @@ public static class RelationalPropertyExtensions
             }
         }
 
-        return Uniquifier.Truncate(name, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        return Uniquifier.Truncate(name, property.DeclaringType.Model.GetMaxIdentifierLength());
     }
 
     /// <summary>
@@ -192,7 +196,7 @@ public static class RelationalPropertyExtensions
     /// <returns>The default column name to which the property would be mapped.</returns>
     public static string? GetDefaultColumnName(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        if (property.DeclaringEntityType.IsMappedToJson())
+        if (property.DeclaringType.IsMappedToJson())
         {
             return null;
         }
@@ -209,30 +213,47 @@ public static class RelationalPropertyExtensions
             return sharedTablePrincipalConcurrencyProperty.GetColumnName(storeObject)!;
         }
 
-        var entityType = property.DeclaringEntityType;
+        
         StringBuilder? builder = null;
         var currentStoreObject = storeObject;
-        while (true)
+        if (property.DeclaringType is IReadOnlyEntityType entityType)
         {
-            var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
-            if (ownership == null)
+            while (true)
             {
-                break;
-            }
+                var ownership = entityType.GetForeignKeys().SingleOrDefault(fk => fk.IsOwnership);
+                if (ownership == null)
+                {
+                    break;
+                }
 
-            var ownerType = ownership.PrincipalEntityType;
-            if (StoreObjectIdentifier.Create(ownerType, currentStoreObject.StoreObjectType) != currentStoreObject
-                && ownerType.GetMappingFragments(storeObject.StoreObjectType)
-                    .All(f => f.StoreObject != currentStoreObject))
-            {
-                break;
-            }
+                var ownerType = ownership.PrincipalEntityType;
+                if (StoreObjectIdentifier.Create(ownerType, currentStoreObject.StoreObjectType) != currentStoreObject
+                    && ownerType.GetMappingFragments(storeObject.StoreObjectType)
+                        .All(f => f.StoreObject != currentStoreObject))
+                {
+                    break;
+                }
 
+                builder ??= new StringBuilder();
+
+                builder.Insert(0, "_");
+                builder.Insert(0, ownership.PrincipalToDependent!.Name);
+                entityType = ownerType;
+            }
+        }
+        else if (StoreObjectIdentifier.Create(property.DeclaringType, currentStoreObject.StoreObjectType) == currentStoreObject
+                    || property.DeclaringType.GetMappingFragments(storeObject.StoreObjectType)
+                        .Any(f => f.StoreObject == currentStoreObject))
+        {
+            var complexType = (IReadOnlyComplexType)property.DeclaringType;
             builder ??= new StringBuilder();
+            while (complexType != null)
+            {
+                builder.Insert(0, "_");
+                builder.Insert(0, complexType.ComplexProperty.Name);
 
-            builder.Insert(0, "_");
-            builder.Insert(0, ownership.PrincipalToDependent!.Name);
-            entityType = ownerType;
+                complexType = complexType.ComplexProperty.DeclaringType as IReadOnlyComplexType;
+            }
         }
 
         var baseName = storeObject.StoreObjectType == StoreObjectType.Table ? property.GetDefaultColumnName() : property.Name;
@@ -244,7 +265,7 @@ public static class RelationalPropertyExtensions
         builder.Append(baseName);
         baseName = builder.ToString();
 
-        return Uniquifier.Truncate(baseName, property.DeclaringEntityType.Model.GetMaxIdentifierLength());
+        return Uniquifier.Truncate(baseName, property.DeclaringType.Model.GetMaxIdentifierLength());
     }
 
     /// <summary>
@@ -960,7 +981,7 @@ public static class RelationalPropertyExtensions
             {
                 throw new InvalidOperationException(
                     RelationalStrings.IncorrectDefaultValueType(
-                        value, valueType, property.Name, property.ClrType, property.DeclaringEntityType.DisplayName()));
+                        value, valueType, property.Name, property.ClrType, property.DeclaringType.DisplayName()));
             }
         }
 
@@ -1123,7 +1144,9 @@ public static class RelationalPropertyExtensions
     /// <returns><see langword="true" /> if the mapped column is nullable; <see langword="false" /> otherwise.</returns>
     public static bool IsColumnNullable(this IReadOnlyProperty property)
         => property.IsNullable
-            || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null);
+            || (property.DeclaringType is IReadOnlyEntityType entityType
+                && entityType.BaseType != null
+                && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy);
 
     /// <summary>
     ///     Checks whether the column mapped to the given property will be nullable
@@ -1151,8 +1174,10 @@ public static class RelationalPropertyExtensions
         }
 
         return property.IsNullable
-            || (property.DeclaringEntityType.BaseType != null && property.DeclaringEntityType.FindDiscriminatorProperty() != null)
-            || IsOptionalSharingDependent(property.DeclaringEntityType, storeObject, 0);
+            || (property.DeclaringType is IReadOnlyEntityType entityType
+                && ((entityType.BaseType != null
+                    && entityType.GetMappingStrategy() == RelationalAnnotationNames.TphMappingStrategy)
+                    || IsOptionalSharingDependent(entityType, storeObject, 0)));
     }
 
     private static bool IsOptionalSharingDependent(
@@ -1403,7 +1428,7 @@ public static class RelationalPropertyExtensions
 
     private static IReadOnlyProperty? FindSharedObjectRootProperty(IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        if (property.DeclaringEntityType.IsMappedToJson())
+        if (property.DeclaringType.IsMappedToJson())
         {
             //JSON-splitting is not supported
             //issue #28574
@@ -1415,7 +1440,7 @@ public static class RelationalPropertyExtensions
         {
             throw new InvalidOperationException(
                 RelationalStrings.PropertyNotMappedToTable(
-                    property.Name, property.DeclaringEntityType.DisplayName(), storeObject.DisplayName()));
+                    property.Name, property.DeclaringType.DisplayName(), storeObject.DisplayName()));
         }
 
         var rootProperty = property;
@@ -1424,8 +1449,14 @@ public static class RelationalPropertyExtensions
         // Using a hashset is detrimental to the perf when there are no cycles
         for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
         {
+            var entityType = rootProperty.DeclaringType as IReadOnlyEntityType;
+            if (entityType == null)
+            {
+                break;
+            }
+
             IReadOnlyProperty? linkedProperty = null;
-            foreach (var p in rootProperty.DeclaringEntityType
+            foreach (var p in entityType
                          .FindRowInternalForeignKeys(storeObject)
                          .SelectMany(fk => fk.PrincipalEntityType.GetProperties()))
             {
@@ -1462,9 +1493,8 @@ public static class RelationalPropertyExtensions
         // Using a hashset is detrimental to the perf when there are no cycles
         for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
         {
-            var linkingRelationship = principalProperty.DeclaringEntityType
-                .FindRowInternalForeignKeys(storeObject).FirstOrDefault();
-
+            var entityType = principalProperty.DeclaringType as IReadOnlyEntityType;
+            var linkingRelationship = entityType?.FindRowInternalForeignKeys(storeObject).FirstOrDefault();
             if (linkingRelationship == null)
             {
                 break;
@@ -1486,12 +1516,13 @@ public static class RelationalPropertyExtensions
         }
 
         var principalProperty = property;
+
         // Limit traversal to avoid getting stuck in a cycle (validation will throw for these later)
         // Using a hashset is detrimental to the perf when there are no cycles
         for (var i = 0; i < Metadata.Internal.RelationalEntityTypeExtensions.MaxEntityTypesSharingTable; i++)
         {
-            var linkingRelationship = principalProperty.DeclaringEntityType
-                .FindRowInternalForeignKeys(storeObject).FirstOrDefault();
+            var entityType = principalProperty.DeclaringType as IReadOnlyEntityType;
+            var linkingRelationship = entityType?.FindRowInternalForeignKeys(storeObject).FirstOrDefault();
             if (linkingRelationship == null)
             {
                 break;
@@ -1728,7 +1759,7 @@ public static class RelationalPropertyExtensions
         this IReadOnlyProperty property,
         StoreObjectType storeObjectType)
     {
-        var declaringType = property.DeclaringEntityType;
+        var declaringType = property.DeclaringType;
         var declaringStoreObject = StoreObjectIdentifier.Create(declaringType, storeObjectType);
         if (declaringStoreObject != null
             && property.GetColumnName(declaringStoreObject.Value) != null)
@@ -1754,13 +1785,16 @@ public static class RelationalPropertyExtensions
             yield break;
         }
 
-        foreach (var derivedType in declaringType.GetDerivedTypes())
+        if (declaringType is IReadOnlyEntityType entityType)
         {
-            var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
-            if (derivedStoreObject != null
-                && property.GetColumnName(derivedStoreObject.Value) != null)
+            foreach (var derivedType in entityType.GetDerivedTypes())
             {
-                yield return derivedStoreObject.Value;
+                var derivedStoreObject = StoreObjectIdentifier.Create(derivedType, storeObjectType);
+                if (derivedStoreObject != null
+                    && property.GetColumnName(derivedStoreObject.Value) != null)
+                {
+                    yield return derivedStoreObject.Value;
+                }
             }
         }
     }
@@ -1939,7 +1973,7 @@ public static class RelationalPropertyExtensions
     /// </returns>
     public static string? GetJsonPropertyName(this IReadOnlyProperty property)
         => (string?)property.FindAnnotation(RelationalAnnotationNames.JsonPropertyName)?.Value
-            ?? (property.IsKey() || !property.DeclaringEntityType.IsMappedToJson() ? null : property.Name);
+            ?? (property.IsKey() || !property.DeclaringType.IsMappedToJson() ? null : property.Name);
 
     /// <summary>
     ///     Sets the value of JSON property name used for the given property of an entity mapped to a JSON column.

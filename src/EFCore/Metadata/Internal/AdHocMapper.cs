@@ -47,15 +47,15 @@ public class AdHocMapper : IAdHocMapper
                 _conventionSet.Remove(typeof(ForeignKeyPropertyDiscoveryConvention));
                 _conventionSet.Remove(typeof(IndexAttributeConvention));
                 _conventionSet.Remove(typeof(KeyAttributeConvention));
-                _conventionSet.Remove(typeof(KeylessEntityTypeAttributeConvention));
+                _conventionSet.Remove(typeof(KeylessAttributeConvention));
                 _conventionSet.Remove(typeof(ManyToManyJoinEntityTypeConvention));
                 _conventionSet.Remove(typeof(RequiredNavigationAttributeConvention));
                 _conventionSet.Remove(typeof(NavigationBackingFieldAttributeConvention));
                 _conventionSet.Remove(typeof(InversePropertyAttributeConvention));
                 _conventionSet.Remove(typeof(NavigationEagerLoadingConvention));
                 _conventionSet.Remove(typeof(NonNullableNavigationConvention));
-                _conventionSet.Remove(typeof(NotMappedEntityTypeAttributeConvention));
-                _conventionSet.Remove(typeof(OwnedEntityTypeAttributeConvention));
+                _conventionSet.Remove(typeof(NotMappedTypeAttributeConvention));
+                _conventionSet.Remove(typeof(OwnedAttributeConvention));
                 _conventionSet.Remove(typeof(QueryFilterRewritingConvention));
                 _conventionSet.Remove(typeof(ServicePropertyDiscoveryConvention));
                 _conventionSet.Remove(typeof(ValueGenerationConvention));

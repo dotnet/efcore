@@ -3,6 +3,7 @@
 
 using System.CodeDom.Compiler;
 using System.Runtime.CompilerServices;
+using System.Xml.Linq;
 
 // ReSharper disable InconsistentNaming
 namespace Microsoft.EntityFrameworkCore;
@@ -70,16 +71,24 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                     if (method.ReturnType == type.BaseType
                         && !Fixture.UnmatchedMetadataMethods.Contains(method))
                     {
-                        var parameters = method.GetParameters()
-                            .Select(p => GetEquivalentGenericType(p.ParameterType, type.GetGenericArguments())).ToArray();
-                        var hidingMethod = type.GetMethod(
-                            method.Name,
-                            method.GetGenericArguments().Length,
-                            PublicInstance | BindingFlags.DeclaredOnly,
-                            null,
-                            parameters,
-                            null);
-                        if (hidingMethod == null || hidingMethod.ReturnType != type)
+                        var methodFound = false;
+                        foreach (var hidingMethod in type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+                        {
+                            if (method.Name != hidingMethod.Name
+                                || hidingMethod.GetGenericArguments().Length != method.GetGenericArguments().Length
+                                || hidingMethod.ReturnType != type
+                                || !hidingMethod.GetParameters().Select(p => p.ParameterType)
+                                    .SequenceEqual(method.GetParameters().Select(
+                                            p => GetEquivalentGenericType(p.ParameterType, hidingMethod.GetGenericArguments()))))
+                            {
+                                continue;
+                            }
+
+                            methodFound = true;
+                            break;
+                        }
+
+                        if (!methodFound)
                         {
                             nonGenericMethods.Add((type.BaseType, method));
                         }
@@ -131,17 +140,34 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             "\r\n-- Non-generic fluent returns that aren't hidden --\r\n"
             + string.Join(
                 Environment.NewLine, nonGenericMethods.Select(
-                    m => $"{m.Method.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}({Format(m.Method.GetParameters())})")));
+                    m => $"{m.Method.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}{FormatGenericArguments(m.Method)}({Format(m.Method.GetParameters())})")));
+    }
+
+    public static string FormatGenericArguments(MethodInfo methodInfo)
+    {
+        var arguments = methodInfo.GetGenericArguments();
+        return arguments.Length == 0 ? "" : $"`{arguments.Length}";
     }
 
     protected Type GetEquivalentGenericType(Type parameterType, Type[] genericArguments)
     {
         if (parameterType.IsGenericType
-            && parameterType.GetGenericTypeDefinition() == typeof(Action<>)
-            && Fixture.GenericFluentApiTypes.TryGetValue(parameterType.GetGenericArguments()[0], out var genericBuilder)
-            && genericBuilder.GetGenericArguments().Length == genericArguments.Length)
+            && parameterType.GetGenericTypeDefinition() == typeof(Action<>))
         {
-            return typeof(Action<>).MakeGenericType(genericBuilder.MakeGenericType(genericArguments));
+            var builder = parameterType.GetGenericArguments()[0];
+            if (Fixture.GenericFluentApiTypes.TryGetValue(builder, out var genericBuilder)
+                && genericBuilder.GetGenericArguments().Length == genericArguments.Length)
+            {
+                return typeof(Action<>).MakeGenericType(genericBuilder.MakeGenericType(genericArguments));
+            }
+            else if (builder.IsGenericType)
+            {
+                var builderDefinition = builder.GetGenericTypeDefinition();
+                if (builderDefinition.GetGenericArguments().Length == genericArguments.Length)
+                {
+                    return typeof(Action<>).MakeGenericType(builderDefinition.MakeGenericType(genericArguments));
+                }
+            }
         }
 
         return parameterType;
@@ -159,7 +185,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             {
                 if (!Fixture.UnmatchedMetadataMethods.Contains(method))
                 {
-                    MethodInfo hidingMethod = null;
+                    MethodInfo matchingMethod = null;
                     foreach (var targetMethod in tuple.Value.GetMethods(PublicInstance | BindingFlags.DeclaredOnly))
                     {
                         if (targetMethod.Name == method.Name
@@ -170,23 +196,23 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                                     new ParameterTypeEqualityComparer(method, targetMethod, this)))
                         {
                             Check.DebugAssert(
-                                hidingMethod == null,
+                                matchingMethod == null,
                                 "There should only be one method with the expected signature. Found: "
                                 + Environment.NewLine
-                                + Format(hidingMethod ?? targetMethod, tuple.Value)
+                                + Format(matchingMethod ?? targetMethod, tuple.Value)
                                 + Environment.NewLine
                                 + Format(targetMethod, tuple.Value));
 
-                            hidingMethod = targetMethod;
+                            matchingMethod = targetMethod;
                         }
                     }
 
-                    if (hidingMethod == null)
+                    if (matchingMethod == null)
                     {
                         unmatchedMethods.Add((tuple.Key, method));
                     }
                     else if (method.ReturnType == tuple.Key
-                             && hidingMethod.ReturnType != tuple.Value)
+                             && matchingMethod.ReturnType != tuple.Value)
                     {
                         wrongReturnMethods.Add((tuple.Value, method));
                     }
@@ -293,11 +319,14 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
         if (conventionBuilderType != null)
         {
-            var builderProperty = conventionType.GetProperty("Builder");
-            if (builderProperty == null
-                || builderProperty.PropertyType != conventionBuilderType)
+            if (!conventionBuilderType.IsGenericType)
             {
-                return $"{conventionType.Name} expected to have a '{conventionBuilderType.Name} Builder' property";
+                var builderProperty = conventionType.GetProperty("Builder");
+                if (builderProperty == null
+                    || builderProperty.PropertyType != conventionBuilderType)
+                {
+                    return $"{conventionType.Name} expected to have a '{conventionBuilderType.Name} Builder' property";
+                }
             }
 
             var metadataProperty = conventionBuilderType.GetProperty("Metadata");
@@ -319,6 +348,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                     typeTuple =>
                         from readonlyMethod in typeTuple.ReadOnly
                         where !Fixture.UnmatchedMetadataMethods.Contains(readonlyMethod)
+                        where typeTuple.Mutable != null
                         join mutableMethod in typeTuple.Mutable
                             on readonlyMethod.Name equals mutableMethod.Name into mutableGroup
                         from mutableMethod in mutableGroup.DefaultIfEmpty()
@@ -527,33 +557,45 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
 
         var declaringType = methods[0].DeclaringType;
         var builderType = methods[0].IsStatic ? methods[0].GetParameters()[0].ParameterType : declaringType;
-        var methodLookup = new Dictionary<string, MethodInfo>();
+        var methodLookup = new Dictionary<string, MethodInfo>(methods.Count);
         foreach (var method in methods)
         {
             methodLookup[Fixture.MetadataMethodNameTransformers.TryGetValue(method, out var name) ? name : method.Name] = method;
+        }
+
+        foreach (var interfaceType in builderType.GetDeclaredInterfaces())
+        {
+            foreach (var method in interfaceType.GetMethods())
+            {
+                methodLookup[Fixture.MetadataMethodNameTransformers.TryGetValue(method, out var name) ? name : method.Name] = method;
+            }
         }
 
         foreach (var keyValuePair in methodLookup)
         {
             var method = keyValuePair.Value;
             var methodName = keyValuePair.Key;
+
             if (Fixture.UnmatchedMetadataMethods.Contains(method)
-                || method.ReturnType != builderType)
+                || method.ReturnType != builderType
+                || methodName.StartsWith("get_", StringComparison.Ordinal))
             {
                 continue;
             }
 
             var expectedName = methodName.StartsWith("HasNo", StringComparison.Ordinal)
                 ? "CanRemove" + methodName[5..]
-                : "CanSet"
-                + (methodName.StartsWith("Has", StringComparison.Ordinal)
-                    || methodName.StartsWith("Use", StringComparison.Ordinal)
-                        ? methodName[3..]
-                        : methodName.StartsWith("To", StringComparison.Ordinal)
-                            ? methodName[2..]
-                            : methodName.StartsWith("With", StringComparison.Ordinal)
-                                ? methodName[4..]
-                                : methodName);
+                : methodName.StartsWith("Ignore", StringComparison.Ordinal)
+                    ? methodName
+                    : "CanSet"
+                    + (methodName.StartsWith("Has", StringComparison.Ordinal)
+                        || methodName.StartsWith("Use", StringComparison.Ordinal)
+                            ? methodName[3..]
+                            : methodName.StartsWith("To", StringComparison.Ordinal)
+                                ? methodName[2..]
+                                : methodName.StartsWith("With", StringComparison.Ordinal)
+                                    ? methodName[4..]
+                                    : methodName);
 
             if (!methodLookup.TryGetValue(expectedName, out var canSetMethod))
             {
@@ -582,6 +624,152 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         }
 
         return null;
+    }
+
+    [ConditionalFact]
+    public void Convention_builder_methods_have_matching_returns()
+    {
+        var errors =
+            Fixture.MetadataTypes.Select(t =>
+                ValidateConventionBuilderMethodReturns(t.Value.ConventionBuilder, t.Value.Convention))
+                .Where(e => e != null)
+                .ToList();
+
+        Assert.False(
+            errors.Count > 0,
+            "\r\n-- Hiding methods missing: --\r\n"
+            + string.Join(Environment.NewLine, errors));
+    }
+
+    private string ValidateConventionBuilderMethodReturns(Type builderType, Type conventionType)
+    {
+        if (builderType == null)
+        {
+            return null;
+        }
+
+        var extensionType = Fixture.MetadataExtensionTypes.GetValueOrDefault(builderType).ConventionBuilderExtensions;
+        var unmatchedMethods = new List<(Type Type, Type ReturnType, MethodInfo Method)>();
+        foreach (var interfaceType in builderType.GetDeclaredInterfaces())
+        {
+            var isInheritedInterface = false;
+            foreach (var otherInterfaceType in builderType.GetDeclaredInterfaces())
+            {
+                if (otherInterfaceType == interfaceType)
+                {
+                    continue;
+                }
+
+                if (interfaceType.IsAssignableFrom(otherInterfaceType))
+                {
+                    isInheritedInterface = true;
+                }
+            }
+
+            if (isInheritedInterface)
+            {
+                continue;
+            }
+
+            var normalizedInterfaceType = interfaceType.IsGenericType
+                ? interfaceType.GetGenericTypeDefinition()
+                : interfaceType;
+            var readOnlyInterfaceType = Fixture.MetadataTypes
+                .FirstOrDefault(p => p.Value.ConventionBuilder == normalizedInterfaceType)
+                .Key;
+
+            var methods = interfaceType.GetMethods(PublicInstance);
+            foreach (var method in methods)
+            {
+                if ((method.ReturnType != interfaceType
+                        && method.ReturnType != Fixture.MetadataTypes[readOnlyInterfaceType].Convention)
+                    || Fixture.UnmatchedMetadataMethods.Contains(method)
+                    || Fixture.IsObsolete(method))
+                {
+                    continue;
+                }
+
+                var expectedReturn = method.ReturnType == interfaceType
+                    ? builderType.IsGenericType
+                        ? builderType.GetGenericArguments()[0]
+                        : builderType
+                    : conventionType;
+
+                var parameters = method.GetParameters()
+                    .Select(p => GetEquivalentGenericType(p.ParameterType, builderType.GetGenericArguments())).ToArray();
+                var hidingMethod = builderType.GetMethod(
+                    method.Name,
+                    method.GetGenericArguments().Length,
+                    PublicInstance | BindingFlags.DeclaredOnly,
+                    null,
+                    parameters,
+                    null);
+                if (hidingMethod == null
+                    || hidingMethod.ReturnType != expectedReturn)
+                {
+                    unmatchedMethods.Add((builderType, expectedReturn, method));
+                }
+            }
+
+            if (readOnlyInterfaceType == null)
+            {
+                continue;
+            }
+
+            var interfaceExtensionType = Fixture.MetadataExtensionTypes.GetValueOrDefault(readOnlyInterfaceType)
+                .ConventionBuilderExtensions;
+            if (interfaceExtensionType == null)
+            {
+                continue;
+            }
+
+            var conventionBuilderExtensionMethods = interfaceExtensionType
+                .GetMethods(BindingFlags.Public | BindingFlags.Static);
+            foreach (var method in conventionBuilderExtensionMethods)
+            {
+                var parameters = method.GetParameters();
+                if (parameters.First().ParameterType != interfaceType
+                    || method.ReturnType != interfaceType
+                    || Fixture.UnmatchedMetadataMethods.Contains(method)
+                    || Fixture.IsObsolete(method))
+                {
+                    continue;
+                }
+
+                var methodFound = false;
+                var expectedReturn = method.ReturnType == interfaceType ? builderType : conventionType;
+                if (extensionType != null)
+                {
+                    var expectedParameters = new[] { builderType }.Concat(
+                            parameters
+                            .Skip(1)
+                            .Select(p => GetEquivalentGenericType(p.ParameterType, builderType.GetGenericArguments())))
+                        .ToArray();
+                    var hidingMethod = extensionType.GetMethod(
+                        method.Name,
+                        method.GetGenericArguments().Length,
+                        BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly,
+                        null,
+                        expectedParameters,
+                        null);
+                    methodFound = hidingMethod != null && hidingMethod.ReturnType == expectedReturn;
+                }
+
+                if (!methodFound)
+                {
+                    unmatchedMethods.Add((extensionType ?? builderType, expectedReturn, method));
+                }
+            }
+        }
+
+        if (unmatchedMethods.Count == 0)
+        {
+            return null;
+        }
+
+        return string.Join(
+            Environment.NewLine, unmatchedMethods.Select(
+                m => $"{m.ReturnType.ShortDisplayName()} {m.Type.Name}.{m.Method.Name}{FormatGenericArguments(m.Method)}({Format(m.Method.GetParameters())})"));
     }
 
     [ConditionalFact]
@@ -1067,6 +1255,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             { typeof(DataBuilder), typeof(DataBuilder<>) },
             { typeof(DiscriminatorBuilder), typeof(DiscriminatorBuilder<>) },
             { typeof(EntityTypeBuilder), typeof(EntityTypeBuilder<>) },
+            { typeof(ComplexPropertyBuilder), typeof(ComplexPropertyBuilder<>) },
             { typeof(IndexBuilder), typeof(IndexBuilder<>) },
             { typeof(KeyBuilder), typeof(KeyBuilder<>) },
             { typeof(NavigationBuilder), typeof(NavigationBuilder<,>) },
@@ -1074,6 +1263,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             { typeof(OwnedEntityTypeBuilder), typeof(OwnedEntityTypeBuilder<>) },
             { typeof(OwnershipBuilder), typeof(OwnershipBuilder<,>) },
             { typeof(PropertyBuilder), typeof(PropertyBuilder<>) },
+            { typeof(ComplexTypePropertyBuilder), typeof(ComplexTypePropertyBuilder<>) },
             { typeof(ReferenceCollectionBuilder), typeof(ReferenceCollectionBuilder<,>) },
             { typeof(ReferenceNavigationBuilder), typeof(ReferenceNavigationBuilder<,>) },
             { typeof(ReferenceReferenceBuilder), typeof(ReferenceReferenceBuilder<,>) },
@@ -1128,9 +1318,21 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                         typeof(IEntityType))
                 },
                 {
+                    typeof(IReadOnlyComplexType), (typeof(IMutableComplexType),
+                        typeof(IConventionComplexType),
+                        typeof(IConventionComplexTypeBuilder),
+                        typeof(IComplexType))
+                },
+                {
+                    typeof(IReadOnlyComplexProperty), (typeof(IMutableComplexProperty),
+                        typeof(IConventionComplexProperty),
+                        typeof(IConventionComplexPropertyBuilder),
+                        typeof(IComplexProperty))
+                },
+                {
                     typeof(IReadOnlyTypeBase), (typeof(IMutableTypeBase),
                         typeof(IConventionTypeBase),
-                        null,
+                        typeof(IConventionTypeBaseBuilder),
                         typeof(ITypeBase))
                 },
                 {
@@ -1190,7 +1392,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 {
                     typeof(IReadOnlyPropertyBase), (typeof(IMutablePropertyBase),
                         typeof(IConventionPropertyBase),
-                        null,
+                        typeof(IConventionPropertyBaseBuilder<>),
                         typeof(IPropertyBase))
                 }
             };
@@ -1199,8 +1401,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
         public Dictionary<Type, Type> ConventionMetadataTypes { get; } = new();
 
         public virtual
-            List<(Type Type,
-                Type ReadonlyExtensions,
+            Dictionary<Type, (Type ReadonlyExtensions,
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
@@ -1237,9 +1438,10 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
                 ConventionMetadataTypes[typeTuple.Convention] = typeTuple.ConventionBuilder;
             }
 
-            foreach (var extensionTypeTuple in MetadataExtensionTypes)
+            foreach (var extensionTypePair in MetadataExtensionTypes)
             {
-                var type = extensionTypeTuple.Type;
+                var type = extensionTypePair.Key;
+                var extensionTypeTuple = extensionTypePair.Value;
                 var (mutableType, conventionType, conventionBuilderType, runtimeType) = MetadataTypes[type];
                 var readOnlyMethods = extensionTypeTuple.ReadonlyExtensions?.GetMethods(BindingFlags.Public | BindingFlags.Static)
                         .Where(m => !IsObsolete(m) && m.GetParameters().First().ParameterType == type).ToArray()
@@ -1284,7 +1486,7 @@ public abstract class ApiConsistencyTestBase<TFixture> : IClassFixture<TFixture>
             }
         }
 
-        protected bool IsObsolete(MethodInfo method)
+        public bool IsObsolete(MethodInfo method)
             => Attribute.IsDefined(method, typeof(ObsoleteAttribute), inherit: false);
     }
 }

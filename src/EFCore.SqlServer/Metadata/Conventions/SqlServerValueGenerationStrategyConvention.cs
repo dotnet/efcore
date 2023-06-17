@@ -111,7 +111,7 @@ public class SqlServerValueGenerationStrategyConvention : IModelInitializedConve
                 && !property.TryGetDefaultValue(storeObject, out _)
                 && property.GetDefaultValueSql(storeObject) == null
                 && property.GetComputedColumnSql(storeObject) == null
-                && property.DeclaringEntityType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
+                && property.DeclaringType.Model.GetValueGenerationStrategy() == SqlServerValueGenerationStrategy.IdentityColumn)
             {
                 var providerClrType = (property.GetValueConverter()
                         ?? (property.FindRelationalTypeMapping(storeObject)

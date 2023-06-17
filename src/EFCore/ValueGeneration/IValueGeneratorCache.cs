@@ -30,7 +30,7 @@ public interface IValueGeneratorCache
     ///     the cache.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
+    /// <param name="typeBase">
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
@@ -38,6 +38,6 @@ public interface IValueGeneratorCache
     /// <returns>The existing or newly created value generator.</returns>
     ValueGenerator GetOrAdd(
         IProperty property,
-        IEntityType entityType,
-        Func<IProperty, IEntityType, ValueGenerator> factory);
+        ITypeBase typeBase,
+        Func<IProperty, ITypeBase, ValueGenerator> factory);
 }

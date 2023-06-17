@@ -309,9 +309,9 @@ public sealed partial class SelectExpression : TableExpressionBase
                         for (var j = 0; j < properties.Length; j++)
                         {
                             var property = properties[j];
-                            var projection = property.DeclaringEntityType.IsAssignableFrom(et)
+                            var projection = property.DeclaringType.IsAssignableFrom(et)
                                 ? CreateColumnExpression(
-                                    property, table, tableReferenceExpression, property.DeclaringEntityType != entityType)
+                                    property, table, tableReferenceExpression, property.DeclaringType != entityType)
                                 : (SqlExpression)sqlExpressionFactory.Constant(
                                     null, property.ClrType.MakeNullable(), property.GetRelationalTypeMapping());
                             selectExpression._projection.Add(new ProjectionExpression(projection, propertyNames[j]));

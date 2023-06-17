@@ -167,7 +167,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         var fragments = new List<MethodCallCodeFragment>(base.GenerateFluentApiCalls(property, annotations));
 
-        if (GenerateValueGenerationStrategy(annotations, property.DeclaringEntityType.Model, onModel: false) is MethodCallCodeFragment
+        if (GenerateValueGenerationStrategy(annotations, property.DeclaringType.Model, onModel: false) is MethodCallCodeFragment
             valueGenerationStrategy)
         {
             fragments.Add(valueGenerationStrategy);
@@ -307,7 +307,7 @@ public class SqlServerAnnotationCodeGenerator : AnnotationCodeGenerator
     {
         if (annotation.Name == SqlServerAnnotationNames.ValueGenerationStrategy)
         {
-            return (SqlServerValueGenerationStrategy)annotation.Value! == property.DeclaringEntityType.Model.GetValueGenerationStrategy();
+            return (SqlServerValueGenerationStrategy)annotation.Value! == property.DeclaringType.Model.GetValueGenerationStrategy();
         }
 
         return base.IsHandledByConvention(property, annotation);

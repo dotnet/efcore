@@ -14,11 +14,11 @@ public interface IPropertyRemovedConvention : IConvention
     /// <summary>
     ///     Called after a property is removed from the entity type.
     /// </summary>
-    /// <param name="entityTypeBuilder">The builder for the entity type that contained the property.</param>
+    /// <param name="typeBaseBuilder">The builder for the entity type that contained the property.</param>
     /// <param name="property">The removed property.</param>
     /// <param name="context">Additional information associated with convention execution.</param>
     void ProcessPropertyRemoved(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder typeBaseBuilder,
         IConventionProperty property,
         IConventionContext<IConventionProperty> context);
 }

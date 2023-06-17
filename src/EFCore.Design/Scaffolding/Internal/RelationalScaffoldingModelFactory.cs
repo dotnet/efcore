@@ -714,10 +714,10 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
                         uniquifier: NavigationUniquifier);
 
                 var leftSkipNavigation = leftEntityType.AddSkipNavigation(
-                    leftNavigationPropertyName, null, rightEntityType, collection: true, onDependent: false);
+                    leftNavigationPropertyName, memberInfo: null, targetEntityType: rightEntityType, collection: true, onDependent: false);
                 leftSkipNavigation.SetForeignKey(fks[0]);
                 var rightSkipNavigation = rightEntityType.AddSkipNavigation(
-                    rightNavigationPropertyName, null, leftEntityType, collection: true, onDependent: false);
+                    rightNavigationPropertyName, memberInfo: null, targetEntityType: leftEntityType, collection: true, onDependent: false);
                 rightSkipNavigation.SetForeignKey(fks[1]);
                 leftSkipNavigation.SetInverse(rightSkipNavigation);
                 rightSkipNavigation.SetInverse(leftSkipNavigation);

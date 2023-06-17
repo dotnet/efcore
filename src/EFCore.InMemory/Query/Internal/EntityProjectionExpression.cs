@@ -74,8 +74,13 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
         foreach (var (property, methodCallExpression) in _readExpressionMap)
         {
-            if (derivedType.IsAssignableFrom(property.DeclaringEntityType)
-                || property.DeclaringEntityType.IsAssignableFrom(derivedType))
+            if (property.DeclaringType is not IEntityType entityType)
+            {
+                continue;
+            }
+
+            if (derivedType.IsAssignableFrom(entityType)
+                || entityType.IsAssignableFrom(derivedType))
             {
                 readExpressionMap[property] = methodCallExpression;
             }
@@ -92,8 +97,16 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual MethodCallExpression BindProperty(IProperty property)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
-            && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
+        if (property.DeclaringType is not IEntityType entityType)
+        {
+            if (EntityType != property.DeclaringType)
+            {
+                throw new InvalidOperationException(
+                    InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
+            }
+        }
+        else if (!EntityType.IsAssignableFrom(entityType)
+            && !entityType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 InMemoryStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));

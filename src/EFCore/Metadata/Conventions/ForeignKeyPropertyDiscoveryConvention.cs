@@ -145,7 +145,7 @@ public class ForeignKeyPropertyDiscoveryConvention :
                     var newType = fkProperty.ClrType.MakeNullable(!foreignKey.IsRequired);
                     if (fkProperty.ClrType != newType)
                     {
-                        fkProperty.DeclaringEntityType.Builder.Property(
+                        fkProperty.DeclaringType.Builder.Property(
                             newType,
                             fkProperty.Name,
                             fkProperty.GetConfigurationSource() == ConfigurationSource.DataAnnotation);
@@ -570,13 +570,12 @@ public class ForeignKeyPropertyDiscoveryConvention :
     private void Process(IConventionPropertyBuilder propertyBuilder, IConventionContext context)
     {
         var property = propertyBuilder.Metadata;
-        if (property.IsImplicitlyCreated()
-            && ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+        if ((property.IsImplicitlyCreated()
+                && ConfigurationSource.Convention.Overrides(property.GetConfigurationSource()))
+            || propertyBuilder.Metadata.DeclaringType is not IConventionEntityType entityType)
         {
             return;
         }
-
-        var entityType = propertyBuilder.Metadata.DeclaringEntityType;
 
         Process(entityType, context);
     }

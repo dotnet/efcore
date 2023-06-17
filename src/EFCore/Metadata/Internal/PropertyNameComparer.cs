@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 /// </summary>
 public sealed class PropertyNameComparer : IComparer<string>
 {
-    private readonly IReadOnlyEntityType _entityType;
+    private readonly IReadOnlyEntityType? _entityType;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -19,9 +19,9 @@ public sealed class PropertyNameComparer : IComparer<string>
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public PropertyNameComparer(IReadOnlyEntityType entityType)
+    public PropertyNameComparer(IReadOnlyTypeBase typeBase)
     {
-        _entityType = entityType;
+        _entityType = typeBase as IReadOnlyEntityType;
     }
 
     /// <summary>
@@ -35,8 +35,7 @@ public sealed class PropertyNameComparer : IComparer<string>
         var xIndex = -1;
         var yIndex = -1;
 
-        var properties = _entityType.FindPrimaryKey()?.Properties;
-
+        var properties = _entityType?.FindPrimaryKey()?.Properties;
         if (properties != null)
         {
             for (var i = 0; i < properties.Count; i++)

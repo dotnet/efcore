@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-database-functions">Database functions</see> for more information and examples.
 /// </remarks>
-public static class RelationalDbFunctionsExtensions
+public static class RelationalDbFunctionExtensions
 {
     /// <summary>
     ///     Explicitly specifies a collation to be used in a LINQ query. Can be used to generate fragments such as

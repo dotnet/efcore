@@ -27,7 +27,7 @@ public static class SqlServerLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+            definition.Log(diagnostics, property.Name, property.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -47,7 +47,7 @@ public static class SqlServerLoggerExtensions
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringType.DisplayName());
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public static class SqlServerLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+            definition.Log(diagnostics, property.Name, property.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -84,7 +84,7 @@ public static class SqlServerLoggerExtensions
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringType.DisplayName());
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ public static class SqlServerLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+            definition.Log(diagnostics, property.Name, property.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -121,7 +121,7 @@ public static class SqlServerLoggerExtensions
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringType.DisplayName());
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ public static class SqlServerLoggerExtensions
         {
             definition.Log(
                 diagnostics, sqlServerValueGenerationStrategy.ToString(), otherValueGenerationStrategy,
-                property.Name, property.DeclaringEntityType.DisplayName());
+                property.Name, property.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -166,7 +166,7 @@ public static class SqlServerLoggerExtensions
             p.SqlServerValueGenerationStrategy.ToString(),
             p.OtherValueGenerationStrategy,
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringType.DisplayName());
     }
 
     /// <summary>

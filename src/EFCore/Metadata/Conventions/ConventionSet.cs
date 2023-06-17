@@ -32,14 +32,14 @@ public class ConventionSet
     public virtual List<IModelAnnotationChangedConvention> ModelAnnotationChangedConventions { get; } = new();
 
     /// <summary>
+    ///     Conventions to run when a type is ignored.
+    /// </summary>
+    public virtual List<ITypeIgnoredConvention> TypeIgnoredConventions { get; } = new();
+
+    /// <summary>
     ///     Conventions to run when an entity type is added to the model.
     /// </summary>
     public virtual List<IEntityTypeAddedConvention> EntityTypeAddedConventions { get; } = new();
-
-    /// <summary>
-    ///     Conventions to run when an entity type is ignored.
-    /// </summary>
-    public virtual List<IEntityTypeIgnoredConvention> EntityTypeIgnoredConventions { get; } = new();
 
     /// <summary>
     ///     Conventions to run when an entity type is removed.
@@ -65,6 +65,41 @@ public class ConventionSet
     ///     Conventions to run when an annotation is set or removed on an entity type.
     /// </summary>
     public virtual List<IEntityTypeAnnotationChangedConvention> EntityTypeAnnotationChangedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when a property is ignored.
+    /// </summary>
+    public virtual List<IComplexTypeMemberIgnoredConvention> ComplexTypeMemberIgnoredConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when an annotation is set or removed on a complex type.
+    /// </summary>
+    public virtual List<IComplexTypeAnnotationChangedConvention> ComplexTypeAnnotationChangedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when an entity type is added to the model.
+    /// </summary>
+    public virtual List<IComplexPropertyAddedConvention> ComplexPropertyAddedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when an entity type is removed.
+    /// </summary>
+    public virtual List<IComplexPropertyRemovedConvention> ComplexPropertyRemovedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when the nullability of a property is changed.
+    /// </summary>
+    public virtual List<IComplexPropertyNullabilityChangedConvention> ComplexPropertyNullabilityChangedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when the field of a property is changed.
+    /// </summary>
+    public virtual List<IComplexPropertyFieldChangedConvention> ComplexPropertyFieldChangedConventions { get; } = new();
+
+    /// <summary>
+    ///     Conventions to run when an annotation is set or removed on a complex property.
+    /// </summary>
+    public virtual List<IComplexPropertyAnnotationChangedConvention> ComplexPropertyAnnotationChangedConventions { get; } = new();
 
     /// <summary>
     ///     Conventions to run when a foreign key is added.
@@ -266,16 +301,16 @@ public class ConventionSet
             ModelAnnotationChangedConventions.Add(modelAnnotationChangedConvention);
         }
 
+        if (newConvention is ITypeIgnoredConvention typeIgnoredConvention
+            && !Replace(TypeIgnoredConventions, typeIgnoredConvention, oldConvetionType))
+        {
+            TypeIgnoredConventions.Add(typeIgnoredConvention);
+        }
+
         if (newConvention is IEntityTypeAddedConvention entityTypeAddedConvention
             && !Replace(EntityTypeAddedConventions, entityTypeAddedConvention, oldConvetionType))
         {
             EntityTypeAddedConventions.Add(entityTypeAddedConvention);
-        }
-
-        if (newConvention is IEntityTypeIgnoredConvention entityTypeIgnoredConvention
-            && !Replace(EntityTypeIgnoredConventions, entityTypeIgnoredConvention, oldConvetionType))
-        {
-            EntityTypeIgnoredConventions.Add(entityTypeIgnoredConvention);
         }
 
         if (newConvention is IEntityTypeRemovedConvention entityTypeRemovedConvention
@@ -306,6 +341,42 @@ public class ConventionSet
             && !Replace(EntityTypeAnnotationChangedConventions, entityTypeAnnotationChangedConvention, oldConvetionType))
         {
             EntityTypeAnnotationChangedConventions.Add(entityTypeAnnotationChangedConvention);
+        }
+
+        if (newConvention is IComplexPropertyAddedConvention complexPropertyAddedConvention
+            && !Replace(ComplexPropertyAddedConventions, complexPropertyAddedConvention, oldConvetionType))
+        {
+            ComplexPropertyAddedConventions.Add(complexPropertyAddedConvention);
+        }
+
+        if (newConvention is IComplexPropertyRemovedConvention complexPropertyRemovedConvention
+            && !Replace(ComplexPropertyRemovedConventions, complexPropertyRemovedConvention, oldConvetionType))
+        {
+            ComplexPropertyRemovedConventions.Add(complexPropertyRemovedConvention);
+        }
+
+        if (newConvention is IComplexTypeMemberIgnoredConvention complexPropertyMemberIgnoredConvention
+            && !Replace(ComplexTypeMemberIgnoredConventions, complexPropertyMemberIgnoredConvention, oldConvetionType))
+        {
+            ComplexTypeMemberIgnoredConventions.Add(complexPropertyMemberIgnoredConvention);
+        }
+
+        if (newConvention is IComplexPropertyNullabilityChangedConvention complexPropertyNullabilityChangedConvention
+            && !Replace(ComplexPropertyNullabilityChangedConventions, complexPropertyNullabilityChangedConvention, oldConvetionType))
+        {
+            ComplexPropertyNullabilityChangedConventions.Add(complexPropertyNullabilityChangedConvention);
+        }
+
+        if (newConvention is IComplexPropertyFieldChangedConvention complexPropertyFieldChangedConvention
+            && !Replace(ComplexPropertyFieldChangedConventions, complexPropertyFieldChangedConvention, oldConvetionType))
+        {
+            ComplexPropertyFieldChangedConventions.Add(complexPropertyFieldChangedConvention);
+        }
+
+        if (newConvention is IComplexPropertyAnnotationChangedConvention complexPropertyAnnotationChangedConvention
+            && !Replace(ComplexPropertyAnnotationChangedConventions, complexPropertyAnnotationChangedConvention, oldConvetionType))
+        {
+            ComplexPropertyAnnotationChangedConventions.Add(complexPropertyAnnotationChangedConvention);
         }
 
         if (newConvention is IForeignKeyAddedConvention foreignKeyAddedConvention
@@ -427,6 +498,18 @@ public class ConventionSet
             && !Replace(KeyRemovedConventions, keyRemovedConvention, oldConvetionType))
         {
             KeyRemovedConventions.Add(keyRemovedConvention);
+        }
+
+        if (newConvention is ITriggerAddedConvention triggerAddedConvention
+            && !Replace(TriggerAddedConventions, triggerAddedConvention, oldConvetionType))
+        {
+            TriggerAddedConventions.Add(triggerAddedConvention);
+        }
+
+        if (newConvention is ITriggerRemovedConvention triggerRemovedConvention
+            && !Replace(TriggerRemovedConventions, triggerRemovedConvention, oldConvetionType))
+        {
+            TriggerRemovedConventions.Add(triggerRemovedConvention);
         }
 
         if (newConvention is IKeyAnnotationChangedConvention keyAnnotationChangedConvention
@@ -562,14 +645,14 @@ public class ConventionSet
             ModelAnnotationChangedConventions.Add(modelAnnotationChangedConvention);
         }
 
+        if (convention is ITypeIgnoredConvention typeIgnoredConvention)
+        {
+            TypeIgnoredConventions.Add(typeIgnoredConvention);
+        }
+
         if (convention is IEntityTypeAddedConvention entityTypeAddedConvention)
         {
             EntityTypeAddedConventions.Add(entityTypeAddedConvention);
-        }
-
-        if (convention is IEntityTypeIgnoredConvention entityTypeIgnoredConvention)
-        {
-            EntityTypeIgnoredConventions.Add(entityTypeIgnoredConvention);
         }
 
         if (convention is IEntityTypeRemovedConvention entityTypeRemovedConvention)
@@ -595,6 +678,36 @@ public class ConventionSet
         if (convention is IEntityTypeAnnotationChangedConvention entityTypeAnnotationChangedConvention)
         {
             EntityTypeAnnotationChangedConventions.Add(entityTypeAnnotationChangedConvention);
+        }
+
+        if (convention is IComplexPropertyAddedConvention complexPropertyAddedConvention)
+        {
+            ComplexPropertyAddedConventions.Add(complexPropertyAddedConvention);
+        }
+
+        if (convention is IComplexPropertyRemovedConvention complexPropertyRemovedConvention)
+        {
+            ComplexPropertyRemovedConventions.Add(complexPropertyRemovedConvention);
+        }
+
+        if (convention is IComplexTypeMemberIgnoredConvention complexPropertyMemberIgnoredConvention)
+        {
+            ComplexTypeMemberIgnoredConventions.Add(complexPropertyMemberIgnoredConvention);
+        }
+
+        if (convention is IComplexPropertyNullabilityChangedConvention complexPropertyNullabilityChangedConvention)
+        {
+            ComplexPropertyNullabilityChangedConventions.Add(complexPropertyNullabilityChangedConvention);
+        }
+
+        if (convention is IComplexPropertyFieldChangedConvention complexPropertyFieldChangedConvention)
+        {
+            ComplexPropertyFieldChangedConventions.Add(complexPropertyFieldChangedConvention);
+        }
+
+        if (convention is IComplexPropertyAnnotationChangedConvention complexPropertyAnnotationChangedConvention)
+        {
+            ComplexPropertyAnnotationChangedConventions.Add(complexPropertyAnnotationChangedConvention);
         }
 
         if (convention is IForeignKeyAddedConvention foreignKeyAddedConvention)
@@ -845,14 +958,14 @@ public class ConventionSet
             Remove(ModelAnnotationChangedConventions, conventionType);
         }
 
+        if (typeof(ITypeIgnoredConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(TypeIgnoredConventions, conventionType);
+        }
+
         if (typeof(IEntityTypeAddedConvention).IsAssignableFrom(conventionType))
         {
             Remove(EntityTypeAddedConventions, conventionType);
-        }
-
-        if (typeof(IEntityTypeIgnoredConvention).IsAssignableFrom(conventionType))
-        {
-            Remove(EntityTypeIgnoredConventions, conventionType);
         }
 
         if (typeof(IEntityTypeRemovedConvention).IsAssignableFrom(conventionType))
@@ -878,6 +991,36 @@ public class ConventionSet
         if (typeof(IEntityTypeAnnotationChangedConvention).IsAssignableFrom(conventionType))
         {
             Remove(EntityTypeAnnotationChangedConventions, conventionType);
+        }
+
+        if (typeof(IComplexPropertyAddedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexPropertyAddedConventions, conventionType);
+        }
+
+        if (typeof(IComplexPropertyRemovedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexPropertyRemovedConventions, conventionType);
+        }
+
+        if (typeof(IComplexTypeMemberIgnoredConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexTypeMemberIgnoredConventions, conventionType);
+        }
+
+        if (typeof(IComplexPropertyNullabilityChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexPropertyNullabilityChangedConventions, conventionType);
+        }
+
+        if (typeof(IComplexPropertyFieldChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexPropertyFieldChangedConventions, conventionType);
+        }
+
+        if (typeof(IComplexPropertyAnnotationChangedConvention).IsAssignableFrom(conventionType))
+        {
+            Remove(ComplexPropertyAnnotationChangedConventions, conventionType);
         }
 
         if (typeof(IForeignKeyAddedConvention).IsAssignableFrom(conventionType))

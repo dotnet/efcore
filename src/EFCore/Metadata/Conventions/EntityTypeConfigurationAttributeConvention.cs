@@ -9,26 +9,22 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class EntityTypeConfigurationEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<EntityTypeConfigurationAttribute>
+public class EntityTypeConfigurationAttributeConvention : TypeAttributeConventionBase<EntityTypeConfigurationAttribute>,
+    IComplexPropertyAddedConvention
 {
     private static readonly MethodInfo ConfigureMethod
-        = typeof(EntityTypeConfigurationEntityTypeAttributeConvention).GetTypeInfo().GetDeclaredMethod(nameof(Configure))!;
+        = typeof(EntityTypeConfigurationAttributeConvention).GetTypeInfo().GetDeclaredMethod(nameof(Configure))!;
 
     /// <summary>
-    ///     Creates a new instance of <see cref="EntityTypeConfigurationEntityTypeAttributeConvention" />.
+    ///     Creates a new instance of <see cref="EntityTypeConfigurationAttributeConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public EntityTypeConfigurationEntityTypeAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
+    public EntityTypeConfigurationAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
     }
 
-    /// <summary>
-    ///     Called after an entity type is added to the model if it has an attribute.
-    /// </summary>
-    /// <param name="entityTypeBuilder">The builder for the entity type.</param>
-    /// <param name="attribute">The attribute.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc/>
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
         EntityTypeConfigurationAttribute attribute,
@@ -37,8 +33,7 @@ public class EntityTypeConfigurationEntityTypeAttributeConvention : EntityTypeAt
         var entityTypeConfigurationType = attribute.EntityTypeConfigurationType;
 
         if (!entityTypeConfigurationType.GetInterfaces().Any(
-                x =>
-                    x.IsGenericType
+                x => x.IsGenericType
                     && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>)
                     && x.GenericTypeArguments[0] == entityTypeBuilder.Metadata.ClrType))
         {
@@ -49,6 +44,18 @@ public class EntityTypeConfigurationEntityTypeAttributeConvention : EntityTypeAt
 
         ConfigureMethod.MakeGenericMethod(entityTypeBuilder.Metadata.ClrType)
             .Invoke(null, new object[] { entityTypeBuilder.Metadata, entityTypeConfigurationType });
+    }
+
+    /// <inheritdoc/>
+    protected override void ProcessComplexTypeAdded(
+        IConventionComplexTypeBuilder complexTypeBuilder,
+        EntityTypeConfigurationAttribute attribute,
+        IConventionContext context)
+    {
+        if (ReplaceWithEntityType(complexTypeBuilder) != null)
+        {
+            context.StopProcessing();
+        }
     }
 
     private static void Configure<TEntity>(IConventionEntityType entityType, Type entityTypeConfigurationType)

@@ -56,9 +56,9 @@ public class PropertyDiscoveryConventionTest
 
         Assert.Single(model.GetEntityTypes());
 
-        var entityType = model.FindEntityType(typeof(DerivedWithoutPrivates));
+        var entityType = (IRuntimeEntityType)model.FindEntityType(typeof(DerivedWithoutPrivates));
 
-        Assert.Equal(3, entityType.PropertyCount());
+        Assert.Equal(3, entityType.PropertyCount);
 
         var idProperty = entityType.FindProperty(nameof(BaseWithPrivates.Id));
         Assert.NotNull(idProperty.PropertyInfo);

@@ -40,13 +40,12 @@ public class InMemoryStore : IInMemoryStore
     public virtual InMemoryIntegerValueGenerator<TProperty> GetIntegerValueGenerator<TProperty>(
         IProperty property)
     {
+        var entityType = property.DeclaringType.FundamentalEntityType;
         lock (_lock)
         {
-            var entityType = property.DeclaringEntityType;
-
             return EnsureTable(entityType).GetIntegerValueGenerator<TProperty>(
                 property,
-                entityType.GetDerivedTypesInclusive().Select(type => EnsureTable(type)).ToArray());
+                entityType.GetDerivedTypesInclusive().Select(EnsureTable).ToArray());
         }
     }
 

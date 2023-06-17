@@ -155,7 +155,7 @@ public class PropertyAccessorsFactory
                         Expression.Throw(
                             Expression.Constant(
                                 new InvalidOperationException(
-                                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringEntityType.DisplayName())))),
+                                    CoreStrings.OriginalValueNotTracked(property.Name, property.DeclaringType.DisplayName())))),
                         Expression.Constant(default(TProperty), typeof(TProperty))),
                 entryParameter)
             .Compile();
