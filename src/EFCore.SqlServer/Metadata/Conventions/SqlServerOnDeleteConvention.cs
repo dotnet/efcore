@@ -125,8 +125,7 @@ public class SqlServerOnDeleteConvention : CascadeDeleteConvention,
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == RelationalAnnotationNames.TableName
-            || name == RelationalAnnotationNames.Schema)
+        if (name is RelationalAnnotationNames.TableName or RelationalAnnotationNames.Schema)
         {
             ProcessSkipNavigations(entityTypeBuilder.Metadata.GetDeclaredSkipNavigations());
 

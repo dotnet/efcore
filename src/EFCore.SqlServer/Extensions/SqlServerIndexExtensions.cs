@@ -257,7 +257,7 @@ public static class SqlServerIndexExtensions
     /// <param name="fillFactor">The value to set.</param>
     public static void SetFillFactor(this IMutableIndex index, int? fillFactor)
     {
-        if (fillFactor != null && (fillFactor <= 0 || fillFactor > 100))
+        if (fillFactor is <= 0 or > 100)
         {
             throw new ArgumentOutOfRangeException(nameof(fillFactor));
         }
@@ -279,7 +279,7 @@ public static class SqlServerIndexExtensions
         int? fillFactor,
         bool fromDataAnnotation = false)
     {
-        if (fillFactor != null && (fillFactor <= 0 || fillFactor > 100))
+        if (fillFactor is <= 0 or > 100)
         {
             throw new ArgumentOutOfRangeException(nameof(fillFactor));
         }

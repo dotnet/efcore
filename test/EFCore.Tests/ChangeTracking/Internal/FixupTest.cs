@@ -3323,8 +3323,7 @@ public class FixupTest
         foreach (var entry in context.ChangeTracker.Entries<Product>())
         {
             var product = entry.Entity;
-            if (product.CategoryId == 11
-                || product.CategoryId == 12)
+            if (product.CategoryId is 11 or 12)
             {
                 Assert.Equal(product.CategoryId, product.Category.Id);
                 Assert.Contains(product, product.Category.Products);
@@ -3338,8 +3337,7 @@ public class FixupTest
         foreach (var entry in context.ChangeTracker.Entries<SpecialOffer>())
         {
             var offer = entry.Entity;
-            if (offer.ProductId == 22
-                || offer.ProductId == 24)
+            if (offer.ProductId is 22 or 24)
             {
                 Assert.Equal(offer.ProductId, offer.Product.Id);
                 Assert.Contains(offer, offer.Product.SpecialOffers);

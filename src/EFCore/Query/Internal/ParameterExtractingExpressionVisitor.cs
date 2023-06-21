@@ -115,7 +115,7 @@ public class ParameterExtractingExpressionVisitor : ExpressionVisitor
     }
 
     private static bool PreserveInitializationConstant(Expression expression, bool generateParameter)
-        => !generateParameter && (expression is NewExpression || expression is MemberInitExpression);
+        => !generateParameter && expression is NewExpression or MemberInitExpression;
 
     private bool PreserveConvertNode(Expression expression)
     {

@@ -203,7 +203,7 @@ public class TestRelationalTypeMappingSource : RelationalTypeMappingSource
                     return _defaultDecimalMapping;
                 }
 
-                if (scale == null || scale == 0)
+                if (scale is null or 0)
                 {
                     return new DecimalTypeMapping(
                         "decimal_mapping(" + precision + ")",

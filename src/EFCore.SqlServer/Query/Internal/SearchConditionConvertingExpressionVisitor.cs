@@ -386,14 +386,14 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         _isSearchCondition = parentIsSearchCondition;
 
         sqlBinaryExpression = sqlBinaryExpression.Update(newLeft, newRight);
-        var condition = sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-            || sqlBinaryExpression.OperatorType == ExpressionType.OrElse
-            || sqlBinaryExpression.OperatorType == ExpressionType.Equal
-            || sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-            || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
-            || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
-            || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
-            || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual;
+        var condition = sqlBinaryExpression.OperatorType is ExpressionType.AndAlso
+            or ExpressionType.OrElse
+            or ExpressionType.Equal
+            or ExpressionType.NotEqual
+            or ExpressionType.GreaterThan
+            or ExpressionType.GreaterThanOrEqual
+            or ExpressionType.LessThan
+            or ExpressionType.LessThanOrEqual;
 
         return ApplyConversion(sqlBinaryExpression, condition);
     }
@@ -493,7 +493,7 @@ public class SearchConditionConvertingExpressionVisitor : SqlExpressionVisitor
         _isSearchCondition = parentSearchCondition;
         var newFunction = sqlFunctionExpression.Update(instance, arguments);
 
-        var condition = sqlFunctionExpression.Name == "FREETEXT" || sqlFunctionExpression.Name == "CONTAINS";
+        var condition = sqlFunctionExpression.Name is "FREETEXT" or "CONTAINS";
 
         return ApplyConversion(newFunction, condition);
     }

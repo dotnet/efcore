@@ -201,8 +201,7 @@ public class ObservableBackedBindingList<T> : SortableBindingList<T>
                     Clear();
                 }
 
-                if (e.Action == NotifyCollectionChangedAction.Remove
-                    || e.Action == NotifyCollectionChangedAction.Replace)
+                if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace)
                 {
                     foreach (T entity in e.OldItems!)
                     {
@@ -210,8 +209,7 @@ public class ObservableBackedBindingList<T> : SortableBindingList<T>
                     }
                 }
 
-                if (e.Action == NotifyCollectionChangedAction.Add
-                    || e.Action == NotifyCollectionChangedAction.Replace)
+                if (e.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
                 {
                     foreach (T entity in e.NewItems!)
                     {

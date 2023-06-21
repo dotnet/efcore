@@ -2879,8 +2879,7 @@ public class ChangeTrackerTest
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedContainer).State);
             Assert.Equal(EntityState.Unchanged, context.Entry(attachedTroduct!).State);
 
-            if (orphanTiming == null
-                || orphanTiming == CascadeTiming.Immediate)
+            if (orphanTiming is null or CascadeTiming.Immediate)
             {
                 Assert.Equal(EntityState.Deleted, context.Entry(attachedRoom).State);
             }

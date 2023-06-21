@@ -460,8 +460,7 @@ public abstract class RelationalTypeMapping : CoreTypeMapping
         {
             storeType = storeTypeNameBase + "(" + (size < 0 ? "max" : size.ToString()) + ")";
         }
-        else if (parameters.StoreTypePostfix == StoreTypePostfix.PrecisionAndScale
-                 || parameters.StoreTypePostfix == StoreTypePostfix.Precision)
+        else if (parameters.StoreTypePostfix is StoreTypePostfix.PrecisionAndScale or StoreTypePostfix.Precision)
         {
             var precision = parameters.Precision;
             if (precision != null)

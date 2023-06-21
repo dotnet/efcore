@@ -44,13 +44,10 @@ public class CustomPartitionKeyIdGenerator<T> : ValueGenerator<T>
                 value = converter.ConvertToProvider(value);
             }
 
-            if (value is int x)
+            // We don't allow the Id to be zero for our custom generator.
+            if (value is 0)
             {
-                // We don't allow the Id to be zero for our custom generator.
-                if (x == 0)
-                {
-                    return default;
-                }
+                return default;
             }
 
             AppendString(builder, value);

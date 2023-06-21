@@ -406,7 +406,7 @@ public class SqlServerTypeMappingSource : RelationalTypeMappingSource
                 var isFixedLength = mappingInfo.IsFixedLength == true;
 
                 var size = mappingInfo.Size ?? (mappingInfo.IsKeyOrIndex ? 900 : null);
-                if (size < 0 || size > 8000)
+                if (size is < 0 or > 8000)
                 {
                     size = isFixedLength ? 8000 : null;
                 }

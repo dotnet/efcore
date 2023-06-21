@@ -311,15 +311,9 @@ namespace Microsoft.Data.Sqlite
         }
 
         private static bool? ConvertToNullableBoolean(object value)
-        {
-            if (value == null
-                || value is string { Length: 0 })
-            {
-                return null;
-            }
-
-            return Convert.ToBoolean(value, CultureInfo.InvariantCulture);
-        }
+            => value is null or string { Length: 0 }
+                ? null
+                : Convert.ToBoolean(value, CultureInfo.InvariantCulture);
 
         /// <summary>
         ///     Clears the contents of the builder.

@@ -1085,7 +1085,7 @@ public partial class NavigationExpandingExpressionVisitor : ExpressionVisitor
             }
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            if (expression is ConstantExpression { Value: string navigationChain } includeConstant)
+            if (expression is ConstantExpression { Value: string navigationChain })
             {
                 var navigationPaths = navigationChain.Split(new[] { "." }, StringSplitOptions.None);
                 var includeTreeNodes = new Queue<IncludeTreeNode>();

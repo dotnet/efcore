@@ -3322,8 +3322,8 @@ public class EntityType : TypeBase, IMutableEntityType, IConventionEntityType, I
                 return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, nameof(INotifyPropertyChanged));
             }
 
-            if ((value == ChangeTrackingStrategy.ChangingAndChangedNotifications
-                    || value == ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+            if (value is ChangeTrackingStrategy.ChangingAndChangedNotifications
+                    or ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues
                 && !typeof(INotifyPropertyChanging).IsAssignableFrom(entityType.ClrType))
             {
                 return CoreStrings.ChangeTrackingInterfaceMissing(entityType.DisplayName(), value, nameof(INotifyPropertyChanging));

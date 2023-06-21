@@ -67,7 +67,7 @@ public static class TestEnvironment
             {
                 _engineEdition = GetEngineEdition();
 
-                _isAzureSqlDb = (_engineEdition == 5 || _engineEdition == 8);
+                _isAzureSqlDb = _engineEdition is 5 or 8;
             }
             catch (PlatformNotSupportedException)
             {

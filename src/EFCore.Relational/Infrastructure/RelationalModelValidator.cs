@@ -2047,9 +2047,9 @@ public class RelationalModelValidator : ModelValidator
 
     private static void ValidateTphMapping(IEntityType rootEntityType, StoreObjectType storeObjectType)
     {
-        var isSproc = storeObjectType == StoreObjectType.DeleteStoredProcedure
-            || storeObjectType == StoreObjectType.InsertStoredProcedure
-            || storeObjectType == StoreObjectType.UpdateStoredProcedure;
+        var isSproc = storeObjectType is StoreObjectType.DeleteStoredProcedure
+            or StoreObjectType.InsertStoredProcedure
+            or StoreObjectType.UpdateStoredProcedure;
         var rootSproc = isSproc ? StoredProcedure.FindDeclaredStoredProcedure(rootEntityType, storeObjectType) : null;
         var rootId = StoreObjectIdentifier.Create(rootEntityType, storeObjectType);
         foreach (var entityType in rootEntityType.GetDerivedTypes())
@@ -2344,8 +2344,7 @@ public class RelationalModelValidator : ModelValidator
                 yield return declaringStoreObject.Value;
             }
 
-            if (storeObjectType == StoreObjectType.Function
-                || storeObjectType == StoreObjectType.SqlQuery)
+            if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
             {
                 yield break;
             }
@@ -2372,8 +2371,7 @@ public class RelationalModelValidator : ModelValidator
         else
         {
             var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);
-            if (storeObjectType == StoreObjectType.Function
-                || storeObjectType == StoreObjectType.SqlQuery)
+            if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
             {
                 if (declaringStoreObject != null)
                 {

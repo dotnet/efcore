@@ -85,8 +85,6 @@ public class InjectWhereExpressionMutator : ExpressionMutator
                         any,
                         Expression.Property(prm, collectionNavigation.PropertyInfo)));
             }
-
-            var navigation = random.Choose(navigations);
         }
 
         var lambdaBody = random.Choose(candidateExpressions);
@@ -117,12 +115,7 @@ public class InjectWhereExpressionMutator : ExpressionMutator
 
         public override Expression Visit(Expression expression)
         {
-            if (expression is MethodCallExpression methodCallExpression
-                && (methodCallExpression.Method.Name == "ThenInclude"
-                    || methodCallExpression.Method.Name == "ThenBy"
-                    || methodCallExpression.Method.Name == "ThenByDescending"
-                    || methodCallExpression.Method.Name == "Skip"
-                    || methodCallExpression.Method.Name == "Take"))
+            if (expression is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" or "Skip" or "Take" })
             {
                 return expression;
             }

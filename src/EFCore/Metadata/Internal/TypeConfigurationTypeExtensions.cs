@@ -27,7 +27,7 @@ public static class TypeConfigurationTypeExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool IsEntityType(this TypeConfigurationType configurationType)
-        => configurationType == TypeConfigurationType.EntityType
-            || configurationType == TypeConfigurationType.SharedTypeEntityType
-            || configurationType == TypeConfigurationType.OwnedEntityType;
+        => configurationType is TypeConfigurationType.EntityType
+            or TypeConfigurationType.SharedTypeEntityType
+            or TypeConfigurationType.OwnedEntityType;
 }

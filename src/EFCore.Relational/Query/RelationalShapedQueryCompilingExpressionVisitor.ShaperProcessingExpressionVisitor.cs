@@ -522,7 +522,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
 
                 case RelationalEntityShaperExpression entityShaperExpression
-                    when _inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
+                    when _inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression:
                 {
                     if (entityShaperExpression.EntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy)
                     {
@@ -1876,8 +1876,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     return expression;
                 }
 
-                if (expression is RelationalCollectionShaperExpression
-                    || expression is RelationalSplitCollectionShaperExpression)
+                if (expression is RelationalCollectionShaperExpression or RelationalSplitCollectionShaperExpression)
                 {
                     _containsCollection = true;
 

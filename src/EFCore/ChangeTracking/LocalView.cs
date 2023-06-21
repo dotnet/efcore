@@ -104,7 +104,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
     private void LocalViewCollectionChanged(object? _, NotifyCollectionChangedEventArgs args)
     {
         Check.DebugAssert(
-            args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Remove,
+            args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Remove,
             "action is not Add or Remove");
 
         if (_triggeringLocalViewChange)
@@ -150,8 +150,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
             }
             else
             {
-                if (args.Action == NotifyCollectionChangedAction.Remove
-                    || args.Action == NotifyCollectionChangedAction.Replace)
+                if (args.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace)
                 {
                     foreach (TEntity entity in args.OldItems!)
                     {
@@ -159,8 +158,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
                     }
                 }
 
-                if (args.Action == NotifyCollectionChangedAction.Add
-                    || args.Action == NotifyCollectionChangedAction.Replace)
+                if (args.Action is NotifyCollectionChangedAction.Add or NotifyCollectionChangedAction.Replace)
                 {
                     foreach (TEntity entity in args.NewItems!)
                     {
@@ -213,8 +211,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
         // was wanted in this case.
 
         var entry = _context.GetDependencies().StateManager.GetOrCreateEntry(item, _entityType);
-        if (entry.EntityState == EntityState.Deleted
-            || entry.EntityState == EntityState.Detached)
+        if (entry.EntityState is EntityState.Deleted or EntityState.Detached)
         {
             try
             {

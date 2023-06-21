@@ -248,9 +248,9 @@ public static class PropertyBaseExtensions
                 }
             }
 
-            if (mode == PropertyAccessMode.PreferProperty
-                || mode == PropertyAccessMode.FieldDuringConstruction
-                || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+            if (mode is PropertyAccessMode.PreferProperty
+                or PropertyAccessMode.FieldDuringConstruction
+                or PropertyAccessMode.PreferFieldDuringConstruction)
             {
                 if (hasSetter)
                 {
@@ -317,9 +317,9 @@ public static class PropertyBaseExtensions
             }
         }
 
-        if (mode == PropertyAccessMode.PreferProperty
-            || mode == PropertyAccessMode.FieldDuringConstruction
-            || mode == PropertyAccessMode.PreferFieldDuringConstruction)
+        if (mode is PropertyAccessMode.PreferProperty
+            or PropertyAccessMode.FieldDuringConstruction
+            or PropertyAccessMode.PreferFieldDuringConstruction)
         {
             if (hasGetter)
             {

@@ -26,17 +26,6 @@ public sealed partial class SelectExpression : TableExpressionBase
     private const string DiscriminatorColumnAlias = "Discriminator";
     private static readonly IdentifierComparer IdentifierComparerInstance = new();
 
-    private static readonly Dictionary<ExpressionType, ExpressionType> MirroredOperationMap =
-        new()
-        {
-            { ExpressionType.Equal, ExpressionType.Equal },
-            { ExpressionType.NotEqual, ExpressionType.NotEqual },
-            { ExpressionType.LessThan, ExpressionType.GreaterThan },
-            { ExpressionType.LessThanOrEqual, ExpressionType.GreaterThanOrEqual },
-            { ExpressionType.GreaterThan, ExpressionType.LessThan },
-            { ExpressionType.GreaterThanOrEqual, ExpressionType.LessThanOrEqual }
-        };
-
     private readonly List<ProjectionExpression> _projection = new();
     private readonly List<TableExpressionBase> _tables = new();
     private readonly List<TableReferenceExpression> _tableReferences = new();
@@ -632,7 +621,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     public void ApplyDistinct()
     {
         if (_clientProjections.Count > 0
-            && _clientProjections.Any(e => e is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable } sqe))
+            && _clientProjections.Any(e => e is ShapedQueryExpression { ResultCardinality: ResultCardinality.Enumerable }))
         {
             throw new InvalidOperationException(RelationalStrings.DistinctOnCollectionNotSupported);
         }
@@ -852,8 +841,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         containsCollection = true;
                     }
 
-                    if (sqe.ResultCardinality == ResultCardinality.Single
-                        || sqe.ResultCardinality == ResultCardinality.SingleOrDefault)
+                    if (sqe.ResultCardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
                     {
                         containsSingleResult = true;
                     }
@@ -966,9 +954,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                             return memberInitExpression.Update((NewExpression)updatedNewExpression, newBindings);
 
-                        case UnaryExpression unaryExpression
-                        when unaryExpression.NodeType == ExpressionType.Convert
-                            || unaryExpression.NodeType == ExpressionType.ConvertChecked:
+                        case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression:
                             return unaryExpression.Update(
                                 AddGroupByKeySelectorToProjection(
                                     selectExpression, clientProjectionList, projectionBindingMap, unaryExpression.Operand));
@@ -1043,8 +1029,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 baseSelectExpression = (SelectExpression)cloningExpressionVisitor!.Visit(this);
                 // We mark this as mutable because the split query will combine into this and take it over.
                 baseSelectExpression._mutable = true;
-                if (resultCardinality == ResultCardinality.Single
-                    || resultCardinality == ResultCardinality.SingleOrDefault)
+                if (resultCardinality is ResultCardinality.Single or ResultCardinality.SingleOrDefault)
                 {
                     // Update limit since split queries don't need limit 2
                     if (pushdownOccurred)
@@ -1118,9 +1103,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                         break;
                     }
 
-                    case ShapedQueryExpression shapedQueryExpression
-                        when shapedQueryExpression.ResultCardinality == ResultCardinality.Single
-                        || shapedQueryExpression.ResultCardinality == ResultCardinality.SingleOrDefault:
+                    case ShapedQueryExpression
+                    {
+                        ResultCardinality: ResultCardinality.Single or ResultCardinality.SingleOrDefault
+                    } shapedQueryExpression:
                     {
                         var innerSelectExpression = (SelectExpression)shapedQueryExpression.QueryExpression;
                         var innerShaperExpression = shapedQueryExpression.ShaperExpression;
@@ -1695,7 +1681,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     additionalPathList.Add((additionalPathSegment.PropertyName, null, null));
                 }
-                else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue } sqlConstant)
+                else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue })
                 {
                     additionalPathList.Add((null, intValue, null));
                 }
@@ -1764,9 +1750,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         foreach (var (projectionMember, expression) in projectionMapping)
         {
             Check.DebugAssert(
-                expression is SqlExpression
-                || expression is EntityProjectionExpression
-                || expression is JsonQueryExpression,
+                expression is SqlExpression or EntityProjectionExpression or JsonQueryExpression,
                 "Invalid operation in the projection.");
             _projectionMapping[projectionMember] = expression;
         }
@@ -1784,10 +1768,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         foreach (var expression in clientProjections)
         {
             Check.DebugAssert(
-                expression is SqlExpression
-                || expression is EntityProjectionExpression
-                || expression is ShapedQueryExpression
-                || expression is JsonQueryExpression,
+                expression is SqlExpression or EntityProjectionExpression or ShapedQueryExpression or JsonQueryExpression,
                 "Invalid operation in the projection.");
             _clientProjections.Add(expression);
             _aliasForClientProjections.Add(null);
@@ -2105,9 +2086,7 @@ public sealed partial class SelectExpression : TableExpressionBase
 
                 break;
 
-            case UnaryExpression unaryExpression
-                when unaryExpression.NodeType == ExpressionType.Convert
-                || unaryExpression.NodeType == ExpressionType.ConvertChecked:
+            case UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression:
                 PopulateGroupByTerms(unaryExpression.Operand, groupByTerms, groupByAliases, name);
                 break;
 
@@ -2916,7 +2895,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         var innerMemberInfo = transparentIdentifierType.GetTypeInfo().GetDeclaredField("Inner")!;
         var outerClientEval = _clientProjections.Count > 0;
         var innerClientEval = innerSelectExpression._clientProjections.Count > 0;
-        var innerNullable = joinType == JoinType.LeftJoin || joinType == JoinType.OuterApply;
+        var innerNullable = joinType is JoinType.LeftJoin or JoinType.OuterApply;
 
         if (outerClientEval)
         {
@@ -3019,8 +2998,7 @@ public sealed partial class SelectExpression : TableExpressionBase
     {
         innerPushdownOccurred = false;
         // Try to convert Apply to normal join
-        if (joinType == JoinType.CrossApply
-            || joinType == JoinType.OuterApply)
+        if (joinType is JoinType.CrossApply or JoinType.OuterApply)
         {
             var limit = innerSelectExpression.Limit;
             var offset = innerSelectExpression.Offset;
@@ -3160,8 +3138,7 @@ public sealed partial class SelectExpression : TableExpressionBase
         if (_identifier.Count > 0
             && innerSelectExpression._identifier.Count > 0)
         {
-            if (joinType == JoinType.LeftJoin
-                || joinType == JoinType.OuterApply)
+            if (joinType is JoinType.LeftJoin or JoinType.OuterApply)
             {
                 _identifier.AddRange(innerSelectExpression._identifier.Select(e => (e.Column.MakeNullable(), e.Comparer)));
             }
@@ -3327,11 +3304,11 @@ public sealed partial class SelectExpression : TableExpressionBase
             {
                 if (sqlBinaryExpression.OperatorType == ExpressionType.Equal
                     || (allowNonEquality
-                        && (sqlBinaryExpression.OperatorType == ExpressionType.NotEqual
-                            || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThan
-                            || sqlBinaryExpression.OperatorType == ExpressionType.GreaterThanOrEqual
-                            || sqlBinaryExpression.OperatorType == ExpressionType.LessThan
-                            || sqlBinaryExpression.OperatorType == ExpressionType.LessThanOrEqual)))
+                        && sqlBinaryExpression.OperatorType is ExpressionType.NotEqual
+                            or ExpressionType.GreaterThan
+                            or ExpressionType.GreaterThanOrEqual
+                            or ExpressionType.LessThan
+                            or ExpressionType.LessThanOrEqual))
                 {
                     if (IsContainedSql(outer, sqlBinaryExpression.Left)
                         && IsContainedSql(inner, sqlBinaryExpression.Right))
@@ -3346,8 +3323,20 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         outerColumnExpressions.Add(sqlBinaryExpression.Right);
 
+                        var mirroredOperation = sqlBinaryExpression.OperatorType switch
+                        {
+                            ExpressionType.Equal => ExpressionType.Equal,
+                            ExpressionType.NotEqual => ExpressionType.NotEqual,
+                            ExpressionType.LessThan => ExpressionType.GreaterThan,
+                            ExpressionType.LessThanOrEqual => ExpressionType.GreaterThanOrEqual,
+                            ExpressionType.GreaterThan => ExpressionType.LessThan,
+                            ExpressionType.GreaterThanOrEqual => ExpressionType.LessThanOrEqual,
+
+                            _ => throw new InvalidOperationException("IMPOSSIBLE")
+                        };
+
                         return new SqlBinaryExpression(
-                            MirroredOperationMap[sqlBinaryExpression.OperatorType],
+                            mirroredOperation,
                             sqlBinaryExpression.Right,
                             sqlBinaryExpression.Left,
                             sqlBinaryExpression.Type,
@@ -3435,7 +3424,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                 IDictionary<ProjectionMember, Expression> projectionMapping)
             {
                 var result = new List<ColumnExpression>();
-                foreach (var (projectionMember, expression) in projectionMapping)
+                foreach (var (_, expression) in projectionMapping)
                 {
                     if (expression is EntityProjectionExpression entityProjection)
                     {
@@ -4016,9 +4005,8 @@ public sealed partial class SelectExpression : TableExpressionBase
             var table = _tables[i];
             var tableAlias = GetAliasFromTableExpressionBase(table);
             if (columnsMap[tableAlias] == null
-                && (table is LeftJoinExpression
-                    || table is OuterApplyExpression
-                    || table is InnerJoinExpression) // This is only valid for removable join table which are from entity splitting
+                // InnerJoin is only valid for removable join table which are from entity splitting
+                && table is LeftJoinExpression or OuterApplyExpression or InnerJoinExpression
                 && _removableJoinTables?.Contains(i + removedTableCount) == true)
             {
                 _tables.RemoveAt(i);

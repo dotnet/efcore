@@ -250,16 +250,13 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         }
 
         protected override Expression VisitExtension(Expression extensionExpression)
-            => extensionExpression is EntityShaperExpression
-                || extensionExpression is ProjectionBindingExpression
-                    ? extensionExpression
-                    : base.VisitExtension(extensionExpression);
+            => extensionExpression is EntityShaperExpression or ProjectionBindingExpression
+                ? extensionExpression
+                : base.VisitExtension(extensionExpression);
 
         private static Expression? RemoveConvert(Expression? expression)
         {
-            while (expression != null
-                   && (expression.NodeType == ExpressionType.Convert
-                       || expression.NodeType == ExpressionType.ConvertChecked))
+            while (expression is { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked })
             {
                 expression = RemoveConvert(((UnaryExpression)expression).Operand);
             }
@@ -309,8 +306,8 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         {
             _entityMaterializerSource = entityMaterializerSource;
             _queryTrackingBehavior = queryTrackingBehavior;
-            _queryStateManager = queryTrackingBehavior == QueryTrackingBehavior.TrackAll
-                || queryTrackingBehavior == QueryTrackingBehavior.NoTrackingWithIdentityResolution;
+            _queryStateManager =
+                queryTrackingBehavior is QueryTrackingBehavior.TrackAll or QueryTrackingBehavior.NoTrackingWithIdentityResolution;
         }
 
         public Expression Inject(Expression expression)

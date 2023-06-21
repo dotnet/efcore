@@ -82,10 +82,7 @@ public class InjectOrderByPropertyExpressionMutator : ExpressionMutator
         {
             // can't inject OrderBy inside of include - would have to rewrite the ThenInclude method to one that accepts ordered input
             var insideThenInclude = default(bool?);
-            if (expression is MethodCallExpression methodCallExpression
-                && (methodCallExpression.Method.Name == "ThenInclude"
-                    || methodCallExpression.Method.Name == "ThenBy"
-                    || methodCallExpression.Method.Name == "ThenByDescending"))
+            if (expression is MethodCallExpression { Method.Name: "ThenInclude" or "ThenBy" or "ThenByDescending" })
             {
                 insideThenInclude = _insideThenInclude;
                 _insideThenInclude = true;

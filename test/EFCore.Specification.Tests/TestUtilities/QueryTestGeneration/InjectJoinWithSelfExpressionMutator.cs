@@ -60,9 +60,9 @@ public class InjectJoinWithSelfExpressionMutator : ExpressionMutator
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
-            if (node?.Method.Name == nameof(Queryable.ThenBy)
-                || node?.Method.Name == nameof(Queryable.ThenByDescending)
-                || node?.Method.Name == nameof(EntityFrameworkQueryableExtensions.ThenInclude))
+            if (node?.Method.Name is nameof(Queryable.ThenBy)
+                or nameof(Queryable.ThenByDescending)
+                or nameof(EntityFrameworkQueryableExtensions.ThenInclude))
             {
                 return node;
             }

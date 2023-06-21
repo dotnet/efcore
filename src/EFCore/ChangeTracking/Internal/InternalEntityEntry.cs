@@ -368,25 +368,20 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             StateManager.StopTracking(this, oldState);
         }
 
-        if ((newState == EntityState.Deleted
-                || newState == EntityState.Detached)
+        if (newState is EntityState.Deleted or EntityState.Detached
             && HasConceptualNull)
         {
             _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Null, flagged: false);
         }
 
-        if (oldState == EntityState.Detached
-            || oldState == EntityState.Unchanged)
+        if (oldState is EntityState.Detached or EntityState.Unchanged)
         {
-            if (newState == EntityState.Added
-                || newState == EntityState.Deleted
-                || newState == EntityState.Modified)
+            if (newState is EntityState.Added or EntityState.Deleted or EntityState.Modified)
             {
                 StateManager.ChangedCount++;
             }
         }
-        else if (newState == EntityState.Detached
-                 || newState == EntityState.Unchanged)
+        else if (newState is EntityState.Detached or EntityState.Unchanged)
         {
             StateManager.ChangedCount--;
         }
@@ -395,8 +390,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
         HandleSharedIdentityEntry(newState);
 
-        if ((newState == EntityState.Deleted
-                || newState == EntityState.Detached)
+        if (newState is EntityState.Deleted or EntityState.Detached
             && sharedIdentityEntry == null
             && StateManager.CascadeDeleteTiming == CascadeTiming.Immediate)
         {
@@ -419,8 +413,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 break;
             case EntityState.Added:
             case EntityState.Modified:
-                if (sharedIdentityEntry.EntityState == EntityState.Added
-                    || sharedIdentityEntry.EntityState == EntityState.Modified)
+                if (sharedIdentityEntry.EntityState is EntityState.Added or EntityState.Modified)
                 {
                     if (StateManager.SensitiveLoggingEnabled)
                     {
@@ -1333,9 +1326,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
                 && valueType == CurrentValueType.Normal
                 && (!asProperty.ClrType.IsNullableType()
                     || asProperty.GetContainingForeignKeys().Any(
-                        fk => fk.IsRequired
-                            && (fk.DeleteBehavior == DeleteBehavior.Cascade
-                                || fk.DeleteBehavior == DeleteBehavior.ClientCascade)
+                        fk => fk is { IsRequired: true, DeleteBehavior: DeleteBehavior.Cascade or DeleteBehavior.ClientCascade }
                             && fk.DeclaringEntityType.IsAssignableFrom(EntityType))))
             {
                 if (value == null)
@@ -1616,9 +1607,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             }
         }
 
-        var cascadeFk = fks.FirstOrDefault(
-            fk => fk.DeleteBehavior == DeleteBehavior.Cascade
-                || fk.DeleteBehavior == DeleteBehavior.ClientCascade);
+        var cascadeFk = fks.FirstOrDefault(fk => fk.DeleteBehavior is DeleteBehavior.Cascade or DeleteBehavior.ClientCascade);
         if (cascadeFk != null
             && (force
                 || (!isCascadeDelete

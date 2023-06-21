@@ -41,8 +41,7 @@ public class CosmosManyToManyJoinEntityTypeConvention :
         IConventionAnnotation? oldAnnotation,
         IConventionContext<IConventionAnnotation> context)
     {
-        if (name == CosmosAnnotationNames.PartitionKeyName
-            || name == CosmosAnnotationNames.ContainerName)
+        if (name is CosmosAnnotationNames.PartitionKeyName or CosmosAnnotationNames.ContainerName)
         {
             foreach (var skipNavigation in entityTypeBuilder.Metadata.GetSkipNavigations())
             {

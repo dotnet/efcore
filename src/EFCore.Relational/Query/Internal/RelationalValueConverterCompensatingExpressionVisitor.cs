@@ -157,9 +157,7 @@ public class RelationalValueConverterCompensatingExpressionVisitor : ExpressionV
                 TryCompensateForBoolWithValueConverter(sqlUnaryExpression.Operand));
         }
 
-        if (sqlExpression is SqlBinaryExpression sqlBinaryExpression
-            && (sqlBinaryExpression.OperatorType == ExpressionType.AndAlso
-                || sqlBinaryExpression.OperatorType == ExpressionType.OrElse))
+        if (sqlExpression is SqlBinaryExpression { OperatorType: ExpressionType.AndAlso or ExpressionType.OrElse } sqlBinaryExpression)
         {
             return sqlBinaryExpression.Update(
                 TryCompensateForBoolWithValueConverter(sqlBinaryExpression.Left),

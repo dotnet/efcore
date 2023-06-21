@@ -245,8 +245,7 @@ internal class CommandLineApplication
             }
             else
             {
-                if (option.OptionType == CommandOptionType.NoValue
-                    || option.OptionType == CommandOptionType.BoolValue)
+                if (option.OptionType is CommandOptionType.NoValue or CommandOptionType.BoolValue)
                 {
                     // No value is needed for this option
                     option.TryParse(null);

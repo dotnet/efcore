@@ -297,7 +297,7 @@ SELECT 1 ELSE SELECT 0");
     // Unable to attach database file is thrown when file does not exist (See Issue #2810)
     // Unable to open the physical file is thrown when file does not exist (See Issue #2810)
     private static bool IsDoesNotExist(SqlException exception)
-        => exception.Number == 4060 || exception.Number == 1832 || exception.Number == 5120;
+        => exception.Number is 4060 or 1832 or 5120;
 
     // See Issue #985
     private bool RetryOnExistsFailure(SqlException exception)
@@ -322,12 +322,7 @@ SELECT 1 ELSE SELECT 0");
         //   Microsoft.Data.SqlClient.SqlException: Unable to open the physical file xxxxxxx.
         // And (Number 18456)
         //   Microsoft.Data.SqlClient.SqlException: Login failed for user 'xxxxxxx'.
-        if (exception.Number == 233
-            || exception.Number == -2
-            || exception.Number == 4060
-            || exception.Number == 1832
-            || exception.Number == 5120
-            || exception.Number == 18456)
+        if (exception.Number is 233 or -2 or 4060 or 1832 or 5120 or 18456)
         {
             ClearPool();
             return true;

@@ -1312,7 +1312,7 @@ public abstract partial class ManyToManyLoadTestBase<TFixture> : IClassFixture<T
             Assert.Contains(left, right.OneSkipShared);
             foreach (var three in right.ThreeSkipFull)
             {
-                Assert.True(three.Id == 11 || three.Id == 13);
+                Assert.True(three.Id is 11 or 13);
                 Assert.Contains(right, three.TwoSkipFull);
             }
         }

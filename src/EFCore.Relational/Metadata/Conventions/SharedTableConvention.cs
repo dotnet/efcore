@@ -239,10 +239,8 @@ public class SharedTableConvention : IModelFinalizingConvention
             {
                 if (property.GetAfterSaveBehavior() == PropertySaveBehavior.Save
                     && otherProperty.GetAfterSaveBehavior() == PropertySaveBehavior.Save
-                    && (property.ValueGenerated == ValueGenerated.Never
-                        || property.ValueGenerated == ValueGenerated.OnUpdateSometimes)
-                    && (otherProperty.ValueGenerated == ValueGenerated.Never
-                        || otherProperty.ValueGenerated == ValueGenerated.OnUpdateSometimes))
+                    && property.ValueGenerated is ValueGenerated.Never or ValueGenerated.OnUpdateSometimes
+                    && otherProperty.ValueGenerated is ValueGenerated.Never or ValueGenerated.OnUpdateSometimes)
                 {
                     // Handle this with a default value convention #9329
                     property.Builder.ValueGenerated(ValueGenerated.OnUpdateSometimes);

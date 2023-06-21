@@ -500,7 +500,7 @@ public class SqlServerStringMethodTranslator : IMethodCallTranslator
 
     // See https://docs.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql
     private static bool IsLikeWildChar(char c)
-        => c == '%' || c == '_' || c == '[';
+        => c is '%' or '_' or '[';
 
     private static string EscapeLikePattern(string pattern)
     {

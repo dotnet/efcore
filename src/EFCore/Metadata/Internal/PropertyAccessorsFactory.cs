@@ -48,7 +48,6 @@ public class PropertyAccessorsFactory
     {
         var entityClrType = propertyBase.DeclaringType.ClrType;
         var entryParameter = Expression.Parameter(typeof(InternalEntityEntry), "entry");
-        var property = propertyBase as IProperty;
         var propertyIndex = propertyBase.GetIndex();
         var shadowIndex = propertyBase.GetShadowIndex();
         var storeGeneratedIndex = propertyBase.GetStoreGeneratedIndex();
