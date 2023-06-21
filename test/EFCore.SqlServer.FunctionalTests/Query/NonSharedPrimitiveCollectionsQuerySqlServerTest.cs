@@ -314,6 +314,52 @@ WHERE [t].[DateTime] IN (
     }
 
     [ConditionalFact]
+    public virtual async Task Same_collection_with_default_type_mapping_and_uninferrable_context()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>(b => b.Property(typeof(DateTime), "DateTime")));
+
+        await using var context = contextFactory.CreateContext();
+
+        var dateTimes = new DateTime?[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00), null };
+
+        _ = await context.Set<TestEntity>()
+            .Where(m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
+            .ToArrayAsync();
+
+        AssertSql(
+"""
+@__dateTimes_0='["2020-01-01T12:30:00","2020-01-02T12:30:00",null]' (Size = 4000)
+
+SELECT [t].[Id], [t].[DateTime], [t].[Ints]
+FROM [TestEntity] AS [t]
+WHERE EXISTS (
+    SELECT 1
+    FROM OPENJSON(@__dateTimes_0) WITH ([value] datetime2 '$') AS [d]
+    WHERE [d].[value] = [t].[DateTime] AND [d].[value] IS NOT NULL)
+""");
+    }
+
+    [ConditionalFact]
+    public virtual async Task Same_collection_with_non_default_type_mapping_and_uninferrable_context()
+    {
+        var contextFactory = await InitializeAsync<TestContext>(
+            onModelCreating: mb => mb.Entity<TestEntity>(
+                b => b.Property(typeof(DateTime), "DateTime").HasColumnType("datetime")));
+
+        await using var context = contextFactory.CreateContext();
+
+        var dateTimes = new DateTime?[] { new DateTime(2020, 1, 1, 12, 30, 00), new DateTime(2020, 1, 2, 12, 30, 00), null };
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => context.Set<TestEntity>()
+                .Where(
+                    m => dateTimes.Any(d => d == EF.Property<DateTime>(m, "DateTime") && d != null))
+                .ToArrayAsync());
+        Assert.Equal(RelationalStrings.ConflictingTypeMappingsInferredForColumn("value"), exception.Message);
+    }
+
+    [ConditionalFact]
     public virtual async Task Same_collection_with_conflicting_type_mappings_not_supported()
     {
         var contextFactory = await InitializeAsync<TestContext>(

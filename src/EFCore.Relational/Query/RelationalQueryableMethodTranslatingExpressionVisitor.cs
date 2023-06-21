@@ -2656,6 +2656,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     && _currentProjectionExpression is not null
                     && _inferredColumns.TryGetValue(
                         (_currentSelectExpression, _currentProjectionExpression.Alias), out var inferredTypeMapping)
+                    && inferredTypeMapping is not null
                     && WasMaybeOriginallyUntyped(columnExpression):
                 {
                     RegisterInferredTypeMapping(columnExpression, inferredTypeMapping);
@@ -2704,14 +2705,15 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                     : expression;
         }
 
-        private void RegisterInferredTypeMapping(ColumnExpression columnExpression, RelationalTypeMapping? inferredTypeMapping)
+        private void RegisterInferredTypeMapping(ColumnExpression columnExpression, RelationalTypeMapping inferredTypeMapping)
         {
             var underlyingTable = columnExpression.Table is JoinExpressionBase joinExpression
                 ? joinExpression.Table
                 : columnExpression.Table;
 
             if (_inferredColumns.TryGetValue((underlyingTable, columnExpression.Name), out var knownTypeMapping)
-                && inferredTypeMapping != knownTypeMapping)
+                && knownTypeMapping is not null
+                && inferredTypeMapping.StoreType != knownTypeMapping.StoreType)
             {
                 // A different type mapping was already inferred for this column - we have a conflict.
                 // Null out the value for the inferred type mapping as an indication of the conflict. If it turns out that we need the
