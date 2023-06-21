@@ -36,23 +36,15 @@ public class SqlServerSqlExpressionFactory : SqlExpressionFactory
     /// </summary>
     [return: NotNullIfNotNull("sqlExpression")]
     public override SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
-    {
-#pragma warning disable IDE0046 // Convert to conditional expression
-        if (sqlExpression == null
-#pragma warning restore IDE0046 // Convert to conditional expression
-            || sqlExpression.TypeMapping != null)
+        => sqlExpression switch
         {
-            return sqlExpression;
-        }
+            null or { TypeMapping: not null } => sqlExpression,
 
-        return sqlExpression switch
-        {
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
             SqlServerAggregateFunctionExpression e => e.ApplyTypeMapping(typeMapping),
 
             _ => base.ApplyTypeMapping(sqlExpression, typeMapping)
         };
-    }
 
     private SqlExpression ApplyTypeMappingOnAtTimeZone(AtTimeZoneExpression atTimeZoneExpression, RelationalTypeMapping? typeMapping)
     {

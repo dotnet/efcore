@@ -43,17 +43,10 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// <inheritdoc />
     [return: NotNullIfNotNull("sqlExpression")]
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
-    {
-#pragma warning disable IDE0046 // Convert to conditional expression
-        if (sqlExpression == null
-#pragma warning restore IDE0046 // Convert to conditional expression
-            || sqlExpression.TypeMapping != null)
+        => sqlExpression switch
         {
-            return sqlExpression;
-        }
+            null or { TypeMapping: not null } => sqlExpression,
 
-        return sqlExpression switch
-        {
             AtTimeZoneExpression e => ApplyTypeMappingOnAtTimeZone(e, typeMapping),
             CaseExpression e => ApplyTypeMappingOnCase(e, typeMapping),
             CollateExpression e => ApplyTypeMappingOnCollate(e, typeMapping),
@@ -78,7 +71,6 @@ public class SqlExpressionFactory : ISqlExpressionFactory
 
             _ => sqlExpression
         };
-    }
 
     private SqlExpression ApplyTypeMappingOnAtTimeZone(AtTimeZoneExpression atTimeZoneExpression, RelationalTypeMapping? typeMapping)
         => new AtTimeZoneExpression(atTimeZoneExpression.Operand, atTimeZoneExpression.TimeZone, atTimeZoneExpression.Type, typeMapping);

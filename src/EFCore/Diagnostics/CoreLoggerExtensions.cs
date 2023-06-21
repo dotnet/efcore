@@ -3309,7 +3309,7 @@ public static class CoreLoggerExtensions
             }
         }
 
-        return new ValueTask<int>(entitiesSavedCount);
+        return ValueTask.FromResult(entitiesSavedCount);
     }
 
     private static SaveChangesCompletedEventData CreateSaveChangesCompletedEventData(

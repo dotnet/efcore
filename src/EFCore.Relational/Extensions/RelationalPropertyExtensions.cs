@@ -1498,8 +1498,7 @@ public static class RelationalPropertyExtensions
             }
 
             principalProperty = linkingRelationship.PrincipalEntityType.FindProperty(property.Name);
-            if (principalProperty == null
-                || !principalProperty.IsConcurrencyToken)
+            if (principalProperty is not { IsConcurrencyToken: true })
             {
                 return null;
             }

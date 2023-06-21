@@ -30,8 +30,8 @@ public partial class DbContextTest
         Func<DbContext, Product, EntityEntry<Product>> productAdder,
         EntityState expectedState)
         => TrackEntitiesTest(
-            (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
             expectedState);
 
     private static async Task TrackEntitiesTest(
@@ -191,8 +191,8 @@ public partial class DbContextTest
         Func<DbContext, Product, EntityEntry<Product>> productAdder,
         EntityState expectedState)
         => TrackEntitiesDefaultValueTest(
-            (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
             expectedState);
 
     // Issue #3890
@@ -252,9 +252,9 @@ public partial class DbContextTest
         Func<DbContext, TheGuWithSentinel, EntityEntry<TheGuWithSentinel>> guAdder,
         EntityState expectedState)
         => TrackEntitiesSentinelValueTest(
-            (c, e) => new ValueTask<EntityEntry<CategoryWithSentinel>>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry<ProductWithSentinel>>(productAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry<TheGuWithSentinel>>(guAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(guAdder(c, e)),
             expectedState);
 
     // Issue #3890
@@ -425,8 +425,8 @@ public partial class DbContextTest
         Func<DbContext, object, EntityEntry> productAdder,
         EntityState expectedState)
         => TrackEntitiesTestNonGeneric(
-            (c, e) => new ValueTask<EntityEntry>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry>(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
             expectedState);
 
     private static async Task TrackEntitiesTestNonGeneric(
@@ -586,8 +586,8 @@ public partial class DbContextTest
         Func<DbContext, object, EntityEntry> productAdder,
         EntityState expectedState)
         => TrackEntitiesDefaultValuesTestNonGeneric(
-            (c, e) => new ValueTask<EntityEntry>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry>(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
             expectedState);
 
     // Issue #3890

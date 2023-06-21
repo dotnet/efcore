@@ -521,7 +521,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertDisposing(eventData);
 
-            return new ValueTask<InterceptionResult>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual void ConnectionDisposed(
@@ -735,7 +735,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertOpening(eventData);
 
-            return new ValueTask<InterceptionResult>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual void ConnectionOpened(
@@ -780,7 +780,7 @@ public abstract class ConnectionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertClosing(eventData);
 
-            return new ValueTask<InterceptionResult>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual void ConnectionClosed(

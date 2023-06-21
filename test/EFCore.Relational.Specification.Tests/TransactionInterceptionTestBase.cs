@@ -1123,7 +1123,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertStarting(connection, eventData);
 
-            return new ValueTask<InterceptionResult<DbTransaction>>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual ValueTask<DbTransaction> TransactionStartedAsync(
@@ -1161,7 +1161,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertUsed(connection, eventData);
 
-            return new ValueTask<DbTransaction>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual InterceptionResult TransactionCommitting(
@@ -1195,7 +1195,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertCommitting(eventData);
 
-            return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual Task TransactionCommittedAsync(
@@ -1241,7 +1241,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertRollingBack(eventData);
 
-            return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual Task TransactionRolledBackAsync(
@@ -1287,7 +1287,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertCreatingSavepoint(eventData);
 
-            return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual Task CreatedSavepointAsync(
@@ -1333,7 +1333,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertRollingBackToSavepoint(eventData);
 
-            return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual Task RolledBackToSavepointAsync(
@@ -1379,7 +1379,7 @@ public abstract class TransactionInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertReleasingSavepoint(eventData);
 
-            return new ValueTask<InterceptionResult>(Task.FromResult(result));
+            return ValueTask.FromResult(result);
         }
 
         public virtual Task ReleasedSavepointAsync(

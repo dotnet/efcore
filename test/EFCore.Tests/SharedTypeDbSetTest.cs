@@ -170,8 +170,8 @@ public class SharedTypeDbSetTest
         Func<DbSet<Product>, Product, EntityEntry<Product>> productAdder,
         EntityState expectedState)
         => TrackEntitiesTest(
-            (c, e) => new ValueTask<EntityEntry<Category>>(categoryAdder(c, e)),
-            (c, e) => new ValueTask<EntityEntry<Product>>(productAdder(c, e)),
+            (c, e) => ValueTask.FromResult(categoryAdder(c, e)),
+            (c, e) => ValueTask.FromResult(productAdder(c, e)),
             expectedState);
 
     private static async Task TrackEntitiesTest(
