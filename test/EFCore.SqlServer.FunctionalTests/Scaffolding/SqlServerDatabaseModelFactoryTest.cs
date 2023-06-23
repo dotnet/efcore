@@ -1598,7 +1598,7 @@ CREATE TABLE MyTable (
                 "DROP TABLE MyTable;");
 
         [ConditionalFact]
-        public void Non_literal_intl_default_values_are_passed_through()
+        public void Non_literal_int_default_values_are_passed_through()
             => Test(
                 @"
 CREATE TABLE MyTable (
