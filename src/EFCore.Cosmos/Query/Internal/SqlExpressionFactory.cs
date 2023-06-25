@@ -40,10 +40,9 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// </summary>
     [return: NotNullIfNotNull("sqlExpression")]
     public virtual SqlExpression? ApplyDefaultTypeMapping(SqlExpression? sqlExpression)
-        => sqlExpression == null
-            || sqlExpression.TypeMapping != null
-                ? sqlExpression
-                : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, _model));
+        => sqlExpression is not { TypeMapping: null }
+            ? sqlExpression
+            : ApplyTypeMapping(sqlExpression, _typeMappingSource.FindMapping(sqlExpression.Type, _model));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -54,8 +53,7 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     [return: NotNullIfNotNull("sqlExpression")]
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
     {
-        if (sqlExpression == null
-            || sqlExpression.TypeMapping != null)
+        if (sqlExpression is not { TypeMapping: null })
         {
             return sqlExpression;
         }

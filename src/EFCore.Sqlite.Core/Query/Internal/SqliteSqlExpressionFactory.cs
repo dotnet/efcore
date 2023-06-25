@@ -148,7 +148,7 @@ public class SqliteSqlExpressionFactory : SqlExpressionFactory
     /// </summary>
     [return: NotNullIfNotNull("sqlExpression")]
     public override SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, RelationalTypeMapping? typeMapping)
-        => sqlExpression == null || sqlExpression.TypeMapping != null
+        => sqlExpression is not { TypeMapping: null }
             ? sqlExpression
             : sqlExpression switch
             {

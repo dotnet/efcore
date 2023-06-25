@@ -584,7 +584,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             SavingChangesCalled = true;
             AsyncCalled = true;
 
-            return new ValueTask<InterceptionResult<int>>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual ValueTask<int> SavedChangesAsync(
@@ -598,7 +598,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             SavedChangesCalled = true;
             AsyncCalled = true;
 
-            return new ValueTask<int>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual Task SaveChangesFailedAsync(
@@ -657,7 +657,7 @@ public abstract class SaveChangesInterceptionTestBase : InterceptionTestBase
             ConcurrencyExceptionCalled = true;
             AsyncCalled = true;
 
-            return new ValueTask<InterceptionResult>(result);
+            return ValueTask.FromResult(result);
         }
     }
 

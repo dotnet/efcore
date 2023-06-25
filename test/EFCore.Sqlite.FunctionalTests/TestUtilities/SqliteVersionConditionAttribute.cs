@@ -46,21 +46,21 @@ public sealed class SqliteVersionConditionAttribute : Attribute, ITestCondition
     {
         if (Current == _skip)
         {
-            return new ValueTask<bool>(false);
+            return ValueTask.FromResult(false);
         }
 
         if (_min == null
             && _max == null)
         {
-            return new ValueTask<bool>(true);
+            return ValueTask.FromResult(true);
         }
 
         if (_min == null)
         {
-            return new ValueTask<bool>(Current <= _max);
+            return ValueTask.FromResult(Current <= _max);
         }
 
-        return new ValueTask<bool>(_max == null ? Current >= _min : Current <= _max && Current >= _min);
+        return ValueTask.FromResult(_max == null ? Current >= _min : Current <= _max && Current >= _min);
     }
 
     private string? _skipReason;

@@ -1921,7 +1921,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertExecuting(command, eventData);
 
-            return new ValueTask<InterceptionResult<DbDataReader>>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual ValueTask<InterceptionResult<object>> ScalarExecutingAsync(
@@ -1934,7 +1934,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertExecuting(command, eventData);
 
-            return new ValueTask<InterceptionResult<object>>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(
@@ -1947,7 +1947,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertExecuting(command, eventData);
 
-            return new ValueTask<InterceptionResult<int>>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual DbDataReader ReaderExecuted(
@@ -1996,7 +1996,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertExecuted(command, eventData);
 
-            return new ValueTask<DbDataReader>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual ValueTask<object> ScalarExecutedAsync(
@@ -2009,7 +2009,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertExecuted(command, eventData);
 
-            return new ValueTask<object>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual ValueTask<int> NonQueryExecutedAsync(
@@ -2022,7 +2022,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             AsyncCalled = true;
             AssertExecuted(command, eventData);
 
-            return new ValueTask<int>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual void CommandFailed(
@@ -2100,7 +2100,7 @@ public abstract class CommandInterceptionTestBase : InterceptionTestBase
             Assert.Equal(CommandId, eventData.CommandId);
             Assert.Equal(ConnectionId, eventData.ConnectionId);
 
-            return new ValueTask<InterceptionResult>(result);
+            return ValueTask.FromResult(result);
         }
 
         public virtual InterceptionResult DataReaderDisposing(
