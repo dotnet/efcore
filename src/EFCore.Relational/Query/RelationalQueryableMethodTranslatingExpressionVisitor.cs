@@ -24,6 +24,8 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30528", out var enabled) && enabled;
     private static readonly bool QuirkEnabled30572
         = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue30572", out var enabled) && enabled;
+    private static readonly bool QuirkEnabled31078
+        = AppContext.TryGetSwitch("Microsoft.EntityFrameworkCore.Issue31078", out var enabled) && enabled;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="QueryableMethodTranslatingExpressionVisitor" /> class.
@@ -1374,7 +1376,12 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         OperatorType: ExpressionType.Equal, Left: ColumnExpression column
                     } sqlBinaryExpression)
                 {
-                    columnValueSetters.Add(new ColumnValueSetter(column, sqlBinaryExpression.Right));
+                    columnValueSetters.Add(
+                        new ColumnValueSetter(
+                            column,
+                            QuirkEnabled31078
+                                ? sqlBinaryExpression.Right
+                                : selectExpression.AssignUniqueAliases(sqlBinaryExpression.Right)));
                 }
                 else
                 {
