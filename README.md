@@ -98,14 +98,12 @@ This library implements the common [ADO.NET](https://docs.microsoft.com/dotnet/f
 
 ```cs
 using var connection = new SqliteConnection("Data Source=Blogs.db");
-
 connection.Open();
 
-var command = connection.CreateCommand();
+using var command = connection.CreateCommand();
 command.CommandText = "SELECT Url FROM Blogs";
 
 using var reader = command.ExecuteReader();
-
 while (reader.Read())
 {
     var url = reader.GetString(0);
