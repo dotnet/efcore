@@ -1544,7 +1544,10 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                         OperatorType: ExpressionType.Equal, Left: ColumnExpression column
                     } sqlBinaryExpression)
                 {
-                    columnValueSetters.Add(new ColumnValueSetter(column, sqlBinaryExpression.Right));
+                    columnValueSetters.Add(
+                        new ColumnValueSetter(
+                            column,
+                            selectExpression.AssignUniqueAliases(sqlBinaryExpression.Right)));
                 }
                 else
                 {
