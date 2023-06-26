@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.ChangeTracking;
 
 /// <summary>
-///     Options to control the behavior of loading related entities with <see cref="NavigationEntry.Load" />.
+///     Options to control the behavior of loading related entities with <see cref="NavigationEntry.Load(LoadOptions)" />.
 /// </summary>
 [Flags]
 public enum LoadOptions
