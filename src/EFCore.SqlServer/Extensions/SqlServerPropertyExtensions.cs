@@ -15,7 +15,7 @@ namespace Microsoft.EntityFrameworkCore;
 ///     <see href="https://aka.ms/efcore-docs-sqlserver">Accessing SQL Server and SQL Azure databases with EF Core</see>
 ///     for more information and examples.
 /// </remarks>
-public static class SqlServerPrimitivePropertyBaseExtensions
+public static class SqlServerPropertyExtensions
 {
     /// <summary>
     ///     Returns the name to use for the hi-lo sequence.

@@ -85,9 +85,9 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
 
                     typeof(IReadOnlyProperty),
                     (
-                        typeof(SqlServerPrimitivePropertyBaseExtensions),
-                        typeof(SqlServerPrimitivePropertyBaseExtensions),
-                        typeof(SqlServerPrimitivePropertyBaseExtensions),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions),
                         typeof(SqlServerPropertyBuilderExtensions),
                         null
                     )

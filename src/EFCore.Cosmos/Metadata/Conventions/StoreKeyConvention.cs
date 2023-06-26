@@ -306,9 +306,7 @@ public class StoreKeyConvention :
                 }
             }
 
-            ProcessIdProperty(((declaringType as IConventionEntityType)
-                    ?? ((IConventionComplexType)declaringType).FundamentalEntityType)
-                .Builder);
+            ProcessIdProperty(declaringType.FundamentalEntityType.Builder);
         }
     }
 }

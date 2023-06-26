@@ -6,7 +6,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure;
 /// <summary>
 ///     Relational extension methods for <see cref="IReadOnlyProperty" />.
 /// </summary>
-public static class RelationalPrimitivePropertyBaseExtensions
+public static class RelationalPropertyExtensions
 {
     /// <summary>
     ///     Creates a comma-separated list of column names.

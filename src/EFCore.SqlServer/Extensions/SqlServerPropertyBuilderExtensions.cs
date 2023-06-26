@@ -696,7 +696,7 @@ public static class SqlServerPropertyBuilderExtensions
         SqlServerValueGenerationStrategy? valueGenerationStrategy,
         bool fromDataAnnotation = false)
         => (valueGenerationStrategy == null
-                || SqlServerPrimitivePropertyBaseExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
+                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
             && propertyBuilder.CanSetAnnotation(
                 SqlServerAnnotationNames.ValueGenerationStrategy, valueGenerationStrategy, fromDataAnnotation);
 
@@ -719,7 +719,7 @@ public static class SqlServerPropertyBuilderExtensions
         in StoreObjectIdentifier storeObject,
         bool fromDataAnnotation = false)
         => (valueGenerationStrategy == null
-                || SqlServerPrimitivePropertyBaseExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
+                || SqlServerPropertyExtensions.IsCompatibleWithValueGeneration(propertyBuilder.Metadata))
             && (propertyBuilder.Metadata.FindOverrides(storeObject)?.Builder
                     .CanSetAnnotation(
                         SqlServerAnnotationNames.ValueGenerationStrategy,

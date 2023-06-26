@@ -74,13 +74,8 @@ public class EntityProjectionExpression : Expression, IPrintableExpression
         var readExpressionMap = new Dictionary<IProperty, MethodCallExpression>();
         foreach (var (property, methodCallExpression) in _readExpressionMap)
         {
-            if (property.DeclaringType is not IEntityType entityType)
-            {
-                continue;
-            }
-
-            if (derivedType.IsAssignableFrom(entityType)
-                || entityType.IsAssignableFrom(derivedType))
+            if (derivedType.IsAssignableFrom(property.DeclaringType)
+                || property.DeclaringType.IsAssignableFrom(derivedType))
             {
                 readExpressionMap[property] = methodCallExpression;
             }

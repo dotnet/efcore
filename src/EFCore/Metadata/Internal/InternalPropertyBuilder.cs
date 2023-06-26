@@ -6,7 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 /// <summary>
-///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
 ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -15,7 +15,7 @@ public class InternalPropertyBuilder
     : InternalPropertyBaseBuilder<IConventionPropertyBuilder, Property>, IConventionPropertyBuilder
 {
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -26,7 +26,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -34,7 +34,7 @@ public class InternalPropertyBuilder
     protected override IConventionPropertyBuilder This => this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -77,7 +77,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -91,7 +91,7 @@ public class InternalPropertyBuilder
                     && Metadata.GetContainingKeys().All(k => configurationSource.Overrides(k.GetConfigurationSource()))));
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -109,7 +109,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -119,7 +119,7 @@ public class InternalPropertyBuilder
             || Metadata.ValueGenerated == valueGenerated;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -136,7 +136,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -146,7 +146,7 @@ public class InternalPropertyBuilder
             || Metadata.IsConcurrencyToken == concurrencyToken;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -164,7 +164,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -174,7 +174,7 @@ public class InternalPropertyBuilder
             || Equals(Metadata.Sentinel, sentinel);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -185,7 +185,7 @@ public class InternalPropertyBuilder
             : this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -196,7 +196,7 @@ public class InternalPropertyBuilder
             : this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -209,7 +209,7 @@ public class InternalPropertyBuilder
             : this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -227,7 +227,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -237,7 +237,7 @@ public class InternalPropertyBuilder
             || Metadata.GetMaxLength() == maxLength;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -255,7 +255,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -265,7 +265,7 @@ public class InternalPropertyBuilder
             || Metadata.GetPrecision() == precision;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -283,7 +283,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -293,7 +293,7 @@ public class InternalPropertyBuilder
             || Metadata.GetScale() == scale;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -311,7 +311,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -321,7 +321,7 @@ public class InternalPropertyBuilder
             || Metadata.IsUnicode() == unicode;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -339,7 +339,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -349,7 +349,7 @@ public class InternalPropertyBuilder
             || Metadata.GetBeforeSaveBehavior() == behavior;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -367,7 +367,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -379,7 +379,7 @@ public class InternalPropertyBuilder
             || Metadata.GetAfterSaveBehavior() == behavior;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -417,7 +417,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -437,7 +437,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -457,7 +457,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -470,7 +470,7 @@ public class InternalPropertyBuilder
                 && (Func<IProperty, IEntityType, ValueGenerator>?)Metadata[CoreAnnotationNames.ValueGeneratorFactory] == factory);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -483,7 +483,7 @@ public class InternalPropertyBuilder
                 && (Type?)Metadata[CoreAnnotationNames.ValueGeneratorFactoryType] == factory);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -502,7 +502,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -518,7 +518,7 @@ public class InternalPropertyBuilder
             && configurationSource.Overrides(Metadata.GetProviderClrTypeConfigurationSource());
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -537,7 +537,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -548,7 +548,7 @@ public class InternalPropertyBuilder
             && configurationSource.Overrides(Metadata.GetValueConverterConfigurationSource());
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -569,7 +569,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -582,7 +582,7 @@ public class InternalPropertyBuilder
                 && (Type?)Metadata[CoreAnnotationNames.ValueConverterType] == converterType);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -602,7 +602,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -612,7 +612,7 @@ public class InternalPropertyBuilder
             || Metadata.TypeMapping == typeMapping;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -632,7 +632,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -660,7 +660,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -680,7 +680,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -691,7 +691,7 @@ public class InternalPropertyBuilder
                 && (Type?)Metadata[CoreAnnotationNames.ValueComparerType] == comparerType);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -711,7 +711,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -728,7 +728,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -748,7 +748,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -762,7 +762,7 @@ public class InternalPropertyBuilder
 
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -872,7 +872,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -884,7 +884,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -896,7 +896,7 @@ public class InternalPropertyBuilder
     }
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -908,7 +908,7 @@ public class InternalPropertyBuilder
             == null ? null : this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -920,7 +920,7 @@ public class InternalPropertyBuilder
             == null ? null : this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -932,7 +932,7 @@ public class InternalPropertyBuilder
             == null ? null : this;
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -941,7 +941,7 @@ public class InternalPropertyBuilder
         => IsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -950,7 +950,7 @@ public class InternalPropertyBuilder
         => CanSetIsRequired(required, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -959,7 +959,7 @@ public class InternalPropertyBuilder
         => ValueGenerated(valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -969,7 +969,7 @@ public class InternalPropertyBuilder
             valueGenerated, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -979,7 +979,7 @@ public class InternalPropertyBuilder
             concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -989,7 +989,7 @@ public class InternalPropertyBuilder
             concurrencyToken, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -998,7 +998,7 @@ public class InternalPropertyBuilder
         => HasSentinel(sentinel, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1007,7 +1007,7 @@ public class InternalPropertyBuilder
         => CanSetSentinel(sentinel, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1016,7 +1016,7 @@ public class InternalPropertyBuilder
         => HasField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1025,7 +1025,7 @@ public class InternalPropertyBuilder
         => HasField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1034,7 +1034,7 @@ public class InternalPropertyBuilder
         => CanSetField(fieldName, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1043,7 +1043,7 @@ public class InternalPropertyBuilder
         => CanSetField(fieldInfo, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1055,7 +1055,7 @@ public class InternalPropertyBuilder
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1065,7 +1065,7 @@ public class InternalPropertyBuilder
             propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1074,7 +1074,7 @@ public class InternalPropertyBuilder
         => HasMaxLength(maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1083,7 +1083,7 @@ public class InternalPropertyBuilder
         => CanSetMaxLength(maxLength, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1092,7 +1092,7 @@ public class InternalPropertyBuilder
         => IsUnicode(unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1101,7 +1101,7 @@ public class InternalPropertyBuilder
         => CanSetIsUnicode(unicode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1110,7 +1110,7 @@ public class InternalPropertyBuilder
         => HasPrecision(precision, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1119,7 +1119,7 @@ public class InternalPropertyBuilder
         => CanSetPrecision(precision, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1128,7 +1128,7 @@ public class InternalPropertyBuilder
         => HasScale(scale, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1137,7 +1137,7 @@ public class InternalPropertyBuilder
         => CanSetScale(scale, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1146,7 +1146,7 @@ public class InternalPropertyBuilder
         => BeforeSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1155,7 +1155,7 @@ public class InternalPropertyBuilder
         => CanSetBeforeSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1164,7 +1164,7 @@ public class InternalPropertyBuilder
         => AfterSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1173,7 +1173,7 @@ public class InternalPropertyBuilder
         => CanSetAfterSave(behavior, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1185,7 +1185,7 @@ public class InternalPropertyBuilder
             valueGeneratorType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1196,7 +1196,7 @@ public class InternalPropertyBuilder
         => HasValueGenerator(factory, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1205,7 +1205,7 @@ public class InternalPropertyBuilder
         => CanSetValueGenerator(factory, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1218,7 +1218,7 @@ public class InternalPropertyBuilder
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1231,7 +1231,7 @@ public class InternalPropertyBuilder
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1240,7 +1240,7 @@ public class InternalPropertyBuilder
         => HasConversion(converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1249,7 +1249,7 @@ public class InternalPropertyBuilder
         => CanSetConversion(converter, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1260,7 +1260,7 @@ public class InternalPropertyBuilder
         => HasConverter(converterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1271,7 +1271,7 @@ public class InternalPropertyBuilder
         => CanSetConverter(converterType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1280,7 +1280,7 @@ public class InternalPropertyBuilder
         => HasConversion(providerClrType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1297,7 +1297,7 @@ public class InternalPropertyBuilder
         => CanSetTypeMapping(typeMapping, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1306,7 +1306,7 @@ public class InternalPropertyBuilder
         => HasValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1315,7 +1315,7 @@ public class InternalPropertyBuilder
         => CanSetValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1326,7 +1326,7 @@ public class InternalPropertyBuilder
         => HasValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1337,7 +1337,7 @@ public class InternalPropertyBuilder
         => CanSetValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1346,7 +1346,7 @@ public class InternalPropertyBuilder
         => HasProviderValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1355,7 +1355,7 @@ public class InternalPropertyBuilder
         => CanSetProviderValueComparer(comparer, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
@@ -1366,7 +1366,7 @@ public class InternalPropertyBuilder
         => HasProviderValueComparer(comparerType, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
-    ///     this is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.

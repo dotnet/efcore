@@ -60,7 +60,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 table, entityType, otherEntityType, entityTypeWithSqlReturningClause, entityTypeWithoutSqlReturningClause);
 
         /// <summary>
-        ///     SQLite does not support this migration operation ('{operation}'). See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
+        ///     SQLite does not support this migration operation ('{operation}'). See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string InvalidMigrationOperation(object? operation)
             => string.Format(
@@ -68,7 +68,7 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 operation);
 
         /// <summary>
-        ///     Generating idempotent scripts for migrations is not currently supported for SQLite. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
+        ///     Generating idempotent scripts for migrations is not currently supported for SQLite. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string MigrationScriptGenerationNotSupported
             => GetString("MigrationScriptGenerationNotSupported");
@@ -82,13 +82,13 @@ namespace Microsoft.EntityFrameworkCore.Sqlite.Internal
                 type);
 
         /// <summary>
-        ///     SQLite does not support sequences. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
+        ///     SQLite does not support sequences. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string SequencesNotSupported
             => GetString("SequencesNotSupported");
 
         /// <summary>
-        ///     SQLite does not support stored procedures, but one has been configured on entity type '{entityType}'. See http://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
+        ///     SQLite does not support stored procedures, but one has been configured on entity type '{entityType}'. See https://go.microsoft.com/fwlink/?LinkId=723262 for more information and examples.
         /// </summary>
         public static string StoredProceduresNotSupported(object? entityType)
             => string.Format(

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.Json;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents an entity type in a model.
+///     Represents a structural type in a model.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
