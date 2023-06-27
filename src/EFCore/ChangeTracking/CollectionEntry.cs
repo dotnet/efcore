@@ -215,8 +215,21 @@ public class CollectionEntry : NavigationEntry
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    public override void Load()
+        => Load(LoadOptions.None);
+
+    /// <summary>
+    ///     Loads the entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+    ///     is already set to <see langword="true"/>.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <param name="options">Options to control the way related entities are loaded.</param>
-    public override void Load(LoadOptions options = LoadOptions.None)
+    public override void Load(LoadOptions options)
     {
         EnsureInitialized();
 
@@ -240,11 +253,31 @@ public class CollectionEntry : NavigationEntry
     ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
     ///     </para>
     /// </remarks>
+    /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous save operation.</returns>
+    /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
+    public override Task LoadAsync(CancellationToken cancellationToken = default)
+        => LoadAsync(LoadOptions.None, cancellationToken);
+
+    /// <summary>
+    ///     Loads entities referenced by this navigation property, unless <see cref="NavigationEntry.IsLoaded" />
+    ///     is already set to <see langword="true"/>.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Multiple active operations on the same context instance are not supported. Use <see langword="await" /> to ensure
+    ///         that any asynchronous operations have completed before calling another method on this context.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-entity-entries">Accessing tracked entities in EF Core</see>
+    ///         and <see href="https://aka.ms/efcore-docs-load-related-data">Loading related entities</see> for more information and examples.
+    ///     </para>
+    /// </remarks>
     /// <param name="options">Options to control the way related entities are loaded.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous save operation.</returns>
     /// <exception cref="OperationCanceledException">If the <see cref="CancellationToken" /> is canceled.</exception>
-    public override Task LoadAsync(LoadOptions options = LoadOptions.None, CancellationToken cancellationToken = default)
+    public override Task LoadAsync(LoadOptions options, CancellationToken cancellationToken = default)
     {
         EnsureInitialized();
 
@@ -254,7 +287,7 @@ public class CollectionEntry : NavigationEntry
     }
 
     /// <summary>
-    ///     Returns the query that would be used by <see cref="Load" /> to load entities referenced by
+    ///     Returns the query that would be used by <see cref="Load()" /> to load entities referenced by
     ///     this navigation property.
     /// </summary>
     /// <remarks>
