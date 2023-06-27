@@ -1865,7 +1865,7 @@ public class RelationalScaffoldingModelFactoryTest
     }
 
     [ConditionalFact]
-    public void Not_null_bool_column_with_default_value_is_made_nullable()
+    public void Not_null_bool_column_with_unparsed_default_value_is_made_nullable()
     {
         var dbModel = new DatabaseModel
         {
@@ -1908,6 +1908,60 @@ public class RelationalScaffoldingModelFactoryTest
         Assert.Equal(typeof(bool?), columns.First(c => c.Name == "NonNullBoolWithDefault").ClrType);
         Assert.False(columns.First(c => c.Name == "NonNullBoolWithDefault").IsNullable);
         Assert.Equal("Default", columns.First(c => c.Name == "NonNullBoolWithDefault")[RelationalAnnotationNames.DefaultValueSql]);
+    }
+
+    [ConditionalFact]
+    public void Not_null_bool_column_with_parsed_default_value_is_not_made_nullable()
+    {
+        var dbModel = new DatabaseModel
+        {
+            Tables =
+            {
+                new DatabaseTable
+                {
+                    Database = Database,
+                    Name = "Table",
+                    Columns =
+                    {
+                        IdColumn,
+                        new DatabaseColumn
+                        {
+                            Table = Table,
+                            Name = "NonNullBoolWithDefault",
+                            StoreType = "bit",
+                            DefaultValueSql = "1",
+                            DefaultValue = true,
+                            IsNullable = false
+                        },
+                        new DatabaseColumn
+                        {
+                            Table = Table,
+                            Name = "NonNullBoolWithoutDefault",
+                            StoreType = "bit",
+                            IsNullable = false
+                        }
+                    },
+                    PrimaryKey = IdPrimaryKey
+                }
+            }
+        };
+
+        var model = _factory.Create(dbModel, new ModelReverseEngineerOptions());
+
+        var columns = model.FindEntityType("Table")!.GetProperties().ToList();
+        var columnWithDefault = columns.First(c => c.Name == "NonNullBoolWithDefault");
+        var columnWithoutDefault = columns.First(c => c.Name == "NonNullBoolWithoutDefault");
+
+        Assert.Equal(typeof(bool), columnWithoutDefault.ClrType);
+        Assert.False(columnWithoutDefault.IsNullable);
+        Assert.Equal(typeof(bool), columnWithDefault.ClrType);
+        Assert.False(columnWithDefault.IsNullable);
+        Assert.Equal("1", columnWithDefault[RelationalAnnotationNames.DefaultValueSql]);
+        Assert.Equal(true, columnWithDefault[RelationalAnnotationNames.DefaultValue]);
+        Assert.Null(columnWithoutDefault[RelationalAnnotationNames.DefaultValueSql]);
+        Assert.Null(columnWithoutDefault[RelationalAnnotationNames.DefaultValue]);
+
+        Assert.Empty(_reporter.Messages);
     }
 
     [ConditionalFact]
