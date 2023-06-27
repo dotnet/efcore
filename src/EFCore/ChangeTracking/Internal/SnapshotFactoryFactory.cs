@@ -21,11 +21,11 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<ISnapshot> CreateEmpty(IEntityType entityType)
-        => GetPropertyCount(entityType) == 0
+    public virtual Func<ISnapshot> CreateEmpty(IRuntimeTypeBase typeBase)
+        => GetPropertyCount(typeBase) == 0
             ? (() => Snapshot.Empty)
             : Expression.Lambda<Func<ISnapshot>>(
-                    CreateConstructorExpression(entityType, null!))
+                    CreateConstructorExpression(typeBase, null!))
                 .Compile();
 
     /// <summary>
@@ -35,15 +35,15 @@ public abstract class SnapshotFactoryFactory
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     protected virtual Expression CreateConstructorExpression(
-        IEntityType entityType,
+        IRuntimeTypeBase typeBase,
         ParameterExpression? parameter)
     {
-        var count = GetPropertyCount(entityType);
+        var count = GetPropertyCount(typeBase);
 
         var types = new Type[count];
         var propertyBases = new IPropertyBase?[count];
 
-        foreach (var propertyBase in entityType.GetPropertiesAndNavigations())
+        foreach (var propertyBase in typeBase.GetSnapshottableMembers())
         {
             var index = GetPropertyIndex(propertyBase);
             if (index >= 0)
@@ -62,7 +62,7 @@ public abstract class SnapshotFactoryFactory
             {
                 snapshotExpressions.Add(
                     CreateSnapshotExpression(
-                        entityType.ClrType,
+                        typeBase.ClrType,
                         parameter,
                         types.Skip(i).Take(Snapshot.MaxGenericTypes).ToArray(),
                         propertyBases.Skip(i).Take(Snapshot.MaxGenericTypes).ToList()));
@@ -77,7 +77,7 @@ public abstract class SnapshotFactoryFactory
         }
         else
         {
-            constructorExpression = CreateSnapshotExpression(entityType.ClrType, parameter, types, propertyBases);
+            constructorExpression = CreateSnapshotExpression(typeBase.ClrType, parameter, types, propertyBases);
         }
 
         return constructorExpression;
@@ -257,7 +257,7 @@ public abstract class SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected abstract int GetPropertyCount(IEntityType entityType);
+    protected abstract int GetPropertyCount(IRuntimeTypeBase typeBase);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

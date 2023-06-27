@@ -275,8 +275,9 @@ public class StateManager : IStateManager
     public virtual InternalEntityEntry CreateEntry(IDictionary<string, object?> values, IEntityType entityType)
     {
         var i = 0;
-        var valuesArray = new object?[entityType.PropertyCount()];
-        var shadowPropertyValuesArray = new object?[entityType.ShadowPropertyCount()];
+        var runtimeEntityType = (IRuntimeEntityType)entityType;
+        var valuesArray = new object?[runtimeEntityType.PropertyCount];
+        var shadowPropertyValuesArray = new object?[runtimeEntityType.ShadowPropertyCount];
         foreach (var property in entityType.GetProperties())
         {
             valuesArray[i++] = values.TryGetValue(property.Name, out var value)

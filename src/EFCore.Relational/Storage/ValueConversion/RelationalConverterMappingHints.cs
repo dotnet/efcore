@@ -30,7 +30,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
         int? scale = null,
         bool? unicode = null,
         bool? fixedLength = null,
-        Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
+        Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory = null,
         DbType? dbType = null)
         : base(size, precision, scale, unicode, valueGeneratorFactory)
     {
@@ -55,7 +55,7 @@ public class RelationalConverterMappingHints : ConverterMappingHints
         int? scale,
         bool? unicode,
         bool? fixedLength,
-        Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory)
+        Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory)
         : base(size, precision, scale, unicode, valueGeneratorFactory)
     {
         IsFixedLength = fixedLength;

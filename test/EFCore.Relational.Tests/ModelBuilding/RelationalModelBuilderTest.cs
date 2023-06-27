@@ -339,6 +339,335 @@ public class RelationalModelBuilderTest : ModelBuilderTest
         }
     }
 
+    public abstract class RelationalComplexTypeTestBase : ComplexTypeTestBase
+    {
+        [ConditionalFact]
+        public virtual void Can_use_table_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.HasDefaultSchema("dbo");
+
+            modelBuilder.Entity<Order>().SplitToTable(
+                "OrderDetails", s =>
+                {
+                    s.ExcludeFromMigrations();
+                    var propertyBuilder = s.Property(o => o.CustomerId);
+                    var columnBuilder = propertyBuilder.HasColumnName("id");
+                    if (columnBuilder is IInfrastructure<ColumnBuilder<int?>> genericBuilder)
+                    {
+                        Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
+                        Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                    }
+                    else
+                    {
+                        var nonGenericBuilder = (IInfrastructure<ColumnBuilder>)columnBuilder;
+                        Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                        Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                    }
+                });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+
+            Assert.False(entity.IsTableExcludedFromMigrations());
+            Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order", "dbo")));
+            Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+
+            var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
+            Assert.Equal("CustomerId", customerId.GetColumnName());
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order", "dbo")));
+            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails", "dbo")));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_table_splitting_with_schema()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>().ToTable("Order", "dbo")
+                .SplitToTable(
+                    "OrderDetails", "sch", s =>
+                        s.ExcludeFromMigrations()
+                            .Property(o => o.CustomerId).HasColumnName("id"));
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+
+            Assert.False(entity.IsTableExcludedFromMigrations());
+            Assert.False(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order", "dbo")));
+            Assert.True(entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("OrderDetails", "sch")));
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.Table("OrderDetails", "sch")));
+            Assert.Equal(
+                RelationalStrings.TableNotMappedEntityType(nameof(Order), "Order"),
+                Assert.Throws<InvalidOperationException>(() => entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.Table("Order")))
+                    .Message);
+
+            var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
+            Assert.Equal("CustomerId", customerId.GetColumnName());
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order", "dbo")));
+            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.Table("OrderDetails", "sch")));
+            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.Table("OrderDetails", "sch")));
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.Table("Order")));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_view_splitting()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>().ToView("Order")
+                .SplitToView(
+                    "OrderDetails", s =>
+                    {
+                        var propertyBuilder = s.Property(o => o.CustomerId);
+                        var columnBuilder = propertyBuilder.HasColumnName("id");
+                        if (columnBuilder is IInfrastructure<ViewColumnBuilder<int?>> genericBuilder)
+                        {
+                            Assert.IsType<PropertyBuilder<int?>>(genericBuilder.Instance.GetInfrastructure<PropertyBuilder<int?>>());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(genericBuilder.GetInfrastructure().Overrides);
+                        }
+                        else
+                        {
+                            var nonGenericBuilder = (IInfrastructure<ViewColumnBuilder>)columnBuilder;
+                            Assert.IsAssignableFrom<PropertyBuilder>(nonGenericBuilder.Instance.GetInfrastructure());
+                            Assert.IsAssignableFrom<IMutableRelationalPropertyOverrides>(nonGenericBuilder.Instance.Overrides);
+                        }
+                    });
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+
+            Assert.Same(entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.View("OrderDetails")));
+
+            var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
+            Assert.Equal("CustomerId", customerId.GetColumnName());
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order")));
+            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.View("OrderDetails")));
+            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.View("OrderDetails")));
+        }
+
+        [ConditionalFact]
+        public virtual void Can_use_view_splitting_with_schema()
+        {
+            var modelBuilder = CreateModelBuilder();
+            modelBuilder.Entity<Order>().ToView("Order", "dbo")
+                .SplitToView(
+                    "OrderDetails", "sch", s =>
+                        s.Property(o => o.CustomerId).HasColumnName("id"));
+            modelBuilder.Ignore<Customer>();
+            modelBuilder.Ignore<Product>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var entity = model.FindEntityType(typeof(Order))!;
+
+            Assert.Same(
+                entity.GetMappingFragments().Single(), entity.FindMappingFragment(StoreObjectIdentifier.View("OrderDetails", "sch")));
+            Assert.Equal(
+                RelationalStrings.TableNotMappedEntityType(nameof(Order), "Order"),
+                Assert.Throws<InvalidOperationException>(() => entity.IsTableExcludedFromMigrations(StoreObjectIdentifier.View("Order")))
+                    .Message);
+
+            var customerId = entity.FindProperty(nameof(Order.CustomerId))!;
+            Assert.Equal("CustomerId", customerId.GetColumnName());
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order", "dbo")));
+            Assert.Equal("id", customerId.GetColumnName(StoreObjectIdentifier.View("OrderDetails", "sch")));
+            Assert.Same(customerId.GetOverrides().Single(), customerId.FindOverrides(StoreObjectIdentifier.View("OrderDetails", "sch")));
+            Assert.Null(customerId.GetColumnName(StoreObjectIdentifier.View("Order")));
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_return_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedReturnValue()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_return_and_result_column_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureRowsAffectedReturnConflictingParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedResultColumn()
+                                    .HasRowsAffectedReturnValue()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_return_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedReturnValue()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_result_column_and_parameter_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedParameter()
+                                    .HasRowsAffectedResultColumn()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_rows_affected_result_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .UpdateUsingStoredProcedure(
+                    s => s.HasRowsAffectedResultColumn()).Metadata.GetUpdateStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedResultColumn("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedResultColumn())
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Conflicting_sproc_rows_affected_parameter_and_result_column_throw()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(
+                        () => modelBuilder.Entity<BookLabel>()
+                            .UpdateUsingStoredProcedure(
+                                s => s.HasRowsAffectedResultColumn()
+                                    .HasRowsAffectedParameter()))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_rows_affected_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .UpdateUsingStoredProcedure(
+                    s => s.HasRowsAffectedParameter()).Metadata.GetUpdateStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateRowsAffectedParameter("BookLabel_Update"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddRowsAffectedParameter())
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateParameter("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddParameter("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_original_value_parameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasOriginalValueParameter(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateOriginalValueParameter("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddOriginalValueParameter("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Duplicate_sproc_result_column_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var sproc = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasResultColumn(b => b.Id)).Metadata.GetInsertStoredProcedure()!;
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureDuplicateResultColumn("Id", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => sproc.AddResultColumn("Id"))
+                    .Message);
+        }
+
+        [ConditionalFact]
+        public virtual void Configuring_direction_on_RowsAffectedParameter_throws()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            var param = modelBuilder.Entity<BookLabel>()
+                .InsertUsingStoredProcedure(
+                    s => s.HasRowsAffectedParameter()).Metadata.GetInsertStoredProcedure()!.Parameters.Single();
+
+            Assert.Equal(
+                RelationalStrings.StoredProcedureParameterInvalidConfiguration("Direction", "RowsAffected", "BookLabel_Insert"),
+                Assert.Throws<InvalidOperationException>(() => param.Direction = ParameterDirection.Input)
+                    .Message);
+        }
+    }
+
     public abstract class RelationalInheritanceTestBase : InheritanceTestBase
     {
         [ConditionalFact]

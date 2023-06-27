@@ -30,10 +30,10 @@ public interface IValueGeneratorSelector
     ///     Selects the appropriate value generator for a given property.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
-    ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
-    ///     this entity type may be different from the declared entity type on <paramref name="property" />
+    /// <param name="typeBase">
+    ///     The type that the value generator will be used for. When called on inherited properties on derived types,
+    ///     this type may be different from the declaring type for <paramref name="property" />
     /// </param>
     /// <returns>The value generator to be used.</returns>
-    ValueGenerator Select(IProperty property, IEntityType entityType);
+    ValueGenerator Select(IProperty property, ITypeBase typeBase);
 }

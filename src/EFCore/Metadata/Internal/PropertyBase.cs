@@ -54,7 +54,19 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     public virtual string Name { [DebuggerStepThrough] get; }
 
     /// <summary>
-    ///     Indicates whether the model is read-only.
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
+    public abstract Type ClrType { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public override bool IsReadOnly
         => DeclaringType.Model.IsReadOnly;
@@ -219,6 +231,27 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    protected virtual FieldInfo? OnFieldInfoSet(FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
+        => newFieldInfo;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ConfigurationSource? GetFieldInfoConfigurationSource()
+        => _fieldInfoConfigurationSource;
+
+    private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
+        => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual PropertyAccessMode? SetPropertyAccessMode(
         PropertyAccessMode? propertyAccessMode,
         ConfigurationSource configurationSource)
@@ -305,42 +338,11 @@ public abstract class PropertyBase : ConventionAnnotatable, IMutablePropertyBase
             static property =>
             {
                 property.EnsureReadOnly();
-
-                var _ = (property.DeclaringType as EntityType)?.Counts;
+                var _ = ((IRuntimeTypeBase)property.DeclaringType).Counts;
             });
 
         set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
     }
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    protected virtual FieldInfo? OnFieldInfoSet(FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
-        => newFieldInfo;
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    public virtual ConfigurationSource? GetFieldInfoConfigurationSource()
-        => _fieldInfoConfigurationSource;
-
-    private void UpdateFieldInfoConfigurationSource(ConfigurationSource configurationSource)
-        => _fieldInfoConfigurationSource = configurationSource.Max(_fieldInfoConfigurationSource);
-
-    /// <summary>
-    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
-    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
-    ///     any release. You should only use it directly in your code with extreme caution and knowing that
-    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
-    /// </summary>
-    [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)]
-    public abstract Type ClrType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

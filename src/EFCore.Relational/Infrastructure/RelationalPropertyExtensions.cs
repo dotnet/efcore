@@ -4,7 +4,7 @@
 namespace Microsoft.EntityFrameworkCore.Infrastructure;
 
 /// <summary>
-///     Relational extension methods for <see cref="IProperty" />.
+///     Relational extension methods for <see cref="IReadOnlyProperty" />.
 /// </summary>
 public static class RelationalPropertyExtensions
 {

@@ -43,16 +43,26 @@ public partial class ConventionDispatcher
             }
         }
 
+        public override IConventionAnnotation? OnModelAnnotationChanged(
+            IConventionModelBuilder modelBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            Add(new OnModelAnnotationChangedNode(modelBuilder, name, annotation, oldAnnotation));
+            return annotation;
+        }
+
+        public override string OnTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type? type)
+        {
+            Add(new OnTypeIgnoredNode(modelBuilder, name, type));
+            return name;
+        }
+
         public override IConventionEntityTypeBuilder OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder)
         {
             Add(new OnEntityTypeAddedNode(entityTypeBuilder));
             return entityTypeBuilder;
-        }
-
-        public override string OnEntityTypeIgnored(IConventionModelBuilder modelBuilder, string name, Type? type)
-        {
-            Add(new OnEntityTypeIgnoredNode(modelBuilder, name, type));
-            return name;
         }
 
         public override IConventionEntityType OnEntityTypeRemoved(
@@ -88,13 +98,58 @@ public partial class ConventionDispatcher
             return annotation;
         }
 
-        public override IConventionAnnotation? OnModelAnnotationChanged(
-            IConventionModelBuilder modelBuilder,
+        public override string OnComplexTypeMemberIgnored(IConventionComplexTypeBuilder complexTypeBuilder, string name)
+        {
+            Add(new OnComplexTypeMemberIgnoredNode(complexTypeBuilder, name));
+            return name;
+        }
+
+        public override IConventionAnnotation? OnComplexTypeAnnotationChanged(
+            IConventionComplexTypeBuilder complexTypeBuilder,
             string name,
             IConventionAnnotation? annotation,
             IConventionAnnotation? oldAnnotation)
         {
-            Add(new OnModelAnnotationChangedNode(modelBuilder, name, annotation, oldAnnotation));
+            Add(new OnComplexTypeAnnotationChangedNode(complexTypeBuilder, name, annotation, oldAnnotation));
+            return annotation;
+        }
+
+        public override IConventionComplexPropertyBuilder OnComplexPropertyAdded(IConventionComplexPropertyBuilder propertyBuilder)
+        {
+            Add(new OnComplexPropertyAddedNode(propertyBuilder));
+            return propertyBuilder;
+        }
+
+        public override IConventionComplexProperty OnComplexPropertyRemoved(
+            IConventionTypeBaseBuilder typeBaseBuilder,
+            IConventionComplexProperty property)
+        {
+            Add(new OnComplexPropertyRemovedNode(typeBaseBuilder, property));
+            return property;
+        }
+
+        public override bool? OnComplexPropertyNullabilityChanged(IConventionComplexPropertyBuilder propertyBuilder)
+        {
+            Add(new OnComplexPropertyNullabilityChangedNode(propertyBuilder));
+            return propertyBuilder.Metadata.IsNullable;
+        }
+
+        public override FieldInfo? OnComplexPropertyFieldChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            FieldInfo? newFieldInfo,
+            FieldInfo? oldFieldInfo)
+        {
+            Add(new OnComplexPropertyFieldChangedNode(propertyBuilder, newFieldInfo, oldFieldInfo));
+            return newFieldInfo;
+        }
+
+        public override IConventionAnnotation? OnComplexPropertyAnnotationChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            Add(new OnComplexPropertyAnnotationChangedNode(propertyBuilder, name, annotation, oldAnnotation));
             return annotation;
         }
 
@@ -336,7 +391,7 @@ public partial class ConventionDispatcher
 
         public override bool? OnPropertyNullabilityChanged(IConventionPropertyBuilder propertyBuilder)
         {
-            Add(new OnPropertyNullableChangedNode(propertyBuilder));
+            Add(new OnPropertyNullabilityChangedNode(propertyBuilder));
             return propertyBuilder.Metadata.IsNullable;
         }
 
@@ -360,10 +415,10 @@ public partial class ConventionDispatcher
         }
 
         public override IConventionProperty OnPropertyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property)
         {
-            Add(new OnPropertyRemovedNode(entityTypeBuilder, property));
+            Add(new OnPropertyRemovedNode(typeBaseBuilder, property));
             return property;
         }
     }
@@ -392,22 +447,9 @@ public partial class ConventionDispatcher
                 ModelBuilder, Name, Annotation, OldAnnotation);
     }
 
-    private sealed class OnEntityTypeAddedNode : ConventionNode
+    private sealed class OnTypeIgnoredNode : ConventionNode
     {
-        public OnEntityTypeAddedNode(IConventionEntityTypeBuilder entityTypeBuilder)
-        {
-            EntityTypeBuilder = entityTypeBuilder;
-        }
-
-        public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
-
-        public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnEntityTypeAdded(EntityTypeBuilder);
-    }
-
-    private sealed class OnEntityTypeIgnoredNode : ConventionNode
-    {
-        public OnEntityTypeIgnoredNode(IConventionModelBuilder modelBuilder, string name, Type? type)
+        public OnTypeIgnoredNode(IConventionModelBuilder modelBuilder, string name, Type? type)
         {
             ModelBuilder = modelBuilder;
             Name = name;
@@ -419,7 +461,20 @@ public partial class ConventionDispatcher
         public Type? Type { get; }
 
         public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnEntityTypeIgnored(ModelBuilder, Name, Type);
+            => dispatcher._immediateConventionScope.OnTypeIgnored(ModelBuilder, Name, Type);
+    }
+
+    private sealed class OnEntityTypeAddedNode : ConventionNode
+    {
+        public OnEntityTypeAddedNode(IConventionEntityTypeBuilder entityTypeBuilder)
+        {
+            EntityTypeBuilder = entityTypeBuilder;
+        }
+
+        public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnEntityTypeAdded(EntityTypeBuilder);
     }
 
     private sealed class OnEntityTypeRemovedNode : ConventionNode
@@ -495,6 +550,128 @@ public partial class ConventionDispatcher
         public override void Run(ConventionDispatcher dispatcher)
             => dispatcher._immediateConventionScope.OnEntityTypeAnnotationChanged(
                 EntityTypeBuilder, Name, Annotation, OldAnnotation);
+    }
+
+    private sealed class OnComplexTypeMemberIgnoredNode : ConventionNode
+    {
+        public OnComplexTypeMemberIgnoredNode(IConventionComplexTypeBuilder complexTypeBuilder, string name)
+        {
+            ComplexTypeBuilder = complexTypeBuilder;
+            Name = name;
+        }
+
+        public IConventionComplexTypeBuilder ComplexTypeBuilder { get; }
+        public string Name { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexTypeMemberIgnored(ComplexTypeBuilder, Name);
+    }
+
+    private sealed class OnComplexTypeAnnotationChangedNode : ConventionNode
+    {
+        public OnComplexTypeAnnotationChangedNode(
+            IConventionComplexTypeBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            ComplexTypeBuilder = propertyBuilder;
+            Name = name;
+            Annotation = annotation;
+            OldAnnotation = oldAnnotation;
+        }
+
+        public IConventionComplexTypeBuilder ComplexTypeBuilder { get; }
+        public string Name { get; }
+        public IConventionAnnotation? Annotation { get; }
+        public IConventionAnnotation? OldAnnotation { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexTypeAnnotationChanged(
+                ComplexTypeBuilder, Name, Annotation, OldAnnotation);
+    }
+
+    private sealed class OnComplexPropertyAddedNode : ConventionNode
+    {
+        public OnComplexPropertyAddedNode(IConventionComplexPropertyBuilder propertyBuilder)
+        {
+            PropertyBuilder = propertyBuilder;
+        }
+
+        public IConventionComplexPropertyBuilder PropertyBuilder { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexPropertyAdded(PropertyBuilder);
+    }
+
+    private sealed class OnComplexPropertyRemovedNode : ConventionNode
+    {
+        public OnComplexPropertyRemovedNode(IConventionTypeBaseBuilder modelBuilder, IConventionComplexProperty entityType)
+        {
+            TypeBaseBuilder = modelBuilder;
+            ComplexProperty = entityType;
+        }
+
+        public IConventionTypeBaseBuilder TypeBaseBuilder { get; }
+        public IConventionComplexProperty ComplexProperty { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexPropertyRemoved(TypeBaseBuilder, ComplexProperty);
+    }
+
+    private sealed class OnComplexPropertyNullabilityChangedNode : ConventionNode
+    {
+        public OnComplexPropertyNullabilityChangedNode(IConventionComplexPropertyBuilder propertyBuilder)
+        {
+            PropertyBuilder = propertyBuilder;
+        }
+
+        public IConventionComplexPropertyBuilder PropertyBuilder { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexPropertyNullabilityChanged(PropertyBuilder);
+    }
+
+    private sealed class OnComplexPropertyFieldChangedNode : ConventionNode
+    {
+        public OnComplexPropertyFieldChangedNode(
+            IConventionComplexPropertyBuilder propertyBuilder, FieldInfo? newFieldInfo, FieldInfo? oldFieldInfo)
+        {
+            PropertyBuilder = propertyBuilder;
+            NewFieldInfo = newFieldInfo;
+            OldFieldInfo = oldFieldInfo;
+        }
+
+        public IConventionComplexPropertyBuilder PropertyBuilder { get; }
+        public FieldInfo? NewFieldInfo { get; }
+        public FieldInfo? OldFieldInfo { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexPropertyFieldChanged(PropertyBuilder, NewFieldInfo, OldFieldInfo);
+    }
+
+    private sealed class OnComplexPropertyAnnotationChangedNode : ConventionNode
+    {
+        public OnComplexPropertyAnnotationChangedNode(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation? annotation,
+            IConventionAnnotation? oldAnnotation)
+        {
+            PropertyBuilder = propertyBuilder;
+            Name = name;
+            Annotation = annotation;
+            OldAnnotation = oldAnnotation;
+        }
+
+        public IConventionComplexPropertyBuilder PropertyBuilder { get; }
+        public string Name { get; }
+        public IConventionAnnotation? Annotation { get; }
+        public IConventionAnnotation? OldAnnotation { get; }
+
+        public override void Run(ConventionDispatcher dispatcher)
+            => dispatcher._immediateConventionScope.OnComplexPropertyAnnotationChanged(
+                PropertyBuilder, Name, Annotation, OldAnnotation);
     }
 
     private sealed class OnForeignKeyAddedNode : ConventionNode
@@ -1002,9 +1179,9 @@ public partial class ConventionDispatcher
             => dispatcher._immediateConventionScope.OnPropertyAdded(PropertyBuilder);
     }
 
-    private sealed class OnPropertyNullableChangedNode : ConventionNode
+    private sealed class OnPropertyNullabilityChangedNode : ConventionNode
     {
-        public OnPropertyNullableChangedNode(IConventionPropertyBuilder propertyBuilder)
+        public OnPropertyNullabilityChangedNode(IConventionPropertyBuilder propertyBuilder)
         {
             PropertyBuilder = propertyBuilder;
         }
@@ -1059,17 +1236,17 @@ public partial class ConventionDispatcher
     private sealed class OnPropertyRemovedNode : ConventionNode
     {
         public OnPropertyRemovedNode(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property)
         {
-            EntityTypeBuilder = entityTypeBuilder;
+            TypeBaseBuilder = typeBaseBuilder;
             Property = property;
         }
 
-        public IConventionEntityTypeBuilder EntityTypeBuilder { get; }
+        public IConventionTypeBaseBuilder TypeBaseBuilder { get; }
         public IConventionProperty Property { get; }
 
         public override void Run(ConventionDispatcher dispatcher)
-            => dispatcher._immediateConventionScope.OnPropertyRemoved(EntityTypeBuilder, Property);
+            => dispatcher._immediateConventionScope.OnPropertyRemoved(TypeBaseBuilder, Property);
     }
 }

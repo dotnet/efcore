@@ -1208,27 +1208,6 @@ public abstract partial class ModelBuilderTest
                 Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
         }
 
-        private interface IWrapped<T>
-        {
-            T Value { get; init; }
-        }
-
-        private abstract class WrappedStringBase : IWrapped<string>
-        {
-            public abstract string Value { get; init; }
-        }
-
-        private class WrappedString : WrappedStringBase
-        {
-            public override string Value { get; init; }
-        }
-
-        private class WrappedStringEntity
-        {
-            public int Id { get; set; }
-            public WrappedString WrappedString { get; set; }
-        }
-
         private class WrappedStringToStringConverter : ValueConverter<WrappedString, string>
         {
             public WrappedStringToStringConverter()
@@ -1640,7 +1619,7 @@ public abstract partial class ModelBuilderTest
 
         private class CustomValueGeneratorFactory : ValueGeneratorFactory
         {
-            public override ValueGenerator Create(IProperty property, IEntityType entityType)
+            public override ValueGenerator Create(IProperty property, ITypeBase entityType)
                 => new CustomValueGenerator();
         }
 
@@ -1790,6 +1769,21 @@ public abstract partial class ModelBuilderTest
             public int Id { get; set; }
 
             public int[,,] Three { get; set; }
+        }
+
+        [ConditionalFact]
+        public virtual void Private_property_is_not_discovered_by_convention()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder.Ignore<Alpha>();
+            modelBuilder.Entity<Gamma>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            Assert.Empty(
+                model.FindEntityType(typeof(Gamma)).GetProperties()
+                    .Where(p => p.Name == "PrivateProperty"));
         }
 
         [ConditionalFact]
@@ -2019,7 +2013,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_key_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().HasKey(e => e.Id);
 
@@ -2036,7 +2030,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_composite_key_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().HasKey(e => new { e.TenantId, e.CompanyId });
 
@@ -2112,7 +2106,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_index_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().HasNoKey().HasIndex(e => e.CompanyId);
 
@@ -2127,7 +2121,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_composite_index_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateModelBuilder();
 
             modelBuilder.Entity<EntityWithFields>().HasNoKey().HasIndex(e => new { e.TenantId, e.CompanyId });
 
@@ -2225,21 +2219,6 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(2, data.Count());
             Assert.Equal(-1, data.First().Values.Single());
             Assert.Equal(-2, data.Last().Values.Single());
-        }
-
-        [ConditionalFact]
-        public virtual void Private_property_is_not_discovered_by_convention()
-        {
-            var modelBuilder = CreateModelBuilder();
-
-            modelBuilder.Ignore<Alpha>();
-            modelBuilder.Entity<Gamma>();
-
-            var model = modelBuilder.FinalizeModel();
-
-            Assert.Empty(
-                model.FindEntityType(typeof(Gamma)).GetProperties()
-                    .Where(p => p.Name == "PrivateProperty"));
         }
 
         [ConditionalFact]

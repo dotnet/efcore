@@ -19,7 +19,6 @@ namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 /// </summary>
 public sealed partial class InternalEntityEntry : IUpdateEntry
 {
-    // ReSharper disable once FieldCanBeMadeReadOnly.Local
     private readonly StateData _stateData;
     private OriginalValues _originalValues;
     private RelationshipsSnapshot _relationshipsSnapshot;
@@ -39,10 +38,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         object entity)
     {
         StateManager = stateManager;
-        EntityType = entityType;
+        EntityType = (IRuntimeEntityType)entityType;
         Entity = entity;
-        _shadowValues = entityType.GetEmptyShadowValuesFactory()();
-        _stateData = new StateData(entityType.PropertyCount(), entityType.NavigationCount());
+        _shadowValues = EntityType.EmptyShadowValuesFactory();
+        _stateData = new StateData(EntityType.PropertyCount, EntityType.NavigationCount);
 
         MarkShadowPropertiesNotSet(entityType);
     }
@@ -60,10 +59,10 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         in ValueBuffer valueBuffer)
     {
         StateManager = stateManager;
-        EntityType = entityType;
+        EntityType = (IRuntimeEntityType)entityType;
         Entity = entity;
-        _shadowValues = ((IRuntimeEntityType)entityType).ShadowValuesFactory(valueBuffer);
-        _stateData = new StateData(entityType.PropertyCount(), entityType.NavigationCount());
+        _shadowValues = EntityType.ShadowValuesFactory(valueBuffer);
+        _stateData = new StateData(EntityType.PropertyCount, EntityType.NavigationCount);
     }
 
     /// <summary>
@@ -107,7 +106,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public IEntityType EntityType { [DebuggerStepThrough] get; }
+    public IRuntimeEntityType EntityType { get; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -271,7 +270,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (EntityState == EntityState.Modified)
         {
             _stateData.FlagAllProperties(
-                EntityType.PropertyCount(), PropertyFlag.Modified,
+                EntityType.PropertyCount, PropertyFlag.Modified,
                 flagged: false);
         }
 
@@ -309,7 +308,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState == EntityState.Modified
             && modifyProperties)
         {
-            _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Modified, flagged: true);
+            _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.Modified, flagged: true);
 
             // Hot path; do not use LINQ
             foreach (var property in entityType.GetProperties())
@@ -329,7 +328,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState == EntityState.Unchanged)
         {
             _stateData.FlagAllProperties(
-                entityType.PropertyCount(), PropertyFlag.Modified,
+                EntityType.PropertyCount, PropertyFlag.Modified,
                 flagged: false);
         }
 
@@ -371,7 +370,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (newState is EntityState.Deleted or EntityState.Detached
             && HasConceptualNull)
         {
-            _stateData.FlagAllProperties(entityType.PropertyCount(), PropertyFlag.Null, flagged: false);
+            _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.Null, flagged: false);
         }
 
         if (oldState is EntityState.Detached or EntityState.Unchanged)
@@ -1464,9 +1463,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
             _temporaryValues = new SidecarValues();
         }
 
-        _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsStoreGenerated, false);
-        _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsTemporary, false);
-        _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.Unknown, false);
+        _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.IsStoreGenerated, false);
+        _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.IsTemporary, false);
+        _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.Unknown, false);
 
         var currentState = EntityState;
         switch (currentState)
@@ -1684,7 +1683,7 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
         if (!_storeGeneratedValues.IsEmpty)
         {
             _storeGeneratedValues = new SidecarValues();
-            _stateData.FlagAllProperties(EntityType.PropertyCount(), PropertyFlag.IsStoreGenerated, false);
+            _stateData.FlagAllProperties(EntityType.PropertyCount, PropertyFlag.IsStoreGenerated, false);
         }
     }
 
@@ -1990,6 +1989,9 @@ public sealed partial class InternalEntityEntry : IUpdateEntry
 
     IUpdateEntry? IUpdateEntry.SharedIdentityEntry
         => SharedIdentityEntry;
+
+    IEntityType IUpdateEntry.EntityType
+        => EntityType;
 
     private enum CurrentValueType
     {

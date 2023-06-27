@@ -35,12 +35,12 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ValueGenerator Select(IProperty property, IEntityType entityType)
+    public override ValueGenerator Select(IProperty property, ITypeBase typeBase)
         => property.GetValueGeneratorFactory() == null
             && property.ClrType.IsInteger()
             && property.ClrType.UnwrapNullableType() != typeof(char)
                 ? GetOrCreate(property)
-                : base.Select(property, entityType);
+                : base.Select(property, typeBase);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -58,73 +58,57 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
 
         throw new ArgumentException(
             CoreStrings.InvalidValueGeneratorFactoryProperty(
-                "InMemoryIntegerValueGeneratorFactory", property.Name, property.DeclaringEntityType.DisplayName()));
+                "InMemoryIntegerValueGeneratorFactory", property.Name, property.DeclaringType.DisplayName()));
     }
 
     private bool FindGenerator(IProperty property, Type type, out ValueGenerator? valueGenerator)
     {
         if (type == typeof(long))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<long>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<long>(property);
+            return true;
         }
 
         if (type == typeof(int))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<int>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<int>(property);
+            return true;
         }
 
         if (type == typeof(short))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<short>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<short>(property);
+            return true;
         }
 
         if (type == typeof(byte))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<byte>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<byte>(property);
+            return true;
         }
 
         if (type == typeof(ulong))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ulong>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ulong>(property);
+            return true;
         }
 
         if (type == typeof(uint))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<uint>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<uint>(property);
+            return true;
         }
 
         if (type == typeof(ushort))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ushort>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<ushort>(property);
+            return true;
         }
 
         if (type == typeof(sbyte))
         {
-            {
-                valueGenerator = _inMemoryStore.GetIntegerValueGenerator<sbyte>(property);
-                return true;
-            }
+            valueGenerator = _inMemoryStore.GetIntegerValueGenerator<sbyte>(property);
+            return true;
         }
 
         valueGenerator = null;
@@ -132,8 +116,8 @@ public class InMemoryValueGeneratorSelector : ValueGeneratorSelector
     }
 
     /// <inheritdoc />
-    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+    protected override ValueGenerator? FindForType(IProperty property, ITypeBase typeBase, Type clrType)
         => property.ValueGenerated != ValueGenerated.Never && FindGenerator(property, clrType, out var valueGenerator)
             ? valueGenerator!
-            : base.FindForType(property, entityType, clrType);
+            : base.FindForType(property, typeBase, clrType);
 }

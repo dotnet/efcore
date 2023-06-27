@@ -713,7 +713,7 @@ public class PropertyAttributeConventionTest
     {
         var dependencies = CreateDependencies();
         var context = new ConventionContext<IConventionPropertyBuilder>(
-            ((Model)propertyBuilder.Metadata.DeclaringEntityType.Model).ConventionDispatcher);
+            ((Model)propertyBuilder.Metadata.DeclaringType.Model).ConventionDispatcher);
 
         new BackingFieldConvention(dependencies)
             .ProcessPropertyAdded(propertyBuilder, context);

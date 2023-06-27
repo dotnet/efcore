@@ -55,7 +55,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     /// <summary>
     ///     Gets the type that this property-like object belongs to.
     /// </summary>
-    public abstract RuntimeEntityType DeclaringEntityType { get; }
+    public abstract RuntimeTypeBase DeclaringType { get; }
 
     /// <summary>
     ///     Gets the type of value that this property-like object holds.
@@ -89,7 +89,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
     IReadOnlyTypeBase IReadOnlyPropertyBase.DeclaringType
     {
         [DebuggerStepThrough]
-        get => DeclaringEntityType;
+        get => DeclaringType;
     }
 
     /// <inheritdoc />
@@ -116,7 +116,7 @@ public abstract class RuntimePropertyBase : AnnotatableBase, IRuntimePropertyBas
             ref _indexes, this,
             static property =>
             {
-                var _ = ((IRuntimeEntityType)property.DeclaringEntityType).Counts;
+                var _ = ((IRuntimeTypeBase)property.DeclaringType).Counts;
             });
         set => NonCapturingLazyInitializer.EnsureInitialized(ref _indexes, value);
     }

@@ -120,6 +120,7 @@ public static class CoreEventId
         MappedEntityTypeIgnoredWarning,
         MappedNavigationIgnoredWarning,
         MappedPropertyIgnoredWarning,
+        MappedComplexPropertyIgnoredWarning,
 
         // ChangeTracking events
         DetectChangesStarting = CoreBaseId + 800,
@@ -565,6 +566,23 @@ public static class CoreEventId
     ///     </para>
     /// </remarks>
     public static readonly EventId MappedPropertyIgnoredWarning = MakeModelId(Id.MappedPropertyIgnoredWarning);
+
+    /// <summary>
+    ///     A property was first mapped explicitly and then ignored.
+    /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         This event is in the <see cref="DbLoggerCategory.Model" /> category.
+    ///     </para>
+    ///     <para>
+    ///         This event uses the <see cref="ComplexPropertyEventData" /> payload when used with a <see cref="DiagnosticSource" />.
+    ///     </para>
+    ///     <para>
+    ///         See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and
+    ///         examples.
+    ///     </para>
+    /// </remarks>
+    public static readonly EventId MappedComplexPropertyIgnoredWarning = MakeModelId(Id.MappedComplexPropertyIgnoredWarning);
 
     /// <summary>
     ///     An index was not created as the properties are already covered.

@@ -81,7 +81,11 @@ public class RuntimeSkipNavigation : RuntimePropertyBase, IRuntimeSkipNavigation
     /// <summary>
     ///     Gets the type that this property belongs to.
     /// </summary>
-    public override RuntimeEntityType DeclaringEntityType { get; }
+    public virtual RuntimeEntityType DeclaringEntityType { get; }
+
+    /// <inheritdoc />
+    public override RuntimeTypeBase DeclaringType
+        => DeclaringEntityType;
 
     /// <summary>
     ///     Gets the entity type that this navigation property will hold an instance(s) of.

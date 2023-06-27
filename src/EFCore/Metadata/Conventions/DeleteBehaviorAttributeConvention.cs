@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase<DeleteBehaviorAttribute>,
     INavigationAddedConvention,
     IForeignKeyPrincipalEndChangedConvention,
+    IComplexPropertyAddedConvention,
     IModelFinalizingConvention
 {
     /// <summary>
@@ -23,11 +24,7 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
     {
     }
 
-    /// <summary>
-    ///     Called after a navigation is added to the entity type.
-    /// </summary>
-    /// <param name="navigationBuilder">The builder for the navigation.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc/>
     public virtual void ProcessNavigationAdded(
         IConventionNavigationBuilder navigationBuilder,
         IConventionContext<IConventionNavigationBuilder> context)
@@ -47,11 +44,7 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         foreignKey.Builder.OnDelete(navAttribute.Behavior, fromDataAnnotation: true);
     }
 
-    /// <summary>
-    ///     Called after the principal end of a foreign key is changed.
-    /// </summary>
-    /// <param name="relationshipBuilder">The builder for the foreign key.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc/>
     public virtual void ProcessForeignKeyPrincipalEndChanged(
         IConventionForeignKeyBuilder relationshipBuilder,
         IConventionContext<IConventionForeignKeyBuilder> context)
@@ -71,42 +64,49 @@ public class DeleteBehaviorAttributeConvention : PropertyAttributeConventionBase
         relationshipBuilder.OnDelete(navAttribute.Behavior, fromDataAnnotation: true);
     }
 
-    /// <summary>
-    ///     Called when a model is being finalized.
-    /// </summary>
-    /// <param name="modelBuilder">The builder for the model.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc/>
     public virtual void ProcessModelFinalizing(IConventionModelBuilder modelBuilder, IConventionContext<IConventionModelBuilder> context)
     {
         foreach (var entityType in modelBuilder.Metadata.GetEntityTypes())
         {
-            foreach (var navigation in entityType.GetNavigations())
+            foreach (var navigation in entityType.GetDeclaredNavigations())
             {
-                var navAttribute = navigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
-                if (navAttribute == null)
+                if (navigation.IsOnDependent)
                 {
                     return;
                 }
 
-                if (!navigation.IsOnDependent)
+                var navAttribute = navigation.PropertyInfo?.GetCustomAttribute<DeleteBehaviorAttribute>();
+                if (navAttribute != null)
                 {
-                    throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty);
+                    throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeOnPrincipalProperty(
+                        navigation.DeclaringEntityType.DisplayName(), navigation.Name));
                 }
             }
         }
     }
 
-    /// <summary>
-    ///     Called after a property is added to the entity type with an attribute on the associated CLR property or field.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property.</param>
-    /// <param name="attribute">The attribute.</param>
-    /// <param name="clrMember">The member that has the attribute.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc/>
     protected override void ProcessPropertyAdded(
         IConventionPropertyBuilder propertyBuilder,
         DeleteBehaviorAttribute attribute,
         MemberInfo clrMember,
         IConventionContext context)
-        => throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty);
+    {
+        var property = propertyBuilder.Metadata;
+        throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty(
+            property.DeclaringType.DisplayName(), property.Name));
+    }
+
+    /// <inheritdoc/>
+    protected override void ProcessPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        DeleteBehaviorAttribute attribute,
+        MemberInfo clrMember,
+        IConventionContext context)
+    {
+        var property = propertyBuilder.Metadata;
+        throw new InvalidOperationException(CoreStrings.DeleteBehaviorAttributeNotOnNavigationProperty(
+            property.DeclaringType.DisplayName(), property.Name));
+    }
 }

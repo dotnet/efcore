@@ -28,7 +28,7 @@ public class ConverterMappingHints
         int? precision = null,
         int? scale = null,
         bool? unicode = null,
-        Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null)
+        Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory = null)
     {
         Size = size;
         Precision = precision;
@@ -101,5 +101,5 @@ public class ConverterMappingHints
     ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use for model
     ///     values when this converter is being used.
     /// </summary>
-    public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
+    public virtual Func<IProperty, ITypeBase, ValueGenerator>? ValueGeneratorFactory { get; }
 }

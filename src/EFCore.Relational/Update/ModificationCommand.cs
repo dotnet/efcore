@@ -830,7 +830,7 @@ public class ModificationCommand : IModificationCommand, INonTrackedModification
     {
         foreach (var columnMapping in tableMapping.ColumnMappings)
         {
-            if (columnMapping.Property.DeclaringEntityType.IsMappedToJson())
+            if (columnMapping.Property.DeclaringType.IsMappedToJson())
             {
                 continue;
             }

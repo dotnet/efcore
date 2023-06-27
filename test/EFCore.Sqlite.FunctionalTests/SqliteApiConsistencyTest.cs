@@ -29,22 +29,25 @@ public class SqliteApiConsistencyTest : ApiConsistencyTestBase<SqliteApiConsiste
         };
 
         public override
-            List<(Type Type,
-                Type ReadonlyExtensions,
+            Dictionary<Type,
+                (Type ReadonlyExtensions,
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
                 Type RuntimeExtensions)> MetadataExtensionTypes { get; }
             = new()
             {
-                (
+                {
+
                     typeof(IReadOnlyProperty),
-                    typeof(SqlitePropertyExtensions),
-                    typeof(SqlitePropertyExtensions),
-                    typeof(SqlitePropertyExtensions),
-                    typeof(SqlitePropertyBuilderExtensions),
-                    null
-                )
+                    (
+                        typeof(SqlitePropertyExtensions),
+                        typeof(SqlitePropertyExtensions),
+                        typeof(SqlitePropertyExtensions),
+                        typeof(SqlitePropertyBuilderExtensions),
+                        null
+                    )
+                }
             };
     }
 }

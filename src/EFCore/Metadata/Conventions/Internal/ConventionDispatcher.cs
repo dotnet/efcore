@@ -86,8 +86,11 @@ public partial class ConventionDispatcher
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual IConventionEntityTypeBuilder? OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder)
-        => _scope.OnEntityTypeAdded(entityTypeBuilder);
+    public virtual string? OnTypeIgnored(
+        IConventionModelBuilder modelBuilder,
+        string name,
+        Type? type)
+        => _scope.OnTypeIgnored(modelBuilder, name, type);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -95,11 +98,8 @@ public partial class ConventionDispatcher
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? OnEntityTypeIgnored(
-        IConventionModelBuilder modelBuilder,
-        string name,
-        Type? type)
-        => _scope.OnEntityTypeIgnored(modelBuilder, name, type);
+    public virtual IConventionEntityTypeBuilder? OnEntityTypeAdded(IConventionEntityTypeBuilder entityTypeBuilder)
+        => _scope.OnEntityTypeAdded(entityTypeBuilder);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -154,6 +154,108 @@ public partial class ConventionDispatcher
 
         return _scope.OnEntityTypeAnnotationChanged(
             entityTypeBuilder,
+            name,
+            annotation,
+            oldAnnotation);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual string? OnComplexTypeMemberIgnored(
+        IConventionComplexTypeBuilder propertyBuilder,
+        string name)
+        => _scope.OnComplexTypeMemberIgnored(propertyBuilder, name);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IConventionComplexPropertyBuilder? OnComplexPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder)
+        => _scope.OnComplexPropertyAdded(propertyBuilder);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IConventionAnnotation? OnComplexTypeAnnotationChanged(
+        IConventionComplexTypeBuilder complexTypeBuilder,
+        string name,
+        IConventionAnnotation? annotation,
+        IConventionAnnotation? oldAnnotation)
+    {
+        if (CoreAnnotationNames.AllNames.Contains(name))
+        {
+            return annotation;
+        }
+
+        return _scope.OnComplexTypeAnnotationChanged(
+            complexTypeBuilder,
+            name,
+            annotation,
+            oldAnnotation);
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IConventionComplexProperty? OnComplexPropertyRemoved(
+        IConventionTypeBaseBuilder typeBaseBuilder,
+        IConventionComplexProperty property)
+        => _scope.OnComplexPropertyRemoved(typeBaseBuilder, property);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual FieldInfo? OnComplexPropertyFieldChanged(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        FieldInfo? newFieldInfo,
+        FieldInfo? oldFieldInfo)
+        => _scope.OnComplexPropertyFieldChanged(propertyBuilder, newFieldInfo, oldFieldInfo);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool? OnComplexPropertyNullabilityChanged(
+        IConventionComplexPropertyBuilder propertyBuilder)
+        => _scope.OnComplexPropertyNullabilityChanged(propertyBuilder);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IConventionAnnotation? OnComplexPropertyAnnotationChanged(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        string name,
+        IConventionAnnotation? annotation,
+        IConventionAnnotation? oldAnnotation)
+    {
+        if (CoreAnnotationNames.AllNames.Contains(name))
+        {
+            return annotation;
+        }
+
+        return _scope.OnComplexPropertyAnnotationChanged(
+            propertyBuilder,
             name,
             annotation,
             oldAnnotation);
@@ -553,9 +655,9 @@ public partial class ConventionDispatcher
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public virtual IConventionProperty? OnPropertyRemoved(
-        IConventionEntityTypeBuilder entityTypeBuilder,
+        IConventionTypeBaseBuilder typeBaseBuilder,
         IConventionProperty property)
-        => _scope.OnPropertyRemoved(entityTypeBuilder, property);
+        => _scope.OnPropertyRemoved(typeBaseBuilder, property);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -563,7 +665,7 @@ public partial class ConventionDispatcher
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool? OnPropertyNullableChanged(IConventionPropertyBuilder propertyBuilder)
+    public virtual bool? OnPropertyNullabilityChanged(IConventionPropertyBuilder propertyBuilder)
         => _scope.OnPropertyNullabilityChanged(propertyBuilder);
 
     /// <summary>

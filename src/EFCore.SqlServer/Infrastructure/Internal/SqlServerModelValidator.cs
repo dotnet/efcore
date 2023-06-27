@@ -430,7 +430,7 @@ public class SqlServerModelValidator : RelationalModelValidator
         if (identityColumns.Count > 1)
         {
             var sb = new StringBuilder()
-                .AppendJoin(identityColumns.Values.Select(p => "'" + p.DeclaringEntityType.DisplayName() + "." + p.Name + "'"));
+                .AppendJoin(identityColumns.Values.Select(p => "'" + p.DeclaringType.DisplayName() + "." + p.Name + "'"));
             throw new InvalidOperationException(SqlServerStrings.MultipleIdentityColumns(sb, storeObject.DisplayName()));
         }
     }
@@ -464,9 +464,9 @@ public class SqlServerModelValidator : RelationalModelValidator
             {
                 throw new InvalidOperationException(
                     SqlServerStrings.DuplicateColumnNameValueGenerationStrategyMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.DeclaringType.DisplayName(),
                         duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
+                        property.DeclaringType.DisplayName(),
                         property.Name,
                         columnName,
                         storeObject.DisplayName()));
@@ -483,9 +483,9 @@ public class SqlServerModelValidator : RelationalModelValidator
                     {
                         throw new InvalidOperationException(
                             SqlServerStrings.DuplicateColumnIdentityIncrementMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.DeclaringType.DisplayName(),
                                 duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
+                                property.DeclaringType.DisplayName(),
                                 property.Name,
                                 columnName,
                                 storeObject.DisplayName()));
@@ -497,9 +497,9 @@ public class SqlServerModelValidator : RelationalModelValidator
                     {
                         throw new InvalidOperationException(
                             SqlServerStrings.DuplicateColumnIdentitySeedMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.DeclaringType.DisplayName(),
                                 duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
+                                property.DeclaringType.DisplayName(),
                                 property.Name,
                                 columnName,
                                 storeObject.DisplayName()));
@@ -512,9 +512,9 @@ public class SqlServerModelValidator : RelationalModelValidator
                     {
                         throw new InvalidOperationException(
                             SqlServerStrings.DuplicateColumnSequenceMismatch(
-                                duplicateProperty.DeclaringEntityType.DisplayName(),
+                                duplicateProperty.DeclaringType.DisplayName(),
                                 duplicateProperty.Name,
-                                property.DeclaringEntityType.DisplayName(),
+                                property.DeclaringType.DisplayName(),
                                 property.Name,
                                 columnName,
                                 storeObject.DisplayName()));
@@ -528,9 +528,9 @@ public class SqlServerModelValidator : RelationalModelValidator
         {
             throw new InvalidOperationException(
                 SqlServerStrings.DuplicateColumnSparsenessMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));

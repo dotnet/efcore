@@ -36,7 +36,7 @@ public class RelationalPropertyOverrides :
         StoreObject = storeObject;
         _configurationSource = configurationSource;
         _builder = new InternalRelationalPropertyOverridesBuilder(
-            this, ((IConventionModel)property.DeclaringEntityType.Model).Builder);
+            this, ((IConventionModel)property.DeclaringType.Model).Builder);
     }
 
     /// <summary>

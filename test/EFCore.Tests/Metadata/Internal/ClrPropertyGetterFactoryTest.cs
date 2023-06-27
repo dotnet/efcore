@@ -61,7 +61,7 @@ public class ClrPropertyGetterFactoryTest
         public PropertySaveBehavior GetAfterSaveBehavior()
             => throw new NotImplementedException();
 
-        public Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory()
+        public Func<IProperty, ITypeBase, ValueGenerator> GetValueGeneratorFactory()
             => throw new NotImplementedException();
 
         public ValueConverter GetValueConverter()
@@ -109,7 +109,6 @@ public class ClrPropertyGetterFactoryTest
         public string Name { get; }
         public ITypeBase DeclaringType { get; }
         public Type ClrType { get; }
-        public IEntityType DeclaringEntityType { get; }
         public bool IsNullable { get; }
         public ValueGenerated ValueGenerated { get; }
         public bool IsConcurrencyToken { get; }

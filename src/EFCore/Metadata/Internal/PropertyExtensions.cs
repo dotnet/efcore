@@ -159,7 +159,7 @@ public static class PropertyExtensions
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public static bool RequiresOriginalValue(this IReadOnlyProperty property)
-        => property.DeclaringEntityType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
+        => property.DeclaringType.GetChangeTrackingStrategy() != ChangeTrackingStrategy.ChangingAndChangedNotifications
             || property.IsConcurrencyToken
             || property.IsKey()
             || property.IsForeignKey()

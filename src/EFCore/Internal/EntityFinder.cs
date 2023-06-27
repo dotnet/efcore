@@ -94,7 +94,7 @@ public class EntityFinder<TEntity> : IEntityFinder<TEntity>
             throw new ArgumentException(
                 CoreStrings.WrongGenericPropertyType(
                     _primaryKey.Properties[0].Name,
-                    _primaryKey.Properties[0].DeclaringEntityType.DisplayName(),
+                    _primaryKey.Properties[0].DeclaringType.DisplayName(),
                     _primaryKeyType.ShortDisplayName(),
                     typeof(TKey).ShortDisplayName()));
         }

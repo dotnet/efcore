@@ -44,7 +44,7 @@ public class RuntimeKey : AnnotatableBase, IRuntimeKey
     public virtual RuntimeEntityType DeclaringEntityType
     {
         [DebuggerStepThrough]
-        get => Properties[0].DeclaringEntityType;
+        get => (RuntimeEntityType)Properties[0].DeclaringType;
     }
 
     /// <summary>

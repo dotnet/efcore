@@ -3718,28 +3718,28 @@ namespace RootNamespace
             {
                 Assert.Equal(7, o.GetEntityTypes().Count());
 
-                var order = o.FindEntityType(typeof(Order).FullName);
-                Assert.Equal(1, order.PropertyCount());
+                var order = (IRuntimeEntityType)o.FindEntityType(typeof(Order).FullName);
+                Assert.Equal(1, order.PropertyCount);
 
-                var orderInfo = order.FindNavigation(nameof(Order.OrderInfo)).TargetEntityType;
-                Assert.Equal(1, orderInfo.PropertyCount());
+                var orderInfo = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderInfo)).TargetEntityType;
+                Assert.Equal(1, orderInfo.PropertyCount);
 
-                var orderInfoAddress = orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).TargetEntityType;
-                Assert.Equal(2, orderInfoAddress.PropertyCount());
+                var orderInfoAddress = (IRuntimeEntityType)orderInfo.FindNavigation(nameof(OrderInfo.StreetAddress)).TargetEntityType;
+                Assert.Equal(2, orderInfoAddress.PropertyCount);
 
-                var orderBillingDetails = order.FindNavigation(nameof(Order.OrderBillingDetails)).TargetEntityType;
-                Assert.Equal(1, orderBillingDetails.PropertyCount());
+                var orderBillingDetails = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderBillingDetails)).TargetEntityType;
+                Assert.Equal(1, orderBillingDetails.PropertyCount);
 
                 var orderBillingDetailsAddress =
-                    orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
-                Assert.Equal(2, orderBillingDetailsAddress.PropertyCount());
+                    (IRuntimeEntityType)orderBillingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
+                Assert.Equal(2, orderBillingDetailsAddress.PropertyCount);
 
-                var orderShippingDetails = order.FindNavigation(nameof(Order.OrderShippingDetails)).TargetEntityType;
-                Assert.Equal(1, orderShippingDetails.PropertyCount());
+                var orderShippingDetails = (IRuntimeEntityType)order.FindNavigation(nameof(Order.OrderShippingDetails)).TargetEntityType;
+                Assert.Equal(1, orderShippingDetails.PropertyCount);
 
                 var orderShippingDetailsAddress =
-                    orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
-                Assert.Equal(2, orderShippingDetailsAddress.PropertyCount());
+                    (IRuntimeEntityType)orderShippingDetails.FindNavigation(nameof(OrderDetails.StreetAddress)).TargetEntityType;
+                Assert.Equal(2, orderShippingDetailsAddress.PropertyCount);
             });
 
     [ConditionalFact]
@@ -6942,7 +6942,7 @@ namespace RootNamespace
             => model
                 .GetEntityTypes()
                 .SelectMany(m => m.GetProperties())
-                .OrderBy(p => p.DeclaringEntityType.Name)
+                .OrderBy(p => p.DeclaringType.Name)
                 .ThenBy(p => p.Name)
                 .ToList();
 
@@ -7330,7 +7330,7 @@ namespace RootNamespace
                     var originalProperty = originalProperties[i];
                     var snapshotProperty = snapshotProperties[i];
 
-                    Assert.Equal(originalProperty.DeclaringEntityType.Name, snapshotProperty.DeclaringEntityType.Name);
+                    Assert.Equal(originalProperty.DeclaringType.Name, snapshotProperty.DeclaringType.Name);
                     Assert.Equal(originalProperty.Name, snapshotProperty.Name);
 
                     Assert.Equal(originalProperty.GetColumnType(), snapshotProperty.GetColumnType());

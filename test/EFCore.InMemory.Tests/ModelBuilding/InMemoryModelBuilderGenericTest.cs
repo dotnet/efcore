@@ -15,6 +15,12 @@ public class InMemoryModelBuilderGenericTest : ModelBuilderGenericTest
             => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
     }
 
+    public class InMemoryGenericComplexTypeTestBase : GenericComplexType
+    {
+        protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)
+            => CreateTestModelBuilder(InMemoryTestHelpers.Instance, configure);
+    }
+
     public class InMemoryGenericInheritance : GenericInheritance
     {
         protected override TestModelBuilder CreateModelBuilder(Action<ModelConfigurationBuilder> configure = null)

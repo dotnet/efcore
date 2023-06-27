@@ -24,7 +24,6 @@ public class ClrPropertySetterFactoryTest
         public string Name { get; }
         public ITypeBase DeclaringType { get; }
         public Type ClrType { get; }
-        public IEntityType DeclaringEntityType { get; }
         public bool IsNullable { get; }
         public bool IsReadOnlyBeforeSave { get; }
         public bool IsReadOnlyAfterSave { get; }
@@ -80,7 +79,7 @@ public class ClrPropertySetterFactoryTest
         public PropertySaveBehavior GetAfterSaveBehavior()
             => throw new NotImplementedException();
 
-        public Func<IProperty, IEntityType, ValueGenerator> GetValueGeneratorFactory()
+        public Func<IProperty, ITypeBase, ValueGenerator> GetValueGeneratorFactory()
             => throw new NotImplementedException();
 
         public ValueConverter GetValueConverter()

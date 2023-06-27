@@ -53,12 +53,12 @@ public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public override ValueGenerator Select(IProperty property, IEntityType entityType)
+    public override ValueGenerator Select(IProperty property, ITypeBase typeBase)
     {
         if (property.GetValueGeneratorFactory() != null
             || property.GetValueGenerationStrategy() != SqlServerValueGenerationStrategy.SequenceHiLo)
         {
-            return base.Select(property, entityType);
+            return base.Select(property, typeBase);
         }
 
         var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
@@ -96,7 +96,7 @@ public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
 
         throw new ArgumentException(
             CoreStrings.InvalidValueGeneratorFactoryProperty(
-                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringEntityType.DisplayName()));
+                nameof(SqlServerSequenceValueGeneratorFactory), property.Name, property.DeclaringType.DisplayName()));
     }
 
     /// <summary>
@@ -105,10 +105,10 @@ public class SqlServerValueGeneratorSelector : RelationalValueGeneratorSelector
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+    protected override ValueGenerator? FindForType(IProperty property, ITypeBase typeBase, Type clrType)
         => property.ClrType.UnwrapNullableType() == typeof(Guid)
             ? property.ValueGenerated == ValueGenerated.Never || property.GetDefaultValueSql() != null
                 ? new TemporaryGuidValueGenerator()
                 : new SequentialGuidValueGenerator()
-            : base.FindForType(property, entityType, clrType);
+            : base.FindForType(property, typeBase, clrType);
 }

@@ -148,7 +148,7 @@ public class KeyDiscoveryConventionTest
     private void RunConvention(InternalPropertyBuilder propertyBuilder)
     {
         var context = new ConventionContext<IConventionPropertyBuilder>(
-            propertyBuilder.Metadata.DeclaringEntityType.Model.ConventionDispatcher);
+            propertyBuilder.Metadata.DeclaringType.Model.ConventionDispatcher);
 
         CreateKeyDiscoveryConvention().ProcessPropertyAdded(propertyBuilder, context);
     }

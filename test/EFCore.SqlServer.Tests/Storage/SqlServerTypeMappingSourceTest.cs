@@ -283,7 +283,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         property.IsNullable = false;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
-        property.DeclaringEntityType.SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
 
@@ -312,9 +312,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         property.IsNullable = false;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
-        var pk = property.DeclaringEntityType.SetPrimaryKey(property);
-        property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+        var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
+        var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
 
@@ -343,9 +343,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         property.IsNullable = false;
         property.SetIsUnicode(unicode);
         property.SetIsFixedLength(fixedLength);
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
-        var pk = property.DeclaringEntityType.SetPrimaryKey(property);
-        property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+        var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
+        var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
         fkProperty.IsNullable = false;
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
@@ -621,7 +621,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         property.IsNullable = false;
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
-        property.DeclaringEntityType.SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
 
@@ -646,9 +646,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
         property.IsNullable = false;
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
-        var pk = property.DeclaringEntityType.SetPrimaryKey(property);
-        property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+        var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
+        var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
 
@@ -673,9 +673,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         property.SetIsUnicode(false);
         property.SetIsFixedLength(fixedLength);
         property.IsNullable = false;
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", type);
-        var pk = property.DeclaringEntityType.SetPrimaryKey(property);
-        property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+        var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", type);
+        var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
         fkProperty.IsNullable = false;
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
@@ -929,7 +929,7 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(byte[]));
         property.IsNullable = false;
         property.SetIsFixedLength(fixedLength);
-        property.DeclaringEntityType.SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)property);
 
@@ -947,9 +947,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(byte[]));
         property.IsNullable = false;
         property.SetIsFixedLength(fixedLength);
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(byte[]));
-        var pk = property.DeclaringEntityType.SetPrimaryKey(property);
-        property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+        var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", typeof(byte[]));
+        var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);
         Assert.False(typeMapping.IsFixedLength);
@@ -967,9 +967,9 @@ public class SqlServerTypeMappingSourceTest : RelationalTypeMapperTestBase
         var property = CreateEntityType<MyType>().AddProperty("MyProp", typeof(byte[]));
         property.IsNullable = false;
         property.SetIsFixedLength(fixedLength);
-        var fkProperty = property.DeclaringEntityType.AddProperty("FK", typeof(byte[]));
-        var pk = property.DeclaringEntityType.SetPrimaryKey(property);
-        property.DeclaringEntityType.AddForeignKey(fkProperty, pk, property.DeclaringEntityType);
+        var fkProperty = ((IMutableEntityType)property.DeclaringType).AddProperty("FK", typeof(byte[]));
+        var pk = ((IMutableEntityType)property.DeclaringType).SetPrimaryKey(property);
+        ((IMutableEntityType)property.DeclaringType).AddForeignKey(fkProperty, pk, ((IMutableEntityType)property.DeclaringType));
         fkProperty.IsNullable = false;
 
         var typeMapping = CreateRelationalTypeMappingSource().GetMapping((IProperty)fkProperty);

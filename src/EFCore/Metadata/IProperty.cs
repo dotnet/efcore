@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a scalar property of an entity type.
+///     Represents a scalar property of a structural type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
@@ -15,9 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface IProperty : IReadOnlyProperty, IPropertyBase
 {
     /// <summary>
-    ///     Gets the type that this property belongs to.
+    ///     Gets the entity type that this property belongs to.
     /// </summary>
-    new IEntityType DeclaringEntityType { get; }
+    [Obsolete("Use DeclaringType and cast to IEntityType or IComplexType")]
+    new IEntityType DeclaringEntityType => (IEntityType)DeclaringType;
 
     /// <summary>
     ///     Creates an <see cref="IEqualityComparer{T}" /> for values of the given property type.
@@ -41,7 +41,7 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// </summary>
     /// <returns>The list of all associated principal properties including the given property.</returns>
     new IReadOnlyList<IProperty> GetPrincipals()
-        => ((IReadOnlyProperty)this).GetPrincipals().Cast<IProperty>().ToList();
+        => GetPrincipals<IProperty>();
 
     /// <summary>
     ///     Gets all foreign keys that use this property (including composite foreign keys in which this property
@@ -98,7 +98,8 @@ public interface IProperty : IReadOnlyProperty, IPropertyBase
     /// <returns>The comparer.</returns>
     new ValueComparer GetProviderValueComparer();
 
-    internal const DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
+
+    internal const System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes DynamicallyAccessedMemberTypes =
         System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.NonPublicConstructors
         | System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicProperties

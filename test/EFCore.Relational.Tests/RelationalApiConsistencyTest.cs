@@ -143,6 +143,7 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(RelationalIndexBuilderExtensions),
             typeof(RelationalKeyBuilderExtensions),
             typeof(RelationalEntityTypeBuilderExtensions),
+            typeof(RelationalOwnedNavigationBuilderExtensions),
             typeof(DbFunctionBuilder),
             typeof(DbFunctionParameterBuilder),
             typeof(TableBuilder),
@@ -184,63 +185,123 @@ public class RelationalApiConsistencyTest : ApiConsistencyTestBase<RelationalApi
             typeof(OperationBuilder<>)
         };
 
-        public override
-            List<(Type Type,
-                Type ReadonlyExtensions,
+        public override Dictionary<Type, (Type ReadonlyExtensions,
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
-            = new()
+                Type RuntimeExtensions)> MetadataExtensionTypes { get; } = new()
             {
-                (
+                {
                     typeof(IReadOnlyModel),
-                    typeof(RelationalModelExtensions),
-                    typeof(RelationalModelExtensions),
-                    typeof(RelationalModelExtensions),
-                    typeof(RelationalModelBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(RelationalModelExtensions),
+                        typeof(RelationalModelExtensions),
+                        typeof(RelationalModelExtensions),
+                        typeof(RelationalModelBuilderExtensions),
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyEntityType),
-                    typeof(RelationalEntityTypeExtensions),
-                    typeof(RelationalEntityTypeExtensions),
-                    typeof(RelationalEntityTypeExtensions),
-                    typeof(RelationalEntityTypeBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+
+                        typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeExtensions),
+                        typeof(RelationalEntityTypeBuilderExtensions),
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyComplexType),
+                    (
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyTypeBase),
+                    (
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyKey),
-                    typeof(RelationalKeyExtensions),
-                    typeof(RelationalKeyExtensions),
-                    typeof(RelationalKeyExtensions),
-                    typeof(RelationalKeyBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyExtensions),
+                        typeof(RelationalKeyBuilderExtensions),
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyForeignKey),
-                    typeof(RelationalForeignKeyExtensions),
-                    typeof(RelationalForeignKeyExtensions),
-                    typeof(RelationalForeignKeyExtensions),
-                    typeof(RelationalForeignKeyBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyExtensions),
+                        typeof(RelationalForeignKeyBuilderExtensions),
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyComplexProperty),
+                    (
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyProperty),
-                    typeof(RelationalPropertyExtensions),
-                    typeof(RelationalPropertyExtensions),
-                    typeof(RelationalPropertyExtensions),
-                    typeof(RelationalPropertyBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyExtensions),
+                        typeof(RelationalPropertyBuilderExtensions),
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyIndex),
-                    typeof(RelationalIndexExtensions),
-                    typeof(RelationalIndexExtensions),
-                    typeof(RelationalIndexExtensions),
-                    typeof(RelationalIndexBuilderExtensions),
-                    null
-                )
+                    (
+                        typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexExtensions),
+                        typeof(RelationalIndexBuilderExtensions),
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyTrigger),
+                    (
+                        typeof(RelationalTriggerExtensions),
+                        typeof(RelationalTriggerExtensions),
+                        typeof(RelationalTriggerExtensions),
+                        typeof(RelationalTriggerBuilderExtensions),
+                        null
+                    )
+                },
+                {
+                    typeof(IReadOnlyDbFunction),
+                    (
+                        typeof(RelationalDbFunctionExtensions),
+                        typeof(RelationalDbFunctionExtensions),
+                        typeof(RelationalDbFunctionExtensions),
+                        null,
+                        null
+                    )
+                }
             };
 
         public override HashSet<MethodInfo> NonVirtualMethods { get; }

@@ -580,7 +580,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                         concreteEntityType, "instance", _queryTrackingBehavior), materializationContextVariable);
 
             if (_queryStateManager
-                && concreteEntityType.ShadowPropertyCount() > 0)
+                && ((IRuntimeEntityType)concreteEntityType).ShadowPropertyCount > 0)
             {
                 var valueBufferExpression = Expression.Call(
                     materializationContextVariable, MaterializationContext.GetValueBufferMethod);

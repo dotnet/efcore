@@ -112,7 +112,43 @@ public class InternalIndexBuilder : AnnotatableBuilder<Index, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     IConventionIndex IConventionIndexBuilder.Metadata
-        => Metadata;
+    {
+        [DebuggerStepThrough]
+        get => Metadata;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionIndexBuilder? IConventionIndexBuilder.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionIndexBuilder?)base.HasAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionIndexBuilder? IConventionIndexBuilder.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionIndexBuilder?)base.HasNonNullAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
+    IConventionIndexBuilder? IConventionIndexBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
+        => (IConventionIndexBuilder?)base.HasNoAnnotation(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

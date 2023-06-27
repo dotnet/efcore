@@ -152,7 +152,7 @@ public class StoredProcedureParameter :
             var baseName = GetProperty().GetDefaultColumnName(
                 ((IReadOnlyStoredProcedure)StoredProcedure).GetStoreIdentifier()!.Value)!;
             return ForOriginalValue ?? false
-                ? Uniquifier.Truncate(baseName + "_Original", GetProperty().DeclaringEntityType.Model.GetMaxIdentifierLength())
+                ? Uniquifier.Truncate(baseName + "_Original", GetProperty().DeclaringType.Model.GetMaxIdentifierLength())
                 : baseName;
         }
         set => SetName(value, ConfigurationSource.Explicit);

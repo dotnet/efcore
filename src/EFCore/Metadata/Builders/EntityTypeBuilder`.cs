@@ -153,6 +153,97 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
                 .Metadata);
 
     /// <summary>
+    ///     Configures a complex property of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property with this overload the property name must match the
+    ///     name of a CLR property or field on the complex type. This overload cannot be used to
+    ///     add a new shadow state complex property.
+    /// </remarks>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual EntityTypeBuilder<TEntity> ComplexProperty(string propertyName, Action<ComplexPropertyBuilder> buildAction)
+        => (EntityTypeBuilder<TEntity>)base.ComplexProperty(propertyName, buildAction);
+
+    /// <summary>
+    ///     Configures a complex property of the entity type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <typeparam name="TProperty">The type of the property to be configured.</typeparam>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual EntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
+        string propertyName, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+        => (EntityTypeBuilder<TEntity>)base.ComplexProperty(propertyName, buildAction);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the complex type.
+    ///     If no property with the given name exists, then a new property will be added.
+    /// </summary>
+    /// <remarks>
+    ///     When adding a new complex property, if a property with the same name exists in the complex class
+    ///     then it will be added to the model. If no property exists in the complex class, then
+    ///     a new shadow state complex property will be added. A shadow state property is one that does not have a
+    ///     corresponding property in the complex class. The current value for the property is stored in
+    ///     the <see cref="ChangeTracker" /> rather than being stored in instances of the complex class.
+    /// </remarks>
+    /// <param name="propertyType">The type of the property to be configured.</param>
+    /// <param name="propertyName">The name of the property to be configured.</param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public new virtual EntityTypeBuilder<TEntity> ComplexProperty(
+        Type propertyType, string propertyName, Action<ComplexPropertyBuilder> buildAction)
+        => (EntityTypeBuilder<TEntity>)base.ComplexProperty(propertyType, propertyName, buildAction);
+
+    /// <summary>
+    ///     Returns an object that can be used to configure a complex property of the entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <returns>An object that can be used to configure the complex property.</returns>
+    public virtual ComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression)
+        => new(
+            Builder.ComplexProperty(
+                    Check.NotNull(propertyExpression, nameof(propertyExpression)).GetMemberAccess(),
+                    collection: false,
+                    ConfigurationSource.Explicit)!
+                .Metadata);
+
+    /// <summary>
+    ///     Configures a complex property of the entity type.
+    ///     If the specified property is not already part of the model, it will be added.
+    /// </summary>
+    /// <param name="propertyExpression">
+    ///     A lambda expression representing the property to be configured (
+    ///     <c>blog => blog.Url</c>).
+    /// </param>
+    /// <param name="buildAction">An action that performs configuration of the property.</param>
+    /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
+    public virtual EntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
+        Expression<Func<TEntity, TProperty>> propertyExpression, Action<ComplexPropertyBuilder<TProperty>> buildAction)
+    {
+        Check.NotNull(buildAction, nameof(buildAction));
+
+        buildAction(ComplexProperty(propertyExpression));
+
+        return this;
+    }
+
+    /// <summary>
     ///     Returns an object that can be used to configure an existing navigation property of the entity type.
     ///     It is an error for the navigation property not to exist.
     /// </summary>
@@ -1397,7 +1488,4 @@ public class EntityTypeBuilder<[DynamicallyAccessedMembers(IEntityType.Dynamical
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
     public new virtual EntityTypeBuilder<TEntity> HasNoDiscriminator()
         => (EntityTypeBuilder<TEntity>)base.HasNoDiscriminator();
-
-    private InternalEntityTypeBuilder Builder
-        => (InternalEntityTypeBuilder)this.GetInfrastructure();
 }

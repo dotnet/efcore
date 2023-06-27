@@ -50,18 +50,17 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     ///     Selects the appropriate value generator for a given property.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
+    /// <param name="typeBase">
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
     /// <returns>The value generator to be used.</returns>
-    public virtual ValueGenerator Select(IProperty property, IEntityType entityType)
-        => Cache.GetOrAdd(property, entityType, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
+    public virtual ValueGenerator Select(IProperty property, ITypeBase typeBase)
+        => Cache.GetOrAdd(property, typeBase, (p, t) => CreateFromFactory(p, t) ?? Create(p, t));
 
-    private static ValueGenerator? CreateFromFactory(IProperty property, IEntityType entityType)
+    private static ValueGenerator? CreateFromFactory(IProperty property, ITypeBase entityType)
     {
         var factory = property.GetValueGeneratorFactory();
-
         if (factory == null)
         {
             var mapping = property.GetTypeMapping();
@@ -75,15 +74,15 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
     ///     Creates a new value generator for the given property.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
+    /// <param name="typeBase">
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
     /// <returns>The newly created value generator.</returns>
-    public virtual ValueGenerator Create(IProperty property, IEntityType entityType)
+    public virtual ValueGenerator Create(IProperty property, ITypeBase typeBase)
     {
         var propertyType = property.ClrType.UnwrapNullableType().UnwrapEnumType();
-        var generator = FindForType(property, entityType, propertyType);
+        var generator = FindForType(property, typeBase, propertyType);
         if (generator != null)
         {
             return generator;
@@ -93,7 +92,7 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
         if (converter != null
             && converter.ProviderClrType != propertyType)
         {
-            generator = FindForType(property, entityType, converter.ProviderClrType);
+            generator = FindForType(property, typeBase, converter.ProviderClrType);
             if (generator != null)
             {
                 return generator.WithConverter(converter);
@@ -101,20 +100,20 @@ public class ValueGeneratorSelector : IValueGeneratorSelector
         }
 
         throw new NotSupportedException(
-            CoreStrings.NoValueGenerator(property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+            CoreStrings.NoValueGenerator(property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
     }
 
     /// <summary>
     ///     Creates a new value generator for the given property and type, where the property may have a <see cref="ValueConverter" />.
     /// </summary>
     /// <param name="property">The property to get the value generator for.</param>
-    /// <param name="entityType">
+    /// <param name="typeBase">
     ///     The entity type that the value generator will be used for. When called on inherited properties on derived entity types,
     ///     this entity type may be different from the declared entity type on <paramref name="property" />
     /// </param>
     /// <param name="clrType">The type, which may be the provider type after conversion, rather than the property type.</param>
     /// <returns>The newly created value generator.</returns>
-    protected virtual ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+    protected virtual ValueGenerator? FindForType(IProperty property, ITypeBase typeBase, Type clrType)
         => clrType == typeof(Guid)
             ? new GuidValueGenerator()
             : clrType == typeof(string)

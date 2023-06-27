@@ -601,7 +601,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal("BigMakId", fkProperty.Name);
             Assert.True(fkProperty.IsShadowProperty());
             Assert.Same(typeof(int?), fkProperty.ClrType);
-            Assert.Same(dependentType, fkProperty.DeclaringEntityType);
+            Assert.Same(dependentType, fkProperty.DeclaringType);
 
             Assert.Equal("BigMak", dependentType.GetNavigations().Single().Name);
             Assert.Equal("Pickles", principalType.GetNavigations().Single().Name);
@@ -637,7 +637,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.True(fkProperty.IsShadowProperty());
             Assert.Same(typeof(int?), fkProperty.ClrType);
-            Assert.Same(dependentType, fkProperty.DeclaringEntityType);
+            Assert.Same(dependentType, fkProperty.DeclaringType);
 
             Assert.Equal(nameof(Pickle.BigMak), dependentType.GetNavigations().Single().Name);
             Assert.Same(fk, dependentType.GetNavigations().Single().ForeignKey);
@@ -671,7 +671,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.True(fkProperty.IsShadowProperty());
             Assert.Same(typeof(int?), fkProperty.ClrType);
-            Assert.Same(dependentType, fkProperty.DeclaringEntityType);
+            Assert.Same(dependentType, fkProperty.DeclaringType);
 
             Assert.Equal(nameof(BigMak.Pickles), fk.PrincipalToDependent.Name);
             Assert.Null(fk.DependentToPrincipal);
@@ -707,7 +707,7 @@ public abstract partial class ModelBuilderTest
 
             Assert.True(fkProperty.IsShadowProperty());
             Assert.Same(typeof(int?), fkProperty.ClrType);
-            Assert.Same(dependentType, fkProperty.DeclaringEntityType);
+            Assert.Same(dependentType, fkProperty.DeclaringType);
 
             Assert.Empty(dependentType.GetNavigations().Where(nav => nav.ForeignKey != fk));
             Assert.Empty(principalType.GetNavigations().Where(nav => nav.ForeignKey != fk));

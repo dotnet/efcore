@@ -237,7 +237,7 @@ public class EntityEntry<TEntity> : EntityEntry
             throw new ArgumentException(
                 CoreStrings.WrongGenericPropertyType(
                     property.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.ClrType.ShortDisplayName(),
                     typeof(TProperty).ShortDisplayName()));
         }

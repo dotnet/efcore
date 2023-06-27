@@ -159,7 +159,7 @@ namespace Microsoft.EntityFrameworkCore.InMemory.Internal
         }
 
         /// <summary>
-        ///     Transactions are not supported by the in-memory store. See http://go.microsoft.com/fwlink/?LinkId=800142
+        ///     Transactions are not supported by the in-memory store. See https://go.microsoft.com/fwlink/?LinkId=800142
         /// </summary>
         public static EventDefinition LogTransactionsNotSupported(IDiagnosticsLogger logger)
         {

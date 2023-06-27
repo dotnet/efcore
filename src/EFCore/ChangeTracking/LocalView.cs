@@ -845,7 +845,7 @@ public class LocalView<[DynamicallyAccessedMembers(IEntityType.DynamicallyAccess
             throw new ArgumentException(
                 CoreStrings.WrongGenericPropertyType(
                     property.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.ClrType.ShortDisplayName(),
                     typeof(TProperty).ShortDisplayName()));
         }

@@ -29,10 +29,7 @@ public class RuntimeModelConvention : IModelFinalizedConvention
     /// </summary>
     protected virtual ProviderConventionSetBuilderDependencies Dependencies { get; }
 
-    /// <summary>
-    ///     Called after a model is finalized and can no longer be mutated.
-    /// </summary>
-    /// <param name="model">The model.</param>
+    /// <inheritdoc/>
     public virtual IModel ProcessModelFinalized(IModel model)
         => Create(model);
 
@@ -71,6 +68,14 @@ public class RuntimeModelConvention : IModelFinalizedConvention
                         convention.ProcessServicePropertyAnnotations(annotations, source, target, runtime));
                 runtimeServiceProperty.ParameterBinding =
                     (ServiceParameterBinding)Create(serviceProperty.ParameterBinding, runtimeEntityType);
+            }
+
+            foreach (var property in entityType.GetDeclaredComplexProperties())
+            {
+                var runtimeProperty = Create(property, runtimeEntityType);
+                CreateAnnotations(
+                    property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
+                        convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
             }
 
             foreach (var key in entityType.GetDeclaredKeys())
@@ -333,31 +338,56 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         }
     }
 
-    private static RuntimeProperty Create(IProperty property, RuntimeEntityType runtimeEntityType)
-        => runtimeEntityType.AddProperty(
-            property.Name,
-            property.ClrType,
-            property.Sentinel,
-            property.PropertyInfo,
-            property.FieldInfo,
-            property.GetPropertyAccessMode(),
-            property.IsNullable,
-            property.IsConcurrencyToken,
-            property.ValueGenerated,
-            property.GetBeforeSaveBehavior(),
-            property.GetAfterSaveBehavior(),
-            property.GetMaxLength(),
-            property.IsUnicode(),
-            property.GetPrecision(),
-            property.GetScale(),
-            property.GetProviderClrType(),
-            property.GetValueGeneratorFactory(),
-            property.GetValueConverter(),
-            property.GetValueComparer(),
-            property.GetKeyValueComparer(),
-            property.GetProviderValueComparer(),
-            property.GetJsonValueReaderWriter(),
-            property.GetTypeMapping());
+    private static RuntimeProperty Create(IProperty property, RuntimeTypeBase runtimeType)
+        => runtimeType is RuntimeEntityType runtimeEntityType
+            ? runtimeEntityType.AddProperty(
+                property.Name,
+                property.ClrType,
+                property.Sentinel,
+                property.PropertyInfo,
+                property.FieldInfo,
+                property.GetPropertyAccessMode(),
+                property.IsNullable,
+                property.IsConcurrencyToken,
+                property.ValueGenerated,
+                property.GetBeforeSaveBehavior(),
+                property.GetAfterSaveBehavior(),
+                property.GetMaxLength(),
+                property.IsUnicode(),
+                property.GetPrecision(),
+                property.GetScale(),
+                property.GetProviderClrType(),
+                property.GetValueGeneratorFactory(),
+                property.GetValueConverter(),
+                property.GetValueComparer(),
+                property.GetKeyValueComparer(),
+                property.GetProviderValueComparer(),
+                property.GetJsonValueReaderWriter(),
+                property.GetTypeMapping())
+            : ((RuntimeComplexType)runtimeType).AddProperty(
+                property.Name,
+                property.ClrType,
+                property.Sentinel,
+                property.PropertyInfo,
+                property.FieldInfo,
+                property.GetPropertyAccessMode(),
+                property.IsNullable,
+                property.IsConcurrencyToken,
+                property.ValueGenerated,
+                property.GetBeforeSaveBehavior(),
+                property.GetAfterSaveBehavior(),
+                property.GetMaxLength(),
+                property.IsUnicode(),
+                property.GetPrecision(),
+                property.GetScale(),
+                property.GetProviderClrType(),
+                property.GetValueGeneratorFactory(),
+                property.GetValueConverter(),
+                property.GetValueComparer(),
+                property.GetKeyValueComparer(),
+                property.GetProviderValueComparer(),
+                property.GetJsonValueReaderWriter(),
+                property.GetTypeMapping());
 
     /// <summary>
     ///     Updates the property annotations that will be set on the read-only object.
@@ -403,6 +433,107 @@ public class RuntimeModelConvention : IModelFinalizedConvention
         Dictionary<string, object?> annotations,
         IServiceProperty property,
         RuntimeServiceProperty runtimeProperty,
+        bool runtime)
+    {
+        if (!runtime)
+        {
+            foreach (var (key, _) in annotations)
+            {
+                if (CoreAnnotationNames.AllNames.Contains(key))
+                {
+                    annotations.Remove(key);
+                }
+            }
+        }
+    }
+
+    private RuntimeComplexProperty Create(IComplexProperty complexProperty, RuntimeEntityType runtimeEntityType)
+    {
+        var runtimeComplexProperty = runtimeEntityType.AddComplexProperty(
+                complexProperty.Name,
+                complexProperty.ClrType,
+                complexProperty.ComplexType.Name,
+                complexProperty.ComplexType.ClrType,
+                complexProperty.PropertyInfo,
+                complexProperty.FieldInfo,
+                complexProperty.GetPropertyAccessMode(),
+                complexProperty.IsNullable,
+                complexProperty.IsCollection,
+                complexProperty.ComplexType.GetChangeTrackingStrategy(),
+                complexProperty.ComplexType.FindIndexerPropertyInfo(),
+                complexProperty.ComplexType.IsPropertyBag);
+
+        var complexType = complexProperty.ComplexType;
+        var runtimeComplexType = runtimeComplexProperty.ComplexType;
+
+        foreach (var property in complexType.GetProperties())
+        {
+            var runtimeProperty = Create(property, runtimeComplexType);
+            CreateAnnotations(
+                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
+        }
+
+        foreach (var property in complexType.GetComplexProperties())
+        {
+            var runtimeProperty = Create(property, runtimeComplexType);
+            CreateAnnotations(
+                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
+        }
+
+        return runtimeComplexProperty;
+    }
+
+    private RuntimeComplexProperty Create(IComplexProperty complexProperty, RuntimeComplexType runtimeComplexType)
+    {
+        var runtimeComplexProperty = runtimeComplexType.AddComplexProperty(
+                complexProperty.Name,
+                complexProperty.ClrType,
+                complexProperty.ComplexType.Name,
+                complexProperty.ComplexType.ClrType,
+                complexProperty.PropertyInfo,
+                complexProperty.FieldInfo,
+                complexProperty.GetPropertyAccessMode(),
+                complexProperty.IsNullable,
+                complexProperty.IsCollection,
+                complexProperty.ComplexType.GetChangeTrackingStrategy(),
+                complexProperty.ComplexType.FindIndexerPropertyInfo(),
+                complexProperty.ComplexType.IsPropertyBag);
+
+        var complexType = complexProperty.ComplexType;
+        var newRuntimeComplexType = runtimeComplexProperty.ComplexType;
+
+        foreach (var property in complexType.GetProperties())
+        {
+            var runtimeProperty = Create(property, newRuntimeComplexType);
+            CreateAnnotations(
+                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessPropertyAnnotations(annotations, source, target, runtime));
+        }
+
+        foreach (var property in complexType.GetComplexProperties())
+        {
+            var runtimeProperty = Create(property, newRuntimeComplexType);
+            CreateAnnotations(
+                property, runtimeProperty, static (convention, annotations, source, target, runtime) =>
+                    convention.ProcessComplexPropertyAnnotations(annotations, source, target, runtime));
+        }
+
+        return runtimeComplexProperty;
+    }
+
+    /// <summary>
+    ///     Updates the property annotations that will be set on the read-only object.
+    /// </summary>
+    /// <param name="annotations">The annotations to be processed.</param>
+    /// <param name="property">The source property.</param>
+    /// <param name="runtimeProperty">The target property that will contain the annotations.</param>
+    /// <param name="runtime">Indicates whether the given annotations are runtime annotations.</param>
+    protected virtual void ProcessComplexPropertyAnnotations(
+        Dictionary<string, object?> annotations,
+        IComplexProperty property,
+        RuntimeComplexProperty runtimeProperty,
         bool runtime)
     {
         if (!runtime)

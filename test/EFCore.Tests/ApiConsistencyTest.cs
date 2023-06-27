@@ -44,6 +44,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(DiscriminatorBuilder<>),
             typeof(EntityTypeBuilder),
             typeof(EntityTypeBuilder<>),
+            typeof(ComplexPropertyBuilder),
+            typeof(ComplexPropertyBuilder<>),
             typeof(IndexBuilder),
             typeof(IndexBuilder<>),
             typeof(TriggerBuilder),
@@ -60,6 +62,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(OwnershipBuilder<,>),
             typeof(PropertyBuilder),
             typeof(PropertyBuilder<>),
+            typeof(ComplexTypePropertyBuilder),
+            typeof(ComplexTypePropertyBuilder<>),
             typeof(ReferenceCollectionBuilder),
             typeof(ReferenceCollectionBuilder<,>),
             typeof(ReferenceNavigationBuilder),
@@ -112,6 +116,10 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
 
         public override HashSet<MethodInfo> UnmatchedMetadataMethods { get; } = new()
         {
+            typeof(ComplexPropertyBuilder).GetMethod(
+                nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(string) }),
+            typeof(ComplexPropertyBuilder).GetMethod(
+                nameof(ComplexPropertyBuilder.ComplexProperty), 0, new[] { typeof(Type), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
                 nameof(OwnedNavigationBuilder.OwnsOne), 0, new[] { typeof(string), typeof(string) }),
             typeof(OwnedNavigationBuilder).GetMethod(
@@ -155,10 +163,8 @@ public class ApiConsistencyTest : ApiConsistencyTestBase<ApiConsistencyTest.ApiC
             typeof(IReadOnlyNavigationBase).GetMethod("get_Inverse"),
             typeof(IConventionAnnotatableBuilder).GetMethod(nameof(IConventionAnnotatableBuilder.HasNonNullAnnotation)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.RemoveUnusedImplicitProperties)),
-            typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.Ignore)),
+            typeof(IConventionTypeBaseBuilder).GetMethod(nameof(IConventionTypeBaseBuilder.RemoveUnusedImplicitProperties)),
             typeof(IConventionEntityTypeBuilder).GetMethod(nameof(IConventionEntityTypeBuilder.GetTargetEntityTypeBuilder)),
-            typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(Type), typeof(bool) }),
-            typeof(IConventionModelBuilder).GetMethod(nameof(IConventionModelBuilder.Ignore), new[] { typeof(string), typeof(bool) }),
             typeof(IConventionPropertyBuilder).GetMethod(
                 nameof(IConventionPropertyBuilder.HasField), new[] { typeof(string), typeof(bool) }),
             typeof(IConventionPropertyBuilder).GetMethod(

@@ -4,6 +4,7 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -459,6 +460,11 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             CreateEntityType(entityType, mainBuilder, methodBuilder, namespaces, className, nullable);
 
+            foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+            {
+                CreateComplexProperty(complexProperty, mainBuilder, methodBuilder, namespaces, className, nullable);
+            }
+
             var foreignKeyNumber = 1;
             foreach (var foreignKey in entityType.GetDeclaredForeignKeys())
             {
@@ -536,6 +542,17 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             foreach (var property in entityType.GetDeclaredServiceProperties())
             {
                 Create(property, parameters);
+            }
+
+            foreach (var complexProperty in entityType.GetDeclaredComplexProperties())
+            {
+                mainBuilder
+                    .Append(_code.Identifier(complexProperty.Name, capitalize: true))
+                    .Append("ComplexProperty")
+                    .Append(".Create")
+                    .Append("(")
+                    .Append(entityTypeVariable)
+                    .AppendLine(");");
             }
 
             foreach (var key in entityType.GetDeclaredKeys())
@@ -666,13 +683,32 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         Dictionary<IProperty, string> propertyVariables,
         CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
     {
+        var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
+        propertyVariables[property] = variableName;
+
+        Create(property, variableName, propertyVariables, parameters);
+
+        CreateAnnotations(
+            property,
+            _annotationCodeGenerator.Generate,
+            parameters with { TargetName = variableName });
+
+        parameters.MainBuilder.AppendLine();
+    }
+
+    private void Create(
+        IProperty property,
+        string variableName,
+        Dictionary<IProperty, string> propertyVariables,
+        CSharpRuntimeAnnotationCodeGeneratorParameters parameters)
+    {
         var valueGeneratorFactoryType = (Type?)property[CoreAnnotationNames.ValueGeneratorFactoryType];
         if (valueGeneratorFactoryType == null
             && property.GetValueGeneratorFactory() != null)
         {
             throw new InvalidOperationException(
                 DesignStrings.CompiledModelValueGenerator(
-                    property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasValueGeneratorFactory)));
+                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasValueGeneratorFactory)));
         }
 
         var valueComparerType = (Type?)property[CoreAnnotationNames.ValueComparerType];
@@ -681,7 +717,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             throw new InvalidOperationException(
                 DesignStrings.CompiledModelValueComparer(
-                    property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
+                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
         var providerValueComparerType = (Type?)property[CoreAnnotationNames.ProviderValueComparerType];
@@ -690,7 +726,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             throw new InvalidOperationException(
                 DesignStrings.CompiledModelValueComparer(
-                    property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
+                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
         var valueConverterType = GetValueConverterType(property);
@@ -699,7 +735,7 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             throw new InvalidOperationException(
                 DesignStrings.CompiledModelValueConverter(
-                    property.DeclaringEntityType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
+                    property.DeclaringType.ShortName(), property.Name, nameof(PropertyBuilder.HasConversion)));
         }
 
         if (property is IConventionProperty conventionProperty
@@ -707,11 +743,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         {
             throw new InvalidOperationException(
                 DesignStrings.CompiledModelTypeMapping(
-                    property.DeclaringEntityType.ShortName(), property.Name, "Customize()", parameters.ClassName));
+                    property.DeclaringType.ShortName(), property.Name, "Customize()", parameters.ClassName));
         }
-
-        var variableName = _code.Identifier(property.Name, parameters.ScopeVariables, capitalize: false);
-        propertyVariables[property] = variableName;
 
         var mainBuilder = parameters.MainBuilder;
         mainBuilder
@@ -870,13 +903,6 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         mainBuilder
             .AppendLine(");")
             .DecrementIndent();
-
-        CreateAnnotations(
-            property,
-            _annotationCodeGenerator.Generate,
-            parameters with { TargetName = variableName });
-
-        mainBuilder.AppendLine();
     }
 
     private static Type? GetValueConverterType(IProperty property)
@@ -925,9 +951,8 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
         }
 
         return i == ForeignKey.LongestFkChainAllowedLength
-            ? throw new InvalidOperationException(
-                CoreStrings.RelationshipCycle(
-                    property.DeclaringEntityType.DisplayName(), property.Name, "ValueConverterType"))
+            ? throw new InvalidOperationException(CoreStrings.RelationshipCycle(
+                property.DeclaringType.DisplayName(), property.Name, "ValueConverterType"))
             : null;
     }
 
@@ -1057,9 +1082,10 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
 
         PropertyBaseParameters(property, parameters, skipType: true);
 
+        AddNamespace(property.ClrType, parameters.Namespaces);
         mainBuilder
             .AppendLine(",")
-            .Append("serviceType: typeof(" + property.ClrType.DisplayName(fullName: true, compilable: true) + ")");
+            .Append("serviceType: typeof(" + _code.Reference(property.ClrType) + ")");
 
         mainBuilder
             .AppendLine(");")
@@ -1146,6 +1172,166 @@ public class CSharpRuntimeModelCodeGenerator : ICompiledModelCodeGenerator
             parameters with { TargetName = variableName });
 
         mainBuilder.AppendLine();
+    }
+
+    private void CreateComplexProperty(
+        IComplexProperty complexProperty,
+        IndentedStringBuilder mainBuilder,
+        IndentedStringBuilder methodBuilder,
+        SortedSet<string> namespaces,
+        string topClassName,
+        bool nullable)
+    {
+        mainBuilder
+            .AppendLine()
+            .Append("private static class ")
+            .Append(_code.Identifier(complexProperty.Name, capitalize: true))
+            .AppendLine("ComplexProperty")
+            .AppendLine("{");
+
+        var complexType = complexProperty.ComplexType;
+        using (mainBuilder.Indent())
+        {
+            var declaringTypeVariable = "declaringType";
+            mainBuilder
+                .Append("public static RuntimeComplexProperty Create(")
+                .Append(complexProperty.DeclaringType is IEntityType ? "RuntimeEntityType " : "RuntimeComplexType ")
+                .Append(declaringTypeVariable)
+                .AppendLine(")")
+                .AppendLine("{");
+
+            using (mainBuilder.Indent())
+            {
+                const string complexPropertyVariable = "complexProperty";
+                const string complexTypeVariable = "complexType";
+                var variables = new HashSet<string>
+                {
+                    declaringTypeVariable,
+                    complexPropertyVariable,
+                    complexTypeVariable
+                };
+
+                mainBuilder
+                    .Append("var ").Append(complexPropertyVariable).Append(" = ")
+                    .Append(declaringTypeVariable).Append(".AddComplexProperty(")
+                    .IncrementIndent()
+                    .Append(_code.Literal(complexProperty.Name))
+                    .AppendLine(",")
+                    .Append(_code.Literal(complexProperty.ClrType))
+                    .AppendLine(",")
+                    .Append(_code.Literal(complexType.Name))
+                    .AppendLine(",")
+                    .Append(_code.Literal(complexType.ClrType));
+
+                AddNamespace(complexProperty.ClrType, namespaces);
+                AddNamespace(complexType.ClrType, namespaces);                
+
+                var parameters = new CSharpRuntimeAnnotationCodeGeneratorParameters(
+                    declaringTypeVariable,
+                    topClassName,
+                    mainBuilder,
+                    methodBuilder,
+                    namespaces,
+                    variables,
+                    nullable);
+
+                PropertyBaseParameters(complexProperty, parameters, skipType: true);
+
+                if (complexProperty.IsNullable)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("nullable: ")
+                        .Append(_code.Literal(true));
+                }
+
+                if (complexProperty.IsCollection)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("collection: ")
+                        .Append(_code.Literal(true));
+                }
+
+                var changeTrackingStrategy = complexType.GetChangeTrackingStrategy();
+                if (changeTrackingStrategy != ChangeTrackingStrategy.Snapshot)
+                {
+                    namespaces.Add(typeof(ChangeTrackingStrategy).Namespace!);
+
+                    mainBuilder.AppendLine(",")
+                        .Append("changeTrackingStrategy: ")
+                        .Append(_code.Literal(changeTrackingStrategy));
+                }
+
+                var indexerPropertyInfo = complexType.FindIndexerPropertyInfo();
+                if (indexerPropertyInfo != null)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(")
+                        .Append(_code.Literal(complexType.ClrType))
+                        .Append(")");
+                }
+
+                if (complexType.IsPropertyBag)
+                {
+                    mainBuilder.AppendLine(",")
+                        .Append("propertyBag: ")
+                        .Append(_code.Literal(true));
+                }
+
+                mainBuilder
+                    .AppendLine(");")
+                    .AppendLine()
+                    .DecrementIndent();
+
+                mainBuilder
+                    .Append("var ").Append(complexTypeVariable).Append(" = ")
+                    .Append(complexPropertyVariable).AppendLine(".ComplexType;");
+
+                var complexTypeParameters = parameters with { TargetName = complexTypeVariable };
+                var propertyVariables = new Dictionary<IProperty, string>();
+                foreach (var property in complexType.GetProperties())
+                {
+                    Create(property, propertyVariables, complexTypeParameters);
+                }
+
+                foreach (var nestedComplexProperty in complexType.GetComplexProperties())
+                {
+                    mainBuilder
+                        .Append(_code.Identifier(nestedComplexProperty.Name, capitalize: true))
+                        .Append("ComplexProperty")
+                        .Append(".Create")
+                        .Append("(")
+                        .Append(complexTypeVariable)
+                        .AppendLine(");");
+                }
+
+                CreateAnnotations(
+                    complexType,
+                    _annotationCodeGenerator.Generate,
+                    complexTypeParameters);
+
+                CreateAnnotations(
+                    complexProperty,
+                    _annotationCodeGenerator.Generate,
+                    parameters with { TargetName = complexPropertyVariable });
+
+                mainBuilder
+                    .Append("return ")
+                    .Append(complexPropertyVariable)
+                    .AppendLine(";");
+            }
+
+            mainBuilder.AppendLine("}");
+        }
+
+        using (mainBuilder.Indent())
+        {
+            foreach (var nestedComplexProperty in complexType.GetComplexProperties())
+            {
+                CreateComplexProperty(nestedComplexProperty, mainBuilder, methodBuilder, namespaces, topClassName, nullable);
+            }
+        }
+
+        mainBuilder.AppendLine("}");
     }
 
     private void CreateForeignKey(

@@ -54,7 +54,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
     /// <param name="sharedClrType">Whether this entity type can share its ClrType with other entities.</param>
     /// <param name="baseType">The base type of this entity type.</param>
     /// <param name="discriminatorProperty">The name of the property that will be used for storing a discriminator value.</param>
-    /// <param name="changeTrackingStrategy">The change tracking strategy for this entity type</param>
+    /// <param name="changeTrackingStrategy">The change tracking strategy for this entity type.</param>
     /// <param name="indexerPropertyInfo">The <see cref="PropertyInfo" /> for the indexer on the associated CLR type if one exists.</param>
     /// <param name="propertyBag">
     ///     A value indicating whether this entity type has an indexer which is able to contain arbitrary properties
@@ -93,7 +93,7 @@ public class RuntimeModel : AnnotatableBase, IRuntimeModel
             }
             else
             {
-                var types = new SortedSet<RuntimeEntityType>(EntityTypeFullNameComparer.Instance) { entityType };
+                var types = new SortedSet<RuntimeEntityType>(TypeBaseNameComparer.Instance) { entityType };
                 _sharedTypes.Add(type, types);
             }
         }

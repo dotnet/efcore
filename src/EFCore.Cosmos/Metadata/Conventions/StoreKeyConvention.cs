@@ -295,9 +295,9 @@ public class StoreKeyConvention :
             && (string?)annotation?.Value == IdPropertyJsonName
             && propertyBuilder.Metadata.Name != DefaultIdPropertyName)
         {
-            var entityType = propertyBuilder.Metadata.DeclaringEntityType;
+            var declaringType = propertyBuilder.Metadata.DeclaringType;
 
-            var idProperty = entityType.FindProperty(DefaultIdPropertyName);
+            var idProperty = declaringType.FindProperty(DefaultIdPropertyName);
             if (idProperty != null)
             {
                 foreach (var key in idProperty.GetContainingKeys().ToList())
@@ -306,7 +306,7 @@ public class StoreKeyConvention :
                 }
             }
 
-            ProcessIdProperty(entityType.Builder);
+            ProcessIdProperty(declaringType.FundamentalEntityType.Builder);
         }
     }
 }

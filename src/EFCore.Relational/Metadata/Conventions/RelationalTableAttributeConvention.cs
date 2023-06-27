@@ -11,7 +11,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class RelationalTableAttributeConvention : EntityTypeAttributeConventionBase<TableAttribute>
+public class RelationalTableAttributeConvention : TypeAttributeConventionBase<TableAttribute>
 {
     /// <summary>
     ///     Creates a new instance of <see cref="RelationalTableAttributeConvention" />.

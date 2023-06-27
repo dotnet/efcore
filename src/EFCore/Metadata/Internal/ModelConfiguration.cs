@@ -16,6 +16,7 @@ public class ModelConfiguration
 {
     private readonly Dictionary<Type, PropertyConfiguration> _properties = new();
     private readonly Dictionary<Type, PropertyConfiguration> _typeMappings = new();
+    private readonly Dictionary<Type, ComplexPropertyConfiguration> _complexProperties = new();
     private readonly HashSet<Type> _ignoredTypes = new();
     private readonly Dictionary<Type, TypeConfigurationType?> _configurationTypes = new();
 
@@ -143,11 +144,16 @@ public class ModelConfiguration
             configurationType = TypeConfigurationType.Ignored;
             configuredType = type;
         }
-
-        if (_properties.ContainsKey(type))
+        else if (_properties.ContainsKey(type))
         {
             EnsureCompatible(TypeConfigurationType.Property, type, configurationType, configuredType);
             configurationType = TypeConfigurationType.Property;
+            configuredType = type;
+        }
+        else if (_complexProperties.ContainsKey(type))
+        {
+            EnsureCompatible(TypeConfigurationType.ComplexType, type, configurationType, configuredType);
+            configurationType = TypeConfigurationType.ComplexType;
             configuredType = type;
         }
 
@@ -211,6 +217,26 @@ public class ModelConfiguration
             var type = types[i];
 
             if (_properties.TryGetValue(type, out var configuration))
+            {
+                configuration.Apply(property);
+            }
+        }
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void ConfigureComplexProperty(IMutableComplexProperty property)
+    {
+        var types = property.ClrType.GetBaseTypesAndInterfacesInclusive();
+        for (var i = types.Count - 1; i >= 0; i--)
+        {
+            var type = types[i];
+
+            if (_complexProperties.TryGetValue(type, out var configuration))
             {
                 configuration.Apply(property);
             }
@@ -303,9 +329,50 @@ public class ModelConfiguration
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual ComplexPropertyConfiguration GetOrAddComplexProperty(Type type)
+    {
+        var property = FindComplexProperty(type);
+        if (property == null)
+        {
+            RemoveIgnored(type);
+
+            property = new ComplexPropertyConfiguration(type);
+            _complexProperties.Add(type, property);
+        }
+
+        return property;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual ComplexPropertyConfiguration? FindComplexProperty(Type type)
+        => _complexProperties.TryGetValue(type, out var property)
+            ? property
+            : null;
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual bool RemoveComplexProperty(Type type)
+        => _complexProperties.Remove(type);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual void AddIgnored(Type type)
     {
         RemoveProperty(type);
+        RemoveComplexProperty(type);
         _ignoredTypes.Add(type);
     }
 

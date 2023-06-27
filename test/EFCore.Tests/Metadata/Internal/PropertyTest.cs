@@ -152,8 +152,7 @@ public class PropertyTest
         Assert.Equal(
             CoreStrings.NullableKey(typeof(object).DisplayName(), stringProperty.Name),
             Assert.Throws<InvalidOperationException>(
-                () =>
-                    stringProperty.DeclaringEntityType.AddKey(stringProperty)).Message);
+                () => entityType.AddKey(stringProperty)).Message);
     }
 
     [ConditionalFact]
@@ -173,7 +172,7 @@ public class PropertyTest
         var entityType = CreateModel().AddEntityType(typeof(object));
         var stringProperty = entityType.AddProperty("Name", typeof(string));
         stringProperty.IsNullable = false;
-        stringProperty.DeclaringEntityType.SetPrimaryKey(stringProperty);
+        entityType.SetPrimaryKey(stringProperty);
 
         Assert.Equal(
             CoreStrings.CannotBeNullablePK("Name", "object"),
@@ -282,13 +281,13 @@ public class PropertyTest
 
     private class NonDerivedValueGeneratorFactory
     {
-        public ValueGenerator Create(IProperty property, IEntityType entityType)
+        public ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => null;
     }
 
     private abstract class AbstractValueGeneratorFactory : ValueGeneratorFactory
     {
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => null;
     }
 
@@ -298,7 +297,7 @@ public class PropertyTest
         {
         }
 
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => null;
     }
 
@@ -308,7 +307,7 @@ public class PropertyTest
         {
         }
 
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => null;
     }
 
@@ -318,7 +317,7 @@ public class PropertyTest
         {
         }
 
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
             => null;
     }
 

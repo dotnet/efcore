@@ -100,8 +100,8 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual SqlExpression BindProperty(IProperty property)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
-            && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
+        if (!EntityType.IsAssignableFrom(property.DeclaringType)
+            && !property.DeclaringType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));

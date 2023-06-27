@@ -127,10 +127,10 @@
     <value>Entity Framework Core Migrations Bundle</value>
   </data>
   <data name="CannotCreateContextInstance" xml:space="preserve">
-    Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+    <value>Unable to create a 'DbContext' of type '{contextType}'. The exception '{rootException}' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
   <data name="CannotFindDbContextTypes" xml:space="preserve">
-    The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728
+    <value>The exception '{rootException}' was thrown while attempting to find 'DbContext' types. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728</value>
   </data>
   <data name="CannotFindDesignTimeProviderAssemblyAttribute" xml:space="preserve">
     <value>Unable to find expected assembly attribute [DesignTimeProviderServices] in provider assembly '{runtimeProviderAssemblyName}'. This attribute is required to identify the class which acts as the design-time service provider factory for the provider.</value>
@@ -381,7 +381,7 @@ Change your target project to the migrations project by using the Package Manage
     <value>The migration '{name}' has already been applied to the database. Revert it and try again. If the migration has been applied to other databases, consider reverting its changes using a new migration instead.</value>
   </data>
   <data name="SensitiveInformationWarning" xml:space="preserve">
-    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.</value>
+    <value>To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.</value>
     <comment>Localize the URL if we have localized docs.</comment>
   </data>
   <data name="SequencesRequireName" xml:space="preserve">

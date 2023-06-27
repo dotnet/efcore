@@ -31,4 +31,16 @@ public interface IPropertyParameterBindingFactory
         IEntityType entityType,
         Type parameterType,
         string parameterName);
+
+    /// <summary>
+    ///     Finds a <see cref="ParameterBinding" /> specifically for an <see cref="IPropertyBase" /> in the model.
+    /// </summary>
+    /// <param name="complexType">The complex type on which the <see cref="IPropertyBase" /> is defined.</param>
+    /// <param name="parameterType">The parameter name.</param>
+    /// <param name="parameterName">The parameter type.</param>
+    /// <returns>The parameter binding, or <see langword="null" /> if none was found.</returns>
+    ParameterBinding? FindParameter(
+        IComplexType complexType,
+        Type parameterType,
+        string parameterName);
 }
