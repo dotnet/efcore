@@ -391,7 +391,8 @@ public class RelationalScaffoldingModelFactory : IScaffoldingModelFactory
         }
 
         if (clrType == typeof(bool)
-            && column.DefaultValueSql != null)
+            && column.DefaultValueSql != null
+            && column.DefaultValue == null)
         {
             _reporter.WriteWarning(
                 DesignStrings.NonNullableBoooleanColumnHasDefaultConstraint(column.DisplayName()));
