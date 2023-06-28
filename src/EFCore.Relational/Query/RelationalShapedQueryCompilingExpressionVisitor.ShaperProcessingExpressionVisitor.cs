@@ -495,7 +495,12 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 case RelationalEntityShaperExpression entityShaperExpression
                     when !_inline && entityShaperExpression.ValueBufferExpression is ProjectionBindingExpression projectionBindingExpression:
                 {
-                    if (!_variableShaperMapping.TryGetValue(entityShaperExpression.ValueBufferExpression, out var accessor))
+                    // we can't cache ProjectionBindingExpression results for non-tracking queries
+                    // JSON entities must be read and re-shaped every time (streaming)
+                    // as part of the process we do fixup to the parents, so those JSON entities would be potentially fixed up multiple times
+                    // it's ok for references (overwrite) but for collections they would be added multiple times if we were to cache the parent
+                    // by creating every entity every time we guarantee this doesn't happen
+                    if (!_isTracking || !_variableShaperMapping.TryGetValue(entityShaperExpression.ValueBufferExpression, out var accessor))
                     {
                         if (GetProjectionIndex(projectionBindingExpression) is JsonProjectionInfo jsonProjectionInfo)
                         {
@@ -550,7 +555,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                 entityShaperExpression.Type);
                         }
 
-                        //_variableShaperMapping[entityShaperExpression.ValueBufferExpression] = accessor;
+                        if (_isTracking)
+                        {
+                            _variableShaperMapping[entityShaperExpression.ValueBufferExpression] = accessor;
+                        }
                     }
 
                     return accessor;
@@ -1197,8 +1205,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var valueBufferParameter = Expression.Parameter(typeof(ValueBuffer));
 
-            //_jsonValueBufferParameterMapping2[valueBufferParameter] = keyValuesShaperLambdaParameter;
-
             _jsonValueBufferToJsonReaderDataAndKeyValuesParameterMapping[valueBufferParameter] = (jsonReaderDataShaperLambdaParameter, keyValuesShaperLambdaParameter);
 
             var entityShaperExpression = new RelationalEntityShaperExpression(
@@ -1208,8 +1214,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
             var entityShaperMaterializer = (BlockExpression)_parentVisitor.InjectEntityMaterializers(entityShaperExpression);
             var instanceVariable = entityShaperMaterializer.Variables[^1];
-
-            // TODO: need to find instance 
 
             var innerShapersMap = new Dictionary<string, Expression>();
             var innerFixupMap = new Dictionary<string, LambdaExpression>();
@@ -1294,7 +1298,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 }
             }
 
-            var rewrittenEntityShaperMaterializer = new JsonEntityMaterializerRewriter2(
+            var rewrittenEntityShaperMaterializer = new JsonEntityMaterializerRewriter(
                 entityShaperExpression.EntityType,
                 _isTracking,
                 jsonReaderDataShaperLambdaParameter,
@@ -1404,7 +1408,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             return materializedRootJsonEntity;
         }
 
-        private class JsonEntityMaterializerRewriter2 : ExpressionVisitor
+        private class JsonEntityMaterializerRewriter : ExpressionVisitor
         {
             public static bool ValueTextEquals(ref Utf8JsonReaderManager manager, JsonEncodedText json)
                 => manager.CurrentReader.ValueTextEquals(json.EncodedUtf8Bytes);
@@ -1415,22 +1419,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             private readonly IDictionary<string, Expression> _innerShapersMap;
             private readonly IDictionary<string, LambdaExpression> _innerFixupMap;
             private bool _found = false;
-
-            // TODO: move it to common place somewhere
-            private static readonly ConstructorInfo JsonReaderManagerConstructor
-                = typeof(Utf8JsonReaderManager).GetConstructor(new Type[] { typeof(JsonReaderData) })!;
-
-            private static readonly MethodInfo Utf8JsonReaderManagerMoveNextMethod
-                = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.MoveNext), new Type[] { })!;
-
-            private static readonly MethodInfo Utf8JsonReaderManagerCaptureStateMethod
-                = typeof(Utf8JsonReaderManager).GetMethod(nameof(Utf8JsonReaderManager.CaptureState), new Type[] { })!;
-
-            //private static readonly PropertyInfo Utf8JsonReaderManagerCurrentReaderProperty
-            //    = typeof(Utf8JsonReaderManager).GetProperty(nameof(Utf8JsonReaderManager.CurrentReader))!;
-
-            private static readonly FieldInfo Utf8JsonReaderManagerCurrentReaderField
-                = typeof(Utf8JsonReaderManager).GetField(nameof(Utf8JsonReaderManager.CurrentReader))!;
 
             private static readonly MethodInfo Utf8JsonReaderValueTextEqualsMethod
                 = typeof(Utf8JsonReader).GetMethod(nameof(Utf8JsonReader.ValueTextEquals), new Type[] { typeof(ReadOnlySpan<byte>) })!;
@@ -1448,7 +1436,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             // which happens at the end (after we read everything to guarantee that we can instantiate the entity 
             private readonly Dictionary<string, ParameterExpression> _navigationVariableMap = new();
 
-            public JsonEntityMaterializerRewriter2(
+            public JsonEntityMaterializerRewriter(
                 IEntityType entityType,
                 bool isTracking,
                 ParameterExpression jsonReaderDataParameter,
@@ -1525,7 +1513,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     var jsonEntityTypeVariable = default(ParameterExpression);
                     var jsonEntityTypeConstructionAssignment = default(BinaryExpression);
 
-                    //sometimes we have shadow value buffer, sometimes not
+                    //sometimes we have shadow value buffer and sometimes not, but type initializer always comes last
                     var jsonEntityTypeInitializerExpression = body.Expressions[^1];
                     if (jsonEntityTypeInitializerExpression is BlockExpression
                         {
@@ -1614,16 +1602,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         {
                             foreach (var jsonEntityTypeInitializerBlockExpression in jsonEntityTypeInitializerBlockExpressions)
                             {
-                                // TODO: if (instance is IInjectibleService) call should happen after navigations or before?
                                 finalBlockExpressions.Add(propertyAssignmentReplacer.Visit(jsonEntityTypeInitializerBlockExpression));
                             }
                         }
-
-                        //foreach (var propertyAssignmentMapElement in propertyAssignmentMap)
-                        //{
-                        //    finalBlockExpressions.Add(
-                        //        Expression.Assign(propertyAssignmentMapElement.Key, propertyAssignmentMapElement.Value));
-                        //}
 
                         foreach (var fixup in _innerFixupMap)
                         {
@@ -1650,7 +1631,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
 
                 return base.VisitSwitch(switchExpression);
 
-
                 (LoopExpression, Dictionary<MethodCallExpression, ParameterExpression>) GenerateJsonPropertyReadLoop(
                     ParameterExpression managerVariable,
                     ParameterExpression tokenTypeVariable,
@@ -1659,7 +1639,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                     List<MethodCallExpression> valueBufferTryReadValueMethodsToProcess)
                 {
                     var breakLabel = Expression.Label("done");
-
                     var testExpressions = new List<Expression>();
                     var readExpressions = new List<Expression>();
 
@@ -1688,16 +1667,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                                     Expression.Constant(JsonEncodedText.Encode(property.GetJsonPropertyName()!)),
                                     "EncodedUtf8Bytes")));
 
-
-                        //var propertyVariable = Expression.Variable(property.ClrType);
-
                         var propertyVariable = Expression.Variable(valueBufferTryReadValueMethodToProcess.Type);
-
-                        // shadow properties are stored in array of objects, so type the variable as object
-                        // otherwise use property CLR type
-                        //var propertyVariable = Expression.Variable(property.IsShadowProperty()
-                        //    ? valueBufferTryReadValueMethodToProcess.Type
-                        //    : property.ClrType);
 
                         finalBlockVariables.Add(propertyVariable);
 
@@ -1705,11 +1675,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             managerVariable,
                             Utf8JsonReaderManagerMoveNextMethod);
 
-                        // do the conversion to appropriate json reader method in the visit later (like we do for non-json property access)
-                        // shadow buffer properties are typed as object here, but we will convert them to expression extracting actual typed value
-                        // so we add conversion here if the types here don't match, it's not needed now but could be needed when we convert to proper read method
-
-                        // TODO: make sure everything works with nullable values here!!!
                         var assignment = Expression.Assign(
                             propertyVariable,
                             valueBufferTryReadValueMethodToProcess);
@@ -1876,8 +1841,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                         Expression.Assign(innerInstanceVariable, instanceAssignment.Left),
                         Expression.Default(typeof(void)));
 
-                    //var createAndPopulateInstanceIfFalseBlockExpressions = instanceAssignmentBody.Expressions.Skip(5).ToList();
-
                     var createAndPopulateInstanceIfFalseBlockExpressions = new List<Expression>
                     {
                         //instance = new JsonEntity()
@@ -1927,7 +1890,9 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             instanceAssignment.Left,
                             newInstanceAssignmentBlock));
 
-                    var startTrackingAssignment = ifFalseBlock.Expressions.OfType<BinaryExpression>().Single(e => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression } && instance.Type == typeof(InternalEntityEntry));
+                    var startTrackingAssignment = ifFalseBlock.Expressions
+                        .OfType<BinaryExpression>()
+                        .Single(e => e is { NodeType: ExpressionType.Assign, Left: ParameterExpression instance, Right: ConditionalExpression } && instance.Type == typeof(InternalEntityEntry));
 
                     var startTrackingExpression = Expression.IfThen(
                         Expression.Not(
@@ -1939,16 +1904,10 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                             Expression.Default(typeof(void))));
 
                     resultBlockExpressions.Add(startTrackingExpression);
-
-                    //resultBlockExpressions.Add(instanceAssignment.Left);
                     resultBlockExpressions.Add(Expression.Default(typeof(void)));
-
                     var resultBlock = Expression.Block(resultBlockVariables, resultBlockExpressions);
 
-                    var finalfoo = ExpressionPrinter.Print(resultBlock);
-
                     return resultBlock;
-
                 }
 #pragma warning restore EF1001 // Internal EF Core API usage.
 
