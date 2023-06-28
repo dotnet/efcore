@@ -1030,10 +1030,7 @@ public class DbContext :
             _cachedResettableServices = resettableServices;
         }
 
-        if (_sets is not null)
-        {
-            resettableServices.AddRange(_sets.Values.OfType<IResettableService>());
-        }
+        resettableServices.AddRange(((IDbSetCache)this).GetSets().OfType<IResettableService>());
 
         return resettableServices;
     }
