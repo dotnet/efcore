@@ -82,6 +82,7 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         conventionSet.Add(new KeyDiscoveryConvention(Dependencies));
         conventionSet.Add(new ServicePropertyDiscoveryConvention(Dependencies));
         conventionSet.Add(new RelationshipDiscoveryConvention(Dependencies));
+        conventionSet.Add(new ComplexPropertyDiscoveryConvention(Dependencies));
         conventionSet.Add(new ValueGenerationConvention(Dependencies));
         conventionSet.Add(new DiscriminatorConvention(Dependencies));
         conventionSet.Add(new CascadeDeleteConvention(Dependencies));

@@ -1298,10 +1298,11 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
             {
                 foreach (var entityTypeMapping in table.EntityTypeMappings)
                 {
-                    var entityType = entityTypeMapping.EntityType;
+                    var typeBase = entityTypeMapping.TypeBase;
                     if ((entityTypeMapping.IsSharedTablePrincipal == true
-                        && entityType != rootType)
+                        && typeBase != rootType)
                         || (entityTypeMapping.IsSharedTablePrincipal == false
+                            && typeBase is IEntityType entityType
                             && entityType.GetRootType() != rootType
                             && !entityType.IsOwned()))
                     {

@@ -343,11 +343,9 @@ public static class RelationalTypeBaseExtensions
     /// <param name="typeBase">The type to get the container column name for.</param>
     /// <returns>The container column name to which the type is mapped.</returns>
     public static string? GetContainerColumnName(this IReadOnlyTypeBase typeBase)
-        => typeBase.FindAnnotation(RelationalAnnotationNames.ContainerColumnName)?.Value is string columnName
-            ? columnName
-            : typeBase is IReadOnlyEntityType entityType
-                ? (entityType.FindOwnership()?.PrincipalEntityType.GetContainerColumnName())
-                : ((IReadOnlyComplexType)typeBase).ComplexProperty.DeclaringType.GetContainerColumnName();
+        => typeBase is IReadOnlyEntityType entityType
+            ? entityType.GetContainerColumnName()
+            : ((IReadOnlyComplexType)typeBase).GetContainerColumnName();
 
     /// <summary>
     ///     Gets the value of JSON property name used for the given entity mapped to a JSON column.

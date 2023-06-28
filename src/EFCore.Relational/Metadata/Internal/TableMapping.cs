@@ -18,10 +18,10 @@ public class TableMapping : TableMappingBase<ColumnMapping>, ITableMapping
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     public TableMapping(
-        IEntityType entityType,
+        ITypeBase typeBase,
         Table table,
         bool includesDerivedTypes)
-        : base(entityType, table, includesDerivedTypes)
+        : base(typeBase, table, includesDerivedTypes)
     {
     }
 

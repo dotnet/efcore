@@ -361,6 +361,25 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
             ? _navigations.Count == 0 ? BaseType.GetNavigations() : BaseType.GetNavigations().Concat(_navigations.Values)
             : _navigations.Values;
 
+    private IEnumerable<RuntimeNavigation> FindDerivedNavigations(string name)
+    {
+        Check.NotNull(name, nameof(name));
+
+        return DirectlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<RuntimeNavigation>()
+            : (IEnumerable<RuntimeNavigation>)GetDerivedTypes<RuntimeEntityType>()
+                .Select(et => et.FindDeclaredNavigation(name)).Where(n => n != null);
+    }
+
+    /// <summary>
+    ///    Gets the navigations with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type navigations.</returns>
+    public virtual IEnumerable<RuntimeNavigation> FindNavigationsInHierarchy(string name)
+        => DirectlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindNavigation(name))
+            : ToEnumerable(FindNavigation(name)).Concat(FindDerivedNavigations(name));
+
     /// <summary>
     ///     Adds a new skip navigation property to this entity type.
     /// </summary>
@@ -440,6 +459,25 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
                 ? BaseType.GetSkipNavigations()
                 : BaseType.GetSkipNavigations().Concat(_skipNavigations.Values)
             : _skipNavigations.Values;
+
+    private IEnumerable<RuntimeSkipNavigation> FindDerivedSkipNavigations(string name)
+    {
+        Check.NotNull(name, nameof(name));
+
+        return DirectlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<RuntimeSkipNavigation>()
+            : (IEnumerable<RuntimeSkipNavigation>)GetDerivedTypes<RuntimeEntityType>()
+                .Select(et => et.FindDeclaredSkipNavigation(name)).Where(n => n != null);
+    }
+
+    /// <summary>
+    ///    Gets the skip navigations with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type skip navigations.</returns>
+    public virtual IEnumerable<RuntimeSkipNavigation> FindSkipNavigationsInHierarchy(string name)
+        => DirectlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindSkipNavigation(name))
+            : ToEnumerable(FindSkipNavigation(name)).Concat(FindDerivedSkipNavigations(name));
 
     /// <summary>
     ///     Adds an index to this entity type.
@@ -582,6 +620,84 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
         => DirectlyDerivedTypes.Count == 0
             ? Enumerable.Empty<RuntimeServiceProperty>()
             : GetDerivedTypes().Cast<RuntimeEntityType>().SelectMany(et => et.GetDeclaredServiceProperties());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    private IEnumerable<RuntimeServiceProperty> FindDerivedServiceProperties(string propertyName)
+    {
+        Check.NotNull(propertyName, nameof(propertyName));
+
+        return DirectlyDerivedTypes.Count == 0
+            ? Enumerable.Empty<RuntimeServiceProperty>()
+            : (IEnumerable<RuntimeServiceProperty>)GetDerivedTypes<RuntimeEntityType>()
+                .Select(et => et.FindDeclaredServiceProperty(propertyName))
+                .Where(p => p != null);
+    }
+
+    /// <summary>
+    ///    Gets the service properties with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type service properties.</returns>
+    public virtual IEnumerable<RuntimeServiceProperty> FindServicePropertiesInHierarchy(string propertyName)
+        => DirectlyDerivedTypes.Count == 0
+            ? ToEnumerable(FindServiceProperty(propertyName))
+            : ToEnumerable(FindServiceProperty(propertyName)).Concat(FindDerivedServiceProperties(propertyName));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IEnumerable<RuntimePropertyBase> GetMembers()
+        => GetProperties()
+            .Concat<RuntimePropertyBase>(GetComplexProperties())
+            .Concat(GetServiceProperties())
+            .Concat(GetNavigations())
+            .Concat(GetSkipNavigations());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IEnumerable<RuntimePropertyBase> GetDeclaredMembers()
+        => GetDeclaredProperties()
+            .Concat<RuntimePropertyBase>(GetDeclaredComplexProperties())
+            .Concat(GetDeclaredServiceProperties())
+            .Concat(GetDeclaredNavigations())
+            .Concat(GetDeclaredSkipNavigations());
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override RuntimePropertyBase? FindMember(string name)
+        => FindProperty(name)
+            ?? FindNavigation(name)
+            ?? FindComplexProperty(name)
+            ?? FindSkipNavigation(name)
+            ?? ((RuntimePropertyBase?)FindServiceProperty(name));
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public override IEnumerable<RuntimePropertyBase> FindMembersInHierarchy(string name)
+        => FindPropertiesInHierarchy(name)
+            .Concat<RuntimePropertyBase>(FindComplexPropertiesInHierarchy(name))
+            .Concat(FindServicePropertiesInHierarchy(name))
+            .Concat(FindNavigationsInHierarchy(name))
+            .Concat(FindSkipNavigationsInHierarchy(name));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -744,13 +860,13 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <inheritdoc />
     [DebuggerStepThrough]
     IEnumerable<IReadOnlyEntityType> IReadOnlyEntityType.GetDerivedTypes()
-        => GetDerivedTypes().Cast<RuntimeEntityType>();
+        => GetDerivedTypes<RuntimeEntityType>();
 
     /// <inheritdoc />
     IEnumerable<IReadOnlyEntityType> IReadOnlyEntityType.GetDerivedTypesInclusive()
         => DirectlyDerivedTypes.Count == 0
             ? new[] { this }
-            : new[] { this }.Concat(GetDerivedTypes().Cast<RuntimeEntityType>());
+            : new[] { this }.Concat(GetDerivedTypes<RuntimeEntityType>());
 
     /// <inheritdoc />
     [DebuggerStepThrough]

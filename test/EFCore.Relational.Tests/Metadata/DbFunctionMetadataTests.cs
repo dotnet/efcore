@@ -669,7 +669,7 @@ public class DbFunctionMetadataTests
         Assert.False(function.IsAggregate);
         var mapping = function.StoreFunction.EntityTypeMappings.Single();
         Assert.False(mapping.IsDefaultFunctionMapping);
-        Assert.Same(entityType, mapping.EntityType);
+        Assert.Same(entityType, mapping.TypeBase);
     }
 
     [ConditionalFact]

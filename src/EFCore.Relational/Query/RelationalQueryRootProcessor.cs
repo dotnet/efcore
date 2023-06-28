@@ -41,7 +41,7 @@ public class RelationalQueryRootProcessor : QueryRootProcessor
         {
             // See issue #19970
             return new TableValuedFunctionQueryRootExpression(
-                storeFunction.EntityTypeMappings.Single().EntityType,
+                (IEntityType)storeFunction.EntityTypeMappings.Single().TypeBase,
                 storeFunction,
                 methodCallExpression.Arguments);
         }

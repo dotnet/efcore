@@ -456,8 +456,8 @@ public class RelationalModel : Annotatable, IRelationalModel
 
     private static void CreateTableMapping(
         IRelationalTypeMappingSource relationalTypeMappingSource,
-        IEntityType entityType,
-        IEntityType mappedType,
+        ITypeBase typeBase,
+        ITypeBase mappedType,
         StoreObjectIdentifier mappedTable,
         RelationalModel databaseModel,
         List<TableMapping> tableMappings,
@@ -470,7 +470,7 @@ public class RelationalModel : Annotatable, IRelationalModel
             databaseModel.Tables.Add((mappedTable.Name, mappedTable.Schema), table);
         }
 
-        var tableMapping = new TableMapping(entityType, table, includesDerivedTypes)
+        var tableMapping = new TableMapping(typeBase, table, includesDerivedTypes)
         {
             IsSplitEntityTypePrincipal = isSplitEntityTypePrincipal
         };
@@ -479,7 +479,7 @@ public class RelationalModel : Annotatable, IRelationalModel
         if (!string.IsNullOrEmpty(containerColumnName))
         {
             CreateContainerColumn(
-                table, containerColumnName, mappedType, relationalTypeMappingSource,
+                table, containerColumnName, (IEntityType)mappedType, relationalTypeMappingSource,
                 static (c, t, m) => new JsonColumn(c, m.StoreType, (Table)t, m));
         }
         else
@@ -509,13 +509,37 @@ public class RelationalModel : Annotatable, IRelationalModel
 
                 CreateColumnMapping(column, property, tableMapping);
             }
+
+            foreach (var complexProperty in mappedType.GetDeclaredComplexProperties())
+            {
+                var complexType = complexProperty.ComplexType;
+                var complexTableMappings = new List<TableMapping>();
+                complexType.SetRuntimeAnnotation(RelationalAnnotationNames.TableMappings, complexTableMappings);
+
+                CreateTableMapping(
+                    relationalTypeMappingSource,
+                    complexType,
+                    complexType,
+                    mappedTable,
+                    databaseModel,
+                    complexTableMappings,
+                    includesDerivedTypes: true,
+                    isSplitEntityTypePrincipal: isSplitEntityTypePrincipal == true ? false : isSplitEntityTypePrincipal);
+            }
         }
 
         if (((ITableMappingBase)tableMapping).ColumnMappings.Any()
             || tableMappings.Count == 0)
         {
             tableMappings.Add(tableMapping);
-            table.EntityTypeMappings.Add(tableMapping);
+            if (typeBase is IEntityType)
+            {
+                table.EntityTypeMappings.Add(tableMapping);
+            }
+            else
+            {
+                table.ComplexTypeMappings.Add(tableMapping);
+            }
         }
     }
 
@@ -1298,12 +1322,12 @@ public class RelationalModel : Annotatable, IRelationalModel
         foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
         {
             if (!entityTypeMapping.IncludesDerivedTypes
-                && entityTypeMapping.EntityType.GetTableMappings().Any(m => m.IncludesDerivedTypes))
+                && entityTypeMapping.TypeBase.GetTableMappings().Any(m => m.IncludesDerivedTypes))
             {
                 continue;
             }
 
-            var entityType = entityTypeMapping.EntityType;
+            var entityType = (IEntityType)entityTypeMapping.TypeBase;
             foreach (var key in entityType.GetKeys())
             {
                 var name = key.GetName(storeObject);
@@ -1434,13 +1458,13 @@ public class RelationalModel : Annotatable, IRelationalModel
                 entityTypeMapping.IsSharedTablePrincipal = false;
             }
 
-            var entityType = entityTypeMapping.EntityType;
+            var entityType = (IEntityType)entityTypeMapping.TypeBase;
             mappedEntityTypes.Add(entityType);
             var primaryKey = entityType.FindPrimaryKey();
             if (primaryKey == null)
             {
                 if (mainMapping == null
-                    || entityTypeMapping.EntityType.IsAssignableFrom(mainMapping.EntityType))
+                    || entityTypeMapping.TypeBase.IsAssignableFrom(mainMapping.TypeBase))
                 {
                     mainMapping = entityTypeMapping;
                 }
@@ -1460,7 +1484,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     && foreignKey.PrincipalKey.IsPrimaryKey()
                     && !foreignKey.DeclaringEntityType.IsAssignableFrom(foreignKey.PrincipalEntityType)
                     && !foreignKey.PrincipalEntityType.IsAssignableFrom(foreignKey.DeclaringEntityType)
-                    && ((ITableBase)table).EntityTypeMappings.Any(m => m.EntityType == foreignKey.PrincipalEntityType))
+                    && ((ITableBase)table).EntityTypeMappings.Any(m => m.TypeBase == foreignKey.PrincipalEntityType))
                 {
                     isMainMapping = false;
                     table.AddRowInternalForeignKey(entityType, foreignKey);
@@ -1469,7 +1493,7 @@ public class RelationalModel : Annotatable, IRelationalModel
 
             if (isMainMapping
                 && (mainMapping == null
-                    || entityTypeMapping.EntityType.IsAssignableFrom(mainMapping.EntityType)))
+                    || entityTypeMapping.TypeBase.IsAssignableFrom(mainMapping.TypeBase)))
             {
                 mainMapping = entityTypeMapping;
             }
@@ -1490,21 +1514,29 @@ public class RelationalModel : Annotatable, IRelationalModel
         var referencingInternalForeignKeyMap = table.ReferencingRowInternalForeignKeys;
         if (referencingInternalForeignKeyMap != null)
         {
-            var optionalTypes = new Dictionary<IEntityType, bool>();
-            var entityTypesToVisit = new Queue<(IEntityType, bool)>();
-            entityTypesToVisit.Enqueue((mainMapping.EntityType, false));
+            var optionalTypes = new Dictionary<ITypeBase, bool>();
+            var entityTypesToVisit = new Queue<(ITypeBase, bool)>();
+            entityTypesToVisit.Enqueue(((IEntityType)mainMapping.TypeBase, false));
 
             while (entityTypesToVisit.Count > 0)
             {
-                var (entityType, optional) = entityTypesToVisit.Dequeue();
-                if (optionalTypes.TryGetValue(entityType, out var previouslyOptional)
+                var (typeBase, optional) = entityTypesToVisit.Dequeue();
+                if (optionalTypes.TryGetValue(typeBase, out var previouslyOptional)
                     && (!previouslyOptional || optional))
                 {
                     continue;
                 }
 
-                optionalTypes[entityType] = optional;
+                optionalTypes[typeBase] = optional;
 
+                if (typeBase is IComplexType complexType)
+                {
+                    var complexProperty = complexType.ComplexProperty;
+                    entityTypesToVisit.Enqueue((complexProperty.DeclaringType, optional || complexProperty.IsNullable));
+                    continue;
+                }
+
+                var entityType = (IEntityType)typeBase;
                 if (referencingInternalForeignKeyMap.TryGetValue(entityType, out var referencingInternalForeignKeys))
                 {
                     foreach (var referencingForeignKey in referencingInternalForeignKeys)
@@ -1514,7 +1546,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                     }
                 }
 
-                if (table.EntityTypeMappings.Single(etm => etm.EntityType == entityType).IncludesDerivedTypes)
+                if (table.EntityTypeMappings.Single(etm => etm.TypeBase == typeBase).IncludesDerivedTypes)
                 {
                     foreach (var directlyDerivedEntityType in entityType.GetDerivedTypes())
                     {
@@ -1527,7 +1559,7 @@ public class RelationalModel : Annotatable, IRelationalModel
                 }
             }
 
-            table.OptionalEntityTypes = optionalTypes;
+            table.OptionalTypes = optionalTypes;
         }
     }
 
@@ -1537,12 +1569,12 @@ public class RelationalModel : Annotatable, IRelationalModel
         foreach (var entityTypeMapping in ((ITable)table).EntityTypeMappings)
         {
             if (!entityTypeMapping.IncludesDerivedTypes
-                && entityTypeMapping.EntityType.GetTableMappings().Any(m => m.IncludesDerivedTypes))
+                && entityTypeMapping.TypeBase.GetTableMappings().Any(m => m.IncludesDerivedTypes))
             {
                 continue;
             }
 
-            var entityType = entityTypeMapping.EntityType;
+            var entityType = (IEntityType)entityTypeMapping.TypeBase;
             foreach (var foreignKey in entityType.GetForeignKeys())
             {
                 foreach (var principalMapping in foreignKey.PrincipalEntityType.GetTableMappings().Reverse())

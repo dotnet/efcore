@@ -177,7 +177,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 orderMapping.ColumnMappings.Select(m => m.Property.Name));
 
             var ordersTable = orderMapping.Table;
-            Assert.Equal(new[] { nameof(Order) }, ordersTable.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+            Assert.Equal(new[] { nameof(Order) }, ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
                 new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.Id), "OrderDate" },
                 ordersTable.Columns.Select(m => m.Name));
@@ -248,7 +248,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(4, specialCustomerTable.Columns.Count());
 
                 Assert.Null(
-                    specialCustomerTable.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
+                    specialCustomerTable.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
 
                 var specialtyColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
                 Assert.False(specialtyColumn.IsNullable);
@@ -314,7 +314,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 {
                     nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
                 },
-                ordersView.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                ordersView.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
                 new[]
                 {
@@ -478,7 +478,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Null(specialCustomerView.Schema);
                 Assert.Equal(7, specialCustomerView.Columns.Count());
 
-                Assert.True(specialCustomerView.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
+                Assert.True(specialCustomerView.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
 
                 var specialtyColumn = specialCustomerView.Columns.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
                 Assert.False(specialtyColumn.IsNullable);
@@ -560,7 +560,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 {
                     nameof(Order), nameof(OrderDetails), "OrderDetails.BillingAddress#Address", "OrderDetails.ShippingAddress#Address"
                 },
-                ordersTable.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                ordersTable.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
             Assert.Equal(
                 new[]
                 {
@@ -785,7 +785,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(7, specialCustomerTable.Columns.Count());
 
                 Assert.True(
-                    specialCustomerTable.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
+                    specialCustomerTable.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
 
                 var specialtyColumn = specialCustomerTable.Columns.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
                 Assert.False(specialtyColumn.IsNullable);
@@ -1109,7 +1109,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(ordersInsertSproc, model.FindStoredProcedure(ordersInsertSproc.Name, ordersInsertSproc.Schema));
             Assert.Equal(
                 new[] { nameof(Order) },
-                ordersInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                ordersInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
                 new[] { nameof(Order.AlternateId), nameof(Order.CustomerId), nameof(Order.OrderDate) },
@@ -1198,7 +1198,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(billingAddressInsertSproc.Schema);
             Assert.Equal(
                 new[] { "OrderDetails.BillingAddress#Address" },
-                billingAddressInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                billingAddressInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
                 new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId" },
@@ -1215,7 +1215,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(billingAddressUpdateSproc.Schema);
             Assert.Equal(
                 new[] { "OrderDetails.BillingAddress#Address" },
-                billingAddressUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                billingAddressUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
                 new[] { nameof(Address.City), nameof(Address.Street), "OrderDetailsOrderId_Original" },
@@ -1232,7 +1232,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Null(billingAddressDeleteSproc.Schema);
             Assert.Equal(
                 new[] { "OrderDetails.BillingAddress#Address" },
-                billingAddressDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                billingAddressDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
             Assert.Equal(
                 new[] { "OrderDetailsOrderId_Original" },
@@ -1327,7 +1327,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         nameof(ExtraSpecialCustomer),
                         nameof(SpecialCustomer)
                     },
-                    baseInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                    baseInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                 Assert.Equal(
                     new[] { "InsertId", "SpecialtyAk" },
@@ -1366,7 +1366,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         nameof(ExtraSpecialCustomer),
                         nameof(SpecialCustomer)
                     },
-                    baseUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                    baseUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                 Assert.Equal(
                     new[] { "UpdateId", "SpecialtyAk_Original" },
@@ -1405,7 +1405,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                         nameof(ExtraSpecialCustomer),
                         nameof(SpecialCustomer)
                     },
-                    baseDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                    baseDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                 Assert.Equal(
                     new[] { "DeleteId" },
@@ -1425,7 +1425,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                 Assert.Equal(4, specialCustomerInsertSproc.Parameters.Count());
 
                 Assert.Null(
-                    specialCustomerInsertSproc.EntityTypeMappings.Single(m => m.EntityType == specialCustomerType).IsSharedTablePrincipal);
+                    specialCustomerInsertSproc.EntityTypeMappings.Single(m => m.TypeBase == specialCustomerType).IsSharedTablePrincipal);
 
                 var specialtyInsertParameter =
                     specialCustomerInsertSproc.Parameters.Single(c => c.Name == nameof(SpecialCustomer.Specialty));
@@ -1581,7 +1581,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(ExtraSpecialCustomer),
                             nameof(SpecialCustomer)
                         },
-                        baseInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                        baseInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                     Assert.Equal(
                         new[]
@@ -1640,7 +1640,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(ExtraSpecialCustomer),
                             nameof(SpecialCustomer)
                         },
-                        baseUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                        baseUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                     Assert.Equal(
                         new[]
@@ -1688,7 +1688,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                             nameof(ExtraSpecialCustomer),
                             nameof(SpecialCustomer)
                         },
-                        baseDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                        baseDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
 
                     Assert.Equal(
                         new[] { "DeleteId" },
@@ -1795,7 +1795,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Null(customerInsertSproc.Schema);
                     Assert.Equal(
                         new[] { nameof(Customer) },
-                        customerInsertSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                        customerInsertSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
                     Assert.Null(customerInsertSproc.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerInsertSproc.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
 
@@ -1814,7 +1814,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Null(customerUpdateSproc.Schema);
                     Assert.Equal(
                         new[] { nameof(Customer) },
-                        customerUpdateSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                        customerUpdateSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
                     Assert.Null(customerUpdateSproc.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerUpdateSproc.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
 
@@ -1833,7 +1833,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
                     Assert.Null(customerDeleteSproc.Schema);
                     Assert.Equal(
                         new[] { nameof(Customer) },
-                        customerDeleteSproc.EntityTypeMappings.Select(m => m.EntityType.DisplayName()));
+                        customerDeleteSproc.EntityTypeMappings.Select(m => m.TypeBase.DisplayName()));
                     Assert.Null(customerDeleteSproc.EntityTypeMappings.Single().IsSharedTablePrincipal);
                     Assert.Null(customerDeleteSproc.EntityTypeMappings.Single().IsSplitEntityTypePrincipal);
 
@@ -2985,7 +2985,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             var ordersQuery = orderMapping.SqlQuery;
             Assert.Equal(
                 new[] { orderType },
-                ordersQuery.EntityTypeMappings.Select(m => m.EntityType));
+                ordersQuery.EntityTypeMappings.Select(m => m.TypeBase));
             Assert.Equal(
                 new[] { nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName" },
                 ordersQuery.Columns.Select(m => m.Name));
@@ -3067,7 +3067,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Same(ordersFunction, model.FindFunction(ordersFunction.Name, ordersFunction.Schema, new string[0]));
             Assert.Equal(
                 new[] { orderType },
-                ordersFunction.EntityTypeMappings.Select(m => m.EntityType));
+                ordersFunction.EntityTypeMappings.Select(m => m.TypeBase));
             Assert.Equal(
                 new[] { nameof(Order.CustomerId), nameof(Order.Id), nameof(Order.OrderDate), "SomeName" },
                 ordersFunction.Columns.Select(m => m.Name));
@@ -3174,13 +3174,18 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             Assert.Equal(expected.Schema, actual.Schema);
             Assert.Equal(expected.IsShared, actual.IsShared);
 
-            foreach (var expectedEntityType in expected.EntityTypeMappings.Select(m => m.EntityType))
+            foreach (IEntityType expectedEntityType in expected.EntityTypeMappings.Select(m => m.TypeBase))
             {
-                var actualEntityType = actual.EntityTypeMappings.Single(m => m.EntityType.Name == expectedEntityType.Name).EntityType;
+                var actualEntityType = (IEntityType)actual.EntityTypeMappings.Single(m => m.TypeBase.Name == expectedEntityType.Name).TypeBase;
                 Assert.Equal(expected.GetRowInternalForeignKeys(expectedEntityType).Count(),
                     actual.GetRowInternalForeignKeys(actualEntityType).Count());
                 Assert.Equal(expected.GetReferencingRowInternalForeignKeys(expectedEntityType).Count(),
                     actual.GetReferencingRowInternalForeignKeys(actualEntityType).Count());
+            }
+
+            foreach (var expectedEntityType in expected.ComplexTypeMappings.Select(m => m.TypeBase))
+            {
+                var actualEntityType = actual.ComplexTypeMappings.Single(m => m.TypeBase.Name == expectedEntityType.Name).TypeBase;
             }
 
             Assert.Equal(expected.GetAnnotations(), actual.GetAnnotations(), AnnotationComparer.Instance);
@@ -3199,7 +3204,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
         public static void AssertEqualBase(ITableMappingBase expected, ITableMappingBase actual)
         {
-            Assert.Equal(expected.EntityType.Name, actual.EntityType.Name);
+            Assert.Equal(expected.TypeBase.Name, actual.TypeBase.Name);
             Assert.Equal(expected.Table.SchemaQualifiedName, actual.Table.SchemaQualifiedName);
             Assert.Equal(expected.IncludesDerivedTypes, actual.IncludesDerivedTypes);
             Assert.Equal(expected.IsSharedTablePrincipal, actual.IsSharedTablePrincipal);
@@ -3387,7 +3392,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
             expected.Columns.ZipAssert(actual.Columns, AssertEqual);
             Assert.Equal(expected.Sql, actual.Sql);
 
-            Assert.Same(actual, actual.Model.FindView(actual.Name, actual.Schema));
+            Assert.Same(actual, actual.Model.FindQuery(actual.Name));
             expected.EntityTypeMappings.ZipAssert(actual.EntityTypeMappings, AssertEqual);
         }
 
@@ -3406,7 +3411,7 @@ namespace Microsoft.EntityFrameworkCore.Metadata
 
             expected.PropertyMappings.ZipAssert(actual.PropertyMappings, AssertEqual);
 
-            Assert.Same(actual, expected.SqlQuery.FindColumn(actual.Name));
+            Assert.Same(actual, actual.SqlQuery.FindColumn(actual.Name));
         }
 
         public static void AssertEqual(ISqlQueryColumnMapping expected, ISqlQueryColumnMapping actual)

@@ -82,7 +82,7 @@ public class ModelBuilderGenericTest : ModelBuilderTest
 
             modelBuilder
                 .Ignore<Order>()
-                .Entity<ComplexProperties>().ComplexProperty(e => e.DoubleProperty).Property(e => ((IReplaceable)e).Property);
+                .Entity<ComplexProperties>().ComplexProperty(e => e.DoubleProperty).Property(e => ((IReplaceable?)e)!.Property);
 
             modelBuilder.FinalizeModel();
 

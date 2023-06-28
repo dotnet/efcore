@@ -3,8 +3,6 @@
 
 #nullable enable
 
-
-
 // ReSharper disable once CheckNamespace
 namespace System.Reflection;
 
@@ -17,13 +15,13 @@ internal static class PropertyInfoExtensions
     public static bool IsCandidateProperty(this MemberInfo memberInfo, bool needsWrite = true, bool publicOnly = true)
         => memberInfo is PropertyInfo propertyInfo
             ? !propertyInfo.IsStatic()
-            && propertyInfo.CanRead
-            && (!needsWrite || propertyInfo.FindSetterProperty() != null)
-            && propertyInfo.GetMethod != null
-            && (!publicOnly || propertyInfo.GetMethod.IsPublic)
-            && propertyInfo.GetIndexParameters().Length == 0
+                && propertyInfo.CanRead
+                && (!needsWrite || propertyInfo.FindSetterProperty() != null)
+                && propertyInfo.GetMethod != null
+                && (!publicOnly || propertyInfo.GetMethod.IsPublic)
+                && propertyInfo.GetIndexParameters().Length == 0
             : memberInfo is FieldInfo { IsStatic: false } fieldInfo
-            && (!publicOnly || fieldInfo.IsPublic);
+                && (!publicOnly || fieldInfo.IsPublic);
 
     public static bool IsIndexerProperty(this PropertyInfo propertyInfo)
     {

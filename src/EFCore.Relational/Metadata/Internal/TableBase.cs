@@ -72,6 +72,15 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual SortedSet<ITableMappingBase> ComplexTypeMappings { get; }
+        = new(TableMappingBaseComparer.Instance);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual SortedDictionary<string, IColumnBase> Columns { get; protected set; }
         = new(StringComparer.Ordinal);
 
@@ -111,7 +120,7 @@ public class TableBase : Annotatable, ITableBase
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DisallowNull]
-    public virtual Dictionary<IEntityType, bool>? OptionalEntityTypes { get; set; }
+    public virtual Dictionary<ITypeBase, bool>? OptionalTypes { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -119,12 +128,20 @@ public class TableBase : Annotatable, ITableBase
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AddEntityTypeMapping(ITableMappingBase tableMapping, bool optional)
+    public virtual void AddTypeMapping(ITableMappingBase tableMapping, bool optional)
     {
-        OptionalEntityTypes ??= new Dictionary<IEntityType, bool>();
+        OptionalTypes ??= new Dictionary<ITypeBase, bool>();
 
-        OptionalEntityTypes.Add(tableMapping.EntityType, optional);
-        EntityTypeMappings.Add(tableMapping);
+        OptionalTypes.Add(tableMapping.TypeBase, optional);
+
+        if (tableMapping.TypeBase is IEntityType)
+        {
+            EntityTypeMappings.Add(tableMapping);
+        }
+        else
+        {
+            ComplexTypeMappings.Add(tableMapping);
+        }
     }
 
     /// <summary>
@@ -166,26 +183,27 @@ public class TableBase : Annotatable, ITableBase
     }
 
     /// <inheritdoc />
-    public virtual bool IsOptional(IEntityType entityType)
+    public virtual bool IsOptional(ITypeBase typeBase)
     {
-        if (OptionalEntityTypes == null)
+        if (OptionalTypes == null)
         {
-            CheckMappedEntityType(entityType);
+            CheckMappedType(typeBase);
             return false;
         }
 
-        return !OptionalEntityTypes.TryGetValue(entityType, out var optional)
+        return !OptionalTypes.TryGetValue(typeBase, out var optional)
             ? throw new InvalidOperationException(
-                RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), ((ITableBase)this).SchemaQualifiedName))
+                RelationalStrings.TableNotMappedEntityType(typeBase.DisplayName(), ((ITableBase)this).SchemaQualifiedName))
             : optional;
     }
 
-    private void CheckMappedEntityType(IEntityType entityType)
+    private void CheckMappedType(ITypeBase typeBase)
     {
-        if (EntityTypeMappings.All(m => m.EntityType != entityType))
+        if (EntityTypeMappings.All(m => m.TypeBase != typeBase)
+            && ComplexTypeMappings.All(m => m.TypeBase != typeBase))
         {
             throw new InvalidOperationException(
-                RelationalStrings.TableNotMappedEntityType(entityType.DisplayName(), ((ITableBase)this).SchemaQualifiedName));
+                RelationalStrings.TableNotMappedEntityType(typeBase.DisplayName(), ((ITableBase)this).SchemaQualifiedName));
         }
     }
 
@@ -213,6 +231,13 @@ public class TableBase : Annotatable, ITableBase
     }
 
     /// <inheritdoc />
+    IEnumerable<ITableMappingBase> ITableBase.ComplexTypeMappings
+    {
+        [DebuggerStepThrough]
+        get => ComplexTypeMappings;
+    }
+
+    /// <inheritdoc />
     IEnumerable<IColumnBase> ITableBase.Columns
     {
         [DebuggerStepThrough]
@@ -228,7 +253,7 @@ public class TableBase : Annotatable, ITableBase
             return foreignKeys;
         }
 
-        CheckMappedEntityType(entityType);
+        CheckMappedType(entityType);
         return Enumerable.Empty<IForeignKey>();
     }
 
@@ -241,7 +266,7 @@ public class TableBase : Annotatable, ITableBase
             return foreignKeys;
         }
 
-        CheckMappedEntityType(entityType);
+        CheckMappedType(entityType);
         return Enumerable.Empty<IForeignKey>();
     }
 }

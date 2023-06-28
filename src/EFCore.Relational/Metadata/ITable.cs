@@ -67,7 +67,7 @@ public interface ITable : ITableBase
     ///     Gets the comment for this table.
     /// </summary>
     public virtual string? Comment
-        => EntityTypeMappings.Select(e => e.EntityType.GetComment()).FirstOrDefault(c => c != null);
+        => EntityTypeMappings.Select(e => (e.TypeBase as IEntityType)?.GetComment()).FirstOrDefault(c => c != null);
 
     /// <summary>
     ///     Gets the column with a given name. Returns <see langword="null" /> if no column with the given name is defined.
@@ -112,7 +112,7 @@ public interface ITable : ITableBase
             builder.Append(Name);
 
             if (EntityTypeMappings.Any()
-                && EntityTypeMappings.First().EntityType is not RuntimeEntityType
+                && EntityTypeMappings.First().TypeBase is not RuntimeEntityType
                 && IsExcludedFromMigrations)
             {
                 builder.Append(" ExcludedFromMigrations");

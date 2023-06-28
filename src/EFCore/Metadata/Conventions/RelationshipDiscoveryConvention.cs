@@ -81,6 +81,11 @@ public class RelationshipDiscoveryConvention :
                 continue;
             }
 
+            if (((Metadata.Internal.Model)entityType.Model).FindIsComplexConfigurationSource(targetClrType) != null)
+            {
+                continue;
+            }
+
             var candidateTargetEntityTypeBuilder = TryGetTargetEntityTypeBuilder(
                 entityTypeBuilder, targetClrType, navigationPropertyInfo, shouldBeOwned);
             if (candidateTargetEntityTypeBuilder == null)

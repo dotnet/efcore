@@ -6,7 +6,7 @@ using System.Text;
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents entity type mapping to a table-like object.
+///     Represents type base mapping to a table-like object.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
@@ -14,9 +14,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata;
 public interface ITableMappingBase : IAnnotatable
 {
     /// <summary>
-    ///     Gets the mapped entity type.
+    ///     Gets the mapped type base.
     /// </summary>
-    IEntityType EntityType { get; }
+    ITypeBase TypeBase { get; }
 
     /// <summary>
     ///     Gets the target table-like object.
@@ -74,7 +74,7 @@ public interface ITableMappingBase : IAnnotatable
             }
 
             builder
-                .Append(EntityType.Name)
+                .Append(TypeBase.Name)
                 .Append(" - ")
                 .Append(Table.Name);
 

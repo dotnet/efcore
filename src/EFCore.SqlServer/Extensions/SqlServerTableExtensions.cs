@@ -25,7 +25,7 @@ public static class SqlServerTableExtensions
         }
 
         isSqlOutputClauseUsed = table.EntityTypeMappings.All(
-            e => e.EntityType.IsSqlOutputClauseUsed(StoreObjectIdentifier.Table(table.Name, table.Schema)));
+            e => ((IEntityType)e.TypeBase).IsSqlOutputClauseUsed(StoreObjectIdentifier.Table(table.Name, table.Schema)));
 
         table.SetRuntimeAnnotation(SqlServerAnnotationNames.UseSqlOutputClause, isSqlOutputClauseUsed);
 

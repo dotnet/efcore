@@ -83,7 +83,7 @@ public interface IStoreFunction : ITableBase
             }
             else
             {
-                builder.Append(EntityTypeMappings.FirstOrDefault()?.EntityType.DisplayName() ?? "");
+                builder.Append(EntityTypeMappings.FirstOrDefault()?.TypeBase.DisplayName() ?? "");
             }
 
             builder.Append(' ');

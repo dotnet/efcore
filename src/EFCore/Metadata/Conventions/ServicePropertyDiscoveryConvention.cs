@@ -69,7 +69,8 @@ public class ServicePropertyDiscoveryConvention :
         {
             foreach (var memberInfo in members)
             {
-                if (!entityTypeBuilder.CanHaveServiceProperty(memberInfo))
+                if (!entityTypeBuilder.CanHaveServiceProperty(memberInfo)
+                    || ((Model)model).FindIsComplexConfigurationSource(memberInfo.GetMemberType().UnwrapNullableType()) != null)
                 {
                     continue;
                 }

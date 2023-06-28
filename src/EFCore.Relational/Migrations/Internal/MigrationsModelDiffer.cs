@@ -544,7 +544,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             (s, t, _) => string.Equals(GetMainType(s).Name, GetMainType(t).Name, StringComparison.OrdinalIgnoreCase),
             (s, t, _) => s.EntityTypeMappings.Any(
                 se => t.EntityTypeMappings.Any(
-                    te => string.Equals(se.EntityType.Name, te.EntityType.Name, StringComparison.OrdinalIgnoreCase))));
+                    te => string.Equals(se.TypeBase.Name, te.TypeBase.Name, StringComparison.OrdinalIgnoreCase))));
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -772,7 +772,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             groups.Add(propertyInfo, properties.Values.ToList());
         }
 
-        if (table.EntityTypeMappings.Any(m => m.EntityType == entityType))
+        if (table.EntityTypeMappings.Any(m => m.TypeBase == entityType))
         {
             foreach (var linkingForeignKey in table.GetReferencingRowInternalForeignKeys(entityType))
             {
@@ -2457,7 +2457,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         => (property.FindRelationalTypeMapping() ?? typeMapping)?.Converter;
 
     private static IEntityType GetMainType(ITable table)
-        => table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal ?? true).EntityType;
+        => (IEntityType)table.EntityTypeMappings.First(t => t.IsSharedTablePrincipal ?? true).TypeBase;
 
     private static object?[,] ToMultidimensionalArray(IReadOnlyList<object?> values)
     {

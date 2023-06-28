@@ -113,7 +113,9 @@ public interface IReadOnlyComplexProperty : IReadOnlyPropertyBase
                     builder.Append(AnnotationsToDebugString(indent + 2));
                 }
 
-                builder.AppendLine().Append(indentString).Append(ComplexType.ToDebugString(options, indent + 1));
+                builder
+                    .AppendLine()
+                    .Append(ComplexType.ToDebugString(options, indent + 2));
             }
         }
         catch (Exception exception)

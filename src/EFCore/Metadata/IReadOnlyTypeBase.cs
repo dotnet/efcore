@@ -178,7 +178,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
         => this != Check.NotNull(baseType, nameof(baseType)) && baseType.IsAssignableFrom(this);
 
     /// <summary>
-    ///     Gets the property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
+    ///     Gets the property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
     /// </summary>
     /// <remarks>
     ///     This API only finds scalar properties and does not find navigation, complex or service properties.
@@ -268,7 +268,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     IEnumerable<IReadOnlyProperty> GetProperties();
 
     /// <summary>
-    ///     Gets the complex property with a given name. Returns <see langword="null" /> if no property with the given name is defined.
+    ///     Gets the complex property with the given name. Returns <see langword="null" /> if no property with the given name is defined.
     /// </summary>
     /// <remarks>
     ///     This API only finds complex properties and does not find navigation, scalar or service properties.
@@ -299,7 +299,7 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     IReadOnlyComplexProperty? FindDeclaredComplexProperty(string name);
 
     /// <summary>
-    ///     Gets the complex properties defined on this type.
+    ///     Gets the complex properties defined on this type and base types.
     /// </summary>
     /// <remarks>
     ///     This API only returns complex properties and does not find navigation, scalar or service properties.
@@ -323,6 +323,34 @@ public interface IReadOnlyTypeBase : IReadOnlyAnnotatable
     /// </remarks>
     /// <returns>Derived complex properties.</returns>
     IEnumerable<IReadOnlyComplexProperty> GetDerivedComplexProperties();
+
+    /// <summary>
+    ///     Gets the members defined on this type and base types.
+    /// </summary>
+    /// <returns>Type members.</returns>
+    IEnumerable<IReadOnlyPropertyBase> GetMembers();
+
+    /// <summary>
+    ///     Gets the members declared on this type.
+    /// </summary>
+    /// <returns>Declared members.</returns>
+    IEnumerable<IReadOnlyPropertyBase> GetDeclaredMembers();
+
+    /// <summary>
+    ///     Gets the member with the given name. Returns <see langword="null" /> if no member with the given name is defined.
+    /// </summary>
+    /// <remarks>
+    ///     This API only finds scalar properties and does not find navigation, complex or service properties.
+    /// </remarks>
+    /// <param name="name">The name of the property.</param>
+    /// <returns>The property, or <see langword="null" /> if none is found.</returns>
+    IReadOnlyPropertyBase? FindMember(string name);
+
+    /// <summary>
+    ///    Gets the members with the given name on this type, base types or derived types.
+    /// </summary>
+    /// <returns>Type members.</returns>
+    IEnumerable<IReadOnlyPropertyBase> FindMembersInHierarchy(string name);
 
     /// <summary>
     ///     Gets the change tracking strategy being used for this type. This strategy indicates how the

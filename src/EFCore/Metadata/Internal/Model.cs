@@ -30,7 +30,8 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     private readonly ConcurrentDictionary<Type, string> _clrTypeNameMap = new();
     private readonly Dictionary<string, ConfigurationSource> _ignoredTypeNames = new(StringComparer.Ordinal);
     private Dictionary<string, ConfigurationSource>? _ownedTypes;
-    private Dictionary<string, ConfigurationSource>? _complexTypes;
+    private Dictionary<Type, ConfigurationSource>? _complexTypes;
+    private Dictionary<Type, HashSet<Property>>? _propertiesByType;
 
     private readonly Dictionary<Type, (ConfigurationSource ConfigurationSource, SortedSet<EntityType> Types)> _sharedTypes =
         new()
@@ -745,7 +746,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         var currentType = type;
         while (currentType != null)
         {
-            if (_complexTypes.TryGetValue(GetDisplayName(currentType), out var configurationSource))
+            if (_complexTypes.TryGetValue(currentType, out var configurationSource))
             {
                 return configurationSource;
             }
@@ -762,19 +763,19 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual void AddComplex(Type type, ConfigurationSource configurationSource)
+    public virtual ConfigurationSource? AddComplex(Type type, ConfigurationSource configurationSource)
     {
         EnsureMutable();
-        var name = GetDisplayName(type);
-        _complexTypes ??= new Dictionary<string, ConfigurationSource>(StringComparer.Ordinal);
+        _complexTypes ??= new Dictionary<Type, ConfigurationSource>();
 
-        if (_complexTypes.TryGetValue(name, out var oldConfigurationSource))
+        if (_complexTypes.TryGetValue(type, out var oldConfigurationSource))
         {
-            _complexTypes[name] = configurationSource.Max(oldConfigurationSource);
-            return;
+            _complexTypes[type] = configurationSource.Max(oldConfigurationSource);
+            return oldConfigurationSource;
         }
 
-        _complexTypes.Add(name, configurationSource);
+        _complexTypes.Add(type, configurationSource);
+        return null;
     }
 
     /// <summary>
@@ -783,7 +784,7 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual string? RemoveComplex(Type type)
+    public virtual Type? RemoveComplex(Type type)
     {
         EnsureMutable();
 
@@ -795,10 +796,9 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         var currentType = type;
         while (currentType != null)
         {
-            var name = GetDisplayName(type);
-            if (_complexTypes.Remove(name))
+            if (_complexTypes.Remove(type))
             {
-                return name;
+                return type;
             }
 
             currentType = currentType.BaseType;
@@ -807,6 +807,85 @@ public class Model : ConventionAnnotatable, IMutableModel, IConventionModel, IRu
         return null;
     }
 
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual IReadOnlySet<Property>? FindProperties(Type type)
+    {
+        if (_propertiesByType == null)
+        {
+            return null;
+        }
+
+        var unwrappedType = type.UnwrapNullableType();
+        if (unwrappedType.IsScalarType())
+        {
+            return null;
+        }
+
+        if (_propertiesByType.TryGetValue(unwrappedType, out var properties))
+        {
+            return properties;
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual void AddProperty(Property property)
+    {
+        var type = property.ClrType.UnwrapNullableType();
+        if (type.IsScalarType())
+        {
+            return;
+        }
+
+        EnsureMutable();
+        _propertiesByType ??= new Dictionary<Type, HashSet<Property>>();
+
+        if (_propertiesByType.TryGetValue(type, out var properties))
+        {
+            properties.Add(property);
+            return;
+        }
+
+        _propertiesByType.Add(type, new HashSet<Property> { property });
+        return;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual Property? RemoveProperty(Property property)
+    {
+        var type = property.ClrType.UnwrapNullableType();
+        if (type.IsScalarType()
+            || _propertiesByType == null)
+        {
+            return null;
+        }
+
+        EnsureMutable();
+
+        if (_propertiesByType.TryGetValue(type, out var properties))
+        {
+            properties.Remove(property);
+            return property;
+        }
+
+        return null;
+    }
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
     ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
