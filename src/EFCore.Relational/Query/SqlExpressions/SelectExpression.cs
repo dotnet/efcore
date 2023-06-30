@@ -21,6 +21,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     an issue at <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
 /// </remarks>
 // Class is sealed because there are no public/protected constructors. Can be unsealed if this is changed.
+[DebuggerDisplay("{PrintShortSql(), nq}")]
 public sealed partial class SelectExpression : TableExpressionBase
 {
     private const string DiscriminatorColumnAlias = "Discriminator";
@@ -4557,6 +4558,13 @@ public sealed partial class SelectExpression : TableExpressionBase
     /// <inheritdoc />
     protected override void Print(ExpressionPrinter expressionPrinter)
     {
+        PrintProjections(expressionPrinter);
+        expressionPrinter.AppendLine();
+        PrintSql(expressionPrinter);
+    }
+
+    private void PrintProjections(ExpressionPrinter expressionPrinter)
+    {
         if (_clientProjections.Count > 0)
         {
             expressionPrinter.AppendLine("Client Projections:");
@@ -4583,12 +4591,16 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
             }
         }
+    }
 
-        expressionPrinter.AppendLine();
-
-        foreach (var tag in Tags)
+    private void PrintSql(ExpressionPrinter expressionPrinter, bool withTags = true)
+    {
+        if (withTags)
         {
-            expressionPrinter.Append($"-- {tag}");
+            foreach (var tag in Tags)
+            {
+                expressionPrinter.Append($"-- {tag}");
+            }
         }
 
         IDisposable? indent = null;
@@ -4676,6 +4688,26 @@ public sealed partial class SelectExpression : TableExpressionBase
             expressionPrinter.AppendLine().Append(") AS " + Alias);
         }
     }
+
+    private string PrintShortSql()
+    {
+        var expressionPrinter = new ExpressionPrinter();
+        PrintSql(expressionPrinter, withTags: false);
+        return expressionPrinter.ToString();
+    }
+
+    /// <summary>
+    ///     <para>
+    ///         Expand this property in the debugger for a human-readable representation of this <see cref="SelectExpression" />.
+    ///     </para>
+    ///     <para>
+    ///         Warning: Do not rely on the format of the debug strings.
+    ///         They are designed for debugging only and may change arbitrarily between releases.
+    ///     </para>
+    /// </summary>
+    [EntityFrameworkInternal]
+    public string DebugView
+        => this.Print();
 
     /// <inheritdoc />
     public override bool Equals(object? obj)

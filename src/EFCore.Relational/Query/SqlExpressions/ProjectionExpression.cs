@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///     application or provider, then please file an issue at
 ///     <see href="https://github.com/dotnet/efcore">github.com/dotnet/efcore</see>.
 /// </remarks>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
 public sealed class ProjectionExpression : Expression, IPrintableExpression
 {
     internal ProjectionExpression(SqlExpression expression, string alias)
@@ -57,6 +58,7 @@ public sealed class ProjectionExpression : Expression, IPrintableExpression
     void IPrintableExpression.Print(ExpressionPrinter expressionPrinter)
     {
         expressionPrinter.Visit(Expression);
+
         if (Alias != string.Empty
             && !(Expression is ColumnExpression column
                 && column.Name == Alias))

@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-[DebuggerDisplay("{DebuggerDisplay(),nq}")]
+[DebuggerDisplay("{TableAlias}.{Name}")]
 public abstract class ColumnExpression : SqlExpression
 {
     /// <summary>
@@ -64,7 +64,4 @@ public abstract class ColumnExpression : SqlExpression
         expressionPrinter.Append(TableAlias).Append(".");
         expressionPrinter.Append(Name);
     }
-
-    private string DebuggerDisplay()
-        => $"{TableAlias}.{Name}";
 }

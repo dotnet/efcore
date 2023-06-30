@@ -12,6 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
 public abstract class TableExpressionBase : Expression, IPrintableExpression
 {
     private readonly IReadOnlyDictionary<string, IAnnotation>? _annotations;
