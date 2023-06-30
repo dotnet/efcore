@@ -3,6 +3,7 @@
 
 using System.Transactions;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Microsoft.EntityFrameworkCore.TestModels.UpdatesModel;
 using Microsoft.EntityFrameworkCore.TestUtilities.FakeProvider;
 using IsolationLevel = System.Data.IsolationLevel;
 
@@ -220,7 +221,7 @@ public class RelationalDatabaseFacadeExtensionsTest
     private class FakeIMigrationsAssembly : IMigrationsAssembly
     {
         public IReadOnlyDictionary<string, TypeInfo> Migrations { get; set; }
-        public ModelSnapshot ModelSnapshot { get; }
+        public ModelSnapshot ModelSnapshot { get; set; }
         public Assembly Assembly { get; }
 
         public string FindMigrationId(string nameOrId)
@@ -248,6 +249,89 @@ public class RelationalDatabaseFacadeExtensionsTest
                 ? await context.Database.GetAppliedMigrationsAsync()
                 : context.Database.GetAppliedMigrations());
     }
+
+    [ConditionalFact]
+    public void HasPendingModelChanges_has_no_migrations_has_dbcontext_changes_returns_true()
+    {
+        // This project has NO existing migrations right now but does have information in the DbContext
+        var migrationsAssembly = new FakeIMigrationsAssembly
+        {
+            ModelSnapshot = null,
+            Migrations = new Dictionary<string, TypeInfo>(),
+        };
+
+        var testHelper = FakeRelationalTestHelpers.Instance;
+
+        var contextOptions = testHelper.CreateOptions(
+            testHelper.CreateServiceProvider(new ServiceCollection().AddSingleton<IMigrationsAssembly>(migrationsAssembly)));
+
+        var testContext = new TestDbContext(contextOptions);
+
+        Assert.True(testContext.Database.HasPendingModelChanges());
+    }
+
+    [ConditionalFact]
+    public void HasPendingModelChanges_has_migrations_and_no_new_context_changes_returns_false()
+    {
+        var fakeModelSnapshot = new FakeModelSnapshot(builder =>
+        {
+            // TODO: This seems fragile, what should I do?
+            builder.HasAnnotation("ProductVersion", "8.0.0-dev");
+
+            builder.Entity("Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensionsTests.TestDbContext.Simple", b =>
+            {
+                b.Property<int>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("int");
+
+                b.HasKey("Id");
+
+                b.ToTable("Simples");
+            });
+        });
+        var migrationsAssembly = new FakeIMigrationsAssembly
+        {
+            ModelSnapshot = null,
+            Migrations = new Dictionary<string, TypeInfo>(),
+        };
+
+        var testHelper = FakeRelationalTestHelpers.Instance;
+
+        var contextOptions = testHelper.CreateOptions(
+            testHelper.CreateServiceProvider(new ServiceCollection().AddSingleton<IMigrationsAssembly>(migrationsAssembly)));
+
+        var testContext = new TestDbContext(contextOptions);
+
+        Assert.True(testContext.Database.HasPendingModelChanges());
+    }
+
+    private class TestDbContext : DbContext
+    {
+        public TestDbContext(DbContextOptions options) : base(options)
+        { }
+        public DbSet<Simple> Simples { get; set; }
+
+        public class Simple
+        {
+            public int Id { get; set; }
+        }
+
+    }
+
+    private class FakeModelSnapshot : ModelSnapshot
+    {
+        private readonly Action<ModelBuilder> _buildModel;
+
+        public FakeModelSnapshot(Action<ModelBuilder> buildModel)
+        {
+            _buildModel = buildModel;
+        }
+        protected override void BuildModel(ModelBuilder modelBuilder)
+        {
+            _buildModel(modelBuilder);
+        }
+    }
+
 
     private class FakeHistoryRepository : IHistoryRepository
     {

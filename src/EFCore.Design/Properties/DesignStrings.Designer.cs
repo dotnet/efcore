@@ -552,6 +552,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
                 provider);
 
         /// <summary>
+        ///     No changes have been made to the model since the last migration.
+        /// </summary>
+        public static string NoPendingModelChanges
+            => GetString("NoPendingModelChanges");
+
+        /// <summary>
         ///     No referenced design-time services were found.
         /// </summary>
         public static string NoReferencedServices
@@ -590,6 +596,12 @@ namespace Microsoft.EntityFrameworkCore.Internal
             => string.Format(
                 GetString("NotExistDatabase", nameof(name)),
                 name);
+
+        /// <summary>
+        ///     Changes have been made to the model since the last migration. Add a new migration.
+        /// </summary>
+        public static string PendingModelChanges
+            => GetString("PendingModelChanges");
 
         /// <summary>
         ///     Prefix output with level.

@@ -206,4 +206,9 @@ internal abstract class OperationExecutorBase : IOperationExecutor
         => InvokeOperation<string>(
             "ScriptDbContext",
             new Dictionary<string, object?> { ["contextType"] = contextType });
+
+    public void CheckPendingMigrations(string? contextType)
+        => InvokeOperation<string>(
+            "CheckPendingMigrations",
+            new Dictionary<string, object?> { ["contextType"] = contextType });
 }

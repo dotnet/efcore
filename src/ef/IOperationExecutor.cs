@@ -37,4 +37,5 @@ internal interface IOperationExecutor : IDisposable
     string ScriptMigration(string? fromMigration, string? toMigration, bool idempotent, bool noTransactions, string? contextType);
 
     string ScriptDbContext(string? contextType);
+    void CheckPendingMigrations(string? contextType);
 }

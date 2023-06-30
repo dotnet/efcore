@@ -332,6 +332,9 @@ Change your target project to the migrations project by using the Package Manage
   <data name="NonRelationalProvider" xml:space="preserve">
     <value>The provider '{provider}' is not a Relational provider and therefore cannot be used with Migrations.</value>
   </data>
+  <data name="NoPendingModelChanges" xml:space="preserve">
+    <value>No changes have been made to the model since the last migration.</value>
+  </data>
   <data name="NoReferencedServices" xml:space="preserve">
     <value>No referenced design-time services were found.</value>
   </data>
@@ -349,6 +352,9 @@ Change your target project to the migrations project by using the Package Manage
   </data>
   <data name="NotExistDatabase" xml:space="preserve">
     <value>Database '{name}' did not exist, no action was taken.</value>
+  </data>
+  <data name="PendingModelChanges" xml:space="preserve">
+    <value>Changes have been made to the model since the last migration. Add a new migration.</value>
   </data>
   <data name="PrefixDescription" xml:space="preserve">
     <value>Prefix output with level.</value>

@@ -952,6 +952,39 @@ public static class RelationalDatabaseFacadeExtensions
         => ((IDatabaseFacadeDependenciesAccessor)databaseFacade)
             .Context.GetService<IDbContextOptions>().Extensions.OfType<RelationalOptionsExtension>().Any();
 
+    /// <summary>
+    ///     Returns <see langword="true" /> if the model has pending changes to be applied.
+    /// </summary>
+    /// <param name="databaseFacade">Tbe facade from <see cref="DbContext.Database"/>.</param>
+    /// <returns>
+    ///     <see langword="true"/> if the database model has pending changes.
+    ///     <see langword="false"/> if a new migration has to be added.
+    /// </returns>
+    public static bool HasPendingModelChanges(this DatabaseFacade databaseFacade)
+    {
+        var modelDiffer = databaseFacade.GetRelationalService<IMigrationsModelDiffer>();
+        var migrationsAssembly = databaseFacade.GetRelationalService<IMigrationsAssembly>();
+
+        var modelInitializer = databaseFacade.GetRelationalService<IModelRuntimeInitializer>();
+
+        var snapshotModel = migrationsAssembly.ModelSnapshot?.Model;
+        if (snapshotModel is IMutableModel mutableModel)
+        {
+            snapshotModel = mutableModel.FinalizeModel();
+        }
+
+        if (snapshotModel is not null)
+        {
+            snapshotModel = modelInitializer.Initialize(snapshotModel);
+        }
+
+        var designTimeModel = databaseFacade.GetRelationalService<IDesignTimeModel>();
+
+        return modelDiffer.HasDifferences(
+            snapshotModel?.GetRelationalModel(),
+            designTimeModel.Model.GetRelationalModel());
+    }
+
     private static IRelationalDatabaseFacadeDependencies GetFacadeDependencies(DatabaseFacade databaseFacade)
     {
         var dependencies = ((IDatabaseFacadeDependenciesAccessor)databaseFacade).Dependencies;

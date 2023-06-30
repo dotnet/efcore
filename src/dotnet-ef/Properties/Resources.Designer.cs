@@ -242,6 +242,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
             => GetString("MigrationsDescription");
 
         /// <summary>
+        ///     Checks if any changes have been made to the model since the last migration.
+        /// </summary>
+        public static string MigrationsHasPendingModelChangesDescription
+            => GetString("MigrationsHasPendingModelChangesDescription");
+
+        /// <summary>
         ///     Lists available migrations.
         /// </summary>
         public static string MigrationsListDescription
@@ -505,3 +511,4 @@ namespace Microsoft.EntityFrameworkCore.Tools.Properties
         }
     }
 }
+

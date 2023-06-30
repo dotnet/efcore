@@ -14,6 +14,7 @@ internal class MigrationsCommand : HelpCommandBase
 
         command.Command("add", new MigrationsAddCommand().Configure);
         command.Command("bundle", new MigrationsBundleCommand().Configure);
+        command.Command("has-pending-model-changes", new MigrationsHasPendingModelChangesCommand().Configure);
         command.Command("list", new MigrationsListCommand().Configure);
         command.Command("remove", new MigrationsRemoveCommand().Configure);
         command.Command("script", new MigrationsScriptCommand().Configure);

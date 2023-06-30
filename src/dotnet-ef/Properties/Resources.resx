@@ -228,6 +228,9 @@
   <data name="MigrationsDescription" xml:space="preserve">
     <value>Commands to manage migrations.</value>
   </data>
+  <data name="MigrationsHasPendingModelChangesDescription" xml:space="preserve">
+    <value>Checks if any changes have been made to the model since the last migration.</value>
+  </data>
   <data name="MigrationsListDescription" xml:space="preserve">
     <value>Lists available migrations.</value>
   </data>
