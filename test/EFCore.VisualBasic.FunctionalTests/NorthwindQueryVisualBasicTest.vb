@@ -7,9 +7,9 @@ Imports Microsoft.EntityFrameworkCore.TestUtilities
 Imports Xunit
 
 Partial Public Class NorthwindQueryVisualBasicTest
-    Inherits QueryTestBase(Of NorthwindQuerySqlServerFixture(Of NoopModelCustomizer))
+    Inherits QueryTestBase(Of NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
 
-    Public Sub New(fixture As NorthwindQuerySqlServerFixture(Of NoopModelCustomizer))
+    Public Sub New(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer))
         MyBase.New(fixture)
 
         fixture.TestSqlLoggerFactory.Clear()
@@ -85,7 +85,7 @@ FROM [Products] AS [p]
 WHERE [p].[UnitsInStock] * CAST(1 AS smallint) = CAST(101 AS smallint)")
     End Sub
 
-    Protected Overrides Function CreateQueryAsserter(fixture As NorthwindQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter
+    Protected Overrides Function CreateQueryAsserter(fixture As NorthwindVBQuerySqlServerFixture(Of NoopModelCustomizer)) As QueryAsserter
         Return New RelationalQueryAsserter(
             fixture, AddressOf RewriteExpectedQueryExpression, AddressOf RewriteServerQueryExpression, canExecuteQueryString:=True)
     End Function
