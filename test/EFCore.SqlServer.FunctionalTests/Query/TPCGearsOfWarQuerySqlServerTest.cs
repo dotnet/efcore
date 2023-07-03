@@ -3764,7 +3764,7 @@ LEFT JOIN [Weapons] AS [w] ON [w].[SynergyWithId] IS NOT NULL
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()
 """);
@@ -3776,7 +3776,7 @@ WHERE [m].[Timeline] <> SYSDATETIMEOFFSET()
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)
 """);
@@ -3790,7 +3790,7 @@ WHERE [m].[Timeline] <> CAST(SYSUTCDATETIME() AS datetimeoffset)
 """
 @__Date_0='0001-01-01T00:00:00.0000000'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) > @__Date_0
 """);
@@ -3802,7 +3802,7 @@ WHERE CONVERT(date, [m].[Timeline]) > @__Date_0
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(year, [m].[Timeline]) = 2
 """);
@@ -3814,7 +3814,7 @@ WHERE DATEPART(year, [m].[Timeline]) = 2
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(month, [m].[Timeline]) = 1
 """);
@@ -3826,7 +3826,7 @@ WHERE DATEPART(month, [m].[Timeline]) = 1
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(dayofyear, [m].[Timeline]) = 2
 """);
@@ -3838,7 +3838,7 @@ WHERE DATEPART(dayofyear, [m].[Timeline]) = 2
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(day, [m].[Timeline]) = 2
 """);
@@ -3850,7 +3850,7 @@ WHERE DATEPART(day, [m].[Timeline]) = 2
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(hour, [m].[Timeline]) = 10
 """);
@@ -3862,7 +3862,7 @@ WHERE DATEPART(hour, [m].[Timeline]) = 10
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(minute, [m].[Timeline]) = 0
 """);
@@ -3874,7 +3874,7 @@ WHERE DATEPART(minute, [m].[Timeline]) = 0
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(second, [m].[Timeline]) = 0
 """);
@@ -3886,7 +3886,7 @@ WHERE DATEPART(second, [m].[Timeline]) = 0
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Timeline]) = 0
 """);
@@ -8922,7 +8922,7 @@ WHERE (
 @__start_0='1902-01-01T10:00:00.1234567+01:30'
 @__end_1='1902-01-03T10:00:00.1234567+01:30'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE @__start_0 <= CAST(CONVERT(date, [m].[Timeline]) AS datetimeoffset) AND [m].[Timeline] < @__end_1 AND [m].[Timeline] = '1902-01-02T10:00:00.1234567+01:30'
 """);
@@ -10217,7 +10217,7 @@ ORDER BY [w0].[IsAutomatic]
 """
 @__dateTimeOffset_Date_0='0002-03-01T00:00:00.0000000'
 
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CONVERT(date, [m].[Timeline]) >= @__dateTimeOffset_Date_0
 """);
@@ -10407,7 +10407,7 @@ FROM [Missions] AS [m]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(hour, [m].[Duration]) = 1
 """);
@@ -10419,7 +10419,7 @@ WHERE DATEPART(hour, [m].[Duration]) = 1
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(minute, [m].[Duration]) = 1
 """);
@@ -10431,7 +10431,7 @@ WHERE DATEPART(minute, [m].[Duration]) = 1
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(second, [m].[Duration]) = 1
 """);
@@ -10443,7 +10443,7 @@ WHERE DATEPART(second, [m].[Duration]) = 1
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Duration]) = 1
 """);
@@ -11611,7 +11611,7 @@ END, [t].[Note]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(year, [m].[Date]) = 1990
 """);
@@ -11623,7 +11623,7 @@ WHERE DATEPART(year, [m].[Date]) = 1990
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(month, [m].[Date]) = 11
 """);
@@ -11635,7 +11635,7 @@ WHERE DATEPART(month, [m].[Date]) = 11
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(day, [m].[Date]) = 10
 """);
@@ -11647,7 +11647,7 @@ WHERE DATEPART(day, [m].[Date]) = 10
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(dayofyear, [m].[Date]) = 314
 """);
@@ -11666,7 +11666,7 @@ WHERE DATEPART(dayofyear, [m].[Date]) = 314
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEADD(year, CAST(3 AS int), [m].[Date]) = '1993-11-10'
 """);
@@ -11678,7 +11678,7 @@ WHERE DATEADD(year, CAST(3 AS int), [m].[Date]) = '1993-11-10'
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEADD(month, CAST(3 AS int), [m].[Date]) = '1991-02-10'
 """);
@@ -11690,9 +11690,21 @@ WHERE DATEADD(month, CAST(3 AS int), [m].[Date]) = '1991-02-10'
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEADD(day, CAST(3 AS int), [m].[Date]) = '1990-11-13'
+""");
+    }
+
+    public override async Task Where_DateOnly_FromDateTime(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime(async);
+
+        AssertSql(
+        """
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+FROM [Missions] AS [m]
+WHERE CAST([m].[DateTime] AS date) = '1990-11-20'
 """);
     }
 
@@ -11702,7 +11714,7 @@ WHERE DATEADD(day, CAST(3 AS int), [m].[Date]) = '1990-11-13'
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(hour, [m].[Time]) = 10
 """);
@@ -11714,7 +11726,7 @@ WHERE DATEPART(hour, [m].[Time]) = 10
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(minute, [m].[Time]) = 15
 """);
@@ -11726,7 +11738,7 @@ WHERE DATEPART(minute, [m].[Time]) = 15
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(second, [m].[Time]) = 50
 """);
@@ -11738,7 +11750,7 @@ WHERE DATEPART(second, [m].[Time]) = 50
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEPART(millisecond, [m].[Time]) = 500
 """);
@@ -11750,7 +11762,7 @@ WHERE DATEPART(millisecond, [m].[Time]) = 500
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEADD(hour, CAST(3.0E0 AS int), [m].[Time]) = '13:15:50.5'
 """);
@@ -11762,7 +11774,7 @@ WHERE DATEADD(hour, CAST(3.0E0 AS int), [m].[Time]) = '13:15:50.5'
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE DATEADD(minute, CAST(3.0E0 AS int), [m].[Time]) = '10:18:50.5'
 """);
@@ -11781,7 +11793,7 @@ WHERE DATEADD(minute, CAST(3.0E0 AS int), [m].[Time]) = '10:18:50.5'
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CASE
     WHEN [m].[Time] >= '10:00:00' THEN CAST(1 AS bit)
@@ -12341,7 +12353,7 @@ ORDER BY [t].[Nickname], [t].[SquadId]
 
         AssertSql(
 """
-SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
+SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE [m].[Rating] IS NULL
 """);

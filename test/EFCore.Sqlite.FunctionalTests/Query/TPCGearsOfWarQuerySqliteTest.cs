@@ -323,6 +323,9 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
         // Array access. Issue #16428.
         => AssertTranslationFailed(() => base.Array_access_on_byte_array(async));
 
+    public override Task Where_DateOnly_FromDateTime(bool async)
+        => AssertTranslationFailed(() => base.Where_DateOnly_FromDateTime(async));
+
     public override Task Where_TimeOnly_Hour(bool async)
         // TimeSpan. Issue #18844.
         => AssertTranslationFailed(() => base.Where_TimeOnly_Hour(async));

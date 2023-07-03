@@ -491,7 +491,7 @@ WHERE "s"."Banner5" = @__byteArrayParam_0
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%Y', "m"."Date") AS INTEGER) = 1990
 """);
@@ -503,7 +503,7 @@ WHERE CAST(strftime('%Y', "m"."Date") AS INTEGER) = 1990
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%m', "m"."Date") AS INTEGER) = 11
 """);
@@ -515,7 +515,7 @@ WHERE CAST(strftime('%m', "m"."Date") AS INTEGER) = 11
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%d', "m"."Date") AS INTEGER) = 10
 """);
@@ -527,7 +527,7 @@ WHERE CAST(strftime('%d', "m"."Date") AS INTEGER) = 10
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%j', "m"."Date") AS INTEGER) = 314
 """);
@@ -539,7 +539,7 @@ WHERE CAST(strftime('%j', "m"."Date") AS INTEGER) = 314
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%w', "m"."Date") AS INTEGER) = 6
 """);
@@ -551,7 +551,7 @@ WHERE CAST(strftime('%w', "m"."Date") AS INTEGER) = 6
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' years') = '1993-11-10'
 """);
@@ -568,7 +568,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' years') = '1993-11-10'
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE CAST(strftime('%Y', "m"."Date", CAST(3 AS TEXT) || ' years') AS INTEGER) = 1993
 """);
@@ -585,7 +585,7 @@ WHERE CAST(strftime('%Y', "m"."Date", CAST(3 AS TEXT) || ' years') AS INTEGER) =
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months') = '1994-02-10'
 """);
@@ -597,7 +597,7 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' years', CAST(3 AS TEXT) || ' months'
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' months') = '1991-02-10'
 """);
@@ -609,10 +609,17 @@ WHERE date("m"."Date", CAST(3 AS TEXT) || ' months') = '1991-02-10'
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE date("m"."Date", CAST(3 AS TEXT) || ' days') = '1990-11-13'
 """);
+    }
+
+    public override async Task Where_DateOnly_FromDateTime(bool async)
+    {
+        await AssertTranslationFailed(() => base.Where_DateOnly_FromDateTime(async));
+
+        AssertSql();
     }
 
     public override async Task Where_TimeOnly_Hour(bool async)
@@ -6437,7 +6444,7 @@ ORDER BY "t"."Rank"
 
         AssertSql(
 """
-SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
+SELECT "m"."Id", "m"."CodeName", "m"."Date", "m"."DateTime", "m"."Duration", "m"."Rating", "m"."Time", "m"."Timeline"
 FROM "Missions" AS "m"
 WHERE "m"."Rating" IS NULL
 """);
