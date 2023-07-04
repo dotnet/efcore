@@ -1923,6 +1923,8 @@ public abstract class NorthwindFunctionsQueryTestBase<TFixture> : QueryTestBase<
     public virtual Task Where_DateOnly_FromDateTime(bool async)
         => AssertQuery(
             async,
-            ss => ss.Set<Order>().Where(o => o.OrderDate.HasValue && DateOnly.FromDateTime(o.OrderDate.Value) == new DateOnly(1996, 9, 16)).AsTracking(),
+            ss => ss.Set<Order>()
+                .Where(o => o.OrderDate.HasValue && DateOnly.FromDateTime(o.OrderDate.Value) == new DateOnly(1996, 9, 16))
+                .AsTracking(),
             entryCount: 1);
 }
