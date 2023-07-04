@@ -1674,16 +1674,16 @@ public class SqlServerMigrationsSqlGenerator : MigrationsSqlGenerator
             .Append(" AS ")
             .Append(operation.ComputedColumnSql!);
 
-        if (operation.IsStored == true)
-        {
-            builder.Append(" PERSISTED");
-        }
-
         if (operation.Collation != null)
         {
             builder
                 .Append(" COLLATE ")
                 .Append(operation.Collation);
+        }
+
+        if (operation.IsStored == true)
+        {
+            builder.Append(" PERSISTED");
         }
     }
 

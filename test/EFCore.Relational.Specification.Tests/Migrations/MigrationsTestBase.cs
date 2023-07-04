@@ -621,13 +621,15 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 }
             });
 
-    [ConditionalFact]
-    public virtual Task Add_column_computed_with_collation()
+    [ConditionalTheory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public virtual Task Add_column_computed_with_collation(bool stored)
         => Test(
             builder => builder.Entity("People").Property<int>("Id"),
             builder => { },
             builder => builder.Entity("People").Property<string>("Name")
-                .HasComputedColumnSql("'hello'")
+                .HasComputedColumnSql("'hello'", stored)
                 .UseCollation(NonDefaultCollation),
             model =>
             {
@@ -637,6 +639,7 @@ public abstract class MigrationsTestBase<TFixture> : IClassFixture<TFixture>
                 if (AssertComputedColumns)
                 {
                     Assert.Contains("hello", nameColumn.ComputedColumnSql);
+                    Assert.Equal(stored, nameColumn.IsStored);
                 }
 
                 if (AssertCollations)
