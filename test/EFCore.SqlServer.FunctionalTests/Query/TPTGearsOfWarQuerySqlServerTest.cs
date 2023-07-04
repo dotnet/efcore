@@ -10004,7 +10004,7 @@ WHERE DATEADD(day, CAST(3 AS int), [m].[Date]) = '1990-11-13'
         await base.Where_DateOnly_FromDateTime(async);
 
         AssertSql(
-        """
+"""
 SELECT [m].[Id], [m].[CodeName], [m].[Date], [m].[DateTime], [m].[Duration], [m].[Rating], [m].[Time], [m].[Timeline]
 FROM [Missions] AS [m]
 WHERE CAST([m].[DateTime] AS date) = '1990-11-20'
