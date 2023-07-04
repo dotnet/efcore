@@ -7840,14 +7840,6 @@ public abstract class GearsOfWarQueryTestBase<TFixture> : QueryTestBase<TFixture
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
-    public virtual Task Where_DateOnly_FromDateTime(bool async)
-        => AssertQuery(
-            async,
-            ss => ss.Set<Mission>().Where(m => DateOnly.FromDateTime(m.DateTime) == new DateOnly(1990, 11, 20)).AsTracking(),
-            entryCount: 1);
-
-    [ConditionalTheory]
-    [MemberData(nameof(IsAsyncData))]
     public virtual Task Where_TimeOnly_Hour(bool async)
         => AssertQuery(
             async,

@@ -132,7 +132,6 @@ public class GearsOfWarData : ISetSource
                 Duration = new TimeSpan(1, 2, 3),
                 Date = new DateOnly(2020, 1, 1),
                 Time = new TimeOnly(15, 30, 10),
-                DateTime = new DateTime(2020, 1, 1, 15, 30, 10)
             },
             new()
             {
@@ -143,7 +142,6 @@ public class GearsOfWarData : ISetSource
                 Duration = new TimeSpan(0, 1, 2, 3, 456),
                 Date = new DateOnly(1990, 11, 10),
                 Time = new TimeOnly(10, 15, 50, 500),
-                DateTime = new DateTime(1990, 11, 20, 10, 15, 50, 500)
             },
             new()
             {
@@ -154,7 +152,6 @@ public class GearsOfWarData : ISetSource
                 Duration = new TimeSpan(0, 1, 0, 15, 456),
                 Date = new DateOnly(1, 1, 1),
                 Time = new TimeOnly(0, 0, 0),
-                DateTime = new DateTime(1, 1, 1, 0, 0, 0)
             }
         };
 

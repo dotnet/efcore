@@ -2542,6 +2542,18 @@ WHERE 0 = 1
 """);
     }
 
+    public override async Task Where_DateOnly_FromDateTime(bool async)
+    {
+        await base.Where_DateOnly_FromDateTime(async);
+
+        AssertSql(
+"""
+SELECT [o].[OrderID], [o].[CustomerID], [o].[EmployeeID], [o].[OrderDate]
+FROM [Orders] AS [o]
+WHERE [o].[OrderDate] IS NOT NULL AND CAST([o].[OrderDate] AS date) = '1996-09-16'
+""");
+    }
+
     public override async Task Projecting_Math_Truncate_and_ordering_by_it_twice(bool async)
         => await base.Projecting_Math_Truncate_and_ordering_by_it_twice(async);
 

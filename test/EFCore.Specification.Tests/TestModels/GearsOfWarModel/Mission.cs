@@ -13,7 +13,6 @@ public class Mission
     public TimeSpan Duration { get; set; }
     public DateOnly Date { get; set; }
     public TimeOnly Time { get; set; }
-    public DateTime DateTime { get; set; }
 
     public virtual ICollection<SquadMission> ParticipatingSquads { get; set; }
 }

@@ -886,6 +886,9 @@ WHERE "c"."Region" IS NOT NULL AND "c"."Region" <> ''
     public override Task Datetime_subtraction_TotalDays(bool async)
         => AssertTranslationFailed(() => base.Datetime_subtraction_TotalDays(async));
 
+    public override Task Where_DateOnly_FromDateTime(bool async)
+        => AssertTranslationFailed(() => base.Where_DateOnly_FromDateTime(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 }
