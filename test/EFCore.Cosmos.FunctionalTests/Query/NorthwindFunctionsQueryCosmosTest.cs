@@ -1634,6 +1634,9 @@ WHERE ((c["Discriminator"] = "OrderDetail") AND (c["Quantity"] < 5))
     public override Task String_Concat(bool async)
         => AssertTranslationFailed(() => base.String_Concat(async));
 
+    public override Task Where_DateOnly_FromDateTime(bool async)
+        => AssertTranslationFailed(() => base.Where_DateOnly_FromDateTime(async));
+
     private void AssertSql(params string[] expected)
         => Fixture.TestSqlLoggerFactory.AssertBaseline(expected);
 
