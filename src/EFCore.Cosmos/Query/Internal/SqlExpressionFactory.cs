@@ -52,38 +52,19 @@ public class SqlExpressionFactory : ISqlExpressionFactory
     /// </summary>
     [return: NotNullIfNotNull("sqlExpression")]
     public virtual SqlExpression? ApplyTypeMapping(SqlExpression? sqlExpression, CoreTypeMapping? typeMapping)
-    {
-        if (sqlExpression is not { TypeMapping: null })
+        => sqlExpression switch
         {
-            return sqlExpression;
-        }
+            null or { TypeMapping: not null } => sqlExpression,
 
-#pragma warning disable IDE0066 // Convert switch statement to expression
-        switch (sqlExpression)
-#pragma warning restore IDE0066 // Convert switch statement to expression
-        {
-            case SqlConditionalExpression sqlConditionalExpression:
-                return ApplyTypeMappingOnSqlConditional(sqlConditionalExpression, typeMapping);
+            SqlConditionalExpression sqlConditionalExpression => ApplyTypeMappingOnSqlConditional(sqlConditionalExpression, typeMapping),
+            SqlBinaryExpression sqlBinaryExpression => ApplyTypeMappingOnSqlBinary(sqlBinaryExpression, typeMapping),
+            SqlUnaryExpression sqlUnaryExpression => ApplyTypeMappingOnSqlUnary(sqlUnaryExpression, typeMapping),
+            SqlConstantExpression sqlConstantExpression => sqlConstantExpression.ApplyTypeMapping(typeMapping),
+            SqlParameterExpression sqlParameterExpression => sqlParameterExpression.ApplyTypeMapping(typeMapping),
+            SqlFunctionExpression sqlFunctionExpression => sqlFunctionExpression.ApplyTypeMapping(typeMapping),
 
-            case SqlBinaryExpression sqlBinaryExpression:
-                return ApplyTypeMappingOnSqlBinary(sqlBinaryExpression, typeMapping);
-
-            case SqlUnaryExpression sqlUnaryExpression:
-                return ApplyTypeMappingOnSqlUnary(sqlUnaryExpression, typeMapping);
-
-            case SqlConstantExpression sqlConstantExpression:
-                return sqlConstantExpression.ApplyTypeMapping(typeMapping);
-
-            case SqlParameterExpression sqlParameterExpression:
-                return sqlParameterExpression.ApplyTypeMapping(typeMapping);
-
-            case SqlFunctionExpression sqlFunctionExpression:
-                return sqlFunctionExpression.ApplyTypeMapping(typeMapping);
-
-            default:
-                return sqlExpression;
-        }
-    }
+            _ => sqlExpression
+        };
 
     private SqlExpression ApplyTypeMappingOnSqlConditional(
         SqlConditionalExpression sqlConditionalExpression,

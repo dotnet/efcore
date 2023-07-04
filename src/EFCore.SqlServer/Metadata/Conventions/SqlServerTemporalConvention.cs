@@ -70,7 +70,7 @@ public class SqlServerTemporalConvention : IEntityTypeAnnotationChangedConventio
                     if (skipLevelNavigation.DeclaringEntityType.IsTemporal()
                         && skipLevelNavigation.Inverse is IConventionSkipNavigation inverse
                         && inverse.DeclaringEntityType.IsTemporal()
-                        && skipLevelNavigation.JoinEntityType is IConventionEntityType { HasSharedClrType: true } joinEntityType
+                        && skipLevelNavigation.JoinEntityType is { HasSharedClrType: true } joinEntityType
                         && !joinEntityType.IsTemporal()
                         && joinEntityType.GetConfigurationSource() == ConfigurationSource.Convention)
                     {

@@ -87,32 +87,32 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
         if (extensionExpression is ShapedQueryExpression shapedQueryExpression)
         {
             var serverEnumerable = VisitShapedQuery(shapedQueryExpression);
-            switch (shapedQueryExpression.ResultCardinality)
+
+            return shapedQueryExpression.ResultCardinality switch
             {
-                case ResultCardinality.Enumerable:
-                    return serverEnumerable;
+                ResultCardinality.Enumerable => serverEnumerable,
 
-                case ResultCardinality.Single:
-                    return QueryCompilationContext.IsAsync
-                        ? Call(
-                            SingleAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.GetSequenceType()),
-                            serverEnumerable,
-                            _cancellationTokenParameter)
-                        : Call(
-                            EnumerableMethods.SingleWithoutPredicate.MakeGenericMethod(serverEnumerable.Type.GetSequenceType()),
-                            serverEnumerable);
+                ResultCardinality.Single => QueryCompilationContext.IsAsync
+                    ? Call(
+                        SingleAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.GetSequenceType()),
+                        serverEnumerable,
+                        _cancellationTokenParameter)
+                    : Call(
+                        EnumerableMethods.SingleWithoutPredicate.MakeGenericMethod(serverEnumerable.Type.GetSequenceType()),
+                        serverEnumerable),
 
-                case ResultCardinality.SingleOrDefault:
-                    return QueryCompilationContext.IsAsync
-                        ? Call(
-                            SingleOrDefaultAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.GetSequenceType()),
-                            serverEnumerable,
-                            _cancellationTokenParameter)
-                        : Call(
-                            EnumerableMethods.SingleOrDefaultWithoutPredicate.MakeGenericMethod(
-                                serverEnumerable.Type.GetSequenceType()),
-                            serverEnumerable);
-            }
+                ResultCardinality.SingleOrDefault => QueryCompilationContext.IsAsync
+                    ? Call(
+                        SingleOrDefaultAsyncMethodInfo.MakeGenericMethod(serverEnumerable.Type.GetSequenceType()),
+                        serverEnumerable,
+                        _cancellationTokenParameter)
+                    : Call(
+                        EnumerableMethods.SingleOrDefaultWithoutPredicate.MakeGenericMethod(
+                            serverEnumerable.Type.GetSequenceType()),
+                        serverEnumerable),
+
+                _ => base.VisitExtension(extensionExpression)
+            };
         }
 
         return base.VisitExtension(extensionExpression);
@@ -356,9 +356,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     New(
                         MaterializationContextConstructor,
                         entityShaperExpression.ValueBufferExpression,
-                        MakeMemberAccess(
-                            QueryCompilationContext.QueryContextParameter,
-                            DbContextMemberInfo))));
+                        MakeMemberAccess(QueryCompilationContext.QueryContextParameter, DbContextMemberInfo))));
 
             var valueBufferExpression = Call(materializationContextVariable, MaterializationContext.GetValueBufferMethod);
 
@@ -371,10 +369,7 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
 
             var instanceVariable = Variable(entityType.ClrType, "instance" + _currentEntityIndex);
             variables.Add(instanceVariable);
-            expressions.Add(
-                Assign(
-                    instanceVariable,
-                    Constant(null, entityType.ClrType)));
+            expressions.Add(Assign(instanceVariable, Constant(null, entityType.ClrType)));
 
             if (_queryStateManager
                 && primaryKey != null)
@@ -406,13 +401,9 @@ public abstract class ShapedQueryCompilingExpressionVisitor : ExpressionVisitor
                     IfThen(
                         Not(hasNullKeyVariable),
                         IfThenElse(
-                            NotEqual(
-                                entryVariable,
-                                Default(typeof(InternalEntityEntry))),
+                            NotEqual(entryVariable, Default(typeof(InternalEntityEntry))),
                             Block(
-                                Assign(
-                                    concreteEntityTypeVariable,
-                                    MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
+                                Assign(concreteEntityTypeVariable, MakeMemberAccess(entryVariable, EntityTypeMemberInfo)),
                                 Assign(
                                     instanceVariable, Convert(
                                         MakeMemberAccess(entryVariable, EntityMemberInfo),

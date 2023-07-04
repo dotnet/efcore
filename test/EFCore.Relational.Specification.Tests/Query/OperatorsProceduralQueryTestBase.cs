@@ -677,7 +677,7 @@ public abstract class OperatorsProceduralQueryTestBase : NonSharedModelTestBase
 
         protected override Expression VisitNew(NewExpression newExpression)
         {
-            if (newExpression.Constructor is ConstructorInfo { DeclaringType: Type { IsGenericType: true } declaringType })
+            if (newExpression.Constructor is { DeclaringType: { IsGenericType: true } declaringType })
             {
                 if (declaringType.GetGenericTypeDefinition() == typeof(OperatorDto1<,>))
                 {

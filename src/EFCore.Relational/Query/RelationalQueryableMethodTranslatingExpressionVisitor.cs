@@ -494,13 +494,13 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         => TranslateAggregateWithSelector(source, selector, QueryableMethods.GetAverageWithoutSelector, throwWhenEmpty: true, resultType);
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression? TranslateCast(ShapedQueryExpression source, Type resultType)
+    protected override ShapedQueryExpression TranslateCast(ShapedQueryExpression source, Type resultType)
         => source.ShaperExpression.Type != resultType
             ? source.UpdateShaperExpression(Expression.Convert(source.ShaperExpression, resultType))
             : source;
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression? TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression TranslateConcat(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
         ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: false);
 
@@ -598,7 +598,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression? TranslateDistinct(ShapedQueryExpression source)
+    protected override ShapedQueryExpression TranslateDistinct(ShapedQueryExpression source)
     {
         var selectExpression = (SelectExpression)source.QueryExpression;
         if (selectExpression.Orderings.Count > 0
@@ -637,7 +637,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression? TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression TranslateExcept(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
         ((SelectExpression)source1.QueryExpression).ApplyExcept((SelectExpression)source2.QueryExpression, distinct: true);
 
@@ -797,7 +797,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         => null;
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression? TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression TranslateIntersect(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
         ((SelectExpression)source1.QueryExpression).ApplyIntersect((SelectExpression)source2.QueryExpression, distinct: true);
 
@@ -1230,7 +1230,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
     }
 
     /// <inheritdoc />
-    protected override ShapedQueryExpression? TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
+    protected override ShapedQueryExpression TranslateUnion(ShapedQueryExpression source1, ShapedQueryExpression source2)
     {
         ((SelectExpression)source1.QueryExpression).ApplyUnion((SelectExpression)source2.QueryExpression, distinct: true);
 
@@ -1927,7 +1927,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 source = methodCallExpression.Arguments[0];
                 var selectMethodCallExpression = default(MethodCallExpression);
 
-                if (source is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } sourceMethodCall
+                if (source is MethodCallExpression { Method.IsGenericMethod: true } sourceMethodCall
                     && sourceMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select)
                 {
                     selectMethodCallExpression = sourceMethodCall;
@@ -1935,7 +1935,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                 }
 
                 var asQueryableMethodCallExpression = default(MethodCallExpression);
-                if (source is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } maybeAsQueryableMethodCall
+                if (source is MethodCallExpression { Method.IsGenericMethod: true } maybeAsQueryableMethodCall
                     && maybeAsQueryableMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
                 {
                     asQueryableMethodCallExpression = maybeAsQueryableMethodCall;
@@ -1946,7 +1946,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
                 if (source is JsonQueryExpression jsonQueryExpression)
                 {
-                    var collectionIndexExpression = _sqlTranslator.Translate(methodCallExpression.Arguments[1]!);
+                    var collectionIndexExpression = _sqlTranslator.Translate(methodCallExpression.Arguments[1]);
                     if (collectionIndexExpression == null)
                     {
                         // before we return from failed translation
@@ -1960,7 +1960,7 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
                             methodCallExpression);
                     }
 
-                    var newJsonQuery = jsonQueryExpression.BindCollectionElement(collectionIndexExpression!);
+                    var newJsonQuery = jsonQueryExpression.BindCollectionElement(collectionIndexExpression);
 
                     var entityShaper = new RelationalEntityShaperExpression(
                         jsonQueryExpression.EntityType,
@@ -2021,56 +2021,56 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
 
             static bool IsValidSelectorForJsonArrayElementAccess(Expression expression, JsonQueryExpression baselineJsonQuery)
             {
-                // JSON_QUERY($[0]).Property
-                if (expression is MemberExpression
-                    {
-                        Expression: RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
-                    }
-                    && JsonQueryExpressionIsRootedIn(memberJqe, baselineJsonQuery))
+                switch (expression)
                 {
-                    return true;
-                }
-
-                // MCNE(JSON_QUERY($[0].Collection))
-                // MCNE(JSON_QUERY($[0].Collection).AsQueryable())
-                // MCNE(JSON_QUERY($[0].Collection).Select(xx => xx.Includes())
-                // MCNE(JSON_QUERY($[0].Collection).AsQueryable().Select(xx => xx.Includes())
-                if (expression is MaterializeCollectionNavigationExpression mcne)
-                {
-                    var subquery = mcne.Subquery;
-                    if (subquery is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } selectMethodCall
-                        && selectMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select
-                        && selectMethodCall.Arguments[1].UnwrapLambdaFromQuote() is LambdaExpression selectorLambda
-                        && StripIncludes(selectorLambda.Body) == selectorLambda.Parameters[0])
-                    {
-                        subquery = selectMethodCall.Arguments[0];
-                    }
-
-                    if (subquery is MethodCallExpression { Method: MethodInfo { IsGenericMethod: true } } asQueryableMethodCall
-                        && asQueryableMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
-                    {
-                        subquery = asQueryableMethodCall.Arguments[0];
-                    }
-
-                    if (subquery is JsonQueryExpression subqueryJqe
-                        && JsonQueryExpressionIsRootedIn(subqueryJqe, baselineJsonQuery))
+                    // JSON_QUERY($[0]).Property
+                    case MemberExpression
+                        {
+                            Expression: RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression memberJqe }
+                        }
+                        when JsonQueryExpressionIsRootedIn(memberJqe, baselineJsonQuery):
                     {
                         return true;
                     }
-                }
 
-                // JSON_QUERY($[0]).Includes()
-                // JSON_QUERY($[0].Reference).Includes()
-                // JSON_QUERY($[0])
-                // JSON_QUERY($[0].Reference)
-                expression = StripIncludes(expression);
-                if (expression is RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression reseJqe }
-                    && JsonQueryExpressionIsRootedIn(reseJqe, baselineJsonQuery))
-                {
-                    return true;
-                }
+                    // MCNE(JSON_QUERY($[0].Collection))
+                    // MCNE(JSON_QUERY($[0].Collection).AsQueryable())
+                    // MCNE(JSON_QUERY($[0].Collection).Select(xx => xx.Includes())
+                    // MCNE(JSON_QUERY($[0].Collection).AsQueryable().Select(xx => xx.Includes())
+                    case MaterializeCollectionNavigationExpression { Subquery: var subquery }:
+                    {
+                        if (subquery is MethodCallExpression { Method.IsGenericMethod: true } selectMethodCall
+                            && selectMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.Select
+                            && selectMethodCall.Arguments[1].UnwrapLambdaFromQuote() is LambdaExpression selectorLambda
+                            && StripIncludes(selectorLambda.Body) == selectorLambda.Parameters[0])
+                        {
+                            subquery = selectMethodCall.Arguments[0];
+                        }
 
-                return false;
+                        if (subquery is MethodCallExpression { Method.IsGenericMethod: true } asQueryableMethodCall
+                            && asQueryableMethodCall.Method.GetGenericMethodDefinition() == QueryableMethods.AsQueryable)
+                        {
+                            subquery = asQueryableMethodCall.Arguments[0];
+                        }
+
+                        if (subquery is JsonQueryExpression subqueryJqe
+                            && JsonQueryExpressionIsRootedIn(subqueryJqe, baselineJsonQuery))
+                        {
+                            return true;
+                        }
+
+                        goto default;
+                    }
+
+                    default:
+                        // JSON_QUERY($[0]).Includes()
+                        // JSON_QUERY($[0].Reference).Includes()
+                        // JSON_QUERY($[0])
+                        // JSON_QUERY($[0].Reference)
+                        expression = StripIncludes(expression);
+                        return expression is RelationalEntityShaperExpression { ValueBufferExpression: JsonQueryExpression reseJqe }
+                            && JsonQueryExpressionIsRootedIn(reseJqe, baselineJsonQuery);
+                }
             }
 
             static bool JsonQueryExpressionIsRootedIn(JsonQueryExpression expressionToTest, JsonQueryExpression root)
@@ -2323,20 +2323,6 @@ public class RelationalQueryableMethodTranslatingExpressionVisitor : QueryableMe
         Expression targetExpression,
         string fieldName)
         => Expression.Field(targetExpression, transparentIdentifierType.GetTypeInfo().GetDeclaredField(fieldName)!);
-
-    private static void HandleGroupByForAggregate(SelectExpression selectExpression, bool eraseProjection = false)
-    {
-        if (selectExpression.GroupBy.Count > 0)
-        {
-            if (eraseProjection)
-            {
-                // Erasing client projections erase projectionMapping projections too
-                selectExpression.ReplaceProjection(new List<Expression>());
-            }
-
-            selectExpression.PushdownIntoSubquery();
-        }
-    }
 
     private static Expression MatchShaperNullabilityForSetOperation(Expression shaper1, Expression shaper2, bool makeNullable)
     {

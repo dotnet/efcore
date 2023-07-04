@@ -246,7 +246,7 @@ public class ExpectedQueryRewritingVisitor : ExpressionVisitor
                     var methodInfo = _getShadowPropertyValueMethodInfo.MakeGenericMethod(caller.Type, methodCallExpression.Type);
                     result = Expression.Call(methodInfo, caller, Expression.Constant(shadowPropertyMapping));
                 }
-                else if (caller.Type.GetMembers().SingleOrDefault(m => m.Name == propertyName) is MemberInfo)
+                else if (caller.Type.GetMembers().SingleOrDefault(m => m.Name == propertyName) is not null)
                 {
                     result = Expression.Property(caller, propertyName);
                 }

@@ -112,9 +112,7 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static TValue ThrowExtractJsonPropertyException<TValue>(
-            Exception exception,
-            IProperty property)
+        private static TValue ThrowExtractJsonPropertyException<TValue>(Exception exception, IProperty property)
         {
             var entityType = property.DeclaringType.DisplayName();
             var propertyName = property.Name;

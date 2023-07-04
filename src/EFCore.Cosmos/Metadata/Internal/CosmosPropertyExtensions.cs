@@ -23,7 +23,7 @@ public static class CosmosPropertyExtensions
             (property.DeclaringType as IEntityType)?.IsOwned() == true, $"Expected {property.DeclaringType.DisplayName()} to be owned.");
         Check.DebugAssert(property.GetJsonPropertyName().Length == 0, $"Expected {property.Name} to be non-persisted.");
 
-        return property.FindContainingPrimaryKey() is IReadOnlyKey { Properties.Count: > 1 }
+        return property.FindContainingPrimaryKey() is { Properties.Count: > 1 }
             && !property.IsForeignKey()
             && property.ClrType == typeof(int)
             && (property.ValueGenerated & ValueGenerated.OnAdd) != 0;
