@@ -1378,6 +1378,7 @@ ORDER BY [table_schema], [table_name], [f].[name], [fc].[constraint_column_id];
                         var duplicated = table.ForeignKeys
                             .FirstOrDefault(
                                 k => k.Columns.SequenceEqual(foreignKey.Columns)
+                                    && k.PrincipalColumns.SequenceEqual(foreignKey.PrincipalColumns)
                                     && k.PrincipalTable.Equals(foreignKey.PrincipalTable));
                         if (duplicated != null)
                         {

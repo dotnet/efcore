@@ -2893,6 +2893,10 @@ DROP TABLE PrincipalTable;");
         => Test(
             @"CREATE TABLE PrincipalTable (
     Id int PRIMARY KEY,
+    Value1 uniqueidentifier,
+    Value2 uniqueidentifier,
+	CONSTRAINT [UNIQUE_Value1] UNIQUE ([Value1] ASC),
+	CONSTRAINT [UNIQUE_Value2] UNIQUE ([Value2] ASC),
 );
 
 CREATE TABLE OtherPrincipalTable (
@@ -2902,9 +2906,12 @@ CREATE TABLE OtherPrincipalTable (
 CREATE TABLE DependentTable (
     Id int PRIMARY KEY,
     ForeignKeyId int,
+    ValueKey uniqueidentifier,
     CONSTRAINT MYFK1 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
     CONSTRAINT MYFK2 FOREIGN KEY (ForeignKeyId) REFERENCES PrincipalTable(Id),
     CONSTRAINT MYFK3 FOREIGN KEY (ForeignKeyId) REFERENCES OtherPrincipalTable(Id),
+    CONSTRAINT MYFK4 FOREIGN KEY (ValueKey) REFERENCES PrincipalTable(Value1),
+    CONSTRAINT MYFK5 FOREIGN KEY (ValueKey) REFERENCES PrincipalTable(Value2),
 );",
             Enumerable.Empty<string>(),
             Enumerable.Empty<string>(),
@@ -2919,7 +2926,7 @@ CREATE TABLE DependentTable (
                 Assert.Equal(LogLevel.Warning, level);
 
                 var table = dbModel.Tables.Single(t => t.Name == "DependentTable");
-                Assert.Equal(2, table.ForeignKeys.Count);
+                Assert.Equal(4, table.ForeignKeys.Count);
             },
             @"
 DROP TABLE DependentTable;
