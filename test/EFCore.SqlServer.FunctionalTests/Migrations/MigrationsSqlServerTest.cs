@@ -817,14 +817,14 @@ ALTER TABLE [People] ADD [Name] nvarchar(max) COLLATE German_PhoneBook_CI_AS NUL
 """);
     }
 
-    public override async Task Add_column_computed_with_collation()
+    public override async Task Add_column_computed_with_collation(bool stored)
     {
-        await base.Add_column_computed_with_collation();
+        await base.Add_column_computed_with_collation(stored);
 
         AssertSql(
-"""
-ALTER TABLE [People] ADD [Name] AS 'hello' COLLATE German_PhoneBook_CI_AS;
-""");
+            stored
+                ? """ALTER TABLE [People] ADD [Name] AS 'hello' COLLATE German_PhoneBook_CI_AS PERSISTED;"""
+                : """ALTER TABLE [People] ADD [Name] AS 'hello' COLLATE German_PhoneBook_CI_AS;""");
     }
 
     public override async Task Add_column_shared()

@@ -446,14 +446,14 @@ ALTER TABLE "People" ADD "Name" TEXT COLLATE NOCASE NULL;
 """);
     }
 
-    public override async Task Add_column_computed_with_collation()
+    public override async Task Add_column_computed_with_collation(bool stored)
     {
-        await base.Add_column_computed_with_collation();
+        await base.Add_column_computed_with_collation(stored);
 
         AssertSql(
-"""
-ALTER TABLE "People" ADD "Name" AS ('hello') COLLATE NOCASE;
-""");
+            stored
+                ? """ALTER TABLE "People" ADD "Name" AS ('hello') STORED COLLATE NOCASE;"""
+                : """ALTER TABLE "People" ADD "Name" AS ('hello') COLLATE NOCASE;""");
     }
 
     public override async Task Add_column_with_check_constraint()
