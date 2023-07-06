@@ -767,6 +767,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             types.GetOrAddNew(clrType)[index] = clrProperty;
         }
 
+        AddNestedComplexProperties(entityType, leastPriorityProperties);
+
         foreach (var (propertyInfo, properties) in unorderedGroups)
         {
             groups.Add(propertyInfo, properties.Values.ToList());
@@ -846,6 +848,19 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                 sortedPropertyInfos
                     .Where(pi => !primaryKeyPropertyGroups.ContainsKey(pi) && !entityType.ClrType.IsAssignableFrom(pi.DeclaringType))
                     .SelectMany(p => groups[p]));
+    }
+
+    private static void AddNestedComplexProperties(ITypeBase typeBase, List<IProperty> leastPriorityProperties)
+    {
+        foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+        {
+            foreach (var complexTypeProperty in complexProperty.ComplexType.GetDeclaredProperties())
+            {
+                leastPriorityProperties.Add(complexTypeProperty);
+            }
+
+            AddNestedComplexProperties(complexProperty.ComplexType, leastPriorityProperties);
+        }
     }
 
     private sealed class PropertyInfoEqualityComparer : IEqualityComparer<PropertyInfo>
