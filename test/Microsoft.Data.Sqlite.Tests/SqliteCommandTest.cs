@@ -933,6 +933,120 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public Task ExecuteScalar_throws_when_busy_with_returning()
+            => Execute_throws_when_busy_with_returning(command =>
+            {
+                var ex = Assert.Throws<SqliteException>(
+                    () => command.ExecuteScalar());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+            });
+
+        [Fact]
+        public Task ExecuteNonQuery_throws_when_busy_with_returning()
+            => Execute_throws_when_busy_with_returning(command =>
+            {
+                var ex = Assert.Throws<SqliteException>(
+                    () => command.ExecuteNonQuery());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+            });
+
+        [Fact]
+        public Task ExecuteReader_throws_when_busy_with_returning()
+            => Execute_throws_when_busy_with_returning(command =>
+            {
+                var reader = command.ExecuteReader();
+                try
+                {
+                    Assert.True(reader.Read());
+                    Assert.Equal(2L, reader.GetInt64(0));
+                }
+                finally
+                {
+                    var ex = Assert.Throws<SqliteException>(
+                        () => reader.Dispose());
+
+                    Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+                }
+            });
+
+        [Fact]
+        public Task ExecuteReader_throws_when_busy_with_returning_while_draining()
+            => Execute_throws_when_busy_with_returning(command =>
+            {
+                using var reader = command.ExecuteReader();
+                Assert.True(reader.Read());
+                Assert.Equal(2L, reader.GetInt64(0));
+                Assert.True(reader.Read());
+                Assert.Equal(3L, reader.GetInt64(0));
+
+                var ex = Assert.Throws<SqliteException>(
+                    () => reader.Read());
+
+                Assert.Equal(SQLITE_BUSY, ex.SqliteErrorCode);
+            });
+
+        private static async Task Execute_throws_when_busy_with_returning(Action<SqliteCommand> action)
+        {
+            const string connectionString = "Data Source=returning.db";
+
+            var selectedSignal = new AutoResetEvent(initialState: false);
+
+            try
+            {
+                using var connection1 = new SqliteConnection(connectionString);
+
+                if (new Version(connection1.ServerVersion) < new Version(3, 35, 0))
+                {
+                    // Skip. RETURNING clause not supported
+                    return;
+                }
+
+                connection1.Open();
+
+                connection1.ExecuteNonQuery(
+                    "CREATE TABLE Data (Value); INSERT INTO Data VALUES (0);");
+
+                await Task.WhenAll(
+                    Task.Run(
+                        async () =>
+                        {
+                            using var connection = new SqliteConnection(connectionString);
+                            connection.Open();
+
+                            using (connection.ExecuteReader("SELECT * FROM Data;"))
+                            {
+                                selectedSignal.Set();
+
+                                await Task.Delay(1000);
+                            }
+                        }),
+                    Task.Run(
+                        () =>
+                        {
+                            using var connection = new SqliteConnection(connectionString);
+                            connection.Open();
+
+                            selectedSignal.WaitOne();
+
+                            var command = connection.CreateCommand();
+                            command.CommandText = "INSERT INTO Data VALUES (1),(2) RETURNING rowid;";
+
+                            action(command);
+                        }));
+
+                var count = connection1.ExecuteScalar<long>("SELECT COUNT(*) FROM Data;");
+                Assert.Equal(1L, count);
+            }
+            finally
+            {
+                SqliteConnection.ClearPool(new SqliteConnection(connectionString));
+                File.Delete("returning.db");
+            }
+        }
+
+        [Fact]
         public void ExecuteReader_honors_CommandTimeout()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
