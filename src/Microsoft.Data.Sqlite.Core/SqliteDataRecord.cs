@@ -17,18 +17,22 @@ namespace Microsoft.Data.Sqlite
     internal class SqliteDataRecord : SqliteValueReader, IDisposable
     {
         private readonly SqliteConnection _connection;
+        private readonly Action<int> _addChanges;
         private byte[][]? _blobCache;
         private int?[]? _typeCache;
         private Dictionary<string, int>? _columnNameOrdinalCache;
         private string[]? _columnNameCache;
         private bool _stepped;
         private int? _rowidOrdinal;
+        private bool _alreadyThrown;
+        private bool _alreadyAddedChanges;
 
-        public SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnection connection)
+        public SqliteDataRecord(sqlite3_stmt stmt, bool hasRows, SqliteConnection connection, Action<int> addChanges)
         {
             Handle = stmt;
             HasRows = hasRows;
             _connection = connection;
+            _addChanges = addChanges;
         }
 
         public virtual object this[string name]
@@ -403,19 +407,59 @@ namespace Microsoft.Data.Sqlite
                 return false;
             }
 
-            var rc = sqlite3_step(Handle);
-            SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+            int rc;
+            try
+            {
+                rc = sqlite3_step(Handle);
+                SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+            }
+            catch
+            {
+                _alreadyThrown = true;
+
+                throw;
+            }
 
             if (_blobCache != null)
             {
                 Array.Clear(_blobCache, 0, _blobCache.Length);
             }
 
-            return rc != SQLITE_DONE;
+            if (rc != SQLITE_DONE)
+            {
+                return true;
+            }
+            
+            AddChanges();
+            _alreadyAddedChanges = true;
+
+            return false;
         }
 
         public void Dispose()
-            => sqlite3_reset(Handle);
+        {
+            var rc = sqlite3_reset(Handle);
+            if (!_alreadyThrown)
+            {
+                SqliteException.ThrowExceptionForRC(rc, _connection.Handle);
+            }
+
+            if (!_alreadyAddedChanges)
+            {
+                AddChanges();
+            }
+        }
+
+        private void AddChanges()
+        {
+            if (sqlite3_stmt_readonly(Handle) != 0)
+            {
+                return;
+            }
+
+            var changes = sqlite3_changes(_connection.Handle);
+            _addChanges(changes);
+        }
 
         private byte[] GetCachedBlob(int ordinal)
         {
