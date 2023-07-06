@@ -1882,6 +1882,73 @@ namespace Microsoft.Data.Sqlite
         }
 
         [Fact]
+        public void RecordsAffected_works_with_returning()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                if (new Version(connection.ServerVersion) < new Version(3, 35, 0))
+                {
+                    // Skip. RETURNING clause not supported
+                    return;
+                }
+
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+
+                var reader = connection.ExecuteReader("INSERT INTO Test VALUES(1) RETURNING rowid;");
+                ((IDisposable)reader).Dispose();
+
+                Assert.Equal(1, reader.RecordsAffected);
+            }
+        }
+
+        [Fact]
+        public void RecordsAffected_works_with_returning_before_dispose_after_draining()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                if (new Version(connection.ServerVersion) < new Version(3, 35, 0))
+                {
+                    // Skip. RETURNING clause not supported
+                    return;
+                }
+
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+
+                using (var reader = connection.ExecuteReader("INSERT INTO Test VALUES(1) RETURNING rowid;"))
+                {
+                    while (reader.Read())
+                    {
+                    }
+
+                    Assert.Equal(1, reader.RecordsAffected);
+                }
+            }
+        }
+
+        [Fact]
+        public void RecordsAffected_works_with_returning_multiple()
+        {
+            using (var connection = new SqliteConnection("Data Source=:memory:"))
+            {
+                if (new Version(connection.ServerVersion) < new Version(3, 35, 0))
+                {
+                    // Skip. RETURNING clause not supported
+                    return;
+                }
+
+                connection.Open();
+                connection.ExecuteNonQuery("CREATE TABLE Test(Value);");
+
+                var reader = connection.ExecuteReader("INSERT INTO Test VALUES(1),(2) RETURNING rowid;");
+                ((IDisposable)reader).Dispose();
+
+                Assert.Equal(2, reader.RecordsAffected);
+            }
+        }
+
+        [Fact]
         public void GetSchemaTable_works()
         {
             using (var connection = new SqliteConnection("Data Source=:memory:"))
