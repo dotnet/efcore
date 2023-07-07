@@ -30,7 +30,7 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
     /// </summary>
     public static ExpressionEqualityComparer Instance { get; } = new();
 
-    private List<ParameterExpression>? _lambdaParameters;
+    private HashSet<ParameterExpression>? _lambdaParameters;
 
     /// <inheritdoc />
     public int GetHashCode(Expression obj)
@@ -113,18 +113,18 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
 
                 case LambdaExpression lambdaExpression:
                     _lambdaParameters ??= new();
-                    foreach (var p in lambdaExpression.Parameters)
+                    for (int i = 0; i < _lambdaParameters.Count; i++)
                     {
-                        _lambdaParameters.Add(p);
+                        _lambdaParameters.Add(lambdaExpression.Parameters[i]);
                     }
 
                     hash.Add(lambdaExpression.Body, this);
                     AddListToHash(lambdaExpression.Parameters);
                     hash.Add(lambdaExpression.ReturnType);
 
-                    foreach (var p in lambdaExpression.Parameters)
+                    for (int i = 0; i < _lambdaParameters.Count; i++)
                     {
-                        _lambdaParameters.Remove(p);
+                        _lambdaParameters.Remove(lambdaExpression.Parameters[i]);
                     }
 
                     break;
@@ -175,14 +175,10 @@ public sealed class ExpressionEqualityComparer : IEqualityComparer<Expression?>
                     break;
 
                 case ParameterExpression parameterExpression:
-                    int? index = _lambdaParameters?.IndexOf(parameterExpression);
-                    if (index > -1)
+                    if (parameterExpression.Name is not null &&
+                        (!_lambdaParameters?.Contains(parameterExpression) ?? true))
                     {
-                        hash.Add(index);
-                    }
-                    else
-                    {
-                        AddToHashIfNotNull(parameterExpression.Name);
+                        hash.Add(parameterExpression.Name);
                     }
                     break;
 
