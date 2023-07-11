@@ -3854,7 +3854,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var complexBuilder = entityBuilder.ComplexProperty(
-            Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder;
         var shadowPropertyName = "ShadowProperty";
 
@@ -3937,7 +3937,7 @@ public class ConventionDispatcherTest
         var scope = useScope ? model.DelayConventions() : null;
 
         var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder
             .Property(typeof(string), "Name", ConfigurationSource.Convention);
         if (useBuilder)
@@ -4050,7 +4050,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var propertyBuilder = entityBuilder
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder
             .Property(nameof(OrderDetails.Id), ConfigurationSource.Convention);
 
@@ -4127,7 +4127,7 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder
             .Property(nameof(OrderDetails.Id), ConfigurationSource.Convention);
 
@@ -4202,7 +4202,7 @@ public class ConventionDispatcherTest
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var shadowPropertyName = "ShadowProperty";
         var property = entityBuilder
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder.Metadata.AddProperty(
             shadowPropertyName, typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
 
@@ -4255,7 +4255,7 @@ public class ConventionDispatcherTest
         if (useBuilder)
         {
             var result = entityBuilder.ComplexProperty(
-                Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+                Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention);
 
             Assert.Equal(!useScope, result == null);
         }
@@ -4283,7 +4283,7 @@ public class ConventionDispatcherTest
         if (useBuilder)
         {
             var result = entityBuilder.ComplexProperty(
-                Order.OtherOrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+                Order.OtherOrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention);
 
             Assert.Equal(!useScope, result == null);
         }
@@ -4357,7 +4357,7 @@ public class ConventionDispatcherTest
         var scope = useScope ? model.DelayConventions() : null;
 
         var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention);
         if (useBuilder)
         {
             Assert.NotNull(propertyBuilder.IsRequired(true, ConfigurationSource.Convention));
@@ -4491,7 +4491,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var propertyBuilder = entityBuilder
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -4593,7 +4593,7 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -4693,7 +4693,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var property = entityBuilder
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .Metadata;
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
@@ -4765,7 +4765,7 @@ public class ConventionDispatcherTest
 
         var builder = new InternalModelBuilder(new Model(conventions));
         var typeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
-            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder;
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
@@ -4868,7 +4868,7 @@ public class ConventionDispatcherTest
         var builder = new InternalModelBuilder(new Model(conventions));
         var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
         var complexBuilder = entityBuilder.ComplexProperty(
-            Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            Order.OrderDetailsProperty, complexTypeName: null, collection: false, ConfigurationSource.Convention)
             .ComplexTypeBuilder;
         var shadowPropertyName = "ShadowProperty";
 

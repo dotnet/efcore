@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.Collections;
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -136,52 +137,81 @@ public class ModelValidator : IModelValidator
 
         foreach (var entityType in conventionModel.GetEntityTypes())
         {
-            var unmappedProperty = entityType.GetDeclaredProperties().FirstOrDefault(
-                p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
-                        // Use a better condition for non-persisted properties when issue #14121 is implemented
-                        || !p.IsImplicitlyCreated())
-                    && p.FindTypeMapping() == null);
+            Validate(entityType);
+        }
+
+        void Validate(IConventionTypeBase typeBase)
+        {
+            var unmappedProperty = typeBase.GetDeclaredProperties().FirstOrDefault(
+               p => (!ConfigurationSource.Convention.Overrides(p.GetConfigurationSource())
+                       // Use a better condition for non-persisted properties when issue #14121 is implemented
+                       || !p.IsImplicitlyCreated())
+                   && p.FindTypeMapping() == null);
 
             if (unmappedProperty != null)
             {
                 ThrowPropertyNotMappedException(
                     (unmappedProperty.GetValueConverter()?.ProviderClrType ?? unmappedProperty.ClrType).ShortDisplayName(),
-                    entityType,
+                    typeBase,
                     unmappedProperty);
             }
 
-            if (entityType.ClrType == Model.DefaultPropertyBagType)
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
             {
-                continue;
+                if (complexProperty.IsShadowProperty())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyShadow(typeBase.DisplayName(), complexProperty.Name));
+                }
+
+                if (complexProperty.IsIndexerProperty())
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyIndexer(typeBase.DisplayName(), complexProperty.Name));
+                }
+
+                if (complexProperty.IsCollection)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.ComplexPropertyCollection(typeBase.DisplayName(), complexProperty.Name));
+                }
+
+                if (complexProperty.ComplexType.GetMembers().Count() == 0)
+                {
+                    throw new InvalidOperationException(
+                        CoreStrings.EmptyComplexType(complexProperty.ComplexType.DisplayName()));
+                }
+
+                Validate(complexProperty.ComplexType);
             }
 
-            var runtimeProperties = entityType.GetRuntimeProperties();
+            if (typeBase.ClrType == Model.DefaultPropertyBagType)
+            {
+                return;
+            }
+
+            var runtimeProperties = typeBase.GetRuntimeProperties();
             var clrProperties = new HashSet<string>(StringComparer.Ordinal);
             clrProperties.UnionWith(
                 runtimeProperties.Values
                     .Where(pi => pi.IsCandidateProperty(needsWrite: false))
                     .Select(pi => pi.GetSimpleMemberName()));
 
-            clrProperties.ExceptWith(
-                ((IEnumerable<IConventionPropertyBase>)entityType.GetProperties())
-                .Concat(entityType.GetComplexProperties())
-                .Concat(entityType.GetNavigations())
-                .Concat(entityType.GetSkipNavigations())
-                .Concat(entityType.GetServiceProperties()).Select(p => p.Name));
+            clrProperties.ExceptWith(typeBase.GetMembers().Select(p => p.Name));
 
-            if (entityType.IsPropertyBag)
+            if (typeBase.IsPropertyBag)
             {
                 clrProperties.ExceptWith(DictionaryProperties);
             }
 
             if (clrProperties.Count <= 0)
             {
-                continue;
+                return;
             }
 
             foreach (var clrPropertyName in clrProperties)
             {
-                if (entityType.FindIgnoredConfigurationSource(clrPropertyName) != null)
+                if (typeBase.FindIgnoredConfigurationSource(clrPropertyName) != null)
                 {
                     continue;
                 }
@@ -212,6 +242,18 @@ public class ModelValidator : IModelValidator
                 {
                     var targetShared = conventionModel.IsShared(targetType);
                     targetOwned ??= IsOwned(targetType, conventionModel);
+
+                    if (typeBase is not IConventionEntityType entityType)
+                    {
+                        if (!((IReadOnlyComplexType)typeBase).IsInDeclarationPath(targetType))
+                        {
+                            throw new InvalidOperationException(
+                                CoreStrings.NavigationNotAddedComplexType(
+                                    typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                        }
+                        continue;
+                    }
+
                     // ReSharper disable CheckForReferenceEqualityInstead.1
                     // ReSharper disable CheckForReferenceEqualityInstead.3
                     if ((isAdHoc
@@ -230,21 +272,21 @@ public class ModelValidator : IModelValidator
                         {
                             throw new InvalidOperationException(
                                 CoreStrings.AmbiguousOwnedNavigation(
-                                    entityType.DisplayName() + "." + clrProperty.Name, targetType.ShortDisplayName()));
+                                    typeBase.DisplayName() + "." + clrProperty.Name, targetType.ShortDisplayName()));
                         }
 
                         if (targetShared)
                         {
                             throw new InvalidOperationException(
-                                CoreStrings.NonConfiguredNavigationToSharedType(clrProperty.Name, entityType.DisplayName()));
+                                CoreStrings.NonConfiguredNavigationToSharedType(clrProperty.Name, typeBase.DisplayName()));
                         }
 
                         throw new InvalidOperationException(
                             isAdHoc
                                 ? CoreStrings.NavigationNotAddedAdHoc(
-                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
+                                    typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
                                 : CoreStrings.NavigationNotAdded(
-                                    entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                                    typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                     }
 
                     // ReSharper restore CheckForReferenceEqualityInstead.3
@@ -255,16 +297,16 @@ public class ModelValidator : IModelValidator
                 {
                     throw new InvalidOperationException(
                         CoreStrings.InterfacePropertyNotAdded(
-                            entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                            typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                 }
                 else
                 {
                     throw new InvalidOperationException(
                         isAdHoc
                             ? CoreStrings.PropertyNotAddedAdHoc(
-                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
+                                typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName())
                             : CoreStrings.PropertyNotAdded(
-                                entityType.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
+                                typeBase.DisplayName(), clrProperty.Name, propertyType.ShortDisplayName()));
                 }
             }
         }
@@ -275,16 +317,16 @@ public class ModelValidator : IModelValidator
     ///     available, indicating possible reasons why the property cannot be mapped.
     /// </summary>
     /// <param name="propertyType">The property CLR type.</param>
-    /// <param name="entityType">The entity type.</param>
+    /// <param name="typeBase">The structural type.</param>
     /// <param name="unmappedProperty">The property.</param>
     protected virtual void ThrowPropertyNotMappedException(
         string propertyType,
-        IConventionEntityType entityType,
+        IConventionTypeBase typeBase,
         IConventionProperty unmappedProperty)
         => throw new InvalidOperationException(
             CoreStrings.PropertyNotMapped(
                 propertyType,
-                entityType.DisplayName(),
+                typeBase.DisplayName(),
                 unmappedProperty.Name));
 
     /// <summary>
@@ -640,12 +682,22 @@ public class ModelValidator : IModelValidator
         var requireFullNotifications = (bool?)model[CoreAnnotationNames.FullChangeTrackingNotificationsRequired] == true;
         foreach (var entityType in model.GetEntityTypes())
         {
-            var errorMessage = EntityType.CheckChangeTrackingStrategy(
-                entityType, entityType.GetChangeTrackingStrategy(), requireFullNotifications);
+            Validate(entityType, requireFullNotifications);
+        }
+
+        static void Validate(ITypeBase typeBase, bool requireFullNotifications)
+        {
+            var errorMessage = TypeBase.CheckChangeTrackingStrategy(
+                            typeBase, typeBase.GetChangeTrackingStrategy(), requireFullNotifications);
 
             if (errorMessage != null)
             {
                 throw new InvalidOperationException(errorMessage);
+            }
+
+            foreach (var complexProperty in typeBase.GetComplexProperties())
+            {
+                Validate(complexProperty.ComplexType, requireFullNotifications);
             }
         }
     }
@@ -778,9 +830,8 @@ public class ModelValidator : IModelValidator
         static bool ContainedInForeignKeyForAllConcreteTypes(IEntityType entityType, IProperty property)
             => entityType.ClrType.IsAbstract
                 && entityType.GetDerivedTypes().Where(t => !t.ClrType.IsAbstract)
-                    .All(
-                        d => d.GetForeignKeys()
-                            .Any(fk => fk.Properties.Contains(property)));
+                    .All(d => d.GetForeignKeys()
+                               .Any(fk => fk.Properties.Contains(property)));
     }
 
     /// <summary>
@@ -803,14 +854,39 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            var properties = new HashSet<IPropertyBase>(
-                entityType
-                    .GetDeclaredProperties()
-                    .Cast<IPropertyBase>()
-                    .Concat(entityType.GetDeclaredNavigations())
-                    .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
+            Validate(entityType);
+        }
 
-            var constructorBinding = entityType.ConstructorBinding;
+        static void Validate(ITypeBase typeBase)
+        {
+            var properties = new HashSet<IPropertyBase>(
+                            typeBase
+                                .GetDeclaredMembers()
+                                .Where(p => !p.IsShadowProperty() && !p.IsIndexerProperty()));
+
+            var fieldProperties = new Dictionary<FieldInfo, IPropertyBase>();
+            foreach (var propertyBase in properties)
+            {
+                var field = propertyBase.FieldInfo;
+                if (field == null)
+                {
+                    continue;
+                }
+
+                if (fieldProperties.TryGetValue(field, out var conflictingProperty))
+                {
+                    throw new InvalidOperationException(CoreStrings.ConflictingFieldProperty(
+                        propertyBase.DeclaringType.DisplayName(),
+                        propertyBase.Name,
+                        field.Name,
+                        conflictingProperty.DeclaringType.DisplayName(),
+                        conflictingProperty.Name));
+                }
+
+                fieldProperties.Add(field, propertyBase);
+            }
+
+            var constructorBinding = typeBase.ConstructorBinding;
             if (constructorBinding != null)
             {
                 foreach (var consumedProperty in constructorBinding.ParameterBindings.SelectMany(p => p.ConsumedProperties))
@@ -848,6 +924,11 @@ public class ModelValidator : IModelValidator
                     throw new InvalidOperationException(errorMessage);
                 }
             }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                Validate(complexProperty.ComplexType);
+            }
         }
     }
 
@@ -862,7 +943,12 @@ public class ModelValidator : IModelValidator
     {
         foreach (var entityType in model.GetEntityTypes())
         {
-            foreach (var property in entityType.GetDeclaredProperties())
+            Validate(entityType, logger);
+        }
+
+        static void Validate(ITypeBase typeBase, IDiagnosticsLogger<DbLoggerCategory.Model.Validation> logger)
+        {
+            foreach (var property in typeBase.GetDeclaredProperties())
             {
                 var converter = property.GetValueConverter();
                 if (converter != null
@@ -903,6 +989,11 @@ public class ModelValidator : IModelValidator
                             property.Name,
                             actualProviderClrType.ShortDisplayName()));
                 }
+            }
+
+            foreach (var complexProperty in typeBase.GetDeclaredComplexProperties())
+            {
+                Validate(complexProperty.ComplexType, logger);
             }
         }
     }

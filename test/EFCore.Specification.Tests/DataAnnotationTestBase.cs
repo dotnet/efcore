@@ -2369,7 +2369,6 @@ public abstract class DataAnnotationTestBase<TFixture> : IClassFixture<TFixture>
         public Author Author { get; set; }
     }
 
-    [ComplexType]
     protected class PostDetails
     {
         public int Id { get; set; }

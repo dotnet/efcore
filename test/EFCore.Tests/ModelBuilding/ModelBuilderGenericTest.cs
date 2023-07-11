@@ -233,12 +233,26 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
             => Wrap(EntityTypeBuilder.IndexerProperty<TProperty>(propertyName));
 
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            => new GenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName));
+
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
             => new GenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty(propertyExpression));
 
-        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
-            => new GenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName));
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            string complexTypeName)
+            => new GenericTestComplexPropertyBuilder<TProperty>(
+                EntityTypeBuilder.ComplexProperty(propertyExpression, complexTypeName));
+
+        public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
+            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+        {
+            buildAction(new GenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName)));
+
+            return this;
+        }
 
         public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
@@ -249,9 +263,12 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         }
 
         public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
-            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
         {
-            buildAction(new GenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName)));
+            buildAction(new GenericTestComplexPropertyBuilder<TProperty>(
+                EntityTypeBuilder.ComplexProperty(propertyExpression, complexTypeName)));
 
             return this;
         }
@@ -488,12 +505,25 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         public override TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
             => Wrap(PropertyBuilder.IndexerProperty<TProperty>(propertyName));
 
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            => Wrap(PropertyBuilder.ComplexProperty<TProperty>(propertyName));
+
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
             => Wrap(PropertyBuilder.ComplexProperty(propertyExpression));
 
-        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
-            => Wrap(PropertyBuilder.ComplexProperty<TProperty>(propertyName));
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            string complexTypeName)
+            => Wrap(PropertyBuilder.ComplexProperty(propertyExpression, complexTypeName));
+
+        public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+        {
+            buildAction(Wrap(PropertyBuilder.ComplexProperty<TProperty>(propertyName)));
+
+            return this;
+        }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
@@ -504,9 +534,11 @@ public class ModelBuilderGenericTest : ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
         {
-            buildAction(Wrap(PropertyBuilder.ComplexProperty<TProperty>(propertyName)));
+            buildAction(Wrap(PropertyBuilder.ComplexProperty(propertyExpression, complexTypeName)));
 
             return this;
         }

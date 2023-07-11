@@ -81,7 +81,7 @@ public class RelationshipDiscoveryConvention :
                 continue;
             }
 
-            if (((Metadata.Internal.Model)entityType.Model).FindIsComplexConfigurationSource(targetClrType) != null)
+            if (((Model)entityType.Model).FindIsComplexConfigurationSource(targetClrType) != null)
             {
                 continue;
             }

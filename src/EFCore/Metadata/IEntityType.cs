@@ -20,11 +20,6 @@ public interface IEntityType : IReadOnlyEntityType, ITypeBase
     new IEntityType? BaseType { get; }
 
     /// <summary>
-    ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor.
-    /// </summary>
-    InstantiationBinding? ConstructorBinding { get; }
-
-    /// <summary>
     ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor when creating instances with only service
     ///     properties initialized.
     /// </summary>

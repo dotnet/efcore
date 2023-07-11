@@ -262,6 +262,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestPropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
             => Wrap<TProperty>(EntityTypeBuilder.IndexerProperty<TProperty>(propertyName));
 
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            => new NonGenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName));
+
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression)
         {
@@ -270,8 +273,14 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
                 EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
-        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
-            => new NonGenericTestComplexPropertyBuilder<TProperty>(EntityTypeBuilder.ComplexProperty<TProperty>(propertyName));
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            string complexTypeName)
+        {
+            var memberInfo = propertyExpression.GetMemberAccess();
+            return new NonGenericTestComplexPropertyBuilder<TProperty>(
+                EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+        }
 
         public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
             Expression<Func<TEntity, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
@@ -279,6 +288,18 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             var memberInfo = propertyExpression.GetMemberAccess();
             buildAction(new NonGenericTestComplexPropertyBuilder<TProperty>(
                 EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName())));
+
+            return this;
+        }
+
+        public override TestEntityTypeBuilder<TEntity> ComplexProperty<TProperty>(
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+        {
+            var memberInfo = propertyExpression.GetMemberAccess();
+            buildAction(new NonGenericTestComplexPropertyBuilder<TProperty>(
+                EntityTypeBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
 
             return this;
         }
@@ -560,6 +581,9 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         public override TestComplexTypePropertyBuilder<TProperty> IndexerProperty<TProperty>(string propertyName)
             => Wrap<TProperty>(PropertyBuilder.IndexerProperty<TProperty>(propertyName));
 
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
+            => Wrap<TProperty>(PropertyBuilder.ComplexProperty<TProperty>(propertyName));
+
         public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression)
         {
@@ -567,8 +591,23 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
             return Wrap<TProperty>(PropertyBuilder.ComplexProperty(memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName()));
         }
 
-        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(string propertyName)
-            => Wrap<TProperty>(PropertyBuilder.ComplexProperty<TProperty>(propertyName));
+        public override TestComplexPropertyBuilder<TProperty> ComplexProperty<TProperty>(
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            string complexTypeName)
+        {
+            var memberInfo = propertyExpression.GetMemberAccess();
+            return Wrap<TProperty>(PropertyBuilder.ComplexProperty(
+                memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName));
+        }
+
+        public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
+            string propertyName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+        {
+            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty<TProperty>(propertyName)));
+
+            return this;
+        }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
             Expression<Func<TComplex, TProperty>> propertyExpression, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
@@ -580,9 +619,13 @@ public class ModelBuilderNonGenericTest : ModelBuilderTest
         }
 
         public override TestComplexPropertyBuilder<TComplex> ComplexProperty<TProperty>(
-            string propertyName, Action<TestComplexPropertyBuilder<TProperty>> buildAction)
+            Expression<Func<TComplex, TProperty>> propertyExpression,
+            string complexTypeName,
+            Action<TestComplexPropertyBuilder<TProperty>> buildAction)
         {
-            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty<TProperty>(propertyName)));
+            var memberInfo = propertyExpression.GetMemberAccess();
+            buildAction(Wrap<TProperty>(PropertyBuilder.ComplexProperty(
+                memberInfo.GetMemberType(), memberInfo.GetSimpleMemberName(), complexTypeName)));
 
             return this;
         }

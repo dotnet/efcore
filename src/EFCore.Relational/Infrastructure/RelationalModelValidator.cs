@@ -2778,11 +2778,11 @@ public class RelationalModelValidator : ModelValidator
     ///     available, indicating possible reasons why the property cannot be mapped.
     /// </summary>
     /// <param name="propertyType">The property CLR type.</param>
-    /// <param name="entityType">The entity type.</param>
+    /// <param name="typeBase">The structural type.</param>
     /// <param name="unmappedProperty">The property.</param>
     protected override void ThrowPropertyNotMappedException(
         string propertyType,
-        IConventionEntityType entityType,
+        IConventionTypeBase typeBase,
         IConventionProperty unmappedProperty)
     {
         var storeType = unmappedProperty.GetColumnType();
@@ -2791,11 +2791,11 @@ public class RelationalModelValidator : ModelValidator
             throw new InvalidOperationException(
                 RelationalStrings.PropertyNotMapped(
                     propertyType,
-                    entityType.DisplayName(),
+                    typeBase.DisplayName(),
                     unmappedProperty.Name,
                     storeType));
         }
 
-        base.ThrowPropertyNotMappedException(propertyType, entityType, unmappedProperty);
+        base.ThrowPropertyNotMappedException(propertyType, typeBase, unmappedProperty);
     }
 }

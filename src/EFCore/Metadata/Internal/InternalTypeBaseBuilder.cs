@@ -3,6 +3,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Numerics;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -836,7 +837,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 CoreStrings.NonIndexerEntityType(propertyName, Metadata.DisplayName(), typeof(string).ShortDisplayName()));
         }
 
-        return ComplexProperty(propertyType, propertyName, indexerPropertyInfo, complexType, collection, configurationSource);
+        return ComplexProperty(propertyType, propertyName, indexerPropertyInfo, complexTypeName: null, complexType, collection, configurationSource);
     }
 
     /// <summary>
@@ -847,10 +848,12 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     /// </summary>
     public virtual InternalComplexPropertyBuilder? ComplexProperty(
         MemberInfo memberInfo,
+        string? complexTypeName,
         bool? collection,
         ConfigurationSource? configurationSource)
         => ComplexProperty(
-            memberInfo.GetMemberType(), memberInfo.Name, memberInfo, complexType: null, collection, configurationSource);
+            memberInfo.GetMemberType(), memberInfo.Name, memberInfo, complexTypeName,
+            complexType: null, collection, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -861,10 +864,11 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
     public virtual InternalComplexPropertyBuilder? ComplexProperty(
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type? propertyType,
         string propertyName,
+        string? complexTypeName,
         bool? collection,
         ConfigurationSource? configurationSource)
         => ComplexProperty(
-            propertyType, propertyName, memberInfo: null, complexType: null, collection, configurationSource);
+            propertyType, propertyName, memberInfo: null, complexTypeName, complexType: null, collection, configurationSource);
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -876,11 +880,12 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type? propertyType,
         string propertyName,
         MemberInfo? memberInfo,
+        string? complexTypeName,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type? complexType,
         bool? collection,
         ConfigurationSource? configurationSource)
     {
-        var entityType = Metadata;
+        var typeBase = Metadata;
         List<ComplexProperty>? propertiesToDetach = null;
         var existingComplexProperty = Metadata.FindComplexProperty(propertyName);
         if (existingComplexProperty != null)
@@ -892,7 +897,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                     Metadata.RemoveIgnored(propertyName);
                 }
 
-                entityType = (EntityType)existingComplexProperty.DeclaringType;
+                typeBase = (EntityType)existingComplexProperty.DeclaringType;
             }
 
             var existingComplexType = existingComplexProperty.ComplexType;
@@ -976,27 +981,9 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
         }
 
         var model = Metadata.Model;
-        InternalComplexPropertyBuilder builder;
+        ComplexProperty complexProperty;
         using (model.DelayConventions())
         {
-            var existingComplexConfiguration = model.AddComplex(complexType!, configurationSource.Value);
-            if (existingComplexConfiguration == null)
-            {
-                foreach (var existingEntityType in model.FindEntityTypes(complexType!).ToList())
-                {
-                    model.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
-                }
-
-                var properties = model.FindProperties(complexType!);
-                if (properties != null)
-                {
-                    foreach (var property in properties)
-                    {
-                        property.DeclaringType.Builder.RemoveProperty(property, ConfigurationSource.Convention);
-                    }
-                }
-            }
-
             var detachedProperties = propertiesToDetach == null ? null : DetachProperties(propertiesToDetach);
             if (existingComplexProperty == null)
             {
@@ -1005,8 +992,10 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
                 RemoveMembersInHierarchy(propertyName, configurationSource.Value);
             }
 
-            builder = entityType.AddComplexProperty(
-                propertyName, propertyType, memberInfo, complexType!, collection.Value, configurationSource.Value)!.Builder;
+            model.Builder.Complex(complexType!, configurationSource.Value);
+
+            complexProperty = typeBase.AddComplexProperty(
+                propertyName, propertyType, memberInfo, complexTypeName, complexType!, collection.Value, configurationSource.Value)!;
 
             if (detachedProperties != null)
             {
@@ -1017,8 +1006,8 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             }
         }
 
-        return builder.Metadata.IsInModel
-            ? builder
+        return complexProperty.IsInModel
+            ? complexProperty.Builder
             : Metadata.FindComplexProperty(propertyName)?.Builder;
     }
 
@@ -1450,6 +1439,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             propertyType,
             propertyName,
             memberInfo: null,
+            complexTypeName: null,
             complexType: complexType,
             collection: null,
             configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
@@ -1467,6 +1457,7 @@ public abstract class InternalTypeBaseBuilder : AnnotatableBuilder<TypeBase, Int
             propertyType: memberInfo.GetMemberType(),
             propertyName: memberInfo.Name,
             memberInfo: memberInfo,
+            complexTypeName: null,
             complexType: complexType,
             collection: null,
             configurationSource: fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);

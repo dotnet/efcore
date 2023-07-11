@@ -185,8 +185,10 @@ public class MemberClassifier : IMemberClassifier
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual bool IsCandidateComplexProperty(MemberInfo memberInfo, IConventionModel model, out Type? elementType)
+    public virtual bool IsCandidateComplexProperty(MemberInfo memberInfo, IConventionModel model,
+        out Type? elementType, out bool explicitlyConfigured)
     {
+        explicitlyConfigured = false;
         elementType = null;
         if (!memberInfo.IsCandidateProperty())
         {
@@ -195,24 +197,26 @@ public class MemberClassifier : IMemberClassifier
 
         var targetType = memberInfo.GetMemberType();
         if (targetType.TryGetSequenceType() is Type sequenceType
-            && IsCandidateComplexType(sequenceType, model))
+            && IsCandidateComplexType(sequenceType, model, out explicitlyConfigured))
         {
             elementType = sequenceType;
             return true;
         }
 
-        return IsCandidateComplexType(targetType, model);
+        return IsCandidateComplexType(targetType, model, out explicitlyConfigured);
     }
 
-    private static bool IsCandidateComplexType(Type targetType, IConventionModel model)
+    private static bool IsCandidateComplexType(Type targetType, IConventionModel model, out bool explicitlyConfigured)
     {
         if (targetType.IsGenericType
             && targetType.GetGenericTypeDefinition() == typeof(Dictionary<,>))
         {
+            explicitlyConfigured = false;
             return false;
         }
 
         var configurationType = ((Model)model).Configuration?.GetConfigurationType(targetType);
+        explicitlyConfigured = configurationType != null;
         return configurationType == TypeConfigurationType.ComplexType
             || configurationType == null;
     }

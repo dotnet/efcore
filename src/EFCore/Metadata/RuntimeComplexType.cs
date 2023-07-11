@@ -105,7 +105,7 @@ public class RuntimeComplexType : RuntimeTypeBase, IRuntimeComplexType
     /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
     /// </summary>
-    public virtual InstantiationBinding? ConstructorBinding
+    public override InstantiationBinding? ConstructorBinding
     {
         get => !ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(

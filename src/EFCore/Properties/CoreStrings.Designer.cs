@@ -465,6 +465,30 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 property, type, clrType, targetType);
 
         /// <summary>
+        ///     Adding the collection complex property '{type}.{property}' isn't supported.
+        /// </summary>
+        public static string ComplexPropertyCollection(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyCollection", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
+        ///     Adding the complex property '{type}.{property}' as an indexer property isn't supported.
+        /// </summary>
+        public static string ComplexPropertyIndexer(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyIndexer", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
+        ///     Configuring the complex property '{type}.{property}' in shadow state isn't supported.
+        /// </summary>
+        public static string ComplexPropertyShadow(object? type, object? property)
+            => string.Format(
+                GetString("ComplexPropertyShadow", nameof(type), nameof(property)),
+                type, property);
+
+        /// <summary>
         ///     The complex property '{property}' cannot be added to the type '{type}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.
         /// </summary>
         public static string ComplexPropertyWrongClrType(object? property, object? type, object? clrType, object? targetType)
@@ -501,6 +525,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("ConflictingBackingFields", "0_property", "1_entityType", nameof(field1), nameof(field2)),
                 property, entityType, field1, field2);
+
+        /// <summary>
+        ///     The member '{type}.{property}' cannot use field '{field}' because it is already used by '{conflictingType}.{conflictingProperty}'.
+        /// </summary>
+        public static string ConflictingFieldProperty(object? type, object? property, object? field, object? conflictingType, object? conflictingProperty)
+            => string.Format(
+                GetString("ConflictingFieldProperty", nameof(type), nameof(property), nameof(field), nameof(conflictingType), nameof(conflictingProperty)),
+                type, property, field, conflictingType, conflictingProperty);
 
         /// <summary>
         ///     There are multiple [ForeignKey] attributes which are pointing to same set of properties '{propertyList}' on entity type '{entityType}' and targeting the principal entity type '{principalEntityType}'.
@@ -765,6 +797,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 annotation, annotatable);
 
         /// <summary>
+        ///     The complex type '{complexType}' cannot be added to the model because a complex type with the same name already exists.
+        /// </summary>
+        public static string DuplicateComplexType(object? complexType)
+            => string.Format(
+                GetString("DuplicateComplexType", nameof(complexType)),
+                complexType);
+
+        /// <summary>
         ///     The discriminator value for '{entityType1}' is '{discriminatorValue}' which is the same for '{entityType2}'. Every concrete entity type in the hierarchy must have a unique discriminator value.
         /// </summary>
         public static string DuplicateDiscriminatorValue(object? entityType1, object? discriminatorValue, object? entityType2)
@@ -851,6 +891,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("DuplicateTrigger", nameof(trigger), nameof(entityType), nameof(conflictingEntityType)),
                 trigger, entityType, conflictingEntityType);
+
+        /// <summary>
+        ///     Complex type '{complexType}' has no properties defines. Configure at least one property or don't include this type in the model.
+        /// </summary>
+        public static string EmptyComplexType(object? complexType)
+            => string.Format(
+                GetString("EmptyComplexType", nameof(complexType)),
+                complexType);
 
         /// <summary>
         ///     Cannot translate '{comparisonOperator}' on a subquery expression of entity type '{entityType}' because it has a composite primary key. See https://go.microsoft.com/fwlink/?linkid=2141942 for information on how to rewrite your query.
@@ -1276,7 +1324,7 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
                 entityType, keyProperty);
 
         /// <summary>
-        ///     The specified type '{type}' must be a non-interface type with a public constructor to be used as an entity type.
+        ///     The specified type '{type}' must be a non-interface type with a public constructor to be used as a complex type.
         /// </summary>
         public static string InvalidComplexType(object? type)
             => string.Format(
@@ -1776,6 +1824,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => string.Format(
                 GetString("NavigationNotAddedAdHoc", nameof(entityType), nameof(navigation), nameof(propertyType)),
                 entityType, navigation, propertyType);
+
+        /// <summary>
+        ///     Unable to configure navigation '{complexType}.{navigation}' of type '{propertyType}' as complex types don't support navigations. Ignore this property using the '[NotMapped]' attribute or by using 'EntityTypeBuilder.Ignore' in 'OnModelCreating'.
+        /// </summary>
+        public static string NavigationNotAddedComplexType(object? complexType, object? navigation, object? propertyType)
+            => string.Format(
+                GetString("NavigationNotAddedComplexType", nameof(complexType), nameof(navigation), nameof(propertyType)),
+                complexType, navigation, propertyType);
 
         /// <summary>
         ///     The navigation '{navigation}' cannot be added to the entity type '{entityType}' because its CLR type '{clrType}' does not match the expected CLR type '{targetType}'.

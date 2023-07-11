@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -794,6 +795,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
             name,
             propertyType,
             memberInfo: null,
+            complexTypeName: null,
             targetType,
             collection,
             configurationSource);
@@ -814,7 +816,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
             memberInfo.GetSimpleMemberName(),
             memberInfo.GetMemberType(),
             memberInfo,
-            memberInfo.GetMemberType(),
+            complexTypeName: null,
+            collection ? memberInfo.GetMemberType().TryGetSequenceType()! : memberInfo.GetMemberType(),
             collection,
             configurationSource);
 
@@ -857,6 +860,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
         string name,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type propertyType,
         MemberInfo? memberInfo,
+        string? complexTypeName,
         [DynamicallyAccessedMembers(IProperty.DynamicallyAccessedMemberTypes)] Type targetType,
         bool collection,
         ConfigurationSource configurationSource)
@@ -921,7 +925,7 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
 
         var property = new ComplexProperty(
             name, propertyType, memberInfo as PropertyInfo, memberInfo as FieldInfo, this,
-            targetType, collection, configurationSource);
+            complexTypeName, targetType, collection, configurationSource);
 
         _complexProperties.Add(property.Name, property);
 
@@ -1286,6 +1290,14 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     private string DisplayName()
         => ((IReadOnlyTypeBase)this).DisplayName();
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public abstract InstantiationBinding? ConstructorBinding { get; set; }
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1718,8 +1730,9 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IMutableComplexProperty IMutableTypeBase.AddComplexProperty(
-        string name, Type propertyType, Type targetType, bool collection)
-        => AddComplexProperty(name, propertyType, targetType, collection, ConfigurationSource.Explicit)!;
+        string name, Type propertyType, Type targetType, string? complexTypeName, bool collection)
+        => AddComplexProperty(name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
+            ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1729,8 +1742,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexProperty? IConventionTypeBase.AddComplexProperty(
-        string name, Type propertyType, Type targetType, bool collection, bool fromDataAnnotation)
-        => AddComplexProperty(name, propertyType, targetType, collection,
+        string name, Type propertyType, Type targetType, string? complexTypeName, bool collection, bool fromDataAnnotation)
+        => AddComplexProperty(name, propertyType, memberInfo: null, complexTypeName, targetType, collection,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)!;
 
     /// <summary>
@@ -1741,8 +1754,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IMutableComplexProperty IMutableTypeBase.AddComplexProperty(
-        string name, Type propertyType, MemberInfo memberInfo, Type targetType, bool collection)
-        => AddComplexProperty(name, propertyType, memberInfo, targetType, collection, ConfigurationSource.Explicit)!;
+        string name, Type propertyType, MemberInfo memberInfo, Type targetType, string? complexTypeName, bool collection)
+        => AddComplexProperty(name, propertyType, memberInfo, complexTypeName, targetType, collection, ConfigurationSource.Explicit)!;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -1752,8 +1765,8 @@ public abstract class TypeBase : ConventionAnnotatable, IMutableTypeBase, IConve
     /// </summary>
     [DebuggerStepThrough]
     IConventionComplexProperty? IConventionTypeBase.AddComplexProperty(
-        string name, Type propertyType, MemberInfo memberInfo, Type targetType, bool collection, bool fromDataAnnotation)
-        => AddComplexProperty(name, propertyType, memberInfo, targetType, collection,
+        string name, Type propertyType, MemberInfo memberInfo, Type targetType, string? complexTypeName, bool collection, bool fromDataAnnotation)
+        => AddComplexProperty(name, propertyType, memberInfo, complexTypeName, targetType, collection,
             fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention)!;
 
     /// <summary>

@@ -96,7 +96,7 @@ public abstract class GraphUpdatesSqliteTestBase<TFixture> : GraphUpdatesTestBas
                 });
 
             modelBuilder.Entity<SomethingOfCategoryA>().Property<int>("CategoryId").HasDefaultValue(1);
-            modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);;
+            modelBuilder.Entity<SomethingOfCategoryB>().Property(e => e.CategoryId).HasDefaultValue(2);
         }
     }
 }

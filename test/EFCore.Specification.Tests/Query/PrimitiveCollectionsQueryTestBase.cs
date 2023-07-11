@@ -3,7 +3,7 @@
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
-public class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
+public abstract class PrimitiveCollectionsQueryTestBase<TFixture> : QueryTestBase<TFixture>
     where TFixture : PrimitiveCollectionsQueryTestBase<TFixture>.PrimitiveCollectionsQueryFixtureBase, new()
 {
     protected PrimitiveCollectionsQueryTestBase(TFixture fixture)

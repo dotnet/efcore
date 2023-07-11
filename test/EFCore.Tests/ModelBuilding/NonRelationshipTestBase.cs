@@ -336,7 +336,7 @@ public abstract partial class ModelBuilderTest
             modelBuilder.Ignore<Product>();
             var propertyBuilder = modelBuilder
                 .Entity<Customer>()
-                .Property(c => c.Name).HasAnnotation("foo", "bar");
+                .Property(c => c.Name);
 
             var property = modelBuilder.FinalizeModel().FindEntityType(typeof(Customer)).FindProperty(nameof(Customer.Name));
 
@@ -1735,7 +1735,7 @@ public abstract partial class ModelBuilderTest
             Assert.Equal(
                 CoreStrings.PropertyNotAdded(
                     typeof(ThreeDee).ShortDisplayName(), "Three", typeof(int[,,]).ShortDisplayName()),
-                Assert.Throws<InvalidOperationException>(() => modelBuilder.FinalizeModel()).Message);
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
 
         [ConditionalFact]
@@ -2051,7 +2051,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_alternate_key_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
 
             modelBuilder.Entity<EntityWithFields>().HasAlternateKey(e => e.CompanyId);
 
@@ -2070,7 +2070,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_set_composite_alternate_key_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
 
             modelBuilder.Entity<EntityWithFields>().HasAlternateKey(e => new { e.TenantId, e.CompanyId });
 
@@ -2091,7 +2091,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_call_Property_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
 
             modelBuilder.Entity<EntityWithFields>().Property(e => e.Id);
 
@@ -2143,7 +2143,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_ignore_a_field_on_an_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
 
             modelBuilder.Entity<EntityWithFields>()
                 .Ignore(e => e.CompanyId)
@@ -2158,7 +2158,7 @@ public abstract partial class ModelBuilderTest
         [ConditionalFact]
         public virtual void Can_ignore_a_field_on_a_keyless_entity_with_fields()
         {
-            var modelBuilder = InMemoryTestHelpers.Instance.CreateConventionBuilder();
+            var modelBuilder = CreateTestModelBuilder(InMemoryTestHelpers.Instance);
 
             modelBuilder.Entity<KeylessEntityWithFields>()
                 .HasNoKey()

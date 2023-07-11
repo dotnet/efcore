@@ -459,6 +459,37 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
+    public virtual InternalModelBuilder Complex(Type type, ConfigurationSource configurationSource)
+    {
+        var existingComplexConfiguration = Metadata.FindIsComplexConfigurationSource(type);
+        if (existingComplexConfiguration == null)
+        {
+            Metadata.AddComplex(type, configurationSource);
+
+            foreach (var existingEntityType in Metadata.FindEntityTypes(type).ToList())
+            {
+                Metadata.Builder.HasNoEntityType(existingEntityType, ConfigurationSource.Convention);
+            }
+
+            var properties = Metadata.FindProperties(type);
+            if (properties != null)
+            {
+                foreach (var property in properties)
+                {
+                    property.DeclaringType.Builder.RemoveProperty(property, ConfigurationSource.Convention);
+                }
+            }
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
     public virtual bool IsIgnored(
         [DynamicallyAccessedMembers(IEntityType.DynamicallyAccessedMemberTypes)] Type type,
         ConfigurationSource? configurationSource)
@@ -906,6 +937,16 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
     [DebuggerStepThrough]
+    IConventionModelBuilder? IConventionModelBuilder.Complex(Type type, bool fromDataAnnotation)
+        => Complex(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    [DebuggerStepThrough]
     bool IConventionModelBuilder.CanHaveEntity(string name, bool fromDataAnnotation)
         => CanHaveEntity(
             new TypeIdentity(name),
@@ -1072,5 +1113,4 @@ public class InternalModelBuilder : AnnotatableBuilder<Model, InternalModelBuild
     [DebuggerStepThrough]
     bool IConventionModelBuilder.CanSetPropertyAccessMode(PropertyAccessMode? propertyAccessMode, bool fromDataAnnotation)
         => CanSetPropertyAccessMode(
-            propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
-}
+            propertyAccessMode, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);}

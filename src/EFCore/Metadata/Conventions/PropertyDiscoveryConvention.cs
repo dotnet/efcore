@@ -43,14 +43,15 @@ public class PropertyDiscoveryConvention :
     {
         var complexType = propertyBuilder.Metadata.ComplexType;
         var model = complexType.Model;
-        foreach (var propertyInfo in complexType.GetRuntimeProperties().Values)
+        foreach (var memberInfo in complexType.GetRuntimeProperties().Values
+            .Concat<MemberInfo>(complexType.GetRuntimeFields().Values))
         {
-            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(propertyInfo, model))
+            if (!Dependencies.MemberClassifier.IsCandidatePrimitiveProperty(memberInfo, model))
             {
                 continue;
             }
 
-            complexType.Builder.Property(propertyInfo);
+            complexType.Builder.Property(memberInfo);
         }
     }
 

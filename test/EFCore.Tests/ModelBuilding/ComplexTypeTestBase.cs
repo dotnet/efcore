@@ -17,10 +17,13 @@ public abstract partial class ModelBuilderTest
             var modelBuilder = CreateModelBuilder();
 
             var complexPropertyBuilder = modelBuilder
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer)
                 .HasTypeAnnotation("foo", "bar")
-                .HasPropertyAnnotation("foo2", "bar2");
+                .HasPropertyAnnotation("foo2", "bar2")
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders);
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
@@ -43,10 +46,13 @@ Customer (Customer)
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Ignore<Product>();
             modelBuilder
+                .Ignore<Product>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer)
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders)
                 .Property(c => c.Name).HasAnnotation("foo", "bar");
 
             var model = modelBuilder.FinalizeModel();
@@ -61,10 +67,13 @@ Customer (Customer)
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Ignore<Product>();
             modelBuilder
+                .Ignore<Product>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer)
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders)
                 .Property<string>(Customer.NameProperty.Name).HasAnnotation("foo", "bar");
 
             var model = modelBuilder.FinalizeModel();
@@ -79,11 +88,14 @@ Customer (Customer)
         {
             var modelBuilder = CreateModelBuilder(c => c.Properties<string>().HaveAnnotation("foo", "bar"));
 
-            modelBuilder.Ignore<Product>();
-            var propertyBuilder = modelBuilder
+            modelBuilder
+                .Ignore<Product>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer)
-                .Property(c => c.Name).HasAnnotation("foo", "bar");
+                .Ignore(c => c.Details)
+                .Ignore(c => c.Orders)
+                .Property(c => c.Name);
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
@@ -99,6 +111,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -129,6 +142,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -157,8 +171,9 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Product>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer);
+                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
@@ -171,8 +186,9 @@ Customer (Customer)
             var modelBuilder = CreateModelBuilder();
 
             var complexPropertyBuilder = modelBuilder
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer);
+                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
             complexPropertyBuilder.Property<string>("Shadow");
             complexPropertyBuilder.Ignore("Shadow");
 
@@ -187,12 +203,15 @@ Customer (Customer)
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Ignore<Product>();
             modelBuilder
+                .Ignore<Product>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer,
                     b =>
                     {
+                        b.Ignore(c => c.Details);
+                        b.Ignore(c => c.Orders);
                         b.Ignore("Shadow");
                         b.Property<string>("Shadow");
                     });
@@ -210,6 +229,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -240,6 +260,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -264,6 +285,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -296,6 +318,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -328,6 +351,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -370,6 +394,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -398,7 +423,7 @@ Customer (Customer)
 
             modelBuilder
                 .Entity<ComplexProperties>()
-                .ComplexProperty(e => e.Customer);
+                .ComplexProperty(e => e.Customer, b => b.Ignore(c => c.Details).Ignore(c => c.Orders));
 
             modelBuilder
                 .Entity<ComplexProperties>()
@@ -434,6 +459,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -482,6 +508,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -511,6 +538,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -547,6 +575,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -607,6 +636,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -650,6 +680,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -696,6 +727,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.DynamicProperty,
                     b =>
@@ -755,6 +787,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.WrappedStringEntity);
 
@@ -779,6 +812,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -811,6 +845,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -847,6 +882,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -870,6 +906,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -926,6 +963,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -957,6 +995,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -986,6 +1025,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1022,6 +1062,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1051,6 +1092,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1087,6 +1129,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1121,6 +1164,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1150,6 +1194,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1193,6 +1238,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1229,6 +1275,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1294,13 +1341,14 @@ Customer (Customer)
             modelBuilder
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
-                b =>
-                {
-                    b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
-                    b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
-                });
+                    b =>
+                    {
+                        b.Property(e => e.Up).HasValueGenerator<BadCustomValueGenerator1>();
+                        b.Property(e => e.Down).HasValueGenerator<BadCustomValueGenerator2>();
+                    });
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var complexType = model.FindEntityType(typeof(ComplexProperties))
+                .FindComplexProperty(nameof(ComplexProperties.Quarks))!.ComplexType;
 
             Assert.Equal(
                 CoreStrings.CannotCreateValueGenerator(nameof(BadCustomValueGenerator1), "HasValueGenerator"),
@@ -1336,6 +1384,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1372,6 +1421,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Quarks,
                     b =>
@@ -1425,14 +1475,14 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.EntityWithFields).Property(e => e.Id);
 
             var model = modelBuilder.FinalizeModel();
             var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
-            var properties = complexType.GetProperties();
-            var property = Assert.Single(properties);
-            Assert.Equal(nameof(EntityWithFields.Id), property.Name);
+            Assert.Equal(3, complexType.GetProperties().Count());
+            var property = complexType.FindProperty(nameof(EntityWithFields.Id));
             Assert.Null(property.PropertyInfo);
             Assert.NotNull(property.FieldInfo);
         }
@@ -1444,6 +1494,7 @@ Customer (Customer)
 
             modelBuilder
                 .Ignore<Order>()
+                .Ignore<IndexedClass>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.EntityWithFields, b => {
                     b.Property(e => e.Id);
@@ -1452,8 +1503,7 @@ Customer (Customer)
 
             var model = modelBuilder.FinalizeModel();
             var complexProperty = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single();
-            var property = Assert.Single(complexProperty.ComplexType.GetProperties());
-            Assert.Equal(nameof(EntityWithFields.Id), property.Name);
+            Assert.Equal(2, complexProperty.ComplexType.GetProperties().Count());
         }
 
         [ConditionalFact]
@@ -1461,18 +1511,24 @@ Customer (Customer)
         {
             var modelBuilder = CreateModelBuilder();
 
-            modelBuilder.Ignore<Product>();
             modelBuilder
+                .Ignore<Product>()
+                .Ignore<CustomerDetails>()
+                .Ignore<Order>()
                 .Entity<ComplexProperties>()
                 .ComplexProperty(e => e.Customer);
 
             modelBuilder
                 .Entity<ValueComplexProperties>()
+                .Ignore(e => e.Tuple)
                 .ComplexProperty(e => e.Label);
 
             var model = modelBuilder.FinalizeModel();
 
-            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            var customerType = model.FindEntityType(typeof(ComplexProperties))
+                .FindComplexProperty(nameof(ComplexProperties.Customer)).ComplexType;
+            var indexedType = model.FindEntityType(typeof(ComplexProperties))
+                .FindComplexProperty(nameof(ComplexProperties.IndexedClass)).ComplexType;
 
             var valueType = model.FindEntityType(typeof(ValueComplexProperties));
             var labelProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Label));
@@ -1494,6 +1550,81 @@ Customer (Customer)
             var oldLabelCustomerProperty = labelType.FindComplexProperty(nameof(ProductLabel.Customer));
             Assert.True(oldLabelCustomerProperty.IsNullable);
             Assert.Equal(typeof(Customer), oldLabelCustomerProperty.ClrType);
+        }
+
+        [ConditionalFact]
+        public virtual void Complex_properties_can_be_configured_by_type()
+        {
+            var modelBuilder = CreateModelBuilder(m => m.ComplexProperties<Customer>());
+
+            modelBuilder
+                .Ignore<Product>()
+                .Ignore<CustomerDetails>()
+                .Ignore<Order>()
+                .Ignore<IndexedClass>()
+                .Entity<ComplexProperties>();
+
+            var model = modelBuilder.FinalizeModel();
+
+            var complexType = model.FindEntityType(typeof(ComplexProperties)).GetComplexProperties().Single().ComplexType;
+            Assert.Equal(typeof(Customer), complexType.ClrType);
+        }
+
+        [ConditionalFact]
+        public virtual void Can_map_tuple()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Entity<ValueComplexProperties>()
+                .Ignore(e => e.Label)
+                .Ignore(e => e.OldLabel)
+                .ComplexProperty(e => e.Tuple);
+
+            var model = modelBuilder.FinalizeModel();
+
+            var valueType = model.FindEntityType(typeof(ValueComplexProperties));
+            var tupleProperty = valueType.FindComplexProperty(nameof(ValueComplexProperties.Tuple));
+            Assert.False(tupleProperty.IsNullable);
+            Assert.Equal(typeof((string, int)), tupleProperty.ClrType);
+            var tupleType = tupleProperty.ComplexType;
+            Assert.Equal(typeof((string, int)), tupleType.ClrType);
+            Assert.Equal("ValueComplexProperties.Tuple#ValueTuple<string, int>", tupleType.DisplayName());
+
+            Assert.Equal(2, tupleType.GetProperties().Count());
+        }
+
+        [ConditionalFact]
+        protected virtual void Mapping_throws_for_non_ignored_navigations_on_complex_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer);
+
+            Assert.Equal(
+                CoreStrings.NavigationNotAddedComplexType(
+                    "ComplexProperties.Customer#Customer", nameof(Customer.Details), typeof(CustomerDetails).ShortDisplayName()),
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
+        }
+
+        [ConditionalFact]
+        protected virtual void Mapping_throws_for_empty_complex_types()
+        {
+            var modelBuilder = CreateModelBuilder();
+
+            modelBuilder
+                .Entity<ComplexProperties>()
+                .ComplexProperty(e => e.Customer)
+                .Ignore(c => c.Name)
+                .Ignore(c => c.Id)
+                .Ignore(c => c.AlternateKey);
+
+            Assert.Equal(
+                CoreStrings.EmptyComplexType(
+                    "ComplexProperties.Customer#Customer"),
+                Assert.Throws<InvalidOperationException>(modelBuilder.FinalizeModel).Message);
         }
     }
 }

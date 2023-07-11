@@ -94,6 +94,7 @@ public class ComplexPropertySnapshot
                     ComplexProperty.ClrType,
                     ComplexProperty.Name,
                     ComplexProperty.GetIdentifyingMemberInfo(),
+                    ComplexType.Name,
                     ComplexType.ClrType,
                     ComplexProperty.IsCollection,
                     configurationSource);

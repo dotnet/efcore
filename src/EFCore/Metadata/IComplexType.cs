@@ -21,9 +21,4 @@ public interface IComplexType : IReadOnlyComplexType, ITypeBase
     /// </summary>
     IEntityType ITypeBase.FundamentalEntityType
         => (IEntityType)((IReadOnlyComplexType)this).FundamentalEntityType;
-
-    /// <summary>
-    ///     Gets the <see cref="InstantiationBinding" /> for the preferred constructor.
-    /// </summary>
-    InstantiationBinding? ConstructorBinding { get; }
 }

@@ -2652,7 +2652,7 @@ public class InternalEntityTypeBuilderTest
             case MemberType.Property:
                 return entityTypeBuilder.Property(Order.ProductsProperty, configurationSource) != null;
             case MemberType.ComplexProperty:
-                return entityTypeBuilder.ComplexProperty(Order.ProductsProperty, collection: true, configurationSource) != null;
+                return entityTypeBuilder.ComplexProperty(Order.ProductsProperty, complexTypeName: null, collection: true, configurationSource) != null;
             case MemberType.ServiceProperty:
                 return entityTypeBuilder.ServiceProperty(Order.ProductsProperty, configurationSource) != null;
             case MemberType.Navigation:

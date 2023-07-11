@@ -739,7 +739,7 @@ public class RuntimeEntityType : RuntimeTypeBase, IRuntimeEntityType
     /// <summary>
     ///     Gets or sets the <see cref="InstantiationBinding" /> for the preferred constructor.
     /// </summary>
-    public virtual InstantiationBinding? ConstructorBinding
+    public override InstantiationBinding? ConstructorBinding
     {
         get => !base.ClrType.IsAbstract
             ? NonCapturingLazyInitializer.EnsureInitialized(
