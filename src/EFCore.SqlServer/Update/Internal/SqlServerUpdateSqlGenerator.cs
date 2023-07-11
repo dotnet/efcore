@@ -154,24 +154,7 @@ public class SqlServerUpdateSqlGenerator : UpdateAndSelectSqlGenerator, ISqlServ
 
             if (columnModification.Property != null)
             {
-                var propertyClrType = columnModification.Property.GetTypeMapping().Converter?.ProviderClrType
-                    ?? columnModification.Property.ClrType;
-
-                var needsTypeConversion = propertyClrType.IsNumeric() || propertyClrType == typeof(bool);
-
-                if (needsTypeConversion)
-                {
-                    stringBuilder.Append("CAST(");
-                }
-
                 base.AppendUpdateColumnValue(updateSqlGeneratorHelper, columnModification, stringBuilder, name, schema);
-
-                if (needsTypeConversion)
-                {
-                    stringBuilder.Append(" AS ");
-                    stringBuilder.Append(columnModification.Property.GetRelationalTypeMapping().StoreType);
-                    stringBuilder.Append(")");
-                }
             }
             else
             {

@@ -501,8 +501,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='1024' (DbType = String)
-@p1='999' (DbType = String)
+@p0='1024'
+@p1='999'
 @p2='1'
 
 UPDATE "JsonEntitiesBasic" SET "OwnedCollectionRoot" = json_set("OwnedCollectionRoot", '$[1].Number', @p0), "OwnedReferenceRoot" = json_set("OwnedReferenceRoot", '$.Number', @p1)
@@ -546,8 +546,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='14' (DbType = String)
-@p1='25' (DbType = String)
+@p0='14'
+@p1='25'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestByte', @p0), "Reference" = json_set("Reference", '$.TestByte', @p1)
@@ -637,8 +637,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-13579.01' (DbType = String)
-@p1='-13579.01' (DbType = String)
+@p0='-13579.01'
+@p1='-13579.01'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDecimal', json(@p0)), "Reference" = json_set("Reference", '$.TestDecimal', json(@p1))
@@ -660,8 +660,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-1.23579' (DbType = String)
-@p1='-1.23579' (DbType = String)
+@p0='-1.23579'
+@p1='-1.23579'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestDouble', @p0), "Reference" = json_set("Reference", '$.TestDouble', @p1)
@@ -706,8 +706,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-3234' (DbType = String)
-@p1='-3234' (DbType = String)
+@p0='-3234'
+@p1='-3234'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt16', @p0), "Reference" = json_set("Reference", '$.TestInt16', @p1)
@@ -729,8 +729,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-3234' (DbType = String)
-@p1='-3234' (DbType = String)
+@p0='-3234'
+@p1='-3234'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt32', @p0), "Reference" = json_set("Reference", '$.TestInt32', @p1)
@@ -752,8 +752,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-3234' (DbType = String)
-@p1='-3234' (DbType = String)
+@p0='-3234'
+@p1='-3234'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestInt64', @p0), "Reference" = json_set("Reference", '$.TestInt64', @p1)
@@ -775,8 +775,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-108' (DbType = String)
-@p1='-108' (DbType = String)
+@p0='-108'
+@p1='-108'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestSignedByte', @p0), "Reference" = json_set("Reference", '$.TestSignedByte', @p1)
@@ -798,8 +798,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='-7.234' (DbType = String)
-@p1='-7.234' (DbType = String)
+@p0='-7.234'
+@p1='-7.234'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestSingle', @p0), "Reference" = json_set("Reference", '$.TestSingle', @p1)
@@ -821,8 +821,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='10:01:01.0070000' (Nullable = false) (Size = 16)
-@p1='10:01:01.0070000' (Nullable = false) (Size = 16)
+@p0='10:01:01.007' (Nullable = false) (Size = 12)
+@p1='10:01:01.007' (Nullable = false) (Size = 12)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestTimeSpan', @p0), "Reference" = json_set("Reference", '$.TestTimeSpan', @p1)
@@ -844,8 +844,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='1534' (DbType = String)
-@p1='1534' (DbType = String)
+@p0='1534'
+@p1='1534'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt16', @p0), "Reference" = json_set("Reference", '$.TestUnsignedInt16', @p1)
@@ -867,8 +867,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='1237775789' (DbType = String)
-@p1='1237775789' (DbType = String)
+@p0='1237775789'
+@p1='1237775789'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt32', @p0), "Reference" = json_set("Reference", '$.TestUnsignedInt32', @p1)
@@ -890,8 +890,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='1234555555123456789' (DbType = String)
-@p1='1234555555123456789' (DbType = String)
+@p0='1234555555123456789'
+@p1='1234555555123456789'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestUnsignedInt64', @p0), "Reference" = json_set("Reference", '$.TestUnsignedInt64', @p1)
@@ -913,8 +913,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='122354' (DbType = String)
-@p1='64528' (DbType = String)
+@p0='122354'
+@p1='64528'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32', @p0), "Reference" = json_set("Reference", '$.TestNullableInt32', @p1)
@@ -936,8 +936,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (DbType = Int32)
+@p1=NULL (Nullable = false) (DbType = Int32)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableInt32', @p0), "Reference" = json_set("Reference", '$.TestNullableInt32', @p1)
@@ -982,8 +982,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='2' (DbType = String)
-@p1='2' (DbType = String)
+@p0='2'
+@p1='2'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestEnumWithIntConverter', @p0), "Reference" = json_set("Reference", '$.TestEnumWithIntConverter', @p1)
@@ -1051,8 +1051,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='0' (DbType = String)
-@p1='2' (DbType = String)
+@p0='0'
+@p1='2'
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverter', @p0), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverter', @p1)
@@ -1074,8 +1074,8 @@ LIMIT 2
 
         AssertSql(
 """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (DbType = Int32)
+@p1=NULL (Nullable = false) (DbType = Int32)
 @p2='1'
 
 UPDATE "JsonEntitiesAllTypes" SET "Collection" = json_set("Collection", '$[0].TestNullableEnumWithIntConverter', @p0), "Reference" = json_set("Reference", '$.TestNullableEnumWithIntConverter', @p1)
@@ -1229,7 +1229,7 @@ LIMIT 2
 
         AssertSql(
 """
-@p0='0' (DbType = String)
+@p0='0'
 @p1='1'
 
 UPDATE "JsonEntitiesConverters" SET "Reference" = json_set("Reference", '$.BoolConvertedToIntZeroOne', @p0)

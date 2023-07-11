@@ -349,7 +349,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-@p0='Modified' (Nullable = false) (Size = 8)
+@p0='Modified' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -371,7 +371,7 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-@p0='Modified' (Nullable = false) (Size = 8)
+@p0='Modified' (Nullable = false) (Size = 4000)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -504,8 +504,8 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-@p0='Two' (Nullable = false) (Size = 3)
-@p1='Two' (Nullable = false) (Size = 3)
+@p0='Two' (Nullable = false) (Size = 4000)
+@p1='Two' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -527,13 +527,13 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-@p0='1024' (DbType = String)
-@p1='999' (DbType = String)
+@p0='1024'
+@p1='999'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Number', CAST(@p0 AS int)), [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.Number', CAST(@p1 AS int))
+UPDATE [JsonEntitiesBasic] SET [OwnedCollectionRoot] = JSON_MODIFY([OwnedCollectionRoot], 'strict $[1].Number', @p0), [OwnedReferenceRoot] = JSON_MODIFY([OwnedReferenceRoot], 'strict $.Number', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -550,13 +550,13 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-@p0='True' (DbType = String)
-@p1='False' (DbType = String)
+@p0='True'
+@p1='False'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestBoolean', CAST(@p0 AS bit)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestBoolean', CAST(@p1 AS bit))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestBoolean', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestBoolean', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -574,13 +574,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='14' (Nullable = false) (Size = 2)
-@p1='25' (Nullable = false) (Size = 2)
+@p0='14' (Size = 1)
+@p1='25' (Size = 1)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByte', CAST(@p0 AS tinyint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByte', CAST(@p1 AS tinyint))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestByte', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestByte', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -669,13 +669,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-13579.01' (DbType = String)
-@p1='-13579.01' (DbType = String)
+@p0='-13579.01' (Precision = 18) (Scale = 3)
+@p1='-13579.01' (Precision = 18) (Scale = 3)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimal', CAST(@p0 AS decimal(18,3))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimal', CAST(@p1 AS decimal(18,3)))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDecimal', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDecimal', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -693,13 +693,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-1.23579' (DbType = String)
-@p1='-1.23579' (DbType = String)
+@p0='-1.23579'
+@p1='-1.23579'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDouble', CAST(@p0 AS float)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDouble', CAST(@p1 AS float))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestDouble', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestDouble', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -741,13 +741,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-3234' (DbType = String)
-@p1='-3234' (DbType = String)
+@p0='-3234'
+@p1='-3234'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt16', CAST(@p0 AS smallint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt16', CAST(@p1 AS smallint))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt16', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt16', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -765,13 +765,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-3234' (DbType = String)
-@p1='-3234' (DbType = String)
+@p0='-3234'
+@p1='-3234'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt32', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt32', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt32', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt32', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -789,13 +789,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-3234' (DbType = String)
-@p1='-3234' (DbType = String)
+@p0='-3234'
+@p1='-3234'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt64', CAST(@p0 AS bigint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt64', CAST(@p1 AS bigint))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestInt64', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestInt64', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -813,13 +813,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-108' (DbType = String)
-@p1='-108' (DbType = String)
+@p0='-108'
+@p1='-108'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSignedByte', CAST(@p0 AS smallint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSignedByte', CAST(@p1 AS smallint))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSignedByte', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSignedByte', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -837,13 +837,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='-7.234' (DbType = String)
-@p1='-7.234' (DbType = String)
+@p0='-7.234'
+@p1='-7.234'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSingle', CAST(@p0 AS real)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSingle', CAST(@p1 AS real))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestSingle', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestSingle', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -861,8 +861,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='10:01:01.0070000' (Nullable = false) (Size = 16)
-@p1='10:01:01.0070000' (Nullable = false) (Size = 16)
+@p0='10:01:01.007' (Nullable = false) (Size = 12)
+@p1='10:01:01.007' (Nullable = false) (Size = 12)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -885,13 +885,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='1534' (DbType = String)
-@p1='1534' (DbType = String)
+@p0='1534'
+@p1='1534'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt16', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt16', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt16', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt16', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -909,13 +909,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='1237775789' (DbType = String)
-@p1='1237775789' (DbType = String)
+@p0='1237775789'
+@p1='1237775789'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt32', CAST(@p0 AS bigint)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt32', CAST(@p1 AS bigint))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt32', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt32', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -933,13 +933,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='1234555555123456789' (DbType = String)
-@p1='1234555555123456789' (DbType = String)
+@p0='1234555555123456789' (Precision = 20)
+@p1='1234555555123456789' (Precision = 20)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64', CAST(@p0 AS decimal(20,0))), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64', CAST(@p1 AS decimal(20,0)))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestUnsignedInt64', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestUnsignedInt64', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -957,13 +957,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='122354' (DbType = String)
-@p1='64528' (DbType = String)
+@p0='122354'
+@p1='64528'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -981,13 +981,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (DbType = Int32)
+@p1=NULL (Nullable = false) (DbType = Int32)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableInt32', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableInt32', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1005,8 +1005,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='Three' (Nullable = false) (Size = 5)
-@p1='Three' (Nullable = false) (Size = 5)
+@p0='Three' (Nullable = false) (Size = 4000)
+@p1='Three' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1029,13 +1029,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='2' (DbType = String)
-@p1='2' (DbType = String)
+@p0='2'
+@p1='2'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestEnumWithIntConverter', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestEnumWithIntConverter', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1053,8 +1053,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='Three' (Nullable = false) (Size = 5)
-@p1='Three' (Nullable = false) (Size = 5)
+@p0='Three' (Nullable = false) (Size = 4000)
+@p1='Three' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1077,8 +1077,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (Size = 4000)
+@p1=NULL (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1101,13 +1101,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='0' (DbType = String)
-@p1='2' (DbType = String)
+@p0='0'
+@p1='2'
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1125,13 +1125,13 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0=NULL (Nullable = false)
-@p1=NULL (Nullable = false)
+@p0=NULL (Nullable = false) (DbType = Int32)
+@p1=NULL (Nullable = false) (DbType = Int32)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', CAST(@p0 AS int)), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', CAST(@p1 AS int))
+UPDATE [JsonEntitiesAllTypes] SET [Collection] = JSON_MODIFY([Collection], 'strict $[0].TestNullableEnumWithIntConverter', @p0), [Reference] = JSON_MODIFY([Reference], 'strict $.TestNullableEnumWithIntConverter', @p1)
 OUTPUT 1
 WHERE [Id] = @p2;
 """,
@@ -1149,8 +1149,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='Three' (Nullable = false) (Size = 5)
-@p1='One' (Nullable = false) (Size = 3)
+@p0='Three' (Nullable = false) (Size = 4000)
+@p1='One' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1173,8 +1173,8 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='Null' (Nullable = false) (Size = 4)
-@p1='Null' (Nullable = false) (Size = 4)
+@p0='Null' (Nullable = false) (Size = 4000)
+@p1='Null' (Nullable = false) (Size = 4000)
 @p2='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1287,12 +1287,12 @@ FROM [JsonEntitiesBasic] AS [j]
 
         AssertSql(
 """
-@p0='0' (DbType = String)
+@p0='0'
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToIntZeroOne', CAST(@p0 AS int))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.BoolConvertedToIntZeroOne', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1310,7 +1310,7 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='True' (Nullable = false) (Size = 4)
+@p0='True' (Nullable = false) (Size = 5)
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
@@ -1356,12 +1356,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='True' (DbType = String)
+@p0='True'
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.IntZeroOneConvertedToBool', CAST(@p0 AS bit))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.IntZeroOneConvertedToBool', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1380,12 +1380,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='False' (DbType = String)
+@p0='False'
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.StringTrueFalseConvertedToBool', CAST(@p0 AS bit))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.StringTrueFalseConvertedToBool', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
@@ -1404,12 +1404,12 @@ WHERE [j].[Id] = 1
 
         AssertSql(
 """
-@p0='True' (DbType = String)
+@p0='True'
 @p1='1'
 
 SET IMPLICIT_TRANSACTIONS OFF;
 SET NOCOUNT ON;
-UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.StringYNConvertedToBool', CAST(@p0 AS bit))
+UPDATE [JsonEntitiesConverters] SET [Reference] = JSON_MODIFY([Reference], 'strict $.StringYNConvertedToBool', @p0)
 OUTPUT 1
 WHERE [Id] = @p1;
 """,
