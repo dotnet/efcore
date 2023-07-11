@@ -200,10 +200,12 @@ namespace Microsoft.EntityFrameworkCore.SqlServer.Internal
                 table);
 
         /// <summary>
-        ///     A non-constant array index or property name was used when navigating inside a JSON document; this is only supported starting with SQL Server 2017.
+        ///     A non-constant array index or property name was used when navigating inside a JSON document, but EF Core's SQL Server compatibility level is set to {compatibilityLevel}; this is only supported with compatibility level 140 (SQL Server 2017) or higher.
         /// </summary>
-        public static string JsonValuePathExpressionsNotSupported
-            => GetString("JsonValuePathExpressionsNotSupported");
+        public static string JsonValuePathExpressionsNotSupported(object? compatibilityLevel)
+            => string.Format(
+                GetString("JsonValuePathExpressionsNotSupported", nameof(compatibilityLevel)),
+                compatibilityLevel);
 
         /// <summary>
         ///     The properties {properties} are configured to use 'Identity' value generation and are mapped to the same table '{table}', but only one column per table can be configured as 'Identity'. Call 'ValueGeneratedNever' in 'OnModelCreating' for properties that should not use 'Identity'.

@@ -19,7 +19,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
 {
     private readonly IRelationalTypeMappingSource _typeMappingSource;
     private readonly ISqlGenerationHelper _sqlGenerationHelper;
-    private readonly bool _supportsJsonValueExpressions;
+    private readonly int _sqlServerCompatibilityLevel;
 
     /// <summary>
     ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
@@ -35,10 +35,7 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
     {
         _typeMappingSource = typeMappingSource;
         _sqlGenerationHelper = dependencies.SqlGenerationHelper;
-
-        // JSON functions such as JSON_VALUE only support arbitrary expressions for the path parameter in SQL Server 2017 and above; before
-        // that, arguments must be constant strings.
-        _supportsJsonValueExpressions = sqlServerSingletonOptions.CompatibilityLevel >= 140;
+        _sqlServerCompatibilityLevel = sqlServerSingletonOptions.CompatibilityLevel;
     }
 
     /// <summary>
@@ -433,11 +430,13 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                 case { ArrayIndex: SqlExpression arrayIndex }:
                     Sql.Append("[");
 
+                    // JSON functions such as JSON_VALUE only support arbitrary expressions for the path parameter in SQL Server 2017 and
+                    // above; before that, arguments must be constant strings.
                     if (arrayIndex is SqlConstantExpression)
                     {
                         Visit(pathSegment.ArrayIndex);
                     }
-                    else if (_supportsJsonValueExpressions)
+                    else if (_sqlServerCompatibilityLevel >= 140)
                     {
                         Sql.Append("' + CAST(");
                         Visit(arrayIndex);
@@ -447,7 +446,8 @@ public class SqlServerQuerySqlGenerator : QuerySqlGenerator
                     }
                     else
                     {
-                        throw new InvalidOperationException(SqlServerStrings.JsonValuePathExpressionsNotSupported);
+                        throw new InvalidOperationException(
+                            SqlServerStrings.JsonValuePathExpressionsNotSupported(_sqlServerCompatibilityLevel));
                     }
 
                     Sql.Append("]");
