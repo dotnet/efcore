@@ -1140,6 +1140,14 @@ namespace Microsoft.EntityFrameworkCore.Diagnostics
             => GetString("JsonPropertyNameShouldBeConfiguredOnNestedNavigation");
 
         /// <summary>
+        ///     Invalid token type: '{tokenType}'.
+        /// </summary>
+        public static string JsonReaderInvalidTokenType(object? tokenType)
+            => string.Format(
+                GetString("JsonReaderInvalidTokenType", nameof(tokenType)),
+                tokenType);
+
+        /// <summary>
         ///     Entity {entity} is required but the JSON element containing it is null.
         /// </summary>
         public static string JsonRequiredEntityWithNullJson(object? entity)

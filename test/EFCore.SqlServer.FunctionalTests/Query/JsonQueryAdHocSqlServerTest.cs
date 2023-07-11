@@ -117,4 +117,27 @@ N'{{""RootName"":""e4"",""Collection"":[{{""BranchName"":""e4 c1"",""Nested"":{{
         ctx.Entities.AddRange(entity1, entity2);
         ctx.SaveChanges();
     }
+
+    protected override void SeedJunkInJson(MyContextJunkInJson ctx)
+    {
+        ctx.Database.ExecuteSqlRaw(@"INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id])
+VALUES(
+N'[{{""JunkReference"":{{""Something"":""SomeValue"" }},""Name"":""c11"",""JunkProperty1"":50,""Number"":11.5,""JunkCollection1"":[],""JunkCollection2"":[{{""Foo"":""junk value""}}],""NestedCollection"":[{{""DoB"":""2002-04-01T00:00:00"",""DummyProp"":""Dummy value""}},{{""DoB"":""2002-04-02T00:00:00"",""DummyReference"":{{""Foo"":5}}}}],""NestedReference"":{{""DoB"":""2002-03-01T00:00:00""}}}},{{""Name"":""c12"",""Number"":12.5,""NestedCollection"":[{{""DoB"":""2002-06-01T00:00:00""}},{{""DoB"":""2002-06-02T00:00:00""}}],""NestedDummy"":59,""NestedReference"":{{""DoB"":""2002-05-01T00:00:00""}}}}]',
+N'[{{""MyBool"":true,""Name"":""c11 ctor"",""JunkReference"":{{""Something"":""SomeValue"",""JunkCollection"":[{{""Foo"":""junk value""}}]}},""NestedCollection"":[{{""DoB"":""2002-08-01T00:00:00""}},{{""DoB"":""2002-08-02T00:00:00""}}],""NestedReference"":{{""DoB"":""2002-07-01T00:00:00""}}}},{{""MyBool"":false,""Name"":""c12 ctor"",""NestedCollection"":[{{""DoB"":""2002-10-01T00:00:00""}},{{""DoB"":""2002-10-02T00:00:00""}}],""JunkCollection"":[{{""Foo"":""junk value""}}],""NestedReference"":{{""DoB"":""2002-09-01T00:00:00""}}}}]',
+N'{{""Name"":""r1"",""JunkCollection"":[{{""Foo"":""junk value""}}],""JunkReference"":{{""Something"":""SomeValue"" }},""Number"":1.5,""NestedCollection"":[{{""DoB"":""2000-02-01T00:00:00"",""JunkReference"":{{""Something"":""SomeValue""}}}},{{""DoB"":""2000-02-02T00:00:00""}}],""NestedReference"":{{""DoB"":""2000-01-01T00:00:00""}}}}',
+N'{{""MyBool"":true,""JunkCollection"":[{{""Foo"":""junk value""}}],""Name"":""r1 ctor"",""JunkReference"":{{""Something"":""SomeValue"" }},""NestedCollection"":[{{""DoB"":""2001-02-01T00:00:00""}},{{""DoB"":""2001-02-02T00:00:00""}}],""NestedReference"":{{""JunkCollection"":[{{""Foo"":""junk value""}}],""DoB"":""2001-01-01T00:00:00""}}}}',
+1)");
+    }
+
+    protected override void SeedShadowProperties(MyContextShadowProperties ctx)
+    {
+        ctx.Database.ExecuteSqlRaw(@"INSERT INTO [Entities] ([Collection], [CollectionWithCtor], [Reference], [ReferenceWithCtor], [Id], [Name])
+VALUES(
+N'[{{""Name"":""e1_c1"",""ShadowDouble"":5.5}},{{""ShadowDouble"":20.5,""Name"":""e1_c2""}}]',
+N'[{{""Name"":""e1_c1 ctor"",""ShadowNullableByte"":6}},{{""ShadowNullableByte"":null,""Name"":""e1_c2 ctor""}}]',
+N'{{""Name"":""e1_r"", ""ShadowString"":""Foo""}}',
+N'{{""ShadowInt"":143,""Name"":""e1_r ctor""}}',
+1,
+N'e1')");
+    }
 }

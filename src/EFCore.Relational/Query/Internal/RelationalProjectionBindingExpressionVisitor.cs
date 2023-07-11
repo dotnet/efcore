@@ -25,7 +25,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
 
     private bool _indexBasedBinding;
     private Dictionary<EntityProjectionExpression, ProjectionBindingExpression>? _entityProjectionCache;
-    private Dictionary<JsonQueryExpression, ProjectionBindingExpression>? _jsonQueryCache;
     private List<Expression>? _clientProjections;
 
     private readonly Dictionary<ProjectionMember, Expression> _projectionMapping = new();
@@ -66,7 +65,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         {
             _indexBasedBinding = true;
             _entityProjectionCache = new Dictionary<EntityProjectionExpression, ProjectionBindingExpression>();
-            _jsonQueryCache = new Dictionary<JsonQueryExpression, ProjectionBindingExpression>();
             _projectionMapping.Clear();
             _clientProjections = new List<Expression>();
 
@@ -307,11 +305,8 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
                 {
                     if (_indexBasedBinding)
                     {
-                        if (!_jsonQueryCache!.TryGetValue(jsonQueryExpression, out var jsonProjectionBinding))
-                        {
-                            jsonProjectionBinding = AddClientProjection(jsonQueryExpression, typeof(ValueBuffer));
-                            _jsonQueryCache[jsonQueryExpression] = jsonProjectionBinding;
-                        }
+                        _clientProjections!.Add(jsonQueryExpression);
+                        var jsonProjectionBinding = new ProjectionBindingExpression(_selectExpression, _clientProjections.Count - 1, typeof(ValueBuffer));
 
                         return entityShaperExpression.Update(jsonProjectionBinding);
                     }
@@ -654,7 +649,6 @@ public class RelationalProjectionBindingExpressionVisitor : ExpressionVisitor
         return new ProjectionBindingExpression(_selectExpression, existingIndex, type);
     }
 
-#pragma warning disable IDE0052 // Remove unread private members
     private static T GetParameterValue<T>(QueryContext queryContext, string parameterName)
 #pragma warning restore IDE0052 // Remove unread private members
         => (T)queryContext.ParameterValues[parameterName]!;

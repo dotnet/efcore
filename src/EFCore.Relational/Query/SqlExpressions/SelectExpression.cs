@@ -878,7 +878,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                 cloningExpressionVisitor = new CloningExpressionVisitor();
             }
 
-            var jsonClientProjectionDeduplicationMap = BuildJsonProjectionDeduplicationMap(_clientProjections.OfType<JsonQueryExpression>());
             var earlierClientProjectionCount = _clientProjections.Count;
             var newClientProjections = new List<Expression>();
             var clientProjectionIndexMap = new List<object>();
@@ -1065,10 +1064,6 @@ public sealed partial class SelectExpression : TableExpressionBase
                         baseSelectExpression._mutable = true;
                         baseSelectExpression._projection.Clear();
                     }
-
-                    //since we updated the client projections, we also need updated deduplication map
-                    jsonClientProjectionDeduplicationMap = BuildJsonProjectionDeduplicationMap(
-                        _clientProjections.Skip(i).OfType<JsonQueryExpression>());
                 }
 
                 var value = _clientProjections[i];
@@ -1087,7 +1082,12 @@ public sealed partial class SelectExpression : TableExpressionBase
                     {
                         var jsonProjectionResult = AddJsonProjection(
                             jsonQueryExpression,
-                            jsonScalarToAdd: jsonClientProjectionDeduplicationMap[jsonQueryExpression]);
+                            jsonScalarToAdd: new JsonScalarExpression(
+                                jsonQueryExpression.JsonColumn,
+                                jsonQueryExpression.Path,
+                                jsonQueryExpression.JsonColumn.Type,
+                                jsonQueryExpression.JsonColumn.TypeMapping!,
+                                jsonQueryExpression.IsNullable));
 
                         newClientProjections.Add(jsonProjectionResult);
                         clientProjectionIndexMap.Add(newClientProjections.Count - 1);
@@ -1546,8 +1546,7 @@ public sealed partial class SelectExpression : TableExpressionBase
                         remappedConstant = Constant(
                             new JsonProjectionInfo(
                                 projectionIndexMap[jsonProjectionInfo.JsonColumnIndex],
-                                newKeyAccessInfo,
-                                jsonProjectionInfo.AdditionalPath));
+                                newKeyAccessInfo));
                     }
                     else
                     {
@@ -1569,9 +1568,6 @@ public sealed partial class SelectExpression : TableExpressionBase
         }
         else
         {
-            var jsonProjectionDeduplicationMap = BuildJsonProjectionDeduplicationMap(
-                _projectionMapping.Select(x => x.Value).OfType<JsonQueryExpression>());
-
             var result = new Dictionary<ProjectionMember, Expression>(_projectionMapping.Count);
 
             foreach (var (projectionMember, expression) in _projectionMapping)
@@ -1580,7 +1576,13 @@ public sealed partial class SelectExpression : TableExpressionBase
                 {
                     EntityProjectionExpression entityProjection => AddEntityProjection(entityProjection),
                     JsonQueryExpression jsonQueryExpression => AddJsonProjection(
-                        jsonQueryExpression, jsonProjectionDeduplicationMap[jsonQueryExpression]),
+                        jsonQueryExpression,
+                        new JsonScalarExpression(
+                            jsonQueryExpression.JsonColumn,
+                            jsonQueryExpression.Path,
+                            jsonQueryExpression.JsonColumn.Type,
+                            jsonQueryExpression.JsonColumn.TypeMapping!,
+                            jsonQueryExpression.IsNullable)),
                     _ => Constant(AddToProjection((SqlExpression)expression, projectionMember.Last?.Name))
                 };
             }
@@ -1589,46 +1591,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             _projectionMapping = result;
 
             return shaperExpression;
-        }
-
-        static Dictionary<JsonQueryExpression, JsonScalarExpression> BuildJsonProjectionDeduplicationMap(
-            IEnumerable<JsonQueryExpression> projections)
-        {
-            // force reference comparison for this one, even if we implement custom equality for JsonQueryExpression in the future
-            var deduplicationMap = new Dictionary<JsonQueryExpression, JsonScalarExpression>(ReferenceEqualityComparer.Instance);
-            if (projections.Any())
-            {
-                var ordered = projections
-                    .OrderBy(x => $"{x.JsonColumn.TableAlias}.{x.JsonColumn.Name}")
-                    .ThenBy(x => x.Path.Count)
-                    .ThenBy(x => x.Path.Count > 0 && x.Path[^1].ArrayIndex != null);
-
-                var needed = new List<JsonScalarExpression>();
-                foreach (var orderedElement in ordered)
-                {
-                    var match = needed.FirstOrDefault(x => JsonEntityContainedIn(x, orderedElement));
-                    JsonScalarExpression jsonScalarExpression;
-                    if (match == null)
-                    {
-                        jsonScalarExpression = new JsonScalarExpression(
-                            orderedElement.JsonColumn,
-                            orderedElement.Path,
-                            orderedElement.JsonColumn.Type,
-                            orderedElement.JsonColumn.TypeMapping!,
-                            orderedElement.IsNullable);
-
-                        needed.Add(jsonScalarExpression);
-                    }
-                    else
-                    {
-                        jsonScalarExpression = match;
-                    }
-
-                    deduplicationMap[orderedElement] = jsonScalarExpression;
-                }
-            }
-
-            return deduplicationMap;
         }
 
         ConstantExpression AddEntityProjection(EntityProjectionExpression entityProjectionExpression)
@@ -1649,12 +1611,9 @@ public sealed partial class SelectExpression : TableExpressionBase
 
         ConstantExpression AddJsonProjection(JsonQueryExpression jsonQueryExpression, JsonScalarExpression jsonScalarToAdd)
         {
-            var additionalPath = jsonQueryExpression.Path
-                .Skip(jsonScalarToAdd.Path.Count)
-                .ToArray();
-
-            var jsonColumnIndex = AddToProjection(jsonScalarToAdd);
-
+            var sqlExpression = AssignUniqueAliases(jsonScalarToAdd);
+            _projection.Add(new ProjectionExpression(sqlExpression, ""));
+            var jsonColumnIndex = _projection.Count - 1;
             var keyAccessInfo = new List<(IProperty?, int?, int?)>();
             var keyProperties = GetMappedKeyProperties(jsonQueryExpression.EntityType.FindPrimaryKey()!);
             foreach (var keyProperty in keyProperties)
@@ -1675,28 +1634,10 @@ public sealed partial class SelectExpression : TableExpressionBase
                 }
             }
 
-            var additionalPathList = new List<(string?, int?, int?)>();
-            foreach (var additionalPathSegment in additionalPath)
-            {
-                if (additionalPathSegment.PropertyName is not null)
-                {
-                    additionalPathList.Add((additionalPathSegment.PropertyName, null, null));
-                }
-                else if (additionalPathSegment.ArrayIndex is SqlConstantExpression { Value: int intValue })
-                {
-                    additionalPathList.Add((null, intValue, null));
-                }
-                else
-                {
-                    additionalPathList.Add((null, null, AddToProjection(additionalPathSegment.ArrayIndex!)));
-                }
-            }
-
             return Constant(
                 new JsonProjectionInfo(
                     jsonColumnIndex,
-                    keyAccessInfo,
-                    additionalPathList.ToArray()));
+                    keyAccessInfo));
         }
 
         static IReadOnlyList<IProperty> GetMappedKeyProperties(IKey key)
@@ -1720,24 +1661,6 @@ public sealed partial class SelectExpression : TableExpressionBase
             var count = currentEntity.FindPrimaryKey()!.Properties.Count;
 
             return key.Properties.Take(count).ToList();
-        }
-
-        static bool JsonEntityContainedIn(JsonScalarExpression sourceExpression, JsonQueryExpression targetExpression)
-        {
-            if (sourceExpression.Json != targetExpression.JsonColumn)
-            {
-                return false;
-            }
-
-            var sourcePath = sourceExpression.Path;
-            var targetPath = targetExpression.Path;
-
-            if (targetPath.Count < sourcePath.Count)
-            {
-                return false;
-            }
-
-            return sourcePath.SequenceEqual(targetPath.Take(sourcePath.Count));
         }
     }
 

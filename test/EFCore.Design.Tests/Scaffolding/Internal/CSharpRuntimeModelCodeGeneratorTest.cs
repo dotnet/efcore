@@ -2898,7 +2898,7 @@ namespace TestNamespace
                     c.SaveChanges();
                 });
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #31201")]
         [SqlServerConfiguredCondition]
         public void BigModel_with_JSON_columns()
             => Test(

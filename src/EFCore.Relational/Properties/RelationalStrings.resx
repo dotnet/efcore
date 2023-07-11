@@ -547,6 +547,9 @@
   <data name="JsonPropertyNameShouldBeConfiguredOnNestedNavigation" xml:space="preserve">
     <value>The JSON property name should only be configured on nested owned navigations.</value>
   </data>
+  <data name="JsonReaderInvalidTokenType" xml:space="preserve">
+    <value>Invalid token type: '{tokenType}'.</value>
+  </data>
   <data name="JsonRequiredEntityWithNullJson" xml:space="preserve">
     <value>Entity {entity} is required but the JSON element containing it is null.</value>
   </data>
