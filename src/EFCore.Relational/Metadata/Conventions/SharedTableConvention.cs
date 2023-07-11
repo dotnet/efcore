@@ -250,11 +250,11 @@ public class SharedTableConvention : IModelFinalizingConvention
                 continue;
             }
 
-            var usePrefix = property.DeclaringEntityType != otherProperty.DeclaringEntityType;
+            var usePrefix = property.DeclaringType != otherProperty.DeclaringType;
             if (!usePrefix
-                || (!property.DeclaringEntityType.IsStrictlyDerivedFrom(otherProperty.DeclaringEntityType)
-                    && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
-                || property.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
+                || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
+                    && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
+                || (property.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
                 var newColumnName = TryUniquify(property, columnName, properties, storeObject, usePrefix, maxLength);
                 if (newColumnName != null)
@@ -265,9 +265,9 @@ public class SharedTableConvention : IModelFinalizingConvention
             }
 
             if (!usePrefix
-                || (!property.DeclaringEntityType.IsStrictlyDerivedFrom(otherProperty.DeclaringEntityType)
-                    && !otherProperty.DeclaringEntityType.IsStrictlyDerivedFrom(property.DeclaringEntityType))
-                || otherProperty.DeclaringEntityType.FindRowInternalForeignKeys(storeObject).Any())
+                || (!property.DeclaringType.IsStrictlyDerivedFrom(otherProperty.DeclaringType)
+                    && !otherProperty.DeclaringType.IsStrictlyDerivedFrom(property.DeclaringType))
+                || (otherProperty.DeclaringType as IConventionEntityType)?.FindRowInternalForeignKeys(storeObject).Any() == true)
             {
                 var newOtherColumnName = TryUniquify(otherProperty, columnName, properties, storeObject, usePrefix, maxLength);
                 if (newOtherColumnName != null)
@@ -292,7 +292,7 @@ public class SharedTableConvention : IModelFinalizingConvention
         {
             if (usePrefix)
             {
-                var prefix = property.DeclaringEntityType.ShortName();
+                var prefix = property.DeclaringType.ShortName();
                 if (!columnName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     columnName = prefix + "_" + columnName;

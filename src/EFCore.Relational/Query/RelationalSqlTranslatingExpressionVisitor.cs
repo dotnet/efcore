@@ -359,9 +359,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
                         nonNullMethodCallExpression.Arguments[1]);
                 }
                 else if ((genericMethod == QueryableMethods.ElementAt || genericMethod == QueryableMethods.ElementAtOrDefault)
-                    && (nonNullMethodCallExpression.Arguments[1] is not ConstantExpression constantIndex
-                        || constantIndex.Value is not int constantInt
-                        || constantInt != 0))
+                    && nonNullMethodCallExpression.Arguments[1] is not ConstantExpression { Value: 0 })
                 {
                     source = Expression.Call(
                         QueryableMethods.Skip.MakeGenericMethod(source.Type.GetSequenceType()),
@@ -564,8 +562,7 @@ public class RelationalSqlTranslatingExpressionVisitor : ExpressionVisitor
         static bool IsTypeConstant(Expression expression, out Type? type)
         {
             type = null;
-            if (expression is not UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unaryExpression
-                || unaryExpression.Operand is not ConstantExpression constantExpression)
+            if (expression is not UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked, Operand: ConstantExpression constantExpression })
             {
                 return false;
             }

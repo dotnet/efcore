@@ -3,6 +3,7 @@
 
 using System.Collections;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Cosmos.ValueGeneration.Internal;
@@ -1977,7 +1978,7 @@ namespace TestNamespace
                 "Details",
                 typeof(string),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Details", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Details>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
 
@@ -2004,7 +2005,7 @@ namespace TestNamespace
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
+                serviceType: typeof(DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalBaseId, principalBaseAlternateId });
@@ -2124,7 +2125,7 @@ namespace TestNamespace
                 "Details",
                 typeof(string),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Details", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Details>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -2139,7 +2140,7 @@ namespace TestNamespace
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
+                serviceType: typeof(DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalDerivedId, principalDerivedAlternateId, id });
@@ -2897,7 +2898,7 @@ namespace TestNamespace
                     c.SaveChanges();
                 });
 
-        [ConditionalFact]
+        [ConditionalFact(Skip = "issue #31201")]
         [SqlServerConfiguredCondition]
         public void BigModel_with_JSON_columns()
             => Test(
@@ -3765,7 +3766,7 @@ namespace TestNamespace
                 "Details",
                 typeof(string),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Details", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Details>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 propertyAccessMode: PropertyAccessMode.Field,
                 nullable: true);
             details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -3782,7 +3783,7 @@ namespace TestNamespace
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
+                serviceType: typeof(DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalBaseId, principalBaseAlternateId });
@@ -3883,7 +3884,7 @@ namespace TestNamespace
                 "Details",
                 typeof(string),
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Details", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Details>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -3898,7 +3899,7 @@ namespace TestNamespace
             var context = runtimeEntityType.AddServiceProperty(
                 "Context",
                 propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Context", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                serviceType: typeof(Microsoft.EntityFrameworkCore.DbContext));
+                serviceType: typeof(DbContext));
 
             var key = runtimeEntityType.AddKey(
                 new[] { principalDerivedId, principalDerivedAlternateId, id });
@@ -4631,6 +4632,690 @@ namespace TestNamespace
                     c.SaveChanges();
                 });
 
+        [ConditionalFact]
+        [SqlServerConfiguredCondition]
+        public void ComplexTypes()
+            => Test(
+                new ComplexTypesContext(),
+                new CompiledModelCodeGenerationOptions { UseNullableReferenceTypes = true },
+                code =>
+                    Assert.Collection(
+                        code,
+                        c => AssertFileContents(
+                            "ComplexTypesContextModel.cs",
+                            """
+// <auto-generated />
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+
+#pragma warning disable 219, 612, 618
+#nullable enable
+
+namespace TestNamespace
+{
+    [DbContext(typeof(CSharpRuntimeModelCodeGeneratorTest.ComplexTypesContext))]
+    public partial class ComplexTypesContextModel : RuntimeModel
+    {
+        static ComplexTypesContextModel()
+        {
+            var model = new ComplexTypesContextModel();
+            model.Initialize();
+            model.Customize();
+            _instance = model;
+        }
+
+        private static ComplexTypesContextModel _instance;
+        public static IModel Instance => _instance;
+
+        partial void Initialize();
+
+        partial void Customize();
+    }
+}
+""", c),
+                        c => AssertFileContents(
+                            "ComplexTypesContextModelBuilder.cs",
+                            """
+// <auto-generated />
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Migrations;
+
+#pragma warning disable 219, 612, 618
+#nullable enable
+
+namespace TestNamespace
+{
+    public partial class ComplexTypesContextModel
+    {
+        partial void Initialize()
+        {
+            var principalBase = PrincipalBaseEntityType.Create(this);
+            var principalDerived = PrincipalDerivedEntityType.Create(this, principalBase);
+
+            PrincipalBaseEntityType.CreateForeignKey1(principalBase, principalBase);
+            PrincipalBaseEntityType.CreateForeignKey2(principalBase, principalDerived);
+
+            PrincipalBaseEntityType.CreateAnnotations(principalBase);
+            PrincipalDerivedEntityType.CreateAnnotations(principalDerived);
+
+            AddAnnotation("Relational:MaxIdentifierLength", 128);
+            AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            AddRuntimeAnnotation("Relational:RelationalModel", CreateRelationalModel());
+        }
+
+        private IRelationalModel CreateRelationalModel()
+        {
+            var relationalModel = new RelationalModel(this);
+
+            var principalBase = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase")!;
+
+            var defaultTableMappings = new List<TableMappingBase<ColumnMappingBase>>();
+            principalBase.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings);
+            var microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase = new TableBase("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase", null, relationalModel);
+            var discriminatorColumnBase = new ColumnBase<ColumnMappingBase>("Discriminator", "nvarchar(55)", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Discriminator", discriminatorColumnBase);
+            var enum1ColumnBase = new ColumnBase<ColumnMappingBase>("Enum1", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Enum1", enum1ColumnBase);
+            var enum2ColumnBase = new ColumnBase<ColumnMappingBase>("Enum2", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Enum2", enum2ColumnBase);
+            var flagsEnum1ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum1", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum1", flagsEnum1ColumnBase);
+            var flagsEnum2ColumnBase = new ColumnBase<ColumnMappingBase>("FlagsEnum2", "int", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("FlagsEnum2", flagsEnum2ColumnBase);
+            var idColumnBase = new ColumnBase<ColumnMappingBase>("Id", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("Id", idColumnBase);
+            var principalBaseIdColumnBase = new ColumnBase<ColumnMappingBase>("PrincipalBaseId", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("PrincipalBaseId", principalBaseIdColumnBase);
+            var principalDerivedDependentBasebyteIdColumnBase = new ColumnBase<ColumnMappingBase>("PrincipalDerived<DependentBase<byte?>>Id", "bigint", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase)
+            {
+                IsNullable = true
+            };
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.Columns.Add("PrincipalDerived<DependentBase<byte?>>Id", principalDerivedDependentBasebyteIdColumnBase);
+            relationalModel.DefaultTables.Add("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase", microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase);
+            var microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase = new TableMappingBase<ColumnMappingBase>(principalBase, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase, true);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.AddEntityTypeMapping(microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase, false);
+            defaultTableMappings.Add(microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Id")!, principalBase.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Discriminator")!, principalBase.FindProperty("Discriminator")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalBase.FindProperty("PrincipalDerivedId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase);
+
+            var tableMappings = new List<TableMapping>();
+            principalBase.SetRuntimeAnnotation("Relational:TableMappings", tableMappings);
+            var principalBaseTable = new Table("PrincipalBase", null, relationalModel);
+            var idColumn = new Column("Id", "bigint", principalBaseTable);
+            principalBaseTable.Columns.Add("Id", idColumn);
+            var discriminatorColumn = new Column("Discriminator", "nvarchar(55)", principalBaseTable);
+            principalBaseTable.Columns.Add("Discriminator", discriminatorColumn);
+            var enum1Column = new Column("Enum1", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("Enum1", enum1Column);
+            var enum2Column = new Column("Enum2", "int", principalBaseTable)
+            {
+                IsNullable = true
+            };
+            principalBaseTable.Columns.Add("Enum2", enum2Column);
+            var flagsEnum1Column = new Column("FlagsEnum1", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum1", flagsEnum1Column);
+            var flagsEnum2Column = new Column("FlagsEnum2", "int", principalBaseTable);
+            principalBaseTable.Columns.Add("FlagsEnum2", flagsEnum2Column);
+            var principalBaseIdColumn = new Column("PrincipalBaseId", "bigint", principalBaseTable)
+            {
+                IsNullable = true
+            };
+            principalBaseTable.Columns.Add("PrincipalBaseId", principalBaseIdColumn);
+            var principalDerivedDependentBasebyteIdColumn = new Column("PrincipalDerived<DependentBase<byte?>>Id", "bigint", principalBaseTable)
+            {
+                IsNullable = true
+            };
+            principalBaseTable.Columns.Add("PrincipalDerived<DependentBase<byte?>>Id", principalDerivedDependentBasebyteIdColumn);
+            var pK_PrincipalBase = new UniqueConstraint("PK_PrincipalBase", principalBaseTable, new[] { idColumn });
+            principalBaseTable.PrimaryKey = pK_PrincipalBase;
+            var pK_PrincipalBaseUc = RelationalModel.GetKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                new[] { "Id" });
+            pK_PrincipalBase.MappedKeys.Add(pK_PrincipalBaseUc);
+            RelationalModel.GetOrCreateUniqueConstraints(pK_PrincipalBaseUc).Add(pK_PrincipalBase);
+            principalBaseTable.UniqueConstraints.Add("PK_PrincipalBase", pK_PrincipalBase);
+            var iX_PrincipalBase_PrincipalBaseId = new TableIndex(
+            "IX_PrincipalBase_PrincipalBaseId", principalBaseTable, new[] { principalBaseIdColumn }, false);
+            var iX_PrincipalBase_PrincipalBaseIdIx = RelationalModel.GetIndex(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                new[] { "PrincipalBaseId" });
+            iX_PrincipalBase_PrincipalBaseId.MappedIndexes.Add(iX_PrincipalBase_PrincipalBaseIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalBaseIdIx).Add(iX_PrincipalBase_PrincipalBaseId);
+            principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalBaseId", iX_PrincipalBase_PrincipalBaseId);
+            var iX_PrincipalBase_PrincipalDerivedDependentBasebyteId = new TableIndex(
+            "IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, new[] { principalDerivedDependentBasebyteIdColumn }, false);
+            var iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx = RelationalModel.GetIndex(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                new[] { "PrincipalDerivedId" });
+            iX_PrincipalBase_PrincipalDerivedDependentBasebyteId.MappedIndexes.Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx);
+            RelationalModel.GetOrCreateTableIndexes(iX_PrincipalBase_PrincipalDerivedDependentBasebyteIdIx).Add(iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            principalBaseTable.Indexes.Add("IX_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", iX_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            relationalModel.Tables.Add(("PrincipalBase", null), principalBaseTable);
+            var principalBaseTableMapping = new TableMapping(principalBase, principalBaseTable, true)
+            {
+                IsSharedTablePrincipal = true,
+            };
+            principalBaseTable.AddEntityTypeMapping(principalBaseTableMapping, false);
+            tableMappings.Add(principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Id")!, principalBase.FindProperty("Id")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Discriminator")!, principalBase.FindProperty("Discriminator")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalBase.FindProperty("Enum1")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalBase.FindProperty("Enum2")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalBase.FindProperty("FlagsEnum1")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalBase.FindProperty("FlagsEnum2")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("PrincipalBaseId")!, principalBase.FindProperty("PrincipalBaseId")!, principalBaseTableMapping);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalBase.FindProperty("PrincipalDerivedId")!, principalBaseTableMapping);
+
+            var principalDerived = FindEntityType("Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>>")!;
+
+            var defaultTableMappings0 = new List<TableMappingBase<ColumnMappingBase>>();
+            principalDerived.SetRuntimeAnnotation("Relational:DefaultMappings", defaultTableMappings0);
+            var microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0 = new TableMappingBase<ColumnMappingBase>(principalDerived, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase, true);
+            microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.AddEntityTypeMapping(microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0, false);
+            defaultTableMappings0.Add(microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Id")!, principalDerived.FindProperty("Id")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Discriminator")!, principalDerived.FindProperty("Discriminator")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+            RelationalModel.CreateColumnMapping((ColumnBase<ColumnMappingBase>)microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseTableBase.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalDerived.FindProperty("PrincipalDerivedId")!, microsoftEntityFrameworkCoreScaffoldingInternalCSharpRuntimeModelCodeGeneratorTestPrincipalBaseMappingBase0);
+
+            var tableMappings0 = new List<TableMapping>();
+            principalDerived.SetRuntimeAnnotation("Relational:TableMappings", tableMappings0);
+            var principalBaseTableMapping0 = new TableMapping(principalDerived, principalBaseTable, true)
+            {
+                IsSharedTablePrincipal = false,
+            };
+            principalBaseTable.AddEntityTypeMapping(principalBaseTableMapping0, false);
+            tableMappings0.Add(principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Id")!, principalDerived.FindProperty("Id")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Discriminator")!, principalDerived.FindProperty("Discriminator")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum1")!, principalDerived.FindProperty("Enum1")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("Enum2")!, principalDerived.FindProperty("Enum2")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum1")!, principalDerived.FindProperty("FlagsEnum1")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("FlagsEnum2")!, principalDerived.FindProperty("FlagsEnum2")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("PrincipalBaseId")!, principalDerived.FindProperty("PrincipalBaseId")!, principalBaseTableMapping0);
+            RelationalModel.CreateColumnMapping(principalBaseTable.FindColumn("PrincipalDerived<DependentBase<byte?>>Id")!, principalDerived.FindProperty("PrincipalDerivedId")!, principalBaseTableMapping0);
+            var fK_PrincipalBase_PrincipalBase_PrincipalBaseId = new ForeignKeyConstraint(
+                "FK_PrincipalBase_PrincipalBase_PrincipalBaseId", principalBaseTable, principalBaseTable,
+                new[] { principalBaseIdColumn },
+                principalBaseTable.FindUniqueConstraint("PK_PrincipalBase")!, ReferentialAction.NoAction);
+            var fK_PrincipalBase_PrincipalBase_PrincipalBaseIdFk = RelationalModel.GetForeignKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                new[] { "PrincipalBaseId" },
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                new[] { "Id" });
+            fK_PrincipalBase_PrincipalBase_PrincipalBaseId.MappedForeignKeys.Add(fK_PrincipalBase_PrincipalBase_PrincipalBaseIdFk);
+            RelationalModel.GetOrCreateForeignKeyConstraints(fK_PrincipalBase_PrincipalBase_PrincipalBaseIdFk).Add(fK_PrincipalBase_PrincipalBase_PrincipalBaseId);
+            principalBaseTable.ForeignKeyConstraints.Add(fK_PrincipalBase_PrincipalBase_PrincipalBaseId);
+            principalBaseTable.ReferencingForeignKeyConstraints.Add(fK_PrincipalBase_PrincipalBase_PrincipalBaseId);
+            var fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteId = new ForeignKeyConstraint(
+                "FK_PrincipalBase_PrincipalBase_PrincipalDerived<DependentBase<byte?>>Id", principalBaseTable, principalBaseTable,
+                new[] { principalDerivedDependentBasebyteIdColumn },
+                principalBaseTable.FindUniqueConstraint("PK_PrincipalBase")!, ReferentialAction.NoAction);
+            var fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteIdFk = RelationalModel.GetForeignKey(this,
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                new[] { "PrincipalDerivedId" },
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>>",
+                new[] { "Id" });
+            fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteId.MappedForeignKeys.Add(fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteIdFk);
+            RelationalModel.GetOrCreateForeignKeyConstraints(fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteIdFk).Add(fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            principalBaseTable.ForeignKeyConstraints.Add(fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            principalBaseTable.ReferencingForeignKeyConstraints.Add(fK_PrincipalBase_PrincipalBase_PrincipalDerivedDependentBasebyteId);
+            return relationalModel.MakeReadOnly();
+        }
+    }
+}
+""", c),                        
+                        c => AssertFileContents(
+                            "PrincipalBaseEntityType.cs",
+                            """
+// <auto-generated />
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration;
+
+#pragma warning disable 219, 612, 618
+#nullable enable
+
+namespace TestNamespace
+{
+    internal partial class PrincipalBaseEntityType
+    {
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        {
+            var runtimeEntityType = model.AddEntityType(
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase),
+                baseEntityType,
+                discriminatorProperty: "Discriminator",
+                discriminatorValue: "PrincipalBase");
+
+            var id = runtimeEntityType.AddProperty(
+                "Id",
+                typeof(long?),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                valueGenerated: ValueGenerated.OnAdd,
+                afterSaveBehavior: PropertySaveBehavior.Throw);
+            id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+            var discriminator = runtimeEntityType.AddProperty(
+                "Discriminator",
+                typeof(string),
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                maxLength: 55,
+                valueGeneratorFactory: new DiscriminatorValueGeneratorFactory().Create);
+            discriminator.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var enum1 = runtimeEntityType.AddProperty(
+                "Enum1",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
+            enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var enum2 = runtimeEntityType.AddProperty(
+                "Enum2",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum?),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum1 = runtimeEntityType.AddProperty(
+                "FlagsEnum1",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+            flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var flagsEnum2 = runtimeEntityType.AddProperty(
+                "FlagsEnum2",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+            flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var principalBaseId = runtimeEntityType.AddProperty(
+                "PrincipalBaseId",
+                typeof(long?),
+                nullable: true);
+            principalBaseId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var principalDerivedId = runtimeEntityType.AddProperty(
+                "PrincipalDerivedId",
+                typeof(long?),
+                nullable: true);
+            principalDerivedId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            OwnedComplexProperty.Create(runtimeEntityType);
+            var key = runtimeEntityType.AddKey(
+                new[] { id });
+            runtimeEntityType.SetPrimaryKey(key);
+
+            var index = runtimeEntityType.AddIndex(
+                new[] { principalBaseId });
+
+            var index0 = runtimeEntityType.AddIndex(
+                new[] { principalDerivedId });
+
+            return runtimeEntityType;
+        }
+
+        private static class OwnedComplexProperty
+        {
+            public static RuntimeComplexProperty Create(RuntimeEntityType declaringType)
+            {
+                var complexProperty = declaringType.AddComplexProperty("Owned",
+                    typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType),
+                    "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase.Owned#OwnedType",
+                    typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType),
+                    propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Owned", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("_ownedField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    propertyAccessMode: PropertyAccessMode.Field,
+                    changeTrackingStrategy: ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues);
+
+                var complexType = complexProperty.ComplexType;
+                var details = complexType.AddProperty(
+                    "Details",
+                    typeof(string),
+                    propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Details", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("_details", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    propertyAccessMode: PropertyAccessMode.FieldDuringConstruction,
+                    concurrencyToken: true,
+                    valueGenerated: ValueGenerated.OnAddOrUpdate,
+                    beforeSaveBehavior: PropertySaveBehavior.Ignore,
+                    afterSaveBehavior: PropertySaveBehavior.Ignore,
+                    maxLength: 64,
+                    unicode: false,
+                    precision: 3,
+                    scale: 2,
+                    sentinel: "");
+                details.AddAnnotation("foo", "bar");
+                details.AddAnnotation("Relational:ColumnName", "Deets");
+                details.AddAnnotation("Relational:ColumnType", "varchar");
+                details.AddAnnotation("Relational:DefaultValueSql", "null");
+                details.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                var number = complexType.AddProperty(
+                    "Number",
+                    typeof(int),
+                    propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Number", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Number>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                    sentinel: 0);
+                number.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                PrincipalComplexProperty.Create(complexType);
+                complexType.AddAnnotation("go", "brr");
+                complexProperty.AddAnnotation("goo", "ber");
+                return complexProperty;
+            }
+
+            private static class PrincipalComplexProperty
+            {
+                public static RuntimeComplexProperty Create(RuntimeComplexType declaringType)
+                {
+                    var complexProperty = declaringType.AddComplexProperty("Principal",
+                        typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase),
+                        "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalBase.Owned#OwnedType.Principal#PrincipalBase",
+                        typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase),
+                        propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetProperty("Principal", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.OwnedType).GetField("<Principal>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        nullable: true);
+
+                    var complexType = complexProperty.ComplexType;
+                    var enum1 = complexType.AddProperty(
+                        "Enum1",
+                        typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum),
+                        propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        sentinel: (CSharpRuntimeModelCodeGeneratorTest.AnEnum)0);
+                    enum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                    var enum2 = complexType.AddProperty(
+                        "Enum2",
+                        typeof(CSharpRuntimeModelCodeGeneratorTest.AnEnum?),
+                        propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Enum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Enum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        nullable: true);
+                    enum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                    var flagsEnum1 = complexType.AddProperty(
+                        "FlagsEnum1",
+                        typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                        propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum1", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum1>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+                    flagsEnum1.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                    var flagsEnum2 = complexType.AddProperty(
+                        "FlagsEnum2",
+                        typeof(CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum),
+                        propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("FlagsEnum2", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<FlagsEnum2>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        sentinel: (CSharpRuntimeModelCodeGeneratorTest.AFlagsEnum)0);
+                    flagsEnum2.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                    var id = complexType.AddProperty(
+                        "Id",
+                        typeof(long?),
+                        propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                        nullable: true);
+                    id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+                    return complexProperty;
+                }
+            }
+        }
+
+        public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("PrincipalBaseId")! },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id")! })!,
+                principalEntityType);
+
+            var deriveds = principalEntityType.AddNavigation("Deriveds",
+                runtimeForeignKey,
+                onDependent: false,
+                typeof(ICollection<CSharpRuntimeModelCodeGeneratorTest.PrincipalBase>),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetProperty("Deriveds", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalBase).GetField("<Deriveds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey2(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("PrincipalDerivedId")! },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id")! })!,
+                principalEntityType);
+
+            var principals = principalEntityType.AddNavigation("Principals",
+                runtimeForeignKey,
+                onDependent: false,
+                typeof(ICollection<CSharpRuntimeModelCodeGeneratorTest.PrincipalBase>),
+                propertyInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>).GetProperty("Principals", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>).GetField("<Principals>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+
+            return runtimeForeignKey;
+        }
+
+        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+        {
+            runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
+            runtimeEntityType.AddAnnotation("Relational:MappingStrategy", "TPH");
+            runtimeEntityType.AddAnnotation("Relational:Schema", null);
+            runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
+            runtimeEntityType.AddAnnotation("Relational:TableName", "PrincipalBase");
+            runtimeEntityType.AddAnnotation("Relational:ViewName", null);
+            runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
+
+            Customize(runtimeEntityType);
+        }
+
+        static partial void Customize(RuntimeEntityType runtimeEntityType);
+    }
+}
+""", c),
+                        c => AssertFileContents(
+                            "PrincipalDerivedEntityType.cs",
+                            """
+// <auto-generated />
+using System;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
+
+#pragma warning disable 219, 612, 618
+#nullable enable
+
+namespace TestNamespace
+{
+    internal partial class PrincipalDerivedEntityType
+    {
+        public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType? baseEntityType = null)
+        {
+            var runtimeEntityType = model.AddEntityType(
+                "Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+PrincipalDerived<Microsoft.EntityFrameworkCore.Scaffolding.Internal.CSharpRuntimeModelCodeGeneratorTest+DependentBase<byte?>>",
+                typeof(CSharpRuntimeModelCodeGeneratorTest.PrincipalDerived<CSharpRuntimeModelCodeGeneratorTest.DependentBase<byte?>>),
+                baseEntityType,
+                discriminatorProperty: "Discriminator",
+                discriminatorValue: "PrincipalDerived<DependentBase<byte?>>");
+
+            return runtimeEntityType;
+        }
+
+        public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
+        {
+            runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
+            runtimeEntityType.AddAnnotation("Relational:Schema", null);
+            runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
+            runtimeEntityType.AddAnnotation("Relational:TableName", "PrincipalBase");
+            runtimeEntityType.AddAnnotation("Relational:ViewName", null);
+            runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
+
+            Customize(runtimeEntityType);
+        }
+
+        static partial void Customize(RuntimeEntityType runtimeEntityType);
+    }
+}
+""", c)),
+                model =>
+                {
+                    var principalBase = model.FindEntityType(typeof(PrincipalBase));
+                    
+                    var complexProperty = principalBase.GetComplexProperties().Single();
+                    Assert.Equal(
+                        new[] { "goo" },
+                        complexProperty.GetAnnotations().Select(a => a.Name));
+                    Assert.Equal(nameof(PrincipalBase.Owned), complexProperty.Name);
+                    Assert.False(complexProperty.IsCollection);
+                    Assert.False(complexProperty.IsNullable);
+                    Assert.Equal(typeof(OwnedType), complexProperty.ClrType);
+                    Assert.Equal("_ownedField", complexProperty.FieldInfo.Name);
+                    Assert.Equal(nameof(PrincipalBase.Owned), complexProperty.PropertyInfo.Name);
+                    Assert.Equal(principalBase, complexProperty.DeclaringType);
+                    Assert.Equal(PropertyAccessMode.Field, complexProperty.GetPropertyAccessMode());
+                    Assert.Equal("ber", complexProperty["goo"]);
+
+                    var complexType = complexProperty.ComplexType;
+                    Assert.Equal(
+                        new[] { "go" },
+                        complexType.GetAnnotations().Select(a => a.Name));
+                    Assert.Equal(typeof(PrincipalBase).FullName + ".Owned#OwnedType", complexType.Name);
+                    Assert.Equal(typeof(OwnedType), complexType.ClrType);
+                    Assert.True(complexType.HasSharedClrType);
+                    Assert.False(complexType.IsPropertyBag);
+                    Assert.IsType<ConstructorBinding>(complexType.ConstructorBinding);
+                    Assert.Null(complexType.FindIndexerPropertyInfo());
+                    Assert.Equal(
+                        ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues,
+                        complexType.GetChangeTrackingStrategy());
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => complexType.GetPropertyAccessMode()).Message);
+                    Assert.Equal("brr", complexType["go"]);
+
+                    var detailsProperty = complexType.FindProperty(nameof(OwnedType.Details));
+                    Assert.Equal(
+                        new[] {
+                            CoreAnnotationNames.MaxLength,
+                            CoreAnnotationNames.Precision,
+                            RelationalAnnotationNames.ColumnName,
+                            RelationalAnnotationNames.ColumnType,
+                            RelationalAnnotationNames.DefaultValueSql,
+                            CoreAnnotationNames.Scale,
+                            SqlServerAnnotationNames.ValueGenerationStrategy,
+                            CoreAnnotationNames.Unicode,
+                            "foo"
+                        },
+                        detailsProperty.GetAnnotations().Select(a => a.Name));
+                    Assert.Equal(typeof(string), detailsProperty.ClrType);
+                    Assert.Equal(typeof(string), detailsProperty.PropertyInfo.PropertyType);
+                    Assert.Equal(typeof(string), detailsProperty.FieldInfo.FieldType);
+                    Assert.Equal("_details", detailsProperty.FieldInfo.Name);
+                    Assert.False(detailsProperty.IsNullable);
+                    Assert.Equal(ValueGenerated.OnAddOrUpdate, detailsProperty.ValueGenerated);
+                    Assert.Equal(PropertySaveBehavior.Ignore, detailsProperty.GetAfterSaveBehavior());
+                    Assert.Equal(PropertySaveBehavior.Ignore, detailsProperty.GetBeforeSaveBehavior());
+                    Assert.Equal("Deets", detailsProperty.GetColumnName());
+                    Assert.Equal("varchar(64)", detailsProperty.GetColumnType());
+                    Assert.False(detailsProperty.IsUnicode());
+                    Assert.True(detailsProperty.IsConcurrencyToken);
+                    Assert.Equal(64, detailsProperty.GetMaxLength());
+                    Assert.Null(detailsProperty.IsFixedLength());
+                    Assert.Equal(3, detailsProperty.GetPrecision());
+                    Assert.Equal(2, detailsProperty.GetScale());
+                    Assert.Equal("", detailsProperty.Sentinel);
+                    Assert.Equal(PropertyAccessMode.FieldDuringConstruction, detailsProperty.GetPropertyAccessMode());
+                    Assert.Null(detailsProperty.GetValueConverter());
+                    Assert.NotNull(detailsProperty.GetValueComparer());
+                    Assert.NotNull(detailsProperty.GetKeyValueComparer());
+                    Assert.Equal(SqlServerValueGenerationStrategy.None, detailsProperty.GetValueGenerationStrategy());
+                    Assert.Equal("null", detailsProperty.GetDefaultValueSql());
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.GetIdentitySeed()).Message);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.GetIdentityIncrement()).Message);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.IsSparse()).Message);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.GetCollation()).Message);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.GetComment()).Message);
+                    Assert.Equal(
+                        CoreStrings.RuntimeModelMissingData,
+                        Assert.Throws<InvalidOperationException>(() => detailsProperty.GetColumnOrder()).Message);
+
+                    var nestedComplexType = complexType.FindComplexProperty(nameof(OwnedType.Principal)).ComplexType;
+
+                    Assert.Equal(5, nestedComplexType.GetProperties().Count());
+
+                    var principalTable = StoreObjectIdentifier.Create(complexType, StoreObjectType.Table).Value;
+
+                    Assert.Equal("Deets", detailsProperty.GetColumnName(principalTable));
+
+                    var principalDerived = model.FindEntityType(typeof(PrincipalDerived<DependentBase<byte?>>));
+                    Assert.Equal(principalBase, principalDerived.BaseType);                    
+
+                    Assert.Equal(
+                        new[]
+                        {
+                            principalBase,
+                            principalDerived
+                        },
+                        model.GetEntityTypes());
+                },
+                null,
+                c =>
+                {
+                    c.Set<PrincipalDerived<DependentBase<byte?>>>().Add(
+                        new PrincipalDerived<DependentBase<byte?>>
+                        {
+                            Id = 1,
+                            AlternateId = new Guid(),
+                            Dependent = new DependentBase<byte?>(1),
+                            Owned = new OwnedType(c)
+                        });
+
+                    //c.SaveChanges();
+                });
+
         public class BigContextWithJson : BigContext
         {
             public BigContextWithJson()
@@ -4807,6 +5492,59 @@ namespace TestNamespace
             {
                 SqlServerTestStore.Create("RuntimeModelTest" + GetType().Name).AddProviderOptions(options);
                 new SqlServerDbContextOptionsBuilder(options).UseNetTopologySuite();
+            }
+        }
+
+        public class ComplexTypesContext : SqlServerContextBase
+        {
+            protected override void OnModelCreating(ModelBuilder modelBuilder)
+            {
+                base.OnModelCreating(modelBuilder);
+
+                modelBuilder.Entity<PrincipalBase>(
+                    eb =>
+                    {
+                        eb.ComplexProperty(e => e.Owned, eb =>
+                            {
+                                eb.IsRequired()
+                                    .HasField("_ownedField")
+                                    .UsePropertyAccessMode(PropertyAccessMode.Field)
+                                    .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotificationsWithOriginalValues)
+                                    .HasPropertyAnnotation("goo", "ber")
+                                    .HasTypeAnnotation("go", "brr");
+                                eb.Property(c => c.Details)
+                                    .HasColumnName("Deets")
+                                    .HasColumnOrder(1)
+                                    .HasColumnType("varchar")
+                                    .IsUnicode(false)
+                                    .IsRequired()
+                                    .HasField("_details")
+                                    .HasSentinel("")
+                                    .UsePropertyAccessMode(PropertyAccessMode.FieldDuringConstruction)
+                                    .IsSparse()
+                                    .UseCollation("Latin1_General_CI_AI")
+                                    .HasMaxLength(64)
+                                    .HasPrecision(3, 2)
+                                    .HasComment("Dt")
+                                    .HasDefaultValueSql("null")
+                                    .IsRowVersion()
+                                    .HasAnnotation("foo", "bar");
+
+                                eb.ComplexProperty(o => o.Principal);
+                            });
+                    });
+
+                modelBuilder.Entity<PrincipalDerived<DependentBase<byte?>>>(
+                    eb =>
+                    {
+                        //eb.OwnsMany(typeof(OwnedType).FullName, "ManyOwned");
+                        eb.Ignore(p => p.Dependent);
+                    });
+            }
+
+            protected override void OnConfiguring(DbContextOptionsBuilder options)
+            {
+                SqlServerTestStore.Create("RuntimeModelTest" + GetType().Name).AddProviderOptions(options);
             }
         }
 
@@ -6269,6 +7007,10 @@ namespace TestNamespace
         {
             private DbContext _context;
 
+            public OwnedType()
+            {
+            }
+
             public OwnedType(DbContext context)
             {
                 Context = context;
@@ -6286,7 +7028,17 @@ namespace TestNamespace
             }
 
             public int Number { get; set; }
-            public string Details { get; set; }
+
+            [NotMapped]
+            public PrincipalBase Principal { get; set; }
+            
+
+            private string _details;
+            public string Details
+            {
+                get => _details;
+                set => _details = value;
+            }
 
             public event PropertyChangedEventHandler PropertyChanged;
             public event PropertyChangingEventHandler PropertyChanging;

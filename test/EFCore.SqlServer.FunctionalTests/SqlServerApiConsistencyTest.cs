@@ -41,54 +41,68 @@ public class SqlServerApiConsistencyTest : ApiConsistencyTestBase<SqlServerApiCo
         };
 
         public override
-            List<(Type Type,
-                Type ReadonlyExtensions,
+            Dictionary<Type,
+                (Type ReadonlyExtensions,
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
                 Type RuntimeExtensions)> MetadataExtensionTypes { get; }
             = new()
             {
-                (
+                {
+
                     typeof(IReadOnlyModel),
-                    typeof(SqlServerModelExtensions),
-                    typeof(SqlServerModelExtensions),
-                    typeof(SqlServerModelExtensions),
-                    typeof(SqlServerModelBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelExtensions),
+                        typeof(SqlServerModelBuilderExtensions),
+                        null
+                    )
+                },
+                {
+
                     typeof(IReadOnlyEntityType),
-                    typeof(SqlServerEntityTypeExtensions),
-                    typeof(SqlServerEntityTypeExtensions),
-                    typeof(SqlServerEntityTypeExtensions),
-                    typeof(SqlServerEntityTypeBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeExtensions),
+                        typeof(SqlServerEntityTypeBuilderExtensions),
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyKey),
-                    typeof(SqlServerKeyExtensions),
-                    typeof(SqlServerKeyExtensions),
-                    typeof(SqlServerKeyExtensions),
-                    typeof(SqlServerKeyBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyExtensions),
+                        typeof(SqlServerKeyBuilderExtensions),
+                        null
+                    )
+                },
+                {
+
                     typeof(IReadOnlyProperty),
-                    typeof(SqlServerPropertyExtensions),
-                    typeof(SqlServerPropertyExtensions),
-                    typeof(SqlServerPropertyExtensions),
-                    typeof(SqlServerPropertyBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyExtensions),
+                        typeof(SqlServerPropertyBuilderExtensions),
+                        null
+                    )
+                    },
+                {
+
                     typeof(IReadOnlyIndex),
-                    typeof(SqlServerIndexExtensions),
-                    typeof(SqlServerIndexExtensions),
-                    typeof(SqlServerIndexExtensions),
-                    typeof(SqlServerIndexBuilderExtensions),
-                    null
-                )
+                    (
+                        typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexExtensions),
+                        typeof(SqlServerIndexBuilderExtensions),
+                        null
+                    )
+                }
             };
 
         protected override void Initialize()

@@ -34,7 +34,7 @@ public class SqlServerValueGeneratorCache : ValueGeneratorCache, ISqlServerValue
         IProperty property,
         IRelationalConnection connection)
     {
-        var tableIdentifier = StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table);
+        var tableIdentifier = StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table);
         var sequence = tableIdentifier != null
             ? property.FindHiLoSequence(tableIdentifier.Value)
             : property.FindHiLoSequence();

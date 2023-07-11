@@ -890,7 +890,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                     t.PropertyMappings.Any(
                         tm =>
                             string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
-                            && EntityTypePathEquals(sm.Property.DeclaringEntityType, tm.Property.DeclaringEntityType, c))),
+                            && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
             (s, t, _) => s.PropertyMappings.Any(
                 sm =>
                     t.PropertyMappings.Any(
@@ -902,7 +902,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         t.PropertyMappings.Any(
                             tm =>
                                 string.Equals(sm.Property.Name, tm.Property.Name, StringComparison.OrdinalIgnoreCase)
-                                && EntityTypePathEquals(sm.Property.DeclaringEntityType, tm.Property.DeclaringEntityType, c))),
+                                && EntityTypePathEquals(sm.Property.DeclaringType, tm.Property.DeclaringType, c))),
             (s, t, _) => ColumnStructureEquals(s, t));
 
     private static bool ColumnStructureEquals(IColumn source, IColumn target)
@@ -933,7 +933,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             && source.DefaultValueSql == target.DefaultValueSql;
     }
 
-    private static bool EntityTypePathEquals(IEntityType source, IEntityType target, DiffContext diffContext)
+    private static bool EntityTypePathEquals(ITypeBase source, ITypeBase target, DiffContext diffContext)
     {
         var sourceTable = diffContext.FindTable(source);
         var targetTable = diffContext.FindTable(target);
@@ -951,12 +951,29 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
             return false;
         }
 
-        var nextSource = sourceTable?.GetRowInternalForeignKeys(source).FirstOrDefault()?.PrincipalEntityType;
-        var nextTarget = targetTable?.GetRowInternalForeignKeys(target).FirstOrDefault()?.PrincipalEntityType;
-        return (nextSource == null && nextTarget == null)
-            || (nextSource != null
-                && nextTarget != null
-                && EntityTypePathEquals(nextSource, nextTarget, diffContext));
+        if (source is IEntityType sourceEntityType
+            && target is IEntityType targetEntityType)
+        {
+            var nextSource = sourceTable?.GetRowInternalForeignKeys(sourceEntityType).FirstOrDefault()?.PrincipalEntityType;
+            var nextTarget = targetTable?.GetRowInternalForeignKeys(targetEntityType).FirstOrDefault()?.PrincipalEntityType;
+            return (nextSource == null && nextTarget == null)
+                || (nextSource != null
+                    && nextTarget != null
+                    && EntityTypePathEquals(nextSource, nextTarget, diffContext));
+        }
+
+        if (source is IComplexType sourceComplexType
+            && target is IComplexType targetComplexType)
+        {
+            var nextSource = sourceComplexType.ComplexProperty.DeclaringType;
+            var nextTarget = targetComplexType.ComplexProperty.DeclaringType;
+            return (nextSource == null && nextTarget == null)
+                || (nextSource != null
+                    && nextTarget != null
+                    && EntityTypePathEquals(nextSource, nextTarget, diffContext));
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -1861,7 +1878,7 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
                         || Equals(value, property.ClrType.GetDefaultValue()))
                     {
                         if (property.GetValueGeneratorFactory() != null
-                            && property == property.DeclaringEntityType.FindDiscriminatorProperty())
+                            && property == (property.DeclaringType as IEntityType)?.FindDiscriminatorProperty())
                         {
                             value = entityType.GetDiscriminatorValue()!;
                         }
@@ -2561,8 +2578,8 @@ public class MigrationsModelDiffer : IMigrationsModelDiffer
         ///     any release. You should only use it directly in your code with extreme caution and knowing that
         ///     doing so can result in application failures when updating to a new Entity Framework Core release.
         /// </summary>
-        public virtual ITable? FindTable(IEntityType entityType)
-            => entityType.GetTableMappings().FirstOrDefault()?.Table;
+        public virtual ITable? FindTable(ITypeBase typeBase)
+            => typeBase.GetTableMappings().FirstOrDefault()?.Table;
 
         /// <summary>
         ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to

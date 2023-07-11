@@ -493,8 +493,8 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(derivedEntityBuilder.Metadata.GetDeclaredForeignKeys().Single(), relationshipBuilder.Metadata);
         Assert.Collection(
             relationshipBuilder.Metadata.Properties,
-            t1 => Assert.Same(entityBuilder.Metadata, t1.DeclaringEntityType),
-            t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringEntityType));
+            t1 => Assert.Same(entityBuilder.Metadata, t1.DeclaringType),
+            t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringType));
     }
 
     [ConditionalFact]
@@ -922,7 +922,7 @@ public class InternalEntityTypeBuilderTest
 
         Assert.Empty(entityBuilder.Metadata.GetIndexes());
         Assert.Same(derivedEntityBuilder.Metadata.GetDeclaredIndexes().Single(), indexBuilder.Metadata);
-        Assert.Same(entityBuilder.Metadata, indexBuilder.Metadata.Properties.First().DeclaringEntityType);
+        Assert.Same(entityBuilder.Metadata, indexBuilder.Metadata.Properties.First().DeclaringType);
     }
 
     [ConditionalFact]
@@ -943,8 +943,8 @@ public class InternalEntityTypeBuilderTest
         Assert.Same(derivedEntityBuilder.Metadata.GetDeclaredIndexes().Single(), indexBuilder.Metadata);
         Assert.Collection(
             indexBuilder.Metadata.Properties,
-            t1 => Assert.Same(entityBuilder.Metadata, t1.DeclaringEntityType),
-            t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringEntityType));
+            t1 => Assert.Same(entityBuilder.Metadata, t1.DeclaringType),
+            t2 => Assert.Same(derivedEntityBuilder.Metadata, t2.DeclaringType));
     }
 
     [ConditionalFact]
@@ -1739,7 +1739,8 @@ public class InternalEntityTypeBuilderTest
             ConfigurationSource.Explicit);
 
         Assert.Equal(
-            CoreStrings.PropertyCalledOnNavigation(nameof(Order.Customer), nameof(Order)),
+                CoreStrings.ConflictingPropertyOrNavigation(
+                    nameof(Order.Customer), nameof(Order), nameof(Order)),
             Assert.Throws<InvalidOperationException>(
                 () => dependentEntityBuilder
                     .Property(Order.CustomerProperty, ConfigurationSource.Explicit)).Message);
@@ -1808,7 +1809,7 @@ public class InternalEntityTypeBuilderTest
         propertyBuilder = derivedEntityBuilder.Property(typeof(string), nameof(SpecialOrder.Specialty), ConfigurationSource.Explicit);
 
         Assert.Same(typeof(string), propertyBuilder.Metadata.ClrType);
-        Assert.Same(entityBuilder.Metadata, propertyBuilder.Metadata.DeclaringEntityType);
+        Assert.Same(entityBuilder.Metadata, propertyBuilder.Metadata.DeclaringType);
         Assert.NotNull(entityBuilder.Metadata.FindPrimaryKey());
     }
 
@@ -2576,20 +2577,9 @@ public class InternalEntityTypeBuilderTest
         }
         else
         {
-            var message = "";
-            if (firstMemberType == MemberType.Navigation
-                && secondMemberType == MemberType.Property)
-            {
-                message = CoreStrings.PropertyCalledOnNavigation(nameof(Order.Products), nameof(SpecialOrder));
-            }
-            else
-            {
-                message = CoreStrings.ConflictingPropertyOrNavigation(
-                    nameof(Order.Products), nameof(SpecialOrder), firstEntityTypeBuilder.Metadata.DisplayName());
-            }
-
             Assert.Equal(
-                message,
+                CoreStrings.ConflictingPropertyOrNavigation(
+                    nameof(Order.Products), nameof(SpecialOrder), firstEntityTypeBuilder.Metadata.DisplayName()),
                 Assert.Throws<InvalidOperationException>(
                     () => ConfigureMember(secondEntityTypeBuilder, secondMemberType, secondSource)).Message);
 
@@ -2661,6 +2651,8 @@ public class InternalEntityTypeBuilderTest
         {
             case MemberType.Property:
                 return entityTypeBuilder.Property(Order.ProductsProperty, configurationSource) != null;
+            case MemberType.ComplexProperty:
+                return entityTypeBuilder.ComplexProperty(Order.ProductsProperty, collection: true, configurationSource) != null;
             case MemberType.ServiceProperty:
                 return entityTypeBuilder.ServiceProperty(Order.ProductsProperty, configurationSource) != null;
             case MemberType.Navigation:
@@ -2690,6 +2682,9 @@ public class InternalEntityTypeBuilderTest
             memberType == MemberType.Property ? expectedDeclaringType : null,
             GetDeclaringType(entityTypeBuilder, MemberType.Property));
         Assert.Same(
+            memberType == MemberType.ComplexProperty ? expectedDeclaringType : null,
+            GetDeclaringType(entityTypeBuilder, MemberType.ComplexProperty));
+        Assert.Same(
             memberType == MemberType.ServiceProperty ? expectedDeclaringType : null,
             GetDeclaringType(entityTypeBuilder, MemberType.ServiceProperty));
         Assert.Same(
@@ -2707,7 +2702,9 @@ public class InternalEntityTypeBuilderTest
         switch (memberType)
         {
             case MemberType.Property:
-                return entityTypeBuilder.Metadata.FindProperty(nameof(Order.Products))?.DeclaringEntityType;
+                return (EntityType)entityTypeBuilder.Metadata.FindProperty(nameof(Order.Products))?.DeclaringType;
+            case MemberType.ComplexProperty:
+                return (EntityType)entityTypeBuilder.Metadata.FindComplexProperty(nameof(Order.Products))?.DeclaringType;
             case MemberType.ServiceProperty:
                 return entityTypeBuilder.Metadata.FindServiceProperty(nameof(Order.Products))?.DeclaringEntityType;
             case MemberType.Navigation:
@@ -3429,6 +3426,7 @@ public class InternalEntityTypeBuilderTest
     public enum MemberType
     {
         Property,
+        ComplexProperty,
         ServiceProperty,
         Navigation,
         SkipNavigation

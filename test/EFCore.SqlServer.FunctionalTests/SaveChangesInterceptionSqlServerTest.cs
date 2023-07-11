@@ -137,7 +137,7 @@ public abstract class SaveChangesInterceptionSqlServerTestBase : SaveChangesInte
         {
             RecordEventData(command, eventData, result);
 
-            return new ValueTask<DbDataReader>(result);
+            return ValueTask.FromResult(result);
         }
 
         private void RecordEventData(DbCommand command, CommandExecutedEventData eventData, DbDataReader result)

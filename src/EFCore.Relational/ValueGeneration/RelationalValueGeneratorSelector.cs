@@ -42,11 +42,11 @@ public class RelationalValueGeneratorSelector : ValueGeneratorSelector
     }
 
     /// <inheritdoc />
-    protected override ValueGenerator? FindForType(IProperty property, IEntityType entityType, Type clrType)
+    protected override ValueGenerator? FindForType(IProperty property, ITypeBase typeBase, Type clrType)
     {
-        if (entityType.IsMappedToJson() && property.IsOrdinalKeyProperty())
+        if (typeBase.IsMappedToJson() && property.IsOrdinalKeyProperty())
         {
-            return _numberFactory.Create(property, entityType);
+            return _numberFactory.Create(property, typeBase);
         }
 
         if (property.ValueGenerated != ValueGenerated.Never)
@@ -56,7 +56,7 @@ public class RelationalValueGeneratorSelector : ValueGeneratorSelector
                 || clrType == typeof(float)
                 || clrType == typeof(double))
             {
-                return _numberFactory.Create(property, entityType);
+                return _numberFactory.Create(property, typeBase);
             }
 
             if (clrType == typeof(DateTime))
@@ -88,6 +88,6 @@ public class RelationalValueGeneratorSelector : ValueGeneratorSelector
             }
         }
 
-        return base.FindForType(property, entityType, clrType);
+        return base.FindForType(property, typeBase, clrType);
     }
 }

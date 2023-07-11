@@ -1,6 +1,8 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+
 namespace Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 /// <summary>
@@ -17,9 +19,9 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual Func<TInput, ISnapshot> Create(IEntityType entityType)
+    public virtual Func<TInput, ISnapshot> Create(IRuntimeTypeBase typeBase)
     {
-        if (GetPropertyCount(entityType) == 0)
+        if (GetPropertyCount(typeBase) == 0)
         {
             return _ => Snapshot.Empty;
         }
@@ -27,7 +29,7 @@ public abstract class SnapshotFactoryFactory<TInput> : SnapshotFactoryFactory
         var parameter = Expression.Parameter(typeof(TInput), "source");
 
         return Expression.Lambda<Func<TInput, ISnapshot>>(
-                CreateConstructorExpression(entityType, parameter),
+                CreateConstructorExpression(typeBase, parameter),
                 parameter)
             .Compile();
     }

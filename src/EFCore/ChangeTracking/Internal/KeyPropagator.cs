@@ -37,7 +37,7 @@ public class KeyPropagator : IKeyPropagator
     {
         Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
-        var generationProperty = property.FindGenerationProperty();
+        var generationProperty = (IProperty?)property.FindGenerationProperty();
         var principalEntry = TryPropagateValue(entry, property, generationProperty);
 
         if (principalEntry == null
@@ -48,7 +48,7 @@ public class KeyPropagator : IKeyPropagator
                 generationProperty,
                 generationProperty == property
                     ? entry.EntityType
-                    : generationProperty?.DeclaringEntityType);
+                    : generationProperty?.DeclaringType);
 
             if (valueGenerator != null)
             {
@@ -72,7 +72,7 @@ public class KeyPropagator : IKeyPropagator
     {
         Check.DebugAssert(property.IsForeignKey(), $"property {property} is not part of an FK");
 
-        var generationProperty = property.FindGenerationProperty();
+        var generationProperty = (IProperty?)property.FindGenerationProperty();
         var principalEntry = TryPropagateValue(entry, property, generationProperty);
 
         if (principalEntry == null
@@ -83,7 +83,7 @@ public class KeyPropagator : IKeyPropagator
                 generationProperty,
                 generationProperty == property
                     ? entry.EntityType
-                    : generationProperty?.DeclaringEntityType);
+                    : generationProperty?.DeclaringType);
 
             if (valueGenerator != null)
             {
@@ -166,8 +166,8 @@ public class KeyPropagator : IKeyPropagator
         return null;
     }
 
-    private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty, IEntityType? entityType)
+    private ValueGenerator? TryGetValueGenerator(IProperty? generationProperty, ITypeBase? typeBase)
         => generationProperty != null
-            ? _valueGeneratorSelector.Select(generationProperty, entityType!)
+            ? _valueGeneratorSelector.Select(generationProperty, typeBase!)
             : null;
 }

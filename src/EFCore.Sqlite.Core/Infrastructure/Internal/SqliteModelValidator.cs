@@ -115,9 +115,9 @@ public class SqliteModelValidator : RelationalModelValidator
         {
             throw new InvalidOperationException(
                 SqliteStrings.DuplicateColumnNameSridMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));

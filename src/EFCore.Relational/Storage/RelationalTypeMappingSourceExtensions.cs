@@ -63,7 +63,7 @@ public static class RelationalTypeMappingSourceExtensions
 
         throw new InvalidOperationException(
             RelationalStrings.UnsupportedPropertyType(
-                property.DeclaringEntityType.DisplayName(),
+                property.DeclaringType.DisplayName(),
                 property.Name,
                 property.ClrType.ShortDisplayName()));
     }

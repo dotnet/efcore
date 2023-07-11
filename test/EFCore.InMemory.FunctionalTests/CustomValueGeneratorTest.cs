@@ -203,8 +203,8 @@ public class CustomValueGeneratorTest
         {
         }
 
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
-            => _factory.Create(property, entityType);
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
+            => _factory.Create(property, typeBase);
     }
 
     private class CustomGuidValueGenerator : ValueGenerator<Guid>
@@ -243,7 +243,7 @@ public class CustomValueGeneratorTest
 
     private class CustomValueGeneratorFactory : ValueGeneratorFactory
     {
-        public override ValueGenerator Create(IProperty property, IEntityType entityType)
+        public override ValueGenerator Create(IProperty property, ITypeBase typeBase)
         {
             if (property.ClrType == typeof(Guid))
             {
@@ -253,7 +253,7 @@ public class CustomValueGeneratorTest
             }
 
             return property.ClrType == typeof(string)
-                && property.DeclaringEntityType.ClrType == typeof(SomeEntity)
+                && property.DeclaringType.ClrType == typeof(SomeEntity)
                     ? new SomeEntityStringValueGenerator()
                     : null;
         }

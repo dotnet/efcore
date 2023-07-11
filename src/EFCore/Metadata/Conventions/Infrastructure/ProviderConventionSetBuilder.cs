@@ -55,10 +55,10 @@ public class ProviderConventionSetBuilder : IProviderConventionSetBuilder
         var conventionSet = new ConventionSet();
 
         conventionSet.Add(new ModelCleanupConvention(Dependencies));
-        conventionSet.Add(new NotMappedEntityTypeAttributeConvention(Dependencies));
-        conventionSet.Add(new OwnedEntityTypeAttributeConvention(Dependencies));
-        conventionSet.Add(new KeylessEntityTypeAttributeConvention(Dependencies));
-        conventionSet.Add(new EntityTypeConfigurationEntityTypeAttributeConvention(Dependencies));
+        conventionSet.Add(new NotMappedTypeAttributeConvention(Dependencies));
+        conventionSet.Add(new OwnedAttributeConvention(Dependencies));
+        conventionSet.Add(new KeylessAttributeConvention(Dependencies));
+        conventionSet.Add(new EntityTypeConfigurationAttributeConvention(Dependencies));
         conventionSet.Add(new NotMappedMemberAttributeConvention(Dependencies));
         conventionSet.Add(new BackingFieldAttributeConvention(Dependencies));
         conventionSet.Add(new ConcurrencyCheckAttributeConvention(Dependencies));

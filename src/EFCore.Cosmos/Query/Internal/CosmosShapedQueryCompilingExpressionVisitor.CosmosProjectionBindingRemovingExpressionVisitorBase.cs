@@ -598,11 +598,13 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
             var storeName = property.GetJsonPropertyName();
             if (storeName.Length == 0)
             {
-                var entityType = property.DeclaringEntityType;
-                if (!entityType.IsDocumentRoot())
+                var entityType = property.DeclaringType as IEntityType;
+                if (entityType == null
+                    || !entityType.IsDocumentRoot())
                 {
-                    var ownership = entityType.FindOwnership();
-                    if (!ownership.IsUnique
+                    var ownership = entityType?.FindOwnership();
+                    if (ownership != null
+                        && !ownership.IsUnique
                         && property.IsOrdinalKeyProperty())
                     {
                         var readExpression = _ordinalParameterBindings[jObjectExpression];
@@ -621,8 +623,8 @@ public partial class CosmosShapedQueryCompilingExpressionVisitor
                         if (_ownerMappings.TryGetValue(jObjectExpression, out var ownerInfo))
                         {
                             Check.DebugAssert(
-                                principalProperty.DeclaringEntityType.IsAssignableFrom(ownerInfo.EntityType),
-                                $"{principalProperty.DeclaringEntityType} is not assignable from {ownerInfo.EntityType}");
+                                principalProperty.DeclaringType.IsAssignableFrom(ownerInfo.EntityType),
+                                $"{principalProperty.DeclaringType} is not assignable from {ownerInfo.EntityType}");
 
                             ownerJObjectExpression = ownerInfo.JObjectExpression;
                         }

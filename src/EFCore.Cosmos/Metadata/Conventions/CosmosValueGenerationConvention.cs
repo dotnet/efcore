@@ -67,9 +67,10 @@ public class CosmosValueGenerationConvention :
     /// <returns>The store value generation strategy to set for the given property.</returns>
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
-        var entityType = property.DeclaringEntityType;
+        var entityType = property.DeclaringType as IConventionEntityType;
         var propertyType = property.ClrType.UnwrapNullableType();
-        if (propertyType == typeof(int))
+        if (propertyType == typeof(int)
+            && entityType != null)
         {
             var ownership = entityType.FindOwnership();
             if (ownership is { IsUnique: false }

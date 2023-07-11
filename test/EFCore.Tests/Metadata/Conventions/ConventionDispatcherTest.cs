@@ -35,7 +35,7 @@ public class ConventionDispatcherTest
         public void ProcessPropertyAdded(
             IConventionPropertyBuilder propertyBuilder,
             IConventionContext<IConventionPropertyBuilder> context)
-            => propertyBuilder.Metadata.DeclaringEntityType.AddProperty("TempProperty" + _count++, typeof(int));
+            => ((IMutableEntityType)propertyBuilder.Metadata.DeclaringType).AddProperty("TempProperty" + _count++, typeof(int));
     }
 
     [InlineData(false)]
@@ -326,9 +326,9 @@ public class ConventionDispatcherTest
         var convention1 = new EntityTypeIgnoredConvention(terminate: false);
         var convention2 = new EntityTypeIgnoredConvention(terminate: true);
         var convention3 = new EntityTypeIgnoredConvention(terminate: false);
-        conventions.EntityTypeIgnoredConventions.Add(convention1);
-        conventions.EntityTypeIgnoredConventions.Add(convention2);
-        conventions.EntityTypeIgnoredConventions.Add(convention3);
+        conventions.TypeIgnoredConventions.Add(convention1);
+        conventions.TypeIgnoredConventions.Add(convention2);
+        conventions.TypeIgnoredConventions.Add(convention3);
 
         var convention4 = new EntityTypeRemovedConvention(terminate: false);
         var convention5 = new EntityTypeRemovedConvention(terminate: true);
@@ -371,7 +371,7 @@ public class ConventionDispatcherTest
         Assert.Equal(0, convention6.Calls);
     }
 
-    private class EntityTypeIgnoredConvention : IEntityTypeIgnoredConvention
+    private class EntityTypeIgnoredConvention : ITypeIgnoredConvention
     {
         private readonly bool _terminate;
         public int Calls;
@@ -381,7 +381,7 @@ public class ConventionDispatcherTest
             _terminate = terminate;
         }
 
-        public void ProcessEntityTypeIgnored(
+        public void ProcessTypeIgnored(
             IConventionModelBuilder modelBuilder,
             string name,
             Type type,
@@ -2093,7 +2093,7 @@ public class ConventionDispatcherTest
         else
         {
             var result = firstEntityBuilder.Metadata.AddSkipNavigation(
-                nameof(Order.Products), null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
+                nameof(Order.Products), null, null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
 
             Assert.Equal(!useScope, result == null);
         }
@@ -2158,7 +2158,7 @@ public class ConventionDispatcherTest
         var secondEntityBuilder = builder.Entity(typeof(Product), ConfigurationSource.Convention);
 
         var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-            nameof(Order.Products), null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
+            nameof(Order.Products), null, null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -2267,7 +2267,7 @@ public class ConventionDispatcherTest
             .IsUnique(false, ConfigurationSource.Convention)
             .Metadata;
         var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-            nameof(Order.Products), null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
+            nameof(Order.Products), null, null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -2358,9 +2358,9 @@ public class ConventionDispatcherTest
         var secondEntityBuilder = builder.Entity(typeof(Product), ConfigurationSource.Convention);
 
         var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-            nameof(Order.Products), null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
+            nameof(Order.Products), null, null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
         var inverse = secondEntityBuilder.Metadata.AddSkipNavigation(
-            nameof(Product.Orders), null, firstEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
+            nameof(Product.Orders), null, null, firstEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -2449,7 +2449,7 @@ public class ConventionDispatcherTest
         var secondEntityBuilder = builder.Entity(typeof(Product), ConfigurationSource.Convention);
 
         var navigation = firstEntityBuilder.Metadata.AddSkipNavigation(
-            nameof(Order.Products), null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
+            nameof(Order.Products), null, null, secondEntityBuilder.Metadata, true, false, ConfigurationSource.Convention);
 
         var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
 
@@ -3419,7 +3419,7 @@ public class ConventionDispatcherTest
 
             if (_terminate)
             {
-                propertyBuilder.Metadata.DeclaringEntityType.RemoveProperty(propertyBuilder.Metadata.Name);
+                propertyBuilder.Metadata.DeclaringType.RemoveProperty(propertyBuilder.Metadata.Name);
                 context.StopProcessing();
             }
         }
@@ -3820,13 +3820,1128 @@ public class ConventionDispatcherTest
         }
 
         public void ProcessPropertyRemoved(
-            IConventionEntityTypeBuilder entityTypeBuilder,
+            IConventionTypeBaseBuilder typeBaseBuilder,
             IConventionProperty property,
             IConventionContext<IConventionProperty> context)
         {
-            Assert.NotNull(entityTypeBuilder.Metadata.Builder);
+            Assert.NotNull(typeBaseBuilder.Metadata.Builder);
 
             Calls.Add(property);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexTypePropertyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyAddedConvention(terminate: false);
+        var convention2 = new PropertyAddedConvention(terminate: true);
+        var convention3 = new PropertyAddedConvention(terminate: false);
+        conventions.PropertyAddedConventions.Add(convention1);
+        conventions.PropertyAddedConventions.Add(convention2);
+        conventions.PropertyAddedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var complexBuilder = entityBuilder.ComplexProperty(
+            Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder;
+        var shadowPropertyName = "ShadowProperty";
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = complexBuilder.Property(typeof(int), shadowPropertyName, ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+        else
+        {
+            var result = complexBuilder.Metadata.AddProperty(
+                shadowPropertyName, typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            Assert.Empty(convention3.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { shadowPropertyName }, convention1.Calls);
+        Assert.Equal(new[] { shadowPropertyName }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = complexBuilder.Property(nameof(OrderDetails.Id), ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+        else
+        {
+            var result = ((IMutableComplexType)complexBuilder.Metadata).AddProperty(nameof(OrderDetails.Id));
+
+            Assert.Equal(!useScope, result == null);
+        }
+
+        if (useScope)
+        {
+            Assert.Equal(new[] { shadowPropertyName }, convention1.Calls);
+            Assert.Equal(new[] { shadowPropertyName }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { shadowPropertyName, nameof(OrderDetails.Id) }, convention1.Calls);
+        Assert.Equal(new[] { shadowPropertyName, nameof(OrderDetails.Id) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        Assert.Empty(entityBuilder.Metadata.GetProperties());
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexTypePropertyNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyNullabilityChangedConvention(false);
+        var convention2 = new PropertyNullabilityChangedConvention(true);
+        var convention3 = new PropertyNullabilityChangedConvention(false);
+        conventions.PropertyNullabilityChangedConventions.Add(convention1);
+        conventions.PropertyNullabilityChangedConventions.Add(convention2);
+        conventions.PropertyNullabilityChangedConventions.Add(convention3);
+
+        var model = new Model(conventions);
+
+        var scope = useScope ? model.DelayConventions() : null;
+
+        var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder
+            .Property(typeof(string), "Name", ConfigurationSource.Convention);
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = false;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = false;
+        }
+
+        scope?.Dispose();
+
+        if (useScope)
+        {
+            Assert.Equal(new bool?[] { false, false, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, false, false }, convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexTypePropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyFieldChangedConvention(terminate: false);
+        var convention2 = new PropertyFieldChangedConvention(terminate: true);
+        var convention3 = new PropertyFieldChangedConvention(terminate: false);
+        conventions.PropertyFieldChangedConventions.Add(convention1);
+        conventions.PropertyFieldChangedConventions.Add(convention2);
+        conventions.PropertyFieldChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var propertyBuilder = entityBuilder
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder
+            .Property(nameof(OrderDetails.Id), ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasField(nameof(OrderDetails.IntField), ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.SetField(
+                nameof(OrderDetails.IntField),
+                ConfigurationSource.Convention);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new string[] { null }, convention1.Calls);
+        Assert.Equal(new string[] { null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasField(nameof(OrderDetails.IntField), ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.SetField(
+                nameof(OrderDetails.IntField),
+                ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new string[] { null }, convention1.Calls);
+        Assert.Equal(new string[] { null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasField((string)null, ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.SetFieldInfo(
+                null,
+                ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new[] { null, nameof(Order.IntField) }, convention1.Calls);
+        Assert.Equal(new[] { null, nameof(Order.IntField) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexTypePropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyAnnotationChangedConvention(false);
+        var convention2 = new PropertyAnnotationChangedConvention(true);
+        var convention3 = new PropertyAnnotationChangedConvention(false);
+        conventions.PropertyAnnotationChangedConventions.Add(convention1);
+        conventions.PropertyAnnotationChangedConventions.Add(convention2);
+        conventions.PropertyAnnotationChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder
+            .Property(nameof(OrderDetails.Id), ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata["foo"] = "bar";
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { "bar" }, convention1.Calls);
+        Assert.Equal(new[] { "bar" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata["foo"] = "bar";
+        }
+
+        Assert.Equal(new[] { "bar" }, convention1.Calls);
+        Assert.Equal(new[] { "bar" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.RemoveAnnotation("foo");
+        }
+
+        Assert.Equal(new[] { "bar", null }, convention1.Calls);
+        Assert.Equal(new[] { "bar", null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        propertyBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
+
+        Assert.Equal(new[] { "bar", null }, convention1.Calls);
+    }
+
+    [InlineData(false)]
+    [InlineData(true)]
+    [ConditionalTheory]
+    public void OnComplexTypePropertyRemoved_calls_conventions_in_order(bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new PropertyRemovedConvention(terminate: false);
+        var convention2 = new PropertyRemovedConvention(terminate: true);
+        var convention3 = new PropertyRemovedConvention(terminate: false);
+        conventions.PropertyRemovedConventions.Add(convention1);
+        conventions.PropertyRemovedConventions.Add(convention2);
+        conventions.PropertyRemovedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var shadowPropertyName = "ShadowProperty";
+        var property = entityBuilder
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder.Metadata.AddProperty(
+            shadowPropertyName, typeof(int), ConfigurationSource.Convention, ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        var result = ((ComplexType)property.DeclaringType).RemoveProperty(property);
+
+        if (useScope)
+        {
+            Assert.Same(property, result);
+        }
+        else
+        {
+            Assert.Null(result);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { property }, convention1.Calls);
+        Assert.Equal(new[] { property }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexPropertyAdded_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexPropertyAddedConvention(terminate: false);
+        var convention2 = new ComplexPropertyAddedConvention(terminate: true);
+        var convention3 = new ComplexPropertyAddedConvention(terminate: false);
+        conventions.ComplexPropertyAddedConventions.Add(convention1);
+        conventions.ComplexPropertyAddedConventions.Add(convention2);
+        conventions.ComplexPropertyAddedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = entityBuilder.ComplexProperty(
+                Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+        else
+        {
+            var result = entityBuilder.Metadata.AddComplexProperty(
+                Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { Order.OrderDetailsProperty.Name }, convention1.Calls);
+        Assert.Equal(new[] { Order.OrderDetailsProperty.Name }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = entityBuilder.ComplexProperty(
+                Order.OtherOrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+        else
+        {
+            var result = ((IMutableEntityType)entityBuilder.Metadata).AddComplexProperty(
+                Order.OtherOrderDetailsProperty, collection: false);
+
+            Assert.Equal(!useScope, result == null);
+        }
+
+        if (useScope)
+        {
+            Assert.Equal(new[] { Order.OrderDetailsProperty.Name }, convention1.Calls);
+            Assert.Equal(new[] { Order.OrderDetailsProperty.Name }, convention2.Calls);
+            Assert.Empty(convention3.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { Order.OrderDetailsProperty.Name, Order.OtherOrderDetailsProperty.Name }, convention1.Calls);
+        Assert.Equal(new[] { Order.OrderDetailsProperty.Name, Order.OtherOrderDetailsProperty.Name }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        Assert.Empty(entityBuilder.Metadata.GetComplexProperties());
+    }
+
+    private class ComplexPropertyAddedConvention : IComplexPropertyAddedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public ComplexPropertyAddedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexPropertyAdded(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            IConventionContext<IConventionComplexPropertyBuilder> context)
+        {
+            Assert.True(propertyBuilder.Metadata.IsInModel);
+
+            Calls.Add(propertyBuilder.Metadata.Name);
+
+            if (_terminate)
+            {
+                ((IConventionEntityType)propertyBuilder.Metadata.DeclaringType).RemoveComplexProperty(propertyBuilder.Metadata.Name);
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexPropertyNullabilityChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexPropertyNullabilityChangedConvention(false);
+        var convention2 = new ComplexPropertyNullabilityChangedConvention(true);
+        var convention3 = new ComplexPropertyNullabilityChangedConvention(false);
+        conventions.ComplexPropertyNullabilityChangedConventions.Add(convention1);
+        conventions.ComplexPropertyNullabilityChangedConventions.Add(convention2);
+        conventions.ComplexPropertyNullabilityChangedConventions.Add(convention3);
+
+        var model = new Model(conventions);
+
+        var scope = useScope ? model.DelayConventions() : null;
+
+        var propertyBuilder = model.Builder.Entity(typeof(Order), ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.IsRequired(true, ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = false;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(false, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = true;
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            propertyBuilder.IsRequired(true, ConfigurationSource.Convention);
+        }
+        else
+        {
+            propertyBuilder.Metadata.IsNullable = false;
+        }
+
+        scope?.Dispose();
+
+        if (useScope)
+        {
+            Assert.Equal(new bool?[] { false, false, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, false, false }, convention2.Calls);
+        }
+        else
+        {
+            Assert.Equal(new bool?[] { false, true, false }, convention1.Calls);
+            Assert.Equal(new bool?[] { false, true, false }, convention2.Calls);
+        }
+
+        Assert.Empty(convention3.Calls);
+    }
+
+    private class ComplexPropertyNullabilityChangedConvention : IComplexPropertyNullabilityChangedConvention
+    {
+        public readonly List<bool?> Calls = new();
+        private readonly bool _terminate;
+
+        public ComplexPropertyNullabilityChangedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexPropertyNullabilityChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            IConventionContext<bool?> context)
+        {
+            Calls.Add(propertyBuilder.Metadata.IsNullable);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexPropertyFieldChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexPropertyFieldChangedConvention(terminate: false);
+        var convention2 = new ComplexPropertyFieldChangedConvention(terminate: true);
+        var convention3 = new ComplexPropertyFieldChangedConvention(terminate: false);
+        conventions.ComplexPropertyFieldChangedConventions.Add(convention1);
+        conventions.ComplexPropertyFieldChangedConventions.Add(convention2);
+        conventions.ComplexPropertyFieldChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var propertyBuilder = entityBuilder
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasField(nameof(Order.OrderDetailsField), ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.SetField(
+                nameof(Order.OrderDetailsField),
+                ConfigurationSource.Convention);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new string[] { null }, convention1.Calls);
+        Assert.Equal(new string[] { null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasField(nameof(Order.OrderDetailsField), ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.SetField(
+                nameof(Order.OrderDetailsField),
+                ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new string[] { null }, convention1.Calls);
+        Assert.Equal(new string[] { null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasField((string)null, ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.SetFieldInfo(
+                null,
+                ConfigurationSource.Convention);
+        }
+
+        Assert.Equal(new[] { null, nameof(Order.OrderDetailsField) }, convention1.Calls);
+        Assert.Equal(new[] { null, nameof(Order.OrderDetailsField) }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    private class ComplexPropertyFieldChangedConvention : IComplexPropertyFieldChangedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public ComplexPropertyFieldChangedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexPropertyFieldChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            FieldInfo newFieldInfo,
+            FieldInfo oldFieldInfo,
+            IConventionContext<FieldInfo> context)
+        {
+            Assert.True(propertyBuilder.Metadata.IsInModel);
+
+            Calls.Add(oldFieldInfo?.Name);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexPropertyAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexPropertyAnnotationChangedConvention(false);
+        var convention2 = new ComplexPropertyAnnotationChangedConvention(true);
+        var convention3 = new ComplexPropertyAnnotationChangedConvention(false);
+        conventions.ComplexPropertyAnnotationChangedConventions.Add(convention1);
+        conventions.ComplexPropertyAnnotationChangedConventions.Add(convention2);
+        conventions.ComplexPropertyAnnotationChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var propertyBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention);
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata["foo"] = "bar";
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { "bar" }, convention1.Calls);
+        Assert.Equal(new[] { "bar" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata["foo"] = "bar";
+        }
+
+        Assert.Equal(new[] { "bar" }, convention1.Calls);
+        Assert.Equal(new[] { "bar" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(propertyBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+        }
+        else
+        {
+            propertyBuilder.Metadata.RemoveAnnotation("foo");
+        }
+
+        Assert.Equal(new[] { "bar", null }, convention1.Calls);
+        Assert.Equal(new[] { "bar", null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        propertyBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
+
+        Assert.Equal(new[] { "bar", null }, convention1.Calls);
+    }
+
+    private class ComplexPropertyAnnotationChangedConvention : IComplexPropertyAnnotationChangedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public ComplexPropertyAnnotationChangedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexPropertyAnnotationChanged(
+            IConventionComplexPropertyBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
+        {
+            Assert.True(propertyBuilder.Metadata.IsInModel);
+
+            Calls.Add(annotation?.Value);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false)]
+    [InlineData(true)]
+    [ConditionalTheory]
+    public void OnComplexPropertyRemoved_calls_conventions_in_order(bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexPropertyRemovedConvention(terminate: false);
+        var convention2 = new ComplexPropertyRemovedConvention(terminate: true);
+        var convention3 = new ComplexPropertyRemovedConvention(terminate: false);
+        conventions.ComplexPropertyRemovedConventions.Add(convention1);
+        conventions.ComplexPropertyRemovedConventions.Add(convention2);
+        conventions.ComplexPropertyRemovedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var property = entityBuilder
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .Metadata;
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        var result = ((EntityType)property.DeclaringType).RemoveComplexProperty(property);
+
+        if (useScope)
+        {
+            Assert.Same(property, result);
+        }
+        else
+        {
+            Assert.Null(result);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { property }, convention1.Calls);
+        Assert.Equal(new[] { property }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+    }
+
+    private class ComplexPropertyRemovedConvention : IComplexPropertyRemovedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public ComplexPropertyRemovedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexPropertyRemoved(
+            IConventionTypeBaseBuilder typeBaseBuilder,
+            IConventionComplexProperty property,
+            IConventionContext<IConventionComplexProperty> context)
+        {
+            Assert.NotNull(typeBaseBuilder.Metadata.Builder);
+
+            Calls.Add(property);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexTypeAnnotationChanged_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexTypeAnnotationChangedConvention(false);
+        var convention2 = new ComplexTypeAnnotationChangedConvention(true);
+        var convention3 = new ComplexTypeAnnotationChangedConvention(false);
+        conventions.ComplexTypeAnnotationChangedConventions.Add(convention1);
+        conventions.ComplexTypeAnnotationChangedConventions.Add(convention2);
+        conventions.ComplexTypeAnnotationChangedConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var typeBuilder = builder.Entity(typeof(SpecialOrder), ConfigurationSource.Convention)
+            .ComplexProperty(Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder;
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            Assert.NotNull(typeBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+        }
+        else
+        {
+            typeBuilder.Metadata["foo"] = "bar";
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { "bar" }, convention1.Calls);
+        Assert.Equal(new[] { "bar" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(typeBuilder.HasAnnotation("foo", "bar", ConfigurationSource.Convention));
+        }
+        else
+        {
+            typeBuilder.Metadata["foo"] = "bar";
+        }
+
+        Assert.Equal(new[] { "bar" }, convention1.Calls);
+        Assert.Equal(new[] { "bar" }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        if (useBuilder)
+        {
+            Assert.NotNull(typeBuilder.HasAnnotation("foo", null, ConfigurationSource.Convention));
+        }
+        else
+        {
+            typeBuilder.Metadata.RemoveAnnotation("foo");
+        }
+
+        Assert.Equal(new[] { "bar", null }, convention1.Calls);
+        Assert.Equal(new[] { "bar", null }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        typeBuilder.Metadata[CoreAnnotationNames.AfterSaveBehavior] = PropertySaveBehavior.Ignore;
+
+        Assert.Equal(new[] { "bar", null }, convention1.Calls);
+    }
+
+    private class ComplexTypeAnnotationChangedConvention : IComplexTypeAnnotationChangedConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public ComplexTypeAnnotationChangedConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexTypeAnnotationChanged(
+            IConventionComplexTypeBuilder propertyBuilder,
+            string name,
+            IConventionAnnotation annotation,
+            IConventionAnnotation oldAnnotation,
+            IConventionContext<IConventionAnnotation> context)
+        {
+            Assert.True(propertyBuilder.Metadata.IsInModel);
+
+            Calls.Add(annotation?.Value);
+
+            if (_terminate)
+            {
+                context.StopProcessing();
+            }
+        }
+    }
+
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    [ConditionalTheory]
+    public void OnComplexTypeMemberIgnored_calls_conventions_in_order(bool useBuilder, bool useScope)
+    {
+        var conventions = new ConventionSet();
+
+        var convention1 = new ComplexTypeMemberIgnoredConvention(terminate: false);
+        var convention2 = new ComplexTypeMemberIgnoredConvention(terminate: true);
+        var convention3 = new ComplexTypeMemberIgnoredConvention(terminate: false);
+        conventions.ComplexTypeMemberIgnoredConventions.Add(convention1);
+        conventions.ComplexTypeMemberIgnoredConventions.Add(convention2);
+        conventions.ComplexTypeMemberIgnoredConventions.Add(convention3);
+
+        var builder = new InternalModelBuilder(new Model(conventions));
+        var entityBuilder = builder.Entity(typeof(Order), ConfigurationSource.Convention);
+        var complexBuilder = entityBuilder.ComplexProperty(
+            Order.OrderDetailsProperty, collection: false, ConfigurationSource.Convention)
+            .ComplexTypeBuilder;
+        var shadowPropertyName = "ShadowProperty";
+
+        var scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = complexBuilder.Ignore(shadowPropertyName, ConfigurationSource.Convention);
+
+            Assert.NotNull(result);
+        }
+        else
+        {
+            var result = complexBuilder.Metadata.AddIgnored(shadowPropertyName, ConfigurationSource.Convention);
+
+            Assert.Equal(!useScope, result == null);
+        }
+
+        if (useScope)
+        {
+            Assert.Empty(convention1.Calls);
+            Assert.Empty(convention2.Calls);
+            scope.Dispose();
+        }
+
+        Assert.Equal(new[] { shadowPropertyName }, convention1.Calls);
+        Assert.Equal(new[] { shadowPropertyName }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+
+        scope = useScope ? builder.Metadata.ConventionDispatcher.DelayConventions() : null;
+
+        if (useBuilder)
+        {
+            var result = complexBuilder.Ignore(shadowPropertyName, ConfigurationSource.Convention);
+
+            Assert.NotNull(result);
+        }
+        else
+        {
+            var result = complexBuilder.Metadata.AddIgnored(shadowPropertyName, ConfigurationSource.Convention);
+
+            Assert.NotNull(result);
+        }
+
+        Assert.Equal(new[] { shadowPropertyName }, convention1.Calls);
+        Assert.Equal(new[] { shadowPropertyName }, convention2.Calls);
+        Assert.Empty(convention3.Calls);
+        if (useScope)
+        {
+            scope.Dispose();
+        }
+
+        Assert.Empty(entityBuilder.Metadata.GetIgnoredMembers());
+    }
+
+    private class ComplexTypeMemberIgnoredConvention : IComplexTypeMemberIgnoredConvention
+    {
+        private readonly bool _terminate;
+        public readonly List<object> Calls = new();
+
+        public ComplexTypeMemberIgnoredConvention(bool terminate)
+        {
+            _terminate = terminate;
+        }
+
+        public void ProcessComplexTypeMemberIgnored(
+            IConventionComplexTypeBuilder complexTypeBuilder,
+            string name,
+            IConventionContext<string> context)
+        {
+            Assert.NotNull(complexTypeBuilder.Metadata.Builder);
+
+            Calls.Add(name);
 
             if (_terminate)
             {
@@ -3839,8 +4954,10 @@ public class ConventionDispatcherTest
     {
         public static readonly PropertyInfo OrderIdProperty = typeof(Order).GetProperty(nameof(OrderId));
         public static readonly PropertyInfo OrderDetailsProperty = typeof(Order).GetProperty(nameof(OrderDetails));
+        public static readonly PropertyInfo OtherOrderDetailsProperty = typeof(Order).GetProperty(nameof(OtherOrderDetails));
 
         public readonly int IntField = 1;
+        public readonly OrderDetails OrderDetailsField = default;
 
         public int OrderId { get; set; }
 
@@ -3858,6 +4975,7 @@ public class ConventionDispatcherTest
     private class OrderDetails
     {
         public static readonly PropertyInfo OrderProperty = typeof(OrderDetails).GetProperty(nameof(Order));
+        public readonly int IntField = 1;
 
         public int Id { get; set; }
         public virtual Order Order { get; set; }

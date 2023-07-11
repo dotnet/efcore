@@ -39,7 +39,7 @@ public class TemporaryNumberValueGeneratorFactoryTest
     }
 
     private static object CreateAndUseFactory(IProperty property)
-        => new TemporaryNumberValueGeneratorFactory().Create(property, property.DeclaringEntityType).Next(null);
+        => new TemporaryNumberValueGeneratorFactory().Create(property, property.DeclaringType).Next(null);
 
     [ConditionalFact]
     public void Throws_for_non_integer_property()

@@ -45,7 +45,7 @@ public class RelationalEvaluatableExpressionFilter : EvaluatableExpressionFilter
                 return false;
             }
 
-            if (method.DeclaringType == typeof(RelationalDbFunctionsExtensions))
+            if (method.DeclaringType == typeof(RelationalDbFunctionExtensions))
             {
                 return false;
             }

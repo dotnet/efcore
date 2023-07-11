@@ -63,7 +63,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(byte.MinValue, "{\"Prop\":0}")]
     [InlineData(byte.MaxValue, "{\"Prop\":255}")]
-    [InlineData((byte)0, "{\"Prop\":0}")]
     [InlineData((byte)1, "{\"Prop\":1}")]
     public virtual void Can_read_write_byte_JSON_values(byte value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.UInt8)), value, json);
@@ -71,7 +70,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(ushort.MinValue, "{\"Prop\":0}")]
     [InlineData(ushort.MaxValue, "{\"Prop\":65535}")]
-    [InlineData((ushort)0, "{\"Prop\":0}")]
     [InlineData((ushort)1, "{\"Prop\":1}")]
     public virtual void Can_read_write_ushort_JSON_values(ushort value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.UInt16)), value, json);
@@ -79,7 +77,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(uint.MinValue, "{\"Prop\":0}")]
     [InlineData(uint.MaxValue, "{\"Prop\":4294967295}")]
-    [InlineData((uint)0, "{\"Prop\":0}")]
     [InlineData((uint)1, "{\"Prop\":1}")]
     public virtual void Can_read_write_uint_JSON_values(uint value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.UInt32)), value, json);
@@ -87,7 +84,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(ulong.MinValue, "{\"Prop\":0}")]
     [InlineData(ulong.MaxValue, "{\"Prop\":18446744073709551615}")]
-    [InlineData((ulong)0, "{\"Prop\":0}")]
     [InlineData((ulong)1, "{\"Prop\":1}")]
     public virtual void Can_read_write_ulong_JSON_values(ulong value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.UInt64)), value, json);
@@ -119,7 +115,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("1/1/0001", "{\"Prop\":\"0001-01-01\"}")]
     [InlineData("12/31/9999", "{\"Prop\":\"9999-12-31\"}")]
-    [InlineData("1/1/0001", "{\"Prop\":\"0001-01-01\"}")]
     [InlineData("5/29/2023", "{\"Prop\":\"2023-05-29\"}")]
     public virtual void Can_read_write_DateOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value(
@@ -129,7 +124,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("00:00:00.0000000", "{\"Prop\":\"00:00:00.0000000\"}")]
     [InlineData("23:59:59.9999999", "{\"Prop\":\"23:59:59.9999999\"}")]
-    [InlineData("00:00:00.0000000", "{\"Prop\":\"00:00:00.0000000\"}")]
     [InlineData("11:05:12.3456789", "{\"Prop\":\"11:05:12.3456789\"}")]
     public virtual void Can_read_write_TimeOnly_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value(
@@ -139,7 +133,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("0001-01-01T00:00:00.0000000", "{\"Prop\":\"0001-01-01T00:00:00\"}")]
     [InlineData("9999-12-31T23:59:59.9999999", "{\"Prop\":\"9999-12-31T23:59:59.9999999\"}")]
-    [InlineData("0001-01-01T00:00:00.0000000", "{\"Prop\":\"0001-01-01T00:00:00\"}")]
     [InlineData("2023-05-29T10:52:47.2064353", "{\"Prop\":\"2023-05-29T10:52:47.2064353\"}")]
     public virtual void Can_read_write_DateTime_JSON_values(string value, string json)
         => Can_read_and_write_JSON_value(
@@ -182,7 +175,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("00000000-0000-0000-0000-000000000000", "{\"Prop\":\"00000000-0000-0000-0000-000000000000\"}")]
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "{\"Prop\":\"ffffffff-ffff-ffff-ffff-ffffffffffff\"}")]
-    [InlineData("00000000-0000-0000-0000-000000000000", "{\"Prop\":\"00000000-0000-0000-0000-000000000000\"}")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", "{\"Prop\":\"8c44242f-8e3f-4a20-8be8-98c7c1aadebd\"}")]
     public virtual void Can_read_write_GUID_JSON_values(Guid value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.Guid)), value, json);
@@ -222,7 +214,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData("255.255.255.255", "{\"Prop\":\"255.255.255.255\"}")]
     [InlineData("192.168.1.156", "{\"Prop\":\"192.168.1.156\"}")]
     [InlineData("::1", "{\"Prop\":\"::1\"}")]
-    [InlineData("::", "{\"Prop\":\"::\"}")]
     [InlineData("::", "{\"Prop\":\"::\"}")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", "{\"Prop\":\"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577\"}")]
     public virtual void Can_read_write_IP_address_JSON_values(string value, string json)
@@ -272,7 +263,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((byte)EnumU8.Min, "{\"Prop\":0}")]
     [InlineData((byte)EnumU8.Max, "{\"Prop\":255}")]
-    [InlineData((byte)EnumU8.Default, "{\"Prop\":0}")]
     [InlineData((byte)EnumU8.One, "{\"Prop\":1}")]
     public virtual void Can_read_write_byte_enum_JSON_values(EnumU8 value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.EnumU8)), value, json);
@@ -280,7 +270,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((ushort)EnumU16.Min, "{\"Prop\":0}")]
     [InlineData((ushort)EnumU16.Max, "{\"Prop\":65535}")]
-    [InlineData((ushort)EnumU16.Default, "{\"Prop\":0}")]
     [InlineData((ushort)EnumU16.One, "{\"Prop\":1}")]
     public virtual void Can_read_write_ushort_enum_JSON_values(EnumU16 value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.EnumU16)), value, json);
@@ -288,7 +277,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((uint)EnumU32.Min, "{\"Prop\":0}")]
     [InlineData((uint)EnumU32.Max, "{\"Prop\":4294967295}")]
-    [InlineData((uint)EnumU32.Default, "{\"Prop\":0}")]
     [InlineData((uint)EnumU32.One, "{\"Prop\":1}")]
     public virtual void Can_read_write_uint_enum_JSON_values(EnumU32 value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.EnumU32)), value, json);
@@ -296,7 +284,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((ulong)EnumU64.Min, "{\"Prop\":0}")]
     [InlineData((ulong)EnumU64.Max, "{\"Prop\":18446744073709551615}")]
-    [InlineData((ulong)EnumU64.Default, "{\"Prop\":0}")]
     [InlineData((ulong)EnumU64.One, "{\"Prop\":1}")]
     public virtual void Can_read_write_ulong_enum_JSON_values(EnumU64 value, string json)
         => Can_read_and_write_JSON_value(Fixture.EntityType<PrimitiveTypes>().GetProperty(nameof(PrimitiveTypes.EnumU64)), value, json);
@@ -344,7 +331,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(byte.MinValue, "{\"Prop\":0}")]
     [InlineData(byte.MaxValue, "{\"Prop\":255}")]
-    [InlineData((byte)0, "{\"Prop\":0}")]
     [InlineData((byte)1, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_byte_JSON_values(byte? value, string json)
@@ -354,7 +340,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(ushort.MinValue, "{\"Prop\":0}")]
     [InlineData(ushort.MaxValue, "{\"Prop\":65535}")]
-    [InlineData((ushort)0, "{\"Prop\":0}")]
     [InlineData((ushort)1, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_ushort_JSON_values(ushort? value, string json)
@@ -364,7 +349,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(uint.MinValue, "{\"Prop\":0}")]
     [InlineData(uint.MaxValue, "{\"Prop\":4294967295}")]
-    [InlineData((uint)0, "{\"Prop\":0}")]
     [InlineData((uint)1, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_uint_JSON_values(uint? value, string json)
@@ -374,7 +358,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(ulong.MinValue, "{\"Prop\":0}")]
     [InlineData(ulong.MaxValue, "{\"Prop\":18446744073709551615}")]
-    [InlineData((ulong)0, "{\"Prop\":0}")]
     [InlineData((ulong)1, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_ulong_JSON_values(ulong? value, string json)
@@ -415,7 +398,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("1/1/0001", "{\"Prop\":\"0001-01-01\"}")]
     [InlineData("12/31/9999", "{\"Prop\":\"9999-12-31\"}")]
-    [InlineData("1/1/0001", "{\"Prop\":\"0001-01-01\"}")]
     [InlineData("5/29/2023", "{\"Prop\":\"2023-05-29\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_DateOnly_JSON_values(string? value, string json)
@@ -426,7 +408,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("00:00:00.0000000", "{\"Prop\":\"00:00:00.0000000\"}")]
     [InlineData("23:59:59.9999999", "{\"Prop\":\"23:59:59.9999999\"}")]
-    [InlineData("00:00:00.0000000", "{\"Prop\":\"00:00:00.0000000\"}")]
     [InlineData("11:05:12.3456789", "{\"Prop\":\"11:05:12.3456789\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_TimeOnly_JSON_values(string? value, string json)
@@ -437,7 +418,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("0001-01-01T00:00:00.0000000", "{\"Prop\":\"0001-01-01T00:00:00\"}")]
     [InlineData("9999-12-31T23:59:59.9999999", "{\"Prop\":\"9999-12-31T23:59:59.9999999\"}")]
-    [InlineData("0001-01-01T00:00:00.0000000", "{\"Prop\":\"0001-01-01T00:00:00\"}")]
     [InlineData("2023-05-29T10:52:47.2064353", "{\"Prop\":\"2023-05-29T10:52:47.2064353\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_DateTime_JSON_values(string? value, string json)
@@ -488,7 +468,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("00000000-0000-0000-0000-000000000000", "{\"Prop\":\"00000000-0000-0000-0000-000000000000\"}")]
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "{\"Prop\":\"ffffffff-ffff-ffff-ffff-ffffffffffff\"}")]
-    [InlineData("00000000-0000-0000-0000-000000000000", "{\"Prop\":\"00000000-0000-0000-0000-000000000000\"}")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", "{\"Prop\":\"8c44242f-8e3f-4a20-8be8-98c7c1aadebd\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_GUID_JSON_values(string? value, string json)
@@ -540,7 +519,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData("255.255.255.255", "{\"Prop\":\"255.255.255.255\"}")]
     [InlineData("192.168.1.156", "{\"Prop\":\"192.168.1.156\"}")]
     [InlineData("::1", "{\"Prop\":\"::1\"}")]
-    [InlineData("::", "{\"Prop\":\"::\"}")]
     [InlineData("::", "{\"Prop\":\"::\"}")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", "{\"Prop\":\"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577\"}")]
     [InlineData(null, "{\"Prop\":null}")]
@@ -606,7 +584,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((byte)EnumU8.Min, "{\"Prop\":0}")]
     [InlineData((byte)EnumU8.Max, "{\"Prop\":255}")]
-    [InlineData((byte)EnumU8.Default, "{\"Prop\":0}")]
     [InlineData((byte)EnumU8.One, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_byte_enum_JSON_values(object? value, string json)
@@ -617,7 +594,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((ushort)EnumU16.Min, "{\"Prop\":0}")]
     [InlineData((ushort)EnumU16.Max, "{\"Prop\":65535}")]
-    [InlineData((ushort)EnumU16.Default, "{\"Prop\":0}")]
     [InlineData((ushort)EnumU16.One, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_ushort_enum_JSON_values(object? value, string json)
@@ -628,7 +604,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((uint)EnumU32.Min, "{\"Prop\":0}")]
     [InlineData((uint)EnumU32.Max, "{\"Prop\":4294967295}")]
-    [InlineData((uint)EnumU32.Default, "{\"Prop\":0}")]
     [InlineData((uint)EnumU32.One, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_uint_enum_JSON_values(object? value, string json)
@@ -639,7 +614,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((ulong)EnumU64.Min, "{\"Prop\":0}")]
     [InlineData((ulong)EnumU64.Max, "{\"Prop\":18446744073709551615}")]
-    [InlineData((ulong)EnumU64.Default, "{\"Prop\":0}")]
     [InlineData((ulong)EnumU64.One, "{\"Prop\":1}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_ulong_enum_JSON_values(object? value, string json)
@@ -690,7 +664,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(byte.MinValue, "{\"Prop\":\"0\"}")]
     [InlineData(byte.MaxValue, "{\"Prop\":\"255\"}")]
-    [InlineData((byte)0, "{\"Prop\":\"0\"}")]
     [InlineData((byte)1, "{\"Prop\":\"1\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_byte_as_string_JSON_values(byte? value, string json)
@@ -700,7 +673,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(ushort.MinValue, "{\"Prop\":\"0\"}")]
     [InlineData(ushort.MaxValue, "{\"Prop\":\"65535\"}")]
-    [InlineData((ushort)0, "{\"Prop\":\"0\"}")]
     [InlineData((ushort)1, "{\"Prop\":\"1\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_ushort_as_string_JSON_values(ushort? value, string json)
@@ -710,7 +682,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(uint.MinValue, "{\"Prop\":\"0\"}")]
     [InlineData(uint.MaxValue, "{\"Prop\":\"4294967295\"}")]
-    [InlineData((uint)0, "{\"Prop\":\"0\"}")]
     [InlineData((uint)1, "{\"Prop\":\"1\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_uint_as_string_JSON_values(uint? value, string json)
@@ -720,7 +691,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData(ulong.MinValue, "{\"Prop\":\"0\"}")]
     [InlineData(ulong.MaxValue, "{\"Prop\":\"18446744073709551615\"}")]
-    [InlineData((ulong)0, "{\"Prop\":\"0\"}")]
     [InlineData((ulong)1, "{\"Prop\":\"1\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_ulong_as_string_JSON_values(ulong? value, string json)
@@ -761,7 +731,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("1/1/0001", "{\"Prop\":\"0001-01-01\"}")]
     [InlineData("12/31/9999", "{\"Prop\":\"9999-12-31\"}")]
-    [InlineData("1/1/0001", "{\"Prop\":\"0001-01-01\"}")]
     [InlineData("5/29/2023", "{\"Prop\":\"2023-05-29\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_DateOnly_as_string_JSON_values(string? value, string json)
@@ -772,7 +741,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("00:00:00.0000000", "{\"Prop\":\"00:00:00\"}")]
     [InlineData("23:59:59.9999999", "{\"Prop\":\"23:59:59.9999999\"}")]
-    [InlineData("00:00:00.0000000", "{\"Prop\":\"00:00:00\"}")]
     [InlineData("11:05:12.3456789", "{\"Prop\":\"11:05:12.3456789\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_TimeOnly_as_string_JSON_values(string? value, string json)
@@ -783,7 +751,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("0001-01-01T00:00:00.0000000", "{\"Prop\":\"0001-01-01 00:00:00\"}")]
     [InlineData("9999-12-31T23:59:59.9999999", "{\"Prop\":\"9999-12-31 23:59:59.9999999\"}")]
-    [InlineData("0001-01-01T00:00:00.0000000", "{\"Prop\":\"0001-01-01 00:00:00\"}")]
     [InlineData("2023-05-29T10:52:47.2064353", "{\"Prop\":\"2023-05-29 10:52:47.2064353\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_DateTime_as_string_JSON_values(string? value, string json)
@@ -834,7 +801,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData("00000000-0000-0000-0000-000000000000", "{\"Prop\":\"00000000-0000-0000-0000-000000000000\"}")]
     [InlineData("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "{\"Prop\":\"ffffffff-ffff-ffff-ffff-ffffffffffff\"}")]
-    [InlineData("00000000-0000-0000-0000-000000000000", "{\"Prop\":\"00000000-0000-0000-0000-000000000000\"}")]
     [InlineData("8C44242F-8E3F-4A20-8BE8-98C7C1AADEBD", "{\"Prop\":\"8c44242f-8e3f-4a20-8be8-98c7c1aadebd\"}")]
     [InlineData(null, "{\"Prop\":null}")]
     public virtual void Can_read_write_nullable_as_string_GUID_JSON_values(string? value, string json)
@@ -886,7 +852,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [InlineData("255.255.255.255", "{\"Prop\":\"255.255.255.255\"}")]
     [InlineData("192.168.1.156", "{\"Prop\":\"192.168.1.156\"}")]
     [InlineData("::1", "{\"Prop\":\"::1\"}")]
-    [InlineData("::", "{\"Prop\":\"::\"}")]
     [InlineData("::", "{\"Prop\":\"::\"}")]
     [InlineData("2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577", "{\"Prop\":\"2a00:23c7:c60f:4f01:ba43:6d5a:e648:7577\"}")]
     [InlineData(null, "{\"Prop\":null}")]
@@ -956,7 +921,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((byte)EnumU8.Min, "{\"Prop\":\"Min\"}")]
     [InlineData((byte)EnumU8.Max, "{\"Prop\":\"Max\"}")]
-    [InlineData((byte)EnumU8.Default, "{\"Prop\":\"Min\"}")]
     [InlineData((byte)EnumU8.One, "{\"Prop\":\"One\"}")]
     [InlineData((byte)77, "{\"Prop\":\"77\"}")]
     [InlineData(null, "{\"Prop\":null}")]
@@ -968,7 +932,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((ushort)EnumU16.Min, "{\"Prop\":\"Min\"}")]
     [InlineData((ushort)EnumU16.Max, "{\"Prop\":\"Max\"}")]
-    [InlineData((ushort)EnumU16.Default, "{\"Prop\":\"Min\"}")]
     [InlineData((ushort)EnumU16.One, "{\"Prop\":\"One\"}")]
     [InlineData((ushort)77, "{\"Prop\":\"77\"}")]
     [InlineData(null, "{\"Prop\":null}")]
@@ -980,7 +943,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((uint)EnumU32.Min, "{\"Prop\":\"Min\"}")]
     [InlineData((uint)EnumU32.Max, "{\"Prop\":\"Max\"}")]
-    [InlineData((uint)EnumU32.Default, "{\"Prop\":\"Min\"}")]
     [InlineData((uint)EnumU32.One, "{\"Prop\":\"One\"}")]
     [InlineData((uint)77, "{\"Prop\":\"77\"}")]
     [InlineData(null, "{\"Prop\":null}")]
@@ -992,7 +954,6 @@ public abstract class JsonTypesTestBase<TFixture> : IClassFixture<TFixture>
     [ConditionalTheory]
     [InlineData((ulong)EnumU64.Min, "{\"Prop\":\"Min\"}")]
     [InlineData((ulong)EnumU64.Max, "{\"Prop\":\"Max\"}")]
-    [InlineData((ulong)EnumU64.Default, "{\"Prop\":\"Min\"}")]
     [InlineData((ulong)EnumU64.One, "{\"Prop\":\"One\"}")]
     [InlineData((ulong)77, "{\"Prop\":\"77\"}")]
     [InlineData(null, "{\"Prop\":null}")]

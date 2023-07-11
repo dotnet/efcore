@@ -1,14 +1,14 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
-using System.Text;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using System.Text;
 
 namespace Microsoft.EntityFrameworkCore.Metadata;
 
 /// <summary>
-///     Represents a scalar property of an entity type.
+///     Represents a scalar property of a structural type.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-modeling">Modeling entity types and relationships</see> for more information and examples.
@@ -18,7 +18,8 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     /// <summary>
     ///     Gets the entity type that this property belongs to.
     /// </summary>
-    IReadOnlyEntityType DeclaringEntityType { get; }
+    [Obsolete("Use DeclaringType and cast to IReadOnlyEntityType or IReadOnlyComplexType")]
+    IReadOnlyEntityType DeclaringEntityType => (IReadOnlyEntityType)DeclaringType;
 
     /// <summary>
     ///     Gets a value indicating whether this property can contain <see langword="null" />.
@@ -69,8 +70,8 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     then this is the maximum number of characters.
     /// </summary>
     /// <returns>
-    ///     The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
-    ///     set.
+    /// The maximum length, <c>-1</c> if the property has no maximum length, or <see langword="null" /> if the maximum length hasn't been
+    /// set.
     /// </returns>
     int? GetMaxLength();
 
@@ -133,7 +134,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     ///     Gets the factory that has been set to generate values for this property, if any.
     /// </summary>
     /// <returns>The factory, or <see langword="null" /> if no factory has been set.</returns>
-    Func<IProperty, IEntityType, ValueGenerator>? GetValueGeneratorFactory();
+    Func<IProperty, ITypeBase, ValueGenerator>? GetValueGeneratorFactory();
 
     /// <summary>
     ///     Gets the custom <see cref="ValueConverter" /> set for this property.
@@ -198,21 +199,31 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
     /// </summary>
     /// <returns>The list of all associated principal properties including the given property.</returns>
     IReadOnlyList<IReadOnlyProperty> GetPrincipals()
+        => GetPrincipals<IReadOnlyProperty>();
+
+    /// <summary>
+    ///     Finds the list of principal properties including the given property that the given property is constrained by
+    ///     if the given property is part of a foreign key.
+    /// </summary>
+    /// <returns>The list of all associated principal properties including the given property.</returns>
+    IReadOnlyList<T> GetPrincipals<T>()
+        where T : IReadOnlyProperty
     {
-        var principals = new List<IReadOnlyProperty> { this };
-        AddPrincipals(this, principals);
+        var principals = new List<T> { (T)this };
+        AddPrincipals((T)this, principals);
         return principals;
     }
 
-    private static void AddPrincipals(IReadOnlyProperty property, List<IReadOnlyProperty> visited)
+    private static void AddPrincipals<T>(T property, List<T> visited)
+        where T : IReadOnlyProperty
     {
         foreach (var foreignKey in property.GetContainingForeignKeys())
         {
             for (var propertyIndex = 0; propertyIndex < foreignKey.Properties.Count; propertyIndex++)
             {
-                if (property == foreignKey.Properties[propertyIndex])
+                if (ReferenceEquals(property, foreignKey.Properties[propertyIndex]))
                 {
-                    var principal = foreignKey.PrincipalKey.Properties[propertyIndex];
+                    var principal = (T)foreignKey.PrincipalKey.Properties[propertyIndex];
                     if (!visited.Contains(principal))
                     {
                         visited.Add(principal);
@@ -309,7 +320,7 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
             var singleLine = (options & MetadataDebugStringOptions.SingleLine) != 0;
             if (singleLine)
             {
-                builder.Append($"Property: {DeclaringEntityType.DisplayName()}.");
+                builder.Append($"Property: {DeclaringType.DisplayName()}.");
             }
 
             builder.Append(Name).Append(" (");
@@ -367,6 +378,11 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
                 builder.Append(" Concurrency");
             }
 
+            if (Sentinel != null && !Equals(Sentinel, ClrType.GetDefaultValue()))
+            {
+                builder.Append(" Sentinel:").Append(Sentinel);
+            }
+
             if (GetBeforeSaveBehavior() != PropertySaveBehavior.Save)
             {
                 builder.Append(" BeforeSave:").Append(GetBeforeSaveBehavior());
@@ -389,17 +405,12 @@ public interface IReadOnlyProperty : IReadOnlyPropertyBase
 
             if (IsUnicode() == false)
             {
-                builder.Append(" Ansi");
+                builder.Append(" ANSI");
             }
 
             if (GetPropertyAccessMode() != PropertyAccessMode.PreferField)
             {
                 builder.Append(" PropertyAccessMode.").Append(GetPropertyAccessMode());
-            }
-
-            if (Sentinel != null && !Equals(Sentinel, ClrType.GetDefaultValue()))
-            {
-                builder.Append(" Sentinel:").Append(Sentinel);
             }
 
             if ((options & MetadataDebugStringOptions.IncludePropertyIndexes) != 0

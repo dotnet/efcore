@@ -16,7 +16,6 @@ namespace Microsoft.EntityFrameworkCore.Query;
 ///     See <see href="https://aka.ms/efcore-docs-providers">Implementation of database providers and extensions</see>
 ///     and <see href="https://aka.ms/efcore-docs-how-query-works">How EF Core queries work</see> for more information and examples.
 /// </remarks>
-[DebuggerDisplay("{ToString(), nq}")]
 public sealed class ProjectionMember
 {
     private readonly IList<MemberInfo> _memberChain;

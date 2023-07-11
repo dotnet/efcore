@@ -250,7 +250,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     /// </remarks>
     /// <param name="factory">A delegate that will be used to create value generator instances.</param>
     /// <returns>The same builder instance so that multiple configuration calls can be chained.</returns>
-    public virtual PropertyBuilder HasValueGenerator(Func<IProperty, IEntityType, ValueGenerator> factory)
+    public virtual PropertyBuilder HasValueGenerator(Func<IProperty, ITypeBase, ValueGenerator> factory)
     {
         Check.NotNull(factory, nameof(factory));
 
@@ -439,7 +439,7 @@ public class PropertyBuilder : IInfrastructure<IConventionPropertyBuilder>
     ///     <para>
     ///         By default, the backing field, if one is found by convention or has been specified, is used when
     ///         new objects are constructed, typically when entities are queried from the database.
-    ///         Properties are used for all other accesses.  Calling this method will change that behavior
+    ///         Properties are used for all other accesses. Calling this method will change that behavior
     ///         for this property as described in the <see cref="PropertyAccessMode" /> enum.
     ///     </para>
     ///     <para>

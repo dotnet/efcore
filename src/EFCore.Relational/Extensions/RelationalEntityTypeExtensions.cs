@@ -248,26 +248,6 @@ public static class RelationalEntityTypeExtensions
         return (string.IsNullOrEmpty(schema) ? "" : schema + ".") + viewName;
     }
 
-    /// <summary>
-    ///     Returns the default mappings that the entity type would use.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the table mappings for.</param>
-    /// <returns>The tables to which the entity type is mapped.</returns>
-    public static IEnumerable<ITableMappingBase> GetDefaultMappings(this IEntityType entityType)
-        => (IEnumerable<ITableMappingBase>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.DefaultMappings)
-            ?? Enumerable.Empty<ITableMappingBase>();
-
-    /// <summary>
-    ///     Returns the tables to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the table mappings for.</param>
-    /// <returns>The tables to which the entity type is mapped.</returns>
-    public static IEnumerable<ITableMapping> GetTableMappings(this IEntityType entityType)
-        => (IEnumerable<ITableMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.TableMappings)
-            ?? Enumerable.Empty<ITableMapping>();
-
     #endregion Table mapping
 
     #region View mapping
@@ -418,16 +398,6 @@ public static class RelationalEntityTypeExtensions
         => entityType.FindAnnotation(RelationalAnnotationNames.ViewSchema)
             ?.GetConfigurationSource();
 
-    /// <summary>
-    ///     Returns the views to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the view mappings for.</param>
-    /// <returns>The views to which the entity type is mapped.</returns>
-    public static IEnumerable<IViewMapping> GetViewMappings(this IEntityType entityType)
-        => (IEnumerable<IViewMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.ViewMappings)
-            ?? Enumerable.Empty<IViewMapping>();
-
     #endregion View mapping
 
     #region SQL query mapping
@@ -487,16 +457,6 @@ public static class RelationalEntityTypeExtensions
         => entityType.FindAnnotation(RelationalAnnotationNames.SqlQuery)
             ?.GetConfigurationSource();
 
-    /// <summary>
-    ///     Returns the SQL string mappings.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the SQL string mappings for.</param>
-    /// <returns>The SQL string to which the entity type is mapped.</returns>
-    public static IEnumerable<ISqlQueryMapping> GetSqlQueryMappings(this IEntityType entityType)
-        => (IEnumerable<ISqlQueryMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.SqlQueryMappings)
-            ?? Enumerable.Empty<ISqlQueryMapping>();
-
     #endregion SQL query mapping
 
     #region Function mapping
@@ -546,16 +506,6 @@ public static class RelationalEntityTypeExtensions
     public static ConfigurationSource? GetFunctionNameConfigurationSource(this IConventionEntityType entityType)
         => entityType.FindAnnotation(RelationalAnnotationNames.FunctionName)
             ?.GetConfigurationSource();
-
-    /// <summary>
-    ///     Returns the functions to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type to get the function mappings for.</param>
-    /// <returns>The functions to which the entity type is mapped.</returns>
-    public static IEnumerable<IFunctionMapping> GetFunctionMappings(this IEntityType entityType)
-        => (IEnumerable<IFunctionMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.FunctionMappings)
-            ?? Enumerable.Empty<IFunctionMapping>();
 
     #endregion
 
@@ -797,36 +747,6 @@ public static class RelationalEntityTypeExtensions
     /// <returns>The <see cref="ConfigurationSource" /> for the update stored procedure.</returns>
     public static ConfigurationSource? GetUpdateStoredProcedureConfigurationSource(this IConventionEntityType entityType)
         => StoredProcedure.GetStoredProcedureConfigurationSource(entityType, StoreObjectType.UpdateStoredProcedure);
-
-    /// <summary>
-    ///     Returns the insert stored procedures to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns>The insert stored procedures to which the entity type is mapped.</returns>
-    public static IEnumerable<IStoredProcedureMapping> GetInsertStoredProcedureMappings(this IEntityType entityType)
-        => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.InsertStoredProcedureMappings)
-            ?? Enumerable.Empty<IStoredProcedureMapping>();
-
-    /// <summary>
-    ///     Returns the delete stored procedures to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns>The delete stored procedures to which the entity type is mapped.</returns>
-    public static IEnumerable<IStoredProcedureMapping> GetDeleteStoredProcedureMappings(this IEntityType entityType)
-        => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.DeleteStoredProcedureMappings)
-            ?? Enumerable.Empty<IStoredProcedureMapping>();
-
-    /// <summary>
-    ///     Returns the update stored procedures to which the entity type is mapped.
-    /// </summary>
-    /// <param name="entityType">The entity type.</param>
-    /// <returns>The update stored procedures to which the entity type is mapped.</returns>
-    public static IEnumerable<IStoredProcedureMapping> GetUpdateStoredProcedureMappings(this IEntityType entityType)
-        => (IEnumerable<IStoredProcedureMapping>?)entityType.FindRuntimeAnnotationValue(
-                RelationalAnnotationNames.UpdateStoredProcedureMappings)
-            ?? Enumerable.Empty<IStoredProcedureMapping>();
 
     #endregion
 
@@ -1572,6 +1492,10 @@ public static class RelationalEntityTypeExtensions
         in StoreObjectIdentifier storeObject)
         => entityType.FindMappingFragment(storeObject)?.GetIsTableExcludedFromMigrationsConfigurationSource();
 
+    #endregion IsTableExcludedFromMigrations
+
+    #region Mapping strategy
+
     /// <summary>
     ///     Gets the mapping strategy for the derived types.
     /// </summary>
@@ -1586,10 +1510,6 @@ public static class RelationalEntityTypeExtensions
                     : entityType.FindPrimaryKey() == null || !entityType.GetDirectlyDerivedTypes().Any()
                         ? null
                         : RelationalAnnotationNames.TptMappingStrategy);
-
-    #endregion IsTableExcludedFromMigrations
-
-    #region Mapping strategy
 
     /// <summary>
     ///     Sets the mapping strategy for the derived types.

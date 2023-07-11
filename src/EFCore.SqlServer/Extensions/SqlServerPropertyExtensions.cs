@@ -142,7 +142,7 @@ public static class SqlServerPropertyExtensions
     /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
     public static IReadOnlySequence? FindHiLoSequence(this IReadOnlyProperty property)
     {
-        var model = property.DeclaringEntityType.Model;
+        var model = property.DeclaringType.Model;
 
         var sequenceName = property.GetHiLoSequenceName()
             ?? model.GetHiLoSequenceName();
@@ -161,7 +161,7 @@ public static class SqlServerPropertyExtensions
     /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
     public static IReadOnlySequence? FindHiLoSequence(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        var model = property.DeclaringEntityType.Model;
+        var model = property.DeclaringType.Model;
 
         var sequenceName = property.GetHiLoSequenceName(storeObject)
             ?? model.GetHiLoSequenceName();
@@ -314,7 +314,7 @@ public static class SqlServerPropertyExtensions
     /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
     public static IReadOnlySequence? FindSequence(this IReadOnlyProperty property)
     {
-        var model = property.DeclaringEntityType.Model;
+        var model = property.DeclaringType.Model;
 
         var sequenceName = property.GetSequenceName()
             ?? model.GetSequenceNameSuffix();
@@ -333,7 +333,7 @@ public static class SqlServerPropertyExtensions
     /// <returns>The sequence to use, or <see langword="null" /> if no sequence exists in the model.</returns>
     public static IReadOnlySequence? FindSequence(this IReadOnlyProperty property, in StoreObjectIdentifier storeObject)
     {
-        var model = property.DeclaringEntityType.Model;
+        var model = property.DeclaringType.Model;
 
         var sequenceName = property.GetSequenceName(storeObject)
             ?? model.GetSequenceNameSuffix();
@@ -412,7 +412,7 @@ public static class SqlServerPropertyExtensions
 
         var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedProperty == null
-            ? property.DeclaringEntityType.Model.GetIdentitySeed()
+            ? property.DeclaringType.Model.GetIdentitySeed()
             : sharedProperty.GetIdentitySeed(storeObject);
     }
 
@@ -539,7 +539,7 @@ public static class SqlServerPropertyExtensions
         => (property is RuntimeProperty)
             ? throw new InvalidOperationException(CoreStrings.RuntimeModelMissingData)
             : (int?)property[SqlServerAnnotationNames.IdentityIncrement]
-            ?? property.DeclaringEntityType.Model.GetIdentityIncrement();
+            ?? property.DeclaringType.Model.GetIdentityIncrement();
 
     /// <summary>
     ///     Returns the identity increment.
@@ -568,7 +568,7 @@ public static class SqlServerPropertyExtensions
 
         var sharedProperty = property.FindSharedStoreObjectRootProperty(storeObject);
         return sharedProperty == null
-            ? property.DeclaringEntityType.Model.GetIdentityIncrement()
+            ? property.DeclaringType.Model.GetIdentityIncrement()
             : sharedProperty.GetIdentityIncrement(storeObject);
     }
 
@@ -744,7 +744,7 @@ public static class SqlServerPropertyExtensions
 
         var annotation = property.FindAnnotation(SqlServerAnnotationNames.ValueGenerationStrategy);
         if (annotation?.Value != null
-            && StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObject.StoreObjectType) == storeObject)
+            && StoreObjectIdentifier.Create(property.DeclaringType, storeObject.StoreObjectType) == storeObject)
         {
             return (SqlServerValueGenerationStrategy)annotation.Value;
         }
@@ -809,7 +809,7 @@ public static class SqlServerPropertyExtensions
 
     private static SqlServerValueGenerationStrategy GetDefaultValueGenerationStrategy(IReadOnlyProperty property)
     {
-        var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
+        var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
 
         if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property))
@@ -828,7 +828,7 @@ public static class SqlServerPropertyExtensions
         in StoreObjectIdentifier storeObject,
         ITypeMappingSource? typeMappingSource)
     {
-        var modelStrategy = property.DeclaringEntityType.Model.GetValueGenerationStrategy();
+        var modelStrategy = property.DeclaringType.Model.GetValueGenerationStrategy();
 
         if (modelStrategy is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource))
@@ -838,7 +838,7 @@ public static class SqlServerPropertyExtensions
 
         return modelStrategy == SqlServerValueGenerationStrategy.IdentityColumn
             && IsCompatibleWithValueGeneration(property, storeObject, typeMappingSource)
-                ? property.DeclaringEntityType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
+                ? property.DeclaringType.GetMappingStrategy() == RelationalAnnotationNames.TpcMappingStrategy
                     ? SqlServerValueGenerationStrategy.Sequence
                     : SqlServerValueGenerationStrategy.IdentityColumn
                 : SqlServerValueGenerationStrategy.None;
@@ -945,7 +945,7 @@ public static class SqlServerPropertyExtensions
         {
             throw new ArgumentException(
                 SqlServerStrings.IdentityBadType(
-                    property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                    property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
         }
 
         if (value is SqlServerValueGenerationStrategy.SequenceHiLo or SqlServerValueGenerationStrategy.Sequence
@@ -953,7 +953,7 @@ public static class SqlServerPropertyExtensions
         {
             throw new ArgumentException(
                 SqlServerStrings.SequenceBadType(
-                    property.Name, property.DeclaringEntityType.DisplayName(), propertyType.ShortDisplayName()));
+                    property.Name, property.DeclaringType.DisplayName(), propertyType.ShortDisplayName()));
         }
 
         return value;

@@ -9,7 +9,9 @@ namespace Microsoft.EntityFrameworkCore.Metadata.Internal;
 ///     any release. You should only use it directly in your code with extreme caution and knowing that
 ///     doing so can result in application failures when updating to a new Entity Framework Core release.
 /// </summary>
-public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPropertyBase, InternalModelBuilder>
+public abstract class InternalPropertyBaseBuilder<TBuilder, TPropertyBase>
+    : AnnotatableBuilder<TPropertyBase, InternalModelBuilder>
+    where TBuilder : class, IConventionPropertyBaseBuilder<TBuilder>
     where TPropertyBase : PropertyBase
 {
     /// <summary>
@@ -29,7 +31,15 @@ public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalPropertyBaseBuilder<TPropertyBase>? HasField(
+    protected abstract TBuilder This { get; }
+
+    /// <summary>
+    ///     This is an internal API that supports the Entity Framework Core infrastructure and not subject to
+    ///     the same compatibility standards as public APIs. It may be changed or removed without notice in
+    ///     any release. You should only use it directly in your code with extreme caution and knowing that
+    ///     doing so can result in application failures when updating to a new Entity Framework Core release.
+    /// </summary>
+    public virtual TBuilder? HasField(
         string? fieldName,
         ConfigurationSource configurationSource)
     {
@@ -37,7 +47,7 @@ public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPr
         {
             Metadata.SetField(fieldName, configurationSource);
 
-            return this;
+            return This;
         }
 
         return null;
@@ -77,7 +87,7 @@ public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalPropertyBaseBuilder<TPropertyBase>? HasField(
+    public virtual TBuilder? HasField(
         FieldInfo? fieldInfo,
         ConfigurationSource configurationSource)
     {
@@ -85,7 +95,7 @@ public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPr
         {
             Metadata.SetFieldInfo(fieldInfo, configurationSource);
 
-            return this;
+            return This;
         }
 
         return null;
@@ -111,7 +121,7 @@ public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPr
     ///     any release. You should only use it directly in your code with extreme caution and knowing that
     ///     doing so can result in application failures when updating to a new Entity Framework Core release.
     /// </summary>
-    public virtual InternalPropertyBaseBuilder<TPropertyBase>? UsePropertyAccessMode(
+    public virtual TBuilder? UsePropertyAccessMode(
         PropertyAccessMode? propertyAccessMode,
         ConfigurationSource configurationSource)
     {
@@ -119,7 +129,7 @@ public class InternalPropertyBaseBuilder<TPropertyBase> : AnnotatableBuilder<TPr
         {
             Metadata.SetPropertyAccessMode(propertyAccessMode, configurationSource);
 
-            return this;
+            return This;
         }
 
         return null;

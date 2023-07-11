@@ -37,14 +37,7 @@ public class RelationalValueGenerationConvention :
     /// </summary>
     protected virtual RelationalConventionSetBuilderDependencies RelationalDependencies { get; }
 
-    /// <summary>
-    ///     Called after an annotation is changed on a property.
-    /// </summary>
-    /// <param name="propertyBuilder">The builder for the property.</param>
-    /// <param name="name">The annotation name.</param>
-    /// <param name="annotation">The new annotation.</param>
-    /// <param name="oldAnnotation">The old annotation.</param>
-    /// <param name="context">Additional information associated with convention execution.</param>
+    /// <inheritdoc/>
     public virtual void ProcessPropertyAnnotationChanged(
         IConventionPropertyBuilder propertyBuilder,
         string name,
@@ -193,13 +186,13 @@ public class RelationalValueGenerationConvention :
     protected override ValueGenerated? GetValueGenerated(IConventionProperty property)
     {
         var table = property.GetMappedStoreObjects(StoreObjectType.Table).FirstOrDefault();
-        return !MappingStrategyAllowsValueGeneration(property, property.DeclaringEntityType.GetMappingStrategy())
+        return !MappingStrategyAllowsValueGeneration(property, property.DeclaringType.GetMappingStrategy())
             ? null
             : table.Name != null
                 ? GetValueGenerated(property, table)
-                : property.DeclaringEntityType.IsMappedToJson()
-                    && !property.DeclaringEntityType.FindOwnership()!.IsUnique
+                : property.DeclaringType.IsMappedToJson()
                     && property.IsOrdinalKeyProperty()
+                    && (property.DeclaringType as IReadOnlyEntityType)?.FindOwnership()!.IsUnique == false
                     ? ValueGenerated.OnAddOrUpdate
                     : property.GetMappedStoreObjects(StoreObjectType.InsertStoredProcedure).Any()
                         ? GetValueGenerated((IReadOnlyProperty)property)

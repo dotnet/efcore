@@ -43,7 +43,7 @@ public class PropertyOverridesConvention : IPropertyAddedConvention
         IConventionContext<IConventionPropertyBuilder> context)
     {
         var property = propertyBuilder.Metadata;
-        if (!property.DeclaringEntityType.HasSharedClrType)
+        if (!property.DeclaringType.HasSharedClrType)
         {
             return;
         }

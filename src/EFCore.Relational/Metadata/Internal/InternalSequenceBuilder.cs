@@ -197,6 +197,24 @@ public class InternalSequenceBuilder : AnnotatableBuilder<Sequence, IConventionM
 
     /// <inheritdoc />
     [DebuggerStepThrough]
+    IConventionSequenceBuilder? IConventionSequenceBuilder.HasAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionSequenceBuilder?)base.HasAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionSequenceBuilder? IConventionSequenceBuilder.HasNonNullAnnotation(string name, object? value, bool fromDataAnnotation)
+        => (IConventionSequenceBuilder?)base.HasNonNullAnnotation(
+            name, value, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
+    IConventionSequenceBuilder? IConventionSequenceBuilder.HasNoAnnotation(string name, bool fromDataAnnotation)
+        => (IConventionSequenceBuilder?)base.HasNoAnnotation(
+            name, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
+
+    /// <inheritdoc />
+    [DebuggerStepThrough]
     IConventionSequenceBuilder? IConventionSequenceBuilder.HasType(Type? type, bool fromDataAnnotation)
         => HasType(type, fromDataAnnotation ? ConfigurationSource.DataAnnotation : ConfigurationSource.Convention);
 

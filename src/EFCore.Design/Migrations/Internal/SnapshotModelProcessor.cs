@@ -185,7 +185,7 @@ public class SnapshotModelProcessor : ISnapshotModelProcessor
                     if (oldProperty is IConventionProperty conventionProperty
                         && conventionProperty.GetConfigurationSource() == ConfigurationSource.Convention)
                     {
-                        oldProperty.DeclaringEntityType.RemoveProperty(oldProperty);
+                        oldProperty.DeclaringType.RemoveProperty(oldProperty);
                     }
                 }
             }

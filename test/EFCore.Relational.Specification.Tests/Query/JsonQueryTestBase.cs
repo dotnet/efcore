@@ -23,10 +23,68 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_NoTracking(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().AsNoTracking());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_duplicated(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => new { First = x, Second = x }),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            },
+            entryCount: 40);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owner_entity_duplicated_NoTracking(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntitySingleOwned>().Select(x => new { First = x, Second = x }).AsNoTracking(),
+            elementSorter: e => e.First.Id,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.First, a.First);
+                AssertEqual(e.Second, a.Second);
+            });
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
     public virtual Task Basic_json_projection_owned_reference_root(bool async)
         => AssertQuery(
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot).AsNoTracking());
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Basic_json_projection_owned_reference_duplicated2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>()
+                .OrderBy(x => x.Id)
+                .Select(
+                    x => new
+                    {
+                        Root1 = x.OwnedReferenceRoot,
+                        Leaf1 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                        Root2 = x.OwnedReferenceRoot,
+                        Leaf2 = x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedReferenceLeaf,
+                    }).AsNoTracking(),
+            assertOrder: true,
+            elementAsserter: (e, a) =>
+            {
+                AssertEqual(e.Root1, a.Root1);
+                AssertEqual(e.Root2, a.Root2);
+                AssertEqual(e.Leaf1, a.Leaf1);
+                AssertEqual(e.Leaf2, a.Leaf2);
+            });
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -761,7 +819,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[MyMethod(x.Id)]).AsNoTracking()))).Message;
 
         Assert.Equal(
-            CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""),
+            CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "),
             message);
     }
 
@@ -775,7 +833,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[0].OwnedReferenceBranch.OwnedCollectionLeaf[MyMethod(x.Id)]).AsNoTracking()))).Message;
 
         Assert.Equal(
-            CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "[0].OwnedReferenceBranch.OwnedCollectionLeaf")"""),
+            CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> [0].OwnedReferenceBranch.OwnedCollectionLeaf"),
             message);
     }
 
@@ -786,6 +844,14 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedCollectionRoot[25]).AsNoTracking(),
             ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedRoot)null));
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_collection_element_access_outside_bounds2(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityBasic>().Select(x => x.OwnedReferenceRoot.OwnedReferenceBranch.OwnedCollectionLeaf[25]).AsNoTracking(),
+            ss => ss.Set<JsonEntityBasic>().Select(x => (JsonOwnedLeaf)null));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]
@@ -967,7 +1033,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot[prm].OwnedCollectionBranch.Select(xx => "Foo").ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "[__prm_0].OwnedCollectionBranch")"""), message);
+        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> [__prm_0].OwnedCollectionBranch"), message);
     }
 
     [ConditionalTheory]
@@ -984,7 +1050,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot[prm + x.Id].OwnedCollectionBranch.Select(xx => x.Id).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "[(...)].OwnedCollectionBranch")"""), message);
+        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> [(...)].OwnedCollectionBranch"), message);
     }
 
     [ConditionalTheory]
@@ -1000,7 +1066,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => x.OwnedReferenceRoot).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
+        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
     }
 
     [ConditionalTheory]
@@ -1016,7 +1082,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => x.OwnedCollectionRoot).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
+        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
     }
 
     [ConditionalTheory]
@@ -1032,7 +1098,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => new { xx.OwnedReferenceBranch }).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
+        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
     }
 
     [ConditionalTheory]
@@ -1048,7 +1114,7 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
                     CollectionElement = x.OwnedCollectionRoot.Select(xx => new JsonEntityBasic { Id = x.Id }).ElementAt(0)
                 })))).Message;
 
-        Assert.Equal(CoreStrings.TranslationFailed("""JsonQueryExpression(j.OwnedCollectionRoot, "")"""), message);
+        Assert.Equal(CoreStrings.TranslationFailed("j.OwnedCollectionRoot Q-> "), message);
     }
 
     [ConditionalTheory]
@@ -1535,6 +1601,15 @@ public abstract class JsonQueryTestBase<TFixture> : QueryTestBase<TFixture>
             async,
             ss => ss.Set<JsonEntityAllTypes>(),
             entryCount: 6);
+
+    [ConditionalTheory]
+    [MemberData(nameof(IsAsyncData))]
+    public virtual Task Json_all_types_projection_from_owned_entity_reference(bool async)
+        => AssertQuery(
+            async,
+            ss => ss.Set<JsonEntityAllTypes>().Select(x => x.Reference).AsNoTracking(),
+            elementSorter: e => e.TestInt32,
+            elementAsserter: (e, a) => AssertEqual(e, a));
 
     [ConditionalTheory]
     [MemberData(nameof(IsAsyncData))]

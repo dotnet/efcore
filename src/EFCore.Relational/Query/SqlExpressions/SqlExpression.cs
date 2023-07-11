@@ -12,9 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 ///         not used in application code.
 ///     </para>
 /// </summary>
-#if DEBUG
-[DebuggerDisplay("{new Microsoft.EntityFrameworkCore.Query.ExpressionPrinter().PrintExpression(this), nq}")]
-#endif
+[DebuggerDisplay("{Microsoft.EntityFrameworkCore.Query.ExpressionPrinter.Print(this), nq}")]
 public abstract class SqlExpression : Expression, IPrintableExpression
 {
     /// <summary>

@@ -100,8 +100,8 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// </summary>
     public virtual SqlExpression BindProperty(IProperty property)
     {
-        if (!EntityType.IsAssignableFrom(property.DeclaringEntityType)
-            && !property.DeclaringEntityType.IsAssignableFrom(EntityType))
+        if (!EntityType.IsAssignableFrom(property.DeclaringType)
+            && !property.DeclaringType.IsAssignableFrom(EntityType))
         {
             throw new InvalidOperationException(
                 RelationalStrings.UnableToBindMemberToEntityProjection("property", property.Name, EntityType.DisplayName()));
@@ -212,9 +212,10 @@ public class JsonQueryExpression : Expression, IPrintableExpression
     /// <inheritdoc />
     public virtual void Print(ExpressionPrinter expressionPrinter)
     {
-        expressionPrinter.Append("JsonQueryExpression(");
         expressionPrinter.Visit(JsonColumn);
-        expressionPrinter.Append($""", "{string.Join(".", Path.Select(e => e.ToString()))}")""");
+        expressionPrinter
+            .Append(" Q-> ")
+            .Append(string.Join(".", Path.Select(e => e.ToString())));
     }
 
     /// <inheritdoc />

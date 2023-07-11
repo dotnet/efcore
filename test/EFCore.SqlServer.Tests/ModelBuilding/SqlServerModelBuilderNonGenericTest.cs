@@ -16,6 +16,14 @@ public class SqlServerModelBuilderNonGenericTest : SqlServerModelBuilderTestBase
             => new ModelBuilderNonGenericTest.NonGenericTestModelBuilder(testHelpers, configure);
     }
 
+    public class SqlServerNonGenericComplexTypeTestBase : SqlServerComplexType
+    {
+        protected override TestModelBuilder CreateTestModelBuilder(
+            TestHelpers testHelpers,
+            Action<ModelConfigurationBuilder>? configure)
+            => new ModelBuilderNonGenericTest.NonGenericTestModelBuilder(testHelpers, configure);
+    }
+
     public class SqlServerNonGenericInheritance : SqlServerInheritance
     {
         protected override TestModelBuilder CreateTestModelBuilder(

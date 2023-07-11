@@ -680,7 +680,7 @@ public class RelationalModelValidator : ModelValidator
                     && property.ValueGenerated != ValueGenerated.Never
                     && property.FieldInfo?.FieldType.IsNullableType() != true
                     && !((IConventionProperty)property).GetSentinelConfigurationSource().HasValue
-                    && (StoreObjectIdentifier.Create(property.DeclaringEntityType, StoreObjectType.Table) is { } table
+                    && (StoreObjectIdentifier.Create(property.DeclaringType, StoreObjectType.Table) is { } table
                         && (IsNotNullAndNotDefault(property.GetDefaultValue(table))
                             || property.GetDefaultValueSql(table) != null)))
                 {
@@ -1231,14 +1231,14 @@ public class RelationalModelValidator : ModelValidator
                     continue;
                 }
 
-                if (property.DeclaringEntityType.IsAssignableFrom(duplicateProperty.DeclaringEntityType)
-                    || duplicateProperty.DeclaringEntityType.IsAssignableFrom(property.DeclaringEntityType))
+                if (property.DeclaringType.IsAssignableFrom(duplicateProperty.DeclaringType)
+                    || duplicateProperty.DeclaringType.IsAssignableFrom(property.DeclaringType))
                 {
                     throw new InvalidOperationException(
                         RelationalStrings.DuplicateColumnNameSameHierarchy(
-                            duplicateProperty.DeclaringEntityType.DisplayName(),
+                            duplicateProperty.DeclaringType.DisplayName(),
                             duplicateProperty.Name,
-                            property.DeclaringEntityType.DisplayName(),
+                            property.DeclaringType.DisplayName(),
                             property.Name,
                             columnName,
                             storeObject.DisplayName()));
@@ -1298,9 +1298,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameNullabilityMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));
@@ -1312,9 +1312,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameMaxLengthMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1326,9 +1326,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameUnicodenessMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));
@@ -1338,9 +1338,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameFixedLengthMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));
@@ -1352,9 +1352,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNamePrecisionMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1368,9 +1368,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameScaleMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1382,9 +1382,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameConcurrencyTokenMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName()));
@@ -1396,9 +1396,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameDataTypeMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1422,9 +1422,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameProviderTypeMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1438,9 +1438,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameComputedSqlMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1454,9 +1454,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameIsStoredMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1477,9 +1477,9 @@ public class RelationalModelValidator : ModelValidator
             {
                 throw new InvalidOperationException(
                     RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                        duplicateProperty.DeclaringEntityType.DisplayName(),
+                        duplicateProperty.DeclaringType.DisplayName(),
                         duplicateProperty.Name,
-                        property.DeclaringEntityType.DisplayName(),
+                        property.DeclaringType.DisplayName(),
                         property.Name,
                         columnName,
                         storeObject.DisplayName(),
@@ -1494,9 +1494,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameDefaultSqlMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1510,9 +1510,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameCommentMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1526,9 +1526,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameCollationMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -1542,9 +1542,9 @@ public class RelationalModelValidator : ModelValidator
         {
             throw new InvalidOperationException(
                 RelationalStrings.DuplicateColumnNameOrderMismatch(
-                    duplicateProperty.DeclaringEntityType.DisplayName(),
+                    duplicateProperty.DeclaringType.DisplayName(),
                     duplicateProperty.Name,
-                    property.DeclaringEntityType.DisplayName(),
+                    property.DeclaringType.DisplayName(),
                     property.Name,
                     columnName,
                     storeObject.DisplayName(),
@@ -2335,10 +2335,10 @@ public class RelationalModelValidator : ModelValidator
         IReadOnlyProperty property,
         StoreObjectType storeObjectType)
     {
-        var mappingStrategy = property.DeclaringEntityType.GetMappingStrategy();
+        var mappingStrategy = property.DeclaringType.GetMappingStrategy();
         if (property.IsPrimaryKey())
         {
-            var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);
+            var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringType, storeObjectType);
             if (declaringStoreObject != null)
             {
                 yield return declaringStoreObject.Value;
@@ -2349,28 +2349,32 @@ public class RelationalModelValidator : ModelValidator
                 yield break;
             }
 
-            foreach (var fragment in property.DeclaringEntityType.GetMappingFragments(storeObjectType))
+            foreach (var fragment in property.DeclaringType.GetMappingFragments(storeObjectType))
             {
                 yield return fragment.StoreObject;
             }
 
-            foreach (var containingType in property.DeclaringEntityType.GetDerivedTypes())
+            if (property.DeclaringType is IReadOnlyEntityType entityType)
             {
-                var storeObject = StoreObjectIdentifier.Create(containingType, storeObjectType);
-                if (storeObject != null)
+                foreach (var containingType in entityType.GetDerivedTypes())
                 {
-                    yield return storeObject.Value;
-
-                    if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
+                    var storeObject = StoreObjectIdentifier.Create(containingType, storeObjectType);
+                    if (storeObject != null)
                     {
-                        yield break;
+                        yield return storeObject.Value;
+
+                        if (mappingStrategy == RelationalAnnotationNames.TphMappingStrategy)
+                        {
+                            yield break;
+                        }
                     }
                 }
+                yield break;
             }
         }
         else
         {
-            var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringEntityType, storeObjectType);
+            var declaringStoreObject = StoreObjectIdentifier.Create(property.DeclaringType, storeObjectType);
             if (storeObjectType is StoreObjectType.Function or StoreObjectType.SqlQuery)
             {
                 if (declaringStoreObject != null)
@@ -2383,7 +2387,7 @@ public class RelationalModelValidator : ModelValidator
 
             if (declaringStoreObject != null)
             {
-                var fragments = property.DeclaringEntityType.GetMappingFragments(storeObjectType).ToList();
+                var fragments = property.DeclaringType.GetMappingFragments(storeObjectType).ToList();
                 if (fragments.Count > 0)
                 {
                     var overrides = RelationalPropertyOverrides.Find(property, declaringStoreObject.Value);
@@ -2411,9 +2415,14 @@ public class RelationalModelValidator : ModelValidator
                 }
             }
 
+            if (property.DeclaringType is not IReadOnlyEntityType entityType)
+            {
+                yield break;
+            }
+
             var tableFound = false;
             var queue = new Queue<IReadOnlyEntityType>();
-            queue.Enqueue(property.DeclaringEntityType);
+            queue.Enqueue(entityType);
             while (queue.Count > 0 && !tableFound)
             {
                 foreach (var containingType in queue.Dequeue().GetDirectlyDerivedTypes())

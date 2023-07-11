@@ -30,38 +30,44 @@ public class CosmosApiConsistencyTest : ApiConsistencyTestBase<CosmosApiConsiste
         };
 
         public override
-            List<(Type Type,
-                Type ReadonlyExtensions,
+            Dictionary<Type, (Type ReadonlyExtensions,
                 Type MutableExtensions,
                 Type ConventionExtensions,
                 Type ConventionBuilderExtensions,
-                Type RuntimeExtensions)> MetadataExtensionTypes { get; }
+                Type RuntimeExtensions)> MetadataExtensionTypes
+        { get; }
             = new()
             {
-                (
+                {
                     typeof(IReadOnlyModel),
-                    typeof(CosmosModelExtensions),
-                    typeof(CosmosModelExtensions),
-                    typeof(CosmosModelExtensions),
-                    typeof(CosmosModelBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(CosmosModelExtensions),
+                        typeof(CosmosModelExtensions),
+                        typeof(CosmosModelExtensions),
+                        typeof(CosmosModelBuilderExtensions),
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyEntityType),
-                    typeof(CosmosEntityTypeExtensions),
-                    typeof(CosmosEntityTypeExtensions),
-                    typeof(CosmosEntityTypeExtensions),
-                    typeof(CosmosEntityTypeBuilderExtensions),
-                    null
-                ),
-                (
+                    (
+                        typeof(CosmosEntityTypeExtensions),
+                        typeof(CosmosEntityTypeExtensions),
+                        typeof(CosmosEntityTypeExtensions),
+                        typeof(CosmosEntityTypeBuilderExtensions),
+                        null
+                    )
+                },
+                {
                     typeof(IReadOnlyProperty),
-                    typeof(CosmosPropertyExtensions),
-                    typeof(CosmosPropertyExtensions),
-                    typeof(CosmosPropertyExtensions),
-                    typeof(CosmosPropertyBuilderExtensions),
-                    null
-                )
+                    (
+                        typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyExtensions),
+                        typeof(CosmosPropertyBuilderExtensions),
+                        null
+                    )
+                }
             };
     }
 }

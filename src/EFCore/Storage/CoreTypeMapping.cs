@@ -46,7 +46,7 @@ public abstract class CoreTypeMapping
             ValueComparer? comparer = null,
             ValueComparer? keyComparer = null,
             ValueComparer? providerValueComparer = null,
-            Func<IProperty, IEntityType, ValueGenerator>? valueGeneratorFactory = null,
+            Func<IProperty, ITypeBase, ValueGenerator>? valueGeneratorFactory = null,
             CoreTypeMapping? elementTypeMapping = null,
             JsonValueReaderWriter? jsonValueReaderWriter = null)
         {
@@ -90,7 +90,7 @@ public abstract class CoreTypeMapping
         ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
         ///     this mapping.
         /// </summary>
-        public Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
+        public Func<IProperty, ITypeBase, ValueGenerator>? ValueGeneratorFactory { get; }
 
         /// <summary>
         ///     If this type mapping represents a primitive collection, this holds the element's type mapping.
@@ -228,7 +228,7 @@ public abstract class CoreTypeMapping
     ///     An optional factory for creating a specific <see cref="ValueGenerator" /> to use with
     ///     this mapping.
     /// </summary>
-    public virtual Func<IProperty, IEntityType, ValueGenerator>? ValueGeneratorFactory { get; }
+    public virtual Func<IProperty, ITypeBase, ValueGenerator>? ValueGeneratorFactory { get; }
 
     /// <summary>
     ///     A <see cref="ValueComparer" /> adds custom value snapshotting and comparison for

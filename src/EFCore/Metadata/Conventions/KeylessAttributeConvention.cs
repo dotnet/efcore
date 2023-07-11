@@ -4,18 +4,18 @@
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that configures the entity types that have the <see cref="OwnedAttribute" /> as owned.
+///     A convention that ignores entity types that have the <see cref="KeylessAttribute" />.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class OwnedEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<OwnedAttribute>
+public class KeylessAttributeConvention : TypeAttributeConventionBase<KeylessAttribute>
 {
     /// <summary>
-    ///     Creates a new instance of <see cref="OwnedEntityTypeAttributeConvention" />.
+    ///     Creates a new instance of <see cref="KeylessAttributeConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public OwnedEntityTypeAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
+    public KeylessAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
     }
@@ -28,13 +28,7 @@ public class OwnedEntityTypeAttributeConvention : EntityTypeAttributeConventionB
     /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
-        OwnedAttribute attribute,
+        KeylessAttribute attribute,
         IConventionContext<IConventionEntityTypeBuilder> context)
-    {
-        entityTypeBuilder.ModelBuilder.Owned(entityTypeBuilder.Metadata.ClrType, fromDataAnnotation: true);
-        if (!entityTypeBuilder.Metadata.IsInModel)
-        {
-            context.StopProcessing();
-        }
-    }
+        => entityTypeBuilder.HasNoKey(fromDataAnnotation: true);
 }

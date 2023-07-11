@@ -1,21 +1,23 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 /// <summary>
-///     A convention that ignores entity types that have the <see cref="KeylessAttribute" />.
+///     A convention that ignores entity types that have the <see cref="NotMappedAttribute" />.
 /// </summary>
 /// <remarks>
 ///     See <see href="https://aka.ms/efcore-docs-conventions">Model building conventions</see> for more information and examples.
 /// </remarks>
-public class KeylessEntityTypeAttributeConvention : EntityTypeAttributeConventionBase<KeylessAttribute>
+public class NotMappedTypeAttributeConvention : TypeAttributeConventionBase<NotMappedAttribute>
 {
     /// <summary>
-    ///     Creates a new instance of <see cref="KeylessEntityTypeAttributeConvention" />.
+    ///     Creates a new instance of <see cref="NotMappedTypeAttributeConvention" />.
     /// </summary>
     /// <param name="dependencies">Parameter object containing dependencies for this convention.</param>
-    public KeylessEntityTypeAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
+    public NotMappedTypeAttributeConvention(ProviderConventionSetBuilderDependencies dependencies)
         : base(dependencies)
     {
     }
@@ -28,7 +30,12 @@ public class KeylessEntityTypeAttributeConvention : EntityTypeAttributeConventio
     /// <param name="context">Additional information associated with convention execution.</param>
     protected override void ProcessEntityTypeAdded(
         IConventionEntityTypeBuilder entityTypeBuilder,
-        KeylessAttribute attribute,
+        NotMappedAttribute attribute,
         IConventionContext<IConventionEntityTypeBuilder> context)
-        => entityTypeBuilder.HasNoKey(fromDataAnnotation: true);
+    {
+        if (entityTypeBuilder.ModelBuilder.Ignore(entityTypeBuilder.Metadata.Name, fromDataAnnotation: true) != null)
+        {
+            context.StopProcessing();
+        }
+    }
 }

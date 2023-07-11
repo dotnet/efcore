@@ -189,7 +189,7 @@ public class ValueGenerationManager : IValueGenerationManager
     }
 
     private ValueGenerator GetValueGenerator(IProperty property)
-        => _valueGeneratorSelector.Select(property, property.DeclaringEntityType);
+        => _valueGeneratorSelector.Select(property, property.DeclaringType);
 
     private static void SetGeneratedValue(InternalEntityEntry entry, IProperty property, object? generatedValue, bool isTemporary)
     {

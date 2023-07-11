@@ -2,6 +2,7 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Microsoft.EntityFrameworkCore.Metadata.Conventions;
@@ -17,7 +18,8 @@ public class KeyAttributeConvention
     : PropertyAttributeConventionBase<KeyAttribute>,
         IModelFinalizingConvention,
         IEntityTypeAddedConvention,
-        IEntityTypeBaseTypeChangedConvention
+        IEntityTypeBaseTypeChangedConvention,
+        IComplexPropertyAddedConvention
 {
     /// <summary>
     ///     Creates a new instance of <see cref="KeyAttributeConvention" />.
@@ -56,25 +58,38 @@ public class KeyAttributeConvention
         MemberInfo clrMember,
         IConventionContext context)
     {
-        var entityType = propertyBuilder.Metadata.DeclaringEntityType;
-        if (entityType.IsKeyless)
+        if (propertyBuilder.Metadata.DeclaringType is EntityType entityType)
         {
-            switch (entityType.GetIsKeylessConfigurationSource())
+            if (entityType.IsKeyless)
             {
-                case ConfigurationSource.DataAnnotation:
-                    Dependencies.Logger.ConflictingKeylessAndKeyAttributesWarning(propertyBuilder.Metadata);
-                    return;
+                switch (entityType.GetIsKeylessConfigurationSource())
+                {
+                    case ConfigurationSource.DataAnnotation:
+                        Dependencies.Logger.ConflictingKeylessAndKeyAttributesWarning(propertyBuilder.Metadata);
+                        return;
 
-                case ConfigurationSource.Explicit:
-                    // fluent API overrides the attribute - no warning
-                    return;
+                    case ConfigurationSource.Explicit:
+                        // fluent API overrides the attribute - no warning
+                        return;
+                }
+            }
+
+            CheckAttributesAndEnsurePrimaryKey(
+                entityType,
+                propertyBuilder,
+                shouldThrow: false);
+        }
+        else
+        {
+            var property = propertyBuilder.Metadata;
+            var member = property.GetIdentifyingMemberInfo();
+            if (member != null
+                && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
+            {
+                throw new InvalidOperationException(CoreStrings.AttributeNotOnEntityTypeProperty(
+                    "Key", property.DeclaringType.DisplayName(), property.Name));
             }
         }
-
-        CheckAttributesAndEnsurePrimaryKey(
-            (EntityType)propertyBuilder.Metadata.DeclaringEntityType,
-            propertyBuilder,
-            shouldThrow: false);
     }
 
     private bool CheckAttributesAndEnsurePrimaryKey(
@@ -114,6 +129,23 @@ public class KeyAttributeConvention
         }
 
         return primaryKeyAttributeExists;
+    }
+
+    /// <inheritdoc />
+    protected override void ProcessPropertyAdded(
+        IConventionComplexPropertyBuilder propertyBuilder,
+        KeyAttribute attribute,
+        MemberInfo clrMember,
+        IConventionContext context)
+    {
+        var property = propertyBuilder.Metadata;
+        var member = property.GetIdentifyingMemberInfo();
+        if (member != null
+            && Attribute.IsDefined(member, typeof(ForeignKeyAttribute), inherit: true))
+        {
+            throw new InvalidOperationException(CoreStrings.AttributeNotOnEntityTypeProperty(
+                "Key", property.DeclaringType.DisplayName(), property.Name));
+        }
     }
 
     /// <inheritdoc />

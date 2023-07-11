@@ -165,7 +165,7 @@ public class ArrayPropertyValues : PropertyValues
                 throw new InvalidCastException(
                     CoreStrings.InvalidType(
                         property.Name,
-                        property.DeclaringEntityType.DisplayName(),
+                        property.DeclaringType.DisplayName(),
                         value.GetType().DisplayName(),
                         property.ClrType.DisplayName()));
             }
@@ -177,7 +177,7 @@ public class ArrayPropertyValues : PropertyValues
                 throw new InvalidOperationException(
                     CoreStrings.ValueCannotBeNull(
                         property.Name,
-                        property.DeclaringEntityType.DisplayName(),
+                        property.DeclaringType.DisplayName(),
                         property.ClrType.DisplayName()));
             }
         }

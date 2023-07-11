@@ -226,7 +226,7 @@ public class StoredProcedureBuilder : IInfrastructure<EntityTypeBuilder>, IInfra
 #pragma warning disable EF1001 // Internal EF Core API usage.
         return new ModelBuilder(entityType.Model)
 #pragma warning restore EF1001 // Internal EF Core API usage.
-            .Entity(property.DeclaringEntityType.Name)
+            .Entity(property.DeclaringType.Name)
             .Property(property.ClrType, propertyName);
     }
 

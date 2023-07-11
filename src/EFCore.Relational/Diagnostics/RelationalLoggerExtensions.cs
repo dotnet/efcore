@@ -253,7 +253,7 @@ public static class RelationalLoggerExtensions
             }
         }
 
-        return new ValueTask<DbTransaction>(transaction);
+        return ValueTask.FromResult(transaction);
     }
 
     private static TransactionEndEventData BroadcastTransactionStarted(
@@ -388,7 +388,7 @@ public static class RelationalLoggerExtensions
             }
         }
 
-        return new ValueTask<DbTransaction>(transaction);
+        return ValueTask.FromResult(transaction);
     }
 
     private static TransactionEventData BroadcastTransactionUsed(
@@ -2469,7 +2469,7 @@ public static class RelationalLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+            definition.Log(diagnostics, property.Name, property.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2489,7 +2489,7 @@ public static class RelationalLoggerExtensions
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringType.DisplayName());
     }
 
     /// <summary>
@@ -2510,7 +2510,7 @@ public static class RelationalLoggerExtensions
                 diagnostics,
                 property.ClrType.ShortDisplayName(),
                 property.Name,
-                property.DeclaringEntityType.DisplayName(),
+                property.DeclaringType.DisplayName(),
                 defaultValue == null ? "null" : defaultValue.ToString()!,
                 property.ClrType.ShortDisplayName());
         }
@@ -2534,7 +2534,7 @@ public static class RelationalLoggerExtensions
         return d.GenerateMessage(
             p.Property.ClrType.ShortDisplayName(),
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName(),
+            p.Property.DeclaringType.DisplayName(),
             defaultValue == null ? "null" : defaultValue.ToString()!,
             p.Property.ClrType.ShortDisplayName());
     }
@@ -3077,7 +3077,7 @@ public static class RelationalLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.DeclaringEntityType.DisplayName(),
+                property.DeclaringType.DisplayName(),
                 property.Name);
         }
 
@@ -3097,7 +3097,7 @@ public static class RelationalLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringEntityType.DisplayName(),
+            p.Property.DeclaringType.DisplayName(),
             p.Property.Name);
     }
 

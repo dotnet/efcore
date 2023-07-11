@@ -78,7 +78,7 @@ public class CollectionEntry<TEntity, TRelatedEntity> : CollectionEntry
     }
 
     /// <summary>
-    ///     Returns the query that would be used by <see cref="CollectionEntry.Load" /> to load entities referenced by
+    ///     Returns the query that would be used by <see cref="CollectionEntry.Load()" /> to load entities referenced by
     ///     this navigation property.
     /// </summary>
     /// <remarks>

@@ -30,15 +30,14 @@ public class Customer
 You can then use the MyDbContext class to interact with the database:
 
 ```c#
-using (var context = new MyDbContext())
-{
-    // Add a new customer
-    context.Customers.Add(new Customer { Name = "John Doe" });
-    context.SaveChanges();
+using var context = new MyDbContext();
 
-    // Retrieve all customers
-    var customers = context.Customers.ToList();
-}
+// Add a new customer
+context.Customers.Add(new Customer { Name = "John Doe" });
+context.SaveChanges();
+
+// Retrieve all customers
+var customers = context.Customers.ToList();
 ```
 
 Microsoft.EntityFrameworkCore supports multiple [database providers](https://learn.microsoft.com/ef/core/providers/), including SQL Server, MySQL, PostgreSQL, SQLite, and others. You will need to install the provider package for your chosen database. For example, to use SQL Server, you would install the [Microsoft.EntityFrameworkCore.SqlServer package](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.SqlServer).

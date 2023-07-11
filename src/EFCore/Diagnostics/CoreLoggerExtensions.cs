@@ -1261,7 +1261,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name, basePropertyName);
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name, basePropertyName);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1280,7 +1280,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string, string>)definition;
         var p = (UniquifiedPropertyEventData)payload;
-        return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name, p.BasePropertyName);
+        return d.GenerateMessage(p.Property.DeclaringType.DisplayName(), p.Property.Name, p.BasePropertyName);
     }
 
     /// <summary>
@@ -1296,7 +1296,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name);
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1314,7 +1314,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyEventData)payload;
-        return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name);
+        return d.GenerateMessage(p.Property.DeclaringType.DisplayName(), p.Property.Name);
     }
 
     /// <summary>
@@ -1330,7 +1330,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.DeclaringEntityType.DisplayName(), property.Name);
+            definition.Log(diagnostics, property.DeclaringType.DisplayName(), property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -1348,7 +1348,7 @@ public static class CoreLoggerExtensions
     {
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyEventData)payload;
-        return d.GenerateMessage(p.Property.DeclaringEntityType.DisplayName(), p.Property.Name);
+        return d.GenerateMessage(p.Property.DeclaringType.DisplayName(), p.Property.Name);
     }
 
     /// <summary>
@@ -1660,7 +1660,7 @@ public static class CoreLoggerExtensions
                 diagnostics,
                 firstProperty.Name,
                 secondProperty.Name,
-                firstProperty.DeclaringEntityType.DisplayName());
+                firstProperty.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2092,7 +2092,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.DeclaringEntityType.ShortName(), property.Name);
+            definition.Log(diagnostics, property.DeclaringType.ShortName(), property.Name);
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2114,7 +2114,7 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringEntityType.ShortName(),
+            p.Property.DeclaringType.ShortName(),
             p.Property.Name);
     }
 
@@ -2139,11 +2139,11 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.DeclaringEntityType.ShortName(),
+                property.DeclaringType.ShortName(),
                 property.Name,
                 oldValue,
                 newValue,
-                internalEntityEntry.BuildCurrentValuesString(property.DeclaringEntityType.FindPrimaryKey()!.Properties));
+                internalEntityEntry.BuildCurrentValuesString(((IEntityType)property.DeclaringType).FindPrimaryKey()!.Properties));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2165,11 +2165,12 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string, object?, object?, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringEntityType.ShortName(),
+            p.Property.DeclaringType.ShortName(),
             p.Property.Name,
             p.OldValue,
             p.NewValue,
-            p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Property.DeclaringEntityType.FindPrimaryKey()!.Properties));
+            p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(
+                ((IEntityType)p.Property.DeclaringType).FindPrimaryKey()!.Properties));
     }
 
     /// <summary>
@@ -2193,7 +2194,7 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.DeclaringEntityType.ShortName(),
+                property.DeclaringType.ShortName(),
                 property.Name);
         }
 
@@ -2216,7 +2217,7 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringEntityType.ShortName(),
+            p.Property.DeclaringType.ShortName(),
             p.Property.Name);
     }
 
@@ -2241,11 +2242,11 @@ public static class CoreLoggerExtensions
         {
             definition.Log(
                 diagnostics,
-                property.DeclaringEntityType.ShortName(),
+                property.DeclaringType.ShortName(),
                 property.Name,
                 oldValue,
                 newValue,
-                internalEntityEntry.BuildCurrentValuesString(property.DeclaringEntityType.FindPrimaryKey()!.Properties));
+                internalEntityEntry.BuildCurrentValuesString(((IEntityType)property.DeclaringType).FindPrimaryKey()!.Properties));
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -2267,11 +2268,12 @@ public static class CoreLoggerExtensions
         var d = (EventDefinition<string, string, object?, object?, string>)definition;
         var p = (PropertyChangedEventData)payload;
         return d.GenerateMessage(
-            p.Property.DeclaringEntityType.ShortName(),
+            p.Property.DeclaringType.ShortName(),
             p.Property.Name,
             p.OldValue,
             p.NewValue,
-            p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(p.Property.DeclaringEntityType.FindPrimaryKey()!.Properties));
+            p.EntityEntry.GetInfrastructure().BuildCurrentValuesString(
+                ((IEntityType)p.Property.DeclaringType).FindPrimaryKey()!.Properties));
     }
 
     /// <summary>
@@ -3074,6 +3076,37 @@ public static class CoreLoggerExtensions
     }
 
     /// <summary>
+    ///     Logs for the <see cref="CoreEventId.MappedComplexPropertyIgnoredWarning" /> event.
+    /// </summary>
+    /// <param name="diagnostics">The diagnostics logger to use.</param>
+    /// <param name="property">The property.</param>
+    public static void MappedComplexPropertyIgnoredWarning(
+        this IDiagnosticsLogger<DbLoggerCategory.Model> diagnostics,
+        IComplexProperty property)
+    {
+        var definition = CoreResources.LogMappedComplexPropertyIgnored(diagnostics);
+
+        if (diagnostics.ShouldLog(definition))
+        {
+            definition.Log(diagnostics, property.DeclaringType.ShortName(), property.Name);
+        }
+
+        if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
+        {
+            var eventData = new ComplexPropertyEventData(definition, MappedComplexPropertyIgnoredWarning, property);
+
+            diagnostics.DispatchEventData(definition, eventData, diagnosticSourceEnabled, simpleLogEnabled);
+        }
+    }
+
+    private static string MappedComplexPropertyIgnoredWarning(EventDefinitionBase definition, EventData payload)
+    {
+        var d = (EventDefinition<string, string>)definition;
+        var p = (ComplexPropertyEventData)payload;
+        return d.GenerateMessage(p.Property.DeclaringType.ShortName(), p.Property.Name);
+    }
+
+    /// <summary>
     ///     Logs for the <see cref="CoreEventId.MappedEntityTypeIgnoredWarning" /> event.
     /// </summary>
     /// <param name="diagnostics">The diagnostics logger to use.</param>
@@ -3309,7 +3342,7 @@ public static class CoreLoggerExtensions
             }
         }
 
-        return new ValueTask<int>(entitiesSavedCount);
+        return ValueTask.FromResult(entitiesSavedCount);
     }
 
     private static SaveChangesCompletedEventData CreateSaveChangesCompletedEventData(
@@ -3378,7 +3411,7 @@ public static class CoreLoggerExtensions
 
         if (diagnostics.ShouldLog(definition))
         {
-            definition.Log(diagnostics, property.Name, property.DeclaringEntityType.DisplayName());
+            definition.Log(diagnostics, property.Name, property.DeclaringType.DisplayName());
         }
 
         if (diagnostics.NeedsEventData(definition, out var diagnosticSourceEnabled, out var simpleLogEnabled))
@@ -3398,7 +3431,7 @@ public static class CoreLoggerExtensions
         var p = (PropertyEventData)payload;
         return d.GenerateMessage(
             p.Property.Name,
-            p.Property.DeclaringEntityType.DisplayName());
+            p.Property.DeclaringType.DisplayName());
     }
 
     /// <summary>

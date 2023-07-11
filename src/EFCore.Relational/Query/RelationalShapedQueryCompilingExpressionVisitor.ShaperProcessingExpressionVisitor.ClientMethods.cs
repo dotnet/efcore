@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 
 namespace Microsoft.EntityFrameworkCore.Query;
 
@@ -67,8 +68,8 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
         private static readonly MethodInfo MaterializeJsonEntityCollectionMethodInfo
             = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(MaterializeJsonEntityCollection))!;
 
-        private static readonly MethodInfo ExtractJsonPropertyMethodInfo
-            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(ExtractJsonProperty))!;
+        private static readonly MethodInfo InverseCollectionFixupMethod
+            = typeof(ShaperProcessingExpressionVisitor).GetTypeInfo().GetDeclaredMethod(nameof(InverseCollectionFixup))!;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TValue ThrowReadValueException<TValue>(
@@ -122,13 +123,6 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
                 RelationalStrings.JsonErrorExtractingJsonProperty(entityType, propertyName),
                 exception);
         }
-
-        private static T? ExtractJsonProperty<T>(JsonElement element, string propertyName, bool nullable)
-            => nullable
-                ? element.TryGetProperty(propertyName, out var jsonValue)
-                    ? jsonValue.Deserialize<T>()
-                    : default
-                : element.GetProperty(propertyName).Deserialize<T>();
 
         private static void IncludeReference<TEntity, TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
@@ -869,105 +863,189 @@ public partial class RelationalShapedQueryCompilingExpressionVisitor
             dataReaderContext.HasNext = false;
         }
 
+        private static TEntity? MaterializeJsonEntity<TEntity>(
+            QueryContext queryContext,
+            object[] keyPropertyValues,
+            JsonReaderData? jsonReaderData,
+            bool nullable,
+            Func<QueryContext, object[], JsonReaderData, TEntity> shaper)
+            where TEntity : class
+        {
+            if (jsonReaderData == null)
+            {
+                return nullable
+                    ? null
+                    : throw new InvalidOperationException(
+                    RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+            }
+
+            var manager = new Utf8JsonReaderManager(jsonReaderData);
+            var tokenType = manager.CurrentReader.TokenType;
+
+            if (tokenType == JsonTokenType.Null)
+            {
+                return nullable
+                    ? null
+                    : throw new InvalidOperationException(
+                    RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
+            }
+
+            if (tokenType != JsonTokenType.StartObject)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
+            manager.CaptureState();
+            var result = shaper(queryContext, keyPropertyValues, jsonReaderData);
+
+            return result;
+        }
+
+        private static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
+            QueryContext queryContext,
+            object[] keyPropertyValues,
+            JsonReaderData? jsonReaderData,
+            INavigationBase navigation,
+            Func<QueryContext, object[], JsonReaderData, TEntity> innerShaper)
+            where TEntity : class
+            where TResult : ICollection<TEntity>
+        {
+            if (jsonReaderData == null)
+            {
+                return default;
+            }
+
+            var manager = new Utf8JsonReaderManager(jsonReaderData);
+            var tokenType = manager.CurrentReader.TokenType;
+
+            if (tokenType == JsonTokenType.Null)
+            {
+                return default;
+            }
+
+            if (tokenType != JsonTokenType.StartArray)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
+            var collectionAccessor = navigation.GetCollectionAccessor();
+            var result = (TResult)collectionAccessor!.Create();
+
+            var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
+            Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+
+            tokenType = manager.MoveNext();
+
+            var i = 0;
+            while (tokenType != JsonTokenType.EndArray)
+            {
+                newKeyPropertyValues[^1] = ++i;
+
+                if (tokenType == JsonTokenType.StartObject)
+                {
+                    manager.CaptureState();
+                    var entity = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
+                    result.Add(entity);
+                    manager = new Utf8JsonReaderManager(manager.Data);
+
+                    if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                    }
+
+                    tokenType = manager.MoveNext();
+                }
+            }
+
+            manager.CaptureState();
+
+            return result;
+        }
+
         private static void IncludeJsonEntityReference<TIncludingEntity, TIncludedEntity>(
             QueryContext queryContext,
-            JsonElement? jsonElement,
             object[] keyPropertyValues,
+            JsonReaderData? jsonReaderData,
             TIncludingEntity entity,
-            Func<QueryContext, object[], JsonElement, TIncludedEntity> innerShaper,
-            Action<TIncludingEntity, TIncludedEntity> fixup)
+            Func<QueryContext, object[], JsonReaderData, TIncludedEntity> innerShaper,
+            Action<TIncludingEntity, TIncludedEntity> fixup,
+            bool trackingQuery)
             where TIncludingEntity : class
             where TIncludedEntity : class
         {
-            if (jsonElement.HasValue && jsonElement.Value.ValueKind != JsonValueKind.Null)
+            if (jsonReaderData == null)
             {
-                var included = innerShaper(queryContext, keyPropertyValues, jsonElement.Value);
+                return;
+            }
+
+            var included = innerShaper(queryContext, keyPropertyValues, jsonReaderData);
+
+            if (!trackingQuery)
+            {
                 fixup(entity, included);
             }
         }
 
         private static void IncludeJsonEntityCollection<TIncludingEntity, TIncludedCollectionElement>(
             QueryContext queryContext,
-            JsonElement? jsonElement,
             object[] keyPropertyValues,
+            JsonReaderData? jsonReaderData,
             TIncludingEntity entity,
-            Func<QueryContext, object[], JsonElement, TIncludedCollectionElement> innerShaper,
-            Action<TIncludingEntity, TIncludedCollectionElement> fixup)
+            Func<QueryContext, object[], JsonReaderData, TIncludedCollectionElement> innerShaper,
+            Action<TIncludingEntity, TIncludedCollectionElement> fixup,
+            bool trackingQuery)
             where TIncludingEntity : class
             where TIncludedCollectionElement : class
         {
-            if (jsonElement.HasValue && jsonElement.Value.ValueKind != JsonValueKind.Null)
+            if (jsonReaderData == null)
             {
-                var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
-                Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+                return;
+            }
 
-                var i = 0;
-                foreach (var jsonArrayElement in jsonElement.Value.EnumerateArray())
+            var manager = new Utf8JsonReaderManager(jsonReaderData);
+            var tokenType = manager.CurrentReader.TokenType;
+
+            if (tokenType != JsonTokenType.StartArray)
+            {
+                throw new InvalidOperationException(
+                    RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+            }
+
+            var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
+            Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
+
+            tokenType = manager.MoveNext();
+
+            var i = 0;
+            while (tokenType != JsonTokenType.EndArray)
+            {
+                newKeyPropertyValues[^1] = ++i;
+
+                if (tokenType == JsonTokenType.StartObject)
                 {
-                    newKeyPropertyValues[^1] = ++i;
+                    manager.CaptureState();
+                    var resultElement = innerShaper(queryContext, newKeyPropertyValues, jsonReaderData);
 
-                    var resultElement = innerShaper(queryContext, newKeyPropertyValues, jsonArrayElement);
+                    if (!trackingQuery)
+                    {
+                        fixup(entity, resultElement);
+                    }
 
-                    fixup(entity, resultElement);
+                    manager = new Utf8JsonReaderManager(manager.Data);
+                    if (manager.CurrentReader.TokenType != JsonTokenType.EndObject)
+                    {
+                        throw new InvalidOperationException(
+                            RelationalStrings.JsonReaderInvalidTokenType(tokenType.ToString()));
+                    }
+
+                    tokenType = manager.MoveNext();
                 }
             }
-        }
 
-        private static TEntity? MaterializeJsonEntity<TEntity>(
-            QueryContext queryContext,
-            JsonElement? jsonElement,
-            object[] keyPropertyValues,
-            bool nullable,
-            Func<QueryContext, object[], JsonElement, TEntity> shaper)
-            where TEntity : class
-        {
-            if (jsonElement.HasValue && jsonElement.Value.ValueKind != JsonValueKind.Null)
-            {
-                var result = shaper(queryContext, keyPropertyValues, jsonElement.Value);
-
-                return result;
-            }
-
-            if (nullable)
-            {
-                return default;
-            }
-
-            throw new InvalidOperationException(
-                RelationalStrings.JsonRequiredEntityWithNullJson(typeof(TEntity).Name));
-        }
-
-        private static TResult? MaterializeJsonEntityCollection<TEntity, TResult>(
-            QueryContext queryContext,
-            JsonElement? jsonElement,
-            object[] keyPropertyValues,
-            INavigationBase navigation,
-            Func<QueryContext, object[], JsonElement, TEntity> innerShaper)
-            where TEntity : class
-            where TResult : ICollection<TEntity>
-        {
-            if (jsonElement.HasValue && jsonElement.Value.ValueKind != JsonValueKind.Null)
-            {
-                var collectionAccessor = navigation.GetCollectionAccessor();
-                var result = (TResult)collectionAccessor!.Create();
-
-                var newKeyPropertyValues = new object[keyPropertyValues.Length + 1];
-                Array.Copy(keyPropertyValues, newKeyPropertyValues, keyPropertyValues.Length);
-
-                var i = 0;
-                foreach (var jsonArrayElement in jsonElement.Value.EnumerateArray())
-                {
-                    newKeyPropertyValues[^1] = ++i;
-
-                    var resultElement = innerShaper(queryContext, newKeyPropertyValues, jsonArrayElement);
-
-                    result.Add(resultElement);
-                }
-
-                return result;
-            }
-
-            return default;
+            manager.CaptureState();
         }
 
         private static async Task TaskAwaiter(Func<Task>[] taskFactories)

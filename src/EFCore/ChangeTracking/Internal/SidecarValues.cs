@@ -41,7 +41,7 @@ public sealed partial class InternalEntityEntry
             {
                 throw new InvalidOperationException(
                     CoreStrings.ValueCannotBeNull(
-                        property.Name, property.DeclaringEntityType.DisplayName(), property.ClrType.DisplayName()));
+                        property.Name, property.DeclaringType.DisplayName(), property.ClrType.DisplayName()));
             }
 
             _values[index] = SnapshotValue(property, value);

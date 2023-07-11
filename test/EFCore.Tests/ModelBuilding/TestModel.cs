@@ -847,17 +847,54 @@ public abstract partial class ModelBuilderTest
         public string? Value { get; set; }
     }
 
-    protected interface IReplacable
+    protected interface IReplaceable
     {
         int Property { get; set; }
     }
 
-    protected class DoubleProperty : IReplacable
+    protected class ComplexProperties
+    {
+        public int Id { get; set; }
+        public Customer Customer { get; set; } = null!;
+        public DoubleProperty DoubleProperty { get; set; } = null!;
+        public IndexedClass IndexedClass { get; set; } = null!;
+        public Quarks Quarks { get; set; } = null!;
+
+        [NotMapped]
+        public DynamicProperty DynamicProperty { get; set; } = null!;
+        [NotMapped]
+        public EntityWithFields EntityWithFields { get; set; } = null!;
+        [NotMapped]
+        public WrappedStringEntity WrappedStringEntity { get; set; } = null!;
+    }
+
+    protected interface IWrapped<T>
+    {
+        T? Value { get; init; }
+    }
+
+    protected abstract class WrappedStringBase : IWrapped<string>
+    {
+        public abstract string? Value { get; init; }
+    }
+
+    protected class WrappedString : WrappedStringBase
+    {
+        public override string? Value { get; init; }
+    }
+
+    protected class WrappedStringEntity
+    {
+        public int Id { get; set; }
+        public WrappedString WrappedString { get; set; } = new WrappedString();
+    }
+
+    protected class DoubleProperty : IReplaceable
     {
         public int Id { get; set; }
         public int Property { get; set; }
 
-        int IReplacable.Property
+        int IReplaceable.Property
         {
             get => Property;
             set => Property = value;
